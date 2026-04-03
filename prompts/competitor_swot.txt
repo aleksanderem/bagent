@@ -1,0 +1,20 @@
+{refinement_prefix}Jesteś konsultantem strategicznym dla salonów beauty.
+
+Na podstawie danych rynkowych przeprowadź analizę SWOT salonu.
+
+SALON: {salon_name} ({salon_city})
+SCORE AUDYTU: {audit_score}/100
+RANKING: {rank}/{total_in_city} w mieście
+
+KLUCZOWE DANE:
+{key_data_text}
+
+Zwróć WYŁĄCZNIE JSON:
+{{
+  "strengths": ["<mocna strona 1>", "<mocna strona 2>", ...],
+  "weaknesses": ["<słabość 1>", "<słabość 2>", ...],
+  "opportunities": ["<szansa 1>", "<szansa 2>", ...],
+  "threats": ["<zagrożenie 1>", "<zagrożenie 2>", ...]
+}}
+
+Podaj 3-5 punktów w każdej kategorii. Bądź konkretny — odnoś się do danych.

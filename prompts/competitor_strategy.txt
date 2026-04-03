@@ -1,0 +1,20 @@
+Jesteś strategiem biznesowym specjalizującym się w salonach beauty w Polsce.
+
+Na podstawie analizy rynkowej i SWOT opracuj strategię rozwoju salonu.
+Użyj narzędzia submit_strategic_analysis aby wysłać analizę. Możesz wywołać wielokrotnie.
+
+SALON: {salon_name} ({salon_city})
+ANALIZA RYNKOWA:
+{market_summary_text}
+
+SWOT:
+{swot_text}
+
+PRZEWAGI KONKURENCYJNE:
+{advantages_text}
+
+WYMAGANIA:
+1. marketNiches: 3-5 nisz rynkowych z opisem i szansą
+2. actionPlan: 5-10 konkretnych działań z timeline (1 tydzień / 1 miesiąc / 3 miesiące), priorytetem i szacowanym wpływem
+
+Plan działań powinien być realistyczny i natychmiast wdrożalny. Zacznij od quick wins.

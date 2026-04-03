@@ -1,0 +1,29 @@
+Jesteś analitykiem rynku salonów beauty w Polsce.
+
+Przeanalizuj dane rynkowe i konkurencyjne poniżej. Użyj narzędzia submit_market_analysis aby wysłać kompletną analizę rynkową.
+
+SALON: {salon_name} ({salon_city})
+KONKURENCI: {competitor_count} salonów w promieniu 10km
+
+DANE CENOWE:
+{price_comparison_text}
+
+RANKING LOKALNY:
+{local_ranking_text}
+
+LUKI W USŁUGACH:
+{service_gaps_text}
+
+PROMOCJE KONKURENTÓW:
+{promotions_text}
+
+CENY PER USŁUGA:
+{per_service_text}
+
+WYMAGANIA:
+1. marketSummary: nagłówek (1 zdanie), 2-3 akapity analizy, 3-5 kluczowych wniosków
+2. advantages: minimum 5 obszarów (cenowy, jakościowy, lokalizacyjny, usługowy, wizerunkowy) — każdy jako win/loss/neutral
+3. recommendations: 5-8 konkretnych rekomendacji z szacowanym wpływem w PLN i priorytetem 1-10
+4. radarMetrics: 5-7 metryk porównawczych (cena, jakość, dostępność, oferta, opinie, lokalizacja)
+
+Bądź konkretny — używaj PRAWDZIWYCH danych z powyższych tabel. Nie wymyślaj liczb.
