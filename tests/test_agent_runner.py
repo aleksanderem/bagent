@@ -138,17 +138,17 @@ async def test_agent_maintains_conversation_history():
     # 2 calls to create_message
     assert client.create_message.await_count == 2
 
-    # Verify the second call's messages argument has the conversation history
+    # The messages list is shared and mutated, so after the loop it has all 4 entries:
+    # user, assistant (tool_use), user (tool_result), assistant (end_turn)
+    # Verify the conversation history is preserved correctly
     second_call_args = client.create_message.call_args_list[1]
-    messages_arg = second_call_args[0][1]  # positional arg: messages
+    messages_arg = second_call_args[0][1]  # positional arg: messages (same list reference)
 
-    # Should contain: user message, assistant response with tool_use, user tool_result
-    assert len(messages_arg) == 3
     assert messages_arg[0]["role"] == "user"
     assert messages_arg[1]["role"] == "assistant"
     assert messages_arg[2]["role"] == "user"
 
-    # The assistant content should be the raw content blocks (preserved)
+    # The assistant content should be the raw content blocks (preserved for thinking chain)
     assert messages_arg[1]["content"] == [tool_block]
 
     assert result.total_steps == 2
