@@ -167,94 +167,48 @@ async def run_competitor_pipeline(
         await progress(8, f"Salon nie znaleziony w bazie — używam danych z requestu ({dt}ms)")
         logger.warning("[%s] Subject salon %d not found in Supabase", audit_id, subject_salon_id)
 
-    # ── Step 2: Load competitor salons ──
-    logger.info("[%s] Step 2: Loading %d competitor salons...", audit_id, comp_count)
-    await progress(10, f"Ładowanie {comp_count} salonów konkurencji...")
+    # ── Step 2: Load competitor salons (PARALLEL) ──
+    import asyncio as _asyncio
+
+    logger.info("[%s] Step 2: Loading %d competitor salons in parallel...", audit_id, comp_count)
+    await progress(10, f"Ładowanie {comp_count} salonów konkurencji (równolegle)...")
     t0 = time.time()
-    competitor_salons: list[dict] = []
-    for comp_id in selected_competitor_ids:
-        comp_data = await supabase.get_salon_with_services(comp_id)
-        if comp_data:
-            competitor_salons.append(comp_data)
+    comp_results = await _asyncio.gather(
+        *(supabase.get_salon_with_services(cid) for cid in selected_competitor_ids),
+        return_exceptions=True,
+    )
+    competitor_salons = [r for r in comp_results if isinstance(r, dict) and r.get("salon")]
     dt = int((time.time() - t0) * 1000)
     loaded_count = len(competitor_salons)
     await progress(18, f"Załadowano {loaded_count}/{comp_count} konkurentów ({dt}ms)")
-    logger.info("[%s] Loaded %d/%d competitor salons", audit_id, loaded_count, comp_count)
 
-    # ── Step 3: Price comparison RPC ──
-    logger.info("[%s] Step 3: Price comparison RPC...", audit_id)
-    await progress(22, "Porównanie cen wg kategorii (RPC)...")
+    # ── Steps 3-7: All RPCs in PARALLEL ──
+    logger.info("[%s] Steps 3-7: Running 5 RPCs in parallel...", audit_id)
+    await progress(22, "Równoległe zapytania RPC: ceny, ranking, luki, promocje, porównanie...")
     t0 = time.time()
-    try:
-        price_comparison = await supabase.call_rpc("get_competitor_price_comparison", {
-            "p_salon_ids": selected_competitor_ids,
-            "p_subject_salon_id": subject_salon_id,
-        })
-    except Exception as e:
-        logger.warning("[%s] Price comparison RPC failed: %s", audit_id, e)
-        price_comparison = []
-    dt = int((time.time() - t0) * 1000)
-    await progress(26, f"Porównanie cen: {len(price_comparison)} kategorii ({dt}ms)")
 
-    # ── Step 4: Local ranking RPC ──
-    logger.info("[%s] Step 4: Local ranking RPC...", audit_id)
-    await progress(28, "Ranking lokalny (RPC)...")
-    t0 = time.time()
-    try:
-        local_ranking = await supabase.call_rpc("get_local_salon_rank", {
-            "p_salon_id": subject_salon_id,
-        })
-    except Exception as e:
-        logger.warning("[%s] Local ranking RPC failed: %s", audit_id, e)
-        local_ranking = []
+    async def _safe_rpc(name: str, params: dict) -> list[dict]:
+        try:
+            return await supabase.call_rpc(name, params)
+        except Exception as e:
+            logger.warning("[%s] RPC %s failed: %s", audit_id, name, e)
+            return []
+
+    price_comparison, local_ranking, gap_matrix, promotions, per_service_pricing = await _asyncio.gather(
+        _safe_rpc("get_competitor_price_comparison", {"p_salon_ids": selected_competitor_ids, "p_subject_salon_id": subject_salon_id}),
+        _safe_rpc("get_local_salon_rank", {"p_salon_id": subject_salon_id}),
+        _safe_rpc("get_service_gap_matrix", {"p_subject_salon_id": subject_salon_id, "p_competitor_ids": selected_competitor_ids}),
+        _safe_rpc("get_competitor_promotions", {"p_competitor_ids": selected_competitor_ids}),
+        _safe_rpc("get_per_service_pricing", {"p_subject_salon_id": subject_salon_id, "p_competitor_ids": selected_competitor_ids}),
+    )
+
     dt = int((time.time() - t0) * 1000)
     ranking_info = local_ranking[0] if local_ranking else {}
     rank_str = f"{ranking_info.get('rank', '?')}/{ranking_info.get('total_in_city', '?')}" if ranking_info else "brak"
-    await progress(32, f"Ranking lokalny: {rank_str} ({dt}ms)")
-
-    # ── Step 5: Service gap matrix RPC ──
-    logger.info("[%s] Step 5: Service gap matrix RPC...", audit_id)
-    await progress(34, "Matryca luk w usługach (RPC)...")
-    t0 = time.time()
-    try:
-        gap_matrix = await supabase.call_rpc("get_service_gap_matrix", {
-            "p_subject_salon_id": subject_salon_id,
-            "p_competitor_ids": selected_competitor_ids,
-        })
-    except Exception as e:
-        logger.warning("[%s] Gap matrix RPC failed: %s", audit_id, e)
-        gap_matrix = []
-    dt = int((time.time() - t0) * 1000)
-    await progress(38, f"Luki w usługach: {len(gap_matrix)} wpisów ({dt}ms)")
-
-    # ── Step 6: Competitor promotions RPC ──
-    logger.info("[%s] Step 6: Competitor promotions RPC...", audit_id)
-    await progress(40, "Promocje konkurencji (RPC)...")
-    t0 = time.time()
-    try:
-        promotions = await supabase.call_rpc("get_competitor_promotions", {
-            "p_competitor_ids": selected_competitor_ids,
-        })
-    except Exception as e:
-        logger.warning("[%s] Promotions RPC failed: %s", audit_id, e)
-        promotions = []
-    dt = int((time.time() - t0) * 1000)
-    await progress(44, f"Promocje: {len(promotions)} aktywnych ({dt}ms)")
-
-    # ── Step 7: Per-service pricing RPC ──
-    logger.info("[%s] Step 7: Per-service pricing RPC...", audit_id)
-    await progress(46, "Porównanie cen usług (RPC)...")
-    t0 = time.time()
-    try:
-        per_service_pricing = await supabase.call_rpc("get_per_service_pricing", {
-            "p_subject_salon_id": subject_salon_id,
-            "p_competitor_ids": selected_competitor_ids,
-        })
-    except Exception as e:
-        logger.warning("[%s] Per-service pricing RPC failed: %s", audit_id, e)
-        per_service_pricing = []
-    dt = int((time.time() - t0) * 1000)
-    await progress(50, f"Ceny usług: {len(per_service_pricing)} porównań ({dt}ms)")
+    await progress(50, (
+        f"RPCs zakończone ({dt}ms): {len(price_comparison)} cen, ranking {rank_str}, "
+        f"{len(gap_matrix)} luk, {len(promotions)} promocji, {len(per_service_pricing)} porównań"
+    ))
 
     # ── Step 8: AI Market Analysis (agent loop) ──
     logger.info("[%s] Step 8: AI Market Analysis...", audit_id)

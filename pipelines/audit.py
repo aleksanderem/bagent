@@ -63,39 +63,34 @@ async def run_audit_pipeline(
     dupes = len(stats["duplicateNames"])
     await progress(15, f"Statystyki: {total_services} usług, {desc_count} z opisem, {dur_count} z czasem, {dupes} duplikatów ({dt}ms)")
 
-    # ── Step 2-3: Naming ──
-    logger.info("[%s] Step 2: Naming scoring...", audit_id)
-    await progress(20, "Wysyłanie cennika do AI — ocena nazw...")
+    # ── Steps 2-6: Naming + Descriptions + Structure (PARALLEL) ──
+    import asyncio as _asyncio
+
+    logger.info("[%s] Steps 2-6: Running naming, descriptions, structure in parallel...", audit_id)
+    await progress(20, "Równoległa analiza: nazwy + opisy + struktura → MiniMax...")
     t0 = time.time()
-    naming_result = await _analyze_naming(client, scraped_data, stats, run_agent_loop, NAMING_TOOL, progress)
+
+    naming_result, desc_result, structure_result = await _asyncio.gather(
+        _analyze_naming(client, scraped_data, stats, run_agent_loop, NAMING_TOOL, progress),
+        _analyze_descriptions(client, scraped_data, stats, run_agent_loop, DESCRIPTION_TOOL, progress),
+        _analyze_structure(client, scraped_data, stats),
+    )
+
     dt = int((time.time() - t0) * 1000)
     n_score = naming_result["score"]
-    n_issues = len(naming_result["issues"])
     n_transforms = len(naming_result["transformations"])
-    await progress(45, f"Nazwy: {n_score}/20 pkt, {n_issues} problemów, {n_transforms} transformacji ({dt}ms)")
-
-    # ── Step 4-5: Descriptions ──
-    logger.info("[%s] Step 4: Description scoring...", audit_id)
-    await progress(48, f"Wysyłanie do AI — ocena opisów ({desc_count}/{total_services} ma opis)...")
-    t0 = time.time()
-    desc_result = await _analyze_descriptions(client, scraped_data, stats, run_agent_loop, DESCRIPTION_TOOL, progress)
-    dt = int((time.time() - t0) * 1000)
     d_score = desc_result["score"]
-    d_issues = len(desc_result["issues"])
     d_transforms = len(desc_result["transformations"])
-    await progress(65, f"Opisy: {d_score}/20 pkt, {d_issues} problemów, {d_transforms} transformacji ({dt}ms)")
-
-    # ── Step 6: Structure & pricing ──
-    logger.info("[%s] Step 6: Structure & pricing...", audit_id)
-    await progress(68, "Wysyłanie do AI — analiza struktury i cen...")
-    t0 = time.time()
-    structure_result = await _analyze_structure(client, scraped_data, stats)
-    dt = int((time.time() - t0) * 1000)
     s_score = structure_result["structureScore"]
     p_score = structure_result["pricingScore"]
     qw_count = len(structure_result.get("quickWins", []))
     seo_count = len(structure_result.get("missingSeoKeywords", []))
-    await progress(75, f"Struktura: {s_score}/15, Ceny: {p_score}/15, {qw_count} quick wins, {seo_count} SEO ({dt}ms)")
+    await progress(75, (
+        f"Analiza równoległa zakończona ({dt}ms): "
+        f"Nazwy {n_score}/20 ({n_transforms} transform.), "
+        f"Opisy {d_score}/20 ({d_transforms} transform.), "
+        f"Struktura {s_score}/15, Ceny {p_score}/15, {qw_count} QW, {seo_count} SEO"
+    ))
 
     # ── Calculate scores ──
     completeness = calculate_completeness_score(stats)
