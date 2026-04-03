@@ -1,4 +1,4 @@
-"""Tool definitions for agent loops (naming, descriptions)."""
+"""Tool definitions for agent loops (naming, descriptions, competitor report, optimization)."""
 
 NAMING_TOOL: dict = {
     "name": "submit_naming_results",
@@ -50,4 +50,150 @@ DESCRIPTION_TOOL: dict = {
         },
         "required": ["transformations"],
     },
+}
+
+MARKET_ANALYSIS_TOOL: dict = {
+    "name": "submit_market_analysis",
+    "description": "Wyślij analizę rynkową — podsumowanie, przewagi konkurencyjne, rekomendacje, metryki radar.",
+    "input_schema": {
+        "type": "object",
+        "properties": {
+            "marketSummary": {
+                "type": "object",
+                "properties": {
+                    "headline": {"type": "string"},
+                    "paragraphs": {"type": "array", "items": {"type": "string"}},
+                    "keyInsights": {"type": "array", "items": {"type": "string"}}
+                },
+                "required": ["headline", "paragraphs", "keyInsights"]
+            },
+            "advantages": {
+                "type": "array",
+                "items": {
+                    "type": "object",
+                    "properties": {
+                        "area": {"type": "string"},
+                        "type": {"type": "string", "enum": ["win", "loss", "neutral"]},
+                        "description": {"type": "string"},
+                        "impact": {"type": "string", "enum": ["high", "medium", "low"]}
+                    },
+                    "required": ["area", "type", "description", "impact"]
+                }
+            },
+            "recommendations": {
+                "type": "array",
+                "items": {
+                    "type": "object",
+                    "properties": {
+                        "title": {"type": "string"},
+                        "description": {"type": "string"},
+                        "estimatedImpactPln": {"type": "number"},
+                        "priority": {"type": "number"},
+                        "category": {"type": "string"}
+                    },
+                    "required": ["title", "description", "priority", "category"]
+                }
+            },
+            "radarMetrics": {
+                "type": "array",
+                "items": {
+                    "type": "object",
+                    "properties": {
+                        "metric": {"type": "string"},
+                        "salonValue": {"type": "number"},
+                        "marketAvg": {"type": "number"}
+                    },
+                    "required": ["metric", "salonValue", "marketAvg"]
+                }
+            }
+        },
+        "required": ["marketSummary", "advantages", "recommendations", "radarMetrics"]
+    }
+}
+
+STRATEGIC_ANALYSIS_TOOL: dict = {
+    "name": "submit_strategic_analysis",
+    "description": "Wyślij analizę strategiczną — nisze rynkowe, segmentację, rekomendacje strategiczne, plan działań. Wywołuj wielokrotnie jeśli dane są obszerne.",
+    "input_schema": {
+        "type": "object",
+        "properties": {
+            "marketNiches": {
+                "type": "array",
+                "items": {
+                    "type": "object",
+                    "properties": {
+                        "name": {"type": "string"},
+                        "description": {"type": "string"},
+                        "opportunity": {"type": "string"}
+                    },
+                    "required": ["name", "description", "opportunity"]
+                }
+            },
+            "actionPlan": {
+                "type": "array",
+                "items": {
+                    "type": "object",
+                    "properties": {
+                        "title": {"type": "string"},
+                        "description": {"type": "string"},
+                        "timeline": {"type": "string"},
+                        "priority": {"type": "string", "enum": ["high", "medium", "low"]},
+                        "estimatedImpact": {"type": "string"}
+                    },
+                    "required": ["title", "description", "timeline", "priority"]
+                }
+            }
+        },
+        "required": ["marketNiches", "actionPlan"]
+    }
+}
+
+CATEGORY_MAPPING_TOOL: dict = {
+    "name": "submit_category_mapping",
+    "description": "Wyślij propozycję nowej struktury kategorii — mapowanie usług do nowych/zmienionych kategorii.",
+    "input_schema": {
+        "type": "object",
+        "properties": {
+            "mappings": {
+                "type": "array",
+                "items": {
+                    "type": "object",
+                    "properties": {
+                        "originalCategory": {"type": "string"},
+                        "newCategory": {"type": "string"},
+                        "services": {"type": "array", "items": {"type": "string"}},
+                        "reason": {"type": "string"}
+                    },
+                    "required": ["originalCategory", "newCategory", "services", "reason"]
+                }
+            }
+        },
+        "required": ["mappings"]
+    }
+}
+
+OPTIMIZED_SERVICES_TOOL: dict = {
+    "name": "submit_optimized_services",
+    "description": "Wyślij zoptymalizowane usługi. Wywołuj wielokrotnie — partia po 15-20 usług. NIGDY nie zmieniaj ceny, czasu trwania ani wariantów.",
+    "input_schema": {
+        "type": "object",
+        "properties": {
+            "services": {
+                "type": "array",
+                "items": {
+                    "type": "object",
+                    "properties": {
+                        "originalName": {"type": "string", "description": "Oryginalna nazwa usługi (bez zmian)"},
+                        "categoryName": {"type": "string", "description": "Kategoria (oryginalna lub nowa)"},
+                        "newName": {"type": "string", "description": "Nowa/poprawiona nazwa (max 80 znaków)"},
+                        "newDescription": {"type": "string", "description": "Nowy opis (50-200 znaków, korzyść klienta)"},
+                        "tags": {"type": "array", "items": {"type": "string"}, "description": "Max 2 tagi: Bestseller, Nowość, Premium, Promocja"},
+                        "sortOrder": {"type": "number"}
+                    },
+                    "required": ["originalName", "categoryName", "newName"]
+                }
+            }
+        },
+        "required": ["services"]
+    }
 }
