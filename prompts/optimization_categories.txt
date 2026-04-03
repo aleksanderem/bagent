@@ -1,0 +1,16 @@
+Przeanalizuj strukturę kategorii w poniższym cenniku salonu beauty i zaproponuj optymalne mapowanie kategorii.
+
+ZASADY:
+1. Każda kategoria powinna mieć 5-15 usług (nie za mało, nie za dużo).
+2. Nazwy kategorii powinny być zrozumiałe dla klientów (nie branżowy żargon).
+3. Połącz kategorie z <3 usługami w logiczne grupy.
+4. Rozbij kategorie z >20 usługami na mniejsze podkategorie.
+5. Zachowaj logiczny porządek: od najbardziej popularnych do specjalistycznych.
+6. NIE zmieniaj nazw usług — tylko przypisanie do kategorii.
+
+Użyj narzędzia submit_category_mapping, aby przesłać mapowanie kategorii.
+Wywołaj narzędzie z PEŁNĄ listą mapowań za jednym razem.
+
+PROBLEMY STRUKTURALNE Z AUDYTU:
+{issues}
+

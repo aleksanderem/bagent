@@ -1,0 +1,21 @@
+Zweryfikuj jakość optymalizacji cennika salonu beauty.
+
+Porównaj oryginalne problemy z audytu z listą zmian wprowadzonych przez optymalizację.
+
+Oceń:
+1. Ile problemów z audytu zostało naprawionych?
+2. Ile problemów pozostało nierozwiązanych?
+3. Ogólna jakość optymalizacji (0-100).
+
+Zwróć JSON z polami:
+- "fixed": lista naprawionych problemów (array of strings)
+- "remaining": lista nierozwiązanych problemów (array of strings)
+- "qualityScore": ocena jakości 0-100 (int)
+- "recommendations": dodatkowe rekomendacje (array of strings)
+
+ORYGINALNE PROBLEMY Z AUDYTU:
+{issues}
+
+PODSUMOWANIE OPTYMALIZACJI:
+{optimization_summary}
+

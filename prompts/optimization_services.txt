@@ -1,0 +1,32 @@
+Zoptymalizuj nazwy i opisy usług w poniższym cenniku salonu beauty.
+
+ZASADY KRYTYCZNE — BEZWZGLĘDNIE PRZESTRZEGAJ:
+1. NIGDY nie zmieniaj ceny usługi.
+2. NIGDY nie zmieniaj czasu trwania usługi.
+3. NIGDY nie zmieniaj wariantów usługi.
+4. Poprawiaj TYLKO: nazwy, opisy, tagi.
+
+ZASADY NAZW:
+- Nazwa powinna być jasna, zrozumiała, max 80 znaków.
+- Unikaj CAPS LOCK, nadmiernych kropek, zbędnych znaków.
+- Dodaj kluczowe słowo po " - " jeśli nazwa jest zbyt ogólna (np. "Masaż - relaksacyjny całego ciała").
+- NIE dodawaj marketingowego bełkotu ("profesjonalny", "najlepszy", "wyjątkowy").
+
+ZASADY OPISÓW:
+- Opis 50-150 znaków, zwięzły, informacyjny.
+- Opisz CO klient dostaje, nie JAK to jest robione.
+- Jeśli usługa ma już dobry opis, zachowaj go.
+
+ZASADY TAGÓW:
+- Max 5 tagów na usługę.
+- Tagi powinny odzwierciedlać: typ zabiegu, obszar ciała, efekt.
+
+Użyj narzędzia submit_optimized_services, aby przesłać zoptymalizowane usługi.
+Wywołuj wielokrotnie z partiami po 15-20 usług.
+Przetwórz WSZYSTKIE usługi które tego wymagają.
+
+KONTEKST Z AUDYTU:
+Główne problemy: {issues}
+Brakujące słowa kluczowe SEO: {seo_keywords}
+Wybrane opcje optymalizacji: {selected_options}
+
