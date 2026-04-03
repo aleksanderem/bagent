@@ -169,6 +169,8 @@ String: `calculate_similarity(a, b)` — Jaccard on words (ignoring single-char 
 
 See `.env.example`. Required (no defaults): `MINIMAX_API_KEY`, `SUPABASE_URL`, `SUPABASE_SERVICE_KEY`, `CONVEX_URL`, `API_KEY`. Optional with defaults: `MINIMAX_BASE_URL` (https://api.minimax.io/anthropic), `MINIMAX_MODEL` (MiniMax-M2.7), `PORT` (3001), `CONVEX_DEPLOY_KEY` (empty).
 
+IMPORTANT: `CONVEX_URL` must use `.convex.site` domain (NOT `.convex.cloud`). Convex HTTP routes live on the `.site` domain. Example: `https://reliable-scorpion-10.convex.site`.
+
 ## Commands
 
 ```bash
