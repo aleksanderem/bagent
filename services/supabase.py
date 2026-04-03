@@ -2,7 +2,7 @@
 
 import logging
 
-from supabase import Client, create_client
+from supabase import Client, ClientOptions, create_client
 
 from config import settings
 
@@ -14,7 +14,7 @@ class SupabaseService:
         self.client: Client = create_client(
             settings.supabase_url,
             settings.supabase_service_key,
-            options={"headers": {"ngrok-skip-browser-warning": "true"}},
+            options=ClientOptions(headers={"ngrok-skip-browser-warning": "true"}),
         )
 
     async def get_scraped_data(self, convex_audit_id: str) -> dict:
@@ -70,7 +70,6 @@ class SupabaseService:
         result = (
             self.client.table("audit_reports")
             .upsert(parent_row, on_conflict="convex_audit_id")
-            .select("id")
             .execute()
         )
         if not result.data:
