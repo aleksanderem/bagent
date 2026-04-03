@@ -7,6 +7,7 @@ import re
 from collections.abc import Awaitable, Callable
 
 import anthropic
+import httpx
 
 logger = logging.getLogger(__name__)
 
@@ -17,6 +18,7 @@ class MiniMaxClient:
             base_url=base_url,
             api_key=api_key,
             default_headers={"Authorization": f"Bearer {api_key}"},
+            timeout=httpx.Timeout(120.0, connect=15.0),  # 120s total, 15s connect
         )
         self.model = model
 
