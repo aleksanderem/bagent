@@ -45,6 +45,29 @@ class AnalyzeRequest(BaseModel):
     scrapedData: dict
 
 
+class CompetitorRequest(BaseModel):
+    auditId: str
+    userId: str
+    subjectSalonId: int
+    salonName: str
+    salonCity: str
+    salonLat: float | None = None
+    salonLng: float | None = None
+    selectedCompetitorIds: list[int]
+    services: list[str] = []
+
+
+class OptimizationRequest(BaseModel):
+    auditId: str
+    userId: str
+    pricelistId: str
+    jobId: str
+    scrapedData: dict
+    auditReport: dict
+    selectedOptions: list[str]
+    promptTemplates: dict | None = None
+
+
 class AnalyzeResponse(BaseModel):
     jobId: str
     status: str = "accepted"
@@ -76,6 +99,42 @@ async def start_analysis(
         "totalServices": service_count,
     })
     background_tasks.add_task(run_analysis_job, job_id, request)
+    return AnalyzeResponse(jobId=job_id)
+
+
+@app.post("/api/competitor", status_code=202, response_model=AnalyzeResponse, dependencies=[Depends(verify_api_key)])
+async def start_competitor_report(
+    request: CompetitorRequest,
+    background_tasks: BackgroundTasks,
+) -> AnalyzeResponse:
+    job_id = str(uuid.uuid4())
+    store.create_job(job_id, request.auditId, meta={
+        "type": "competitor",
+        "userId": request.userId,
+        "salonName": request.salonName,
+        "salonCity": request.salonCity,
+        "competitorCount": len(request.selectedCompetitorIds),
+    })
+    background_tasks.add_task(run_competitor_job, job_id, request)
+    return AnalyzeResponse(jobId=job_id)
+
+
+@app.post("/api/optimize", status_code=202, response_model=AnalyzeResponse, dependencies=[Depends(verify_api_key)])
+async def start_optimization(
+    request: OptimizationRequest,
+    background_tasks: BackgroundTasks,
+) -> AnalyzeResponse:
+    job_id = str(uuid.uuid4())
+    service_count = request.scrapedData.get("totalServices", 0)
+    salon_name = request.scrapedData.get("salonName", "")
+    store.create_job(job_id, request.auditId, meta={
+        "type": "optimization",
+        "userId": request.userId,
+        "salonName": salon_name,
+        "totalServices": service_count,
+        "selectedOptions": request.selectedOptions,
+    })
+    background_tasks.add_task(run_optimization_job, job_id, request)
     return AnalyzeResponse(jobId=job_id)
 
 
@@ -237,6 +296,154 @@ async def run_analysis_job(job_id: str, request: AnalyzeRequest) -> None:
             pass
     except Exception as e:
         logger.error("Job %s failed: %s", job_id, e, exc_info=True)
+        job.mark_failed(str(e))
+        store.notify_status(job)
+        try:
+            await convex.fail_audit(request.auditId, str(e))
+        except Exception:
+            pass
+    finally:
+        pipeline_logger.removeHandler(handler)
+
+
+async def run_competitor_job(job_id: str, request: CompetitorRequest) -> None:
+    from services.convex import ConvexClient
+
+    job = store.get_job(job_id)
+    if job is None:
+        return
+    job.mark_running()
+    store.notify_status(job)
+
+    convex = ConvexClient()
+    pipeline_logger = logging.getLogger("pipelines.competitor")
+    handler = _JobLogHandler(job, store)
+    pipeline_logger.addHandler(handler)
+
+    try:
+        from pipelines.competitor import run_competitor_pipeline
+
+        class CancelledError(Exception):
+            pass
+
+        async def on_progress(progress: int, message: str) -> None:
+            if job.cancel_requested:
+                raise CancelledError("Job cancelled by user")
+            job.add_log("info", message, progress=progress)
+            store.notify_progress(job)
+            await convex.update_progress(request.auditId, progress, message)
+
+        report = await run_competitor_pipeline(
+            audit_id=request.auditId,
+            subject_salon_id=request.subjectSalonId,
+            salon_name=request.salonName,
+            salon_city=request.salonCity,
+            salon_lat=request.salonLat,
+            salon_lng=request.salonLng,
+            selected_competitor_ids=request.selectedCompetitorIds,
+            services=request.services,
+            on_progress=on_progress,
+        )
+
+        from services.supabase import SupabaseService
+
+        supabase = SupabaseService()
+        await supabase.save_competitor_report(
+            convex_audit_id=request.auditId,
+            convex_user_id=request.userId,
+            report_data=report,
+            salon_name=request.salonName,
+            salon_city=request.salonCity,
+        )
+
+        job.mark_completed()
+        store.notify_status(job)
+        logger.info("Competitor job %s completed", job_id)
+
+        try:
+            await convex.complete_audit(request.auditId, 0, {"type": "competitor"})
+        except Exception as e:
+            logger.warning("Competitor job %s: Convex webhook failed: %s", job_id, e)
+
+    except CancelledError:
+        logger.info("Competitor job %s cancelled", job_id)
+        job.mark_cancelled()
+        store.notify_status(job)
+    except Exception as e:
+        logger.error("Competitor job %s failed: %s", job_id, e, exc_info=True)
+        job.mark_failed(str(e))
+        store.notify_status(job)
+        try:
+            await convex.fail_audit(request.auditId, str(e))
+        except Exception:
+            pass
+    finally:
+        pipeline_logger.removeHandler(handler)
+
+
+async def run_optimization_job(job_id: str, request: OptimizationRequest) -> None:
+    from services.convex import ConvexClient
+
+    job = store.get_job(job_id)
+    if job is None:
+        return
+    job.mark_running()
+    store.notify_status(job)
+
+    convex = ConvexClient()
+    pipeline_logger = logging.getLogger("pipelines.optimization")
+    handler = _JobLogHandler(job, store)
+    pipeline_logger.addHandler(handler)
+
+    try:
+        from models.scraped_data import ScrapedData
+        from pipelines.optimization import run_optimization_pipeline
+
+        scraped_data = ScrapedData(**request.scrapedData)
+
+        class CancelledError(Exception):
+            pass
+
+        async def on_progress(progress: int, message: str) -> None:
+            if job.cancel_requested:
+                raise CancelledError("Job cancelled by user")
+            job.add_log("info", message, progress=progress)
+            store.notify_progress(job)
+            await convex.update_progress(request.auditId, progress, message)
+
+        result = await run_optimization_pipeline(
+            scraped_data=scraped_data,
+            audit_report=request.auditReport,
+            selected_options=request.selectedOptions,
+            audit_id=request.auditId,
+            on_progress=on_progress,
+        )
+
+        from services.supabase import SupabaseService
+
+        supabase = SupabaseService()
+        await supabase.save_optimized_pricelist(
+            convex_audit_id=request.auditId,
+            convex_user_id=request.userId,
+            pricelist_id=request.pricelistId,
+            optimization_data=result,
+        )
+
+        job.mark_completed()
+        store.notify_status(job)
+        logger.info("Optimization job %s completed", job_id)
+
+        try:
+            await convex.complete_audit(request.auditId, 0, {"type": "optimization", "jobId": request.jobId})
+        except Exception as e:
+            logger.warning("Optimization job %s: Convex webhook failed: %s", job_id, e)
+
+    except CancelledError:
+        logger.info("Optimization job %s cancelled", job_id)
+        job.mark_cancelled()
+        store.notify_status(job)
+    except Exception as e:
+        logger.error("Optimization job %s failed: %s", job_id, e, exc_info=True)
         job.mark_failed(str(e))
         store.notify_status(job)
         try:
