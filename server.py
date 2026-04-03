@@ -100,6 +100,18 @@ async def get_job_logs(job_id: str) -> dict:
     return job.to_dict()
 
 
+@app.post("/api/jobs/{job_id}/cancel")
+async def cancel_job(job_id: str) -> dict:
+    job = store.get_job(job_id)
+    if job is None:
+        raise HTTPException(status_code=404, detail="Job not found")
+    if job.status != "running":
+        raise HTTPException(status_code=400, detail=f"Cannot cancel job with status '{job.status}'")
+    job.request_cancel()
+    store.notify_progress(job)
+    return {"jobId": job_id, "status": "cancel_requested"}
+
+
 @app.get("/api/events")
 async def sse_events() -> EventSourceResponse:
     queue = store.subscribe()
@@ -175,7 +187,12 @@ async def run_analysis_job(job_id: str, request: AnalyzeRequest) -> None:
 
         scraped_data = ScrapedData(**request.scrapedData)
 
+        class CancelledError(Exception):
+            pass
+
         async def on_progress(progress: int, message: str) -> None:
+            if job.cancel_requested:
+                raise CancelledError("Job cancelled by user")
             job.add_log("info", message, progress=progress)
             store.notify_progress(job)
             await convex.update_progress(request.auditId, progress, message)
@@ -205,6 +222,14 @@ async def run_analysis_job(job_id: str, request: AnalyzeRequest) -> None:
         store.notify_status(job)
         logger.info("Job %s completed successfully", job_id)
 
+    except CancelledError:
+        logger.info("Job %s cancelled by user", job_id)
+        job.mark_cancelled()
+        store.notify_status(job)
+        try:
+            await convex.fail_audit(request.auditId, "Cancelled by user")
+        except Exception:
+            pass
     except Exception as e:
         logger.error("Job %s failed: %s", job_id, e, exc_info=True)
         job.mark_failed(str(e))

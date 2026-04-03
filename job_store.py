@@ -22,7 +22,7 @@ class LogEntry:
 class Job:
     job_id: str
     audit_id: str
-    status: Literal["queued", "running", "completed", "failed"] = "queued"
+    status: Literal["queued", "running", "completed", "failed", "cancelled"] = "queued"
     created_at: float = field(default_factory=time.time)
     started_at: float | None = None
     completed_at: float | None = None
@@ -33,6 +33,20 @@ class Job:
     logs: list[LogEntry] = field(default_factory=list)
     meta: dict[str, Any] = field(default_factory=dict)
     steps: dict[str, dict[str, Any]] = field(default_factory=dict)
+    _cancel_requested: bool = field(default=False, repr=False)
+
+    @property
+    def cancel_requested(self) -> bool:
+        return self._cancel_requested
+
+    def request_cancel(self) -> None:
+        self._cancel_requested = True
+        self.add_log("warning", "Cancellation requested")
+
+    def mark_cancelled(self) -> None:
+        self.status = "cancelled"
+        self.completed_at = time.time()
+        self.add_log("warning", "Job cancelled")
 
     def add_log(
         self,
@@ -186,7 +200,7 @@ class JobStore:
         if len(self._jobs) <= self._max_jobs:
             return
         completed = [
-            j for j in self._jobs.values() if j.status in ("completed", "failed")
+            j for j in self._jobs.values() if j.status in ("completed", "failed", "cancelled")
         ]
         completed.sort(key=lambda j: j.created_at)
         while len(self._jobs) > self._max_jobs and completed:
