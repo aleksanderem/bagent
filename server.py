@@ -244,7 +244,11 @@ async def run_analysis_job(job_id: str, request: AnalyzeRequest) -> None:
         from models.scraped_data import ScrapedData
         from pipelines.audit import run_audit_pipeline
 
+        job.add_log("info", "Parsing scraped data...")
+        store.notify_progress(job)
         scraped_data = ScrapedData(**request.scrapedData)
+        job.add_log("info", f"Parsed: {scraped_data.totalServices} services, {len(scraped_data.categories)} categories")
+        store.notify_progress(job)
 
         class CancelledError(Exception):
             pass
@@ -254,7 +258,10 @@ async def run_analysis_job(job_id: str, request: AnalyzeRequest) -> None:
                 raise CancelledError("Job cancelled by user")
             job.add_log("info", message, progress=progress)
             store.notify_progress(job)
-            await convex.update_progress(request.auditId, progress, message)
+            try:
+                await convex.update_progress(request.auditId, progress, message)
+            except Exception as e:
+                logger.warning("Convex progress webhook failed: %s", e)
 
         report = await run_audit_pipeline(scraped_data, request.auditId, on_progress)
 
@@ -331,7 +338,10 @@ async def run_competitor_job(job_id: str, request: CompetitorRequest) -> None:
                 raise CancelledError("Job cancelled by user")
             job.add_log("info", message, progress=progress)
             store.notify_progress(job)
-            await convex.update_progress(request.auditId, progress, message)
+            try:
+                await convex.update_progress(request.auditId, progress, message)
+            except Exception as e:
+                logger.warning("Convex progress webhook failed: %s", e)
 
         report = await run_competitor_pipeline(
             audit_id=request.auditId,
@@ -409,7 +419,10 @@ async def run_optimization_job(job_id: str, request: OptimizationRequest) -> Non
                 raise CancelledError("Job cancelled by user")
             job.add_log("info", message, progress=progress)
             store.notify_progress(job)
-            await convex.update_progress(request.auditId, progress, message)
+            try:
+                await convex.update_progress(request.auditId, progress, message)
+            except Exception as e:
+                logger.warning("Convex progress webhook failed: %s", e)
 
         result = await run_optimization_pipeline(
             scraped_data=scraped_data,
