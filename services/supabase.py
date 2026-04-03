@@ -246,3 +246,78 @@ class SupabaseService:
         except Exception as e:
             logger.warning("Failed to geocode salon: %s", e)
         return None
+
+    async def get_salon_with_services(self, salon_id: int) -> dict:
+        """Load salon metadata + all services for a given Booksy salon ID.
+        Returns: {salon: {...}, services: [...]}"""
+        try:
+            salon_result = self.client.table("salons").select("*").eq("booksy_id", salon_id).limit(1).execute()
+            if not salon_result.data:
+                return {"salon": None, "services": []}
+            salon = salon_result.data[0]
+
+            services_result = self.client.table("services").select("*").eq("salon_id", salon["id"]).execute()
+            return {"salon": salon, "services": services_result.data or []}
+        except Exception as e:
+            logger.warning("Failed to load salon %d: %s", salon_id, e)
+            return {"salon": None, "services": []}
+
+    async def get_salon_basic(self, salon_id: int) -> dict | None:
+        """Load just salon metadata (no services)."""
+        try:
+            result = self.client.table("salons").select("*").eq("booksy_id", salon_id).limit(1).execute()
+            return result.data[0] if result.data else None
+        except Exception as e:
+            logger.warning("Failed to load salon basic %d: %s", salon_id, e)
+            return None
+
+    async def call_rpc(self, rpc_name: str, params: dict) -> list[dict]:
+        """Generic RPC caller. Returns list of dicts or empty list on error."""
+        try:
+            result = self.client.rpc(rpc_name, params).execute()
+            return result.data or []
+        except Exception as e:
+            logger.warning("RPC %s failed: %s", rpc_name, e)
+            return []
+
+    async def save_competitor_report(
+        self,
+        convex_audit_id: str,
+        convex_user_id: str,
+        report_data: dict,
+        salon_name: str,
+        salon_city: str,
+    ) -> int:
+        """Save competitor report to competitor_reports table. Returns report ID."""
+        row = {
+            "convex_audit_id": convex_audit_id,
+            "convex_user_id": convex_user_id,
+            "report_data": report_data,
+            "salon_name": salon_name,
+            "salon_city": salon_city,
+            "version": "v1",
+        }
+        result = self.client.table("competitor_reports").upsert(row, on_conflict="convex_audit_id").execute()
+        if not result.data:
+            raise ValueError("Failed to save competitor report")
+        return result.data[0]["id"]
+
+    async def save_optimized_pricelist(
+        self,
+        convex_audit_id: str,
+        convex_user_id: str,
+        pricelist_id: str,
+        optimization_data: dict,
+    ) -> int:
+        """Save optimized pricelist to optimized_pricelists table. Returns row ID."""
+        row = {
+            "convex_audit_id": convex_audit_id,
+            "convex_user_id": convex_user_id,
+            "pricelist_id": pricelist_id,
+            "optimization_data": optimization_data,
+            "version": "v1",
+        }
+        result = self.client.table("optimized_pricelists").upsert(row, on_conflict="convex_audit_id").execute()
+        if not result.data:
+            raise ValueError("Failed to save optimized pricelist")
+        return result.data[0]["id"]
