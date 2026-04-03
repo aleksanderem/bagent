@@ -1,0 +1,43 @@
+{refinement_prefix}Jesteś konsultantem UX i strategii cenowej dla salonów beauty.
+
+{structure_text}
+
+ZADANIE: Oceń STRUKTURĘ (0-15 pkt) i STRATEGIĘ CENOWĄ (0-15 pkt). Zwróć wynik jako JSON:
+
+{{
+  "structureScore": <0-15>,
+  "pricingScore": <0-15>,
+  "issues": [
+    {{
+      "severity": "<critical | major | minor>",
+      "dimension": "<structure | pricing>",
+      "issue": "<opis problemu>",
+      "impact": "<wpływ>",
+      "affectedCount": <ile dotyczy>,
+      "example": "<przykład>",
+      "fix": "<jak naprawić>"
+    }}
+  ],
+  "quickWins": [
+    {{
+      "action": "<akcja do wykonania>",
+      "effort": "<low | medium | high>",
+      "impact": "<high | medium | low>",
+      "example": "<przykład>",
+      "affectedServices": <ile usług>
+    }}
+  ],
+  "missingSeoKeywords": [
+    {{
+      "keyword": "<brakujące słowo kluczowe>",
+      "searchVolume": "<high | medium | low>",
+      "suggestedPlacement": "<gdzie dodać>",
+      "reason": "<dlaczego warto>"
+    }}
+  ]
+}}
+
+STRUKTURA: logiczne grupy, optymalna wielkość kategorii (3-15), jasne nazwy, bestsellery dostępne.
+CENY: pakiety/zestawy, spójność, konkretne (nie "od..."), psychologia cen.
+
+Podaj WSZYSTKIE znalezione problemy, quick wins i brakujące frazy SEO.

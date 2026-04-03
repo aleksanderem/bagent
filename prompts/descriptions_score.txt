@@ -1,0 +1,23 @@
+{refinement_prefix}Jesteś copywriterem specjalizującym się w usługach beauty.
+
+{descriptions_text}
+
+STATYSTYKA: {desc_count} usług ma opis z {total_services} ({desc_percentage}%)
+
+Oceń JAKOŚĆ OPISÓW. Skala 0-20 punktów. Zwróć TYLKO ocenę i zagregowane problemy jako JSON:
+
+{{
+  "score": <0-20>,
+  "issues": [
+    {{
+      "severity": "<critical | major | minor>",
+      "issue": "<zagregowany opis problemu>",
+      "impact": "<wpływ na klienta>",
+      "affectedCount": <ile usług>,
+      "example": "<1-2 przykłady>",
+      "fix": "<jak naprawić>"
+    }}
+  ]
+}}
+
+NIE podawaj transformacji.

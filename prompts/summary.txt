@@ -1,0 +1,11 @@
+{refinement_prefix}Napisz krótkie podsumowanie audytu cennika salonu beauty (2-3 zdania).
+
+{salon_context}WYNIK: {total_score}/100 punktów
+USŁUG: {total_services}
+KATEGORII: {total_categories}
+USŁUGI Z OPISEM: {services_with_desc}/{total_services}
+
+GŁÓWNE PROBLEMY:
+{issues_summary}
+
+Napisz podsumowanie po polsku, bez emoji, profesjonalnie ale przystępnie. Wskaż najważniejszy problem do naprawienia.

@@ -1,0 +1,21 @@
+{refinement_prefix}Jesteś ekspertem od copywritingu dla salonów beauty w Polsce.
+
+{pricelist_text}
+
+ZADANIE: Oceń JAKOŚĆ NAZW usług. Skala 0-20 punktów. Zwróć TYLKO ocenę i zagregowane problemy jako JSON:
+
+{{
+  "score": <0-20>,
+  "issues": [
+    {{
+      "severity": "<critical | major | minor>",
+      "issue": "<zagregowany opis problemu>",
+      "impact": "<wpływ na klienta>",
+      "affectedCount": <ile usług>,
+      "example": "<1-2 przykłady>",
+      "fix": "<jak naprawić>"
+    }}
+  ]
+}}
+
+Podaj zagregowane problemy (nie per usługa). NIE podawaj transformacji.
