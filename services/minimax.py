@@ -58,7 +58,13 @@ class MiniMaxClient:
             system=sys,
             messages=[{"role": "user", "content": prompt}],
         )
-        text = response.content[0].text.strip()
+        text = ""
+        for block in response.content:
+            if block.type == "text":
+                text = block.text.strip()
+                break
+        if not text:
+            raise ValueError("No text response from MiniMax (only thinking blocks)")
         try:
             return json.loads(text)
         except json.JSONDecodeError:
