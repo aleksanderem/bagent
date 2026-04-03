@@ -1,0 +1,321 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>bagent Monitor</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'SF Mono', 'Cascadia Code', 'Fira Code', monospace; background: #0d1117; color: #c9d1d9; min-height: 100vh; }
+
+  .header { padding: 20px 24px; border-bottom: 1px solid #21262d; display: flex; justify-content: space-between; align-items: center; }
+  .header h1 { font-size: 18px; font-weight: 600; color: #f0f6fc; }
+  .header .stats { font-size: 13px; color: #8b949e; display: flex; gap: 16px; }
+  .dot { width: 8px; height: 8px; border-radius: 50%; display: inline-block; }
+  .dot.green { background: #3fb950; }
+
+  .container { padding: 16px 24px; max-width: 1100px; }
+  .empty { text-align: center; padding: 80px 20px; color: #484f58; font-size: 14px; }
+
+  .job-card { background: #161b22; border: 1px solid #21262d; border-radius: 8px; margin-bottom: 10px; overflow: hidden; }
+  .job-card.running { border-color: #1f6feb; }
+  .job-card.failed { border-color: #f85149; }
+
+  .job-header { padding: 12px 16px; display: flex; align-items: center; gap: 12px; cursor: pointer; user-select: none; }
+  .job-header:hover { background: #1c2128; }
+
+  .badge { font-size: 11px; font-weight: 600; padding: 2px 8px; border-radius: 12px; text-transform: uppercase; letter-spacing: 0.5px; }
+  .badge.running { background: #1f6feb33; color: #58a6ff; }
+  .badge.completed { background: #23883233; color: #3fb950; }
+  .badge.failed { background: #f8514933; color: #f85149; }
+  .badge.queued { background: #48505833; color: #8b949e; }
+
+  .job-info { flex: 1; min-width: 0; }
+  .job-title { font-size: 13px; color: #f0f6fc; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .job-subtitle { font-size: 11px; color: #8b949e; margin-top: 2px; }
+
+  .progress-wrap { width: 120px; flex-shrink: 0; }
+  .progress-bar { height: 6px; background: #21262d; border-radius: 3px; overflow: hidden; }
+  .progress-fill { height: 100%; border-radius: 3px; transition: width 0.4s ease; }
+  .fill-running { background: #1f6feb; }
+  .fill-done { background: #3fb950; }
+  .fill-error { background: #f85149; }
+  .progress-text { font-size: 11px; color: #8b949e; text-align: right; margin-top: 2px; }
+
+  .job-time { font-size: 12px; color: #8b949e; flex-shrink: 0; width: 70px; text-align: right; }
+
+  .job-logs { display: none; border-top: 1px solid #21262d; max-height: 400px; overflow-y: auto; }
+  .job-logs.open { display: block; }
+
+  .log-entry { padding: 4px 16px; font-size: 12px; display: flex; gap: 8px; border-bottom: 1px solid #161b22; }
+  .log-entry:hover { background: #1c2128; }
+  .log-ts { color: #484f58; flex-shrink: 0; width: 90px; }
+  .log-lvl { flex-shrink: 0; width: 12px; text-align: center; }
+  .log-lvl.info { color: #58a6ff; }
+  .log-lvl.warning { color: #d29922; }
+  .log-lvl.error { color: #f85149; }
+  .log-step { color: #bc8cff; flex-shrink: 0; min-width: 60px; }
+  .log-msg { color: #c9d1d9; word-break: break-word; }
+
+  .steps-bar { padding: 8px 16px; display: flex; gap: 2px; border-top: 1px solid #21262d; }
+  .step-block { flex: 1; height: 20px; background: #21262d; border-radius: 3px; font-size: 9px; display: flex; align-items: center; justify-content: center; color: #8b949e; }
+  .step-block.active { background: #1f6feb55; color: #58a6ff; }
+  .step-block.done { background: #23883244; color: #3fb950; }
+
+  .expand-icon { color: #484f58; font-size: 14px; flex-shrink: 0; transition: transform 0.2s; }
+  .expand-icon.open { transform: rotate(90deg); }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <h1>bagent Monitor</h1>
+  <div class="stats">
+    <span><span class="dot green"></span> <span id="sse-status">Connecting...</span></span>
+    <span>Running: <strong id="stat-running">0</strong></span>
+    <span>Total: <strong id="stat-total">0</strong></span>
+  </div>
+</div>
+
+<div class="container" id="jobs-container">
+  <div class="empty" id="empty-state">No jobs yet. POST to /api/analyze to start an audit.</div>
+</div>
+
+<script>
+const jobsContainer = document.getElementById('jobs-container');
+const emptyState = document.getElementById('empty-state');
+const statRunning = document.getElementById('stat-running');
+const statTotal = document.getElementById('stat-total');
+const sseStatus = document.getElementById('sse-status');
+const jobs = new Map();
+
+function formatTime(ms) {
+  if (ms < 1000) return ms + 'ms';
+  const s = Math.floor(ms / 1000);
+  if (s < 60) return s + 's';
+  return Math.floor(s / 60) + 'm ' + (s % 60) + 's';
+}
+
+function formatTs(epoch) {
+  const d = new Date(epoch * 1000);
+  return d.toLocaleTimeString('pl-PL', { hour12: false }) + '.' + String(d.getMilliseconds()).padStart(3, '0');
+}
+
+function elapsed(job) {
+  const start = job.startedAt || job.createdAt;
+  const end = job.completedAt || (Date.now() / 1000);
+  return formatTime(Math.floor((end - start) * 1000));
+}
+
+function levelIcon(lvl) {
+  if (lvl === 'error') return '\u2715';
+  if (lvl === 'warning') return '!';
+  return '\u00b7';
+}
+
+function fillClass(status) {
+  if (status === 'completed') return 'fill-done';
+  if (status === 'failed') return 'fill-error';
+  return 'fill-running';
+}
+
+function createEl(tag, className, text) {
+  const el = document.createElement(tag);
+  if (className) el.className = className;
+  if (text !== undefined) el.textContent = text;
+  return el;
+}
+
+function createLogEntry(l) {
+  const row = createEl('div', 'log-entry');
+  row.appendChild(createEl('span', 'log-ts', formatTs(l.timestamp)));
+  row.appendChild(createEl('span', 'log-lvl ' + l.level, levelIcon(l.level)));
+  row.appendChild(createEl('span', 'log-step', l.step || ''));
+  row.appendChild(createEl('span', 'log-msg', l.message));
+  return row;
+}
+
+function createStepBlock(name, stepData, currentStep) {
+  const cls = stepData.completed_at ? 'done' : (currentStep === name ? 'active' : '');
+  const dur = stepData.duration_ms ? formatTime(stepData.duration_ms) : (cls === 'active' ? '...' : '');
+  const el = createEl('div', 'step-block ' + cls, dur);
+  el.title = name;
+  return el;
+}
+
+function buildJobCard(job) {
+  const card = createEl('div', 'job-card ' + job.status);
+  card.id = 'job-' + job.jobId;
+  card.dataset.jobId = job.jobId;
+
+  // Header
+  const header = createEl('div', 'job-header');
+  header.addEventListener('click', function() { toggleLogs(job.jobId); });
+
+  const expandIcon = createEl('span', 'expand-icon', '\u25b8');
+  expandIcon.id = 'expand-' + job.jobId;
+  header.appendChild(expandIcon);
+
+  header.appendChild(createEl('span', 'badge ' + job.status, job.status));
+
+  const info = createEl('div', 'job-info');
+  const title = createEl('div', 'job-title', job.progressMessage || 'Waiting...');
+  const salonName = (job.meta && job.meta.salonName) || '';
+  const svcCount = (job.meta && job.meta.totalServices) || '';
+  const subtitleText = [salonName, svcCount ? svcCount + ' services' : '', job.auditId.slice(0, 12)].filter(Boolean).join(' \u00b7 ');
+  const subtitle = createEl('div', 'job-subtitle', subtitleText);
+  info.appendChild(title);
+  info.appendChild(subtitle);
+  header.appendChild(info);
+
+  const progressWrap = createEl('div', 'progress-wrap');
+  const pbar = createEl('div', 'progress-bar');
+  const pfill = createEl('div', 'progress-fill ' + fillClass(job.status));
+  pfill.style.width = job.progress + '%';
+  pbar.appendChild(pfill);
+  progressWrap.appendChild(pbar);
+  progressWrap.appendChild(createEl('div', 'progress-text', job.progress + '%'));
+  header.appendChild(progressWrap);
+
+  const timeEl = createEl('div', 'job-time', elapsed(job));
+  timeEl.id = 'time-' + job.jobId;
+  header.appendChild(timeEl);
+
+  card.appendChild(header);
+
+  // Steps bar
+  const stepEntries = Object.entries(job.steps || {});
+  if (stepEntries.length > 0) {
+    const stepsBar = createEl('div', 'steps-bar');
+    stepEntries.forEach(function(entry) {
+      stepsBar.appendChild(createStepBlock(entry[0], entry[1], job.currentStep));
+    });
+    card.appendChild(stepsBar);
+  }
+
+  // Logs panel (collapsed)
+  const logsPanel = createEl('div', 'job-logs');
+  logsPanel.id = 'logs-' + job.jobId;
+  card.appendChild(logsPanel);
+
+  return card;
+}
+
+function toggleLogs(jobId) {
+  const logs = document.getElementById('logs-' + jobId);
+  const icon = document.getElementById('expand-' + jobId);
+  if (!logs) return;
+  const isOpen = logs.classList.toggle('open');
+  if (icon) icon.classList.toggle('open', isOpen);
+  if (isOpen && !logs.dataset.loaded) {
+    fetch('/api/jobs/' + jobId + '/logs')
+      .then(function(r) { return r.json(); })
+      .then(function(data) {
+        jobs.set(jobId, data);
+        logs.textContent = '';
+        (data.logs || []).forEach(function(l) {
+          logs.appendChild(createLogEntry(l));
+        });
+        logs.dataset.loaded = '1';
+        logs.scrollTop = logs.scrollHeight;
+      });
+  }
+}
+
+function renderAll() {
+  const sorted = Array.from(jobs.values()).sort(function(a, b) {
+    if (a.status === 'running' && b.status !== 'running') return -1;
+    if (b.status === 'running' && a.status !== 'running') return 1;
+    return b.createdAt - a.createdAt;
+  });
+  statRunning.textContent = sorted.filter(function(j) { return j.status === 'running'; }).length;
+  statTotal.textContent = sorted.length;
+  emptyState.style.display = sorted.length ? 'none' : '';
+
+  jobsContainer.textContent = '';
+  if (sorted.length === 0) {
+    jobsContainer.appendChild(emptyState);
+  } else {
+    sorted.forEach(function(job) {
+      jobsContainer.appendChild(buildJobCard(job));
+    });
+  }
+}
+
+function updateJobInPlace(data) {
+  const jobId = data.jobId;
+  var job = jobs.get(jobId);
+  if (!job) {
+    job = { jobId: jobId, auditId: data.auditId || '', status: 'queued', progress: 0, progressMessage: '', createdAt: Date.now()/1000, logs: [], steps: {}, meta: {} };
+    jobs.set(jobId, job);
+  }
+  if (data.status) job.status = data.status;
+  if (data.progress !== undefined) job.progress = data.progress;
+  if (data.progressMessage) job.progressMessage = data.progressMessage;
+  if (data.currentStep) job.currentStep = data.currentStep;
+  if (data.error) job.error = data.error;
+
+  var card = document.getElementById('job-' + jobId);
+  if (card) {
+    card.className = 'job-card ' + job.status;
+    var title = card.querySelector('.job-title');
+    if (title) title.textContent = job.progressMessage || 'Waiting...';
+    var badge = card.querySelector('.badge');
+    if (badge) { badge.className = 'badge ' + job.status; badge.textContent = job.status; }
+    var fill = card.querySelector('.progress-fill');
+    if (fill) { fill.style.width = job.progress + '%'; fill.className = 'progress-fill ' + fillClass(job.status); }
+    var ptext = card.querySelector('.progress-text');
+    if (ptext) ptext.textContent = job.progress + '%';
+    var timeEl = document.getElementById('time-' + jobId);
+    if (timeEl) timeEl.textContent = elapsed(job);
+
+    var logsEl = document.getElementById('logs-' + jobId);
+    if (logsEl && logsEl.classList.contains('open') && data.progressMessage) {
+      logsEl.appendChild(createLogEntry({
+        timestamp: Date.now() / 1000,
+        level: 'info',
+        step: data.currentStep || '',
+        message: data.progressMessage
+      }));
+      logsEl.scrollTop = logsEl.scrollHeight;
+    }
+  } else {
+    renderAll();
+  }
+}
+
+// Initial load
+fetch('/api/jobs')
+  .then(function(r) { return r.json(); })
+  .then(function(list) {
+    list.forEach(function(j) { jobs.set(j.jobId, j); });
+    renderAll();
+  });
+
+// SSE
+function connectSSE() {
+  var es = new EventSource('/api/events');
+  es.onopen = function() { sseStatus.textContent = 'Connected'; };
+  es.onerror = function() {
+    sseStatus.textContent = 'Reconnecting...';
+    es.close();
+    setTimeout(connectSSE, 3000);
+  };
+  ['job_created', 'job_progress', 'job_completed', 'job_failed'].forEach(function(evt) {
+    es.addEventListener(evt, function(e) { updateJobInPlace(JSON.parse(e.data)); });
+  });
+}
+connectSSE();
+
+// Update running job timers
+setInterval(function() {
+  jobs.forEach(function(job) {
+    if (job.status === 'running') {
+      var el = document.getElementById('time-' + job.jobId);
+      if (el) el.textContent = elapsed(job);
+    }
+  });
+}, 1000);
+</script>
+</body>
+</html>
