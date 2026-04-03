@@ -218,4 +218,38 @@ cd /opt/bagent && git pull && uv sync
 uv run uvicorn server:app --host 0.0.0.0 --port 3001
 ```
 
-Nginx reverse proxy on api.booksyaudit.pl routes `/api/analyze`, `/api/jobs`, `/api/health` to port 3001. The `/dashboard` and `/api/events` endpoints are intentionally NOT proxied (internal access only via direct port or SSH tunnel).
+### Nginx Configuration (api.booksyaudit.pl)
+
+```nginx
+# API endpoints (authenticated via x-api-key in app)
+location /api/analyze { proxy_pass http://127.0.0.1:3001; }
+location /api/health  { proxy_pass http://127.0.0.1:3001; }
+
+# Monitoring endpoints (no app-level auth — consider nginx basic_auth)
+location /api/jobs    { proxy_pass http://127.0.0.1:3001; }
+location /dashboard   { proxy_pass http://127.0.0.1:3001; }
+
+# SSE stream — proxy_buffering MUST be off, otherwise nginx buffers
+# the event stream and dashboard gets no live updates
+location /api/events  {
+    proxy_pass http://127.0.0.1:3001;
+    proxy_buffering off;
+    proxy_cache off;
+    proxy_set_header Connection '';
+    proxy_http_version 1.1;
+    chunked_transfer_encoding off;
+}
+```
+
+If you want to protect the dashboard with basic auth at the nginx level:
+
+```nginx
+location /dashboard {
+    auth_basic "bagent monitor";
+    auth_basic_user_file /etc/nginx/.htpasswd_bagent;
+    proxy_pass http://127.0.0.1:3001;
+}
+# Apply same auth to /api/jobs and /api/events if needed
+```
+
+Generate the htpasswd file: `htpasswd -c /etc/nginx/.htpasswd_bagent admin`
