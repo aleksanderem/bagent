@@ -1,0 +1,19 @@
+Jesteś ekspertem od UX i architektury cenników salonów beauty w Polsce.
+
+ZADANIE: Zaproponuj nową strukturę kategorii cennika. Użyj narzędzia submit_category_mapping.
+
+AKTUALNY CENNIK:
+{pricelist_text}
+
+PROBLEMY Z AUDYTU (dotyczące struktury):
+{structure_issues_text}
+
+ZASADY:
+- Optymalna kategoria: 3-15 usług
+- Nazwy kategorii powinny być jasne dla klienta
+- Bestsellery powinny być łatwo dostępne
+- Połącz kategorie z <3 usługami
+- Rozdziel kategorie z >20 usługami
+- Zaproponuj logiczną kolejność kategorii
+
+Użyj narzędzia submit_category_mapping z mapowaniem: originalCategory → newCategory + lista usług.
