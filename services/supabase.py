@@ -230,25 +230,6 @@ class SupabaseService:
             logger.warning("Failed to fetch competitors: %s", e)
             return []
 
-    async def get_salon_with_services(self, salon_id: int) -> dict | None:
-        """Load salon with its services and categories."""
-        try:
-            salon_result = self.client.table("salons").select("*").eq("id", salon_id).limit(1).execute()
-            if not salon_result.data:
-                logger.warning("Salon %d not found", salon_id)
-                return None
-            salon = salon_result.data[0]
-
-            services_result = self.client.table("services").select("*").eq("salon_id", salon_id).execute()
-            services = services_result.data or []
-
-            categories: list[str] = sorted({s.get("category", "") for s in services if s.get("category")})
-
-            return {"salon": salon, "services": services, "categories": categories}
-        except Exception as e:
-            logger.warning("Failed to load salon %d with services: %s", salon_id, e)
-            return None
-
     async def call_rpc(self, rpc_name: str, params: dict) -> list[dict]:
         """Generic RPC caller. Returns list of dicts or empty list on error."""
         try:
@@ -281,19 +262,23 @@ class SupabaseService:
         return None
 
     async def get_salon_with_services(self, salon_id: int) -> dict:
-        """Load salon metadata + all services for a given Booksy salon ID.
-        Returns: {salon: {...}, services: [...]}"""
+        """Load salon metadata + services + categories for a Booksy salon ID.
+        Returns: {salon: {...} | None, services: [...], categories: [...]}
+        Always returns a dict (never None). salon=None means not found."""
         try:
             salon_result = self.client.table("salons").select("*").eq("booksy_id", salon_id).limit(1).execute()
             if not salon_result.data:
-                return {"salon": None, "services": []}
+                return {"salon": None, "services": [], "categories": []}
             salon = salon_result.data[0]
 
             services_result = self.client.table("services").select("*").eq("salon_id", salon["id"]).execute()
-            return {"salon": salon, "services": services_result.data or []}
+            services = services_result.data or []
+            categories = sorted({s.get("category", "") for s in services if s.get("category")})
+
+            return {"salon": salon, "services": services, "categories": categories}
         except Exception as e:
             logger.warning("Failed to load salon %d: %s", salon_id, e)
-            return {"salon": None, "services": []}
+            return {"salon": None, "services": [], "categories": []}
 
     async def get_salon_basic(self, salon_id: int) -> dict | None:
         """Load just salon metadata (no services)."""

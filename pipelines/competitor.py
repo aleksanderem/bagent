@@ -391,8 +391,10 @@ async def run_competitor_pipeline(
     # Build competitor profiles from loaded data
     competitor_profiles: list[dict[str, Any]] = []
     for comp in competitor_salons:
-        salon_info = comp.get("salon", {})
-        comp_services = comp.get("services", [])
+        if not comp:
+            continue
+        salon_info = (comp.get("salon") or {})
+        comp_services = comp.get("services") or []
         competitor_profiles.append({
             "salonId": salon_info.get("id"),
             "name": salon_info.get("name", "?"),
@@ -402,7 +404,7 @@ async def run_competitor_pipeline(
             "reviewsRank": salon_info.get("reviews_rank"),
             "reviewsCount": salon_info.get("reviews_count", 0),
             "serviceCount": len(comp_services),
-            "categories": comp.get("categories", []),
+            "categories": comp.get("categories") or [],
         })
 
     report: dict[str, Any] = {
