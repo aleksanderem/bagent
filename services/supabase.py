@@ -338,17 +338,28 @@ class SupabaseService:
     async def save_optimized_pricelist(
         self,
         convex_audit_id: str,
-        convex_user_id: str,
-        pricelist_id: str,
         optimization_data: dict,
+        salon_name: str = "",
     ) -> int:
-        """Save optimized pricelist to optimized_pricelists table. Returns row ID."""
+        """Save optimized pricelist to optimized_pricelists table.
+
+        Maps optimization result to the actual table schema:
+        convex_audit_id, salon_name, quality_score, total_changes,
+        names_improved, descriptions_added, categories_restructured,
+        original_service_count, optimized_service_count, duplicates_merged,
+        quality_checks, pipeline_version, processing_time_ms.
+        """
+        summary = optimization_data.get("summary", {})
         row = {
             "convex_audit_id": convex_audit_id,
-            "convex_user_id": convex_user_id,
-            "pricelist_id": pricelist_id,
-            "optimization_data": optimization_data,
-            "version": "v1",
+            "salon_name": salon_name or None,
+            "quality_score": optimization_data.get("qualityScore", 0),
+            "total_changes": summary.get("totalChanges", 0),
+            "names_improved": summary.get("namesImproved", 0),
+            "descriptions_added": summary.get("descriptionsAdded", 0),
+            "categories_restructured": summary.get("categoriesOptimized", 0),
+            "duplicates_merged": summary.get("duplicatesFound", 0),
+            "pipeline_version": "v2-bagent",
         }
         result = self.client.table("optimized_pricelists").upsert(row, on_conflict="convex_audit_id").execute()
         if not result.data:

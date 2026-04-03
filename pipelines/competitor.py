@@ -110,9 +110,9 @@ def _format_salon_for_context(salon_data: dict | None, label: str = "SALON") -> 
     """Format salon data as readable text for AI context."""
     if not salon_data:
         return f"{label}: Brak danych."
-    salon = salon_data.get("salon", {})
-    services = salon_data.get("services", [])
-    categories = salon_data.get("categories", [])
+    salon = salon_data.get("salon") or {}
+    services = salon_data.get("services") or []
+    categories = salon_data.get("categories") or []
     name = salon.get("name", "?")
     city = salon.get("city", "?")
     rating = salon.get("reviews_rank", "?")
@@ -157,9 +157,10 @@ async def run_competitor_pipeline(
     subject_data = await supabase.get_salon_with_services(subject_salon_id)
     dt = int((time.time() - t0) * 1000)
 
-    if subject_data:
-        svc_count = len(subject_data.get("services", []))
-        cat_count = len(subject_data.get("categories", []))
+    subject_salon = (subject_data or {}).get("salon")
+    if subject_salon:
+        svc_count = len(subject_data.get("services") or [])
+        cat_count = len(subject_data.get("categories") or [])
         await progress(8, f"Salon załadowany: {svc_count} usług, {cat_count} kategorii ({dt}ms)")
         logger.info("[%s] Subject salon loaded: %d services, %d categories", audit_id, svc_count, cat_count)
     else:

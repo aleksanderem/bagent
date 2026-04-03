@@ -424,9 +424,8 @@ async def run_optimization_job(job_id: str, request: OptimizationRequest) -> Non
         supabase = SupabaseService()
         await supabase.save_optimized_pricelist(
             convex_audit_id=request.auditId,
-            convex_user_id=request.userId,
-            pricelist_id=request.pricelistId,
             optimization_data=result,
+            salon_name=scraped_data.salonName or "",
         )
 
         job.mark_completed()
