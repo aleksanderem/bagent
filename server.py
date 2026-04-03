@@ -351,9 +351,9 @@ async def run_competitor_job(job_id: str, request: CompetitorRequest) -> None:
         await supabase.save_competitor_report(
             convex_audit_id=request.auditId,
             convex_user_id=request.userId,
+            subject_booksy_id=request.subjectSalonId,
             report_data=report,
-            salon_name=request.salonName,
-            salon_city=request.salonCity,
+            competitor_count=len(request.selectedCompetitorIds),
         )
 
         job.mark_completed()

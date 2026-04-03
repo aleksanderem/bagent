@@ -317,18 +317,27 @@ class SupabaseService:
         self,
         convex_audit_id: str,
         convex_user_id: str,
+        subject_booksy_id: int,
         report_data: dict,
-        salon_name: str,
-        salon_city: str,
+        competitor_count: int = 0,
     ) -> int:
-        """Save competitor report to competitor_reports table. Returns report ID."""
+        """Save competitor report to competitor_reports table.
+
+        subject_salon_id is FK to salons.id (internal), so we translate
+        from booksy_id first.
+        """
+        # Translate booksy_id → internal salon id
+        salon = await self.get_salon_basic(subject_booksy_id)
+        internal_id = salon["id"] if salon else None
+
         row = {
             "convex_audit_id": convex_audit_id,
             "convex_user_id": convex_user_id,
+            "subject_salon_id": internal_id,
             "report_data": report_data,
-            "salon_name": salon_name,
-            "salon_city": salon_city,
-            "version": "v1",
+            "status": "completed",
+            "competitor_count": competitor_count,
+            "metadata": {"aiProvider": "minimax", "pipeline": "bagent-v2"},
         }
         result = self.client.table("competitor_reports").upsert(row, on_conflict="convex_audit_id").execute()
         if not result.data:
