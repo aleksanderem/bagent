@@ -1,0 +1,25 @@
+Jesteś ekspertem ds. analizy rynku beauty. Przeanalizuj dane o salonie i jego konkurencji.
+
+Na podstawie dostarczonych danych przygotuj PEŁNĄ analizę rynkową:
+
+1. PODSUMOWANIE RYNKOWE (marketSummary):
+   - headline: jedno zdanie podsumowujące pozycję salonu na rynku
+   - paragraphs: 2-4 akapity szczegółowej analizy (porównanie cen, zakres usług, pozycja rankingowa)
+   - keyInsights: 3-5 kluczowych wniosków w formie krótkich zdań
+
+2. PRZEWAGI KONKURENCYJNE (advantages):
+   - Zidentyfikuj co najmniej 5 obszarów (ceny, zakres usług, lokalizacja, opinie, promocje)
+   - Każdy obszar: type=win (salon lepszy), loss (konkurencja lepsza), neutral (porównywalny)
+   - impact: high/medium/low
+
+3. REKOMENDACJE (recommendations):
+   - 3-6 konkretnych rekomendacji z szacowanym wpływem finansowym (PLN/miesiąc)
+   - Priorytet 1-10 (1=najważniejszy)
+   - Kategorie: pricing, services, marketing, operations
+
+4. METRYKI RADAROWE (radarMetrics):
+   - 5-7 metryk do wykresu radarowego (np. "Zakres usług", "Konkurencyjność cen", "Opinie klientów")
+   - salonValue i marketAvg w skali 0-100
+
+Użyj narzędzia submit_market_analysis z pełną analizą. Wywołaj JEDEN RAZ.
+Odpowiadaj w języku polskim.

@@ -230,6 +230,39 @@ class SupabaseService:
             logger.warning("Failed to fetch competitors: %s", e)
             return []
 
+    async def get_salon_with_services(self, salon_id: int) -> dict | None:
+        """Load salon with its services and categories."""
+        try:
+            salon_result = self.client.table("salons").select("*").eq("id", salon_id).limit(1).execute()
+            if not salon_result.data:
+                logger.warning("Salon %d not found", salon_id)
+                return None
+            salon = salon_result.data[0]
+
+            services_result = self.client.table("services").select("*").eq("salon_id", salon_id).execute()
+            services = services_result.data or []
+
+            categories: list[str] = sorted({s.get("category", "") for s in services if s.get("category")})
+
+            return {"salon": salon, "services": services, "categories": categories}
+        except Exception as e:
+            logger.warning("Failed to load salon %d with services: %s", salon_id, e)
+            return None
+
+    async def call_rpc(self, rpc_name: str, params: dict) -> list[dict]:
+        """Generic RPC caller. Returns list of dicts or empty list on error."""
+        try:
+            result = self.client.rpc(rpc_name, params).execute()
+            data = result.data
+            if isinstance(data, list):
+                return data
+            if isinstance(data, dict):
+                return [data]
+            return []
+        except Exception as e:
+            logger.warning("RPC %s failed: %s", rpc_name, e)
+            return []
+
     async def geocode_salon(self, salon_name: str | None, address: str | None) -> dict | None:
         """Find salon coordinates by name/address match. Returns {lat, lng} or None."""
         if not salon_name and not address:
