@@ -211,16 +211,21 @@ async def run_analysis_job(job_id: str, request: AnalyzeRequest) -> None:
             source_url=request.sourceUrl or "",
         )
 
+        # Pipeline + save succeeded — mark job completed regardless of webhook outcome
+        job.mark_completed()
+        store.notify_status(job)
+        logger.info("Job %s completed successfully (report saved)", job_id)
+
+        # Notify Convex — best-effort, job is already completed
         report_stats = {
             "totalServices": report.get("stats", {}).get("totalServices", 0),
             "totalTransformations": len(report.get("transformations", [])),
             "totalIssues": len(report.get("topIssues", [])),
         }
-        await convex.complete_audit(request.auditId, report.get("totalScore", 0), report_stats)
-
-        job.mark_completed()
-        store.notify_status(job)
-        logger.info("Job %s completed successfully", job_id)
+        try:
+            await convex.complete_audit(request.auditId, report.get("totalScore", 0), report_stats)
+        except Exception as e:
+            logger.warning("Job %s: Convex complete_audit webhook failed (job still completed): %s", job_id, e)
 
     except CancelledError:
         logger.info("Job %s cancelled by user", job_id)
