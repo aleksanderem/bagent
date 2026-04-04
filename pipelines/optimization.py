@@ -434,6 +434,9 @@ async def run_optimization_pipeline(
 
     full_verify = (
         verify_prompt
+        .replace("{refinement_prefix}", "")
+        .replace("{original_issues_text}", issues_summary)
+        .replace("{optimized_pricelist_text}", opt_summary)
         .replace("{issues}", issues_summary)
         .replace("{optimization_summary}", opt_summary)
     )

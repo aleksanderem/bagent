@@ -19,6 +19,14 @@ def _load_prompt(name: str) -> str:
     return ""
 
 
+def _fill_prompt(template: str, **kwargs: str) -> str:
+    """Replace {var_name} placeholders in prompt template. Always strips {refinement_prefix}."""
+    result = template.replace("{refinement_prefix}", "")
+    for key, value in kwargs.items():
+        result = result.replace(f"{{{key}}}", value)
+    return result
+
+
 ProgressCallback = Callable[[int, str], Awaitable[None]]
 
 
@@ -231,8 +239,9 @@ async def _analyze_naming(
             "Oceń JAKOŚĆ NAZW usług w poniższym cenniku. "
             "Skala 0-20. Zwróć JSON z polami: score (int), issues (array of objects "
             "z severity, dimension, issue, impact, affectedCount, example, fix).\n\n"
+            "CENNIK:\n{pricelist_text}"
         )
-    full_prompt = f"{naming_prompt}\n\nCENNIK:\n{pricelist_text}"
+    full_prompt = _fill_prompt(naming_prompt, pricelist_text=pricelist_text)
 
     t0 = time.time()
     try:
@@ -255,7 +264,7 @@ async def _analyze_naming(
             "Popraw nazwy usług w cenniku. Użyj narzędzia submit_naming_results. "
             "Wywołuj wielokrotnie z partiami po 15-20 nazw."
         )
-    user_msg = f"{naming_agent_prompt}\n\nCENNIK:\n{pricelist_text}"
+    user_msg = _fill_prompt(naming_agent_prompt, pricelist_text=pricelist_text) if "{pricelist_text}" in naming_agent_prompt else f"{_fill_prompt(naming_agent_prompt)}\n\nCENNIK:\n{pricelist_text}"
     await progress(30, "Agent loop: poprawianie nazw usług (tool_use)...")
 
     transformations: list[dict[str, Any]] = []
@@ -326,7 +335,11 @@ async def _analyze_descriptions(
             "Oceń JAKOŚĆ OPISÓW usług. Skala 0-20. "
             "Zwróć JSON z polami: score (int), issues (array).\n\n"
         )
-    full_prompt = f"{desc_prompt}\n\nCENNIK:\n{pricelist_text}"
+    full_prompt = _fill_prompt(desc_prompt,
+        pricelist_text=pricelist_text, descriptions_text=pricelist_text,
+        total_services=str(total), desc_count=str(desc_count),
+        desc_percentage=str(round(desc_count / max(total, 1) * 100)),
+    ) if "{" in desc_prompt else f"{desc_prompt}\n\nCENNIK:\n{pricelist_text}"
 
     t0 = time.time()
     try:
@@ -350,7 +363,7 @@ async def _analyze_descriptions(
             "Przepisz opisy usług. Użyj submit_description_results. "
             "Partiami po 15-20."
         )
-    user_msg = f"{desc_agent_prompt}\n\nCENNIK:\n{pricelist_text}"
+    user_msg = _fill_prompt(desc_agent_prompt, pricelist_text=pricelist_text) if "{pricelist_text}" in desc_agent_prompt else f"{_fill_prompt(desc_agent_prompt)}\n\nCENNIK:\n{pricelist_text}"
     await progress(56, "Agent loop: poprawianie opisów usług (tool_use)...")
 
     transformations: list[dict[str, Any]] = []
@@ -409,7 +422,7 @@ async def _analyze_structure(
             "Zwróć JSON z polami: structureScore, pricingScore, "
             "issues, quickWins, missingSeoKeywords.\n\n"
         )
-    full_prompt = f"{structure_prompt}\n\nCENNIK:\n{summary_text}"
+    full_prompt = _fill_prompt(structure_prompt, structure_text=summary_text, pricelist_text=summary_text) if "{" in structure_prompt else f"{structure_prompt}\n\nCENNIK:\n{summary_text}"
 
     stats_context = (
         f"\nSTATYSTYKI:\n"
@@ -455,7 +468,15 @@ async def _generate_summary(
         f"- [{i.get('severity', 'minor')}] {i.get('issue', '')}" for i in issues[:5]
     )
 
-    full_prompt = (
+    salon_context = f"Salon: {salon_name or 'Nieznany'}, Wynik: {total_score}/100"
+    full_prompt = _fill_prompt(summary_prompt,
+        salon_context=salon_context,
+        total_score=str(total_score),
+        total_services=str(stats['totalServices']),
+        total_categories=str(stats['totalCategories']),
+        services_with_desc=str(stats.get('servicesWithDescription', 0)),
+        issues_summary=top_issues_text,
+    ) if "{" in summary_prompt else (
         f"{summary_prompt}\n\n"
         f"SALON: {salon_name or 'Nieznany'}\n"
         f"WYNIK: {total_score}/100\n"

@@ -20,6 +20,14 @@ def _load_prompt(name: str) -> str:
     return ""
 
 
+def _fill_prompt(template: str, **kwargs: str) -> str:
+    """Replace {var_name} placeholders. Always strips {refinement_prefix}."""
+    result = template.replace("{refinement_prefix}", "")
+    for key, value in kwargs.items():
+        result = result.replace(f"{{{key}}}", value)
+    return result
+
+
 ProgressCallback = Callable[[int, str], Awaitable[None]]
 
 
