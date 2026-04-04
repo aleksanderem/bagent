@@ -253,37 +253,38 @@ async def generate_ai_text(request: AiTextRequest) -> dict:
     return {"text": text, "inputTokens": response.usage.input_tokens, "outputTokens": response.usage.output_tokens}
 
 
-@app.post("/api/embeddings", dependencies=[Depends(verify_api_key)])
-async def generate_embeddings(request: dict = {}) -> dict:
-    """Generate Gemini embeddings for a list of texts.
+class EmbeddingRequest(BaseModel):
+    texts: list[str]
 
-    Request body: { texts: string[], model?: string }
-    Returns: { embeddings: number[][] }
-    """
-    import httpx as _httpx
+
+@app.post("/api/embeddings", dependencies=[Depends(verify_api_key)])
+async def generate_embeddings(request: EmbeddingRequest) -> dict:
+    """Generate Gemini embeddings for a list of texts."""
+    import httpx
+
     from config import settings
 
-    texts = request.get("texts", [])
-    if not texts:
+    if not request.texts:
         return {"embeddings": []}
 
-    api_key = settings.minimax_api_key  # Reuse configured key or add GEMINI_API_KEY to settings
-    gemini_key = getattr(settings, "gemini_api_key", "") or api_key
+    gemini_key = settings.gemini_api_key
+    if not gemini_key:
+        raise HTTPException(status_code=500, detail="GEMINI_API_KEY not configured on server")
 
-    # Gemini batchEmbedContents — up to 100 texts per request
     all_embeddings: list[list[float]] = []
-    for i in range(0, len(texts), 100):
-        batch = texts[i:i + 100]
+    for i in range(0, len(request.texts), 100):
+        batch = request.texts[i:i + 100]
         requests_body = [
             {"model": "models/gemini-embedding-001", "content": {"parts": [{"text": t}]}, "taskType": "SEMANTIC_SIMILARITY"}
             for t in batch
         ]
-        async with _httpx.AsyncClient(timeout=30.0) as client:
+        async with httpx.AsyncClient(timeout=30.0) as client:
             resp = await client.post(
                 f"https://generativelanguage.googleapis.com/v1beta/models/gemini-embedding-001:batchEmbedContents?key={gemini_key}",
                 json={"requests": requests_body},
             )
-            resp.raise_for_status()
+            if resp.status_code != 200:
+                raise HTTPException(status_code=502, detail=f"Gemini API error {resp.status_code}: {resp.text[:200]}")
             result = resp.json()
             for emb in result.get("embeddings", []):
                 all_embeddings.append(emb["values"])
