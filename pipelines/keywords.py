@@ -118,10 +118,14 @@ ZASADY:
     suggestions = []
     for line in text.split("\n"):
         line = line.strip()
-        if line.startswith("-"):
-            suggestion = re.sub(r"^\*+|^\*\*", "", line.lstrip("- ")).strip()
-            if suggestion:
-                suggestions.append(suggestion)
+        if not line:
+            continue
+        # Match lines starting with: - , * , 1. , 2. , etc.
+        cleaned = re.sub(r"^[-*•]\s*|^\d+[.)]\s*", "", line).strip()
+        # Strip markdown bold
+        cleaned = re.sub(r"\*{1,2}([^*]+)\*{1,2}", r"\1", cleaned).strip()
+        if cleaned and cleaned != line.strip() and len(cleaned) > 3:
+            suggestions.append(cleaned)
 
     return suggestions[:8]
 
