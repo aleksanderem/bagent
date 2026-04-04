@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import json
 import logging
 import time
 from pathlib import Path
@@ -25,6 +26,20 @@ def _fill_prompt(template: str, **kwargs: str) -> str:
     for key, value in kwargs.items():
         result = result.replace(f"{{{key}}}", value)
     return result
+
+
+def _normalize_item(item: Any) -> dict[str, Any] | None:
+    """Normalize a tool call array item — MiniMax sometimes returns strings instead of dicts."""
+    if isinstance(item, dict):
+        return item
+    if isinstance(item, str):
+        try:
+            parsed = json.loads(item)
+            if isinstance(parsed, dict):
+                return parsed
+        except (json.JSONDecodeError, ValueError):
+            pass
+    return None
 
 
 ProgressCallback = Callable[[int, str], Awaitable[None]]
@@ -289,7 +304,12 @@ async def _analyze_naming(
         for tc in agent_result.tool_calls:
             if tc.name == "submit_naming_results":
                 raw = tc.input.get("transformations", [])
-                for t in raw:
+                for raw_t in raw:
+                    t = _normalize_item(raw_t)
+                    if t is None:
+                        rejected += 1
+                        logger.warning("Naming: skipping non-dict item: %s", type(raw_t).__name__)
+                        continue
                     original = t.get("name", "")
                     improved = t.get("improved", "")
                     improved = clean_service_name(improved)
@@ -386,7 +406,11 @@ async def _analyze_descriptions(
         for tc in agent_result.tool_calls:
             if tc.name == "submit_description_results":
                 raw = tc.input.get("transformations", [])
-                for t in raw:
+                for raw_t in raw:
+                    t = _normalize_item(raw_t)
+                    if t is None:
+                        logger.warning("Description: skipping non-dict item: %s", type(raw_t).__name__)
+                        continue
                     service_name = t.get("serviceName", "")
                     new_desc = t.get("newDescription", "")
                     if service_name and new_desc:

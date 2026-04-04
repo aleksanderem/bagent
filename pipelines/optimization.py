@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import json
 import logging
 import time
 from pathlib import Path
@@ -26,6 +27,20 @@ ProgressCallback = Callable[[int, str], Awaitable[None]]
 
 async def _noop_progress(progress: int, message: str) -> None:
     pass
+
+
+def _normalize_item(item: Any) -> dict[str, Any] | None:
+    """Normalize a tool call array item — MiniMax sometimes returns strings instead of dicts."""
+    if isinstance(item, dict):
+        return item
+    if isinstance(item, str):
+        try:
+            parsed = json.loads(item)
+            if isinstance(parsed, dict):
+                return parsed
+        except (json.JSONDecodeError, ValueError):
+            pass
+    return None
 
 
 def _detect_promo(name: str) -> bool:
@@ -143,7 +158,11 @@ async def run_optimization_pipeline(
 
             for tc in agent_result.tool_calls:
                 if tc.name == "submit_category_mapping":
-                    for mapping in tc.input.get("mappings", []):
+                    for raw_mapping in tc.input.get("mappings", []):
+                        mapping = _normalize_item(raw_mapping)
+                        if mapping is None:
+                            logger.warning("Category mapping: skipping non-dict item: %s", type(raw_mapping).__name__)
+                            continue
                         orig = mapping.get("originalCategory", "")
                         new = mapping.get("newCategory", "")
                         if orig and new and orig != new:
@@ -215,7 +234,13 @@ async def run_optimization_pipeline(
         rejected = 0
         for tc in agent_result.tool_calls:
             if tc.name == "submit_optimized_services":
-                for svc in tc.input.get("services", []):
+                for raw_svc in tc.input.get("services", []):
+                    svc = _normalize_item(raw_svc)
+                    if svc is None:
+                        rejected += 1
+                        logger.warning("Rejected optimization: item is not a dict: %s", type(raw_svc).__name__)
+                        continue
+
                     original_name = svc.get("originalName", "")
                     new_name = svc.get("newName", original_name)
                     new_desc = svc.get("newDescription")
@@ -302,7 +327,11 @@ async def run_optimization_pipeline(
 
             for tc in seo_result.tool_calls:
                 if tc.name == "submit_optimized_services":
-                    for svc in tc.input.get("services", []):
+                    for raw_svc in tc.input.get("services", []):
+                        svc = _normalize_item(raw_svc)
+                        if svc is None:
+                            logger.warning("SEO: skipping non-dict item: %s", type(raw_svc).__name__)
+                            continue
                         original_name = svc.get("originalName", "")
                         new_name = svc.get("newName", original_name)
                         key = original_name.strip().lower()
