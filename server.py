@@ -68,6 +68,18 @@ class OptimizationRequest(BaseModel):
     promptTemplates: dict | None = None
 
 
+class KeywordRequest(BaseModel):
+    auditId: str
+    scrapedData: dict
+
+
+class AiTextRequest(BaseModel):
+    """Generic AI text generation — send prompt, get text back."""
+    prompt: str
+    maxTokens: int = 4000
+    temperature: float = 0.4
+
+
 class AnalyzeResponse(BaseModel):
     jobId: str
     status: str = "accepted"
@@ -198,6 +210,85 @@ async def health() -> dict:
 @app.get("/dashboard", response_class=HTMLResponse)
 async def dashboard() -> HTMLResponse:
     return HTMLResponse(_get_dashboard_html())
+
+
+# --- Synchronous AI endpoints (no background job, direct response) ---
+
+
+@app.post("/api/keywords", dependencies=[Depends(verify_api_key)])
+async def generate_keywords(request: KeywordRequest) -> dict:
+    """Keyword report: rule-based extraction + AI suggestions. Returns full report synchronously."""
+    from pipelines.keywords import run_keyword_pipeline
+
+    result = await run_keyword_pipeline(
+        scraped_data=request.scrapedData,
+        audit_id=request.auditId,
+    )
+    return result
+
+
+@app.post("/api/ai/text", dependencies=[Depends(verify_api_key)])
+async def generate_ai_text(request: AiTextRequest) -> dict:
+    """Generic AI text generation. Sends prompt to MiniMax, returns raw text.
+
+    Used by Convex for category proposals, keyword suggestions, and any other
+    AI text generation that doesn't need a full pipeline.
+    """
+    from config import settings
+    from services.minimax import MiniMaxClient
+
+    client = MiniMaxClient(settings.minimax_api_key, settings.minimax_base_url, settings.minimax_model)
+    response = await client.create_message(
+        system="Jesteś ekspertem od salonów beauty na Booksy.pl.",
+        messages=[{"role": "user", "content": request.prompt}],
+        max_tokens=request.maxTokens,
+        temperature=request.temperature,
+    )
+
+    text = ""
+    for block in response.content:
+        if hasattr(block, "text"):
+            text += block.text
+
+    return {"text": text, "inputTokens": response.usage.input_tokens, "outputTokens": response.usage.output_tokens}
+
+
+@app.post("/api/embeddings", dependencies=[Depends(verify_api_key)])
+async def generate_embeddings(request: dict = {}) -> dict:
+    """Generate Gemini embeddings for a list of texts.
+
+    Request body: { texts: string[], model?: string }
+    Returns: { embeddings: number[][] }
+    """
+    import httpx as _httpx
+    from config import settings
+
+    texts = request.get("texts", [])
+    if not texts:
+        return {"embeddings": []}
+
+    api_key = settings.minimax_api_key  # Reuse configured key or add GEMINI_API_KEY to settings
+    gemini_key = getattr(settings, "gemini_api_key", "") or api_key
+
+    # Gemini batchEmbedContents — up to 100 texts per request
+    all_embeddings: list[list[float]] = []
+    for i in range(0, len(texts), 100):
+        batch = texts[i:i + 100]
+        requests_body = [
+            {"model": "models/gemini-embedding-001", "content": {"parts": [{"text": t}]}, "taskType": "SEMANTIC_SIMILARITY"}
+            for t in batch
+        ]
+        async with _httpx.AsyncClient(timeout=30.0) as client:
+            resp = await client.post(
+                f"https://generativelanguage.googleapis.com/v1beta/models/gemini-embedding-001:batchEmbedContents?key={gemini_key}",
+                json={"requests": requests_body},
+            )
+            resp.raise_for_status()
+            result = resp.json()
+            for emb in result.get("embeddings", []):
+                all_embeddings.append(emb["values"])
+
+    return {"embeddings": all_embeddings}
 
 
 # --- Background job ---
