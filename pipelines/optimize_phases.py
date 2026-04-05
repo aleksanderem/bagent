@@ -119,17 +119,7 @@ async def run_phase1_seo(
     seo_text = ", ".join(k.get("keyword", "") for k in missing_seo[:15])
     logger.info("[%s][seo] Missing SEO keywords: %d", audit_id, len(missing_seo))
 
-    # Load and fill prompt template
-    seo_prompt = _load_prompt("optimization_seo.txt")
-    if not seo_prompt:
-        seo_prompt = (
-            "Wzbogać nazwy usług o brakujące słowa kluczowe SEO. "
-            "Użyj narzędzia submit_optimized_services.\n\n"
-            "BRAKUJĄCE SŁOWA KLUCZOWE SEO:\n{seo_keywords}\n\n"
-            "CENNIK:\n{pricelist_text}"
-        )
-
-    # Batch by category to avoid MiniMax timeout on large salons
+    # Single JSON call per category — no multi-turn agent loop overhead
     optimized_map: dict[str, dict[str, Any]] = {}
     seo_changes: list[dict[str, Any]] = []
     keywords_added = 0
@@ -139,57 +129,45 @@ async def run_phase1_seo(
         cat_pct = 20 + int(40 * cat_idx / max(total_cats, 1))
         await progress(cat_pct, f"SEO: kategoria {cat_idx + 1}/{total_cats} — {cat.name}...")
 
-        cat_text = f"## KATEGORIA: {cat.name} ({len(cat.services)} usług)\n"
-        for svc in cat.services:
-            cat_text += f'- "{svc.name}" | {svc.price}'
-            if svc.duration:
-                cat_text += f" | {svc.duration}"
-            cat_text += "\n"
-
-        user_msg = seo_prompt.replace("{seo_keywords}", seo_text).replace("{pricelist_text}", cat_text)
+        services_list = [{"name": svc.name, "price": svc.price} for svc in cat.services]
+        prompt = (
+            f"Wzbogać nazwy usług o słowa kluczowe SEO dla salonu beauty.\n"
+            f"Brakujące słowa kluczowe: {seo_text or 'brak konkretnych — dodaj ogólne beauty keywords'}\n\n"
+            f"Kategoria: {cat.name}\n"
+            f"Usługi (JSON):\n{json.dumps(services_list, ensure_ascii=False)}\n\n"
+            f"Zwróć JSON: {{\"services\": [{{\"originalName\": \"...\", \"newName\": \"...\"}}]}}\n"
+            f"Jeśli nazwa nie wymaga zmiany, zwróć ją bez zmian."
+        )
         t0 = time.time()
 
         try:
-            agent_result = await run_agent_loop(
-                client=client,
-                system_prompt="Jesteś ekspertem SEO dla salonów beauty.",
-                user_message=user_msg,
-                tools=[OPTIMIZED_SERVICES_TOOL],
-                max_steps=10,
-                on_step=lambda step, count: logger.info("[%s][seo][%s] step %d, %d calls", audit_id, cat.name[:20], step, count),
-            )
+            result = await client.generate_json(prompt, system="Jesteś ekspertem SEO dla salonów beauty. Odpowiadaj WYŁĄCZNIE JSON.")
             dt = int((time.time() - t0) * 1000)
-            logger.info("[%s][seo] Category '%s' done: %d steps (%dms)", audit_id, cat.name[:30], agent_result.total_steps, dt)
+            logger.info("[%s][seo] Category '%s' done (%dms)", audit_id, cat.name[:30], dt)
 
-            for tc in agent_result.tool_calls:
-                if tc.name == "submit_optimized_services":
-                    for raw_svc in tc.input.get("services", []):
-                        svc_item = _normalize_item(raw_svc)
-                        if svc_item is None:
-                            continue
-                        original_name = svc_item.get("originalName", "")
-                        new_name = svc_item.get("newName", original_name)
-                        new_name = clean_service_name(new_name)
-                        new_name = fix_caps_lock(new_name)
-                        key = original_name.strip().lower()
-                        optimized_map[key] = {
-                            "newName": new_name,
-                            "categoryName": svc_item.get("categoryName", cat.name),
-                        }
-                        if new_name != original_name:
-                            seo_changes.append({
-                                "type": "seo",
-                                "serviceName": original_name,
-                                "before": original_name,
-                                "after": new_name,
-                                "reason": "SEO keyword enrichment",
-                            })
-                            keywords_added += 1
+            for svc_item in result.get("services", []):
+                original_name = svc_item.get("originalName", "")
+                new_name = svc_item.get("newName", original_name)
+                new_name = clean_service_name(new_name)
+                new_name = fix_caps_lock(new_name)
+                key = original_name.strip().lower()
+                optimized_map[key] = {
+                    "newName": new_name,
+                    "categoryName": cat.name,
+                }
+                if new_name != original_name:
+                    seo_changes.append({
+                        "type": "seo",
+                        "serviceName": original_name,
+                        "before": original_name,
+                        "after": new_name,
+                        "reason": "SEO keyword enrichment",
+                    })
+                    keywords_added += 1
 
         except Exception as e:
             dt = int((time.time() - t0) * 1000)
             logger.warning("[%s][seo] Category '%s' failed: %s (%dms)", audit_id, cat.name[:30], e, dt)
-            # Continue with next category — partial results are better than nothing
 
     # Build output pricelist
     output_categories: list[dict[str, Any]] = []
@@ -277,7 +255,7 @@ async def run_phase2_content(
     # Build service lookup from input pricelist
     service_map = _build_original_service_map(pricelist)
 
-    # Batch by category to avoid MiniMax timeout on large salons
+    # Single JSON call per category — no multi-turn agent loop overhead
     optimized_map: dict[str, dict[str, Any]] = {}
     content_changes: list[dict[str, Any]] = []
     names_improved = 0
@@ -291,84 +269,65 @@ async def run_phase2_content(
         services = cat.get("services", [])
         await progress(cat_pct, f"Content: kategoria {cat_idx + 1}/{total_cats} — {cat_name}...")
 
-        cat_text = f"## KATEGORIA: {cat_name} ({len(services)} usług)\n"
-        for s in services:
-            cat_text += f'- "{s.get("name", "")}" | {s.get("price", "")}'
-            if s.get("duration"):
-                cat_text += f" | {s['duration']}"
-            if s.get("description"):
-                desc = s["description"]
-                if len(desc) > 150:
-                    desc = desc[:150] + "..."
-                cat_text += f" | OPIS: {desc}"
-            cat_text += "\n"
-
-        user_msg = (
-            content_prompt
-            .replace("{pricelist_text}", cat_text)
-            .replace("{audit_issues_text}", audit_issues_text)
-            .replace("{transformations_text}", transformations_text)
+        services_json = json.dumps(
+            [{"name": s.get("name", ""), "price": s.get("price", ""), "description": s.get("description") or ""} for s in services],
+            ensure_ascii=False,
         )
-
+        prompt = (
+            f"Popraw nazwy usług i dodaj/ulepsz opisy dla salonu beauty.\n\n"
+            f"Kategoria: {cat_name}\n"
+            f"Usługi:\n{services_json}\n\n"
+            f"PROBLEMY Z AUDYTU:\n{audit_issues_text}\n\n"
+            f"Zwróć JSON: {{\"services\": [{{\"originalName\": \"...\", \"newName\": \"...\", \"newDescription\": \"...\"}}]}}\n"
+            f"Opis max 2 zdania, język korzyści. Jeśli opis OK — zwróć bez zmian."
+        )
         t0 = time.time()
+
         try:
-            agent_result = await run_agent_loop(
-                client=client,
-                system_prompt="Jesteś copywriterem specjalizującym się w cennikach salonów beauty.",
-                user_message=user_msg,
-                tools=[OPTIMIZED_SERVICES_TOOL],
-                max_steps=10,
-                on_step=lambda step, count: logger.info("[%s][content][%s] step %d, %d calls", audit_id, cat_name[:20], step, count),
-            )
+            result = await client.generate_json(prompt, system="Jesteś copywriterem salonów beauty. Odpowiadaj WYŁĄCZNIE JSON.")
             dt = int((time.time() - t0) * 1000)
-            logger.info("[%s][content] Category '%s' done: %d steps (%dms)", audit_id, cat_name[:30], agent_result.total_steps, dt)
+            logger.info("[%s][content] Category '%s' done (%dms)", audit_id, cat_name[:30], dt)
 
-            for tc in agent_result.tool_calls:
-                if tc.name == "submit_optimized_services":
-                    for raw_svc in tc.input.get("services", []):
-                        svc_item = _normalize_item(raw_svc)
-                        if svc_item is None:
-                            continue
-                        original_name = svc_item.get("originalName", "")
-                        new_name = svc_item.get("newName", original_name)
-                        new_desc = svc_item.get("newDescription")
-                        tags = svc_item.get("tags")
+            for svc_item in result.get("services", []):
+                original_name = svc_item.get("originalName", "")
+                new_name = svc_item.get("newName", original_name)
+                new_desc = svc_item.get("newDescription")
 
-                        new_name = clean_service_name(new_name)
-                        new_name = fix_caps_lock(new_name)
-                        if new_desc:
-                            new_desc = fix_caps_lock(new_desc)
+                new_name = clean_service_name(new_name)
+                new_name = fix_caps_lock(new_name)
+                if new_desc:
+                    new_desc = fix_caps_lock(new_desc)
 
-                        key = original_name.strip().lower()
-                        orig_svc = service_map.get(key)
-                        if not orig_svc:
-                            continue
+                key = original_name.strip().lower()
+                orig_svc = service_map.get(key)
+                if not orig_svc:
+                    continue
 
-                        optimized_map[key] = {
-                            "newName": new_name,
-                            "newDescription": new_desc,
-                            "tags": tags,
-                        }
+                optimized_map[key] = {
+                    "newName": new_name,
+                    "newDescription": new_desc,
+                    "tags": None,
+                }
 
-                        if new_name != orig_svc.get("name", ""):
-                            content_changes.append({
-                                "type": "name",
-                                "serviceName": orig_svc["name"],
-                                "before": orig_svc["name"],
-                                "after": new_name,
-                                "reason": "Content optimization",
-                            })
-                            names_improved += 1
+                if new_name != orig_svc.get("name", ""):
+                    content_changes.append({
+                        "type": "name",
+                        "serviceName": orig_svc["name"],
+                        "before": orig_svc["name"],
+                        "after": new_name,
+                        "reason": "Content optimization",
+                    })
+                    names_improved += 1
 
-                        if new_desc and new_desc != (orig_svc.get("description") or ""):
-                            content_changes.append({
-                                "type": "description",
-                                "serviceName": orig_svc["name"],
-                                "before": orig_svc.get("description") or "",
-                                "after": new_desc,
-                                "reason": "Content optimization",
-                            })
-                            descriptions_added += 1
+                if new_desc and new_desc != (orig_svc.get("description") or ""):
+                    content_changes.append({
+                        "type": "description",
+                        "serviceName": orig_svc["name"],
+                        "before": orig_svc.get("description") or "",
+                        "after": new_desc,
+                        "reason": "Content optimization",
+                    })
+                    descriptions_added += 1
 
         except Exception as e:
             dt = int((time.time() - t0) * 1000)
