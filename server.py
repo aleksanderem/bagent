@@ -522,10 +522,8 @@ async def run_competitor_job(job_id: str, request: CompetitorRequest) -> None:
         store.notify_status(job)
         logger.info("Competitor job %s completed", job_id)
 
-        try:
-            await convex.complete_audit(request.auditId, 0, {"type": "competitor"})
-        except Exception as e:
-            logger.warning("Competitor job %s: Convex webhook failed: %s", job_id, e)
+        # Competitor report saved to Supabase — do NOT call complete_audit
+        # (it overwrites audit overallScore with 0)
 
     except CancelledError:
         logger.info("Competitor job %s cancelled", job_id)
@@ -592,10 +590,8 @@ async def run_optimization_job(job_id: str, request: OptimizationRequest) -> Non
         store.notify_status(job)
         logger.info("Optimization job %s completed", job_id)
 
-        try:
-            await convex.complete_audit(request.auditId, 0, {"type": "optimization", "jobId": request.jobId})
-        except Exception as e:
-            logger.warning("Optimization job %s: Convex webhook failed: %s", job_id, e)
+        # Optimization saved to Supabase — do NOT call complete_audit
+        # (it overwrites audit overallScore with 0)
 
     except CancelledError:
         logger.info("Optimization job %s cancelled", job_id)
