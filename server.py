@@ -257,6 +257,25 @@ class EmbeddingRequest(BaseModel):
     texts: list[str]
 
 
+class OptimizeSeoRequest(BaseModel):
+    auditId: str
+
+
+class OptimizeContentRequest(BaseModel):
+    auditId: str
+    pricelist: dict
+
+
+class OptimizeCategoriesRequest(BaseModel):
+    auditId: str
+    pricelist: dict
+
+
+class OptimizeFinalizeRequest(BaseModel):
+    auditId: str
+    pricelist: dict
+
+
 @app.post("/api/embeddings", dependencies=[Depends(verify_api_key)])
 async def generate_embeddings(request: EmbeddingRequest) -> dict:
     """Generate Gemini embeddings for a list of texts."""
@@ -290,6 +309,47 @@ async def generate_embeddings(request: EmbeddingRequest) -> dict:
                 all_embeddings.append(emb["values"])
 
     return {"embeddings": all_embeddings}
+
+
+@app.post("/api/optimize/seo", dependencies=[Depends(verify_api_key)])
+async def optimize_seo(request: OptimizeSeoRequest) -> dict:
+    """Phase 1: Inject missing SEO keywords into service names."""
+    from pipelines.optimize_phases import run_phase1_seo
+    return await run_phase1_seo(audit_id=request.auditId)
+
+
+@app.post("/api/optimize/content", dependencies=[Depends(verify_api_key)])
+async def optimize_content(request: OptimizeContentRequest) -> dict:
+    """Phase 2: Rewrite names + descriptions (copywriting, benefit language)."""
+    from pipelines.optimize_phases import run_phase2_content
+    return await run_phase2_content(audit_id=request.auditId, pricelist=request.pricelist)
+
+
+@app.post("/api/optimize/categories", dependencies=[Depends(verify_api_key)])
+async def optimize_categories(request: OptimizeCategoriesRequest) -> dict:
+    """Phase 3: Reorganize categories based on optimized content."""
+    from pipelines.optimize_phases import run_phase3_categories
+    return await run_phase3_categories(audit_id=request.auditId, pricelist=request.pricelist)
+
+
+@app.post("/api/optimize/finalize", dependencies=[Depends(verify_api_key)])
+async def optimize_finalize(request: OptimizeFinalizeRequest) -> dict:
+    """Phase 4: Apply programmatic fixes, generate diff, save to Supabase."""
+    from pipelines.optimize_phases import run_phase4_finalize
+    from services.supabase import SupabaseService
+    supabase = SupabaseService()
+    original = await supabase.get_scraped_data(request.auditId)
+    result = run_phase4_finalize(
+        audit_id=request.auditId,
+        pricelist=request.pricelist,
+        original_pricelist=original,
+    )
+    await supabase.save_optimized_pricelist(
+        convex_audit_id=request.auditId,
+        optimization_data=result,
+        salon_name=original.get("salonName", ""),
+    )
+    return result
 
 
 # --- Background job ---
