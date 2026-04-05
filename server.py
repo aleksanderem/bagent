@@ -271,8 +271,9 @@ class OptimizeCategoriesRequest(BaseModel):
     pricelist: dict
 
 
-class OptimizeFinalizeRequest(BaseModel):
+class OptimizeFinalizeAsyncRequest(BaseModel):
     auditId: str
+    jobId: str
     pricelist: dict
 
 
@@ -332,24 +333,14 @@ async def optimize_categories(request: OptimizeCategoriesRequest) -> dict:
     return await run_phase3_categories(audit_id=request.auditId, pricelist=request.pricelist)
 
 
-@app.post("/api/optimize/finalize", dependencies=[Depends(verify_api_key)])
-async def optimize_finalize(request: OptimizeFinalizeRequest) -> dict:
-    """Phase 4: Apply programmatic fixes, generate diff, save to Supabase."""
-    from pipelines.optimize_phases import run_phase4_finalize
-    from services.supabase import SupabaseService
-    supabase = SupabaseService()
-    original = await supabase.get_scraped_data(request.auditId)
-    result = run_phase4_finalize(
-        audit_id=request.auditId,
-        pricelist=request.pricelist,
-        original_pricelist=original,
-    )
-    await supabase.save_optimized_pricelist(
-        convex_audit_id=request.auditId,
-        optimization_data=result,
-        salon_name=original.get("salonName", ""),
-    )
-    return result
+@app.post("/api/optimize/finalize", status_code=202, response_model=AnalyzeResponse, dependencies=[Depends(verify_api_key)])
+async def optimize_finalize_async(
+    request: OptimizeFinalizeAsyncRequest,
+    background_tasks: BackgroundTasks,
+) -> AnalyzeResponse:
+    """Phase 4 (fire-and-forget): Apply programmatic fixes, generate diff, save to Supabase."""
+    background_tasks.add_task(run_finalize_job, request.jobId, request.auditId, request.pricelist)
+    return AnalyzeResponse(jobId=request.jobId)
 
 
 # --- Background job ---
@@ -542,6 +533,10 @@ async def run_competitor_job(job_id: str, request: CompetitorRequest) -> None:
 
 
 async def run_optimization_job(job_id: str, request: OptimizationRequest) -> None:
+    """Run optimization phases 1-3, reporting progress to Convex after each phase.
+
+    Phase 4 (finalize) is NOT run here — Convex triggers it later via /api/optimize/finalize.
+    """
     from services.convex import ConvexClient
 
     job = store.get_job(job_id)
@@ -556,7 +551,11 @@ async def run_optimization_job(job_id: str, request: OptimizationRequest) -> Non
     pipeline_logger.addHandler(handler)
 
     try:
-        from pipelines.optimization import run_optimization_pipeline
+        from pipelines.optimize_phases import (
+            run_phase1_seo,
+            run_phase2_content,
+            run_phase3_categories,
+        )
 
         class CancelledError(Exception):
             pass
@@ -566,47 +565,106 @@ async def run_optimization_job(job_id: str, request: OptimizationRequest) -> Non
                 raise CancelledError("Job cancelled by user")
             job.add_log("info", message, progress=progress)
             store.notify_progress(job)
-            try:
-                await convex.update_progress(request.auditId, progress, message)
-            except Exception as e:
-                logger.warning("Convex progress webhook failed: %s", e)
 
-        result = await run_optimization_pipeline(
+        # Phase 1: SEO
+        await on_progress(5, "Faza 1: SEO — wstrzykiwanie słów kluczowych...")
+        phase1 = await run_phase1_seo(audit_id=request.auditId, on_progress=on_progress)
+        await convex.complete_optimization_phase(
+            job_id=request.jobId,
+            phase="phase1_seo",
+            output_json=json.dumps(phase1, ensure_ascii=False),
+            progress=25,
+        )
+
+        # Phase 2: Content
+        await on_progress(30, "Faza 2: Treści — nazwy i opisy usług...")
+        phase2 = await run_phase2_content(
             audit_id=request.auditId,
-            selected_options=request.selectedOptions,
+            pricelist=phase1["pricelist"],
             on_progress=on_progress,
         )
-
-        from services.supabase import SupabaseService
-
-        supabase = SupabaseService()
-        await supabase.save_optimized_pricelist(
-            convex_audit_id=request.auditId,
-            optimization_data=result,
-            salon_name=scraped_data.salonName or "",
+        await convex.complete_optimization_phase(
+            job_id=request.jobId,
+            phase="phase2_content",
+            output_json=json.dumps(phase2, ensure_ascii=False),
+            progress=50,
         )
 
+        # Phase 3: Categories
+        await on_progress(55, "Faza 3: Kategorie — reorganizacja struktury...")
+        phase3 = await run_phase3_categories(
+            audit_id=request.auditId,
+            pricelist=phase2["pricelist"],
+            on_progress=on_progress,
+        )
+        await convex.complete_optimization_phase(
+            job_id=request.jobId,
+            phase="phase3_categories",
+            output_json=json.dumps(phase3, ensure_ascii=False),
+            progress=75,
+        )
+
+        # Done — phase 4 will be triggered by Convex via /api/optimize/finalize
         job.mark_completed()
         store.notify_status(job)
-        logger.info("Optimization job %s completed", job_id)
-
-        # Optimization saved to Supabase — do NOT call complete_audit
-        # (it overwrites audit overallScore with 0)
+        logger.info("Optimization job %s completed (phases 1-3)", job_id)
 
     except CancelledError:
         logger.info("Optimization job %s cancelled", job_id)
         job.mark_cancelled()
         store.notify_status(job)
+        try:
+            await convex.fail_optimization(request.jobId, "Cancelled by user")
+        except Exception:
+            pass
     except Exception as e:
         logger.error("Optimization job %s failed: %s", job_id, e, exc_info=True)
         job.mark_failed(str(e))
         store.notify_status(job)
         try:
-            await convex.fail_audit(request.auditId, str(e))
+            await convex.fail_optimization(request.jobId, str(e))
         except Exception:
             pass
     finally:
         pipeline_logger.removeHandler(handler)
+
+
+async def run_finalize_job(job_id: str, audit_id: str, pricelist: dict) -> None:
+    """Run optimization phase 4 (deterministic, no AI) and report back to Convex."""
+    from services.convex import ConvexClient
+
+    convex = ConvexClient()
+    try:
+        from pipelines.optimize_phases import run_phase4_finalize
+        from services.supabase import SupabaseService
+
+        supabase = SupabaseService()
+        original = await supabase.get_scraped_data(audit_id)
+
+        result = run_phase4_finalize(
+            audit_id=audit_id,
+            pricelist=pricelist,
+            original_pricelist=original,
+        )
+
+        await supabase.save_optimized_pricelist(
+            convex_audit_id=audit_id,
+            optimization_data=result,
+            salon_name=original.get("salonName", ""),
+        )
+
+        await convex.complete_optimization(
+            job_id=job_id,
+            output_pricing_data_json=json.dumps(result.get("finalPricelist", result), ensure_ascii=False),
+            optimization_result_json=json.dumps(result, ensure_ascii=False),
+        )
+        logger.info("Finalize job %s completed", job_id)
+    except Exception as e:
+        logger.error("Finalize job %s failed: %s", job_id, e, exc_info=True)
+        try:
+            await convex.fail_optimization(job_id, str(e))
+        except Exception:
+            pass
 
 
 if __name__ == "__main__":
