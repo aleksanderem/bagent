@@ -65,22 +65,50 @@ def _find_optimization(
 
 
 async def run_optimization_pipeline(
-    scraped_data: Any,  # ScrapedData model
-    audit_report: dict,  # EnhancedAuditReport as dict
-    selected_options: list[str],  # ["descriptions", "seo", "categories", "order", "tags"]
     audit_id: str,
+    selected_options: list[str] | None = None,
     on_progress: ProgressCallback | None = None,
+    # Legacy args — ignored, data loaded from Supabase
+    scraped_data: Any = None,
+    audit_report: dict | None = None,
 ) -> dict[str, Any]:
-    """8-step optimization pipeline."""
+    """8-step optimization pipeline.
+
+    All data is loaded from Supabase (bagent's own prior outputs):
+    - Scraped pricelist from audit_scraped_data
+    - Audit report from audit_reports (via get_audit_report RPC)
+    Convex only needs to send auditId + selectedOptions.
+    """
     from agent.runner import run_agent_loop
     from agent.tools import CATEGORY_MAPPING_TOOL, OPTIMIZED_SERVICES_TOOL
     from config import settings
+    from models.scraped_data import ScrapedData
     from pipelines.helpers import build_full_pricelist_text, clean_service_name, fix_caps_lock
     from services.minimax import MiniMaxClient
+    from services.supabase import SupabaseService
 
     progress = on_progress or _noop_progress
     client = MiniMaxClient(settings.minimax_api_key, settings.minimax_base_url, settings.minimax_model)
+    supabase = SupabaseService()
+
+    if not selected_options:
+        selected_options = ["descriptions", "seo", "categories", "order", "tags"]
+
+    # ── Step 0: Load ALL data from Supabase ──
+    logger.info("[%s] Loading data from Supabase...", audit_id)
+    await progress(2, "Ładowanie danych z Supabase...")
+
+    # Scraped pricelist
+    raw_scraped = await supabase.get_scraped_data(audit_id)
+    scraped_data = ScrapedData(**raw_scraped)
     total_services = scraped_data.totalServices
+    logger.info("[%s] Scraped data: %d services, %d categories", audit_id, total_services, len(scraped_data.categories))
+
+    # Audit report (bagent's own output)
+    report_data = await supabase.get_audit_report(audit_id)
+    if not report_data:
+        logger.warning("[%s] No audit report in Supabase — using empty context", audit_id)
+        report_data = {}
 
     # Build original service map for price/duration/variant verification
     original_service_map: dict[str, Any] = {}
@@ -94,11 +122,11 @@ async def run_optimization_pipeline(
     t0 = time.time()
 
     context = {
-        "topIssues": audit_report.get("topIssues", []),
-        "transformations": audit_report.get("transformations", []),
-        "missingSeoKeywords": audit_report.get("missingSeoKeywords", []),
-        "quickWins": audit_report.get("quickWins", []),
-        "stats": audit_report.get("stats", {}),
+        "topIssues": report_data.get("topIssues", []),
+        "transformations": report_data.get("transformations", []),
+        "missingSeoKeywords": report_data.get("missingSeoKeywords", []),
+        "quickWins": report_data.get("quickWins", []),
+        "stats": report_data.get("stats", {}),
     }
 
     n_issues = len(context["topIssues"])
@@ -451,15 +479,26 @@ async def run_optimization_pipeline(
         )
 
     issues_summary = "\n".join(
-        f"- {i.get('issue', '')}" for i in context["topIssues"][:10]
+        f"- [{i.get('severity', 'minor')}] {i.get('issue', '')} (fix: {i.get('fix', 'brak')})"
+        for i in context["topIssues"][:10]
     )
-    opt_summary = (
-        f"Zoptymalizowano {len(optimized_service_map)} usług z {total_services}.\n"
-        f"Zmieniono: {len(changes)} elementów.\n"
-        f"Kategorie zmapowane: {len(category_mapping)}.\n"
-        f"SEO wzbogacone: {seo_keywords_added}.\n"
-        f"Duplikaty znalezione: {duplicates_found}."
-    )
+
+    # Build actual before/after comparison for verification
+    opt_lines = []
+    for cat in scraped_data.categories:
+        for svc in cat.services:
+            opt = _find_optimization(svc.name, optimized_service_map)
+            if opt:
+                old_name = svc.name
+                new_name = opt.get("newName", old_name)
+                old_desc = svc.description or "(brak)"
+                new_desc = opt.get("newDescription") or old_desc
+                if old_name != new_name or old_desc != new_desc:
+                    opt_lines.append(f"- {old_name} → {new_name}")
+                    if old_desc != new_desc:
+                        opt_lines.append(f"  Opis: {new_desc[:80]}")
+    opt_summary = "\n".join(opt_lines[:30]) if opt_lines else "Brak zmian."
+    opt_summary += f"\n\nŁącznie: {len(optimized_service_map)}/{total_services} usług, {len(changes)} zmian, {seo_keywords_added} SEO, {duplicates_found} duplikatów."
 
     full_verify = (
         verify_prompt

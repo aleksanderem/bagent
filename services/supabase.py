@@ -23,7 +23,6 @@ class SupabaseService:
         if not result.data:
             raise ValueError(f"No scraped data found for audit {convex_audit_id}")
         row = result.data[0]
-        # Reconstruct ScrapedData shape from normalized columns
         return {
             "salonName": row.get("salon_name"),
             "salonAddress": row.get("salon_address"),
@@ -31,6 +30,17 @@ class SupabaseService:
             "categories": row.get("categories_json", []),
             "totalServices": row.get("total_services", 0),
         }
+
+    async def get_audit_report(self, convex_audit_id: str) -> dict | None:
+        """Read full audit report from Supabase (the report bagent itself wrote).
+
+        Returns the reconstructed EnhancedAuditReport dict with all child data
+        (issues, transformations, SEO keywords, quick wins, competitors).
+        """
+        result = self.client.rpc("get_audit_report", {"p_convex_audit_id": convex_audit_id}).execute()
+        if not result.data:
+            return None
+        return result.data
 
     async def save_report(
         self,

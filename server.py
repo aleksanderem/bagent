@@ -498,10 +498,7 @@ async def run_optimization_job(job_id: str, request: OptimizationRequest) -> Non
     pipeline_logger.addHandler(handler)
 
     try:
-        from models.scraped_data import ScrapedData
         from pipelines.optimization import run_optimization_pipeline
-
-        scraped_data = ScrapedData(**request.scrapedData)
 
         class CancelledError(Exception):
             pass
@@ -517,10 +514,8 @@ async def run_optimization_job(job_id: str, request: OptimizationRequest) -> Non
                 logger.warning("Convex progress webhook failed: %s", e)
 
         result = await run_optimization_pipeline(
-            scraped_data=scraped_data,
-            audit_report=request.auditReport,
-            selected_options=request.selectedOptions,
             audit_id=request.auditId,
+            selected_options=request.selectedOptions,
             on_progress=on_progress,
         )
 
