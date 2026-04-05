@@ -316,27 +316,23 @@ class TestServiceOptimization:
 
 
 class TestSeoEnrichment:
-    """Test Step 4: SEO enrichment."""
+    """Test SEO enrichment via legacy wrapper (delegates to optimize_phases)."""
 
-    async def test_seo_enrichment_skipped_when_not_selected(self) -> None:
-        """Verify SEO step is skipped when 'seo' not in selected_options."""
-        scraped = _make_scraped_data()
-        report = _make_audit_report()
+    async def test_legacy_wrapper_calls_all_four_phases(self) -> None:
+        """Verify the legacy wrapper calls all 4 phases sequentially."""
+        import pipelines.optimize_phases as opt_mod
 
-        mock_client = MagicMock()
-        mock_agent_loop = AsyncMock()
-        mock_settings = MagicMock()
-        mock_settings.minimax_api_key = "test"
-        mock_settings.minimax_base_url = "http://test"
-        mock_settings.minimax_model = "test"
-
-        # Agent loop returns empty result for service optimization
-        mock_agent_loop.return_value = FakeAgentResult()
-
-        # Client generate_json returns quality verification
-        mock_client.generate_json = AsyncMock(return_value={
-            "fixed": [], "remaining": [], "qualityScore": 80, "recommendations": [],
+        mock_pricelist = {"salonName": "Test", "categories": [], "totalServices": 0}
+        mock_phase1 = AsyncMock(return_value={"pricelist": mock_pricelist, "seoChanges": [], "keywordsAdded": 0})
+        mock_phase2 = AsyncMock(return_value={"pricelist": mock_pricelist, "contentChanges": [], "namesImproved": 0, "descriptionsAdded": 0})
+        mock_phase3 = AsyncMock(return_value={"pricelist": mock_pricelist, "categoryChanges": []})
+        mock_phase4 = MagicMock(return_value={
+            "finalPricelist": mock_pricelist, "changes": [], "summary": {"totalChanges": 0}, "qualityScore": 80,
         })
+        mock_supabase_instance = MagicMock()
+        mock_supabase_instance.get_scraped_data = AsyncMock(return_value={"salonName": "Test", "categories": []})
+        mock_supabase_instance.save_optimized_pricelist = AsyncMock()
+        mock_supabase_cls = MagicMock(return_value=mock_supabase_instance)
 
         progress_messages: list[str] = []
 
@@ -344,23 +340,27 @@ class TestSeoEnrichment:
             progress_messages.append(msg)
 
         with (
-            patch("services.minimax.MiniMaxClient", return_value=mock_client),
-            patch("agent.runner.run_agent_loop", mock_agent_loop),
-            patch("config.settings", mock_settings),
+            patch.object(opt_mod, "run_phase1_seo", mock_phase1),
+            patch.object(opt_mod, "run_phase2_content", mock_phase2),
+            patch.object(opt_mod, "run_phase3_categories", mock_phase3),
+            patch.object(opt_mod, "run_phase4_finalize", mock_phase4),
         ):
-            from pipelines.optimization import run_optimization_pipeline
+            # Patch SupabaseService at the point where it's imported lazily
+            mock_supabase_mod = MagicMock()
+            mock_supabase_mod.SupabaseService = mock_supabase_cls
+            with patch.dict("sys.modules", {"services.supabase": mock_supabase_mod}):
+                from pipelines.optimization import run_optimization_pipeline
 
-            result = await run_optimization_pipeline(
-                scraped_data=scraped,
-                audit_report=report,
-                selected_options=["descriptions"],  # No "seo"
-                audit_id="test-seo-skip",
-                on_progress=track_progress,
-            )
+                result = await run_optimization_pipeline(
+                    audit_id="test-legacy",
+                    on_progress=track_progress,
+                )
 
-        # Find the SEO progress message
-        seo_messages = [m for m in progress_messages if "SEO" in m or "seo" in m.lower()]
-        assert any("pominięto" in m for m in seo_messages), f"Expected skip message, got: {seo_messages}"
+        mock_phase1.assert_awaited_once()
+        mock_phase2.assert_awaited_once()
+        mock_phase3.assert_awaited_once()
+        mock_phase4.assert_called_once()
+        assert result["qualityScore"] == 80
 
 
 class TestProgrammaticFixes:
@@ -404,255 +404,156 @@ class TestQualityVerification:
 
 
 class TestPriceIntegrity:
-    """CRITICAL: Test that prices, durations, variants are NEVER changed."""
+    """CRITICAL: Price/duration/variant integrity is tested in test_optimize_phases.py.
+
+    These tests verify the legacy wrapper correctly delegates to phases.
+    """
 
     async def test_never_changes_prices(self) -> None:
-        """Verify all prices in optimized data match original scraped data."""
-        scraped = _make_scraped_data()
-        report = _make_audit_report()
+        """Verify phase4 finalize preserves prices (delegates to optimize_phases)."""
+        from pipelines.optimize_phases import run_phase4_finalize
 
-        mock_client = MagicMock()
-        mock_agent_result = FakeAgentResult(
-            tool_calls=[
-                FakeToolCall(
-                    name="submit_optimized_services",
-                    input={
-                        "services": [
-                            {
-                                "originalName": "Strzyżenie damskie",
-                                "newName": "Strzyżenie damskie - stylowe cięcie",
-                                "newDescription": "Nowoczesne strzyżenie z konsultacją.",
-                            },
-                            {
-                                "originalName": "KOLORYZACJA...",
-                                "newName": "Koloryzacja",
-                                "newDescription": "Profesjonalna zmiana koloru włosów.",
-                            },
-                            {
-                                "originalName": "Manicure hybrydowy",
-                                "newName": "Manicure hybrydowy - trwały kolor",
-                                "newDescription": "Manicure z trwałym lakierem hybrydowym.",
-                            },
-                        ],
-                    },
-                ),
+        original = {
+            "salonName": "Test",
+            "totalServices": 2,
+            "categories": [
+                {"name": "Hair", "services": [
+                    {"name": "Cut", "price": "120 zł", "duration": "45 min", "description": None, "imageUrl": None, "variants": None, "tags": None, "isPromo": False},
+                ]},
             ],
-        )
-
-        mock_agent_loop = AsyncMock(return_value=mock_agent_result)
-        mock_client.generate_json = AsyncMock(return_value={
-            "fixed": [], "remaining": [], "qualityScore": 80, "recommendations": [],
-        })
-
-        mock_settings = MagicMock()
-        mock_settings.minimax_api_key = "test"
-        mock_settings.minimax_base_url = "http://test"
-        mock_settings.minimax_model = "test"
-
-        with (
-            patch("services.minimax.MiniMaxClient", return_value=mock_client),
-            patch("agent.runner.run_agent_loop", mock_agent_loop),
-            patch("config.settings", mock_settings),
-        ):
-            from pipelines.optimization import run_optimization_pipeline
-
-            result = await run_optimization_pipeline(
-                scraped_data=scraped,
-                audit_report=report,
-                selected_options=["descriptions"],
-                audit_id="test-prices",
-            )
-
-        # Verify prices match original
-        original_prices: dict[str, str] = {}
-        for cat in scraped.categories:
-            for svc in cat.services:
-                original_prices[svc.name] = svc.price
-
-        for opt_cat in result["optimizedPricingData"]["categories"]:
-            for opt_svc in opt_cat["services"]:
-                assert opt_svc["price"] in original_prices.values(), (
-                    f"Price '{opt_svc['price']}' for service '{opt_svc['name']}' "
-                    f"not found in original prices: {original_prices}"
-                )
-
-        # More specific: check each service by position
-        for i, cat in enumerate(scraped.categories):
-            opt_cat = result["optimizedPricingData"]["categories"][i]
-            for j, svc in enumerate(cat.services):
-                opt_svc = opt_cat["services"][j]
-                assert opt_svc["price"] == svc.price, (
-                    f"Price changed! Original: '{svc.price}', "
-                    f"Optimized: '{opt_svc['price']}' for service '{svc.name}'"
-                )
+        }
+        modified = {
+            "salonName": "Test",
+            "totalServices": 2,
+            "categories": [
+                {"name": "Hair", "services": [
+                    {"name": "Strzyżenie damskie - stylowe cięcie", "price": "120 zł", "duration": "45 min", "description": "Nowy opis", "imageUrl": None, "variants": None, "tags": None, "isPromo": False},
+                ]},
+            ],
+        }
+        result = run_phase4_finalize(audit_id="test", pricelist=modified, original_pricelist=original)
+        final_svc = result["finalPricelist"]["categories"][0]["services"][0]
+        assert final_svc["price"] == "120 zł"
 
     async def test_never_changes_durations(self) -> None:
-        """Verify all durations in optimized data match original scraped data."""
-        scraped = _make_scraped_data()
-        report = _make_audit_report()
+        """Verify phase4 finalize preserves durations."""
+        from pipelines.optimize_phases import run_phase4_finalize
 
-        mock_client = MagicMock()
-        mock_agent_result = FakeAgentResult(
-            tool_calls=[
-                FakeToolCall(
-                    name="submit_optimized_services",
-                    input={
-                        "services": [
-                            {
-                                "originalName": "Masaż relaksacyjny",
-                                "newName": "Masaż relaksacyjny - całe ciało",
-                                "newDescription": "60 minut głębokiego relaksu.",
-                            },
-                        ],
-                    },
-                ),
+        original = {
+            "salonName": "Test",
+            "totalServices": 1,
+            "categories": [
+                {"name": "Hair", "services": [
+                    {"name": "Cut", "price": "120 zł", "duration": "45 min", "description": None, "imageUrl": None, "variants": None, "tags": None, "isPromo": False},
+                ]},
             ],
-        )
-
-        mock_agent_loop = AsyncMock(return_value=mock_agent_result)
-        mock_client.generate_json = AsyncMock(return_value={
-            "fixed": [], "remaining": [], "qualityScore": 80, "recommendations": [],
-        })
-
-        mock_settings = MagicMock()
-        mock_settings.minimax_api_key = "test"
-        mock_settings.minimax_base_url = "http://test"
-        mock_settings.minimax_model = "test"
-
-        with (
-            patch("services.minimax.MiniMaxClient", return_value=mock_client),
-            patch("agent.runner.run_agent_loop", mock_agent_loop),
-            patch("config.settings", mock_settings),
-        ):
-            from pipelines.optimization import run_optimization_pipeline
-
-            result = await run_optimization_pipeline(
-                scraped_data=scraped,
-                audit_report=report,
-                selected_options=["descriptions"],
-                audit_id="test-durations",
-            )
-
-        for i, cat in enumerate(scraped.categories):
-            opt_cat = result["optimizedPricingData"]["categories"][i]
-            for j, svc in enumerate(cat.services):
-                opt_svc = opt_cat["services"][j]
-                assert opt_svc["duration"] == svc.duration, (
-                    f"Duration changed! Original: '{svc.duration}', "
-                    f"Optimized: '{opt_svc['duration']}' for service '{svc.name}'"
-                )
+        }
+        modified = {
+            "salonName": "Test",
+            "totalServices": 1,
+            "categories": [
+                {"name": "Hair", "services": [
+                    {"name": "Strzyżenie", "price": "120 zł", "duration": "45 min", "description": None, "imageUrl": None, "variants": None, "tags": None, "isPromo": False},
+                ]},
+            ],
+        }
+        result = run_phase4_finalize(audit_id="test", pricelist=modified, original_pricelist=original)
+        final_svc = result["finalPricelist"]["categories"][0]["services"][0]
+        assert final_svc["duration"] == "45 min"
 
     async def test_never_changes_variants(self) -> None:
-        """Verify all variants in optimized data match original scraped data."""
-        scraped = _make_scraped_data()
-        report = _make_audit_report()
+        """Verify phase4 finalize preserves variants."""
+        from pipelines.optimize_phases import run_phase4_finalize
 
-        mock_client = MagicMock()
-        mock_agent_result = FakeAgentResult(
-            tool_calls=[
-                FakeToolCall(
-                    name="submit_optimized_services",
-                    input={
-                        "services": [
-                            {
-                                "originalName": "Drenaż limfatyczny",
-                                "newName": "Drenaż limfatyczny - poprawa krążenia",
-                                "newDescription": "Specjalistyczny drenaż wspomagający krążenie limfatyczne.",
-                            },
-                        ],
-                    },
-                ),
+        variants = [{"label": "Nogi", "price": "100 zł", "duration": "45 min"}]
+        original = {
+            "salonName": "Test",
+            "totalServices": 1,
+            "categories": [
+                {"name": "Massage", "services": [
+                    {"name": "Drenaż", "price": "200 zł", "duration": "90 min", "description": None, "imageUrl": None, "variants": variants, "tags": None, "isPromo": False},
+                ]},
             ],
-        )
-
-        mock_agent_loop = AsyncMock(return_value=mock_agent_result)
-        mock_client.generate_json = AsyncMock(return_value={
-            "fixed": [], "remaining": [], "qualityScore": 80, "recommendations": [],
-        })
-
-        mock_settings = MagicMock()
-        mock_settings.minimax_api_key = "test"
-        mock_settings.minimax_base_url = "http://test"
-        mock_settings.minimax_model = "test"
-
-        with (
-            patch("services.minimax.MiniMaxClient", return_value=mock_client),
-            patch("agent.runner.run_agent_loop", mock_agent_loop),
-            patch("config.settings", mock_settings),
-        ):
-            from pipelines.optimization import run_optimization_pipeline
-
-            result = await run_optimization_pipeline(
-                scraped_data=scraped,
-                audit_report=report,
-                selected_options=["descriptions"],
-                audit_id="test-variants",
-            )
-
-        for i, cat in enumerate(scraped.categories):
-            opt_cat = result["optimizedPricingData"]["categories"][i]
-            for j, svc in enumerate(cat.services):
-                opt_svc = opt_cat["services"][j]
-                if svc.variants:
-                    expected_variants = [v.model_dump() for v in svc.variants]
-                    assert opt_svc["variants"] == expected_variants, (
-                        f"Variants changed for '{svc.name}'! "
-                        f"Original: {expected_variants}, "
-                        f"Optimized: {opt_svc['variants']}"
-                    )
-                else:
-                    assert opt_svc["variants"] is None, (
-                        f"Variants appeared for '{svc.name}' that had none! "
-                        f"Got: {opt_svc['variants']}"
-                    )
+        }
+        modified = {
+            "salonName": "Test",
+            "totalServices": 1,
+            "categories": [
+                {"name": "Massage", "services": [
+                    {"name": "Drenaż limfatyczny", "price": "200 zł", "duration": "90 min", "description": "Nowy opis", "imageUrl": None, "variants": variants, "tags": None, "isPromo": False},
+                ]},
+            ],
+        }
+        result = run_phase4_finalize(audit_id="test", pricelist=modified, original_pricelist=original)
+        final_svc = result["finalPricelist"]["categories"][0]["services"][0]
+        assert final_svc["variants"] == variants
 
 
 class TestReportAssembly:
-    """Test Step 7: Report assembly."""
+    """Test that legacy wrapper returns phase4 result with expected keys."""
 
     async def test_report_assembly(self) -> None:
-        """Verify all sections present with correct types."""
-        scraped = _make_scraped_data()
-        report = _make_audit_report()
+        """Verify legacy wrapper returns phase4 output with correct structure."""
+        import pipelines.optimize_phases as opt_mod
 
-        mock_client = MagicMock()
-        mock_agent_loop = AsyncMock(return_value=FakeAgentResult())
-        mock_client.generate_json = AsyncMock(return_value={
-            "fixed": ["issue1"], "remaining": ["issue2"], "qualityScore": 85,
-            "recommendations": ["rec1"],
-        })
+        mock_pricelist = {
+            "salonName": "Test Salon",
+            "salonAddress": "ul. Testowa 1",
+            "totalServices": 3,
+            "categories": [
+                {"name": "Hair", "services": [
+                    {"name": "Cut", "price": "100 zł", "duration": "30 min", "description": "Opis", "imageUrl": None, "variants": None, "tags": None, "isPromo": False},
+                ]},
+            ],
+        }
+        phase4_result = {
+            "finalPricelist": mock_pricelist,
+            "changes": [{"type": "name", "before": "A", "after": "B"}],
+            "summary": {
+                "totalChanges": 1,
+                "namesImproved": 1,
+                "descriptionsAdded": 0,
+                "categoriesOptimized": 0,
+                "duplicatesFound": 0,
+                "seoKeywordsAdded": 0,
+            },
+            "qualityScore": 85,
+        }
 
-        mock_settings = MagicMock()
-        mock_settings.minimax_api_key = "test"
-        mock_settings.minimax_base_url = "http://test"
-        mock_settings.minimax_model = "test"
+        mock_phase1 = AsyncMock(return_value={"pricelist": mock_pricelist})
+        mock_phase2 = AsyncMock(return_value={"pricelist": mock_pricelist})
+        mock_phase3 = AsyncMock(return_value={"pricelist": mock_pricelist})
+        mock_phase4 = MagicMock(return_value=phase4_result)
+        mock_supabase_instance = MagicMock()
+        mock_supabase_instance.get_scraped_data = AsyncMock(return_value={"salonName": "Test"})
+        mock_supabase_instance.save_optimized_pricelist = AsyncMock()
+        mock_supabase_cls = MagicMock(return_value=mock_supabase_instance)
 
         with (
-            patch("services.minimax.MiniMaxClient", return_value=mock_client),
-            patch("agent.runner.run_agent_loop", mock_agent_loop),
-            patch("config.settings", mock_settings),
+            patch.object(opt_mod, "run_phase1_seo", mock_phase1),
+            patch.object(opt_mod, "run_phase2_content", mock_phase2),
+            patch.object(opt_mod, "run_phase3_categories", mock_phase3),
+            patch.object(opt_mod, "run_phase4_finalize", mock_phase4),
         ):
-            from pipelines.optimization import run_optimization_pipeline
+            mock_supabase_mod = MagicMock()
+            mock_supabase_mod.SupabaseService = mock_supabase_cls
+            with patch.dict("sys.modules", {"services.supabase": mock_supabase_mod}):
+                from pipelines.optimization import run_optimization_pipeline
 
-            result = await run_optimization_pipeline(
-                scraped_data=scraped,
-                audit_report=report,
-                selected_options=["descriptions", "seo", "categories"],
-                audit_id="test-assembly",
-            )
+                result = await run_optimization_pipeline(
+                    audit_id="test-assembly",
+                )
 
-        # Verify top-level keys
-        assert "optimizedPricingData" in result
+        # Verify top-level keys from phase4
+        assert "finalPricelist" in result
         assert "changes" in result
         assert "summary" in result
-        assert "recommendations" in result
         assert "qualityScore" in result
 
         # Verify types
-        assert isinstance(result["optimizedPricingData"], dict)
+        assert isinstance(result["finalPricelist"], dict)
         assert isinstance(result["changes"], list)
         assert isinstance(result["summary"], dict)
-        assert isinstance(result["recommendations"], list)
         assert isinstance(result["qualityScore"], int)
 
         # Verify summary structure
@@ -660,34 +561,6 @@ class TestReportAssembly:
         assert "totalChanges" in summary
         assert "namesImproved" in summary
         assert "descriptionsAdded" in summary
-        assert "duplicatesFound" in summary
-        assert "categoriesOptimized" in summary
-        assert "seoKeywordsAdded" in summary
-
-        # Verify summary values are ints
-        for key in ("totalChanges", "namesImproved", "descriptionsAdded",
-                     "duplicatesFound", "categoriesOptimized", "seoKeywordsAdded"):
-            assert isinstance(summary[key], int), f"summary['{key}'] should be int, got {type(summary[key])}"
-
-        # Verify optimizedPricingData structure
-        opd = result["optimizedPricingData"]
-        assert "salonName" in opd
-        assert "categories" in opd
-        assert isinstance(opd["categories"], list)
-        assert len(opd["categories"]) == len(scraped.categories)
-
-        # Each category has services
-        for opt_cat in opd["categories"]:
-            assert "categoryName" in opt_cat
-            assert "services" in opt_cat
-            assert isinstance(opt_cat["services"], list)
-
-            for opt_svc in opt_cat["services"]:
-                assert "name" in opt_svc
-                assert "price" in opt_svc
-                assert "duration" in opt_svc
-                assert "description" in opt_svc
-                assert "variants" in opt_svc
 
         # Verify qualityScore is bounded
         assert 0 <= result["qualityScore"] <= 100
