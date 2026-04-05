@@ -1,0 +1,10 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(uv sync:*)",
+      "Bash(uv run:*)",
+      "Read(//Users/alex/Desktop/MOJE_PROJEKTY/BEAUTY_AUDIT/**)",
+      "Bash(uv add:*)"
+    ]
+  }
+}
