@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import asyncio
 import json
 import logging
 import time
@@ -119,16 +120,13 @@ async def run_phase1_seo(
     seo_text = ", ".join(k.get("keyword", "") for k in missing_seo[:15])
     logger.info("[%s][seo] Missing SEO keywords: %d", audit_id, len(missing_seo))
 
-    # Single JSON call per category — no multi-turn agent loop overhead
+    # All categories in parallel — one generate_json call each
     optimized_map: dict[str, dict[str, Any]] = {}
     seo_changes: list[dict[str, Any]] = []
     keywords_added = 0
-    total_cats = len(scraped_data.categories)
 
-    for cat_idx, cat in enumerate(scraped_data.categories):
-        cat_pct = 20 + int(40 * cat_idx / max(total_cats, 1))
-        await progress(cat_pct, f"SEO: kategoria {cat_idx + 1}/{total_cats} — {cat.name}...")
-
+    async def _seo_one_category(cat: Any) -> None:
+        nonlocal keywords_added
         services_list = [{"name": svc.name, "price": svc.price} for svc in cat.services]
         prompt = (
             f"Wzbogać nazwy usług o słowa kluczowe SEO dla salonu beauty.\n"
@@ -139,35 +137,25 @@ async def run_phase1_seo(
             f"Jeśli nazwa nie wymaga zmiany, zwróć ją bez zmian."
         )
         t0 = time.time()
-
         try:
             result = await client.generate_json(prompt, system="Jesteś ekspertem SEO dla salonów beauty. Odpowiadaj WYŁĄCZNIE JSON.")
             dt = int((time.time() - t0) * 1000)
             logger.info("[%s][seo] Category '%s' done (%dms)", audit_id, cat.name[:30], dt)
-
             for svc_item in result.get("services", []):
                 original_name = svc_item.get("originalName", "")
                 new_name = svc_item.get("newName", original_name)
                 new_name = clean_service_name(new_name)
                 new_name = fix_caps_lock(new_name)
                 key = original_name.strip().lower()
-                optimized_map[key] = {
-                    "newName": new_name,
-                    "categoryName": cat.name,
-                }
+                optimized_map[key] = {"newName": new_name, "categoryName": cat.name}
                 if new_name != original_name:
-                    seo_changes.append({
-                        "type": "seo",
-                        "serviceName": original_name,
-                        "before": original_name,
-                        "after": new_name,
-                        "reason": "SEO keyword enrichment",
-                    })
+                    seo_changes.append({"type": "seo", "serviceName": original_name, "before": original_name, "after": new_name, "reason": "SEO keyword enrichment"})
                     keywords_added += 1
-
         except Exception as e:
-            dt = int((time.time() - t0) * 1000)
-            logger.warning("[%s][seo] Category '%s' failed: %s (%dms)", audit_id, cat.name[:30], e, dt)
+            logger.warning("[%s][seo] Category '%s' failed: %s (%dms)", audit_id, cat.name[:30], e, int((time.time() - t0) * 1000))
+
+    await progress(20, f"SEO: {len(scraped_data.categories)} kategorii równolegle...")
+    await asyncio.gather(*[_seo_one_category(cat) for cat in scraped_data.categories])
 
     # Build output pricelist
     output_categories: list[dict[str, Any]] = []
@@ -255,20 +243,17 @@ async def run_phase2_content(
     # Build service lookup from input pricelist
     service_map = _build_original_service_map(pricelist)
 
-    # Single JSON call per category — no multi-turn agent loop overhead
+    # All categories in parallel
     optimized_map: dict[str, dict[str, Any]] = {}
     content_changes: list[dict[str, Any]] = []
     names_improved = 0
     descriptions_added = 0
     categories = pricelist.get("categories", [])
-    total_cats = len(categories)
 
-    for cat_idx, cat in enumerate(categories):
-        cat_pct = 20 + int(40 * cat_idx / max(total_cats, 1))
+    async def _content_one_category(cat: dict[str, Any]) -> None:
+        nonlocal names_improved, descriptions_added
         cat_name = cat.get("name", "Bez kategorii")
         services = cat.get("services", [])
-        await progress(cat_pct, f"Content: kategoria {cat_idx + 1}/{total_cats} — {cat_name}...")
-
         services_json = json.dumps(
             [{"name": s.get("name", ""), "price": s.get("price", ""), "description": s.get("description") or ""} for s in services],
             ensure_ascii=False,
@@ -282,56 +267,32 @@ async def run_phase2_content(
             f"Opis max 2 zdania, język korzyści. Jeśli opis OK — zwróć bez zmian."
         )
         t0 = time.time()
-
         try:
             result = await client.generate_json(prompt, system="Jesteś copywriterem salonów beauty. Odpowiadaj WYŁĄCZNIE JSON.")
-            dt = int((time.time() - t0) * 1000)
-            logger.info("[%s][content] Category '%s' done (%dms)", audit_id, cat_name[:30], dt)
-
+            logger.info("[%s][content] Category '%s' done (%dms)", audit_id, cat_name[:30], int((time.time() - t0) * 1000))
             for svc_item in result.get("services", []):
                 original_name = svc_item.get("originalName", "")
-                new_name = svc_item.get("newName", original_name)
-                new_desc = svc_item.get("newDescription")
-
-                new_name = clean_service_name(new_name)
+                new_name = clean_service_name(svc_item.get("newName", original_name))
                 new_name = fix_caps_lock(new_name)
+                new_desc = svc_item.get("newDescription")
                 if new_desc:
                     new_desc = fix_caps_lock(new_desc)
-
                 key = original_name.strip().lower()
                 orig_svc = service_map.get(key)
                 if not orig_svc:
                     continue
-
-                optimized_map[key] = {
-                    "newName": new_name,
-                    "newDescription": new_desc,
-                    "tags": None,
-                }
-
+                optimized_map[key] = {"newName": new_name, "newDescription": new_desc, "tags": None}
                 if new_name != orig_svc.get("name", ""):
-                    content_changes.append({
-                        "type": "name",
-                        "serviceName": orig_svc["name"],
-                        "before": orig_svc["name"],
-                        "after": new_name,
-                        "reason": "Content optimization",
-                    })
+                    content_changes.append({"type": "name", "serviceName": orig_svc["name"], "before": orig_svc["name"], "after": new_name, "reason": "Content optimization"})
                     names_improved += 1
-
                 if new_desc and new_desc != (orig_svc.get("description") or ""):
-                    content_changes.append({
-                        "type": "description",
-                        "serviceName": orig_svc["name"],
-                        "before": orig_svc.get("description") or "",
-                        "after": new_desc,
-                        "reason": "Content optimization",
-                    })
+                    content_changes.append({"type": "description", "serviceName": orig_svc["name"], "before": orig_svc.get("description") or "", "after": new_desc, "reason": "Content optimization"})
                     descriptions_added += 1
-
         except Exception as e:
-            dt = int((time.time() - t0) * 1000)
-            logger.warning("[%s][content] Category '%s' failed: %s (%dms)", audit_id, cat_name[:30], e, dt)
+            logger.warning("[%s][content] Category '%s' failed: %s (%dms)", audit_id, cat_name[:30], e, int((time.time() - t0) * 1000))
+
+    await progress(20, f"Content: {len(categories)} kategorii równolegle...")
+    await asyncio.gather(*[_content_one_category(cat) for cat in categories])
 
     # Build output pricelist
     output_categories: list[dict[str, Any]] = []
