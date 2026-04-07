@@ -21,7 +21,10 @@ class ScrapedService(BaseModel):
 
 
 class ScrapedCategory(BaseModel):
-    name: str
+    # Empty name falls back to "Bez kategorii" — some Booksy salons don't
+    # assign services to categories. Without this default the whole pipeline
+    # fails on pydantic validation at step 0.
+    name: str = "Bez kategorii"
     services: list[ScrapedService]
 
 
