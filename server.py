@@ -463,6 +463,9 @@ async def run_analysis_job(job_id: str, request: AnalyzeRequest) -> None:
     handler = _JobLogHandler(job, store)
     pipeline_logger.addHandler(handler)
 
+    class CancelledError(Exception):
+        pass
+
     try:
         from models.scraped_data import ScrapedData
         from pipelines.audit import run_audit_pipeline
@@ -472,9 +475,6 @@ async def run_analysis_job(job_id: str, request: AnalyzeRequest) -> None:
         scraped_data = ScrapedData(**request.scrapedData)
         job.add_log("info", f"Parsed: {scraped_data.totalServices} services, {len(scraped_data.categories)} categories")
         store.notify_progress(job)
-
-        class CancelledError(Exception):
-            pass
 
         async def on_progress(progress: int, message: str) -> None:
             if job.cancel_requested:
@@ -560,15 +560,15 @@ async def run_optimization_job(job_id: str, request: OptimizationRequest) -> Non
     handler = _JobLogHandler(job, store)
     pipeline_logger.addHandler(handler)
 
+    class CancelledError(Exception):
+        pass
+
     try:
         from pipelines.optimize_phases import (
             run_phase1_seo,
             run_phase2_content,
             run_phase3_categories,
         )
-
-        class CancelledError(Exception):
-            pass
 
         async def on_progress(progress: int, message: str) -> None:
             if job.cancel_requested:
@@ -703,6 +703,9 @@ async def run_report_job(job_id: str, request: ReportRequest) -> None:
     handler = _JobLogHandler(job, store)
     pipeline_logger.addHandler(handler)
 
+    class CancelledError(Exception):
+        pass
+
     try:
         from models.scraped_data import ScrapedData
         from pipelines.report import run_audit_pipeline
@@ -721,9 +724,6 @@ async def run_report_job(job_id: str, request: ReportRequest) -> None:
 
         job.add_log("info", f"Parsed: {scraped_data.totalServices} services, {len(scraped_data.categories)} categories")
         store.notify_progress(job)
-
-        class CancelledError(Exception):
-            pass
 
         async def on_progress(progress: int, message: str) -> None:
             if job.cancel_requested:
@@ -801,11 +801,11 @@ async def run_cennik_job(job_id: str, request: CennikRequest) -> None:
     handler = _JobLogHandler(job, store)
     pipeline_logger.addHandler(handler)
 
+    class CancelledError(Exception):
+        pass
+
     try:
         from pipelines.cennik import run_cennik_pipeline
-
-        class CancelledError(Exception):
-            pass
 
         async def on_progress(progress: int, message: str) -> None:
             if job.cancel_requested:
@@ -870,11 +870,11 @@ async def run_summary_job(job_id: str, request: SummaryRequest) -> None:
     handler = _JobLogHandler(job, store)
     pipeline_logger.addHandler(handler)
 
+    class CancelledError(Exception):
+        pass
+
     try:
         from pipelines.summary import run_summary_pipeline
-
-        class CancelledError(Exception):
-            pass
 
         async def on_progress(progress: int, message: str) -> None:
             if job.cancel_requested:
