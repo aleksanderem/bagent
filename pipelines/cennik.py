@@ -405,7 +405,9 @@ async def run_cennik_pipeline(
         "pricelist": final_pricelist,
         "changes": final_changes,
         "summary": stats,
-        "qualityScore": 1.0,  # TODO: compute quality score from agent confidence
+        # quality_score column is INTEGER in Supabase — pass whole number.
+        # TODO: compute quality score from agent confidence (0-100 scale).
+        "qualityScore": 100,
     }
     await supabase.save_optimized_pricelist(
         convex_audit_id=audit_id,
