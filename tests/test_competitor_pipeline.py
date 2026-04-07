@@ -1,4 +1,11 @@
-"""Tests for the competitor report pipeline."""
+"""Tests for the competitor report pipeline.
+
+NOTE: competitor.py was moved to pipelines/_premium/competitor.py as part
+of the 3-bagent migration (see BEAUTY_AUDIT/docs/migration-plan-3-bagent.md).
+The full SWOT competitor pipeline is no longer part of the main audit flow.
+This test suite follows the module to _premium for when the Premium
+Competitor Analysis product is reactivated in a future sprint.
+"""
 
 from __future__ import annotations
 
@@ -7,7 +14,7 @@ from unittest.mock import AsyncMock, MagicMock, patch
 
 import pytest
 
-from pipelines.competitor import (
+from pipelines._premium.competitor import (
     _format_gap_matrix,
     _format_local_ranking,
     _format_per_service_pricing,

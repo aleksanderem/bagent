@@ -45,16 +45,9 @@ class AnalyzeRequest(BaseModel):
     scrapedData: dict
 
 
-class CompetitorRequest(BaseModel):
-    auditId: str
-    userId: str
-    subjectSalonId: int
-    salonName: str
-    salonCity: str
-    salonLat: float | None = None
-    salonLng: float | None = None
-    selectedCompetitorIds: list[int]
-    services: list[str] = []
+# CompetitorRequest REMOVED — the full competitor pipeline moved to
+# pipelines/_premium/competitor.py. Will be reintroduced in a future sprint
+# as part of the Premium Competitor Analysis product.
 
 
 class OptimizationRequest(BaseModel):
@@ -140,21 +133,12 @@ async def start_analysis(
     return AnalyzeResponse(jobId=job_id)
 
 
-@app.post("/api/competitor", status_code=202, response_model=AnalyzeResponse, dependencies=[Depends(verify_api_key)])
-async def start_competitor_report(
-    request: CompetitorRequest,
-    background_tasks: BackgroundTasks,
-) -> AnalyzeResponse:
-    job_id = str(uuid.uuid4())
-    store.create_job(job_id, request.auditId, meta={
-        "type": "competitor",
-        "userId": request.userId,
-        "salonName": request.salonName,
-        "salonCity": request.salonCity,
-        "competitorCount": len(request.selectedCompetitorIds),
-    })
-    background_tasks.add_task(run_competitor_job, job_id, request)
-    return AnalyzeResponse(jobId=job_id)
+# /api/competitor endpoint REMOVED in 3-bagent migration.
+# The full SWOT competitor pipeline moved to bagent/pipelines/_premium/competitor.py
+# and will be reactivated as a paid Premium Competitor Analysis product in a
+# future sprint. See bagent/pipelines/_premium/README.md for reactivation steps.
+# Basic competitor preview (top 3-5 salons, no SWOT) is now produced by BAGENT #3
+# (pipelines/summary.py) as part of the Podsumowanie tab.
 
 
 @app.post("/api/optimize", status_code=202, response_model=AnalyzeResponse, dependencies=[Depends(verify_api_key)])
@@ -552,80 +536,10 @@ async def run_analysis_job(job_id: str, request: AnalyzeRequest) -> None:
         pipeline_logger.removeHandler(handler)
 
 
-async def run_competitor_job(job_id: str, request: CompetitorRequest) -> None:
-    from services.convex import ConvexClient
-
-    job = store.get_job(job_id)
-    if job is None:
-        return
-    job.mark_running()
-    store.notify_status(job)
-
-    convex = ConvexClient()
-    pipeline_logger = logging.getLogger("pipelines.competitor")
-    handler = _JobLogHandler(job, store)
-    pipeline_logger.addHandler(handler)
-
-    try:
-        from pipelines.competitor import run_competitor_pipeline
-
-        class CancelledError(Exception):
-            pass
-
-        async def on_progress(progress: int, message: str) -> None:
-            if job.cancel_requested:
-                raise CancelledError("Job cancelled by user")
-            job.add_log("info", message, progress=progress)
-            store.notify_progress(job)
-            try:
-                await convex.update_progress(request.auditId, progress, message)
-            except Exception as e:
-                logger.warning("Convex progress webhook failed: %s", e)
-
-        report = await run_competitor_pipeline(
-            audit_id=request.auditId,
-            subject_salon_id=request.subjectSalonId,
-            salon_name=request.salonName,
-            salon_city=request.salonCity,
-            salon_lat=request.salonLat,
-            salon_lng=request.salonLng,
-            selected_competitor_ids=request.selectedCompetitorIds,
-            services=request.services,
-            on_progress=on_progress,
-        )
-
-        from services.supabase import SupabaseService
-
-        supabase = SupabaseService()
-        await supabase.save_competitor_report(
-            convex_audit_id=request.auditId,
-            convex_user_id=request.userId,
-            subject_booksy_id=request.subjectSalonId,
-            report_data=report,
-            competitor_count=len(request.selectedCompetitorIds),
-        )
-
-        job.mark_completed()
-        store.notify_status(job)
-        logger.info("Competitor job %s completed", job_id)
-
-        # Competitor report saved to Supabase — do NOT call complete_audit
-        # (it overwrites audit overallScore with 0)
-
-    except CancelledError:
-        logger.info("Competitor job %s cancelled", job_id)
-        job.mark_cancelled()
-        store.notify_status(job)
-    except Exception as e:
-        logger.error("Competitor job %s failed: %s", job_id, e, exc_info=True)
-        job.mark_failed(str(e))
-        store.notify_status(job)
-        try:
-            await convex.fail_audit(request.auditId, str(e))
-        except Exception:
-            pass
-    finally:
-        pipeline_logger.removeHandler(handler)
+# run_competitor_job REMOVED — the full competitor pipeline moved to
+# pipelines/_premium/competitor.py as cold code for the next sprint.
+# Basic competitor preview is now produced by run_summary_job below
+# (BAGENT #3, pipelines/summary.py).
 
 
 async def run_optimization_job(job_id: str, request: OptimizationRequest) -> None:
