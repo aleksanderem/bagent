@@ -85,6 +85,32 @@ class AnalyzeResponse(BaseModel):
     status: str = "accepted"
 
 
+# 3-bagent migration request models
+class ReportRequest(BaseModel):
+    """BAGENT #1 — report + content optimization.
+
+    Loads scraped data from Supabase audit_scraped_data by auditId, so the
+    HTTP payload stays small. For dev/testing, scrapedData can be inlined.
+    """
+    auditId: str
+    userId: str
+    sourceUrl: str | None = None
+    scrapedData: dict | None = None  # optional inline payload for dev testing
+
+
+class CennikRequest(BaseModel):
+    """BAGENT #2 — generate new pricelist from report + original scrape."""
+    auditId: str
+    userId: str
+
+
+class SummaryRequest(BaseModel):
+    """BAGENT #3 — audit summary with basic competitor preview."""
+    auditId: str
+    userId: str
+    selectedCompetitorIds: list[int] = []
+
+
 # --- Auth ---
 
 
@@ -147,6 +173,76 @@ async def start_optimization(
         "selectedOptions": request.selectedOptions,
     })
     background_tasks.add_task(run_optimization_job, job_id, request)
+    return AnalyzeResponse(jobId=job_id)
+
+
+# --- 3-bagent migration endpoints ---
+
+
+@app.post(
+    "/api/audit/report", status_code=202, response_model=AnalyzeResponse,
+    dependencies=[Depends(verify_api_key)],
+)
+async def start_report(
+    request: ReportRequest, background_tasks: BackgroundTasks
+) -> AnalyzeResponse:
+    """BAGENT #1 — report + content optimization.
+
+    Runs the report pipeline in the background and returns immediately with a
+    job ID. Progress updates go to Convex via /api/audit/report/progress;
+    completion via /api/audit/report/complete; failure via .../fail.
+    """
+    job_id = str(uuid.uuid4())
+    store.create_job(job_id, request.auditId, meta={
+        "type": "report",
+        "userId": request.userId,
+        "sourceUrl": request.sourceUrl,
+    })
+    background_tasks.add_task(run_report_job, job_id, request)
+    return AnalyzeResponse(jobId=job_id)
+
+
+@app.post(
+    "/api/audit/cennik", status_code=202, response_model=AnalyzeResponse,
+    dependencies=[Depends(verify_api_key)],
+)
+async def start_cennik(
+    request: CennikRequest, background_tasks: BackgroundTasks
+) -> AnalyzeResponse:
+    """BAGENT #2 — new pricelist generation.
+
+    Automatically triggered by Convex after BAGENT #1 finishes. Loads report
+    and scraped data from Supabase, applies transformations, restructures
+    categories, writes optimized_pricelists + categoryProposals payload.
+    """
+    job_id = str(uuid.uuid4())
+    store.create_job(job_id, request.auditId, meta={
+        "type": "cennik",
+        "userId": request.userId,
+    })
+    background_tasks.add_task(run_cennik_job, job_id, request)
+    return AnalyzeResponse(jobId=job_id)
+
+
+@app.post(
+    "/api/audit/summary", status_code=202, response_model=AnalyzeResponse,
+    dependencies=[Depends(verify_api_key)],
+)
+async def start_summary(
+    request: SummaryRequest, background_tasks: BackgroundTasks
+) -> AnalyzeResponse:
+    """BAGENT #3 — audit summary with basic competitor preview.
+
+    Triggered by Convex after user confirms competitor selection. Aggregates
+    all prior audit data plus competitor info and writes audit_summaries.
+    """
+    job_id = str(uuid.uuid4())
+    store.create_job(job_id, request.auditId, meta={
+        "type": "summary",
+        "userId": request.userId,
+        "competitorCount": len(request.selectedCompetitorIds),
+    })
+    background_tasks.add_task(run_summary_job, job_id, request)
     return AnalyzeResponse(jobId=job_id)
 
 
@@ -665,6 +761,251 @@ async def run_finalize_job(job_id: str, audit_id: str, pricelist: dict) -> None:
             await convex.fail_optimization(job_id, str(e))
         except Exception:
             pass
+
+
+# ---------------------------------------------------------------------------
+# 3-bagent migration background jobs
+# ---------------------------------------------------------------------------
+
+
+async def run_report_job(job_id: str, request: ReportRequest) -> None:
+    """BAGENT #1 background job — report + content optimization.
+
+    Either uses inline scrapedData from the request (for dev/testing) or
+    loads it from Supabase audit_scraped_data. Runs pipelines/report.py,
+    saves to audit_reports + children, and reports success/failure to Convex.
+    """
+    from services.convex import ConvexClient
+    from services.supabase import SupabaseService
+
+    job = store.get_job(job_id)
+    if job is None:
+        return
+    job.mark_running()
+    store.notify_status(job)
+
+    convex = ConvexClient()
+    pipeline_logger = logging.getLogger("pipelines.report")
+    handler = _JobLogHandler(job, store)
+    pipeline_logger.addHandler(handler)
+
+    try:
+        from models.scraped_data import ScrapedData
+        from pipelines.report import run_audit_pipeline
+
+        # Load scraped data — prefer inline payload (dev), fall back to Supabase.
+        if request.scrapedData:
+            raw_scraped = request.scrapedData
+        else:
+            supabase = SupabaseService()
+            raw_scraped = await supabase.get_scraped_data(request.auditId)
+            if not raw_scraped:
+                raise RuntimeError(
+                    f"No audit_scraped_data for {request.auditId} and no inline payload"
+                )
+        scraped_data = ScrapedData(**raw_scraped)
+
+        job.add_log("info", f"Parsed: {scraped_data.totalServices} services, {len(scraped_data.categories)} categories")
+        store.notify_progress(job)
+
+        class CancelledError(Exception):
+            pass
+
+        async def on_progress(progress: int, message: str) -> None:
+            if job.cancel_requested:
+                raise CancelledError("Job cancelled by user")
+            job.add_log("info", message, progress=progress)
+            store.notify_progress(job)
+            try:
+                await convex.report_progress(request.auditId, progress, message)
+            except Exception as e:
+                logger.warning("Convex report_progress failed: %s", e)
+
+        report = await run_audit_pipeline(scraped_data, request.auditId, on_progress)
+
+        supabase = SupabaseService()
+        await supabase.save_report(
+            convex_audit_id=request.auditId,
+            convex_user_id=request.userId,
+            report=report,
+            salon_name=scraped_data.salonName or "",
+            salon_address=scraped_data.salonAddress or "",
+            source_url=request.sourceUrl or "",
+        )
+
+        job.mark_completed()
+        store.notify_status(job)
+        logger.info("Report job %s completed", job_id)
+
+        report_stats = {
+            "totalServices": report.get("stats", {}).get("totalServices", 0),
+            "totalTransformations": len(report.get("transformations", [])),
+            "totalIssues": len(report.get("topIssues", [])),
+        }
+        try:
+            await convex.report_complete(
+                audit_id=request.auditId,
+                user_id=request.userId,
+                overall_score=report.get("totalScore", 0),
+                report_stats=report_stats,
+            )
+        except Exception as e:
+            logger.warning("report_complete webhook failed (job still completed): %s", e)
+
+    except CancelledError:
+        logger.info("Report job %s cancelled", job_id)
+        job.mark_cancelled()
+        store.notify_status(job)
+        try:
+            await convex.report_fail(request.auditId, "Cancelled by user")
+        except Exception:
+            pass
+    except Exception as e:
+        logger.error("Report job %s failed: %s", job_id, e, exc_info=True)
+        job.mark_failed(str(e))
+        store.notify_status(job)
+        try:
+            await convex.report_fail(request.auditId, str(e))
+        except Exception:
+            pass
+    finally:
+        pipeline_logger.removeHandler(handler)
+
+
+async def run_cennik_job(job_id: str, request: CennikRequest) -> None:
+    """BAGENT #2 background job — new pricelist generation."""
+    from services.convex import ConvexClient
+
+    job = store.get_job(job_id)
+    if job is None:
+        return
+    job.mark_running()
+    store.notify_status(job)
+
+    convex = ConvexClient()
+    pipeline_logger = logging.getLogger("pipelines.cennik")
+    handler = _JobLogHandler(job, store)
+    pipeline_logger.addHandler(handler)
+
+    try:
+        from pipelines.cennik import run_cennik_pipeline
+
+        class CancelledError(Exception):
+            pass
+
+        async def on_progress(progress: int, message: str) -> None:
+            if job.cancel_requested:
+                raise CancelledError("Job cancelled by user")
+            job.add_log("info", message, progress=progress)
+            store.notify_progress(job)
+            try:
+                await convex.cennik_progress(request.auditId, progress, message)
+            except Exception as e:
+                logger.warning("Convex cennik_progress failed: %s", e)
+
+        result = await run_cennik_pipeline(
+            audit_id=request.auditId,
+            on_progress=on_progress,
+        )
+
+        job.mark_completed()
+        store.notify_status(job)
+        logger.info("Cennik job %s completed", job_id)
+
+        try:
+            await convex.cennik_complete(
+                audit_id=request.auditId,
+                category_proposal=result["category_proposal"],
+                stats=result["stats"],
+            )
+        except Exception as e:
+            logger.warning("cennik_complete webhook failed (job still completed): %s", e)
+
+    except CancelledError:
+        logger.info("Cennik job %s cancelled", job_id)
+        job.mark_cancelled()
+        store.notify_status(job)
+        try:
+            await convex.cennik_fail(request.auditId, "Cancelled by user")
+        except Exception:
+            pass
+    except Exception as e:
+        logger.error("Cennik job %s failed: %s", job_id, e, exc_info=True)
+        job.mark_failed(str(e))
+        store.notify_status(job)
+        try:
+            await convex.cennik_fail(request.auditId, str(e))
+        except Exception:
+            pass
+    finally:
+        pipeline_logger.removeHandler(handler)
+
+
+async def run_summary_job(job_id: str, request: SummaryRequest) -> None:
+    """BAGENT #3 background job — audit summary with basic competitor preview."""
+    from services.convex import ConvexClient
+
+    job = store.get_job(job_id)
+    if job is None:
+        return
+    job.mark_running()
+    store.notify_status(job)
+
+    convex = ConvexClient()
+    pipeline_logger = logging.getLogger("pipelines.summary")
+    handler = _JobLogHandler(job, store)
+    pipeline_logger.addHandler(handler)
+
+    try:
+        from pipelines.summary import run_summary_pipeline
+
+        class CancelledError(Exception):
+            pass
+
+        async def on_progress(progress: int, message: str) -> None:
+            if job.cancel_requested:
+                raise CancelledError("Job cancelled by user")
+            job.add_log("info", message, progress=progress)
+            store.notify_progress(job)
+            try:
+                await convex.summary_progress(request.auditId, progress, message)
+            except Exception as e:
+                logger.warning("Convex summary_progress failed: %s", e)
+
+        await run_summary_pipeline(
+            audit_id=request.auditId,
+            user_id=request.userId,
+            selected_competitor_ids=request.selectedCompetitorIds,
+            on_progress=on_progress,
+        )
+
+        job.mark_completed()
+        store.notify_status(job)
+        logger.info("Summary job %s completed", job_id)
+
+        try:
+            await convex.summary_complete(audit_id=request.auditId)
+        except Exception as e:
+            logger.warning("summary_complete webhook failed (job still completed): %s", e)
+
+    except CancelledError:
+        logger.info("Summary job %s cancelled", job_id)
+        job.mark_cancelled()
+        store.notify_status(job)
+        try:
+            await convex.summary_fail(request.auditId, "Cancelled by user")
+        except Exception:
+            pass
+    except Exception as e:
+        logger.error("Summary job %s failed: %s", job_id, e, exc_info=True)
+        job.mark_failed(str(e))
+        store.notify_status(job)
+        try:
+            await convex.summary_fail(request.auditId, str(e))
+        except Exception:
+            pass
+    finally:
+        pipeline_logger.removeHandler(handler)
 
 
 if __name__ == "__main__":

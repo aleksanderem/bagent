@@ -153,3 +153,91 @@ class ConvexClient:
                 logger.info(f"Optimization failed: {job_id} ({error_message})")
         except Exception as e:
             logger.warning(f"Failed to report optimization failure: {e}")
+
+    # --- 3-bagent migration webhooks (report/cennik/summary) ---
+
+    async def _post_webhook(
+        self, path: str, payload: dict[str, Any], raise_on_error: bool = False
+    ) -> None:
+        """Internal helper for the 3-bagent migration webhooks.
+
+        raise_on_error=True for completion webhooks (critical), False for
+        progress/fail (best-effort).
+        """
+        url = f"{self.base_url}{path}"
+        try:
+            async with httpx.AsyncClient(timeout=10.0) as client:
+                response = await client.post(url, json=payload, headers=self._headers())
+                response.raise_for_status()
+                logger.info(f"Webhook {path} ok: {payload.get('auditId', '?')}")
+        except Exception as e:
+            if raise_on_error:
+                logger.error(f"Webhook {path} FAILED: {e}")
+                raise
+            logger.warning(f"Webhook {path} failed (best-effort): {e}")
+
+    # BAGENT #1 (report) webhooks
+    async def report_progress(self, audit_id: str, progress: int, message: str) -> None:
+        await self._post_webhook("/api/audit/report/progress", {
+            "auditId": audit_id, "progress": progress, "progressMessage": message,
+        })
+
+    async def report_complete(
+        self, audit_id: str, user_id: str, overall_score: int, report_stats: dict[str, Any]
+    ) -> None:
+        await self._post_webhook("/api/audit/report/complete", {
+            "auditId": audit_id,
+            "userId": user_id,
+            "overallScore": overall_score,
+            "reportStats": report_stats,
+        }, raise_on_error=True)
+
+    async def report_fail(
+        self, audit_id: str, error_message: str, error_number: int | None = None
+    ) -> None:
+        payload: dict[str, Any] = {"auditId": audit_id, "errorMessage": error_message}
+        if error_number is not None:
+            payload["errorNumber"] = error_number
+        await self._post_webhook("/api/audit/report/fail", payload)
+
+    # BAGENT #2 (cennik) webhooks
+    async def cennik_progress(self, audit_id: str, progress: int, message: str) -> None:
+        await self._post_webhook("/api/audit/cennik/progress", {
+            "auditId": audit_id, "progress": progress, "progressMessage": message,
+        })
+
+    async def cennik_complete(
+        self, audit_id: str, category_proposal: dict[str, Any], stats: dict[str, Any]
+    ) -> None:
+        await self._post_webhook("/api/audit/cennik/complete", {
+            "auditId": audit_id,
+            "categoryProposal": category_proposal,
+            "stats": stats,
+        }, raise_on_error=True)
+
+    async def cennik_fail(
+        self, audit_id: str, error_message: str, error_number: int | None = None
+    ) -> None:
+        payload: dict[str, Any] = {"auditId": audit_id, "errorMessage": error_message}
+        if error_number is not None:
+            payload["errorNumber"] = error_number
+        await self._post_webhook("/api/audit/cennik/fail", payload)
+
+    # BAGENT #3 (summary) webhooks
+    async def summary_progress(self, audit_id: str, progress: int, message: str) -> None:
+        await self._post_webhook("/api/audit/summary/progress", {
+            "auditId": audit_id, "progress": progress, "progressMessage": message,
+        })
+
+    async def summary_complete(self, audit_id: str) -> None:
+        await self._post_webhook("/api/audit/summary/complete", {
+            "auditId": audit_id,
+        }, raise_on_error=True)
+
+    async def summary_fail(
+        self, audit_id: str, error_message: str, error_number: int | None = None
+    ) -> None:
+        payload: dict[str, Any] = {"auditId": audit_id, "errorMessage": error_message}
+        if error_number is not None:
+            payload["errorNumber"] = error_number
+        await self._post_webhook("/api/audit/summary/fail", payload)
