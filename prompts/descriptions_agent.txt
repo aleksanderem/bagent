@@ -1,18 +1,23 @@
 {refinement_prefix}Jesteś copywriterem specjalizującym się w usługach beauty w Polsce.
 
-ZADANIE: Przepisz opisy usług salonu. Użyj narzędzia submit_description_results aby wysłać poprawione opisy.
-Wywołuj narzędzie wielokrotnie z partiami po 15-20 usług, aż przetworzysz WSZYSTKIE usługi które wymagają poprawy.
+ZADANIE: Oceń opisy usług salonu i wyślij wynik przez narzędzie submit_description_results.
+Wywołuj narzędzie wielokrotnie z partiami po 20-30 usług, aż przetworzysz WSZYSTKIE usługi z cennika.
 
 KONTEKST — PROBLEMY ZIDENTYFIKOWANE W RAPORCIE:
 {descriptions_issues_context}
 
-Dla każdej transformacji wskaż causedByIssueIndex — indeks problemu z powyższej listy, który ta zmiana rozwiązuje. Jeśli zmiana jest ogólnym cleanupem (np. przepisanie opisu bez konkretnego raportowanego problemu, tylko dla jakości), POMIŃ pole causedByIssueIndex.
+Dla każdej transformacji ze zmianą wskaż causedByIssueIndex — indeks problemu z powyższej listy, który ta zmiana rozwiązuje. Jeśli zmiana jest ogólnym cleanupem (np. przepisanie opisu bez konkretnego raportowanego problemu, tylko dla jakości), POMIŃ pole causedByIssueIndex.
 
 ZASADY:
 - Każdy opis 50-150 znaków
 - Opisz korzyść dla klienta, nie procedurę
 - Profesjonalny ton, bez żargonu, bez CAPS LOCK
 - Usuń informacje o cenach z opisów (ceny są osobno w cenniku)
-- Pomiń usługi które mają już dobry opis
 
-Po przetworzeniu wszystkich usług napisz krótkie podsumowanie.
+ZASADA POKRYCIA (KRYTYCZNA): Musisz ocenić KAŻDĄ usługę z cennika. Dla każdej:
+- Jeśli opis jest już optymalny (zwięzły, korzyść klienta, profesjonalny ton, bez ceny i CAPS LOCK, w zakresie 50-150 znaków), zwróć go z polem `alreadyOptimal: true` i `newDescription` równym oryginalnemu opisowi. Pole `causedByIssueIndex` pomiń.
+- Jeśli opis wymaga poprawy lub usługa nie ma żadnego opisu, zwróć nowy opis z `alreadyOptimal: false` (lub po prostu pomiń to pole) i wypełnij `newDescription` nową treścią. Dodaj `causedByIssueIndex` jeśli zmiana rozwiązuje konkretny problem z raportu.
+
+Wszystkie usługi muszą pojawić się w twoich tool calls — suma `alreadyOptimal: true` i faktycznych poprawek powinna równać się liczbie usług w cenniku. Wywołuj narzędzie wielokrotnie z partiami po 20-30 usług.
+
+Po przetworzeniu wszystkich usług napisz krótkie podsumowanie zawierające liczbę napisanych/poprawionych opisów i liczbę uznanych za optymalne.

@@ -242,10 +242,16 @@ async def run_audit_pipeline(
     d_linked = sum(
         1 for t in desc_result["transformations"] if t.get("causedByIssueGlobalIndex") is not None
     )
+    naming_coverage = naming_result.get("coverage", {})
+    desc_coverage = desc_result.get("coverage", {})
     await progress(75, (
         f"Agenty zakończone ({dt}ms): "
-        f"Nazwy {n_transforms} transform. ({n_linked} z traceability), "
-        f"Opisy {d_transforms} transform. ({d_linked} z traceability)"
+        f"Nazwy {n_transforms} transform. "
+        f"({n_linked} z traceability, {naming_coverage.get('alreadyOptimal', 0)} OK, "
+        f"{naming_coverage.get('totalChecked', 0)} sprawdzonych), "
+        f"Opisy {d_transforms} transform. "
+        f"({d_linked} z traceability, {desc_coverage.get('alreadyOptimal', 0)} OK, "
+        f"{desc_coverage.get('totalChecked', 0)} sprawdzonych)"
     ))
 
     # ── Calculate scores ──
@@ -370,6 +376,14 @@ async def run_audit_pipeline(
         "summary": summary.strip(),
         "categoryMapping": category_mapping,
         "categoryChanges": category_changes,
+        # Etap 3 of Unified Report Pipeline: agent coverage stats. Each agent
+        # now evaluates every service and reports either an actual change or
+        # alreadyOptimal=true. Frontend renders this as
+        # "Agent sprawdził X usług: poprawił Y, uznał Z za optymalne".
+        "coverage": {
+            "naming": naming_coverage,
+            "descriptions": desc_coverage,
+        },
     }
 
     quality = _validate_quality(report, scraped_data)
@@ -610,6 +624,10 @@ async def _agent_naming(
     await progress(30, "Agent loop: poprawianie nazw usług (tool_use)...")
 
     transformations: list[dict[str, Any]] = []
+    total_checked_count = 0
+    optimized_count = 0
+    already_optimal_count = 0
+    rejected_count = 0
     t0 = time.time()
     try:
         agent_result = await run_agent_loop(
@@ -630,50 +648,78 @@ async def _agent_naming(
             f"{len(agent_result.tool_calls)} calls, {tokens} tokens ({dt}ms)",
         )
 
-        accepted = 0
-        rejected = 0
         for tc in agent_result.tool_calls:
             if tc.name == "submit_naming_results":
                 raw = tc.input.get("transformations", [])
                 for raw_t in raw:
                     t = _normalize_item(raw_t)
                     if t is None:
-                        rejected += 1
+                        rejected_count += 1
                         logger.warning(
                             "Naming: skipping non-dict item: %s", type(raw_t).__name__
                         )
                         continue
                     original = t.get("name", "")
-                    improved = t.get("improved", "")
-                    improved = clean_service_name(improved)
+                    improved_raw = t.get("improved", "")
+                    if not original:
+                        rejected_count += 1
+                        continue
+                    total_checked_count += 1
+                    already_optimal = bool(t.get("alreadyOptimal"))
+                    improved = clean_service_name(improved_raw)
                     improved = fix_caps_lock(improved)
-                    if original and improved and original != improved:
-                        if validate_name_transformation(original, improved):
-                            global_idx = _resolve_caused_by_issue_index(
-                                t.get("causedByIssueIndex"), naming_global_map
-                            )
-                            transformations.append({
-                                "type": "name",
-                                "serviceName": original,
-                                "before": original,
-                                "after": improved,
-                                "reason": "Poprawa nazwy usługi",
-                                "impactScore": 3,
-                                "causedByIssueGlobalIndex": global_idx,
-                            })
-                            accepted += 1
-                        else:
-                            rejected += 1
+
+                    # Path 1: explicit "already optimal" verdict — count it,
+                    # do NOT create a transformation, do NOT validate.
+                    if already_optimal:
+                        already_optimal_count += 1
+                        continue
+
+                    # Path 2: agent silently proposed the same name without
+                    # alreadyOptimal flag. Treat as "no change wanted" — skip.
+                    if not improved or original == improved:
+                        # Not a rejection, not optimal, just a no-op.
+                        continue
+
+                    # Path 3: actual proposed change — validate and persist.
+                    if validate_name_transformation(original, improved):
+                        global_idx = _resolve_caused_by_issue_index(
+                            t.get("causedByIssueIndex"), naming_global_map
+                        )
+                        transformations.append({
+                            "type": "name",
+                            "serviceName": original,
+                            "before": original,
+                            "after": improved,
+                            "reason": "Poprawa nazwy usługi",
+                            "impactScore": 3,
+                            "causedByIssueGlobalIndex": global_idx,
+                        })
+                        optimized_count += 1
+                    else:
+                        rejected_count += 1
         await progress(
             42,
-            f"Naming: {accepted} zaakceptowanych, {rejected} odrzuconych transformacji",
+            (
+                f"Naming: {optimized_count} poprawionych, "
+                f"{already_optimal_count} potwierdzonych OK "
+                f"({rejected_count} odrzuconych)"
+            ),
         )
     except Exception as e:
         dt = int((time.time() - t0) * 1000)
         logger.warning("Naming agent loop failed: %s", e)
         await progress(42, f"Naming agent FAILED ({dt}ms): {e}")
 
-    return {"transformations": transformations}
+    return {
+        "transformations": transformations,
+        "coverage": {
+            "totalChecked": total_checked_count,
+            "optimized": optimized_count,
+            "alreadyOptimal": already_optimal_count,
+            "rejected": rejected_count,
+        },
+    }
 
 
 async def _agent_descriptions(
@@ -712,7 +758,22 @@ async def _agent_descriptions(
     )
     await progress(56, "Agent loop: poprawianie opisów usług (tool_use)...")
 
+    # Build a lookup of original descriptions so we can detect
+    # alreadyOptimal=false items where the agent didn't actually change
+    # anything (no-op) and skip them without creating a transformation.
+    original_desc_by_name: dict[str, str] = {}
+    for cat in scraped_data.categories:
+        for svc in cat.services:
+            if svc.name:
+                original_desc_by_name[svc.name.strip().lower()] = (
+                    svc.description or ""
+                )
+
     transformations: list[dict[str, Any]] = []
+    total_checked_count = 0
+    optimized_count = 0
+    already_optimal_count = 0
+    rejected_count = 0
     t0 = time.time()
     try:
         agent_result = await run_agent_loop(
@@ -739,6 +800,7 @@ async def _agent_descriptions(
                 for raw_t in raw:
                     t = _normalize_item(raw_t)
                     if t is None:
+                        rejected_count += 1
                         logger.warning(
                             "Description: skipping non-dict item: %s",
                             type(raw_t).__name__,
@@ -746,28 +808,69 @@ async def _agent_descriptions(
                         continue
                     service_name = t.get("serviceName", "")
                     new_desc = t.get("newDescription", "")
-                    if service_name and new_desc:
-                        global_idx = _resolve_caused_by_issue_index(
-                            t.get("causedByIssueIndex"), desc_global_map
-                        )
-                        transformations.append({
-                            "type": "description",
-                            "serviceName": service_name,
-                            "before": "",
-                            "after": new_desc,
-                            "reason": "Nowy/poprawiony opis",
-                            "impactScore": 2,
-                            "causedByIssueGlobalIndex": global_idx,
-                        })
+                    if not service_name:
+                        rejected_count += 1
+                        continue
+                    total_checked_count += 1
+                    already_optimal = bool(t.get("alreadyOptimal"))
+
+                    # Path 1: explicit "already optimal" verdict.
+                    if already_optimal:
+                        already_optimal_count += 1
+                        continue
+
+                    # Path 2: no description payload — treat as rejected.
+                    if not new_desc:
+                        rejected_count += 1
+                        continue
+
+                    # Path 3: agent returned a description identical to the
+                    # original — no-op, skip silently.
+                    original_desc = original_desc_by_name.get(
+                        service_name.strip().lower(), ""
+                    )
+                    if (
+                        original_desc
+                        and new_desc.strip() == original_desc.strip()
+                    ):
+                        continue
+
+                    # Path 4: actual proposed change — persist.
+                    global_idx = _resolve_caused_by_issue_index(
+                        t.get("causedByIssueIndex"), desc_global_map
+                    )
+                    transformations.append({
+                        "type": "description",
+                        "serviceName": service_name,
+                        "before": "",
+                        "after": new_desc,
+                        "reason": "Nowy/poprawiony opis",
+                        "impactScore": 2,
+                        "causedByIssueGlobalIndex": global_idx,
+                    })
+                    optimized_count += 1
         await progress(
-            64, f"Opisy: {len(transformations)} nowych/poprawionych opisów"
+            64,
+            (
+                f"Opisy: {optimized_count} poprawionych, "
+                f"{already_optimal_count} potwierdzonych OK "
+                f"({rejected_count} odrzuconych)"
+            ),
         )
     except Exception as e:
         dt = int((time.time() - t0) * 1000)
         logger.warning("Description agent loop failed: %s", e)
         await progress(64, f"Description agent FAILED ({dt}ms): {e}")
 
-    return {"transformations": transformations}
+    return {
+        "transformations": transformations,
+        "coverage": {
+            "totalChecked": total_checked_count,
+            "optimized": optimized_count,
+            "alreadyOptimal": already_optimal_count,
+            "rejected": rejected_count,
+        },
+    }
 
 
 async def _analyze_structure(

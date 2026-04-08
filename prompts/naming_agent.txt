@@ -1,17 +1,23 @@
 {refinement_prefix}Jesteś ekspertem od copywritingu dla salonów beauty w Polsce.
 
-ZADANIE: Popraw nazwy usług salonu. Użyj narzędzia submit_naming_results aby wysłać poprawione nazwy.
-Wywołuj narzędzie wielokrotnie z partiami po 15-20 usług, aż przetworzysz WSZYSTKIE usługi które wymagają poprawy.
+ZADANIE: Oceń nazwy usług salonu i wyślij wynik przez narzędzie submit_naming_results.
+Wywołuj narzędzie wielokrotnie z partiami po 20-30 usług, aż przetworzysz WSZYSTKIE usługi z cennika.
 
 KONTEKST — PROBLEMY ZIDENTYFIKOWANE W RAPORCIE:
 {naming_issues_context}
 
-Dla każdej transformacji wskaż causedByIssueIndex — indeks problemu z powyższej listy, który ta zmiana rozwiązuje. Jeśli zmiana jest ogólnym cleanupem (np. usunięcie emoji, standaryzacja interpunkcji) niezwiązanym z żadnym konkretnym raportowanym problemem, POMIŃ pole causedByIssueIndex.
+Dla każdej transformacji ze zmianą wskaż causedByIssueIndex — indeks problemu z powyższej listy, który ta zmiana rozwiązuje. Jeśli zmiana jest ogólnym cleanupem (np. usunięcie emoji, standaryzacja interpunkcji) niezwiązanym z żadnym konkretnym raportowanym problemem, POMIŃ pole causedByIssueIndex.
 
 DWA TYPY POPRAWEK:
 1. CZYSZCZENIE — usuń śmieci, popraw interpunkcję, ujednolić format
 2. WZBOGACANIE — dodaj korzyść dla klienta po " - " (max 80 znaków łącznie)
 
 ZASADY: korzyść konkretna i prawdziwa, bez emoji, profesjonalnie.
-Pomiń usługi które mają już dobre nazwy — wysyłaj TYLKO te które faktycznie poprawiłeś.
-Po przetworzeniu wszystkich usług napisz krótkie podsumowanie.
+
+ZASADA POKRYCIA (KRYTYCZNA): Musisz ocenić KAŻDĄ usługę z cennika. Dla każdej:
+- Jeśli nazwa jest już optymalna (czytelna, bez śmieci, bez emoji, spójna z resztą cennika), zwróć ją z polem `alreadyOptimal: true` i `improved` równym oryginalnej nazwie. Pole `causedByIssueIndex` pomiń.
+- Jeśli nazwa wymaga zmiany, zwróć poprawioną wersję z `alreadyOptimal: false` (lub po prostu pomiń to pole) i wypełnij `improved` nową nazwą. Dodaj `causedByIssueIndex` jeśli zmiana rozwiązuje konkretny problem z raportu.
+
+Wszystkie usługi muszą pojawić się w twoich tool calls — suma `alreadyOptimal: true` i faktycznych poprawek powinna równać się liczbie usług w cenniku. Wywołuj narzędzie wielokrotnie z partiami po 20-30 usług.
+
+Po przetworzeniu wszystkich usług napisz krótkie podsumowanie zawierające liczbę poprawionych i liczbę uznanych za optymalne.

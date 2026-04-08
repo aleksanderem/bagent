@@ -289,6 +289,12 @@ class SupabaseService:
             # + changes so cennik can load them deterministically.
             "category_mapping": report.get("categoryMapping", {}),
             "category_changes": report.get("categoryChanges", []),
+            # Etap 3 of Unified Report Pipeline: per-agent coverage counts
+            # (totalChecked / optimized / alreadyOptimal / rejected) for the
+            # naming and descriptions agents. Frontend Raport tab uses these
+            # to render "Agent sprawdził N usług: poprawił X, uznał Y za
+            # optymalne".
+            "coverage": report.get("coverage", {}),
         }
 
         result = (

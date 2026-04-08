@@ -3,9 +3,10 @@
 NAMING_TOOL: dict = {
     "name": "submit_naming_results",
     "description": (
-        "Wyślij poprawione nazwy usług. Wywołuj wielokrotnie "
-        "— za każdym razem z kolejną partią usług. "
-        "Przetwórz WSZYSTKIE usługi które tego wymagają."
+        "Wyślij wynik oceny nazw usług. Wywołuj wielokrotnie "
+        "— za każdym razem z kolejną partią 20-30 usług. "
+        "MUSISZ ocenić KAŻDĄ usługę z cennika — albo proponując poprawkę, "
+        "albo oznaczając ją jako alreadyOptimal=true."
     ),
     "input_schema": {
         "type": "object",
@@ -16,7 +17,7 @@ NAMING_TOOL: dict = {
                     "type": "object",
                     "properties": {
                         "name": {"type": "string", "description": "Oryginalna nazwa usługi"},
-                        "improved": {"type": "string", "description": "Ulepszona nazwa (max 80 znaków)"},
+                        "improved": {"type": "string", "description": "Ulepszona nazwa (max 80 znaków). Gdy alreadyOptimal=true, powinna być równa oryginalnej nazwie."},
                         "causedByIssueIndex": {
                             "type": "integer",
                             "description": (
@@ -24,7 +25,21 @@ NAMING_TOOL: dict = {
                                 "KONTEKST.PROBLEMY list shown in the prompt "
                                 "that this rename addresses. Omit if the "
                                 "rename is a general cleanup not tied to a "
-                                "specific reported issue."
+                                "specific reported issue or when "
+                                "alreadyOptimal=true."
+                            ),
+                        },
+                        "alreadyOptimal": {
+                            "type": "boolean",
+                            "description": (
+                                "Set to true when you explicitly verified "
+                                "the service name is already optimal and "
+                                "does not need changes. When true, "
+                                "'improved' should equal 'name'. This is "
+                                "distinct from simply omitting the service "
+                                "— omission means 'not processed', "
+                                "alreadyOptimal=true means 'explicitly "
+                                "verified OK'."
                             ),
                         },
                     },
@@ -39,9 +54,10 @@ NAMING_TOOL: dict = {
 DESCRIPTION_TOOL: dict = {
     "name": "submit_description_results",
     "description": (
-        "Wyślij poprawione opisy usług. Wywołuj wielokrotnie "
-        "— za każdym razem z kolejną partią usług. "
-        "Przetwórz WSZYSTKIE usługi które tego wymagają."
+        "Wyślij wynik oceny opisów usług. Wywołuj wielokrotnie "
+        "— za każdym razem z kolejną partią 20-30 usług. "
+        "MUSISZ ocenić KAŻDĄ usługę z cennika — albo proponując nowy opis, "
+        "albo oznaczając ją jako alreadyOptimal=true."
     ),
     "input_schema": {
         "type": "object",
@@ -52,7 +68,7 @@ DESCRIPTION_TOOL: dict = {
                     "type": "object",
                     "properties": {
                         "serviceName": {"type": "string", "description": "Nazwa usługi"},
-                        "newDescription": {"type": "string", "description": "Nowy opis (50-150 znaków)"},
+                        "newDescription": {"type": "string", "description": "Nowy opis (50-150 znaków). Gdy alreadyOptimal=true, może być równy oryginalnemu opisowi."},
                         "causedByIssueIndex": {
                             "type": "integer",
                             "description": (
@@ -60,7 +76,21 @@ DESCRIPTION_TOOL: dict = {
                                 "KONTEKST.PROBLEMY list shown in the prompt "
                                 "that this new description addresses. Omit "
                                 "if the description change is a general "
-                                "cleanup not tied to a specific reported issue."
+                                "cleanup not tied to a specific reported "
+                                "issue or when alreadyOptimal=true."
+                            ),
+                        },
+                        "alreadyOptimal": {
+                            "type": "boolean",
+                            "description": (
+                                "Set to true when you explicitly verified "
+                                "the service description is already optimal "
+                                "and does not need changes. When true, "
+                                "'newDescription' can equal the original "
+                                "description. This is distinct from simply "
+                                "omitting the service — omission means "
+                                "'not processed', alreadyOptimal=true means "
+                                "'explicitly verified OK'."
                             ),
                         },
                     },
