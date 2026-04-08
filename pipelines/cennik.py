@@ -1,31 +1,35 @@
 """BAGENT #2 pipeline — new pricelist generation (Kategorie tab).
 
 Single responsibility: take the original scraped pricelist + the report from
-BAGENT #1 (which already contains all content transformations for names and
-descriptions) and produce a new pricelist structure with:
+BAGENT #1 (which already contains ALL content transformations — names,
+descriptions, and category restructuring) and produce a new pricelist
+structure with:
     1. Transformations from audit_transformations mechanically applied
        (name + description updates — no new AI calls needed, BAGENT #1 did this)
-    2. Restructured categories via agentic loop (THIS is the value-add AI work)
+    2. Category mapping loaded from audit_reports and applied mechanically
+       (since Etap 1 of Unified Report Pipeline, BAGENT #1 owns this step too)
     3. Programmatic finalization (clean_service_name, fix_caps_lock, promo
        detection, duplicate detection) and diff generation
 
+This pipeline makes ZERO AI calls on the critical path. It runs in <10s.
+
 Writes to Supabase tables: optimized_pricelists, optimized_categories,
-optimized_services, optimization_changes.
+optimized_services.
 
 Writes to Convex categoryProposals via webhook callback.
 
 Does NOT regenerate names or descriptions (that's BAGENT #1's job — and the
 results are already in audit_transformations).
+Does NOT run a category agent loop (that moved to BAGENT #1 in Etap 1 —
+see docs/plans/2026-04-08-unified-report-pipeline.md).
 Does NOT fetch competitor data (that's BAGENT #3's job).
 
 Inputs (from HTTP payload):
     audit_id, salon_id, scrape_id
 
 Loads from Supabase (no data in payload):
-    audit_scraped_data  — original pricelist
-    audit_reports       — overall audit context
-    audit_transformations — list of name/description changes to apply
-    audit_issues        — structural issues to inform category restructuring
+    salon_scrapes + salon_scrape_services — original pricelist
+    audit_reports       — transformations + category_mapping + category_changes
 
 Webhook callbacks:
     POST Convex /api/audit/cennik/progress (during pipeline)
@@ -35,16 +39,12 @@ Webhook callbacks:
 
 from __future__ import annotations
 
-import asyncio
 import json
 import logging
 import time
-from pathlib import Path
 from typing import Any, Awaitable, Callable
 
 logger = logging.getLogger(__name__)
-
-PROMPTS_DIR = Path(__file__).parent.parent / "prompts"
 
 PROMO_KEYWORDS = (
     "promocja", "rabat", "zniżka", "promo", "okazja",
@@ -57,27 +57,6 @@ ProgressCallback = Callable[[int, str], Awaitable[None]]
 
 async def _noop_progress(progress: int, message: str) -> None:
     pass
-
-
-def _load_prompt(name: str) -> str:
-    path = PROMPTS_DIR / name
-    if path.exists():
-        return path.read_text(encoding="utf-8")
-    return ""
-
-
-def _normalize_item(item: Any) -> dict[str, Any] | None:
-    """Normalize a tool call array item — MiniMax sometimes returns strings instead of dicts."""
-    if isinstance(item, dict):
-        return item
-    if isinstance(item, str):
-        try:
-            parsed = json.loads(item)
-            if isinstance(parsed, dict):
-                return parsed
-        except (json.JSONDecodeError, ValueError):
-            pass
-    return None
 
 
 def _detect_promo(name: str) -> bool:
@@ -125,38 +104,21 @@ def _build_transformation_map(
     return name_map, desc_map
 
 
-def _build_pricelist_text_from_dict(pricelist: dict[str, Any]) -> str:
-    """Build full pricelist text from a plain dict (not a ScrapedData model)."""
-    text = f"SALON: {pricelist.get('salonName') or 'Nieznany'}\n\n"
-    for cat in pricelist.get("categories", []):
-        cat_name = cat.get("name", "Bez kategorii")
-        services = cat.get("services", [])
-        text += f"\n## KATEGORIA: {cat_name} ({len(services)} usług)\n"
-        for s in services:
-            text += f'- "{s.get("name", "")}" | {s.get("price", "")}'
-            if s.get("duration"):
-                text += f" | {s['duration']}"
-            if s.get("description"):
-                desc = s["description"]
-                if len(desc) > 150:
-                    desc = desc[:150] + "..."
-                text += f" | OPIS: {desc}"
-            text += "\n"
-    return text
-
-
 async def run_cennik_pipeline(
     audit_id: str,
     on_progress: ProgressCallback | None = None,
 ) -> dict[str, Any]:
     """Full BAGENT #2 pipeline — generate new pricelist from report + original scrape.
 
+    Deterministic finalization only — zero AI calls on the critical path.
+
     Steps:
         1. Load original scraped data + audit report + transformations from Supabase
         2. Apply transformations mechanically (no AI) — name and description updates
-        3. Agent loop: restructure categories (the only AI step)
+        3. Load category_mapping + category_changes from audit_reports
+           (produced by BAGENT #1 since Etap 1 of Unified Report Pipeline)
         4. Deterministic finalize: clean names, detect promo, detect duplicates, diff
-        5. Write to Supabase: optimized_pricelists + children + optimization_changes
+        5. Write to Supabase: optimized_pricelists + children
         6. Build categoryProposals payload for Convex webhook
 
     Returns a dict containing:
@@ -165,20 +127,15 @@ async def run_cennik_pipeline(
         category_proposal    — payload for Convex categoryProposals webhook
         stats                — counts for telemetry
     """
-    from agent.runner import run_agent_loop
-    from agent.tools import CATEGORY_MAPPING_TOOL
-    from config import settings
+    # Etap 1 of Unified Report Pipeline: no more AI calls in cennik.
+    # Category restructuring runs in pipelines/report.py now; cennik just
+    # loads the mapping from audit_reports and applies transformations
+    # deterministically. No MiniMax client import needed here.
     from models.scraped_data import ScrapedData
     from pipelines.helpers import clean_service_name, fix_caps_lock, sanitize_text
-    from services.minimax import MiniMaxClient
     from services.supabase import SupabaseService
 
     progress = on_progress or _noop_progress
-    client = MiniMaxClient(
-        settings.minimax_api_key,
-        settings.minimax_base_url,
-        settings.minimax_model,
-    )
     supabase = SupabaseService()
 
     # ── Step 1: Load data from Supabase ──
@@ -289,69 +246,21 @@ async def run_cennik_pipeline(
         f"Transformacje zaaplikowane: {names_applied} nazw, {descriptions_applied} opisów",
     )
 
-    # ── Step 3: Agent loop — category restructuring (the only AI step here) ──
-    await progress(35, "Agent loop: restrukturyzacja kategorii...")
-    structure_issues = [i for i in top_issues if i.get("dimension") == "structure"]
-    structure_issues_text = "\n".join(
-        f"- [{i.get('severity', 'minor')}] {i.get('issue', '')} (fix: {i.get('fix', 'brak')})"
-        for i in structure_issues[:10]
+    # ── Step 3: Load category mapping from BAGENT #1 (no new AI calls) ──
+    # Etap 1 of Unified Report Pipeline — the category agent loop that used to
+    # live here has moved into pipelines/report.py. BAGENT #1 produces the
+    # mapping as part of the report; we just load it back from audit_reports
+    # and apply it mechanically. This turns the previously flaky ~5 minute
+    # step into a deterministic sub-second read.
+    await progress(35, "Ładowanie category mapping z raportu...")
+    cat_data = await supabase.get_report_category_mapping(audit_id)
+    category_mapping: dict[str, str] = cat_data["mapping"]
+    category_changes: list[dict[str, Any]] = cat_data["changes"]
+    await progress(
+        65,
+        f"Category mapping załadowany: {len(category_mapping)} mapowań, "
+        f"{len(category_changes)} zmian",
     )
-
-    pricelist_text = _build_pricelist_text_from_dict(transformed_pricelist)
-
-    cat_prompt = _load_prompt("optimization_categories.txt")
-    if not cat_prompt:
-        cat_prompt = (
-            "Zaproponuj nową strukturę kategorii cennika. "
-            "Użyj narzędzia submit_category_mapping.\n\n"
-            "CENNIK:\n{pricelist_text}\n\n"
-            "PROBLEMY STRUKTURALNE:\n{structure_issues_text}"
-        )
-    user_msg = (
-        cat_prompt
-        .replace("{pricelist_text}", pricelist_text)
-        .replace("{structure_issues_text}", structure_issues_text)
-    )
-
-    category_mapping: dict[str, str] = {}
-    category_changes: list[dict[str, Any]] = []
-
-    t0 = time.time()
-    try:
-        agent_result = await run_agent_loop(
-            client=client,
-            system_prompt="Jesteś ekspertem od struktury cenników salonów beauty.",
-            user_message=user_msg,
-            tools=[CATEGORY_MAPPING_TOOL],
-            max_steps=10,
-            on_step=lambda step, count: logger.info(
-                "[%s][cennik] categories step %d, %d calls", audit_id, step, count
-            ),
-        )
-        dt = int((time.time() - t0) * 1000)
-        await progress(65, f"Agent done: {agent_result.total_steps} steps ({dt}ms)")
-
-        for tc in agent_result.tool_calls:
-            if tc.name == "submit_category_mapping":
-                for raw_mapping in tc.input.get("mappings", []):
-                    mapping = _normalize_item(raw_mapping)
-                    if mapping is None:
-                        continue
-                    orig = mapping.get("originalCategory", "")
-                    new = mapping.get("newCategory", "")
-                    if orig and new and orig != new:
-                        category_mapping[orig] = new
-                        category_changes.append({
-                            "type": "category",
-                            "before": orig,
-                            "after": new,
-                            "reason": mapping.get("reason", "Category restructuring"),
-                        })
-    except Exception as e:
-        dt = int((time.time() - t0) * 1000)
-        logger.warning("[%s][cennik] Agent failed: %s (%dms)", audit_id, e, dt)
-        await progress(65, f"Agent: FAILED ({dt}ms): {e}")
-        # Non-fatal — fall through with empty mapping (no restructuring)
 
     # Apply category mapping to transformed pricelist. Annotate each service
     # with its original category name + was_recategorized flag so the finalize

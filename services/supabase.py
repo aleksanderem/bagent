@@ -225,6 +225,32 @@ class SupabaseService:
             return None
         return result.data
 
+    async def get_report_category_mapping(self, convex_audit_id: str) -> dict:
+        """Fetch category_mapping + category_changes for an audit.
+
+        Direct SELECT on audit_reports — intentionally bypasses the
+        get_audit_report RPC so we don't have to change the RPC contract
+        to add the new columns (Etap 1 of Unified Report Pipeline).
+
+        Returns {"mapping": {...}, "changes": [...]} or empty structures
+        on miss. Used by BAGENT #2 (cennik) to load the mapping that
+        BAGENT #1 (report) produced, instead of running its own agent loop.
+        """
+        result = (
+            self.client.table("audit_reports")
+            .select("category_mapping, category_changes")
+            .eq("convex_audit_id", convex_audit_id)
+            .limit(1)
+            .execute()
+        )
+        if not result.data:
+            return {"mapping": {}, "changes": []}
+        row = result.data[0]
+        return {
+            "mapping": row.get("category_mapping") or {},
+            "changes": row.get("category_changes") or [],
+        }
+
     async def save_report(
         self,
         convex_audit_id: str,
@@ -258,6 +284,11 @@ class SupabaseService:
             "salon_name": salon_name or None,
             "salon_address": salon_address or None,
             "source_url": source_url or None,
+            # Etap 1 of Unified Report Pipeline: category restructuring is
+            # produced by BAGENT #1 instead of BAGENT #2. Persist the mapping
+            # + changes so cennik can load them deterministically.
+            "category_mapping": report.get("categoryMapping", {}),
+            "category_changes": report.get("categoryChanges", []),
         }
 
         result = (

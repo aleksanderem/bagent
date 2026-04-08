@@ -57,6 +57,83 @@ def _normalize_item(item: Any) -> dict[str, Any] | None:
     return None
 
 
+def _normalize_lookup_key(name: str) -> str:
+    """Normalize a service name for fuzzy transformation lookup.
+
+    Duplicated from pipelines/cennik.py so report.py can build the same
+    {original_name: transformation} map used by the deterministic finalize
+    step in BAGENT #2. Strips pricelist row formatting that BAGENT #1
+    sometimes accidentally includes in the `before` field
+    (e.g. `"Laser CO2" | 1 500,00 zł | 45min |`).
+    """
+    if not name:
+        return ""
+    cleaned = name.split(" | ")[0]
+    cleaned = cleaned.strip().strip('"').strip("'")
+    return cleaned.lower().strip()
+
+
+def _build_transformation_map(
+    transformations: list[dict[str, Any]],
+) -> tuple[dict[str, str], dict[str, str]]:
+    """Build lookup maps from original name → new name / description.
+
+    Duplicated from pipelines/cennik.py. Returns:
+        (name_map, description_map) — both keyed by normalized lookup key
+        (lowercase, stripped of pricelist row formatting).
+    """
+    name_map: dict[str, str] = {}
+    desc_map: dict[str, str] = {}
+    for t in transformations:
+        raw = t.get("before") or t.get("serviceName") or ""
+        original = _normalize_lookup_key(raw)
+        if not original:
+            continue
+        ttype = t.get("type", "")
+        after = t.get("after", "")
+        if ttype == "name" and after:
+            name_map[original] = after
+        elif ttype == "description" and after:
+            desc_map[original] = after
+    return name_map, desc_map
+
+
+def _apply_transformations_to_scraped(
+    scraped_data: Any,
+    transformations: list[dict[str, Any]],
+) -> dict[str, Any]:
+    """Build a plain-dict pricelist with naming + description transformations
+    applied mechanically. Used to feed the category restructuring agent a
+    pre-cleaned view so it can propose structure on the final content.
+
+    Mirrors the transformation application logic in pipelines/cennik.py
+    Step 2 but stripped down — no provenance/canonical taxonomy bookkeeping
+    because the report pipeline only needs a textual view of the pricelist
+    for the category agent prompt.
+    """
+    name_map, desc_map = _build_transformation_map(transformations)
+
+    categories_out: list[dict[str, Any]] = []
+    for cat in scraped_data.categories:
+        services_out: list[dict[str, Any]] = []
+        for svc in cat.services:
+            key = _normalize_lookup_key(svc.name)
+            new_name = name_map.get(key, svc.name)
+            new_desc = desc_map.get(key, svc.description)
+            services_out.append({
+                "name": new_name,
+                "price": svc.price,
+                "duration": svc.duration,
+                "description": new_desc,
+            })
+        categories_out.append({"name": cat.name, "services": services_out})
+
+    return {
+        "salonName": scraped_data.salonName,
+        "categories": categories_out,
+    }
+
+
 ProgressCallback = Callable[[int, str], Awaitable[None]]
 
 
@@ -166,13 +243,38 @@ async def run_audit_pipeline(
     transformations = naming_result["transformations"] + desc_result["transformations"]
     await progress(78, f"Score: {total_score}/100{cap_msg} | {critical_count} critical, {major_count} major | {len(transformations)} transformacji")
 
+    # ── Step 6.5: Category restructuring (moved from BAGENT #2) ──
+    # Build a transformed pricelist view by mechanically applying the naming
+    # and description transformations on top of the original scrape. Feed that
+    # to the category agent so it proposes structure on the cleaned content
+    # rather than on raw scraped names. Output is persisted in the report dict
+    # as categoryMapping + categoryChanges; cennik pipeline loads them
+    # deterministically instead of re-running this agent.
+    logger.info("[%s] Step 6.5: Category restructuring...", audit_id)
+    await progress(80, "Restrukturyzacja kategorii...")
+    t0 = time.time()
+    from pipelines.category_restructure import restructure_categories
+    transformed_pricelist = _apply_transformations_to_scraped(scraped_data, transformations)
+    category_mapping, category_changes = await restructure_categories(
+        client=client,
+        transformed_pricelist=transformed_pricelist,
+        top_issues=all_issues,
+        audit_id=audit_id,
+        on_progress=progress,
+    )
+    dt = int((time.time() - t0) * 1000)
+    await progress(
+        85,
+        f"Kategorie gotowe: {len(category_mapping)} mapowań, {len(category_changes)} zmian ({dt}ms)",
+    )
+
     # ── Step 7: Summary ──
     logger.info("[%s] Step 7: Generating summary...", audit_id)
-    await progress(80, "Generowanie podsumowania audytu...")
+    await progress(86, "Generowanie podsumowania audytu...")
     t0 = time.time()
     summary = await _generate_summary(client, total_score, stats, all_issues, scraped_data.salonName)
     dt = int((time.time() - t0) * 1000)
-    await progress(85, f"Podsumowanie wygenerowane ({len(summary)} znaków, {dt}ms)")
+    await progress(87, f"Podsumowanie wygenerowane ({len(summary)} znaków, {dt}ms)")
 
     # ── Step 8: Industry benchmarks (WITHOUT competitor context) ──
     # Competitor context moved to BAGENT #3 (summary.py) which runs AFTER the user
@@ -218,6 +320,9 @@ async def run_audit_pipeline(
     # ── Step 9: Assemble report ──
     # No salonLocation, competitorContext, or competitors fields — those belong
     # to BAGENT #3 output in audit_summaries.basic_competitor_data.
+    # categoryMapping + categoryChanges are the Etap 1 additions — used by
+    # BAGENT #2 (cennik) as a deterministic input instead of re-running the
+    # category agent loop there.
     await progress(93, "Składanie raportu końcowego...")
     report: dict[str, Any] = {
         "version": "v2", "totalScore": total_score, "scoreBreakdown": score_breakdown,
@@ -226,6 +331,8 @@ async def run_audit_pipeline(
         "quickWins": structure_result.get("quickWins", []),
         "industryComparison": industry_comparison,
         "summary": summary.strip(),
+        "categoryMapping": category_mapping,
+        "categoryChanges": category_changes,
     }
 
     quality = _validate_quality(report, scraped_data)
