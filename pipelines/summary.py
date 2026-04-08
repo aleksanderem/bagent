@@ -268,9 +268,9 @@ async def run_summary_pipeline(
     if not report_data:
         raise RuntimeError(f"No audit_report for audit {audit_id} — BAGENT #1 must finish first")
 
-    # TODO: load optimized_pricelist from Supabase. For now the table schema uses
-    #       qualityScore/stats only — we'll fetch it via a dedicated RPC when one exists.
-    #       Shape expected: {"pricelist": {...}, "stats": {...}}.
+    # Load latest optimized_pricelists row for this audit (owns quality_score,
+    # total_changes, names_improved, etc.). BAGENT #2 cennik pipeline populates
+    # this row; BAGENT #3 only reads it for summary generation.
     optimized_data: dict[str, Any] = {}
     try:
         optimized_rows = supabase.client.table("optimized_pricelists").select("*").eq("convex_audit_id", audit_id).limit(1).execute()
