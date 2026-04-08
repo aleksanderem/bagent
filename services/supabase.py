@@ -9,6 +9,73 @@ from config import settings
 logger = logging.getLogger(__name__)
 
 
+def _format_duration_minutes(minutes: int | None) -> str | None:
+    """Mirror convex/auditReportStorage.formatDurationMinutes."""
+    if minutes is None:
+        return None
+    if minutes < 60:
+        return f"{minutes}min"
+    h, m = divmod(minutes, 60)
+    return f"{h}h" if m == 0 else f"{h}h {m}min"
+
+
+def _normalize_variant(v: dict) -> dict:
+    """Transform a raw Booksy variant JSONB into the legacy ServiceVariant
+    pydantic shape expected by bagent: { label, price, duration? }.
+
+    Raw Booksy variants store price as float/int and duration as minutes (int).
+    We serialize them to display strings (e.g. "2200 zł", "45min") to match
+    what convertBooksyApiToScrapedData in convex/audit/scraping.ts produces.
+    """
+    price_float = v.get("price") if isinstance(v.get("price"), (int, float)) else None
+    service_price = v.get("service_price") if isinstance(v.get("service_price"), str) else None
+    price_str = service_price or (f"{price_float} zł" if price_float is not None else "")
+
+    duration_min = v.get("duration") if isinstance(v.get("duration"), (int, float)) else None
+    duration_str = _format_duration_minutes(int(duration_min)) if duration_min is not None else None
+
+    return {
+        "label": v.get("label") if isinstance(v.get("label"), str) else "",
+        "price": price_str,
+        "duration": duration_str,
+    }
+
+
+def _svc_row_to_dict(svc: dict) -> dict:
+    """Convert a salon_scrape_services row to the legacy ScrapedService shape
+    that bagent's ScrapedData pydantic model expects.
+
+    Uses the raw `price` display string when present, falls back to
+    price_grosze/100, and formats duration from duration_minutes. Variants
+    JSONB is normalized to string-typed label/price/duration entries.
+    """
+    price_str = svc.get("price")
+    if not price_str:
+        pg = svc.get("price_grosze")
+        if pg is not None:
+            price_str = f"{pg / 100:.2f} zł"
+        else:
+            price_str = ""
+
+    duration_str = _format_duration_minutes(svc.get("duration_minutes"))
+
+    raw_variants = svc.get("variants")
+    variants: list[dict] | None = None
+    if isinstance(raw_variants, list) and raw_variants:
+        variants = [_normalize_variant(v) for v in raw_variants if isinstance(v, dict)]
+        if not variants:
+            variants = None
+
+    return {
+        "name": svc.get("name", ""),
+        "price": price_str,
+        "duration": duration_str,
+        "description": svc.get("description"),
+        "imageUrl": svc.get("image_url"),
+        "variants": variants,
+    }
+
+
 def _coerce_int(value: object, default: int = 0) -> int:
     """Safely coerce an AI-generated value to int.
 
@@ -44,11 +111,71 @@ class SupabaseService:
         )
 
     async def get_scraped_data(self, convex_audit_id: str) -> dict:
-        """Read scraped data from audit_scraped_data table by convex audit ID."""
-        result = self.client.table("audit_scraped_data").select("*").eq("convex_audit_id", convex_audit_id).execute()
-        if not result.data:
+        """Read scraped data for a convex audit ID.
+
+        Preferred source: the normalized `salon_scrapes` + `salon_scrape_services`
+        tables written by Convex audit scraping. Falls back to the legacy
+        `audit_scraped_data` blob table for pre-migration audits.
+
+        Returns a dict matching the ScrapedData pydantic shape used by bagent
+        pipelines: { salonName, salonAddress, salonLogoUrl, categories, totalServices }.
+        Each category is { name, services }, each service is
+        { name, price, duration, description, imageUrl, variants }.
+        """
+        # 1. Try the new normalized tables first. Multiple scrapes per audit
+        # can exist (for time-series price tracking) — pick the newest.
+        scrape_res = (
+            self.client.table("salon_scrapes")
+            .select("*")
+            .eq("convex_audit_id", convex_audit_id)
+            .order("scraped_at", desc=True)
+            .limit(1)
+            .execute()
+        )
+        if scrape_res.data:
+            scrape_row = scrape_res.data[0]
+            scrape_id = scrape_row["id"]
+
+            services_res = (
+                self.client.table("salon_scrape_services")
+                .select("*")
+                .eq("scrape_id", scrape_id)
+                .order("category_sort_order", desc=False)
+                .order("sort_order", desc=False)
+                .execute()
+            )
+
+            # Group services by category_name preserving insertion order
+            categories: list[dict] = []
+            category_index: dict[str, int] = {}
+            for svc in services_res.data or []:
+                cat_name = svc.get("category_name") or "Bez kategorii"
+                if cat_name not in category_index:
+                    category_index[cat_name] = len(categories)
+                    categories.append({"name": cat_name, "services": []})
+                categories[category_index[cat_name]]["services"].append(
+                    _svc_row_to_dict(svc)
+                )
+
+            total_services = sum(len(c["services"]) for c in categories)
+            return {
+                "salonName": scrape_row.get("salon_name"),
+                "salonAddress": scrape_row.get("salon_address"),
+                "salonLogoUrl": scrape_row.get("salon_logo_url"),
+                "categories": categories,
+                "totalServices": total_services,
+            }
+
+        # 2. Legacy fallback — pre-migration audits only.
+        legacy = (
+            self.client.table("audit_scraped_data")
+            .select("*")
+            .eq("convex_audit_id", convex_audit_id)
+            .execute()
+        )
+        if not legacy.data:
             raise ValueError(f"No scraped data found for audit {convex_audit_id}")
-        row = result.data[0]
+        row = legacy.data[0]
         return {
             "salonName": row.get("salon_name"),
             "salonAddress": row.get("salon_address"),
