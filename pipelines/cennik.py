@@ -207,17 +207,49 @@ async def run_cennik_pipeline(
                 "variants": [v.model_dump() for v in svc.variants] if svc.variants else None,
                 "tags": None,
                 "isPromo": False,
+
+                # Carry Booksy canonical taxonomy + provenance through the pipeline
+                # so save_optimized_pricelist can populate optimized_services with
+                # full parity to salon_scrape_services (no rozjazd). These fields
+                # are populated by SupabaseService.get_scraped_data.
+                "scrape_service_id": svc.scrape_service_id,
+                "canonical_id": svc.canonical_id,
+                "booksy_treatment_id": svc.booksy_treatment_id,
+                "booksy_service_id": svc.booksy_service_id,
+                "treatment_name": svc.treatment_name,
+                "treatment_parent_id": svc.treatment_parent_id,
+                "body_part": svc.body_part,
+                "target_gender": svc.target_gender,
+                "technology": svc.technology,
+                "classification_confidence": svc.classification_confidence,
+                "price_grosze": svc.price_grosze,
+                "is_from_price": svc.is_from_price,
+                "duration_minutes": svc.duration_minutes,
             }
             original_services.append(dict(svc_dict))
 
             key = svc.name.strip().lower()
             new_svc = dict(svc_dict)
-            if key in name_map:
+            original_description = svc.description
+            original_name = svc.name
+            original_price = svc.price
+            # Track which transformations were applied for was_renamed /
+            # was_description_changed flags on the optimized_services row.
+            was_renamed = False
+            was_description_changed = False
+            if key in name_map and name_map[key] != original_name:
                 new_svc["name"] = name_map[key]
                 names_applied += 1
-            if key in desc_map:
+                was_renamed = True
+            if key in desc_map and desc_map[key] != (original_description or ""):
                 new_svc["description"] = desc_map[key]
                 descriptions_applied += 1
+                was_description_changed = True
+            new_svc["_original_name"] = original_name
+            new_svc["_original_description"] = original_description
+            new_svc["_original_price"] = original_price
+            new_svc["_was_renamed"] = was_renamed
+            new_svc["_was_description_changed"] = was_description_changed
             transformed_services.append(new_svc)
 
         original_categories.append({"name": cat.name, "services": original_services})

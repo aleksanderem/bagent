@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from pydantic import BaseModel
+from pydantic import BaseModel, ConfigDict
 
 
 class ServiceVariant(BaseModel):
@@ -12,12 +12,35 @@ class ServiceVariant(BaseModel):
 
 
 class ScrapedService(BaseModel):
+    # Allow Booksy canonical taxonomy + scrape provenance fields to flow
+    # through the pipeline without schema bloat. These extras originate in
+    # the salon_scrape_services row and are needed by save_optimized_pricelist
+    # so optimized_services can link back via source_scrape_service_id and
+    # inherit Booksy taxonomy (canonical_id, body_part, etc.).
+    model_config = ConfigDict(extra="allow")
+
     name: str
     price: str
     duration: str | None = None
     description: str | None = None
     imageUrl: str | None = None
     variants: list[ServiceVariant] | None = None
+
+    # Optional provenance + canonical taxonomy (populated by
+    # SupabaseService.get_scraped_data when reading from salon_scrape_services).
+    scrape_service_id: int | None = None
+    canonical_id: str | None = None
+    booksy_treatment_id: int | None = None
+    booksy_service_id: int | None = None
+    treatment_name: str | None = None
+    treatment_parent_id: int | None = None
+    body_part: str | None = None
+    target_gender: str | None = None
+    technology: str | None = None
+    classification_confidence: float | None = None
+    price_grosze: int | None = None
+    is_from_price: bool | None = None
+    duration_minutes: int | None = None
 
 
 class ScrapedCategory(BaseModel):

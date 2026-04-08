@@ -9,6 +9,18 @@ from config import settings
 logger = logging.getLogger(__name__)
 
 
+def _normalize_name(name: str) -> str:
+    """Mirror convex/audit/booksyParser.normalizeServiceName: lowercase,
+    strip diacritics, collapse non-alnum to spaces. Used for fuzzy matching
+    between optimized and scrape services without schema mismatch."""
+    import unicodedata
+    import re
+    decomposed = unicodedata.normalize("NFD", (name or "").lower())
+    without_diacritics = "".join(c for c in decomposed if unicodedata.category(c) != "Mn")
+    cleaned = re.sub(r"[^a-z0-9\s]", " ", without_diacritics)
+    return re.sub(r"\s+", " ", cleaned).strip()
+
+
 def _format_duration_minutes(minutes: int | None) -> str | None:
     """Mirror convex/auditReportStorage.formatDurationMinutes."""
     if minutes is None:
@@ -73,6 +85,22 @@ def _svc_row_to_dict(svc: dict) -> dict:
         "description": svc.get("description"),
         "imageUrl": svc.get("image_url"),
         "variants": variants,
+
+        # Provenance + canonical taxonomy — propagated through the pipeline
+        # into optimized_services so we maintain parity with salon_scrape_services.
+        "scrape_service_id": svc.get("id"),
+        "canonical_id": svc.get("canonical_id"),
+        "booksy_treatment_id": svc.get("booksy_treatment_id"),
+        "booksy_service_id": svc.get("booksy_service_id"),
+        "treatment_name": svc.get("treatment_name"),
+        "treatment_parent_id": svc.get("treatment_parent_id"),
+        "body_part": svc.get("body_part"),
+        "target_gender": svc.get("target_gender"),
+        "technology": svc.get("technology"),
+        "classification_confidence": svc.get("classification_confidence"),
+        "price_grosze": svc.get("price_grosze"),
+        "is_from_price": svc.get("is_from_price"),
+        "duration_minutes": svc.get("duration_minutes"),
     }
 
 
@@ -500,27 +528,150 @@ class SupabaseService:
         optimization_data: dict,
         salon_name: str = "",
     ) -> int:
-        """Save optimized pricelist to optimized_pricelists table.
+        """Save optimized pricelist to optimized_pricelists + children.
 
-        Maps optimization result to the actual table schema:
-        convex_audit_id, salon_name, quality_score, total_changes,
-        names_improved, descriptions_added, categories_restructured,
-        original_service_count, optimized_service_count, duplicates_merged,
-        quality_checks, pipeline_version, processing_time_ms.
+        Writes the full normalized tree:
+          - optimized_pricelists (header, upsert on convex_audit_id)
+          - optimized_categories (N rows, delete+insert for idempotency)
+          - optimized_services   (M rows with source_scrape_service_id FK
+            and Booksy canonical taxonomy propagated from salon_scrape_services
+            so optimized_services has full parity with the scrape tables.
+            No rozjazd between "original" and "optimized" data.)
+
+        The optimization_data.pricelist.categories[].services[] dicts carry
+        provenance fields from the pipeline: scrape_service_id, canonical_id,
+        booksy_treatment_id, body_part, etc. — see pipelines/cennik.py.
         """
+        # 0. Find the source_scrape_id to link pricelist -> salon_scrapes
+        source_scrape = (
+            self.client.table("salon_scrapes")
+            .select("id")
+            .eq("convex_audit_id", convex_audit_id)
+            .order("scraped_at", desc=True)
+            .limit(1)
+            .execute()
+        )
+        source_scrape_id = source_scrape.data[0]["id"] if source_scrape.data else None
+
         summary = optimization_data.get("summary", {})
-        row = {
+        pricelist = optimization_data.get("pricelist") or {}
+        categories = pricelist.get("categories") or []
+        total_optimized_services = sum(len(c.get("services") or []) for c in categories)
+
+        # 1. Upsert optimized_pricelists header row
+        header_row = {
             "convex_audit_id": convex_audit_id,
             "salon_name": salon_name or None,
-            "quality_score": optimization_data.get("qualityScore", 0),
-            "total_changes": summary.get("totalChanges", 0),
-            "names_improved": summary.get("namesImproved", 0),
-            "descriptions_added": summary.get("descriptionsAdded", 0),
-            "categories_restructured": summary.get("categoriesOptimized", 0),
-            "duplicates_merged": summary.get("duplicatesFound", 0),
+            "quality_score": _coerce_int(optimization_data.get("qualityScore", 0)),
+            "total_changes": _coerce_int(summary.get("totalChanges", 0)),
+            "names_improved": _coerce_int(summary.get("namesImproved", 0)),
+            "descriptions_added": _coerce_int(summary.get("descriptionsAdded", 0)),
+            "categories_restructured": _coerce_int(summary.get("categoriesOptimized", 0)),
+            "duplicates_merged": _coerce_int(summary.get("duplicatesFound", 0)),
+            "optimized_service_count": total_optimized_services,
             "pipeline_version": "v2-bagent",
+            "source_scrape_id": source_scrape_id,
         }
-        result = self.client.table("optimized_pricelists").upsert(row, on_conflict="convex_audit_id").execute()
+        result = (
+            self.client.table("optimized_pricelists")
+            .upsert(header_row, on_conflict="convex_audit_id")
+            .execute()
+        )
         if not result.data:
-            raise ValueError("Failed to save optimized pricelist")
-        return result.data[0]["id"]
+            raise ValueError("Failed to save optimized_pricelists header")
+        pricelist_id = result.data[0]["id"]
+
+        # 2. Delete existing categories + services for this pricelist (idempotent).
+        # optimized_categories.pricelist_id cascades to optimized_services.category_id.
+        self.client.table("optimized_categories").delete().eq("pricelist_id", pricelist_id).execute()
+
+        # 3. Insert categories and services
+        total_services_inserted = 0
+        total_categories_inserted = 0
+        for cat_idx, cat in enumerate(categories):
+            cat_name = cat.get("name") or "Bez kategorii"
+            cat_row = {
+                "pricelist_id": pricelist_id,
+                "name": cat_name,
+                "normalized_name": _normalize_name(cat_name),
+                "sort_order": cat_idx,
+            }
+            cat_result = self.client.table("optimized_categories").insert(cat_row).execute()
+            if not cat_result.data:
+                logger.warning("Failed to insert optimized_categories row for %r", cat_name)
+                continue
+            category_id = cat_result.data[0]["id"]
+            total_categories_inserted += 1
+
+            svc_rows = []
+            for svc_idx, svc in enumerate(cat.get("services") or []):
+                name = svc.get("name", "")
+                svc_rows.append({
+                    "pricelist_id": pricelist_id,
+                    "category_id": category_id,
+                    "convex_audit_id": convex_audit_id,
+
+                    # Core identity
+                    "name": name,
+                    "normalized_name": _normalize_name(name),
+                    "description": svc.get("description"),
+                    "price": svc.get("price"),
+                    "duration": svc.get("duration"),
+                    "sort_order": svc_idx,
+
+                    # Provenance — link back to the source scrape service row
+                    "source_scrape_service_id": svc.get("scrape_service_id"),
+
+                    # Booksy canonical taxonomy (propagated from scrape)
+                    "booksy_id": None,  # business-level; not per-service
+                    "canonical_id": svc.get("canonical_id"),
+                    "booksy_treatment_id": svc.get("booksy_treatment_id"),
+                    "booksy_service_id": svc.get("booksy_service_id"),
+                    "treatment_name": svc.get("treatment_name"),
+                    "treatment_parent_id": svc.get("treatment_parent_id"),
+                    "body_part": svc.get("body_part"),
+                    "target_gender": svc.get("target_gender"),
+                    "technology": svc.get("technology"),
+                    "classification_confidence": svc.get("classification_confidence"),
+
+                    # Parsed pricing/duration (preserved from scrape)
+                    "price_grosze": svc.get("price_grosze"),
+                    "is_from_price": svc.get("is_from_price"),
+                    "duration_minutes": svc.get("duration_minutes"),
+
+                    # Variants JSONB (may have been transformed)
+                    "variants": svc.get("variants"),
+
+                    # Change-tracking flags — set by cennik pipeline
+                    "was_renamed": bool(svc.get("_was_renamed")),
+                    "was_description_changed": bool(svc.get("_was_description_changed")),
+                    "was_recategorized": bool(svc.get("_was_recategorized")),
+                    "was_seo_enriched": bool(svc.get("_was_seo_enriched")),
+                    "was_price_normalized": bool(svc.get("_was_price_normalized")),
+                    "is_new_service": bool(svc.get("_is_new_service")),
+                    "was_deduplicated": bool(svc.get("_was_deduplicated")),
+
+                    # Original snapshot (for Lista zmian diff view)
+                    "original_description": svc.get("_original_description"),
+                    "original_category": svc.get("_original_category"),
+                    "original_price": svc.get("_original_price"),
+                })
+
+            if svc_rows:
+                CHUNK = 200
+                for i in range(0, len(svc_rows), CHUNK):
+                    chunk = svc_rows[i : i + CHUNK]
+                    res = self.client.table("optimized_services").insert(chunk).execute()
+                    if not res.data:
+                        logger.warning(
+                            "Failed to insert optimized_services chunk %d-%d for category %r",
+                            i, i + len(chunk), cat_name,
+                        )
+                    else:
+                        total_services_inserted += len(chunk)
+
+        logger.info(
+            "Saved optimized pricelist: id=%s, categories=%d, services=%d, source_scrape=%s",
+            pricelist_id, total_categories_inserted, total_services_inserted, source_scrape_id,
+        )
+        return pricelist_id
