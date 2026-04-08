@@ -192,6 +192,7 @@ class SupabaseService:
                 "salonLogoUrl": scrape_row.get("salon_logo_url"),
                 "categories": categories,
                 "totalServices": total_services,
+                "primaryCategoryId": scrape_row.get("primary_category_id"),
             }
 
         # 2. Legacy fallback — pre-migration audits only.
@@ -396,17 +397,66 @@ class SupabaseService:
         )
         return report_id
 
-    async def get_benchmarks(self, city: str | None = None) -> dict:
-        """Get industry comparison data."""
-        try:
-            query = self.client.table("audit_benchmarks").select("*")
-            if city:
-                query = query.eq("city", city)
-            result = query.limit(1).execute()
-            if result.data:
-                return result.data[0]
-        except Exception as e:
-            logger.warning("Failed to fetch benchmarks: %s", e)
+    async def get_benchmarks(
+        self,
+        city: str | None = None,
+        primary_category_id: int | None = None,
+    ) -> dict:
+        """Get industry comparison data from the benchmarks table.
+
+        The benchmarks table is keyed by (scope, metric) — scope is e.g.
+        'category:7' or 'global', metric is e.g. 'avg_service_count' or
+        'description_rate'. We aggregate the rows that match the salon's
+        primary Booksy category into a backwards-compat dict shape:
+
+            { industry_average, top_performers, sample_size,
+              avg_service_count, description_rate }
+
+        Falls back to global scope, then to hardcoded defaults if neither
+        the category-specific nor the global benchmarks exist.
+
+        TODO: city-level benchmarks are not yet computed by recomputeBenchmarks
+        in convex/supabase.ts — the city argument is currently ignored.
+        """
+        scopes_to_try: list[str] = []
+        if primary_category_id is not None:
+            scopes_to_try.append(f"category:{primary_category_id}")
+        scopes_to_try.append("global")
+
+        for scope in scopes_to_try:
+            try:
+                result = (
+                    self.client.table("benchmarks")
+                    .select("metric, value, sample_size")
+                    .eq("scope", scope)
+                    .execute()
+                )
+                if not result.data:
+                    continue
+                metrics = {row["metric"]: row for row in result.data}
+                avg_service_count = metrics.get("avg_service_count", {}).get("value")
+                description_rate = metrics.get("description_rate", {}).get("value")
+                if avg_service_count is None and description_rate is None:
+                    continue
+                # Heuristic mapping:
+                #   - industry_average → description_rate (% salons with descriptions)
+                #   - top_performers   → +20 above the average, capped at 100
+                #   - sample_size      → from any of the rows in this scope
+                avg = float(description_rate) if description_rate is not None else 52.0
+                sample_size = int(metrics.get("description_rate", {}).get("sample_size", 0)
+                                  or metrics.get("avg_service_count", {}).get("sample_size", 500))
+                return {
+                    "industry_average": round(avg, 1),
+                    "top_performers": round(min(avg + 20, 100.0), 1),
+                    "sample_size": sample_size,
+                    "avg_service_count": float(avg_service_count) if avg_service_count is not None else None,
+                    "description_rate": float(description_rate) if description_rate is not None else None,
+                    "scope": scope,
+                }
+            except Exception as e:
+                logger.warning("Failed to fetch benchmarks for scope=%s: %s", scope, e)
+                continue
+
         return {"industry_average": 52, "top_performers": 78, "sample_size": 500}
 
     async def get_competitors(

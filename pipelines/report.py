@@ -186,7 +186,10 @@ async def run_audit_pipeline(
     }
     try:
         city = scraped_data.salonAddress.split(",")[-1].strip() if scraped_data.salonAddress else None
-        benchmarks = await supabase.get_benchmarks(city)
+        benchmarks = await supabase.get_benchmarks(
+            city=city,
+            primary_category_id=scraped_data.primaryCategoryId,
+        )
         avg = benchmarks.get("industry_average", 52)
         top = benchmarks.get("top_performers", 78)
         sample = benchmarks.get("sample_size", 500)

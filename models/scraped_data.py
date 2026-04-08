@@ -57,3 +57,7 @@ class ScrapedData(BaseModel):
     salonLogoUrl: str | None = None
     categories: list[ScrapedCategory]
     totalServices: int
+    # Booksy primary category (e.g. 7 = Salon Kosmetyczny). Used by the report
+    # pipeline to look up category-scoped benchmarks. Populated by
+    # SupabaseService.get_scraped_data when reading from salon_scrapes.
+    primaryCategoryId: int | None = None
