@@ -169,7 +169,7 @@ async def run_cennik_pipeline(
     from agent.tools import CATEGORY_MAPPING_TOOL
     from config import settings
     from models.scraped_data import ScrapedData
-    from pipelines.helpers import clean_service_name, fix_caps_lock
+    from pipelines.helpers import clean_service_name, fix_caps_lock, sanitize_text
     from services.minimax import MiniMaxClient
     from services.supabase import SupabaseService
 
@@ -388,12 +388,36 @@ async def run_cennik_pipeline(
     for cat in restructured_pricelist["categories"]:
         services_out: list[dict[str, Any]] = []
         for svc in cat["services"]:
-            name = clean_service_name(svc.get("name", ""))
+            pre_sanitize_name = svc.get("name", "")
+            name = clean_service_name(pre_sanitize_name)
             name = fix_caps_lock(name)
+            name = sanitize_text(name)
 
-            desc = svc.get("description")
+            pre_sanitize_desc = svc.get("description")
+            desc = pre_sanitize_desc
             if desc:
                 desc = fix_caps_lock(desc)
+                desc = sanitize_text(desc)
+
+            # If sanitize_text cleaned emoji/decor from a name or description
+            # that the agent didn't rewrite, promote the was_* flag so that
+            # the frontend "Lista zmian" tab and the optimized_services row
+            # both reflect the change. Also bump the stats counters so the
+            # summary header shows an accurate count of names/descriptions
+            # improved (not just those touched by the naming/description
+            # agent — also those cleaned of promo markers in finalize).
+            already_renamed = bool(svc.get("_was_renamed"))
+            if not already_renamed and name != pre_sanitize_name:
+                svc["_was_renamed"] = True
+                names_improved += 1
+            already_desc_changed = bool(svc.get("_was_description_changed"))
+            if (
+                not already_desc_changed
+                and desc != pre_sanitize_desc
+                and (pre_sanitize_desc or desc)
+            ):
+                svc["_was_description_changed"] = True
+                descriptions_added += 1
 
             is_promo = _detect_promo(name)
 
@@ -438,7 +462,9 @@ async def run_cennik_pipeline(
                 "_was_description_changed": svc.get("_was_description_changed", False),
                 "_was_recategorized": svc.get("_was_recategorized", False),
             })
-        final_categories.append({"name": cat["name"], "services": services_out})
+        final_categories.append(
+            {"name": sanitize_text(cat["name"]), "services": services_out}
+        )
 
     final_pricelist = {
         "salonName": scraped_data.salonName,

@@ -6,6 +6,49 @@ import re
 from typing import Any
 
 
+# Strips emoji / dingbats / pictographs from user-facing text so the raport
+# finding on inconsistent promo markers ("✦", "💪", "🔴", "⭐", etc.) actually
+# gets applied to the optimized cennik — not just reported. Applied
+# deterministically in cennik.py finalize step to category names, service
+# names, and descriptions.
+#
+# Covers:
+#   - Misc Technical (U+2300-U+23FF): ⌚ ⌛ ⏰ ⏳ ⌨
+#   - Misc Symbols & Dingbats (U+2600-U+27BF): ✦ ★ ☀ ☁ ☂ ✨ ❤ ❌ ✅ ✔
+#   - Misc Symbols and Arrows (U+2B00-U+2BFF): ⭐ ⬆ ⬇ ⬅ ➡ ⬛ ⬜
+#   - Supplementary pictographs & emoji (U+1F000-U+1FFFF): 💪 🔴 ⭕ 😀 🎉
+#   - Zero-width joiner + variation selectors (used by composite emoji)
+#
+# Does NOT touch ASCII, Polish diacritics (all < U+2300), mathematical
+# operators (U+2200-U+22FF: ± × ÷ ≤ ≥), or arrows used in text (U+2190-U+21FF).
+_EMOJI_RE = re.compile(
+    "["
+    "\U00002300-\U000023FF"
+    "\U00002600-\U000027BF"
+    "\U00002B00-\U00002BFF"
+    "\U0001F000-\U0001FFFF"
+    "\u200d\ufe0f\ufe0e"
+    "]+",
+    flags=re.UNICODE,
+)
+
+
+def sanitize_text(text: str) -> str:
+    """Strip emoji/dingbats/pictographs and collapse resulting whitespace.
+
+    Preserves ASCII, Polish diacritics, digits, and standard punctuation.
+    After stripping, collapses multiple spaces and trims stranded leading/
+    trailing separators left behind by removed decor (e.g. `"✦ PROMOCJE ✦"`
+    → `"PROMOCJE"`).
+    """
+    if not text:
+        return text
+    cleaned = _EMOJI_RE.sub("", text)
+    cleaned = re.sub(r"\s{2,}", " ", cleaned)
+    cleaned = cleaned.strip(" \t\n\r-–—·:")
+    return cleaned
+
+
 def clean_service_name(name: str) -> str:
     """Programmatic cleanup: trailing dots, spacing around +/-."""
     cleaned = name.strip()
