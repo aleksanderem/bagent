@@ -335,14 +335,25 @@ async def run_cennik_pipeline(
         await progress(65, f"Agent: FAILED ({dt}ms): {e}")
         # Non-fatal — fall through with empty mapping (no restructuring)
 
-    # Apply category mapping to transformed pricelist
-    restructured_categories = [
-        {
-            "name": category_mapping.get(cat["name"], cat["name"]),
-            "services": cat["services"],
-        }
-        for cat in transformed_pricelist["categories"]
-    ]
+    # Apply category mapping to transformed pricelist. Annotate each service
+    # with its original category name + was_recategorized flag so the finalize
+    # step can propagate it into save_optimized_pricelist → optimized_services.
+    restructured_categories = []
+    for cat in transformed_pricelist["categories"]:
+        original_cat_name = cat["name"]
+        new_cat_name = category_mapping.get(original_cat_name, original_cat_name)
+        was_recategorized = original_cat_name != new_cat_name
+
+        annotated_services = []
+        for svc in cat["services"]:
+            svc_copy = dict(svc)
+            svc_copy["_original_category"] = original_cat_name
+            svc_copy["_was_recategorized"] = was_recategorized
+            annotated_services.append(svc_copy)
+
+        restructured_categories.append(
+            {"name": new_cat_name, "services": annotated_services}
+        )
     restructured_pricelist = {**transformed_pricelist, "categories": restructured_categories}
 
     # ── Step 4: Deterministic finalize ──
@@ -382,6 +393,32 @@ async def run_cennik_pipeline(
                 "variants": svc.get("variants"),
                 "tags": svc.get("tags"),
                 "isPromo": is_promo,
+
+                # Preserve provenance + Booksy canonical taxonomy through the
+                # deterministic finalize step — save_optimized_pricelist needs
+                # these to link optimized_services back to salon_scrape_services.
+                "scrape_service_id": svc.get("scrape_service_id"),
+                "canonical_id": svc.get("canonical_id"),
+                "booksy_treatment_id": svc.get("booksy_treatment_id"),
+                "booksy_service_id": svc.get("booksy_service_id"),
+                "treatment_name": svc.get("treatment_name"),
+                "treatment_parent_id": svc.get("treatment_parent_id"),
+                "body_part": svc.get("body_part"),
+                "target_gender": svc.get("target_gender"),
+                "technology": svc.get("technology"),
+                "classification_confidence": svc.get("classification_confidence"),
+                "price_grosze": svc.get("price_grosze"),
+                "is_from_price": svc.get("is_from_price"),
+                "duration_minutes": svc.get("duration_minutes"),
+
+                # Change-tracking flags + original snapshot (for Lista zmian)
+                "_original_name": svc.get("_original_name"),
+                "_original_description": svc.get("_original_description"),
+                "_original_price": svc.get("_original_price"),
+                "_original_category": svc.get("_original_category"),
+                "_was_renamed": svc.get("_was_renamed", False),
+                "_was_description_changed": svc.get("_was_description_changed", False),
+                "_was_recategorized": svc.get("_was_recategorized", False),
             })
         final_categories.append({"name": cat["name"], "services": services_out})
 
