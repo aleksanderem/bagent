@@ -640,7 +640,19 @@ async def run_optimization_job(job_id: str, request: OptimizationRequest) -> Non
 
 
 async def run_finalize_job(job_id: str, audit_id: str, pricelist: dict) -> None:
-    """Run optimization phase 4 (deterministic, no AI) and report back to Convex."""
+    """Run optimization phase 4 (deterministic, no AI) and report back to Convex.
+
+    LEGACY 4-phase optimization pipeline. The 3-BAGENT migration replaces
+    this with cennik.py which owns optimized_pricelists/categories/services.
+    This function no longer writes to Supabase normalized tables — it only
+    runs the deterministic finalize transforms (clean names, detect promos,
+    detect duplicates) and returns the result to Convex via webhook.
+
+    Writing to Supabase was REMOVED because this legacy path was overwriting
+    the normalized tree with an empty payload, wiping cennik's output. The
+    legacy optimizationJobs table still gets its completion callback so the
+    old flow terminates cleanly while 3-BAGENT owns the source-of-truth data.
+    """
     from services.convex import ConvexClient
 
     convex = ConvexClient()
@@ -657,18 +669,17 @@ async def run_finalize_job(job_id: str, audit_id: str, pricelist: dict) -> None:
             original_pricelist=original,
         )
 
-        await supabase.save_optimized_pricelist(
-            convex_audit_id=audit_id,
-            optimization_data=result,
-            salon_name=original.get("salonName", ""),
-        )
+        # NOTE: save_optimized_pricelist() call REMOVED — the 3-BAGENT
+        # cennik pipeline owns the optimized_pricelists/categories/services
+        # tree. Calling it here with the legacy `result` shape produces
+        # an empty children array and wipes the normalized data.
 
         await convex.complete_optimization(
             job_id=job_id,
             output_pricing_data_json=json.dumps(result.get("finalPricelist", result), ensure_ascii=False),
             optimization_result_json=json.dumps(result, ensure_ascii=False),
         )
-        logger.info("Finalize job %s completed", job_id)
+        logger.info("Finalize job %s completed (no Supabase write — owned by cennik)", job_id)
     except Exception as e:
         logger.error("Finalize job %s failed: %s", job_id, e, exc_info=True)
         try:
