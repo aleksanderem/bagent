@@ -3,6 +3,11 @@
 ZADANIE: Przepisz opisy usług salonu. Użyj narzędzia submit_description_results aby wysłać poprawione opisy.
 Wywołuj narzędzie wielokrotnie z partiami po 15-20 usług, aż przetworzysz WSZYSTKIE usługi które wymagają poprawy.
 
+KONTEKST — PROBLEMY ZIDENTYFIKOWANE W RAPORCIE:
+{descriptions_issues_context}
+
+Dla każdej transformacji wskaż causedByIssueIndex — indeks problemu z powyższej listy, który ta zmiana rozwiązuje. Jeśli zmiana jest ogólnym cleanupem (np. przepisanie opisu bez konkretnego raportowanego problemu, tylko dla jakości), POMIŃ pole causedByIssueIndex.
+
 ZASADY:
 - Każdy opis 50-150 znaków
 - Opisz korzyść dla klienta, nie procedurę

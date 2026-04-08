@@ -178,33 +178,74 @@ async def run_audit_pipeline(
     dupes = len(stats["duplicateNames"])
     await progress(15, f"Statystyki: {total_services} usług, {desc_count} z opisem, {dur_count} z czasem, {dupes} duplikatów ({dt}ms)")
 
-    # ── Steps 2-6: Naming + Descriptions + Structure (PARALLEL) ──
+    # ── Phase 1 — Diagnostic scoring (PARALLEL) ──
+    # Produces issues WITHOUT running transformation agents. We need a stable
+    # issue list before dispatching the naming / description agents so each
+    # transformation can point back to the issue it resolves (Etap 2
+    # traceability).
     import asyncio as _asyncio
 
-    logger.info("[%s] Steps 2-6: Running naming, descriptions, structure in parallel...", audit_id)
-    await progress(20, "Równoległa analiza: nazwy + opisy + struktura → MiniMax...")
+    logger.info("[%s] Phase 1: Scoring naming, descriptions, structure in parallel...", audit_id)
+    await progress(20, "Faza 1/2 — skorowanie: nazwy + opisy + struktura → MiniMax...")
     t0 = time.time()
 
-    naming_result, desc_result, structure_result = await _asyncio.gather(
-        _analyze_naming(client, scraped_data, stats, run_agent_loop, NAMING_TOOL, progress),
-        _analyze_descriptions(client, scraped_data, stats, run_agent_loop, DESCRIPTION_TOOL, progress),
+    naming_scoring, desc_scoring, structure_result = await _asyncio.gather(
+        _score_naming(client, scraped_data, stats, progress),
+        _score_descriptions(client, scraped_data, stats, progress),
         _analyze_structure(client, scraped_data, stats),
     )
 
     dt = int((time.time() - t0) * 1000)
-    n_score = naming_result["score"]
-    n_transforms = len(naming_result["transformations"])
-    d_score = desc_result["score"]
-    d_transforms = len(desc_result["transformations"])
+    n_score = naming_scoring["score"]
+    d_score = desc_scoring["score"]
     s_score = structure_result["structureScore"]
     p_score = structure_result["pricingScore"]
     qw_count = len(structure_result.get("quickWins", []))
     seo_count = len(structure_result.get("missingSeoKeywords", []))
+    await progress(55, (
+        f"Skorowanie zakończone ({dt}ms): "
+        f"Nazwy {n_score}/20, Opisy {d_score}/20, "
+        f"Struktura {s_score}/15, Ceny {p_score}/15, "
+        f"{qw_count} QW, {seo_count} SEO"
+    ))
+
+    # Assemble all_issues NOW so we can feed them to the agent loops as context.
+    # Preserve insertion order within each source so downstream code that filters
+    # by dimension gets deterministic indexing; severity sort below reshuffles
+    # but we keep the pre-sort order as the source of truth for global indices.
+    all_issues = (
+        naming_scoring["issues"]
+        + desc_scoring["issues"]
+        + structure_result.get("issues", [])
+    )
+    severity_order = {"critical": 0, "major": 1, "minor": 2}
+    all_issues.sort(key=lambda i: severity_order.get(i.get("severity", "minor"), 2))
+
+    # ── Phase 2 — Transformation agents (PARALLEL), issues as context ──
+    # Naming agent sees issues with dimension in (naming, structure).
+    # Descriptions agent sees issues with dimension in (descriptions, seo).
+    logger.info("[%s] Phase 2: Naming + descriptions agents with issues context...", audit_id)
+    await progress(58, "Faza 2/2 — agenty transformacyjne z kontekstem problemów...")
+    t0 = time.time()
+
+    naming_result, desc_result = await _asyncio.gather(
+        _agent_naming(client, scraped_data, all_issues, run_agent_loop, NAMING_TOOL, progress),
+        _agent_descriptions(client, scraped_data, all_issues, run_agent_loop, DESCRIPTION_TOOL, progress),
+    )
+
+    dt = int((time.time() - t0) * 1000)
+    n_transforms = len(naming_result["transformations"])
+    d_transforms = len(desc_result["transformations"])
+    n_linked = sum(
+        1 for t in naming_result["transformations"] if t.get("causedByIssueGlobalIndex") is not None
+    )
+    d_linked = sum(
+        1 for t in desc_result["transformations"] if t.get("causedByIssueGlobalIndex") is not None
+    )
     await progress(75, (
-        f"Analiza równoległa zakończona ({dt}ms): "
-        f"Nazwy {n_score}/20 ({n_transforms} transform.), "
-        f"Opisy {d_score}/20 ({d_transforms} transform.), "
-        f"Struktura {s_score}/15, Ceny {p_score}/15, {qw_count} QW, {seo_count} SEO"
+        f"Agenty zakończone ({dt}ms): "
+        f"Nazwy {n_transforms} transform. ({n_linked} z traceability), "
+        f"Opisy {d_transforms} transform. ({d_linked} z traceability)"
     ))
 
     # ── Calculate scores ──
@@ -214,18 +255,14 @@ async def run_audit_pipeline(
 
     score_breakdown = {
         "completeness": completeness,
-        "naming": naming_result["score"],
-        "descriptions": desc_result["score"],
+        "naming": naming_scoring["score"],
+        "descriptions": desc_scoring["score"],
         "structure": structure_result["structureScore"],
         "pricing": structure_result["pricingScore"],
         "seo": seo,
         "ux": ux,
     }
     total_score = sum(score_breakdown.values())
-
-    all_issues = naming_result["issues"] + desc_result["issues"] + structure_result.get("issues", [])
-    severity_order = {"critical": 0, "major": 1, "minor": 2}
-    all_issues.sort(key=lambda i: severity_order.get(i.get("severity", "minor"), 2))
 
     critical_count = sum(1 for i in all_issues if i.get("severity") == "critical")
     major_count = sum(1 for i in all_issues if i.get("severity") == "major")
@@ -348,23 +385,77 @@ async def run_audit_pipeline(
 
 
 # ── Private step functions ──
+# ── Traceability helpers ──
 
 
-async def _analyze_naming(
+def _build_issues_context_for_agent(
+    all_issues: list[dict[str, Any]],
+    dimensions: tuple[str, ...],
+) -> tuple[str, list[int]]:
+    """Filter the global issues list by dimension and build the prompt text
+    + a filtered-index → global-index map.
+
+    Returns:
+        (numbered_text, global_index_by_filtered_index)
+          numbered_text: "0. [severity] issue text\n1. [severity] ..."
+          global_index_by_filtered_index[i] = position in all_issues of the
+            issue rendered as index i in the prompt.
+
+    If no issues match, returns ("(brak zgłoszonych problemów w tej kategorii — "
+    "poprawiaj dla ogólnej jakości)", []).
+    """
+    global_index_by_filtered_index: list[int] = []
+    lines: list[str] = []
+    for g_idx, iss in enumerate(all_issues):
+        if iss.get("dimension") not in dimensions:
+            continue
+        f_idx = len(global_index_by_filtered_index)
+        severity = iss.get("severity", "minor")
+        issue_text = iss.get("issue", "")
+        lines.append(f"{f_idx}. [{severity}] {issue_text}")
+        global_index_by_filtered_index.append(g_idx)
+
+    if not lines:
+        return (
+            "(brak zgłoszonych problemów w tej kategorii — poprawiaj dla ogólnej jakości)",
+            global_index_by_filtered_index,
+        )
+    return "\n".join(lines), global_index_by_filtered_index
+
+
+def _resolve_caused_by_issue_index(
+    raw_value: Any,
+    global_index_map: list[int],
+) -> int | None:
+    """Translate an agent-reported filtered index into a global index into
+    all_issues. Returns None when the value is missing, invalid, or out of
+    range — per the plan we silently drop bad values instead of failing.
+    """
+    if raw_value is None:
+        return None
+    try:
+        idx = int(raw_value)
+    except (TypeError, ValueError):
+        return None
+    if idx < 0 or idx >= len(global_index_map):
+        return None
+    return global_index_map[idx]
+
+
+# ── Phase 1: Scoring (produces issues, no transformations) ──
+
+
+async def _score_naming(
     client: Any,
     scraped_data: Any,
     stats: dict[str, Any],
-    run_agent_loop: Any,
-    naming_tool: dict[str, Any],
     progress: ProgressCallback,
 ) -> dict[str, Any]:
-    """Steps 2-3: Naming score + agent transformations."""
-    from pipelines.helpers import (
-        build_full_pricelist_text,
-        clean_service_name,
-        fix_caps_lock,
-        validate_name_transformation,
-    )
+    """Scoring-only half of the old _analyze_naming.
+
+    Returns {score, issues}. No agent loop, no transformations.
+    """
+    from pipelines.helpers import build_full_pricelist_text
 
     pricelist_text = build_full_pricelist_text(scraped_data)
     await progress(22, f"Prompt naming score: {len(pricelist_text)} znaków → MiniMax...")
@@ -381,9 +472,13 @@ async def _analyze_naming(
 
     t0 = time.time()
     try:
-        scoring = await client.generate_json(full_prompt, system="Jesteś ekspertem od cenników salonów beauty.")
+        scoring = await client.generate_json(
+            full_prompt, system="Jesteś ekspertem od cenników salonów beauty."
+        )
         dt = int((time.time() - t0) * 1000)
-        await progress(28, f"Naming score otrzymany: {scoring.get('score', '?')}/20 ({dt}ms)")
+        await progress(
+            28, f"Naming score otrzymany: {scoring.get('score', '?')}/20 ({dt}ms)"
+        )
     except Exception as e:
         dt = int((time.time() - t0) * 1000)
         logger.warning("Naming scoring failed: %s", e)
@@ -391,16 +486,127 @@ async def _analyze_naming(
         scoring = {"score": 10, "issues": []}
 
     score = min(20, max(0, int(scoring.get("score", 10))))
-    issues = scoring.get("issues", [])
+    # Ensure every naming-scoring issue is tagged with dimension="naming" even
+    # if the model forgot — downstream dimension filtering depends on it.
+    issues = []
+    for iss in scoring.get("issues", []) or []:
+        if not isinstance(iss, dict):
+            continue
+        if "dimension" not in iss or not iss.get("dimension"):
+            iss["dimension"] = "naming"
+        issues.append(iss)
+    return {"score": score, "issues": issues}
 
-    # Agent loop
+
+async def _score_descriptions(
+    client: Any,
+    scraped_data: Any,
+    stats: dict[str, Any],
+    progress: ProgressCallback,
+) -> dict[str, Any]:
+    """Scoring-only half of the old _analyze_descriptions."""
+    from pipelines.helpers import build_full_pricelist_text
+
+    pricelist_text = build_full_pricelist_text(scraped_data)
+    desc_count = stats["servicesWithDescription"]
+    total = stats["totalServices"]
+    await progress(
+        50,
+        f"Prompt description score ({desc_count}/{total} z opisem): "
+        f"{len(pricelist_text)} znaków → MiniMax...",
+    )
+
+    desc_prompt = _load_prompt("descriptions_score.txt")
+    if not desc_prompt:
+        desc_prompt = (
+            "Oceń JAKOŚĆ OPISÓW usług. Skala 0-20. "
+            "Zwróć JSON z polami: score (int), issues (array).\n\n"
+        )
+    full_prompt = (
+        _fill_prompt(
+            desc_prompt,
+            pricelist_text=pricelist_text,
+            descriptions_text=pricelist_text,
+            total_services=str(total),
+            desc_count=str(desc_count),
+            desc_percentage=str(round(desc_count / max(total, 1) * 100)),
+        )
+        if "{" in desc_prompt
+        else f"{desc_prompt}\n\nCENNIK:\n{pricelist_text}"
+    )
+
+    t0 = time.time()
+    try:
+        scoring = await client.generate_json(
+            full_prompt, system="Jesteś ekspertem od cenników salonów beauty."
+        )
+        dt = int((time.time() - t0) * 1000)
+        await progress(54, f"Description score: {scoring.get('score', '?')}/20 ({dt}ms)")
+    except Exception as e:
+        dt = int((time.time() - t0) * 1000)
+        logger.warning("Description scoring failed: %s", e)
+        await progress(54, f"Description scoring FAILED ({dt}ms): {e}")
+        scoring = {"score": 10, "issues": []}
+
+    score = min(20, max(0, int(scoring.get("score", 10))))
+    issues = []
+    for iss in scoring.get("issues", []) or []:
+        if not isinstance(iss, dict):
+            continue
+        if "dimension" not in iss or not iss.get("dimension"):
+            iss["dimension"] = "descriptions"
+        issues.append(iss)
+    return {"score": score, "issues": issues}
+
+
+# ── Phase 2: Agent loops (consume issues as context, emit transformations) ──
+
+
+async def _agent_naming(
+    client: Any,
+    scraped_data: Any,
+    all_issues: list[dict[str, Any]],
+    run_agent_loop: Any,
+    naming_tool: dict[str, Any],
+    progress: ProgressCallback,
+) -> dict[str, Any]:
+    """Agent-loop half of the old _analyze_naming.
+
+    Feeds the agent a filtered issues context (dimension in naming/structure)
+    so every transformation can point back to an issue via causedByIssueIndex.
+    Translates filtered indices to global indices into all_issues before
+    returning, so save_report can resolve them to DB IDs.
+    """
+    from pipelines.helpers import (
+        build_full_pricelist_text,
+        clean_service_name,
+        fix_caps_lock,
+        validate_name_transformation,
+    )
+
+    pricelist_text = build_full_pricelist_text(scraped_data)
+
+    naming_issues_context, naming_global_map = _build_issues_context_for_agent(
+        all_issues, ("naming", "structure")
+    )
+
     naming_agent_prompt = _load_prompt("naming_agent.txt")
     if not naming_agent_prompt:
         naming_agent_prompt = (
             "Popraw nazwy usług w cenniku. Użyj narzędzia submit_naming_results. "
             "Wywołuj wielokrotnie z partiami po 15-20 nazw."
         )
-    user_msg = _fill_prompt(naming_agent_prompt, pricelist_text=pricelist_text) if "{pricelist_text}" in naming_agent_prompt else f"{_fill_prompt(naming_agent_prompt)}\n\nCENNIK:\n{pricelist_text}"
+
+    filled_prompt = _fill_prompt(
+        naming_agent_prompt,
+        pricelist_text=pricelist_text,
+        naming_issues_context=naming_issues_context,
+    )
+    user_msg = (
+        filled_prompt
+        if "{pricelist_text}" in naming_agent_prompt
+        else f"{filled_prompt}\n\nCENNIK:\n{pricelist_text}"
+    )
     await progress(30, "Agent loop: poprawianie nazw usług (tool_use)...")
 
     transformations: list[dict[str, Any]] = []
@@ -418,7 +624,11 @@ async def _analyze_naming(
         )
         dt = int((time.time() - t0) * 1000)
         tokens = agent_result.total_input_tokens + agent_result.total_output_tokens
-        await progress(38, f"Agent naming done: {agent_result.total_steps} steps, {len(agent_result.tool_calls)} calls, {tokens} tokens ({dt}ms)")
+        await progress(
+            38,
+            f"Agent naming done: {agent_result.total_steps} steps, "
+            f"{len(agent_result.tool_calls)} calls, {tokens} tokens ({dt}ms)",
+        )
 
         accepted = 0
         rejected = 0
@@ -429,7 +639,9 @@ async def _analyze_naming(
                     t = _normalize_item(raw_t)
                     if t is None:
                         rejected += 1
-                        logger.warning("Naming: skipping non-dict item: %s", type(raw_t).__name__)
+                        logger.warning(
+                            "Naming: skipping non-dict item: %s", type(raw_t).__name__
+                        )
                         continue
                     original = t.get("name", "")
                     improved = t.get("improved", "")
@@ -437,66 +649,49 @@ async def _analyze_naming(
                     improved = fix_caps_lock(improved)
                     if original and improved and original != improved:
                         if validate_name_transformation(original, improved):
+                            global_idx = _resolve_caused_by_issue_index(
+                                t.get("causedByIssueIndex"), naming_global_map
+                            )
                             transformations.append({
-                                "type": "name", "serviceName": original,
-                                "before": original, "after": improved,
-                                "reason": "Poprawa nazwy usługi", "impactScore": 3,
+                                "type": "name",
+                                "serviceName": original,
+                                "before": original,
+                                "after": improved,
+                                "reason": "Poprawa nazwy usługi",
+                                "impactScore": 3,
+                                "causedByIssueGlobalIndex": global_idx,
                             })
                             accepted += 1
                         else:
                             rejected += 1
-        await progress(42, f"Naming: {accepted} zaakceptowanych, {rejected} odrzuconych transformacji")
+        await progress(
+            42,
+            f"Naming: {accepted} zaakceptowanych, {rejected} odrzuconych transformacji",
+        )
     except Exception as e:
         dt = int((time.time() - t0) * 1000)
         logger.warning("Naming agent loop failed: %s", e)
         await progress(42, f"Naming agent FAILED ({dt}ms): {e}")
 
-    return {"score": score, "issues": issues, "transformations": transformations}
+    return {"transformations": transformations}
 
 
-async def _analyze_descriptions(
+async def _agent_descriptions(
     client: Any,
     scraped_data: Any,
-    stats: dict[str, Any],
+    all_issues: list[dict[str, Any]],
     run_agent_loop: Any,
     description_tool: dict[str, Any],
     progress: ProgressCallback,
 ) -> dict[str, Any]:
-    """Steps 4-5: Description score + agent transformations."""
+    """Agent-loop half of the old _analyze_descriptions."""
     from pipelines.helpers import build_full_pricelist_text
 
     pricelist_text = build_full_pricelist_text(scraped_data)
-    desc_count = stats["servicesWithDescription"]
-    total = stats["totalServices"]
-    await progress(50, f"Prompt description score ({desc_count}/{total} z opisem): {len(pricelist_text)} znaków → MiniMax...")
 
-    desc_prompt = _load_prompt("descriptions_score.txt")
-    if not desc_prompt:
-        desc_prompt = (
-            "Oceń JAKOŚĆ OPISÓW usług. Skala 0-20. "
-            "Zwróć JSON z polami: score (int), issues (array).\n\n"
-        )
-    full_prompt = _fill_prompt(desc_prompt,
-        pricelist_text=pricelist_text, descriptions_text=pricelist_text,
-        total_services=str(total), desc_count=str(desc_count),
-        desc_percentage=str(round(desc_count / max(total, 1) * 100)),
-    ) if "{" in desc_prompt else f"{desc_prompt}\n\nCENNIK:\n{pricelist_text}"
-
-    t0 = time.time()
-    try:
-        scoring = await client.generate_json(
-            full_prompt, system="Jesteś ekspertem od cenników salonów beauty."
-        )
-        dt = int((time.time() - t0) * 1000)
-        await progress(54, f"Description score: {scoring.get('score', '?')}/20 ({dt}ms)")
-    except Exception as e:
-        dt = int((time.time() - t0) * 1000)
-        logger.warning("Description scoring failed: %s", e)
-        await progress(54, f"Description scoring FAILED ({dt}ms): {e}")
-        scoring = {"score": 10, "issues": []}
-
-    score = min(20, max(0, int(scoring.get("score", 10))))
-    issues = scoring.get("issues", [])
+    desc_issues_context, desc_global_map = _build_issues_context_for_agent(
+        all_issues, ("descriptions", "seo")
+    )
 
     desc_agent_prompt = _load_prompt("descriptions_agent.txt")
     if not desc_agent_prompt:
@@ -504,7 +699,17 @@ async def _analyze_descriptions(
             "Przepisz opisy usług. Użyj submit_description_results. "
             "Partiami po 15-20."
         )
-    user_msg = _fill_prompt(desc_agent_prompt, pricelist_text=pricelist_text) if "{pricelist_text}" in desc_agent_prompt else f"{_fill_prompt(desc_agent_prompt)}\n\nCENNIK:\n{pricelist_text}"
+
+    filled_prompt = _fill_prompt(
+        desc_agent_prompt,
+        pricelist_text=pricelist_text,
+        descriptions_issues_context=desc_issues_context,
+    )
+    user_msg = (
+        filled_prompt
+        if "{pricelist_text}" in desc_agent_prompt
+        else f"{filled_prompt}\n\nCENNIK:\n{pricelist_text}"
+    )
     await progress(56, "Agent loop: poprawianie opisów usług (tool_use)...")
 
     transformations: list[dict[str, Any]] = []
@@ -522,7 +727,11 @@ async def _analyze_descriptions(
         )
         dt = int((time.time() - t0) * 1000)
         tokens = agent_result.total_input_tokens + agent_result.total_output_tokens
-        await progress(62, f"Agent descriptions done: {agent_result.total_steps} steps, {len(agent_result.tool_calls)} calls, {tokens} tokens ({dt}ms)")
+        await progress(
+            62,
+            f"Agent descriptions done: {agent_result.total_steps} steps, "
+            f"{len(agent_result.tool_calls)} calls, {tokens} tokens ({dt}ms)",
+        )
 
         for tc in agent_result.tool_calls:
             if tc.name == "submit_description_results":
@@ -530,23 +739,35 @@ async def _analyze_descriptions(
                 for raw_t in raw:
                     t = _normalize_item(raw_t)
                     if t is None:
-                        logger.warning("Description: skipping non-dict item: %s", type(raw_t).__name__)
+                        logger.warning(
+                            "Description: skipping non-dict item: %s",
+                            type(raw_t).__name__,
+                        )
                         continue
                     service_name = t.get("serviceName", "")
                     new_desc = t.get("newDescription", "")
                     if service_name and new_desc:
+                        global_idx = _resolve_caused_by_issue_index(
+                            t.get("causedByIssueIndex"), desc_global_map
+                        )
                         transformations.append({
-                            "type": "description", "serviceName": service_name,
-                            "before": "", "after": new_desc,
-                            "reason": "Nowy/poprawiony opis", "impactScore": 2,
+                            "type": "description",
+                            "serviceName": service_name,
+                            "before": "",
+                            "after": new_desc,
+                            "reason": "Nowy/poprawiony opis",
+                            "impactScore": 2,
+                            "causedByIssueGlobalIndex": global_idx,
                         })
-        await progress(64, f"Opisy: {len(transformations)} nowych/poprawionych opisów")
+        await progress(
+            64, f"Opisy: {len(transformations)} nowych/poprawionych opisów"
+        )
     except Exception as e:
         dt = int((time.time() - t0) * 1000)
         logger.warning("Description agent loop failed: %s", e)
         await progress(64, f"Description agent FAILED ({dt}ms): {e}")
 
-    return {"score": score, "issues": issues, "transformations": transformations}
+    return {"transformations": transformations}
 
 
 async def _analyze_structure(

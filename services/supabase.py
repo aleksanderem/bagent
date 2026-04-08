@@ -306,8 +306,12 @@ class SupabaseService:
             self.client.table(table).delete().eq("audit_report_id", report_id).execute()
 
         # 3. Insert child rows
-        # Issues
+        # Issues — INSERTED FIRST so we can capture their DB IDs and use
+        # them to resolve the caused_by_issue_id FK on audit_transformations
+        # (Etap 2 traceability). The Supabase Python client returns the
+        # inserted rows in the same order they were sent.
         issues = report.get("topIssues", [])
+        issue_id_by_global_index: dict[int, int] = {}
         if issues:
             issue_rows = [
                 {
@@ -330,12 +334,26 @@ class SupabaseService:
                 logger.warning("Failed to insert audit_issues")
             else:
                 logger.info("Inserted %d audit_issues", len(issue_rows))
+                # Supabase returns the inserted rows in submission order. We
+                # key them by their list index (which is the "global index"
+                # that transformations point to via causedByIssueGlobalIndex).
+                for i, row in enumerate(res.data):
+                    row_id = row.get("id")
+                    if isinstance(row_id, int):
+                        issue_id_by_global_index[i] = row_id
 
-        # Transformations
+        # Transformations — use issue_id_by_global_index to resolve
+        # causedByIssueGlobalIndex → integer PK of audit_issues.
         transformations = report.get("transformations", [])
+        inserted_trans_rows: list[dict] = []
         if transformations:
-            trans_rows = [
-                {
+            trans_rows = []
+            for i, t in enumerate(transformations):
+                global_idx = t.get("causedByIssueGlobalIndex")
+                caused_by_id: int | None = None
+                if global_idx is not None:
+                    caused_by_id = issue_id_by_global_index.get(global_idx)
+                trans_rows.append({
                     "audit_report_id": report_id,
                     "type": t.get("type", "name"),
                     "service_name": t.get("serviceName", ""),
@@ -344,14 +362,49 @@ class SupabaseService:
                     "reason": t.get("reason", ""),
                     "impact_score": max(1, min(10, _coerce_int(t.get("impactScore", 5), 5))),
                     "sort_order": i,
-                }
-                for i, t in enumerate(transformations)
-            ]
+                    "caused_by_issue_id": caused_by_id,
+                })
             res = self.client.table("audit_transformations").insert(trans_rows).execute()
             if not res.data:
                 logger.warning("Failed to insert audit_transformations")
             else:
-                logger.info("Inserted %d audit_transformations", len(trans_rows))
+                inserted_trans_rows = res.data
+                linked_count = sum(
+                    1 for row in inserted_trans_rows if row.get("caused_by_issue_id")
+                )
+                logger.info(
+                    "Inserted %d audit_transformations (%d with caused_by_issue_id)",
+                    len(trans_rows), linked_count,
+                )
+
+        # After transformations are in the DB, populate the reverse index:
+        # audit_issues.resolved_by_transformation_ids gets the list of
+        # integer transformation IDs that point back to each issue. This
+        # denormalization lets the frontend render "rozwiązane przez N
+        # transformacji" without a join.
+        if inserted_trans_rows:
+            from collections import defaultdict
+            resolved_map: dict[int, list[int]] = defaultdict(list)
+            for trans_row in inserted_trans_rows:
+                caused_by = trans_row.get("caused_by_issue_id")
+                trans_id = trans_row.get("id")
+                if isinstance(caused_by, int) and isinstance(trans_id, int):
+                    resolved_map[caused_by].append(trans_id)
+            for issue_id, trans_ids in resolved_map.items():
+                try:
+                    self.client.table("audit_issues").update(
+                        {"resolved_by_transformation_ids": trans_ids}
+                    ).eq("id", issue_id).execute()
+                except Exception as e:
+                    logger.warning(
+                        "Failed to update audit_issues.resolved_by_transformation_ids for id=%s: %s",
+                        issue_id, e,
+                    )
+            if resolved_map:
+                logger.info(
+                    "Linked %d issues with resolved_by_transformation_ids back-references",
+                    len(resolved_map),
+                )
 
         # SEO Keywords
         seo_keywords = report.get("missingSeoKeywords", [])

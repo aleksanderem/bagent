@@ -17,6 +17,16 @@ NAMING_TOOL: dict = {
                     "properties": {
                         "name": {"type": "string", "description": "Oryginalna nazwa usługi"},
                         "improved": {"type": "string", "description": "Ulepszona nazwa (max 80 znaków)"},
+                        "causedByIssueIndex": {
+                            "type": "integer",
+                            "description": (
+                                "0-indexed reference to the issue in the "
+                                "KONTEKST.PROBLEMY list shown in the prompt "
+                                "that this rename addresses. Omit if the "
+                                "rename is a general cleanup not tied to a "
+                                "specific reported issue."
+                            ),
+                        },
                     },
                     "required": ["name", "improved"],
                 },
@@ -43,6 +53,16 @@ DESCRIPTION_TOOL: dict = {
                     "properties": {
                         "serviceName": {"type": "string", "description": "Nazwa usługi"},
                         "newDescription": {"type": "string", "description": "Nowy opis (50-150 znaków)"},
+                        "causedByIssueIndex": {
+                            "type": "integer",
+                            "description": (
+                                "0-indexed reference to the issue in the "
+                                "KONTEKST.PROBLEMY list shown in the prompt "
+                                "that this new description addresses. Omit "
+                                "if the description change is a general "
+                                "cleanup not tied to a specific reported issue."
+                            ),
+                        },
                     },
                     "required": ["serviceName", "newDescription"],
                 },

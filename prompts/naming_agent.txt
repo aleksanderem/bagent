@@ -3,6 +3,11 @@
 ZADANIE: Popraw nazwy usług salonu. Użyj narzędzia submit_naming_results aby wysłać poprawione nazwy.
 Wywołuj narzędzie wielokrotnie z partiami po 15-20 usług, aż przetworzysz WSZYSTKIE usługi które wymagają poprawy.
 
+KONTEKST — PROBLEMY ZIDENTYFIKOWANE W RAPORCIE:
+{naming_issues_context}
+
+Dla każdej transformacji wskaż causedByIssueIndex — indeks problemu z powyższej listy, który ta zmiana rozwiązuje. Jeśli zmiana jest ogólnym cleanupem (np. usunięcie emoji, standaryzacja interpunkcji) niezwiązanym z żadnym konkretnym raportowanym problemem, POMIŃ pole causedByIssueIndex.
+
 DWA TYPY POPRAWEK:
 1. CZYSZCZENIE — usuń śmieci, popraw interpunkcję, ujednolić format
 2. WZBOGACANIE — dodaj korzyść dla klienta po " - " (max 80 znaków łącznie)
