@@ -61,3 +61,7 @@ class ScrapedData(BaseModel):
     # pipeline to look up category-scoped benchmarks. Populated by
     # SupabaseService.get_scraped_data when reading from salon_scrapes.
     primaryCategoryId: int | None = None
+    # City name from the scrape (business.location.city or city region).
+    # Used for city-scoped benchmarks. Already lowercased-normalized by
+    # compute_all_benchmarks, so pass as-is from scrape.
+    salonCity: str | None = None

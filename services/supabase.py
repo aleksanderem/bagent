@@ -193,6 +193,7 @@ class SupabaseService:
                 "categories": categories,
                 "totalServices": total_services,
                 "primaryCategoryId": scrape_row.get("primary_category_id"),
+                "salonCity": scrape_row.get("salon_city"),
             }
 
         # 2. Legacy fallback — pre-migration audits only.
@@ -404,24 +405,27 @@ class SupabaseService:
     ) -> dict:
         """Get industry comparison data from the benchmarks table.
 
-        The benchmarks table is keyed by (scope, metric) — scope is e.g.
-        'category:7' or 'global', metric is e.g. 'avg_service_count' or
-        'description_rate'. We aggregate the rows that match the salon's
-        primary Booksy category into a backwards-compat dict shape:
+        The benchmarks table is keyed by (scope, metric). Supported scopes
+        (populated by compute_all_benchmarks Postgres RPC):
+          - 'national'        — default benchmark across all salons
+          - 'city:<lowered>'  — per-city (only cities with 10+ salons)
+          - 'category:<id>'   — per Booksy primary_category_id (50+ salons)
 
-            { industry_average, top_performers, sample_size,
-              avg_service_count, description_rate }
+        Metrics available: description_rate, avg_service_count,
+        avg_category_count, composite_score, fixed_price_rate,
+        duration_coverage_rate.
 
-        Falls back to global scope, then to hardcoded defaults if neither
-        the category-specific nor the global benchmarks exist.
-
-        TODO: city-level benchmarks are not yet computed by recomputeBenchmarks
-        in convex/supabase.ts — the city argument is currently ignored.
+        Priority lookup: city → category → national → hardcoded defaults.
+        Returns a dict with both the legacy keys expected by report.py
+        (industry_average, top_performers, sample_size) and the raw
+        metric values for richer comparisons.
         """
         scopes_to_try: list[str] = []
+        if city:
+            scopes_to_try.append(f"city:{city.lower()}")
         if primary_category_id is not None:
             scopes_to_try.append(f"category:{primary_category_id}")
-        scopes_to_try.append("global")
+        scopes_to_try.append("national")
 
         for scope in scopes_to_try:
             try:
@@ -434,23 +438,43 @@ class SupabaseService:
                 if not result.data:
                     continue
                 metrics = {row["metric"]: row for row in result.data}
-                avg_service_count = metrics.get("avg_service_count", {}).get("value")
-                description_rate = metrics.get("description_rate", {}).get("value")
-                if avg_service_count is None and description_rate is None:
+                if not metrics:
                     continue
-                # Heuristic mapping:
-                #   - industry_average → description_rate (% salons with descriptions)
-                #   - top_performers   → +20 above the average, capped at 100
-                #   - sample_size      → from any of the rows in this scope
-                avg = float(description_rate) if description_rate is not None else 52.0
-                sample_size = int(metrics.get("description_rate", {}).get("sample_size", 0)
-                                  or metrics.get("avg_service_count", {}).get("sample_size", 500))
+
+                description_rate = metrics.get("description_rate", {}).get("value")
+                composite_score = metrics.get("composite_score", {}).get("value")
+                avg_service_count = metrics.get("avg_service_count", {}).get("value")
+                avg_category_count = metrics.get("avg_category_count", {}).get("value")
+                fixed_price_rate = metrics.get("fixed_price_rate", {}).get("value")
+                duration_coverage_rate = metrics.get("duration_coverage_rate", {}).get("value")
+
+                # Prefer composite_score as the "industry average" signal
+                # because it's the cross-metric aggregate used by bagent scoring.
+                # Fall back to description_rate if composite not available at
+                # this scope, then to 52 as an absolute floor.
+                if composite_score is not None:
+                    industry_avg = float(composite_score)
+                elif description_rate is not None:
+                    industry_avg = float(description_rate)
+                else:
+                    industry_avg = 52.0
+
+                # Use the largest sample_size from any metric in this scope
+                sample_size = max(
+                    (int(row.get("sample_size") or 0) for row in result.data),
+                    default=500,
+                )
+
                 return {
-                    "industry_average": round(avg, 1),
-                    "top_performers": round(min(avg + 20, 100.0), 1),
+                    "industry_average": round(industry_avg, 1),
+                    "top_performers": round(min(industry_avg + 20, 100.0), 1),
                     "sample_size": sample_size,
-                    "avg_service_count": float(avg_service_count) if avg_service_count is not None else None,
+                    "composite_score": float(composite_score) if composite_score is not None else None,
                     "description_rate": float(description_rate) if description_rate is not None else None,
+                    "avg_service_count": float(avg_service_count) if avg_service_count is not None else None,
+                    "avg_category_count": float(avg_category_count) if avg_category_count is not None else None,
+                    "fixed_price_rate": float(fixed_price_rate) if fixed_price_rate is not None else None,
+                    "duration_coverage_rate": float(duration_coverage_rate) if duration_coverage_rate is not None else None,
                     "scope": scope,
                 }
             except Exception as e:

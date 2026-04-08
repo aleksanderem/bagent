@@ -185,7 +185,19 @@ async def run_audit_pipeline(
         "percentile": 50, "sampleSize": 500,
     }
     try:
-        city = scraped_data.salonAddress.split(",")[-1].strip() if scraped_data.salonAddress else None
+        # Prefer the structured salon_city field from salon_scrapes
+        # (populated by the Booksy parser). Fall back to address parsing
+        # for pre-migration audits that only have audit_scraped_data.
+        city = scraped_data.salonCity
+        if not city and scraped_data.salonAddress:
+            # Address format: "street, zip, city, [district]" — second-from-zip
+            # is usually city. Simpler heuristic: split on comma, strip, and
+            # pick the first segment that looks like a city (no digits).
+            parts = [p.strip() for p in scraped_data.salonAddress.split(",")]
+            for part in parts:
+                if part and not any(ch.isdigit() for ch in part):
+                    city = part
+                    break
         benchmarks = await supabase.get_benchmarks(
             city=city,
             primary_category_id=scraped_data.primaryCategoryId,

@@ -486,15 +486,54 @@ async def run_cennik_pipeline(
         "totalChanges": len(final_changes),
     }
 
+    # Quality score computed from four coverage metrics, clamped 0-100.
+    # Previously hardcoded to 100. Weights prioritize AI-applied
+    # transformations (40%) since that is what the user paid for, then
+    # classification taxonomy (20%), pricing completeness (20%), duration
+    # completeness (20%) reflecting overall scrape data quality.
+    total_services_flat = sum(len(c.get("services") or []) for c in final_categories)
+    if total_services_flat > 0:
+        services_flat = [
+            svc
+            for cat in final_categories
+            for svc in (cat.get("services") or [])
+        ]
+        transformation_coverage = (
+            (names_improved + descriptions_added) / max(total_services_flat, 1)
+        )
+        canonical_coverage = (
+            sum(1 for s in services_flat if s.get("canonical_id")) / total_services_flat
+        )
+        price_coverage = (
+            sum(1 for s in services_flat if s.get("price_grosze") and s.get("price_grosze") > 0)
+            / total_services_flat
+        )
+        duration_coverage = (
+            sum(1 for s in services_flat if s.get("duration_minutes") and s.get("duration_minutes") > 0)
+            / total_services_flat
+        )
+        quality_score_float = (
+            transformation_coverage * 40
+            + canonical_coverage * 20
+            + price_coverage * 20
+            + duration_coverage * 20
+        )
+        quality_score = max(0, min(100, round(quality_score_float)))
+        logger.info(
+            "[%s][cennik] quality_score=%d (transform=%.2f canonical=%.2f price=%.2f duration=%.2f)",
+            audit_id, quality_score,
+            transformation_coverage, canonical_coverage, price_coverage, duration_coverage,
+        )
+    else:
+        quality_score = 0
+
     # ── Step 5: Write to Supabase (optimized_pricelists + children) ──
     await progress(85, "Zapis zoptymalizowanego cennika do Supabase...")
     optimization_data = {
         "pricelist": final_pricelist,
         "changes": final_changes,
         "summary": stats,
-        # quality_score column is INTEGER in Supabase — pass whole number.
-        # TODO: compute quality score from agent confidence (0-100 scale).
-        "qualityScore": 100,
+        "qualityScore": quality_score,
     }
     await supabase.save_optimized_pricelist(
         convex_audit_id=audit_id,
