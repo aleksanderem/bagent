@@ -86,18 +86,34 @@ def _detect_promo(name: str) -> bool:
     return any(kw in lower for kw in PROMO_KEYWORDS)
 
 
+def _normalize_lookup_key(name: str) -> str:
+    """Normalize a service name for fuzzy lookup. Strips pricelist row
+    formatting that BAGENT #1 sometimes accidentally includes in the
+    `before` field (e.g. `"Laser CO2" | 1 500,00 zł | 45min |`)."""
+    if not name:
+        return ""
+    # Drop trailing pricelist suffix if present: anything after the first ' | '
+    # AFTER the service name. Handles "X | 250 zł+ | 30min |" style.
+    cleaned = name.split(" | ")[0]
+    # Drop wrapping quotes left over from JSON serialization
+    cleaned = cleaned.strip().strip('"').strip("'")
+    return cleaned.lower().strip()
+
+
 def _build_transformation_map(
     transformations: list[dict[str, Any]],
 ) -> tuple[dict[str, str], dict[str, str]]:
     """Build lookup maps from original name → new name / description.
 
     Returns:
-        (name_map, description_map) — both keyed by lowercase-stripped original name.
+        (name_map, description_map) — both keyed by normalized lookup key
+        (lowercase, stripped of pricelist row formatting).
     """
     name_map: dict[str, str] = {}
     desc_map: dict[str, str] = {}
     for t in transformations:
-        original = (t.get("before") or t.get("serviceName") or "").strip().lower()
+        raw = t.get("before") or t.get("serviceName") or ""
+        original = _normalize_lookup_key(raw)
         if not original:
             continue
         ttype = t.get("type", "")
@@ -228,7 +244,9 @@ async def run_cennik_pipeline(
             }
             original_services.append(dict(svc_dict))
 
-            key = svc.name.strip().lower()
+            # Use the same normalized key shape as _build_transformation_map
+            # so transformations with stray pricelist formatting still match.
+            key = _normalize_lookup_key(svc.name)
             new_svc = dict(svc_dict)
             original_description = svc.description
             original_name = svc.name
