@@ -25,66 +25,9 @@ def test_health_endpoint():
     assert "jobs_total" in data
 
 
-def test_analyze_returns_202(sample_scraped_data):
-    """POST /api/analyze with valid data returns 202 Accepted with jobId."""
-    with patch("server.run_analysis_job", new_callable=AsyncMock):
-        response = client.post(
-            "/api/analyze",
-            json={"auditId": "test-audit-1", "userId": "test-user-1", "scrapedData": sample_scraped_data},
-            headers={"x-api-key": "test-api-key-12345"},
-        )
-    assert response.status_code == 202
-    data = response.json()
-    assert "jobId" in data
-    assert data["status"] == "accepted"
-
-
-def test_analyze_requires_api_key(sample_scraped_data):
-    """POST /api/analyze without x-api-key returns 422."""
-    response = client.post(
-        "/api/analyze",
-        json={"auditId": "test-audit-1", "userId": "test-user-1", "scrapedData": sample_scraped_data},
-    )
-    assert response.status_code == 422
-
-
-def test_analyze_validates_input():
-    """POST /api/analyze with missing fields returns 422."""
-    response = client.post(
-        "/api/analyze",
-        json={"auditId": "test-audit-1"},  # Missing userId and scrapedData
-        headers={"x-api-key": "test-api-key-12345"},
-    )
-    assert response.status_code == 422
-
-
-def test_list_jobs(sample_scraped_data):
-    """GET /api/jobs returns list including created jobs."""
-    with patch("server.run_analysis_job", new_callable=AsyncMock):
-        client.post(
-            "/api/analyze",
-            json={"auditId": "list-test", "userId": "u1", "scrapedData": sample_scraped_data},
-            headers={"x-api-key": "test-api-key-12345"},
-        )
-    response = client.get("/api/jobs")
-    assert response.status_code == 200
-    jobs = response.json()
-    assert any(j["auditId"] == "list-test" for j in jobs)
-
-
-def test_get_job_logs(sample_scraped_data):
-    """GET /api/jobs/{id}/logs returns job with logs array."""
-    with patch("server.run_analysis_job", new_callable=AsyncMock):
-        resp = client.post(
-            "/api/analyze",
-            json={"auditId": "logs-test", "userId": "u1", "scrapedData": sample_scraped_data},
-            headers={"x-api-key": "test-api-key-12345"},
-        )
-    job_id = resp.json()["jobId"]
-    response = client.get(f"/api/jobs/{job_id}/logs")
-    assert response.status_code == 200
-    data = response.json()
-    assert "logs" in data
+# Legacy /api/analyze endpoint tests removed in 3-BAGENT migration.
+# The report/cennik/summary endpoints are tested separately in
+# tests/test_3bagent_endpoints.py (if exists) or via E2E smoke tests.
 
 
 def test_get_job_not_found():

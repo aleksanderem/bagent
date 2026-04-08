@@ -38,32 +38,9 @@ def _get_dashboard_html() -> str:
 # --- Request/Response models ---
 
 
-class AnalyzeRequest(BaseModel):
-    auditId: str
-    userId: str
-    sourceUrl: str | None = None
-    scrapedData: dict
-
-
-# CompetitorRequest REMOVED — the full competitor pipeline moved to
-# pipelines/_premium/competitor.py. Will be reintroduced in a future sprint
-# as part of the Premium Competitor Analysis product.
-
-
-class OptimizationRequest(BaseModel):
-    auditId: str
-    userId: str
-    pricelistId: str
-    jobId: str
-    scrapedData: dict
-    auditReport: dict
-    selectedOptions: list[str]
-    promptTemplates: dict | None = None
-
-
-class KeywordRequest(BaseModel):
-    auditId: str
-    scrapedData: dict
+# Legacy AnalyzeRequest, CompetitorRequest, OptimizationRequest, KeywordRequest
+# removed in 3-BAGENT migration. Use ReportRequest/CennikRequest/SummaryRequest
+# below which hit /api/audit/report, /api/audit/cennik, /api/audit/summary.
 
 
 class AiTextRequest(BaseModel):
@@ -115,22 +92,8 @@ def verify_api_key(x_api_key: str = Header(...)) -> None:
 # --- Endpoints ---
 
 
-@app.post("/api/analyze", status_code=202, response_model=AnalyzeResponse, dependencies=[Depends(verify_api_key)])
-async def start_analysis(
-    request: AnalyzeRequest,
-    background_tasks: BackgroundTasks,
-) -> AnalyzeResponse:
-    job_id = str(uuid.uuid4())
-    service_count = request.scrapedData.get("totalServices", 0)
-    salon_name = request.scrapedData.get("salonName", "")
-    store.create_job(job_id, request.auditId, meta={
-        "userId": request.userId,
-        "sourceUrl": request.sourceUrl,
-        "salonName": salon_name,
-        "totalServices": service_count,
-    })
-    background_tasks.add_task(run_analysis_job, job_id, request)
-    return AnalyzeResponse(jobId=job_id)
+# Legacy /api/analyze endpoint removed in 3-BAGENT migration.
+# Convex now posts directly to /api/audit/report → /api/audit/cennik → /api/audit/summary.
 
 
 # /api/competitor endpoint REMOVED in 3-bagent migration.
@@ -141,23 +104,8 @@ async def start_analysis(
 # (pipelines/summary.py) as part of the Podsumowanie tab.
 
 
-@app.post("/api/optimize", status_code=202, response_model=AnalyzeResponse, dependencies=[Depends(verify_api_key)])
-async def start_optimization(
-    request: OptimizationRequest,
-    background_tasks: BackgroundTasks,
-) -> AnalyzeResponse:
-    job_id = str(uuid.uuid4())
-    service_count = request.scrapedData.get("totalServices", 0)
-    salon_name = request.scrapedData.get("salonName", "")
-    store.create_job(job_id, request.auditId, meta={
-        "type": "optimization",
-        "userId": request.userId,
-        "salonName": salon_name,
-        "totalServices": service_count,
-        "selectedOptions": request.selectedOptions,
-    })
-    background_tasks.add_task(run_optimization_job, job_id, request)
-    return AnalyzeResponse(jobId=job_id)
+# Legacy /api/optimize + 4-phase endpoints removed in 3-BAGENT migration.
+# Use /api/audit/report → /api/audit/cennik → /api/audit/summary pipeline.
 
 
 # --- 3-bagent migration endpoints ---
@@ -295,16 +243,8 @@ async def dashboard() -> HTMLResponse:
 # --- Synchronous AI endpoints (no background job, direct response) ---
 
 
-@app.post("/api/keywords", dependencies=[Depends(verify_api_key)])
-async def generate_keywords(request: KeywordRequest) -> dict:
-    """Keyword report: rule-based extraction + AI suggestions. Returns full report synchronously."""
-    from pipelines.keywords import run_keyword_pipeline
-
-    result = await run_keyword_pipeline(
-        scraped_data=request.scrapedData,
-        audit_id=request.auditId,
-    )
-    return result
+# Legacy /api/keywords endpoint removed in 3-BAGENT migration.
+# SEO keywords come from BAGENT #1 (audit_reports.missingSeoKeywords) now.
 
 
 @app.post("/api/ai/text", dependencies=[Depends(verify_api_key)])
@@ -337,24 +277,8 @@ class EmbeddingRequest(BaseModel):
     texts: list[str]
 
 
-class OptimizeSeoRequest(BaseModel):
-    auditId: str
-
-
-class OptimizeContentRequest(BaseModel):
-    auditId: str
-    pricelist: dict
-
-
-class OptimizeCategoriesRequest(BaseModel):
-    auditId: str
-    pricelist: dict
-
-
-class OptimizeFinalizeAsyncRequest(BaseModel):
-    auditId: str
-    jobId: str
-    pricelist: dict
+# Legacy OptimizeSeoRequest/OptimizeContentRequest/OptimizeCategoriesRequest/
+# OptimizeFinalizeAsyncRequest removed in 3-BAGENT migration.
 
 
 @app.post("/api/embeddings", dependencies=[Depends(verify_api_key)])
@@ -392,35 +316,9 @@ async def generate_embeddings(request: EmbeddingRequest) -> dict:
     return {"embeddings": all_embeddings}
 
 
-@app.post("/api/optimize/seo", dependencies=[Depends(verify_api_key)])
-async def optimize_seo(request: OptimizeSeoRequest) -> dict:
-    """Phase 1: Inject missing SEO keywords into service names."""
-    from pipelines.optimize_phases import run_phase1_seo
-    return await run_phase1_seo(audit_id=request.auditId)
-
-
-@app.post("/api/optimize/content", dependencies=[Depends(verify_api_key)])
-async def optimize_content(request: OptimizeContentRequest) -> dict:
-    """Phase 2: Rewrite names + descriptions (copywriting, benefit language)."""
-    from pipelines.optimize_phases import run_phase2_content
-    return await run_phase2_content(audit_id=request.auditId, pricelist=request.pricelist)
-
-
-@app.post("/api/optimize/categories", dependencies=[Depends(verify_api_key)])
-async def optimize_categories(request: OptimizeCategoriesRequest) -> dict:
-    """Phase 3: Reorganize categories based on optimized content."""
-    from pipelines.optimize_phases import run_phase3_categories
-    return await run_phase3_categories(audit_id=request.auditId, pricelist=request.pricelist)
-
-
-@app.post("/api/optimize/finalize", status_code=202, response_model=AnalyzeResponse, dependencies=[Depends(verify_api_key)])
-async def optimize_finalize_async(
-    request: OptimizeFinalizeAsyncRequest,
-    background_tasks: BackgroundTasks,
-) -> AnalyzeResponse:
-    """Phase 4 (fire-and-forget): Apply programmatic fixes, generate diff, save to Supabase."""
-    background_tasks.add_task(run_finalize_job, request.jobId, request.auditId, request.pricelist)
-    return AnalyzeResponse(jobId=request.jobId)
+# Legacy /api/optimize/{seo,content,categories,finalize} endpoints removed
+# in 3-BAGENT migration. pipelines/optimize_phases.py is no longer imported
+# and can be deleted in a follow-up cleanup.
 
 
 # --- Background job ---
@@ -447,245 +345,10 @@ class _JobLogHandler(logging.Handler):
         self.job_store.notify_progress(self.job)
 
 
-async def run_analysis_job(job_id: str, request: AnalyzeRequest) -> None:
-    from services.convex import ConvexClient
-
-    job = store.get_job(job_id)
-    if job is None:
-        return
-    job.mark_running()
-    store.notify_status(job)
-
-    convex = ConvexClient()
-
-    # Attach log handler to pipeline logger
-    pipeline_logger = logging.getLogger("pipelines.audit")
-    handler = _JobLogHandler(job, store)
-    pipeline_logger.addHandler(handler)
-
-    class CancelledError(Exception):
-        pass
-
-    try:
-        from models.scraped_data import ScrapedData
-        from pipelines.audit import run_audit_pipeline
-
-        job.add_log("info", "Parsing scraped data...")
-        store.notify_progress(job)
-        scraped_data = ScrapedData(**request.scrapedData)
-        job.add_log("info", f"Parsed: {scraped_data.totalServices} services, {len(scraped_data.categories)} categories")
-        store.notify_progress(job)
-
-        async def on_progress(progress: int, message: str) -> None:
-            if job.cancel_requested:
-                raise CancelledError("Job cancelled by user")
-            job.add_log("info", message, progress=progress)
-            store.notify_progress(job)
-            try:
-                await convex.update_progress(request.auditId, progress, message)
-            except Exception as e:
-                logger.warning("Convex progress webhook failed: %s", e)
-
-        report = await run_audit_pipeline(scraped_data, request.auditId, on_progress)
-
-        from services.supabase import SupabaseService
-
-        supabase = SupabaseService()
-        await supabase.save_report(
-            convex_audit_id=request.auditId,
-            convex_user_id=request.userId,
-            report=report,
-            salon_name=scraped_data.salonName or "",
-            salon_address=scraped_data.salonAddress or "",
-            source_url=request.sourceUrl or "",
-        )
-
-        # Pipeline + save succeeded — mark job completed regardless of webhook outcome
-        job.mark_completed()
-        store.notify_status(job)
-        logger.info("Job %s completed successfully (report saved)", job_id)
-
-        # Notify Convex — best-effort, job is already completed
-        report_stats = {
-            "totalServices": report.get("stats", {}).get("totalServices", 0),
-            "totalTransformations": len(report.get("transformations", [])),
-            "totalIssues": len(report.get("topIssues", [])),
-        }
-        try:
-            await convex.complete_audit(request.auditId, report.get("totalScore", 0), report_stats)
-        except Exception as e:
-            logger.warning("Job %s: Convex complete_audit webhook failed (job still completed): %s", job_id, e)
-
-    except CancelledError:
-        logger.info("Job %s cancelled by user", job_id)
-        job.mark_cancelled()
-        store.notify_status(job)
-        try:
-            await convex.fail_audit(request.auditId, "Cancelled by user")
-        except Exception:
-            pass
-    except Exception as e:
-        logger.error("Job %s failed: %s", job_id, e, exc_info=True)
-        job.mark_failed(str(e))
-        store.notify_status(job)
-        try:
-            await convex.fail_audit(request.auditId, str(e))
-        except Exception:
-            pass
-    finally:
-        pipeline_logger.removeHandler(handler)
-
-
-# run_competitor_job REMOVED — the full competitor pipeline moved to
-# pipelines/_premium/competitor.py as cold code for the next sprint.
-# Basic competitor preview is now produced by run_summary_job below
-# (BAGENT #3, pipelines/summary.py).
-
-
-async def run_optimization_job(job_id: str, request: OptimizationRequest) -> None:
-    """Run optimization phases 1-3, reporting progress to Convex after each phase.
-
-    Phase 4 (finalize) is NOT run here — Convex triggers it later via /api/optimize/finalize.
-    """
-    from services.convex import ConvexClient
-
-    job = store.get_job(job_id)
-    if job is None:
-        return
-    job.mark_running()
-    store.notify_status(job)
-
-    convex = ConvexClient()
-    pipeline_logger = logging.getLogger("pipelines.optimization")
-    handler = _JobLogHandler(job, store)
-    pipeline_logger.addHandler(handler)
-
-    class CancelledError(Exception):
-        pass
-
-    try:
-        from pipelines.optimize_phases import (
-            run_phase1_seo,
-            run_phase2_content,
-            run_phase3_categories,
-        )
-
-        async def on_progress(progress: int, message: str) -> None:
-            if job.cancel_requested:
-                raise CancelledError("Job cancelled by user")
-            job.add_log("info", message, progress=progress)
-            store.notify_progress(job)
-
-        # Phase 1: SEO
-        await on_progress(5, "Faza 1: SEO — wstrzykiwanie słów kluczowych...")
-        phase1 = await run_phase1_seo(audit_id=request.auditId, on_progress=on_progress)
-        await convex.complete_optimization_phase(
-            job_id=request.jobId,
-            phase="phase1_seo",
-            output_json=json.dumps(phase1, ensure_ascii=False),
-            progress=25,
-        )
-
-        # Phase 2: Content
-        await on_progress(30, "Faza 2: Treści — nazwy i opisy usług...")
-        phase2 = await run_phase2_content(
-            audit_id=request.auditId,
-            pricelist=phase1["pricelist"],
-            on_progress=on_progress,
-        )
-        await convex.complete_optimization_phase(
-            job_id=request.jobId,
-            phase="phase2_content",
-            output_json=json.dumps(phase2, ensure_ascii=False),
-            progress=50,
-        )
-
-        # Phase 3: Categories
-        await on_progress(55, "Faza 3: Kategorie — reorganizacja struktury...")
-        phase3 = await run_phase3_categories(
-            audit_id=request.auditId,
-            pricelist=phase2["pricelist"],
-            on_progress=on_progress,
-        )
-        await convex.complete_optimization_phase(
-            job_id=request.jobId,
-            phase="phase3_categories",
-            output_json=json.dumps(phase3, ensure_ascii=False),
-            progress=75,
-        )
-
-        # Done — phase 4 will be triggered by Convex via /api/optimize/finalize
-        job.mark_completed()
-        store.notify_status(job)
-        logger.info("Optimization job %s completed (phases 1-3)", job_id)
-
-    except CancelledError:
-        logger.info("Optimization job %s cancelled", job_id)
-        job.mark_cancelled()
-        store.notify_status(job)
-        try:
-            await convex.fail_optimization(request.jobId, "Cancelled by user")
-        except Exception:
-            pass
-    except Exception as e:
-        logger.error("Optimization job %s failed: %s", job_id, e, exc_info=True)
-        job.mark_failed(str(e))
-        store.notify_status(job)
-        try:
-            await convex.fail_optimization(request.jobId, str(e))
-        except Exception:
-            pass
-    finally:
-        pipeline_logger.removeHandler(handler)
-
-
-async def run_finalize_job(job_id: str, audit_id: str, pricelist: dict) -> None:
-    """Run optimization phase 4 (deterministic, no AI) and report back to Convex.
-
-    LEGACY 4-phase optimization pipeline. The 3-BAGENT migration replaces
-    this with cennik.py which owns optimized_pricelists/categories/services.
-    This function no longer writes to Supabase normalized tables — it only
-    runs the deterministic finalize transforms (clean names, detect promos,
-    detect duplicates) and returns the result to Convex via webhook.
-
-    Writing to Supabase was REMOVED because this legacy path was overwriting
-    the normalized tree with an empty payload, wiping cennik's output. The
-    legacy optimizationJobs table still gets its completion callback so the
-    old flow terminates cleanly while 3-BAGENT owns the source-of-truth data.
-    """
-    from services.convex import ConvexClient
-
-    convex = ConvexClient()
-    try:
-        from pipelines.optimize_phases import run_phase4_finalize
-        from services.supabase import SupabaseService
-
-        supabase = SupabaseService()
-        original = await supabase.get_scraped_data(audit_id)
-
-        result = run_phase4_finalize(
-            audit_id=audit_id,
-            pricelist=pricelist,
-            original_pricelist=original,
-        )
-
-        # NOTE: save_optimized_pricelist() call REMOVED — the 3-BAGENT
-        # cennik pipeline owns the optimized_pricelists/categories/services
-        # tree. Calling it here with the legacy `result` shape produces
-        # an empty children array and wipes the normalized data.
-
-        await convex.complete_optimization(
-            job_id=job_id,
-            output_pricing_data_json=json.dumps(result.get("finalPricelist", result), ensure_ascii=False),
-            optimization_result_json=json.dumps(result, ensure_ascii=False),
-        )
-        logger.info("Finalize job %s completed (no Supabase write — owned by cennik)", job_id)
-    except Exception as e:
-        logger.error("Finalize job %s failed: %s", job_id, e, exc_info=True)
-        try:
-            await convex.fail_optimization(job_id, str(e))
-        except Exception:
-            pass
+# Legacy run_analysis_job + run_optimization_job + run_finalize_job +
+# run_competitor_job removed in 3-BAGENT migration. The full competitor
+# pipeline lives in pipelines/_premium/competitor.py as cold code for a
+# future sprint. Report / cennik / summary jobs live below.
 
 
 # ---------------------------------------------------------------------------
