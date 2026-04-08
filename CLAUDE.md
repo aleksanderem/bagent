@@ -89,11 +89,13 @@ All endpoints defined in `server.py`.
 
 **Authenticated (x-api-key header via FastAPI Depends):**
 
-`POST /api/analyze` (202) — audit pipeline. Accepts `{auditId, userId, sourceUrl?, scrapedData}`. Creates job, launches `run_analysis_job` background task. Returns `{jobId, status: "accepted"}`.
+`POST /api/audit/report` (202) — BAGENT #1. Accepts `{auditId, userId, sourceUrl?, scrapedData?}`. Creates job with `meta.type = "report"`, launches `run_report_job`. Returns `{jobId, status: "accepted"}`.
 
-`POST /api/competitor` (202) — competitor report pipeline. Accepts `{auditId, userId, subjectSalonId, salonName, salonCity, salonLat?, salonLng?, selectedCompetitorIds, services}`. Creates job with `meta.type = "competitor"`, launches `run_competitor_job`. Returns `{jobId, status: "accepted"}`.
+`POST /api/audit/free_report` (202) — **Frozen free-tier snapshot** of BAGENT #1. Byte-compatible mirror of the main report pipeline as of commit 47220b7, living in `pipelines/free_report.py` (not `pipelines/report.py`). Same request shape as `/api/audit/report`. Exists so a future free tier can run on a stable, unchanging pipeline while the main path evolves through the Unified Report Pipeline plan. Do NOT modify `free_report.py` in place — take a new snapshot if needed. Full contract and rationale in `docs/free_report.md` and `docs/plans/2026-04-08-unified-report-pipeline.md`.
 
-`POST /api/optimize` (202) — optimization pipeline. Accepts `{auditId, userId, pricelistId, jobId, scrapedData, auditReport, selectedOptions, promptTemplates?}`. Creates job with `meta.type = "optimization"`, launches `run_optimization_job`. Returns `{jobId, status: "accepted"}`.
+`POST /api/audit/cennik` (202) — BAGENT #2. Accepts `{auditId, userId}`. Creates job with `meta.type = "cennik"`, launches `run_cennik_job`. Returns `{jobId, status: "accepted"}`.
+
+`POST /api/audit/summary` (202) — BAGENT #3. Accepts `{auditId, userId, selectedCompetitorIds}`. Creates job with `meta.type = "summary"`, launches `run_summary_job`. Returns `{jobId, status: "accepted"}`.
 
 `POST /api/jobs/{job_id}/cancel` — request cancellation of a running job. Returns `{jobId, status: "cancel_requested"}`. The pipeline checks `job.cancel_requested` at each `on_progress()` callback and raises `CancelledError` if set.
 

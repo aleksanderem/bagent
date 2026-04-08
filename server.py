@@ -68,6 +68,16 @@ class ReportRequest(BaseModel):
     scrapedData: dict | None = None  # optional inline payload for dev testing
 
 
+class FreeReportRequest(ReportRequest):
+    """Frozen free-tier snapshot of ReportRequest — same shape, distinct
+    class so OpenAPI/logs clearly attribute calls to /api/audit/free_report.
+
+    See pipelines/free_report.py for the frozen pipeline and
+    docs/free_report.md for the stability contract.
+    """
+    pass
+
+
 class CennikRequest(BaseModel):
     """BAGENT #2 — generate new pricelist from report + original scrape."""
     auditId: str
@@ -131,6 +141,32 @@ async def start_report(
         "sourceUrl": request.sourceUrl,
     })
     background_tasks.add_task(run_report_job, job_id, request)
+    return AnalyzeResponse(jobId=job_id)
+
+
+@app.post(
+    "/api/audit/free_report", status_code=202, response_model=AnalyzeResponse,
+    dependencies=[Depends(verify_api_key)],
+)
+async def start_free_report(
+    request: FreeReportRequest, background_tasks: BackgroundTasks
+) -> AnalyzeResponse:
+    """Frozen free-tier snapshot of BAGENT #1 — report + content optimization.
+
+    Calls pipelines.free_report.run_free_report_pipeline which is a
+    byte-compatible frozen mirror of pipelines.report.run_audit_pipeline at
+    snapshot time (commit 47220b7). Reuses /api/audit/report/* Convex
+    webhooks — the tier distinction will be wired in Convex in a future
+    product iteration. See docs/free_report.md for the stability contract
+    and the snapshot rationale.
+    """
+    job_id = str(uuid.uuid4())
+    store.create_job(job_id, request.auditId, meta={
+        "type": "free_report",
+        "userId": request.userId,
+        "sourceUrl": request.sourceUrl,
+    })
+    background_tasks.add_task(run_free_report_job, job_id, request)
     return AnalyzeResponse(jobId=job_id)
 
 
@@ -450,6 +486,116 @@ async def run_report_job(job_id: str, request: ReportRequest) -> None:
             pass
     except Exception as e:
         logger.error("Report job %s failed: %s", job_id, e, exc_info=True)
+        job.mark_failed(str(e))
+        store.notify_status(job)
+        try:
+            await convex.report_fail(request.auditId, str(e))
+        except Exception:
+            pass
+    finally:
+        pipeline_logger.removeHandler(handler)
+
+
+async def run_free_report_job(job_id: str, request: FreeReportRequest) -> None:
+    """Free-tier background job — frozen BAGENT #1 snapshot.
+
+    Duplicates run_report_job's control flow intentionally rather than
+    extracting shared code, so the frozen free-tier path cannot drift when
+    run_report_job is refactored for Etap 1-3 of the unified report plan.
+
+    Loads the same scraped data, calls pipelines.free_report (not .report),
+    writes to the same audit_reports tables, and fires the same Convex
+    report/progress/complete/fail webhooks. Convex cannot currently tell
+    the difference — the tier split will be introduced on the Convex side
+    once there is a real free-tier product surface.
+    """
+    from services.convex import ConvexClient
+    from services.supabase import SupabaseService
+
+    job = store.get_job(job_id)
+    if job is None:
+        return
+    job.mark_running()
+    store.notify_status(job)
+
+    convex = ConvexClient()
+    pipeline_logger = logging.getLogger("pipelines.free_report")
+    handler = _JobLogHandler(job, store)
+    pipeline_logger.addHandler(handler)
+
+    class CancelledError(Exception):
+        pass
+
+    try:
+        from models.scraped_data import ScrapedData
+        from pipelines.free_report import run_free_report_pipeline
+
+        # Load scraped data — prefer inline payload (dev), fall back to Supabase.
+        if request.scrapedData:
+            raw_scraped = request.scrapedData
+        else:
+            supabase = SupabaseService()
+            raw_scraped = await supabase.get_scraped_data(request.auditId)
+            if not raw_scraped:
+                raise RuntimeError(
+                    f"No audit_scraped_data for {request.auditId} and no inline payload"
+                )
+        scraped_data = ScrapedData(**raw_scraped)
+
+        job.add_log("info", f"Parsed: {scraped_data.totalServices} services, {len(scraped_data.categories)} categories")
+        store.notify_progress(job)
+
+        async def on_progress(progress: int, message: str) -> None:
+            if job.cancel_requested:
+                raise CancelledError("Job cancelled by user")
+            job.add_log("info", message, progress=progress)
+            store.notify_progress(job)
+            try:
+                await convex.report_progress(request.auditId, progress, message)
+            except Exception as e:
+                logger.warning("Convex report_progress failed: %s", e)
+
+        report = await run_free_report_pipeline(scraped_data, request.auditId, on_progress)
+
+        supabase = SupabaseService()
+        await supabase.save_report(
+            convex_audit_id=request.auditId,
+            convex_user_id=request.userId,
+            report=report,
+            salon_name=scraped_data.salonName or "",
+            salon_address=scraped_data.salonAddress or "",
+            source_url=request.sourceUrl or "",
+        )
+
+        job.mark_completed()
+        store.notify_status(job)
+        logger.info("Free-report job %s completed", job_id)
+
+        report_stats = {
+            "totalServices": report.get("stats", {}).get("totalServices", 0),
+            "totalTransformations": len(report.get("transformations", [])),
+            "totalIssues": len(report.get("topIssues", [])),
+        }
+        try:
+            await convex.report_complete(
+                audit_id=request.auditId,
+                user_id=request.userId,
+                overall_score=report.get("totalScore", 0),
+                report_stats=report_stats,
+            )
+        except Exception as e:
+            logger.warning("report_complete webhook failed (free job still completed): %s", e)
+
+    except CancelledError:
+        logger.info("Free-report job %s cancelled", job_id)
+        job.mark_cancelled()
+        store.notify_status(job)
+        try:
+            await convex.report_fail(request.auditId, "Cancelled by user")
+        except Exception:
+            pass
+    except Exception as e:
+        logger.error("Free-report job %s failed: %s", job_id, e, exc_info=True)
         job.mark_failed(str(e))
         store.notify_status(job)
         try:
