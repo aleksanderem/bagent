@@ -9,6 +9,32 @@ from config import settings
 logger = logging.getLogger(__name__)
 
 
+def _coerce_int(value: object, default: int = 0) -> int:
+    """Safely coerce an AI-generated value to int.
+
+    The LLM sometimes returns text like "wiele" (Polish: "many") or "kilka"
+    for fields our Postgres schema types as INTEGER, which then crashes the
+    insert with `invalid input syntax for type integer`. This helper accepts
+    only real numerics and falls back to `default` for anything else.
+    """
+    if isinstance(value, bool):
+        return default
+    if isinstance(value, int):
+        return value
+    if isinstance(value, float):
+        return int(value)
+    if isinstance(value, str):
+        stripped = value.strip()
+        if stripped.isdigit():
+            return int(stripped)
+        # Try to pull a leading integer ("12 usług" -> 12)
+        import re
+        match = re.match(r"-?\d+", stripped)
+        if match:
+            return int(match.group())
+    return default
+
+
 class SupabaseService:
     def __init__(self) -> None:
         self.client: Client = create_client(
@@ -63,7 +89,7 @@ class SupabaseService:
         parent_row = {
             "convex_audit_id": convex_audit_id,
             "convex_user_id": convex_user_id,
-            "total_score": report.get("totalScore", 0),
+            "total_score": _coerce_int(report.get("totalScore", 0)),
             "score_breakdown": report.get("scoreBreakdown", {}),
             "stats": report.get("stats", {}),
             "industry_comparison": report.get("industryComparison", {}),
@@ -102,7 +128,9 @@ class SupabaseService:
                     "dimension": iss.get("dimension", "naming"),
                     "issue": iss.get("issue", ""),
                     "impact": iss.get("impact", ""),
-                    "affected_count": iss.get("affectedCount", 0),
+                    # AI sometimes returns "wiele"/"kilka" for affectedCount —
+                    # coerce to int or default to 0 to satisfy the schema.
+                    "affected_count": _coerce_int(iss.get("affectedCount", 0)),
                     "example": iss.get("example", ""),
                     "fix": iss.get("fix", ""),
                     "sort_order": i,
@@ -126,7 +154,7 @@ class SupabaseService:
                     "before_text": t.get("before", ""),
                     "after_text": t.get("after", ""),
                     "reason": t.get("reason", ""),
-                    "impact_score": max(1, min(10, t.get("impactScore", 5))),
+                    "impact_score": max(1, min(10, _coerce_int(t.get("impactScore", 5), 5))),
                     "sort_order": i,
                 }
                 for i, t in enumerate(transformations)
@@ -167,7 +195,7 @@ class SupabaseService:
                     "effort": qw.get("effort", "medium"),
                     "impact": qw.get("impact", "medium"),
                     "example": qw.get("example", ""),
-                    "affected_services": qw.get("affectedServices", 0),
+                    "affected_services": _coerce_int(qw.get("affectedServices", 0)),
                     "sort_order": i,
                 }
                 for i, qw in enumerate(quick_wins)
