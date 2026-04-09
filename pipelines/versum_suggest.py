@@ -13,6 +13,7 @@ from __future__ import annotations
 
 import logging
 import math
+from typing import Any, Callable
 
 from agent.runner import run_agent_loop
 from config import settings
@@ -122,12 +123,14 @@ def _build_user_message(
 async def suggest_versum_mappings(
     services: list[dict],
     taxonomy: list[dict],
+    on_progress: Callable[[int, str], Any] | None = None,
 ) -> list[dict]:
     """Run AI-powered mapping suggestion for a list of Versum services.
 
     Args:
         services: list of {name, description?, categoryName?}
         taxonomy: list of {treatmentId, treatmentName, parentCategoryName?, occurrenceCount}
+        on_progress: optional callback(pct, message) for reporting batch progress
 
     Returns:
         list of {serviceIndex, treatmentId, treatmentName, confidence, reason}
@@ -171,6 +174,10 @@ async def suggest_versum_mappings(
             "[VersumSuggest] Batch %d/%d: services %d-%d",
             batch_idx + 1, num_batches, start, end - 1,
         )
+
+        if on_progress:
+            pct = int((batch_idx / num_batches) * 100)
+            on_progress(pct, f"Batch {batch_idx + 1}/{num_batches}")
 
         user_message = _build_user_message(batch, taxonomy, batch_offset=start)
 

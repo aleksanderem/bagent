@@ -33,6 +33,7 @@ class Job:
     logs: list[LogEntry] = field(default_factory=list)
     meta: dict[str, Any] = field(default_factory=dict)
     steps: dict[str, dict[str, Any]] = field(default_factory=dict)
+    result_data: dict[str, Any] | None = field(default=None, repr=False)
     _cancel_requested: bool = field(default=False, repr=False)
 
     @property

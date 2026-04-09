@@ -15,7 +15,7 @@ from pydantic import BaseModel
 from sse_starlette.sse import EventSourceResponse
 
 from config import settings
-from job_store import JobStore
+from job_store import Job, JobStore
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s %(name)s %(levelname)s %(message)s")
 logger = logging.getLogger(__name__)
@@ -126,8 +126,8 @@ class VersumSuggestRequest(BaseModel):
 
     Takes salon services (name + description + category) and the Booksy
     treatment taxonomy, returns suggested treatmentId matches with confidence.
-    Synchronous endpoint — no background job needed since MiniMax calls are
-    fast (~2-5s per batch of 25 services).
+    Async endpoint — returns 202 + jobId, poll for results via
+    GET /api/versum/suggest-mappings/{jobId}/result.
     """
     services: list[dict]  # [{name, description?, categoryName?}]
     taxonomy: list[dict]  # [{treatmentId, treatmentName, parentCategoryName?, occurrenceCount}]
@@ -324,30 +324,98 @@ async def start_competitor_refresh(
 
 @app.post(
     "/api/versum/suggest-mappings",
+    status_code=202,
+    response_model=AnalyzeResponse,
     dependencies=[Depends(verify_api_key)],
 )
-async def suggest_versum_mappings(request: VersumSuggestRequest) -> dict:
+async def suggest_versum_mappings(
+    request: VersumSuggestRequest, background_tasks: BackgroundTasks
+) -> AnalyzeResponse:
     """AI-powered Versum service mapping suggestions via MiniMax.
 
-    Synchronous endpoint — processes services in batches of 25, returns
-    suggestions directly (no background job). Typical latency: 2-8s for
-    200 services (~8 MiniMax calls).
+    Async endpoint — processes services in batches of 25 in a background
+    task. Poll /api/versum/suggest-mappings/{job_id}/result for progress
+    and results when complete.
     """
-    from pipelines.versum_suggest import suggest_versum_mappings as _suggest
-
     if not request.services:
-        return {"suggestions": [], "serviceCount": 0, "suggestionCount": 0}
+        # Empty input: create a completed job immediately with empty result
+        job_id = str(uuid.uuid4())
+        job = store.create_job(job_id, f"versum-0-services", meta={"type": "versum_suggest"})
+        job.result_data = {"suggestions": [], "serviceCount": 0, "suggestionCount": 0}
+        job.mark_running()
+        job.mark_completed()
+        store.notify_status(job)
+        return AnalyzeResponse(jobId=job_id)
+
+    job_id = str(uuid.uuid4())
+    store.create_job(job_id, f"versum-{len(request.services)}-services", meta={
+        "type": "versum_suggest",
+        "serviceCount": len(request.services),
+    })
+    background_tasks.add_task(_run_versum_suggest_job, job_id, request)
+    return AnalyzeResponse(jobId=job_id)
+
+
+async def _run_versum_suggest_job(job_id: str, request: VersumSuggestRequest) -> None:
+    """Background task for versum suggest-mappings."""
+    job = store.get_job(job_id)
+    if not job:
+        return
+    job.mark_running()
+    store.notify_status(job)
 
     try:
-        suggestions = await _suggest(request.services, request.taxonomy)
-        return {
+        from pipelines.versum_suggest import suggest_versum_mappings as _suggest
+
+        suggestions = await _suggest(
+            request.services,
+            request.taxonomy,
+            on_progress=lambda pct, msg: _update_versum_progress(job, pct, msg),
+        )
+        job.result_data = {
             "suggestions": suggestions,
             "serviceCount": len(request.services),
             "suggestionCount": len(suggestions),
         }
+        job.mark_completed()
     except Exception as e:
-        logger.error("Versum suggest-mappings failed: %s", e, exc_info=True)
-        raise HTTPException(status_code=500, detail=f"AI suggestion failed: {str(e)[:200]}")
+        logger.error("Versum suggest-mappings job %s failed: %s", job_id, e, exc_info=True)
+        job.mark_failed(f"AI suggestion failed: {str(e)[:200]}")
+    store.notify_status(job)
+
+
+def _update_versum_progress(job: Job, pct: int, msg: str) -> None:
+    """Helper to push progress updates for a versum suggest job."""
+    job.add_log("info", msg, progress=pct)
+    store.notify_progress(job)
+
+
+@app.get(
+    "/api/versum/suggest-mappings/{job_id}/result",
+    dependencies=[Depends(verify_api_key)],
+)
+async def get_versum_suggest_result(job_id: str) -> dict:
+    """Poll for versum suggest-mappings job status and results."""
+    job = store.get_job(job_id)
+    if not job:
+        raise HTTPException(status_code=404, detail="Job not found")
+
+    if job.status == "running" or job.status == "queued":
+        return {
+            "status": job.status,
+            "progress": job.progress,
+            "progressMessage": job.progress_message,
+        }
+    if job.status == "completed":
+        return {
+            "status": "completed",
+            "data": job.result_data,
+        }
+    # failed / cancelled
+    return {
+        "status": job.status,
+        "error": job.error,
+    }
 
 
 @app.get("/api/jobs")
