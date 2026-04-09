@@ -187,14 +187,30 @@ async def compute_competitor_analysis(
     logger.info("Etap 4: inserted %d service_gaps", n_gaps)
 
     # ── Step 6: Dimensional scores ──
-    await progress(75, "Dimensional scores (28 wymiarów)...")
+    await progress(70, "Dimensional scores (28 wymiarów)...")
     dim_rows = _compute_dimensional_scores(
         report_id, subject_data, aligned_competitors,
     )
     n_dims = await service.insert_competitor_dimensional_scores(dim_rows)
     logger.info("Etap 4: inserted %d dimensional_scores", n_dims)
 
-    # ── Step 7: Mark completed ──
+    # ── Step 7: Extract active promotions ──
+    await progress(85, "Ekstrakcja aktywnych promocji...")
+    all_booksy_ids = [subject_data["booksy_id"]] + competitor_booksy_ids
+    promo_map = await service.get_active_promotions(all_booksy_ids)
+    active_promotions = _build_active_promotions(
+        subject_data["booksy_id"], promo_map, candidates,
+    )
+    n_promos_subject = len(active_promotions.get("subject", []))
+    n_promos_competitors = sum(
+        len(v) for v in active_promotions.get("competitors", {}).values()
+    )
+    logger.info(
+        "Etap 4: found %d subject promos, %d competitor promos",
+        n_promos_subject, n_promos_competitors,
+    )
+
+    # ── Step 8: Mark completed ──
     await progress(95, "Finalizacja raportu...")
     await service.update_competitor_report_status(
         report_id,
@@ -206,8 +222,11 @@ async def compute_competitor_analysis(
                 "service_gaps": n_gaps,
                 "dimensional_scores": n_dims,
                 "competitors_dropped_no_data": len(candidates) - len(aligned_competitors),
+                "promos_subject": n_promos_subject,
+                "promos_competitors": n_promos_competitors,
             },
         },
+        report_data_extras={"activePromotions": active_promotions},
     )
 
     await progress(
@@ -506,6 +525,40 @@ def _compute_service_gaps(
         row["sort_order"] = idx
 
     return missing + unique_usps
+
+
+# ---------------------------------------------------------------------------
+# Active promotions
+# ---------------------------------------------------------------------------
+
+
+def _build_active_promotions(
+    subject_booksy_id: int,
+    promo_map: dict[int, list[dict[str, Any]]],
+    candidates: list[CompetitorCandidate],
+) -> dict[str, Any]:
+    """Build the activePromotions dict for report_data.
+
+    Shape:
+      {
+        "subject": [{serviceName, originalPrice, promoPrice, discountPct}, ...],
+        "competitors": {
+          "<salon_id>": [{...}, ...],
+        }
+      }
+
+    Keys competitor entries by the string salon_id (serializable to JSON).
+    """
+    subject_promos = promo_map.get(subject_booksy_id, [])
+    competitor_promos: dict[str, list[dict[str, Any]]] = {}
+    for c in candidates:
+        promos = promo_map.get(c.booksy_id, [])
+        if promos:
+            competitor_promos[str(c.booksy_id)] = promos
+    return {
+        "subject": subject_promos,
+        "competitors": competitor_promos,
+    }
 
 
 # ---------------------------------------------------------------------------

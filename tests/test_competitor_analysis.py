@@ -866,6 +866,7 @@ def _mock_supabase_for_e2e() -> AsyncMock:
     mock.insert_competitor_dimensional_scores = AsyncMock(return_value=28)
     mock.update_competitor_report_status = AsyncMock(return_value=None)
     mock.get_versum_mappings = AsyncMock(return_value={})
+    mock.get_active_promotions = AsyncMock(return_value={})
 
     # Etap 4 readers
     def _mk_salon_data(salon_id: int, reviews_count: int) -> dict:

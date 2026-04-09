@@ -1237,22 +1237,26 @@ class SupabaseService:
         report_id: int,
         status: str,
         metadata_extras: dict | None = None,
+        report_data_extras: dict | None = None,
     ) -> None:
-        """Update competitor_reports.status. Optionally merge extras into metadata."""
+        """Update competitor_reports.status. Optionally merge extras into metadata and report_data."""
         payload: dict[str, Any] = {"status": status}
-        if metadata_extras:
-            # Fetch existing metadata first so we merge not replace
+        if metadata_extras or report_data_extras:
+            # Fetch existing metadata + report_data first so we merge not replace
             existing = (
                 self.client.table("competitor_reports")
-                .select("metadata")
+                .select("metadata,report_data")
                 .eq("id", report_id)
                 .limit(1)
                 .execute()
             )
-            current_meta = {}
-            if existing.data and isinstance(existing.data[0].get("metadata"), dict):
-                current_meta = existing.data[0]["metadata"]
-            payload["metadata"] = {**current_meta, **metadata_extras}
+            row = existing.data[0] if existing.data else {}
+            if metadata_extras:
+                current_meta = row.get("metadata") if isinstance(row.get("metadata"), dict) else {}
+                payload["metadata"] = {**current_meta, **metadata_extras}
+            if report_data_extras:
+                current_rd = row.get("report_data") if isinstance(row.get("report_data"), dict) else {}
+                payload["report_data"] = {**current_rd, **report_data_extras}
         self.client.table("competitor_reports").update(payload).eq(
             "id", report_id,
         ).execute()
@@ -1548,6 +1552,135 @@ class SupabaseService:
             if sid is not None and bsid is not None and tid is not None:
                 out[(int(sid), int(bsid))] = int(tid)
         return out
+
+    # ---- Active promotions helpers ----------------------------------------
+
+    async def get_active_promotions(
+        self, booksy_ids: list[int],
+    ) -> dict[int, list[dict[str, Any]]]:
+        """Return active promotions keyed by booksy_id.
+
+        Queries salon_scrape_services for services where is_promo = TRUE or
+        promotion_data IS NOT NULL. Uses the latest scrape per booksy_id.
+
+        Returns {booksy_id: [{serviceName, originalPrice, promoPrice, discountPct}]}.
+        """
+        if not booksy_ids:
+            return {}
+
+        # Get latest scrape_id per booksy_id
+        scrape_res = (
+            self.client.table("salon_scrapes")
+            .select("id,booksy_id")
+            .in_("booksy_id", booksy_ids)
+            .order("scraped_at", desc=True)
+            .execute()
+        )
+        latest_scrape_by_booksy: dict[int, str] = {}
+        for row in scrape_res.data or []:
+            bid = row.get("booksy_id")
+            if bid is not None and bid not in latest_scrape_by_booksy:
+                latest_scrape_by_booksy[bid] = row["id"]
+
+        if not latest_scrape_by_booksy:
+            return {}
+
+        scrape_ids = list(latest_scrape_by_booksy.values())
+        booksy_by_scrape: dict[str, int] = {
+            sid: bid for bid, sid in latest_scrape_by_booksy.items()
+        }
+
+        # Query promo services across all scrapes
+        result: dict[int, list[dict[str, Any]]] = {}
+        BATCH = 80
+        for i in range(0, len(scrape_ids), BATCH):
+            batch = scrape_ids[i : i + BATCH]
+            svc_res = (
+                self.client.table("salon_scrape_services")
+                .select(
+                    "scrape_id,name,price_grosze,is_promo,promotion_data,variants"
+                )
+                .in_("scrape_id", batch)
+                .eq("is_promo", True)
+                .execute()
+            )
+            for svc in svc_res.data or []:
+                sid = svc.get("scrape_id")
+                bid = booksy_by_scrape.get(sid)
+                if bid is None:
+                    continue
+
+                promo_entry = self._extract_promo_entry(svc)
+                if promo_entry is None:
+                    continue
+
+                result.setdefault(bid, []).append(promo_entry)
+
+        return result
+
+    @staticmethod
+    def _extract_promo_entry(svc: dict[str, Any]) -> dict[str, Any] | None:
+        """Extract a promotion entry from a service row.
+
+        Tries promotion_data first, then variant-level promotion fields.
+        Returns {serviceName, originalPrice, promoPrice, discountPct} or None.
+        """
+        name = svc.get("name") or ""
+        base_price_grosze = svc.get("price_grosze")
+
+        # Try promotion_data JSONB (from variants[].promotion)
+        promo = svc.get("promotion_data")
+        if isinstance(promo, dict):
+            promo_price = promo.get("price")
+            original = promo.get("original_price") or base_price_grosze
+            if isinstance(promo_price, (int, float)) and promo_price > 0:
+                original_val = float(original) if isinstance(original, (int, float)) else None
+                discount = (
+                    round((1 - promo_price / original_val) * 100)
+                    if original_val and original_val > 0
+                    else None
+                )
+                return {
+                    "serviceName": name,
+                    "originalPrice": f"{original_val / 100:.0f} zł" if original_val else None,
+                    "promoPrice": f"{promo_price / 100:.0f} zł",
+                    "discountPct": discount,
+                }
+
+        # Fallback: scan variants for promotion entries
+        variants = svc.get("variants")
+        if isinstance(variants, list):
+            for v in variants:
+                if not isinstance(v, dict):
+                    continue
+                v_promo = v.get("promotion")
+                if isinstance(v_promo, dict):
+                    pp = v_promo.get("price")
+                    op = v_promo.get("original_price") or v.get("price") or base_price_grosze
+                    if isinstance(pp, (int, float)) and pp > 0:
+                        op_val = float(op) if isinstance(op, (int, float)) else None
+                        disc = (
+                            round((1 - pp / op_val) * 100)
+                            if op_val and op_val > 0
+                            else None
+                        )
+                        return {
+                            "serviceName": name,
+                            "originalPrice": f"{op_val / 100:.0f} zł" if op_val else None,
+                            "promoPrice": f"{pp / 100:.0f} zł",
+                            "discountPct": disc,
+                        }
+
+        # Promo flag set but no price data found
+        if base_price_grosze:
+            return {
+                "serviceName": name,
+                "originalPrice": f"{base_price_grosze / 100:.0f} zł",
+                "promoPrice": None,
+                "discountPct": None,
+            }
+
+        return None
 
     # ---- Competitor synthesis helpers (Comp Etap 5) ---------------------
 
