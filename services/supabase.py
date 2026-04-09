@@ -839,3 +839,276 @@ class SupabaseService:
             pricelist_id, total_categories_inserted, total_services_inserted, source_scrape_id,
         )
         return pricelist_id
+
+    # ---- Competitor selection read helpers (Comp Etap 1) -----------------
+
+    async def get_subject_salon_for_audit(self, convex_audit_id: str) -> dict | None:
+        """Load the subject salon's full context for competitor selection.
+
+        Joins the latest salon_scrapes row (for the given convex_audit_id)
+        with the salons table (by booksy_id) and returns a flat dict with
+        the fields competitor selection needs: salon_id (internal PK),
+        booksy_id, name, city, salon_lat, salon_lng, primary_category_id,
+        business_categories (jsonb from the scrape), reviews_count,
+        reviews_rank, partner_system.
+
+        Returns None if there is no scrape for this audit_id. Never raises —
+        caller decides how to handle missing subjects.
+        """
+        scrape_res = (
+            self.client.table("salon_scrapes")
+            .select(
+                "id,booksy_id,salon_name,salon_city,salon_lat,salon_lng,"
+                "primary_category_id,business_categories,reviews_count,"
+                "reviews_rank,partner_system,scraped_at"
+            )
+            .eq("convex_audit_id", convex_audit_id)
+            .order("scraped_at", desc=True)
+            .limit(1)
+            .execute()
+        )
+        if not scrape_res.data:
+            return None
+        scrape = scrape_res.data[0]
+
+        # Translate booksy_id -> salons.id (internal PK). This is required so
+        # downstream queries on salon_top_services (keyed by salon_id) work.
+        salon_res = (
+            self.client.table("salons")
+            .select("id")
+            .eq("booksy_id", scrape["booksy_id"])
+            .limit(1)
+            .execute()
+        )
+        salon_id = salon_res.data[0]["id"] if salon_res.data else None
+        if salon_id is None:
+            logger.warning(
+                "Subject salon scrape %s exists but no salons row for booksy_id=%s",
+                scrape["id"], scrape["booksy_id"],
+            )
+            return None
+
+        return {
+            "salon_id": salon_id,
+            "booksy_id": scrape["booksy_id"],
+            "name": scrape.get("salon_name"),
+            "city": scrape.get("salon_city"),
+            "salon_lat": scrape.get("salon_lat"),
+            "salon_lng": scrape.get("salon_lng"),
+            "primary_category_id": scrape.get("primary_category_id"),
+            "business_categories": scrape.get("business_categories") or [],
+            "reviews_count": scrape.get("reviews_count") or 0,
+            "reviews_rank": scrape.get("reviews_rank"),
+            "partner_system": scrape.get("partner_system") or "native",
+            "scraped_at": scrape.get("scraped_at"),
+        }
+
+    async def get_candidate_salons(
+        self,
+        *,
+        lat: float,
+        lng: float,
+        primary_category_id: int,
+        radius_km: float,
+        exclude_booksy_id: int,
+        limit: int = 200,
+    ) -> list[dict]:
+        """Return candidate salons within radius_km of (lat, lng) in the
+        given primary_category_id, excluding the subject.
+
+        Uses the PostGIS find_nearby_salons RPC (tytan Supabase) which does
+        ST_Distance on the salons.geom column and filters by category. The
+        RPC returns distance_m — we convert to distance_km for the caller
+        and drop the subject row.
+
+        Returns a list of dicts with keys: salon_id, booksy_id, name, city,
+        distance_km, reviews_rank, reviews_count.
+        """
+        try:
+            result = self.client.rpc(
+                "find_nearby_salons",
+                {
+                    "p_category_id": primary_category_id,
+                    "p_lat": lat,
+                    "p_lng": lng,
+                    "p_radius_m": int(radius_km * 1000),
+                    "p_limit": limit,
+                },
+            ).execute()
+        except Exception as e:
+            logger.warning(
+                "find_nearby_salons RPC failed (cat=%s, lat=%s, lng=%s): %s",
+                primary_category_id, lat, lng, e,
+            )
+            return []
+
+        rows: list[dict] = []
+        for row in result.data or []:
+            bid = row.get("booksy_id")
+            if bid is None or bid == exclude_booksy_id:
+                continue
+            distance_m = row.get("distance_m") or 0
+            rows.append({
+                "salon_id": row.get("id"),
+                "booksy_id": bid,
+                "name": row.get("name") or "",
+                "city": row.get("city"),
+                "distance_km": float(distance_m) / 1000.0,
+                "reviews_rank": row.get("reviews_rank"),
+                "reviews_count": row.get("reviews_count") or 0,
+                "service_count": row.get("service_count") or 0,
+            })
+        return rows
+
+    async def get_salon_top_services(self, salon_id: int) -> list[dict]:
+        """Return the top_services rows for a given internal salon_id.
+
+        Each row is a dict with the columns persisted by the ingester:
+        booksy_service_id, booksy_treatment_id, name, sort_order, variants, etc.
+        Returns empty list when the salon has no top_services (~28% of salons).
+        """
+        try:
+            result = (
+                self.client.table("salon_top_services")
+                .select("booksy_service_id,booksy_treatment_id,name,sort_order")
+                .eq("salon_id", salon_id)
+                .order("sort_order", desc=False)
+                .execute()
+            )
+        except Exception as e:
+            logger.warning("Failed to load salon_top_services for salon_id=%s: %s", salon_id, e)
+            return []
+        return list(result.data or [])
+
+    async def get_latest_top_services_for_salon_ids(
+        self, salon_ids: list[int],
+    ) -> dict[int, list[dict]]:
+        """Bulk load salon_top_services for many candidate salons at once.
+
+        Returns a {salon_id: [top_services_rows]} map. Candidates with no
+        top_services rows are simply absent from the map (callers should
+        .get(sid, []) for safety).
+        """
+        if not salon_ids:
+            return {}
+        try:
+            result = (
+                self.client.table("salon_top_services")
+                .select("salon_id,booksy_service_id,booksy_treatment_id,name,sort_order")
+                .in_("salon_id", salon_ids)
+                .order("sort_order", desc=False)
+                .execute()
+            )
+        except Exception as e:
+            logger.warning(
+                "Failed to load bulk salon_top_services (n=%d): %s",
+                len(salon_ids), e,
+            )
+            return {}
+        by_salon: dict[int, list[dict]] = {}
+        for row in result.data or []:
+            sid = row.get("salon_id")
+            if sid is None:
+                continue
+            by_salon.setdefault(sid, []).append(row)
+        return by_salon
+
+    async def get_latest_business_categories_for_booksy_ids(
+        self, booksy_ids: list[int],
+    ) -> dict[int, list[dict]]:
+        """Bulk load the latest business_categories jsonb per booksy_id.
+
+        salon_scrapes is time-series (multiple rows per booksy_id). We pull
+        all rows for the given booksy_ids in one query, then pick the most
+        recent row per booksy_id client-side (sorted by scraped_at DESC).
+        The business_categories payload is a list of {id, name, female_weight}
+        dicts as ingested by scripts/ingest_salon_jsons.py.
+
+        Returns a {booksy_id: business_categories_list} map. Missing ids are
+        absent from the map.
+        """
+        if not booksy_ids:
+            return {}
+        try:
+            result = (
+                self.client.table("salon_scrapes")
+                .select("booksy_id,business_categories,scraped_at")
+                .in_("booksy_id", booksy_ids)
+                .order("scraped_at", desc=True)
+                .execute()
+            )
+        except Exception as e:
+            logger.warning(
+                "Failed to load bulk business_categories (n=%d): %s",
+                len(booksy_ids), e,
+            )
+            return {}
+        latest: dict[int, list[dict]] = {}
+        for row in result.data or []:
+            bid = row.get("booksy_id")
+            if bid is None or bid in latest:
+                continue  # first occurrence wins (already sorted desc)
+            bc = row.get("business_categories") or []
+            latest[bid] = bc
+        return latest
+
+    async def get_latest_partner_system_for_booksy_ids(
+        self, booksy_ids: list[int],
+    ) -> dict[int, str]:
+        """Bulk load the latest partner_system ('native' or 'versum') per booksy_id.
+
+        Used so the CompetitorCandidate carries its source system — useful
+        for downstream UI filtering and for skipping versum salons in the
+        pricing comparison step (since their treatment_id coverage is poor).
+
+        Returns a {booksy_id: partner_system_string} map. Rows with NULL
+        partner_system default to 'native'.
+        """
+        if not booksy_ids:
+            return {}
+        try:
+            result = (
+                self.client.table("salon_scrapes")
+                .select("booksy_id,partner_system,scraped_at")
+                .in_("booksy_id", booksy_ids)
+                .order("scraped_at", desc=True)
+                .execute()
+            )
+        except Exception as e:
+            logger.warning(
+                "Failed to load bulk partner_system (n=%d): %s",
+                len(booksy_ids), e,
+            )
+            return {}
+        latest: dict[int, str] = {}
+        for row in result.data or []:
+            bid = row.get("booksy_id")
+            if bid is None or bid in latest:
+                continue
+            latest[bid] = row.get("partner_system") or "native"
+        return latest
+
+    async def get_business_categories_with_female_weight(self) -> dict[int, int]:
+        """Return a {category_id: female_weight} map for the whole reference table.
+
+        Useful when a candidate's business_categories jsonb is missing the
+        female_weight field (possible in older scrapes before the ingester
+        started preserving it inline). Callers can look up the id in this
+        map to recompute the average.
+        """
+        try:
+            result = (
+                self.client.table("business_categories")
+                .select("id,female_weight")
+                .execute()
+            )
+        except Exception as e:
+            logger.warning("Failed to load business_categories reference: %s", e)
+            return {}
+        result_map: dict[int, int] = {}
+        for row in result.data or []:
+            cid = row.get("id")
+            fw = row.get("female_weight")
+            if isinstance(cid, int) and isinstance(fw, (int, float)):
+                result_map[cid] = int(fw)
+        return result_map
