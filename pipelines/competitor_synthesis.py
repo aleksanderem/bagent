@@ -530,15 +530,14 @@ async def _run_minimax_synthesis(context: str) -> dict[str, Any]:
     )
     # Override the underlying anthropic client for this pipeline:
     #  - timeout=240s (bigger prompt + interleaved thinking + tool_use)
-    #  - max_retries=0 (the SDK default of 2 means up to 12 minutes of retries
-    #    on slow responses; we prefer the deterministic fallback to kick in
-    #    quickly so the report row stays useful)
+    #  - max_retries=2 (allow 2 retries with SDK-level exponential backoff;
+    #    total worst case ~12 min but synthesis quality is worth the wait)
     client.client = anthropic.AsyncAnthropic(
         base_url=settings.minimax_base_url,
         api_key=settings.minimax_api_key,
         default_headers={"Authorization": f"Bearer {settings.minimax_api_key}"},
         timeout=httpx.Timeout(240.0, connect=15.0),
-        max_retries=0,
+        max_retries=2,
     )
 
     agent_result = await run_agent_loop(
@@ -770,9 +769,9 @@ def _deterministic_fallback(
     """Fallback insights built from pure data, no AI.
 
     Produces a basic but valid structure: narrative from dimensional scores,
-    empty SWOT (we can't hand-craft good bullets), empty recommendations. The
-    report row stays functional — the frontend renders placeholder content
-    with a "AI synthesis temporarily unavailable" hint.
+    empty SWOT (we can't hand-craft good bullets), and up to 3 basic
+    recommendations derived from the top pricing deviations. This ensures the
+    user always gets actionable items even on total AI failure.
     """
     salon_name = subject_context.get("salon_name") or "Salon"
     total_competitors = len(matches)
@@ -799,6 +798,61 @@ def _deterministic_fallback(
     if len(narrative) > 800:
         narrative = narrative[:797] + "..."
 
+    # Build up to 3 basic recommendations from the top pricing deviations.
+    # This ensures users always get actionable items even when MiniMax fails.
+    recommendations: list[dict[str, Any]] = []
+    if pricing:
+        sorted_by_deviation = sorted(
+            pricing,
+            key=lambda p: abs(float(p.get("deviation_pct") or 0)),
+            reverse=True,
+        )
+        for p in sorted_by_deviation[:3]:
+            deviation = float(p.get("deviation_pct") or 0)
+            treatment = p.get("treatment_name") or "Usługa"
+            subject_price = p.get("subject_price_grosze")
+            median_price = p.get("market_median_grosze")
+            pricing_id = p.get("id")
+
+            if abs(deviation) < 5:
+                continue  # Skip negligible deviations
+
+            if deviation > 0:
+                action_title = f"Rozważ obniżenie ceny: {treatment}"
+                action_desc = (
+                    f"Twoja cena za {treatment} jest {abs(deviation):.0f}% powyżej "
+                    f"mediany rynkowej"
+                    + (f" ({float(median_price) / 100:.0f} zł)" if median_price else "")
+                    + ". Rozważ dostosowanie ceny, aby być bardziej konkurencyjnym, "
+                    f"lub wzmocnij komunikację wartości tej usługi."
+                )
+                category = "pricing"
+            else:
+                action_title = f"Rozważ podniesienie ceny: {treatment}"
+                action_desc = (
+                    f"Twoja cena za {treatment} jest {abs(deviation):.0f}% poniżej "
+                    f"mediany rynkowej"
+                    + (f" ({float(median_price) / 100:.0f} zł)" if median_price else "")
+                    + ". Podniesienie ceny może zwiększyć przychód bez utraty klientów."
+                )
+                category = "pricing"
+
+            source_data_points: list[dict[str, Any]] = []
+            if pricing_id is not None:
+                source_data_points.append({"type": "pricing_comparison", "id": int(pricing_id)})
+
+            recommendations.append({
+                "actionTitle": action_title[:200],
+                "actionDescription": action_desc[:800],
+                "category": category,
+                "impact": "medium",
+                "effort": "low",
+                "confidence": 0.7,
+                "estimatedRevenueImpactGrosze": None,
+                "sourceCompetitorIds": [],
+                "sourceDataPoints": source_data_points,
+            })
+
     return {
         "positioning_narrative": narrative,
         "swot": {
@@ -807,5 +861,5 @@ def _deterministic_fallback(
             "opportunities": [],
             "threats": [],
         },
-        "recommendations": [],
+        "recommendations": recommendations,
     }
