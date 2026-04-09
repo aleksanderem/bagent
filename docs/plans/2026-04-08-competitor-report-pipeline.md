@@ -1,9 +1,120 @@
 # Plan: Competitor Report Pipeline (BAGENT #4)
 
 Data: 2026-04-08
-Status: planning → Comp Etap 0 ready to dispatch
+Status: research spike done → Comp Etap 0.1 ready to dispatch
 Branch: main
 Related plan: `docs/plans/2026-04-08-unified-report-pipeline.md` (pattern reference)
+
+## Research spike findings (2026-04-08, po initial plan draft)
+
+Zanim dispatch agents team, zrobiony został research spike na istniejącym datasetcie i schema bazy. Kluczowe findings które zmieniają kilka sekcji poniższego planu — **te findings mają pierwszeństwo nad tym co jest dalej** w miejscach gdzie się rozjeżdżają.
+
+### 1. Istnieje ~5267 JSON scrapes w `/Users/alex/Desktop/MOJE_PROJEKTY/BEAUTY_AUDIT/json/`
+
+User dostarczył folder z raw Booksy responses dla 5267 salonów z 2 województw (nie całej Polski — to tylko pierwszy batch z automated scraper który będzie dostarczał kolejne partie). Pliki nazwane `{booksy_id}.json`. Każdy to kompletny dump business endpoint response. Folder jest dodany do `.gitignore` (zbyt duży dla repo, ~3GB).
+
+**Implication #1**: Nie musimy scrape'ować niczego od zera dla first MVP. Mamy gotowy dataset 5267 salonów do bulk load.
+
+**Implication #2**: User będzie dostarczać kolejne batche JSONów (np. kolejne województwa). Ingester MUSI być re-runnable — idempotentny na content hash, detect-and-skip już ingerowane pliki, append-only dla time-series.
+
+**Implication #3**: Skala docelowa jest ~30-80k salonów gdy cała Polska zostanie dostarczona. Batched INSERTs, nie jednorazowe bulk commit.
+
+### 2. Native Booksy vs Versum split — 95.4% vs 4.6%
+
+Analiza wszystkich 5267 plików:
+- Native Booksy: **5027 salonów (95.4%)** — `partners: []` (pusta lista)
+- Versum: **240 salonów (4.6%)** — `partners: ["versum"]`
+- Inni partnerzy: **0**
+
+Versum to legacy system akwizycyjny. Jedyny inny partner występujący w dataset'cie. Booksy najwyraźniej wycofał pozostałe integracje do natywnej platformy.
+
+### 3. Treatment_id coverage — native vs versum
+
+Per-salon analiza pokrycia `treatment_id`:
+
+**Native Booksy (5027):**
+- 95-100% coverage: 3578 (71%)
+- 50-95% coverage: 1372 (27%)
+- 0-50% coverage: 74 (1.5%)
+
+**Versum (240):**
+- 95-100% coverage: 2 (<1%)
+- 50-95% coverage: 27 (11%)
+- 0-50% coverage: **211 (88%)** ← systemic
+
+**Kluczowe wnioski:**
+- Parser extraction w bagent działa poprawnie dla native Booksy (98.5% salonów ma ≥50% coverage)
+- Versum systemowo nie wypełnia canonical `treatment_id` — to jest property source data, nie bug parsera
+- Beauty4ever (nasze testowe konto) jest jednym z 240 Versum salonów, stąd jej outlier coverage 46/417 (11%)
+
+### 4. Versum handling — self-service mapping widget, NIE auto-LLM
+
+Decyzja produktowa: dla Versum salonów nie robimy automatycznego mapowania treatment_id przez LLM. Zamiast tego:
+
+- Dodajemy tabelę `versum_service_mappings` (salon_id, booksy_service_id, mapped_treatment_id, mapped_treatment_parent_id, confidence, mapped_by_user_id)
+- Budujemy UI widget „Mapowanie usług Versum" dostępny tylko dla salon ownerów z `partner_system='versum'`
+- Widget pokazuje unmapped services + smart dropdown z Booksy treatments + bulk apply
+- User raz klika mapowanie, persistent w bazie, każdy kolejny raport konkurencji używa tych mapowań przy computing pricing comparisons
+- Onboarding banner dla Versum userów: „Dodaj mapowanie aby zobaczyć pełną analizę porównawczą cen"
+- My (team) też korzystamy z widget'u żeby zmapować Beauty4ever — nasze testowe konto dostanie pełny raport po manual mapping
+
+To dodaje **Comp Etap 9: Versum mapping widget** na końcu planu (Phase 5). Nie blokuje MVP — native user'zy nie widzą widget'u wcale, Beauty4ever dostaje częściowy raport dopóki nie zmapujemy, potem pełny.
+
+### 5. Reviews — twardy limit 3 per salon z business endpoint
+
+**Każdy z 5267 salonów** ma maksymalnie **3 reviews** w `raw_response.business.reviews` — bez wyjątków. Salon z 17609 reviews w `reviews_count` metadata ma i tak tylko 3 w sample. To jest Booksy business endpoint sample — zwraca zawsze 3 najnowsze/top, niezależnie od rzeczywistej liczby.
+
+**Implications:**
+- Sentiment analysis z 3 reviews per salon nie ma wartości produktowej
+- Popularity-by-mentions analysis (najczęściej recenzowane usługi) wymaga pełnych reviews
+- **Potrzebny jest nowy endpoint w bextract**: `GET /businesses/{id}/reviews?page=N&per_page=50` który pageuje pełną historię reviews z Booksy profile page
+- To dodaje **Comp Etap 10: bextract reviews pagination endpoint** (parked do czasu aż zdecydujemy że sentiment upsell jest priorytetem)
+
+### 6. Top services coverage — 70% salonów
+
+- 3691 salonów (70%) ma 3 top_services
+- 1473 salonów (28%) ma 0 — mniejsze/nowsze których Booksy nie wyróżnia
+- 103 ma 1-2
+
+Frontend sekcja „Top services comparison" musi obsłużyć brak danych dla 28% salonów. Fallback: „Booksy nie wyróżnia top services dla tego salonu, brak danych porównawczych".
+
+### 7. Wszystkie pozostałe pola pokrycie 100%
+
+W próbie 10 salonów (9 native + 1 Versum), wszystkie miały:
+- `business_categories[]` z `female_weight` per kategoria ✓
+- `booking_max_modification_time`, `booking_max_lead_time`, `deposit_cancel_time` ✓
+- `pos_pay_by_app_enabled`, `pos_market_pay_enabled` ✓
+- `has_online_services`, `has_online_vouchers`, `has_safety_rules` ✓
+- `low_availability`, `is_recommended`, `max_discount_rate`, `salon_network` ✓
+- `open_hours`, `regions`, `location.coordinate` ✓
+- `description`, `subdomain`, `facebook_link`, `instagram_link`, `website` ✓
+
+Plus bonus pola nieplanowane w original planie: `accept_booksy_pay`, `best_of_booksy_badge`, `manual_boost_score`, `simplified_booking_feature_checklist`, `waitlist_disabled`, `is_renting_venue`, `umbrella_venue_name`, `contractor_description`, `traveling`, `promoted_labels`, `is_b_listing`, `profile_type`. Każdy to potencjalny dodatkowy wymiar do `competitor_dimensional_scores`.
+
+### 8. Data layering — Opcja C (hybrid upsert registry + append time-series)
+
+Zatwierdzona decyzja architektoniczna dla collision między kolejnymi batchami tego samego booksy_id:
+
+- `salons` table = latest state per salon (UPSERT by booksy_id) — persistent registry
+- `salon_scrapes` + `salon_scrape_services` = pełny time-series (APPEND always, no update) — historia
+- `json_ingestion_log` = audit trail z content_hash dla idempotency
+
+### Plan adjustment summary
+
+Oryginalny plan zakłada jednen Etap 0 jako monolityczny „schema extension + backfill". Po research spike rozbijamy na:
+
+- **Comp Etap 0.1** — Schema migrations (ALTER + CREATE tables, female_weight seed, json_ingestion_log + versum_service_mappings + partner_system flag)
+- **Comp Etap 0.2** — Re-runnable JSON ingester (`scripts/ingest_salon_jsons.py`) + first full load obecnego folderu `json/`
+
+Oryginalny Etap 8 (sentiment) pozostaje **parked** do czasu Etap 10 (bextract reviews endpoint).
+
+**Nowy Comp Etap 9** — Versum mapping widget (self-service UI, osobne UX flow, osobna tabela persistentna).
+
+**Nowy Comp Etap 10** — bextract reviews pagination endpoint (parked, prerequisite dla Etap 8).
+
+Pozostałe etapy (1-7) bez zmian w scope, ale:
+- **Etap 4** dostaje graceful degradation dla Versum salonów (LEFT JOIN versum_service_mappings, skip treatment-level pricing comparisons dla untreated services, compute non-pricing wymiary normalnie)
+- **Etap 7** subscription uruchomi się normalnie ale pierwszy sensowny price history chart pojawi się po 2-3 snapshots (2-3 tygodnie)
 
 ## Problem
 
@@ -600,32 +711,45 @@ Grouped by category:
 
 Każdy dimension jest row w `competitor_dimensional_scores`, z subject value + market distribution (min/p25/p50/p75/max) + subject percentile.
 
-## Etapy implementacji
+## Etapy implementacji (revised post research spike)
 
 Zależności i kolejność:
 
 ```
-Comp Etap 0 (schema + backfill) — blokuje wszystkie pozostałe
-  ↓
-Comp Etap 1 (selection algorithm + salons registry) — blokuje Etap 2
-  ↓
-Comp Etap 2 (BAGENT #4 scaffold + deep scrape) — blokuje Etap 3-5
-  ↓
-Comp Etap 3 (reviews + top_services ingestion) — równoległy z Etap 4 (różne tabele)
-Comp Etap 4 (pricing + gaps + dimensional) — blokuje Etap 5
-  ↓
-Comp Etap 5 (AI synthesis + traceability)
-  ↓
-Comp Etap 6 (frontend redesign) — osobny agent, niezależny od Etap 5 bo używa stabilnej schemy z Etap 4
-Comp Etap 7 (premium subscription cron) — niezależny od Etap 6, zakłada Etap 2 done
-Comp Etap 8 (sentiment upsell) — osobny pipeline, zakłada Etap 3 done (musi mieć salon_reviews)
+Phase 1 — Foundation
+  Comp Etap 0.1 (schema migrations) — blokuje wszystkie pozostałe
+    ↓
+  Comp Etap 0.2 (re-runnable JSON ingester + first full load z json/ folderu)
+    ↓
+Phase 2 — Competitor Report Core
+  Comp Etap 1 (candidate selection z już-załadowanego salons registry)
+    ↓
+  Comp Etap 2 (BAGENT #4 scaffold — używa istniejących scrape'ów + deep scrape ewentualnych missing)
+    ↓
+  Comp Etap 3 (reviews sample + top_services ingestion) || Comp Etap 4 (pricing + gaps + dimensional)
+    ↓
+  Comp Etap 5 (AI synthesis + traceability)
+    ↓
+Phase 3 — Frontend
+  Comp Etap 6 (Konkurenci tab redesign) — sequential bo używa stable data z Etap 4+5
+    ↓
+Phase 4 — Subscription & upsells
+  Comp Etap 7 (premium subscription cron) — równoległy z Etap 9
+  Comp Etap 9 (Versum mapping widget) — równoległy z Etap 7, backend table + frontend widget
+    ↓
+Phase 5 — Parked (prerequisite deps not met)
+  Comp Etap 10 (bextract reviews pagination endpoint) — separate bextract repo work
+    ↓
+  Comp Etap 8 (sentiment upsell) — depends on Etap 10
 ```
 
-Orientacyjny time budget per etap: 1 dzień z agent team (analogiczny pattern jak Unified Report Pipeline dziś — 4 etapy w 1 dzień).
+Orientacyjny time budget: Phase 1-3 to ~2 dni agents team (podobny pattern jak Unified Report Pipeline ale z większą liczbą etap'ów). Phase 4 dodatkowy 1 dzień. Phase 5 parked do osobnej decyzji.
 
 ## Kryteria sukcesu per etap
 
-**Comp Etap 0:** Schema migrations applied, `\d competitor_reports` pokazuje nowe kolumny tier/refresh_schedule/next_refresh_at/sentiment_upsell_purchased, nowe tabele istnieją, backfill job UPDATE zapisał strukturalne kolumny dla wszystkich wierszy salon_scrapes gdzie raw_response is not null.
+**Comp Etap 0.1 (schema):** Migrations applied, `\d competitor_reports` pokazuje nowe kolumny tier/refresh_schedule/next_refresh_at/sentiment_upsell_purchased/selection_mode, `\d salon_scrapes` ma nowe kolumny (partner_system, booking_max_*, pos_*, has_*, low_availability, max_discount_rate, salon_network, salon_subdomain, service_fee, parking_info, wheelchair_access), `\d business_categories` ma kolumnę female_weight z wartościami seededami, nowe tabele (salon_reviews, salon_top_services, competitor_pricing_comparisons, competitor_service_gaps, competitor_dimensional_scores, competitor_recommendations, competitor_review_sentiments, versum_service_mappings, json_ingestion_log) istnieją z odpowiednimi indeksami i FK.
+
+**Comp Etap 0.2 (ingester + first load):** Skrypt `scripts/ingest_salon_jsons.py` istnieje w bagent repo, jest re-runnable (idempotentny po content_hash), przetwarza całe folder `json/` w <30 min, po zakończeniu: `SELECT COUNT(*) FROM salons` = 5267, `SELECT COUNT(*) FROM salon_scrapes` = 5267, `SELECT COUNT(*) FROM salon_scrape_services` > 100000, `SELECT COUNT(*) FROM json_ingestion_log` = 5267, `SELECT COUNT(DISTINCT booksy_id) FROM salon_scrapes WHERE partner_system = 'versum'` = 240, re-run skryptu bez nowych plików loguje „5267 already ingested, 0 new" i kończy w <30s.
 
 **Comp Etap 1:** Funkcja `select_competitors(beauty4ever_audit_id, 5, 'auto')` zwraca listę 5 salonów, wszystkie z `primary_category_id = subject.primary_category_id`, wszystkie z abs(female_weight diff) ≤ 20, wszystkie w promieniu 15km. Spot check ręczny — 5 zwróconych to faktycznie sensowni konkurenci Beauty4ever w Warszawie.
 
@@ -641,7 +765,11 @@ Orientacyjny time budget per etap: 1 dzień z agent team (analogiczny pattern ja
 
 **Comp Etap 7:** Convex cron pokazuje się w dashboard, po ręcznym set `next_refresh_at = now()` dla test report, cron triggeruje refresh, dodaje nowy snapshot, `competitor_report_snapshots` ma nowy wiersz, `next_refresh_at` zostaje zaktualizowany o 7 dni.
 
-**Comp Etap 8:** `POST /api/competitor/sentiment {competitorReportId}` dla test reportu kończy w <5 min, `competitor_review_sentiments` ma wiersze per (competitor × treatment cluster), frontend Sub-tab 7 renderuje sentiment scores z themes.
+**Comp Etap 8:** `POST /api/competitor/sentiment {competitorReportId}` dla test reportu kończy w <5 min, `competitor_review_sentiments` ma wiersze per (competitor × treatment cluster), frontend Sub-tab 7 renderuje sentiment scores z themes. **PARKED — wymaga Etap 10 (bextract reviews endpoint) jako prerequisite.**
+
+**Comp Etap 9 (Versum mapping widget):** Tabela `versum_service_mappings` istnieje i ma unique constraint na `(salon_id, booksy_service_id)`. Frontend ścieżka `/settings/versum-mapping` (albo modal w profile page) pokazuje się tylko dla Convex user'a którego salon ma `partner_system='versum'`. Widget listuje unmapped services z salon_scrape_services WHERE booksy_treatment_id IS NULL, smart dropdown pokazuje fuzzy search po Booksy treatments z reference table, bulk apply button działa, zapis persistuje do versum_service_mappings. Po zapisie i retrigger raportu konkurencji dla Beauty4ever, `competitor_pricing_comparisons` pokazuje więcej rows (bo więcej services ma teraz treatment_id via mapping). E2E test: zmapować minimum 10 usług Beauty4ever, retrigger raport, sprawdzić że liczba pricing_comparison rows wzrosła.
+
+**Comp Etap 10 (bextract reviews endpoint):** Nowy endpoint `GET /api/reviews/{booksy_id}?page=N&per_page=50` w bextract service na tytanie, pageuje reviews z Booksy UI, zwraca JSON array review records w tym samym shape co `raw_response.business.reviews[]`. Rate-limited żeby nie dostać blokady, logs w bextract. Post-deploy smoke test: GET dla Beauty4ever booksy_id zwraca strony po 50 reviews do łącznej liczby 2359. **PARKED — osobna praca w bextract repo, nie w bagent.**
 
 ## Wzorzec dispatchowania agents team
 
