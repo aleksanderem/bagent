@@ -121,6 +121,18 @@ class CompetitorReportRequest(BaseModel):
     selectedCompetitorBooksyIds: list[int] | None = None  # for manual mode
 
 
+class VersumSuggestRequest(BaseModel):
+    """AI-powered Versum service mapping suggestions.
+
+    Takes salon services (name + description + category) and the Booksy
+    treatment taxonomy, returns suggested treatmentId matches with confidence.
+    Synchronous endpoint — no background job needed since MiniMax calls are
+    fast (~2-5s per batch of 25 services).
+    """
+    services: list[dict]  # [{name, description?, categoryName?}]
+    taxonomy: list[dict]  # [{treatmentId, treatmentName, parentCategoryName?, occurrenceCount}]
+
+
 # --- Auth ---
 
 
@@ -308,6 +320,34 @@ async def start_competitor_refresh(
     })
     background_tasks.add_task(run_competitor_refresh_job, job_id, request)
     return AnalyzeResponse(jobId=job_id)
+
+
+@app.post(
+    "/api/versum/suggest-mappings",
+    dependencies=[Depends(verify_api_key)],
+)
+async def suggest_versum_mappings(request: VersumSuggestRequest) -> dict:
+    """AI-powered Versum service mapping suggestions via MiniMax.
+
+    Synchronous endpoint — processes services in batches of 25, returns
+    suggestions directly (no background job). Typical latency: 2-8s for
+    200 services (~8 MiniMax calls).
+    """
+    from pipelines.versum_suggest import suggest_versum_mappings as _suggest
+
+    if not request.services:
+        return {"suggestions": [], "serviceCount": 0, "suggestionCount": 0}
+
+    try:
+        suggestions = await _suggest(request.services, request.taxonomy)
+        return {
+            "suggestions": suggestions,
+            "serviceCount": len(request.services),
+            "suggestionCount": len(suggestions),
+        }
+    except Exception as e:
+        logger.error("Versum suggest-mappings failed: %s", e, exc_info=True)
+        raise HTTPException(status_code=500, detail=f"AI suggestion failed: {str(e)[:200]}")
 
 
 @app.get("/api/jobs")
