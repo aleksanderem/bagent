@@ -1548,3 +1548,312 @@ class SupabaseService:
             if sid is not None and bsid is not None and tid is not None:
                 out[(int(sid), int(bsid))] = int(tid)
         return out
+
+    # ---- Competitor synthesis helpers (Comp Etap 5) ---------------------
+
+    async def get_competitor_report_by_id(
+        self, report_id: int,
+    ) -> dict[str, Any] | None:
+        """Load a competitor_reports row by its integer id.
+
+        Returns None if not found. Used by Comp Etap 5 synthesis to read the
+        header (subject_salon_id, tier, metadata) before loading children.
+        """
+        try:
+            res = (
+                self.client.table("competitor_reports")
+                .select("*")
+                .eq("id", report_id)
+                .limit(1)
+                .execute()
+            )
+        except Exception as e:
+            logger.warning("Failed to load competitor_reports id=%s: %s", report_id, e)
+            return None
+        if not res.data:
+            return None
+        return res.data[0]
+
+    async def get_competitor_matches(self, report_id: int) -> list[dict[str, Any]]:
+        """Load competitor_matches for a report with salon identity fields.
+
+        Returns a list enriched with booksy_id / salon_name / reviews_rank /
+        reviews_count / distance_km so the synthesis prompt can render human
+        context (not just salon PKs).
+        """
+        try:
+            res = (
+                self.client.table("competitor_matches")
+                .select(
+                    "id,competitor_salon_id,composite_score,bucket,"
+                    "counts_in_aggregates,similarity_scores,distance_km,sort_order"
+                )
+                .eq("report_id", report_id)
+                .order("sort_order", desc=False)
+                .execute()
+            )
+        except Exception as e:
+            logger.warning("Failed to load competitor_matches for report=%s: %s", report_id, e)
+            return []
+
+        matches = list(res.data or [])
+        if not matches:
+            return []
+
+        salon_ids = [m["competitor_salon_id"] for m in matches if m.get("competitor_salon_id")]
+        if not salon_ids:
+            return matches
+
+        try:
+            salon_res = (
+                self.client.table("salons")
+                .select("id,booksy_id,name,reviews_rank,reviews_count,city")
+                .in_("id", salon_ids)
+                .execute()
+            )
+        except Exception as e:
+            logger.warning("Failed to load salons for competitor_matches: %s", e)
+            return matches
+
+        salon_by_id: dict[int, dict[str, Any]] = {
+            s["id"]: s for s in (salon_res.data or []) if s.get("id") is not None
+        }
+        for m in matches:
+            sid = m.get("competitor_salon_id")
+            s = salon_by_id.get(sid) if sid is not None else None
+            if s:
+                m["booksy_id"] = s.get("booksy_id")
+                m["salon_name"] = s.get("name")
+                m["reviews_rank"] = s.get("reviews_rank")
+                m["reviews_count"] = s.get("reviews_count")
+                m["city"] = s.get("city")
+        return matches
+
+    async def get_competitor_pricing_comparisons(
+        self, report_id: int,
+    ) -> list[dict[str, Any]]:
+        """Load competitor_pricing_comparisons rows for a report."""
+        try:
+            res = (
+                self.client.table("competitor_pricing_comparisons")
+                .select("*")
+                .eq("report_id", report_id)
+                .execute()
+            )
+        except Exception as e:
+            logger.warning(
+                "Failed to load competitor_pricing_comparisons for report=%s: %s",
+                report_id, e,
+            )
+            return []
+        return list(res.data or [])
+
+    async def get_competitor_service_gaps(
+        self, report_id: int,
+    ) -> list[dict[str, Any]]:
+        """Load competitor_service_gaps rows for a report, ordered by sort_order."""
+        try:
+            res = (
+                self.client.table("competitor_service_gaps")
+                .select("*")
+                .eq("report_id", report_id)
+                .order("sort_order", desc=False)
+                .execute()
+            )
+        except Exception as e:
+            logger.warning(
+                "Failed to load competitor_service_gaps for report=%s: %s",
+                report_id, e,
+            )
+            return []
+        return list(res.data or [])
+
+    async def get_competitor_dimensional_scores(
+        self, report_id: int,
+    ) -> list[dict[str, Any]]:
+        """Load competitor_dimensional_scores rows for a report, ordered."""
+        try:
+            res = (
+                self.client.table("competitor_dimensional_scores")
+                .select("*")
+                .eq("report_id", report_id)
+                .order("sort_order", desc=False)
+                .execute()
+            )
+        except Exception as e:
+            logger.warning(
+                "Failed to load competitor_dimensional_scores for report=%s: %s",
+                report_id, e,
+            )
+            return []
+        return list(res.data or [])
+
+    async def get_subject_salon_context(self, salon_id: int) -> dict[str, Any]:
+        """Load identity fields for the subject salon (for prompt context).
+
+        Joins salons to business_categories to resolve the primary category name.
+        Returns a dict with salon_name, salon_city, primary_category_name,
+        reviews_count, reviews_rank, total_services.
+        """
+        context: dict[str, Any] = {
+            "salon_id": salon_id,
+            "salon_name": None,
+            "salon_city": None,
+            "primary_category_name": None,
+            "reviews_count": 0,
+            "reviews_rank": 0.0,
+            "total_services": 0,
+        }
+        try:
+            salon_res = (
+                self.client.table("salons")
+                .select("id,name,city,reviews_count,reviews_rank,primary_category_id")
+                .eq("id", salon_id)
+                .limit(1)
+                .execute()
+            )
+        except Exception as e:
+            logger.warning("Failed to load subject salon %s: %s", salon_id, e)
+            return context
+        if not salon_res.data:
+            return context
+        s = salon_res.data[0]
+        context["salon_name"] = s.get("name")
+        context["salon_city"] = s.get("city")
+        context["reviews_count"] = s.get("reviews_count") or 0
+        context["reviews_rank"] = float(s.get("reviews_rank") or 0.0)
+
+        primary_cat_id = s.get("primary_category_id")
+        if primary_cat_id:
+            try:
+                cat_res = (
+                    self.client.table("business_categories")
+                    .select("id,name")
+                    .eq("id", primary_cat_id)
+                    .limit(1)
+                    .execute()
+                )
+                if cat_res.data:
+                    context["primary_category_name"] = cat_res.data[0].get("name")
+            except Exception as e:
+                logger.warning("Failed to load primary category %s: %s", primary_cat_id, e)
+
+        # Total services from the latest scrape
+        try:
+            latest_scrape_res = (
+                self.client.table("salon_scrapes")
+                .select("id")
+                .eq("booksy_id", s.get("id"))
+                .order("scraped_at", desc=True)
+                .limit(1)
+                .execute()
+            )
+            # salon_scrapes is keyed by booksy_id, but salons.id != booksy_id —
+            # refetch using the salons.booksy_id column if needed.
+        except Exception:
+            latest_scrape_res = None
+
+        try:
+            booksy_res = (
+                self.client.table("salons")
+                .select("booksy_id")
+                .eq("id", salon_id)
+                .limit(1)
+                .execute()
+            )
+            if booksy_res.data:
+                booksy_id = booksy_res.data[0].get("booksy_id")
+                if booksy_id is not None:
+                    scrape_res = (
+                        self.client.table("salon_scrapes")
+                        .select("id")
+                        .eq("booksy_id", booksy_id)
+                        .order("scraped_at", desc=True)
+                        .limit(1)
+                        .execute()
+                    )
+                    if scrape_res.data:
+                        scrape_id = scrape_res.data[0]["id"]
+                        count_res = (
+                            self.client.table("salon_scrape_services")
+                            .select("id", count="exact")
+                            .eq("scrape_id", scrape_id)
+                            .eq("is_active", True)
+                            .execute()
+                        )
+                        # supabase-py returns count in response.count
+                        count_attr = getattr(count_res, "count", None)
+                        if isinstance(count_attr, int):
+                            context["total_services"] = count_attr
+                        elif count_res.data:
+                            context["total_services"] = len(count_res.data)
+        except Exception as e:
+            logger.debug("Failed to resolve total_services for salon %s: %s", salon_id, e)
+        return context
+
+    async def update_competitor_report_data(
+        self, report_id: int, data: dict[str, Any],
+    ) -> None:
+        """Merge `data` into competitor_reports.report_data (jsonb column).
+
+        Used by Comp Etap 5 to write positioning_narrative + swot without
+        wiping the rest of the report_data shape (if any previous synthesis
+        wrote extra fields).
+        """
+        try:
+            existing = (
+                self.client.table("competitor_reports")
+                .select("report_data")
+                .eq("id", report_id)
+                .limit(1)
+                .execute()
+            )
+        except Exception as e:
+            logger.warning(
+                "Failed to read report_data for competitor_reports id=%s: %s",
+                report_id, e,
+            )
+            existing = None
+
+        current: dict[str, Any] = {}
+        if existing and existing.data:
+            raw = existing.data[0].get("report_data")
+            if isinstance(raw, dict):
+                current = raw
+
+        merged = {**current, **data}
+
+        self.client.table("competitor_reports").update(
+            {"report_data": merged},
+        ).eq("id", report_id).execute()
+
+    async def delete_competitor_recommendations(self, report_id: int) -> None:
+        """Wipe previous recommendations for a report (idempotent re-synthesis)."""
+        try:
+            self.client.table("competitor_recommendations").delete().eq(
+                "report_id", report_id,
+            ).execute()
+        except Exception as e:
+            logger.warning(
+                "Failed to delete competitor_recommendations for report=%s: %s",
+                report_id, e,
+            )
+
+    async def insert_competitor_recommendations(
+        self, rows: list[dict[str, Any]],
+    ) -> int:
+        """Batch-insert competitor_recommendations rows. Returns inserted count."""
+        if not rows:
+            return 0
+        try:
+            result = (
+                self.client.table("competitor_recommendations")
+                .insert(rows)
+                .execute()
+            )
+        except Exception as e:
+            logger.error(
+                "Failed to insert %d competitor_recommendations: %s", len(rows), e,
+            )
+            raise
+        return len(result.data or [])

@@ -107,6 +107,20 @@ class CompetitorRefreshRequest(BaseModel):
     userId: str
 
 
+class CompetitorReportRequest(BaseModel):
+    """Comp Etap 2 — generate a new competitor report for an audit.
+
+    Runs the full competitor report pipeline: selection (Etap 1) +
+    deterministic analysis (Etap 4) + AI synthesis (Etap 5) + persistence.
+    """
+    auditId: str
+    userId: str
+    tier: str = "base"  # "base" | "premium"
+    selectionMode: str = "auto"  # "auto" | "manual"
+    targetCount: int = 5
+    selectedCompetitorBooksyIds: list[int] | None = None  # for manual mode
+
+
 # --- Auth ---
 
 
@@ -227,6 +241,31 @@ async def start_summary(
         "competitorCount": len(request.selectedCompetitorIds),
     })
     background_tasks.add_task(run_summary_job, job_id, request)
+    return AnalyzeResponse(jobId=job_id)
+
+
+@app.post(
+    "/api/competitor/report", status_code=202, response_model=AnalyzeResponse,
+    dependencies=[Depends(verify_api_key)],
+)
+async def start_competitor_report(
+    request: CompetitorReportRequest, background_tasks: BackgroundTasks
+) -> AnalyzeResponse:
+    """Comp Etap 2 — generate a full competitor report for an audit.
+
+    Runs the top-level competitor report pipeline in the background:
+    selection (Etap 1) + deterministic analysis (Etap 4) + AI synthesis
+    (Etap 5). Webhooks to Convex for progress / complete / fail.
+    """
+    job_id = str(uuid.uuid4())
+    store.create_job(job_id, request.auditId, meta={
+        "type": "competitor_report",
+        "userId": request.userId,
+        "tier": request.tier,
+        "selectionMode": request.selectionMode,
+        "targetCount": request.targetCount,
+    })
+    background_tasks.add_task(run_competitor_report_job, job_id, request)
     return AnalyzeResponse(jobId=job_id)
 
 
@@ -858,6 +897,113 @@ async def run_competitor_refresh_job(
         store.notify_status(job)
     finally:
         pipeline_logger.removeHandler(handler)
+
+
+async def run_competitor_report_job(
+    job_id: str, request: CompetitorReportRequest,
+) -> None:
+    """Comp Etap 2 background job — full competitor report pipeline.
+
+    Chains Etap 4 (compute_competitor_analysis) + Etap 5
+    (synthesize_competitor_insights) via pipelines.competitor_report.
+    Progress and completion are reported to Convex via the /api/competitor/
+    report/{progress,complete,fail} webhooks.
+    """
+    from services.convex import ConvexClient
+
+    job = store.get_job(job_id)
+    if job is None:
+        return
+    job.mark_running()
+    store.notify_status(job)
+
+    convex = ConvexClient()
+    # Attach a log handler for both competitor_analysis and competitor_synthesis
+    analysis_logger = logging.getLogger("pipelines.competitor_analysis")
+    synthesis_logger = logging.getLogger("pipelines.competitor_synthesis")
+    report_logger = logging.getLogger("pipelines.competitor_report")
+    handler = _JobLogHandler(job, store)
+    analysis_logger.addHandler(handler)
+    synthesis_logger.addHandler(handler)
+    report_logger.addHandler(handler)
+
+    class CancelledError(Exception):
+        pass
+
+    try:
+        from pipelines.competitor_report import run_competitor_report_pipeline
+
+        async def on_progress(progress: int, message: str) -> None:
+            if job.cancel_requested:
+                raise CancelledError("Job cancelled by user")
+            job.add_log("info", message, progress=progress)
+            store.notify_progress(job)
+            try:
+                await convex.competitor_report_progress(
+                    request.auditId, progress, message,
+                )
+            except Exception as e:
+                logger.warning("Convex competitor_report_progress failed: %s", e)
+
+        result = await run_competitor_report_pipeline(
+            audit_id=request.auditId,
+            tier=request.tier,
+            selection_mode=request.selectionMode,
+            target_count=request.targetCount,
+            convex_user_id=request.userId,
+            on_progress=on_progress,
+        )
+
+        job.mark_completed()
+        store.notify_status(job)
+        logger.info(
+            "Competitor report job %s completed: report_id=%s, "
+            "swot=%s, recs=%s, fallback=%s",
+            job_id, result["report_id"],
+            result["swot_item_count"], result["recommendation_count"],
+            result["used_fallback"],
+        )
+
+        stats = {
+            "reportId": result["report_id"],
+            "swotItemCount": result["swot_item_count"],
+            "recommendationCount": result["recommendation_count"],
+            "usedFallback": result["used_fallback"],
+        }
+        try:
+            await convex.competitor_report_complete(
+                audit_id=request.auditId,
+                report_id=result["report_id"],
+                stats=stats,
+            )
+        except Exception as e:
+            logger.warning(
+                "competitor_report_complete webhook failed (job still completed): %s",
+                e,
+            )
+
+    except CancelledError:
+        logger.info("Competitor report job %s cancelled", job_id)
+        job.mark_cancelled()
+        store.notify_status(job)
+        try:
+            await convex.competitor_report_fail(request.auditId, "Cancelled by user")
+        except Exception:
+            pass
+    except Exception as e:
+        logger.error(
+            "Competitor report job %s failed: %s", job_id, e, exc_info=True,
+        )
+        job.mark_failed(str(e))
+        store.notify_status(job)
+        try:
+            await convex.competitor_report_fail(request.auditId, str(e))
+        except Exception:
+            pass
+    finally:
+        analysis_logger.removeHandler(handler)
+        synthesis_logger.removeHandler(handler)
+        report_logger.removeHandler(handler)
 
 
 if __name__ == "__main__":

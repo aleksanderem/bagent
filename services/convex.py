@@ -241,3 +241,30 @@ class ConvexClient:
         if error_number is not None:
             payload["errorNumber"] = error_number
         await self._post_webhook("/api/audit/summary/fail", payload)
+
+    # Competitor report webhooks (Comp Etap 2 wiring)
+    async def competitor_report_progress(
+        self, audit_id: str, progress: int, message: str,
+    ) -> None:
+        await self._post_webhook("/api/competitor/report/progress", {
+            "auditId": audit_id,
+            "progress": progress,
+            "progressMessage": message,
+        })
+
+    async def competitor_report_complete(
+        self, audit_id: str, report_id: int, stats: dict[str, Any],
+    ) -> None:
+        await self._post_webhook("/api/competitor/report/complete", {
+            "auditId": audit_id,
+            "reportId": report_id,
+            "stats": stats,
+        })
+
+    async def competitor_report_fail(
+        self, audit_id: str, error_message: str,
+    ) -> None:
+        await self._post_webhook("/api/competitor/report/fail", {
+            "auditId": audit_id,
+            "errorMessage": error_message,
+        })
