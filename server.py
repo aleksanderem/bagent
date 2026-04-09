@@ -91,6 +91,22 @@ class SummaryRequest(BaseModel):
     selectedCompetitorIds: list[int] = []
 
 
+class CompetitorRefreshRequest(BaseModel):
+    """Comp Etap 7 — refresh an existing premium competitor report.
+
+    Triggered by the Convex cron `refresh-premium-competitor-reports`
+    every 6 hours for each report where tier='premium' and
+    next_refresh_at has passed. The pipeline re-reads the latest
+    `salon_scrapes` for each competitor, computes a new key_metrics
+    snapshot, appends a row to `competitor_report_snapshots`, detects
+    price changes vs the previous snapshot, and updates
+    `competitor_reports.next_refresh_at` based on refresh_schedule.
+    """
+    reportId: int
+    auditId: str
+    userId: str
+
+
 # --- Auth ---
 
 
@@ -211,6 +227,47 @@ async def start_summary(
         "competitorCount": len(request.selectedCompetitorIds),
     })
     background_tasks.add_task(run_summary_job, job_id, request)
+    return AnalyzeResponse(jobId=job_id)
+
+
+@app.post(
+    "/api/competitor/report/refresh", status_code=202, response_model=AnalyzeResponse,
+    dependencies=[Depends(verify_api_key)],
+)
+async def start_competitor_refresh(
+    request: CompetitorRefreshRequest, background_tasks: BackgroundTasks
+) -> AnalyzeResponse:
+    """Comp Etap 7 — refresh an existing premium competitor report.
+
+    Loads the existing report + its competitor_matches from Supabase,
+    re-reads the latest salon_scrapes for each competitor, computes a new
+    key_metrics snapshot, inserts a row into competitor_report_snapshots,
+    detects significant price changes (>5%) vs the previous snapshot,
+    and updates competitor_reports.next_refresh_at based on refresh_schedule.
+
+    Idempotent: if a refresh job is already running for the same reportId,
+    this request skips the duplicate run.
+    """
+    for job in store.list_jobs():
+        if (
+            job.status == "running"
+            and isinstance(job.meta, dict)
+            and job.meta.get("type") == "competitor_refresh"
+            and job.meta.get("reportId") == request.reportId
+        ):
+            logger.info(
+                "Skipping competitor refresh for report %s — already running as job %s",
+                request.reportId, job.job_id,
+            )
+            return AnalyzeResponse(jobId=job.job_id, status="already_running")
+
+    job_id = str(uuid.uuid4())
+    store.create_job(job_id, request.auditId, meta={
+        "type": "competitor_refresh",
+        "reportId": request.reportId,
+        "userId": request.userId,
+    })
+    background_tasks.add_task(run_competitor_refresh_job, job_id, request)
     return AnalyzeResponse(jobId=job_id)
 
 
@@ -738,6 +795,67 @@ async def run_summary_job(job_id: str, request: SummaryRequest) -> None:
             await convex.summary_fail(request.auditId, str(e))
         except Exception:
             pass
+    finally:
+        pipeline_logger.removeHandler(handler)
+
+
+async def run_competitor_refresh_job(
+    job_id: str, request: CompetitorRefreshRequest
+) -> None:
+    """Comp Etap 7 background job — refresh an existing premium competitor report.
+
+    Loads the report + matches, calls pipelines.competitor_report_refresh:
+    run_refresh which re-reads latest salon_scrapes for each competitor,
+    appends a snapshot row, detects price changes, and updates
+    next_refresh_at. Failures are best-effort — no user-facing webhook yet
+    (premium subscription is not live).
+    """
+    job = store.get_job(job_id)
+    if job is None:
+        return
+    job.mark_running()
+    store.notify_status(job)
+
+    pipeline_logger = logging.getLogger("pipelines.competitor_report_refresh")
+    handler = _JobLogHandler(job, store)
+    pipeline_logger.addHandler(handler)
+
+    class CancelledError(Exception):
+        pass
+
+    try:
+        from pipelines.competitor_report_refresh import run_refresh
+
+        async def on_progress(progress: int, message: str) -> None:
+            if job.cancel_requested:
+                raise CancelledError("Job cancelled by user")
+            job.add_log("info", message, progress=progress)
+            store.notify_progress(job)
+
+        result = await run_refresh(
+            report_id=request.reportId,
+            on_progress=on_progress,
+        )
+
+        job.mark_completed()
+        store.notify_status(job)
+        logger.info(
+            "Competitor refresh job %s completed: report=%s, snapshot_date=%s, "
+            "next_refresh_at=%s, significant_changes=%s",
+            job_id, request.reportId, result.get("snapshot_date"),
+            result.get("next_refresh_at"), result.get("significant_change_count", 0),
+        )
+
+    except CancelledError:
+        logger.info("Competitor refresh job %s cancelled", job_id)
+        job.mark_cancelled()
+        store.notify_status(job)
+    except Exception as e:
+        logger.error(
+            "Competitor refresh job %s failed: %s", job_id, e, exc_info=True,
+        )
+        job.mark_failed(str(e))
+        store.notify_status(job)
     finally:
         pipeline_logger.removeHandler(handler)
 
