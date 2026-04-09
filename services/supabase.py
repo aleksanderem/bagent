@@ -1,6 +1,7 @@
 """Supabase client for reading scraped data and writing reports."""
 
 import logging
+from typing import Any
 
 from supabase import Client, ClientOptions, create_client
 
@@ -1112,3 +1113,438 @@ class SupabaseService:
             if isinstance(cid, int) and isinstance(fw, (int, float)):
                 result_map[cid] = int(fw)
         return result_map
+
+    # ---- Competitor analysis write helpers (Comp Etap 4) ----------------
+
+    async def create_competitor_report(
+        self,
+        *,
+        convex_audit_id: str,
+        convex_user_id: str,
+        subject_salon_id: int,
+        tier: str,
+        selection_mode: str,
+        competitor_count: int,
+        metadata: dict | None = None,
+    ) -> int:
+        """Upsert a competitor_reports row and return its integer id.
+
+        Uses UPSERT on convex_audit_id so re-running Comp Etap 4 for the
+        same audit replaces the previous report header atomically. Children
+        (competitor_matches, pricing_comparisons, service_gaps,
+        dimensional_scores) are FK-cascaded via ON DELETE CASCADE — caller
+        should delete them explicitly before re-inserting to keep the DB
+        clean (we do this in compute_competitor_analysis).
+        """
+        row = {
+            "convex_audit_id": convex_audit_id,
+            "convex_user_id": convex_user_id,
+            "subject_salon_id": subject_salon_id,
+            "report_data": {},
+            "status": "processing",
+            "competitor_count": competitor_count,
+            "tier": tier,
+            "selection_mode": selection_mode,
+            "metadata": metadata or {},
+        }
+        result = (
+            self.client.table("competitor_reports")
+            .upsert(row, on_conflict="convex_audit_id")
+            .execute()
+        )
+        if not result.data:
+            raise ValueError(
+                f"Failed to create competitor_reports row for audit={convex_audit_id}"
+            )
+        return int(result.data[0]["id"])
+
+    async def delete_competitor_report_children(self, report_id: int) -> None:
+        """Delete all child rows for a competitor_reports row.
+
+        Called before re-computing so idempotent re-runs don't duplicate
+        matches/pricing/gaps/dimensions. The ON DELETE CASCADE also handles
+        this automatically, but we delete explicitly because we keep the
+        header row (upsert by convex_audit_id).
+        """
+        for table in (
+            "competitor_matches",
+            "competitor_pricing_comparisons",
+            "competitor_service_gaps",
+            "competitor_dimensional_scores",
+        ):
+            try:
+                self.client.table(table).delete().eq("report_id", report_id).execute()
+            except Exception as e:
+                logger.warning(
+                    "Failed to delete %s for report_id=%s: %s", table, report_id, e,
+                )
+
+    async def insert_competitor_matches(
+        self, report_id: int, candidates: list[Any],
+    ) -> int:
+        """Insert competitor_matches rows from a list of CompetitorCandidate.
+
+        The `composite_score` column is numeric(5,4) (max 9.9999) so we
+        divide Etap 1's raw 0-100ish score by 100 before persisting. The
+        display layer multiplies by 100 to show the human-readable score.
+        """
+        if not candidates:
+            return 0
+        rows = []
+        for idx, c in enumerate(candidates):
+            rows.append({
+                "report_id": report_id,
+                "competitor_salon_id": c.salon_id,
+                "composite_score": round(float(c.composite_score) / 100.0, 4),
+                "bucket": c.bucket,
+                "counts_in_aggregates": bool(c.counts_in_aggregates),
+                "similarity_scores": c.similarity_scores or {},
+                "distance_km": round(float(c.distance_km), 3),
+                "sort_order": idx,
+            })
+        result = self.client.table("competitor_matches").insert(rows).execute()
+        return len(result.data or [])
+
+    async def insert_competitor_pricing_comparisons(
+        self, rows: list[dict],
+    ) -> int:
+        """Batch-insert competitor_pricing_comparisons rows. Returns count."""
+        if not rows:
+            return 0
+        result = (
+            self.client.table("competitor_pricing_comparisons").insert(rows).execute()
+        )
+        return len(result.data or [])
+
+    async def insert_competitor_service_gaps(self, rows: list[dict]) -> int:
+        """Batch-insert competitor_service_gaps rows. Returns count."""
+        if not rows:
+            return 0
+        result = self.client.table("competitor_service_gaps").insert(rows).execute()
+        return len(result.data or [])
+
+    async def insert_competitor_dimensional_scores(self, rows: list[dict]) -> int:
+        """Batch-insert competitor_dimensional_scores rows. Returns count."""
+        if not rows:
+            return 0
+        result = (
+            self.client.table("competitor_dimensional_scores").insert(rows).execute()
+        )
+        return len(result.data or [])
+
+    async def update_competitor_report_status(
+        self,
+        report_id: int,
+        status: str,
+        metadata_extras: dict | None = None,
+    ) -> None:
+        """Update competitor_reports.status. Optionally merge extras into metadata."""
+        payload: dict[str, Any] = {"status": status}
+        if metadata_extras:
+            # Fetch existing metadata first so we merge not replace
+            existing = (
+                self.client.table("competitor_reports")
+                .select("metadata")
+                .eq("id", report_id)
+                .limit(1)
+                .execute()
+            )
+            current_meta = {}
+            if existing.data and isinstance(existing.data[0].get("metadata"), dict):
+                current_meta = existing.data[0]["metadata"]
+            payload["metadata"] = {**current_meta, **metadata_extras}
+        self.client.table("competitor_reports").update(payload).eq(
+            "id", report_id,
+        ).execute()
+
+    # ---- Competitor analysis read helpers (Comp Etap 4) -----------------
+
+    async def get_subject_full_data(self, convex_audit_id: str) -> dict[str, Any]:
+        """Load all data needed to compute dimensional scores for the subject.
+
+        Returns {scrape, services, reviews, top_services, open_hours} where
+        `scrape` has the flat columns plus structural fields extracted from
+        raw_response (open_hours, facebook_url, etc.) when the top-level
+        column is NULL (common for audit-triggered scrapes that ran before
+        Etap 0.1 extended the column set).
+
+        Raises ValueError when no scrape exists for the audit_id.
+        """
+        scrape_res = (
+            self.client.table("salon_scrapes")
+            .select(
+                "id,booksy_id,salon_name,salon_description,salon_lat,salon_lng,"
+                "reviews_count,reviews_rank,partner_system,scraped_at,website,"
+                "facebook_url,instagram_url,booking_max_modification_time,"
+                "booking_max_lead_time,deposit_cancel_days,pos_pay_by_app,"
+                "pos_market_pay,has_online_services,has_online_vouchers,"
+                "has_safety_rules,salon_subdomain,raw_response,primary_category_id,"
+                "business_categories"
+            )
+            .eq("convex_audit_id", convex_audit_id)
+            .order("scraped_at", desc=True)
+            .limit(1)
+            .execute()
+        )
+        if not scrape_res.data:
+            raise ValueError(f"No salon_scrapes for convex_audit_id={convex_audit_id}")
+        scrape = scrape_res.data[0]
+        scrape_id = scrape["id"]
+        booksy_id = scrape["booksy_id"]
+
+        # Translate booksy_id → salons.id (internal) for joins to salon_reviews etc.
+        salon_res = (
+            self.client.table("salons")
+            .select("id,description,reviews_count,reviews_rank,"
+                    "facebook_url,instagram_url,website,phone,email")
+            .eq("booksy_id", booksy_id)
+            .limit(1)
+            .execute()
+        )
+        salon_row = salon_res.data[0] if salon_res.data else {}
+        salon_id = salon_row.get("id") if salon_row else None
+
+        # Enrich the scrape dict: when a structured column is NULL, try to
+        # pull it out of raw_response.business (the audit flow didn't
+        # populate these columns, only the batch ingester did).
+        self._enrich_scrape_from_raw(scrape)
+
+        # Prefer salons.* values when scrape's version is missing
+        for key in ("reviews_count", "reviews_rank", "facebook_url", "instagram_url", "website"):
+            if scrape.get(key) in (None, "") and salon_row.get(key):
+                scrape[key] = salon_row[key]
+        if not scrape.get("salon_description") and salon_row.get("description"):
+            scrape["salon_description"] = salon_row["description"]
+
+        services = self._load_services_for_scrape(scrape_id)
+        reviews = self._load_reviews_for_salon(salon_id) if salon_id else []
+        top_services = self._load_top_services_for_salon(salon_id) if salon_id else []
+
+        return {
+            "salon_id": salon_id,
+            "booksy_id": booksy_id,
+            "scrape": scrape,
+            "services": services,
+            "reviews": reviews,
+            "top_services": top_services,
+            "partner_system": scrape.get("partner_system") or "native",
+        }
+
+    async def get_competitor_full_data(
+        self, booksy_ids: list[int],
+    ) -> dict[int, dict[str, Any]]:
+        """Bulk-load full data for multiple competitors keyed by booksy_id.
+
+        For each booksy_id, returns the same shape as get_subject_full_data
+        (minus convex_audit_id linkage). Uses the LATEST salon_scrapes row
+        per booksy_id (ordered by scraped_at DESC). Salons that have no
+        scrape are absent from the result map.
+        """
+        if not booksy_ids:
+            return {}
+
+        # Fetch ALL scrapes for these booksy_ids (may be multiple per salon)
+        # then pick the most recent one client-side.
+        scrape_res = (
+            self.client.table("salon_scrapes")
+            .select(
+                "id,booksy_id,salon_name,salon_description,salon_lat,salon_lng,"
+                "reviews_count,reviews_rank,partner_system,scraped_at,website,"
+                "facebook_url,instagram_url,booking_max_modification_time,"
+                "booking_max_lead_time,deposit_cancel_days,pos_pay_by_app,"
+                "pos_market_pay,has_online_services,has_online_vouchers,"
+                "has_safety_rules,salon_subdomain,raw_response,primary_category_id,"
+                "business_categories"
+            )
+            .in_("booksy_id", booksy_ids)
+            .order("scraped_at", desc=True)
+            .execute()
+        )
+        latest_per_booksy: dict[int, dict[str, Any]] = {}
+        for row in scrape_res.data or []:
+            bid = row.get("booksy_id")
+            if bid is not None and bid not in latest_per_booksy:
+                latest_per_booksy[bid] = row
+
+        # Resolve booksy_id → salons.id for reviews/top_services joins
+        salon_res = (
+            self.client.table("salons")
+            .select("id,booksy_id,description,reviews_count,reviews_rank,"
+                    "facebook_url,instagram_url,website")
+            .in_("booksy_id", booksy_ids)
+            .execute()
+        )
+        booksy_to_salon: dict[int, dict[str, Any]] = {}
+        for s in salon_res.data or []:
+            if s.get("booksy_id") is not None:
+                booksy_to_salon[s["booksy_id"]] = s
+
+        result: dict[int, dict[str, Any]] = {}
+        for bid, scrape in latest_per_booksy.items():
+            scrape_id = scrape["id"]
+            salon_row = booksy_to_salon.get(bid) or {}
+            salon_id = salon_row.get("id")
+
+            self._enrich_scrape_from_raw(scrape)
+
+            # Fallback to salons.* for missing fields
+            for key in ("reviews_count", "reviews_rank", "facebook_url", "instagram_url", "website"):
+                if scrape.get(key) in (None, "") and salon_row.get(key):
+                    scrape[key] = salon_row[key]
+            if not scrape.get("salon_description") and salon_row.get("description"):
+                scrape["salon_description"] = salon_row["description"]
+
+            services = self._load_services_for_scrape(scrape_id)
+            reviews = self._load_reviews_for_salon(salon_id) if salon_id else []
+            top_services = self._load_top_services_for_salon(salon_id) if salon_id else []
+
+            result[bid] = {
+                "salon_id": salon_id,
+                "booksy_id": bid,
+                "scrape": scrape,
+                "services": services,
+                "reviews": reviews,
+                "top_services": top_services,
+                "partner_system": scrape.get("partner_system") or "native",
+            }
+        return result
+
+    def _enrich_scrape_from_raw(self, scrape: dict[str, Any]) -> None:
+        """Mutate scrape in-place: pull structured fields out of raw_response
+        when the top-level columns are NULL.
+
+        The batch ingester populates the extra columns directly, but
+        audit-flow scrapes (written by the convex pipeline) leave them NULL.
+        This helper is the single place where we fall back to raw_response
+        so callers see a consistent shape either way. Also extracts
+        `open_hours` which is not a materialized column at all.
+        """
+        raw = scrape.get("raw_response")
+        if not isinstance(raw, dict):
+            scrape["open_hours"] = []
+            return
+        business = raw.get("business") if isinstance(raw.get("business"), dict) else raw
+
+        # open_hours is a list of {day_of_week, open_from, open_till}
+        scrape["open_hours"] = business.get("open_hours") or []
+
+        # Backfill NULL structured columns from raw_response
+        def _fill_if_none(column_name: str, raw_key: str) -> None:
+            if scrape.get(column_name) is None:
+                val = business.get(raw_key)
+                if val is not None:
+                    scrape[column_name] = val
+
+        _fill_if_none("booking_max_modification_time", "booking_max_modification_time")
+        _fill_if_none("booking_max_lead_time", "booking_max_lead_time")
+        deposit = business.get("deposit_cancel_time")
+        if scrape.get("deposit_cancel_days") is None and isinstance(deposit, dict):
+            scrape["deposit_cancel_days"] = deposit.get("days")
+        _fill_if_none("pos_pay_by_app", "pos_pay_by_app_enabled")
+        _fill_if_none("has_online_services", "has_online_services")
+        _fill_if_none("has_online_vouchers", "has_online_vouchers")
+        _fill_if_none("has_safety_rules", "has_safety_rules")
+        _fill_if_none("website", "website")
+        _fill_if_none("facebook_url", "facebook_link")
+        _fill_if_none("instagram_url", "instagram_link")
+
+        if scrape.get("salon_description") is None:
+            desc = business.get("description")
+            if desc:
+                scrape["salon_description"] = desc
+
+        # Drop raw_response from the dict so downstream code doesn't carry
+        # megabytes of unused JSON. The structured columns above are all
+        # that the dimension computation needs.
+        scrape.pop("raw_response", None)
+
+    def _load_services_for_scrape(self, scrape_id: Any) -> list[dict[str, Any]]:
+        """Load all salon_scrape_services rows for a given scrape_id."""
+        try:
+            res = (
+                self.client.table("salon_scrape_services")
+                .select(
+                    "id,category_name,name,booksy_treatment_id,booksy_service_id,"
+                    "treatment_name,treatment_parent_id,price_grosze,is_from_price,"
+                    "duration_minutes,is_active,is_promo,omnibus_price_grosze,"
+                    "description,description_type,photos,combo_type,variants"
+                )
+                .eq("scrape_id", scrape_id)
+                .execute()
+            )
+        except Exception as e:
+            logger.warning("Failed to load services for scrape %s: %s", scrape_id, e)
+            return []
+        return list(res.data or [])
+
+    def _load_reviews_for_salon(self, salon_id: int) -> list[dict[str, Any]]:
+        """Load salon_reviews rows for a salon_id. Small sample (3-50 rows)."""
+        try:
+            res = (
+                self.client.table("salon_reviews")
+                .select(
+                    "id,rank,review_text,reply_content,review_created_at,"
+                    "services,staff"
+                )
+                .eq("salon_id", salon_id)
+                .order("review_created_at", desc=True)
+                .limit(100)
+                .execute()
+            )
+        except Exception as e:
+            logger.warning("Failed to load reviews for salon %s: %s", salon_id, e)
+            return []
+        return list(res.data or [])
+
+    def _load_top_services_for_salon(self, salon_id: int) -> list[dict[str, Any]]:
+        """Load salon_top_services rows for a salon_id."""
+        try:
+            res = (
+                self.client.table("salon_top_services")
+                .select(
+                    "booksy_service_id,booksy_treatment_id,name,category_name,"
+                    "variants,sort_order"
+                )
+                .eq("salon_id", salon_id)
+                .order("sort_order", desc=False)
+                .execute()
+            )
+        except Exception as e:
+            logger.warning("Failed to load top_services for salon %s: %s", salon_id, e)
+            return []
+        return list(res.data or [])
+
+    async def get_versum_mappings(
+        self, salon_ids: list[int],
+    ) -> dict[tuple[int, int], int]:
+        """Return user-provided Versum service mappings.
+
+        Key: (salon_id, booksy_service_id). Value: mapped_treatment_id.
+        Used by Comp Etap 4 to resolve treatment_id for Versum salons
+        whose services have NULL booksy_treatment_id. Missing mappings
+        simply result in those services being skipped from pricing
+        comparisons (graceful degradation per plan doc).
+        """
+        if not salon_ids:
+            return {}
+        try:
+            res = (
+                self.client.table("versum_service_mappings")
+                .select("salon_id,booksy_service_id,mapped_treatment_id")
+                .in_("salon_id", salon_ids)
+                .execute()
+            )
+        except Exception as e:
+            logger.warning(
+                "Failed to load versum_service_mappings for salons=%s: %s",
+                salon_ids, e,
+            )
+            return {}
+        out: dict[tuple[int, int], int] = {}
+        for row in res.data or []:
+            sid = row.get("salon_id")
+            bsid = row.get("booksy_service_id")
+            tid = row.get("mapped_treatment_id")
+            if sid is not None and bsid is not None and tid is not None:
+                out[(int(sid), int(bsid))] = int(tid)
+        return out
