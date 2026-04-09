@@ -367,11 +367,30 @@ async def run_audit_pipeline(
     # BAGENT #2 (cennik) as a deterministic input instead of re-running the
     # category agent loop there.
     await progress(93, "Składanie raportu końcowego...")
+    # Ensure quickWins always has content — MiniMax sometimes returns empty.
+    # Deterministic fallback: derive from top critical/major issues with actionable fixes.
+    quick_wins = structure_result.get("quickWins", [])
+    if not quick_wins and all_issues:
+        for iss in all_issues:
+            if len(quick_wins) >= 5:
+                break
+            severity = iss.get("severity", "minor")
+            if severity in ("critical", "major") and iss.get("fix"):
+                quick_wins.append({
+                    "action": iss["fix"],
+                    "effort": "low" if severity == "critical" else "medium",
+                    "impact": "high" if severity == "critical" else "medium",
+                    "example": iss.get("example", ""),
+                    "affectedServices": iss.get("affectedCount", 0),
+                })
+        if quick_wins:
+            logger.info("[%s] Generated %d deterministic quickWins from issues (MiniMax returned none)", audit_id, len(quick_wins))
+
     report: dict[str, Any] = {
         "version": "v2", "totalScore": total_score, "scoreBreakdown": score_breakdown,
         "stats": stats, "topIssues": all_issues, "transformations": transformations,
         "missingSeoKeywords": structure_result.get("missingSeoKeywords", []),
-        "quickWins": structure_result.get("quickWins", []),
+        "quickWins": quick_wins,
         "industryComparison": industry_comparison,
         "summary": summary.strip(),
         "categoryMapping": category_mapping,
