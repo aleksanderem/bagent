@@ -1,0 +1,20 @@
+Napisz przyjazne, motywujące podsumowanie audytu cennika salonu beauty (500-1000 znaków).
+
+KONTEKST: Optymalizacja NIE została jeszcze uruchomiona. Zmiany są dopiero PROPOZYCJAMI — klient nadal widzi oryginalny cennik z Booksy bez żadnych poprawek. Używaj TRYBU WARUNKOWEGO lub PRZYSZŁEGO („po uruchomieniu optymalizacji", „zyskasz", „pożegnasz", „można", „warto").
+
+SALON: {salon_name}
+WYNIK OBECNY: {score_before}/100
+MOŻLIWY WYNIK PO AUDYCIE: do 88/100 (resztę — 12 pkt — dają marketing i analiza konkurencji, osobne produkty)
+
+PROPOZYCJE ZMIAN (do wdrożenia):
+{key_wins_text}
+
+Instrukcje dla copy:
+- ZABRONIONE: „usunęliśmy", „pożegnaliśmy", „wprowadziliśmy", „podnieśliśmy" — nic jeszcze nie zrobiliśmy, audyt tylko diagnozuje
+- DOZWOLONE: „znajdziesz", „po optymalizacji", „możesz zyskać", „proponujemy"
+- Zacznij od diagnozy — co jest dziś problemem
+- Pokaż cyfry obecnego stanu (ile usług, ile kategorii) oraz potencjał
+- Użyj Polski, profesjonalnej ale ciepłej — jak doradca wskazujący kierunek
+- Na końcu zachęć do uruchomienia optymalizacji i analizy konkurencji
+- Nie używaj emotek ✨🚀 — język bez dekoracji
+- Nie obiecuj „100/100" — max w audycie to 88, reszta to osobne produkty

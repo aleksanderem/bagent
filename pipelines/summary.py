@@ -182,19 +182,52 @@ async def _generate_summary_text(
     score_after: int,
     key_wins: list[dict[str, Any]],
     stats: dict[str, Any],
+    optimization_applied: bool,
 ) -> str:
-    """Generate the narrative summary text via MiniMax."""
-    summary_prompt = _load_prompt("audit_summary.txt")
+    """Generate the narrative summary text via MiniMax.
+
+    When `optimization_applied` is True, the narrative uses past tense
+    ("usunęliśmy symbole, cennik robi wrażenie") because the optimized
+    pricelist exists and the user can see it. When False, the narrative
+    uses conditional/future ("po uruchomieniu optymalizacji pożegnasz
+    symbole") so the tone matches reality — nothing has changed yet.
+
+    This prevents the jarring mismatch where the audit summary chats
+    about cleaned-up symbols while the user looks at a pricelist that
+    still contains them.
+    """
+    prompt_name = (
+        "audit_summary_applied.txt"
+        if optimization_applied
+        else "audit_summary_pending.txt"
+    )
+    summary_prompt = _load_prompt(prompt_name)
     if not summary_prompt:
-        summary_prompt = (
-            "Napisz przyjazne, motywujące podsumowanie audytu cennika salonu "
-            "beauty. 500-1000 znaków. Zaznacz największe wygrane i zachęć do "
-            "wdrożenia zmian.\n\n"
-            "SALON: {salon_name}\n"
-            "WYNIK PRZED: {score_before}/100\n"
-            "WYNIK PO: {score_after}/100\n"
-            "TOP WYGRANE:\n{key_wins_text}"
-        )
+        # Fallback inline — keeps the feature working until both prompt
+        # files are deployed.
+        if optimization_applied:
+            summary_prompt = (
+                "Napisz przyjazne, motywujące podsumowanie audytu cennika "
+                "salonu beauty (500-1000 znaków). Użyj TRYBU PRZESZŁEGO — "
+                "zmiany zostały wprowadzone. Zaznacz największe wygrane.\n\n"
+                "SALON: {salon_name}\n"
+                "WYNIK PRZED: {score_before}/100\n"
+                "WYNIK PO: {score_after}/100\n"
+                "TOP WYGRANE (już wdrożone):\n{key_wins_text}"
+            )
+        else:
+            summary_prompt = (
+                "Napisz przyjazne, motywujące podsumowanie audytu cennika "
+                "salonu beauty (500-1000 znaków). UWAGA: optymalizacja "
+                "NIE została jeszcze uruchomiona — użyj TRYBU WARUNKOWEGO "
+                "lub PRZYSZŁEGO ('po uruchomieniu optymalizacji', 'zyskasz', "
+                "'pożegnasz'). Nie pisz że coś 'usunęliśmy' — jeszcze nie. "
+                "Zaznacz POTENCJAŁ zmian.\n\n"
+                "SALON: {salon_name}\n"
+                "WYNIK OBECNY: {score_before}/100\n"
+                "MAKSYMALNY WYNIK AUDYTU: 88/100 (12 pkt rezerwy na marketing + konkurencję)\n"
+                "PROPOZYCJE ZMIAN (do wdrożenia):\n{key_wins_text}"
+            )
 
     key_wins_text = "\n".join(
         f"- {w['title']}: {w['before']} → {w['after']}"
@@ -211,18 +244,32 @@ async def _generate_summary_text(
         descriptions_added=str(stats.get("descriptionsAdded", 0)),
     )
 
-    try:
-        return await client.generate_text(
-            full_prompt,
-            system="Jesteś ekspertem od audytów cenników beauty i copywriterem.",
+    system_msg = (
+        "Jesteś ekspertem od audytów cenników beauty i copywriterem. "
+        + (
+            "Optymalizacja ZOSTAŁA już wdrożona — opisuj w trybie przeszłym."
+            if optimization_applied
+            else "Optymalizacja NIE została jeszcze wdrożona — opisuj w trybie "
+            "warunkowym/przyszłym, nigdy nie pisz 'usunęliśmy' ani 'pożegnaliśmy'."
         )
+    )
+
+    try:
+        return await client.generate_text(full_prompt, system=system_msg)
     except Exception as e:
         logger.warning("Summary text generation failed: %s", e)
+        if optimization_applied:
+            return (
+                f"Audyt salonu {salon_name or 'Twój salon'} zakończony. "
+                f"Wynik: {score_after}/100. "
+                f"Zaktualizowano {stats.get('namesImproved', 0)} nazw usług i "
+                f"dodano/poprawiono {stats.get('descriptionsAdded', 0)} opisów."
+            )
         return (
             f"Audyt salonu {salon_name or 'Twój salon'} zakończony. "
-            f"Wynik: {score_after}/100. "
-            f"Zaktualizowano {stats.get('namesImproved', 0)} nazw usług i "
-            f"dodano/poprawiono {stats.get('descriptionsAdded', 0)} opisów."
+            f"Obecny wynik: {score_before}/100. "
+            f"Uruchom optymalizację, aby wdrożyć zidentyfikowane zmiany — "
+            f"w tym propozycje poprawy nazw i opisów usług."
         )
 
 
@@ -324,7 +371,17 @@ async def run_summary_pipeline(
     )
 
     # ── Step 4: Generate narrative summary text ──
-    await progress(75, "Generowanie narracji podsumowania...")
+    # optimization_applied drives tense selection in the prompt — past vs
+    # conditional. When BAGENT #2 (cennik) has not produced an optimized
+    # pricelist, we must NOT narrate "usunęliśmy symbole" because the user
+    # still sees the original pricelist with all the symbols intact.
+    optimization_applied = bool(optimized_data) and int(
+        optimized_data.get("total_changes", 0) or 0
+    ) > 0
+    await progress(
+        75,
+        f"Generowanie narracji podsumowania (optimization_applied={optimization_applied})...",
+    )
     t0 = time.time()
     summary_text = await _generate_summary_text(
         client=client,
@@ -333,6 +390,7 @@ async def run_summary_pipeline(
         score_after=score_after,
         key_wins=key_wins,
         stats=stats,
+        optimization_applied=optimization_applied,
     )
     dt = int((time.time() - t0) * 1000)
     await progress(85, f"Narracja wygenerowana: {len(summary_text)} znaków ({dt}ms)")

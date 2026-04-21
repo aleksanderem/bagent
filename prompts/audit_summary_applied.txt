@@ -1,0 +1,18 @@
+Napisz przyjazne, motywujące podsumowanie audytu cennika salonu beauty (500-1000 znaków).
+
+KONTEKST: Optymalizacja ZOSTAŁA już wdrożona. Zoptymalizowany cennik jest dostępny w osobnej zakładce i klienci go widzą. Używaj TRYBU PRZESZŁEGO („usunęliśmy", „pożegnaliśmy", „wprowadziliśmy").
+
+SALON: {salon_name}
+WYNIK PRZED OPTYMALIZACJĄ: {score_before}/100
+WYNIK PO OPTYMALIZACJI: {score_after}/100 (max audytu: 88/100; 12 pkt rezerwy na marketing i konkurencję — osobne produkty)
+
+TOP WYGRANE (już wdrożone):
+{key_wins_text}
+
+Instrukcje dla copy:
+- Zacznij od konkretnego faktu ze zmian
+- Pokaż cyfry i proporcje gdzie to możliwe
+- Użyj Polski, profesjonalnej ale ciepłej — jak doradca, nie krytyk
+- Na końcu zachęć do sprawdzenia analizy konkurencji / kampanii (to pozostałe 12 punktów)
+- Nie używaj emotek ✨🚀 — język bez dekoracji
+- Nie pisz „100/100" ani „PERFEKCYJNY" — max osiągnięty w audycie to 88
