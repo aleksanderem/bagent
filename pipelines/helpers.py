@@ -317,3 +317,47 @@ def _get_attr(obj: Any, key: str, default: Any = None) -> Any:
     if isinstance(obj, dict):
         return obj.get(key, default)
     return getattr(obj, key, default)
+
+
+# ---------------------------------------------------------------------------
+# Score capping
+# ---------------------------------------------------------------------------
+
+# Max score a base Booksy audit can produce. The remaining ~12 points are
+# reserved for marketing spend, paid campaigns, and full competitor
+# positioning — pillars measured by separate paid products (Kampanie,
+# Raport Konkurencji). Keeping the audit below 100/100 prevents misleading
+# users into thinking a clean Booksy profile equals a fully optimized
+# business.
+MAX_AUDIT_SCORE = 88
+
+
+def cap_audit_score(
+    total_score: int,
+    critical_count: int,
+    major_count: int,
+    all_issues_count: int,
+) -> int:
+    """Apply issue-based caps plus the MAX_AUDIT_SCORE hard ceiling.
+
+    Rules:
+      - 3+ critical issues → cap 60
+      - 1+ critical issue  → cap 75
+      - 1+ major issue     → cap 85
+      - any issue          → cap 95
+      - hard ceiling       → MAX_AUDIT_SCORE (88) for all audits
+    """
+    capped = total_score
+    if critical_count >= 3 and capped > 60:
+        capped = 60
+    elif critical_count > 0 and capped > 75:
+        capped = 75
+    elif major_count > 0 and capped > 85:
+        capped = 85
+    elif all_issues_count > 0 and capped > 95:
+        capped = 95
+
+    if capped > MAX_AUDIT_SCORE:
+        capped = MAX_AUDIT_SCORE
+
+    return capped

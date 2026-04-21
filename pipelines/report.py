@@ -155,6 +155,7 @@ async def run_audit_pipeline(
         calculate_completeness_score,
         calculate_seo_score,
         calculate_ux_score,
+        cap_audit_score,
     )
     from services.minimax import MiniMaxClient
     from services.supabase import SupabaseService
@@ -273,15 +274,12 @@ async def run_audit_pipeline(
     critical_count = sum(1 for i in all_issues if i.get("severity") == "critical")
     major_count = sum(1 for i in all_issues if i.get("severity") == "major")
     original_score = total_score
-    if critical_count >= 3 and total_score > 60:
-        total_score = 60
-    elif critical_count > 0 and total_score > 75:
-        total_score = 75
-    elif major_count > 0 and total_score > 85:
-        total_score = 85
-    elif all_issues and total_score > 95:
-        total_score = 95
-
+    total_score = cap_audit_score(
+        total_score=total_score,
+        critical_count=critical_count,
+        major_count=major_count,
+        all_issues_count=len(all_issues),
+    )
     cap_msg = f" (capped from {original_score})" if total_score != original_score else ""
     transformations = naming_result["transformations"] + desc_result["transformations"]
     await progress(78, f"Score: {total_score}/100{cap_msg} | {critical_count} critical, {major_count} major | {len(transformations)} transformacji")
