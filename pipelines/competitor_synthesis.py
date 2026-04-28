@@ -257,13 +257,34 @@ async def synthesize_competitor_insights(
             dimensions=dimensions,
         )
 
-    # ── Step 4: Persist narrative + SWOT into competitor_reports.report_data ──
+    # ── Step 4: Persist narrative + SWOT + deterministic enrichment ──
+    # Frontend rich UI (BEAUTY_AUDIT competitor report) needs more fields than
+    # narrative+swot. We build them deterministically from data already loaded
+    # for the prompt — no extra Supabase calls, no AI hallucination risk.
+    # This closes the adapter "fallback" gap for: competitorProfiles,
+    # priceComparison, scoreBreakdown, opportunities.
+    await progress(75, "Budowanie deterministycznych pól dla frontendu...")
+    competitor_profiles = _build_competitor_profiles(matches)
+    price_comparison = _build_price_comparison(pricing)
+    score_breakdown = _build_score_breakdown(dimensions)
+    opportunities = _build_opportunities(gaps, pricing)
+
+    logger.info(
+        "Etap 5 enrichment built: profiles=%d, pricing=%d, score_areas=%d, opportunities=%d",
+        len(competitor_profiles), len(price_comparison),
+        len(score_breakdown), len(opportunities),
+    )
+
     await progress(80, "Persystencja narratywu + SWOT + rekomendacji...")
     await service.update_competitor_report_data(
         report_id,
         {
             "positioning_narrative": insights["positioning_narrative"],
             "swot": insights["swot"],
+            "competitorProfiles": competitor_profiles,
+            "priceComparison": price_comparison,
+            "scoreBreakdown": score_breakdown,
+            "opportunities": opportunities,
         },
     )
 
@@ -863,3 +884,242 @@ def _deterministic_fallback(
         },
         "recommendations": recommendations,
     }
+
+
+# ---------------------------------------------------------------------------
+# Deterministic enrichment builders for frontend rich UI
+# ---------------------------------------------------------------------------
+#
+# These helpers reshape data already loaded from competitor_matches /
+# competitor_pricing_comparisons / competitor_service_gaps /
+# competitor_dimensional_scores into the JSON shape expected by the
+# BEAUTY_AUDIT competitor report rich UI (components/results/competitor/rich).
+#
+# Pure functions, no external IO, no AI — adding fields the adapter currently
+# falls back to fixture for: competitorProfiles, priceComparison,
+# scoreBreakdown, opportunities. Each helper logs counts so the bagent log
+# tells QA exactly what landed in report_data.
+
+
+_BUCKET_FALLBACK = "cluster"
+_DEFAULT_OVERLAP = 0.5
+
+
+def _build_competitor_profiles(
+    matches: list[dict[str, Any]],
+) -> list[dict[str, Any]]:
+    """Build competitorProfiles array consumed by the rich report's competitor
+    radar / list views.
+
+    Maps each competitor_matches row (already enriched with salon_name /
+    reviews_rank / reviews_count / city / distance_km / bucket /
+    composite_score by SupabaseService.get_competitor_matches) into the flat
+    profile dict the React adapter looks for in reportData.competitorProfiles.
+
+    Schema (matches what mapCompetitorsFromBagent in
+    components/results/competitor/rich/adaptToReportData.ts reads):
+      id, name, city, distance_km, composite_score, bucket, reviews_rank,
+      reviews_count, salon_id, booksy_id.
+
+    The React adapter has a fallback for lat/lng (Warsaw default) when those
+    are missing, so we don't fetch them here — keeps this helper pure and
+    cheap. Future enrichment (lat/lng/top_services/working_hours) should go
+    through a separate Supabase batch fetch in the synthesis pipeline.
+    """
+    profiles: list[dict[str, Any]] = []
+    for idx, m in enumerate(matches):
+        salon_id = m.get("competitor_salon_id")
+        booksy_id = m.get("booksy_id")
+        if salon_id is None and booksy_id is None:
+            continue
+        profiles.append({
+            "id": int(salon_id) if salon_id is not None else int(booksy_id or 0),
+            "salon_id": int(salon_id) if salon_id is not None else None,
+            "booksy_id": int(booksy_id) if booksy_id is not None else None,
+            "name": m.get("salon_name") or f"Konkurent {idx + 1}",
+            "city": m.get("city") or "—",
+            "distance_km": float(m.get("distance_km") or 0.0),
+            "bucket": m.get("bucket") or _BUCKET_FALLBACK,
+            "composite_score": float(m.get("composite_score") or 0.0),
+            "reviews_rank": float(m.get("reviews_rank") or 0.0),
+            "reviews_count": int(m.get("reviews_count") or 0),
+            "overlap": _DEFAULT_OVERLAP,
+        })
+    logger.info(
+        "_build_competitor_profiles: built %d profiles from %d matches",
+        len(profiles), len(matches),
+    )
+    return profiles
+
+
+def _build_price_comparison(
+    pricing: list[dict[str, Any]],
+) -> list[dict[str, Any]]:
+    """Build priceComparison array — flat per-service rows for the rich UI's
+    pricing table / sliders.
+
+    competitor_pricing_comparisons rows already contain everything the
+    adapter (mapPricingFromBagent) needs: treatment_name, subject_price_grosze,
+    market_min/p25/p50/p75/max grosze, deviation_pct, sample_size,
+    recommended_action. We pass them through verbatim, only sorting by
+    absolute deviation so the most interesting rows render first.
+    """
+    rows: list[dict[str, Any]] = []
+    for p in pricing:
+        if p.get("treatment_name") is None:
+            continue
+        rows.append({
+            "id": p.get("id"),
+            "treatment_name": p.get("treatment_name"),
+            "category": p.get("category"),
+            "subject_price_grosze": p.get("subject_price_grosze"),
+            "market_min_grosze": p.get("market_min_grosze"),
+            "market_p25_grosze": p.get("market_p25_grosze"),
+            "market_median_grosze": p.get("market_median_grosze"),
+            "market_p75_grosze": p.get("market_p75_grosze"),
+            "market_max_grosze": p.get("market_max_grosze"),
+            "subject_percentile": p.get("subject_percentile"),
+            "deviation_pct": p.get("deviation_pct"),
+            "sample_size": p.get("sample_size"),
+            "subject_duration_minutes": p.get("subject_duration_minutes"),
+            "recommended_action": p.get("recommended_action") or "hold",
+        })
+    rows.sort(
+        key=lambda r: abs(float(r.get("deviation_pct") or 0)),
+        reverse=True,
+    )
+    logger.info(
+        "_build_price_comparison: built %d rows from %d pricing comparisons",
+        len(rows), len(pricing),
+    )
+    return rows
+
+
+# Category labels rendered in the score breakdown card (Polish, salon-owner
+# friendly). Keys must match dimensional_scores.category values.
+_SCORE_CATEGORY_LABELS: dict[str, str] = {
+    "content_quality": "Jakość treści",
+    "pricing": "Cennik",
+    "operations": "Operacje",
+    "digital_maturity": "Dojrzałość cyfrowa",
+    "social_proof": "Społeczny dowód słuszności",
+    "portfolio": "Portfolio usług",
+}
+
+
+def _build_score_breakdown(
+    dimensions: list[dict[str, Any]],
+) -> list[dict[str, Any]]:
+    """Build scoreBreakdown — one row per dimensional category, with the
+    average subject_percentile across that category.
+
+    The rich UI's "score breakdown" card expects `{area, score, marketAvg}`
+    rows; we map percentile → score (0-100 scale already), and surface a
+    constant 50 for marketAvg (since percentile is by definition relative to
+    the market median = 50). Zero-dimension categories are skipped.
+    """
+    by_cat: dict[str, list[dict[str, Any]]] = {}
+    for d in dimensions:
+        cat = d.get("category") or "other"
+        by_cat.setdefault(cat, []).append(d)
+
+    rows: list[dict[str, Any]] = []
+    for cat, items in by_cat.items():
+        if not items:
+            continue
+        percentiles = [
+            float(d.get("subject_percentile") or 50.0) for d in items
+        ]
+        avg = sum(percentiles) / max(1, len(percentiles))
+        rows.append({
+            "area": _SCORE_CATEGORY_LABELS.get(cat, cat.replace("_", " ").title()),
+            "category": cat,
+            "score": round(avg, 1),
+            "marketAvg": 50.0,
+            "dimensionCount": len(items),
+        })
+    # Stable order — alphabetical by area
+    rows.sort(key=lambda r: r["area"])
+    logger.info(
+        "_build_score_breakdown: built %d areas from %d dimensions",
+        len(rows), len(dimensions),
+    )
+    return rows
+
+
+def _build_opportunities(
+    gaps: list[dict[str, Any]],
+    pricing: list[dict[str, Any]],
+) -> list[dict[str, Any]]:
+    """Build opportunities — top market gaps the salon could exploit.
+
+    Two sources:
+      1. service_gaps with gap_type='missing' and high popularity_score
+         → "Add this service" opportunity
+      2. pricing rows with deviation_pct < -15 (subject priced well below
+         market) → "Raise price" opportunity
+
+    Returns up to 8 items sorted by estimated impact descending. Each item
+    has {kind, title, detail, impactGrosze (estimated), evidenceCount, area}.
+    """
+    items: list[dict[str, Any]] = []
+
+    for g in gaps:
+        if g.get("gap_type") != "missing":
+            continue
+        popularity = float(g.get("popularity_score") or 0)
+        comp_count = int(g.get("competitor_count") or 0)
+        avg_price = int(g.get("avg_price_grosze") or 0)
+        if popularity < 30 and comp_count < 2:
+            continue
+        # Rough impact estimate: avg_price × competitor_count × 0.5 (half of
+        # the competitor base is a reasonable share-of-wallet capture rate).
+        estimated_impact = int(avg_price * comp_count * 0.5)
+        items.append({
+            "kind": "missing_service",
+            "area": "Portfolio",
+            "title": f"Dodaj usługę: {g.get('treatment_name') or 'Brak nazwy'}",
+            "detail": (
+                f"{comp_count} konkurent(ów) ma tę usługę w cenniku, popularność {popularity:.0f}/100. "
+                f"Średnia cena rynku: {avg_price / 100:.0f} zł."
+            ),
+            "impactGrosze": estimated_impact,
+            "evidenceCount": comp_count,
+            "popularityScore": popularity,
+            "sourceGapId": g.get("id"),
+        })
+
+    for p in pricing:
+        deviation = float(p.get("deviation_pct") or 0)
+        if deviation > -15:  # only interesting when underpriced by >15%
+            continue
+        median = int(p.get("market_median_grosze") or 0)
+        subject = int(p.get("subject_price_grosze") or 0)
+        if median <= 0 or subject <= 0:
+            continue
+        # Conservative impact: 60% of the gap × 30 sessions/month assumption
+        per_session_gain = (median - subject)
+        if per_session_gain <= 0:
+            continue
+        estimated_impact = int(per_session_gain * 0.6 * 30)
+        items.append({
+            "kind": "underpriced",
+            "area": "Cennik",
+            "title": f"Podnieś cenę: {p.get('treatment_name') or 'Usługa'}",
+            "detail": (
+                f"Twoja cena {subject / 100:.0f} zł jest {abs(deviation):.0f}% poniżej "
+                f"mediany rynku ({median / 100:.0f} zł, próba {p.get('sample_size') or 0} konkurentów)."
+            ),
+            "impactGrosze": estimated_impact,
+            "evidenceCount": int(p.get("sample_size") or 0),
+            "deviationPct": deviation,
+            "sourcePricingId": p.get("id"),
+        })
+
+    items.sort(key=lambda x: x.get("impactGrosze") or 0, reverse=True)
+    items = items[:8]
+    logger.info(
+        "_build_opportunities: built %d items (%d gaps + %d pricing rows examined)",
+        len(items), len(gaps), len(pricing),
+    )
+    return items
