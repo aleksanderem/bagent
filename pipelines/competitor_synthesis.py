@@ -275,6 +275,9 @@ async def synthesize_competitor_insights(
     )
     customer_journey = _build_customer_journey(subject_context, dimensions, pricing)
     funnel = _build_funnel(subject_context, pricing)
+    action_plan = _build_action_plan(
+        insights.get("recommendations") or [], gaps,
+    )
 
     # calendarComparison needs an extra Supabase fetch (open_hours from
     # salon_scrapes for subject + best competitor). Best-effort: log and
@@ -288,13 +291,14 @@ async def synthesize_competitor_insights(
     logger.info(
         "Etap 5 enrichment built: profiles=%d, pricing=%d, score_areas=%d, "
         "opportunities=%d, seasonalCalendar=%s, shortStrategy=%d, longStrategy=%d, "
-        "customerJourney=%d, funnel=%s, calendarComparison=%s",
+        "customerJourney=%d, funnel=%s, calendarComparison=%s, actionPlan=%d",
         len(competitor_profiles), len(price_comparison),
         len(score_breakdown), len(opportunities),
         "12 months" if seasonal_calendar else "skipped",
         len(short_strategy), len(long_strategy),
         len(customer_journey), "yes" if funnel else "skipped",
         "yes" if calendar_comparison else "skipped",
+        len(action_plan),
     )
 
     await progress(80, "Persystencja narratywu + SWOT + rekomendacji...")
@@ -310,6 +314,7 @@ async def synthesize_competitor_insights(
         "longStrategy": long_strategy,
         "customerJourney": customer_journey,
         "funnel": funnel,
+        "actionPlan": action_plan,
     }
     if calendar_comparison is not None:
         persistence_payload["calendarComparison"] = calendar_comparison
@@ -1803,3 +1808,152 @@ async def _build_calendar_comparison(
         subject_total, competitor_name, competitor_total, competitor_total - subject_total,
     )
     return result
+
+
+# ---------------------------------------------------------------------------
+# actionPlan — 14-day diagnose+execute plan derived from recommendations + gaps
+# ---------------------------------------------------------------------------
+#
+# Frontend's actionPlan is a flat list of 14 tasks (one per day) with
+# {day, phase, task, effort, owner, category}. We slot 2 diagnostic tasks at
+# the start, then thread top recommendations into the cennik (days 3-4) /
+# treść (days 5-7) / usługi (days 8-10) / promocja+operacje (days 11-12) /
+# mierzenie (days 13-14) phases. When a phase has no matching rec, fall back
+# to a generic task.
+
+_DEFAULT_TASK_PER_PHASE: dict[str, dict[str, str]] = {
+    "Diagnoza":  {"task": "Przeczytaj raport z zespołem i wybierz priorytety", "effort": "1h",  "owner": "Ty + zespół", "category": "planning"},
+    "Cennik":    {"task": "Przejrzyj cennik pod kątem usług odbiegających od rynku", "effort": "30 min", "owner": "Ty", "category": "pricing"},
+    "Treść":     {"task": "Dopisz opisy do najpopularniejszych usług", "effort": "2h",  "owner": "Ty + copywriter", "category": "content"},
+    "Usługi":    {"task": "Zaplanuj wprowadzenie nowej usługi z oferty rynku", "effort": "3h", "owner": "Ty + zespół", "category": "services"},
+    "Promocja":  {"task": "Uruchom akcję promocyjną w mediach społecznościowych", "effort": "1h", "owner": "Social media", "category": "marketing"},
+    "Operacje":  {"task": "Otwórz pilotażowo wieczorne sloty w piątek/sobotę", "effort": "30 min", "owner": "Ty", "category": "operations"},
+    "Mierzenie": {"task": "Tygodniowy przegląd wyników z zespołem", "effort": "1h", "owner": "Ty + zespół", "category": "planning"},
+}
+
+
+def _shorten_action_title(title: str, max_len: int = 80) -> str:
+    t = title.strip()
+    if len(t) <= max_len:
+        return t
+    return t[: max_len - 1] + "…"
+
+
+def _category_to_phase(category: str) -> str:
+    c = (category or "").lower()
+    if c == "pricing": return "Cennik"
+    if c == "content": return "Treść"
+    if c == "services": return "Usługi"
+    if c == "operations": return "Operacje"
+    if c == "social": return "Promocja"
+    return "Diagnoza"
+
+
+def _build_action_plan(
+    recommendations: list[dict[str, Any]],
+    gaps: list[dict[str, Any]],
+) -> list[dict[str, Any]]:
+    """Build the 14-day actionPlan flat list.
+
+    Days 1-2: Diagnoza
+    Days 3-4: Cennik (top pricing recs, fallback to generic if none)
+    Days 5-7: Treść (top content recs)
+    Days 8-10: Usługi (top services recs OR top missing gaps)
+    Days 11-12: Promocja + Operacje
+    Days 13-14: Mierzenie
+
+    Each task references a real recommendation when possible, with
+    `actionDescription` truncated to fit the UI. Generic fallback tasks fill
+    days where no relevant recommendation exists.
+    """
+    by_cat: dict[str, list[dict[str, Any]]] = {}
+    for r in recommendations:
+        cat = (r.get("category") or "").lower()
+        by_cat.setdefault(cat, []).append(r)
+
+    plan: list[dict[str, Any]] = []
+
+    def _add_day(day: int, phase: str, task: str, *, effort: str = "1h", owner: str = "Ty", category: str = "planning"):
+        plan.append({
+            "day": day,
+            "phase": phase,
+            "task": task,
+            "effort": effort,
+            "owner": owner,
+            "category": category,
+        })
+
+    def _next_rec(cat: str) -> dict[str, Any] | None:
+        pool = by_cat.get(cat) or []
+        return pool.pop(0) if pool else None
+
+    # Days 1-2: Diagnoza (always generic — operator setup)
+    _add_day(1, "Diagnoza", "Przeczytaj raport z zespołem", effort="1h", owner="Ty + zespół", category="planning")
+    _add_day(2, "Diagnoza", "Wybierz 3 akcje do wdrożenia z listy rekomendacji", effort="30 min", owner="Ty", category="planning")
+
+    # Days 3-4: Cennik
+    for day in (3, 4):
+        rec = _next_rec("pricing")
+        if rec:
+            _add_day(day, "Cennik", _shorten_action_title(rec.get("actionTitle") or "Aktualizacja cennika"), effort="30 min", owner="Ty", category="pricing")
+        else:
+            d = _DEFAULT_TASK_PER_PHASE["Cennik"]
+            _add_day(day, "Cennik", d["task"], effort=d["effort"], owner=d["owner"], category=d["category"])
+
+    # Days 5-7: Treść
+    for day in (5, 6, 7):
+        rec = _next_rec("content")
+        if rec:
+            _add_day(day, "Treść", _shorten_action_title(rec.get("actionTitle") or "Praca nad treściami"), effort="2h", owner="Ty + copywriter", category="content")
+        else:
+            d = _DEFAULT_TASK_PER_PHASE["Treść"]
+            _add_day(day, "Treść", d["task"], effort=d["effort"], owner=d["owner"], category=d["category"])
+
+    # Days 8-10: Usługi (recs first, then top missing gaps)
+    missing_gaps = [g for g in gaps if g.get("gap_type") == "missing"]
+    missing_gaps.sort(key=lambda g: float(g.get("popularity_score") or 0), reverse=True)
+    gap_idx = 0
+    for day in (8, 9, 10):
+        rec = _next_rec("services")
+        if rec:
+            _add_day(day, "Usługi", _shorten_action_title(rec.get("actionTitle") or "Rozbudowa usług"), effort="3h", owner="Ty + zespół", category="services")
+        elif gap_idx < len(missing_gaps):
+            g = missing_gaps[gap_idx]
+            gap_idx += 1
+            name = g.get("treatment_name") or "Nowa usługa"
+            _add_day(day, "Usługi", _shorten_action_title(f"Wprowadź usługę: {name}"), effort="3h", owner="Ty + zespół", category="services")
+        else:
+            d = _DEFAULT_TASK_PER_PHASE["Usługi"]
+            _add_day(day, "Usługi", d["task"], effort=d["effort"], owner=d["owner"], category=d["category"])
+
+    # Day 11: Promocja
+    rec = _next_rec("social")
+    if rec:
+        _add_day(11, "Promocja", _shorten_action_title(rec.get("actionTitle") or "Akcja w social media"), effort="1h", owner="Social media", category="marketing")
+    else:
+        d = _DEFAULT_TASK_PER_PHASE["Promocja"]
+        _add_day(11, "Promocja", d["task"], effort=d["effort"], owner=d["owner"], category=d["category"])
+
+    # Day 12: Operacje
+    rec = _next_rec("operations")
+    if rec:
+        _add_day(12, "Operacje", _shorten_action_title(rec.get("actionTitle") or "Optymalizacja godzin/operacji"), effort="30 min", owner="Ty", category="operations")
+    else:
+        d = _DEFAULT_TASK_PER_PHASE["Operacje"]
+        _add_day(12, "Operacje", d["task"], effort=d["effort"], owner=d["owner"], category=d["category"])
+
+    # Days 13-14: Mierzenie
+    _add_day(13, "Mierzenie", "Sprawdź pierwsze efekty wdrożonych akcji", effort="30 min", owner="Ty", category="planning")
+    _add_day(14, "Mierzenie", "Tygodniowy przegląd: co zadziałało, co zmienić", effort="1h", owner="Ty + zespół", category="planning")
+
+    logger.info(
+        "_build_action_plan: built 14 days from %d recs (pricing=%d, content=%d, services=%d, ops=%d, social=%d) + %d missing gaps",
+        len(recommendations),
+        len(by_cat.get("pricing") or []) + 0,  # +0 because we already popped
+        len(by_cat.get("content") or []) + 0,
+        len(by_cat.get("services") or []) + 0,
+        len(by_cat.get("operations") or []) + 0,
+        len(by_cat.get("social") or []) + 0,
+        len(missing_gaps),
+    )
+    return plan
