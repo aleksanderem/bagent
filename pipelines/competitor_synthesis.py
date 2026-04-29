@@ -268,25 +268,52 @@ async def synthesize_competitor_insights(
     price_comparison = _build_price_comparison(pricing)
     score_breakdown = _build_score_breakdown(dimensions)
     opportunities = _build_opportunities(gaps, pricing)
+    seasonal_calendar = _build_seasonal_calendar(subject_context)
+    short_strategy = _build_short_strategy(insights.get("recommendations") or [])
+    long_strategy = _build_long_strategy(
+        insights.get("recommendations") or [], gaps, dimensions,
+    )
+    customer_journey = _build_customer_journey(subject_context, dimensions, pricing)
+    funnel = _build_funnel(subject_context, pricing)
+
+    # calendarComparison needs an extra Supabase fetch (open_hours from
+    # salon_scrapes for subject + best competitor). Best-effort: log and
+    # fall back to None if scrapes unavailable.
+    calendar_comparison = await _build_calendar_comparison(
+        subject_salon_id=report["subject_salon_id"],
+        matches=matches,
+        service=service,
+    )
 
     logger.info(
-        "Etap 5 enrichment built: profiles=%d, pricing=%d, score_areas=%d, opportunities=%d",
+        "Etap 5 enrichment built: profiles=%d, pricing=%d, score_areas=%d, "
+        "opportunities=%d, seasonalCalendar=%s, shortStrategy=%d, longStrategy=%d, "
+        "customerJourney=%d, funnel=%s, calendarComparison=%s",
         len(competitor_profiles), len(price_comparison),
         len(score_breakdown), len(opportunities),
+        "12 months" if seasonal_calendar else "skipped",
+        len(short_strategy), len(long_strategy),
+        len(customer_journey), "yes" if funnel else "skipped",
+        "yes" if calendar_comparison else "skipped",
     )
 
     await progress(80, "Persystencja narratywu + SWOT + rekomendacji...")
-    await service.update_competitor_report_data(
-        report_id,
-        {
-            "positioning_narrative": insights["positioning_narrative"],
-            "swot": insights["swot"],
-            "competitorProfiles": competitor_profiles,
-            "priceComparison": price_comparison,
-            "scoreBreakdown": score_breakdown,
-            "opportunities": opportunities,
-        },
-    )
+    persistence_payload: dict[str, Any] = {
+        "positioning_narrative": insights["positioning_narrative"],
+        "swot": insights["swot"],
+        "competitorProfiles": competitor_profiles,
+        "priceComparison": price_comparison,
+        "scoreBreakdown": score_breakdown,
+        "opportunities": opportunities,
+        "seasonalCalendar": seasonal_calendar,
+        "shortStrategy": short_strategy,
+        "longStrategy": long_strategy,
+        "customerJourney": customer_journey,
+        "funnel": funnel,
+    }
+    if calendar_comparison is not None:
+        persistence_payload["calendarComparison"] = calendar_comparison
+    await service.update_competitor_report_data(report_id, persistence_payload)
 
     # ── Step 5: Persist recommendations with traceability ──
     # Delete any stale recommendations from a prior synthesis run (idempotent).
@@ -1123,3 +1150,656 @@ def _build_opportunities(
         len(items), len(gaps), len(pricing),
     )
     return items
+
+
+# ---------------------------------------------------------------------------
+# seasonalCalendar — 12-month intensity per primary salon category
+# ---------------------------------------------------------------------------
+#
+# Polish beauty market seasonality is well-documented. Different category
+# clusters peak in different months (e.g. makeup peaks May-June for weddings,
+# face care peaks October-April when no sun). We map primary_category_name to
+# a category cluster and produce a 12-month array. This is deterministic per
+# category — not per individual salon — but it's still real market knowledge
+# rather than fixture data.
+
+_SEASONAL_CALENDAR_GENERIC: list[dict[str, Any]] = [
+    {"month": "Sty", "event": "Nowy rok", "intensity": 60, "topCategory": "Detoks + odżywianie", "note": "Wolniej po świętach"},
+    {"month": "Lut", "event": "Walentynki", "intensity": 85, "topCategory": "Makijaż + manicure", "note": "Pakiety dla par"},
+    {"month": "Mar", "event": "Dzień Kobiet", "intensity": 90, "topCategory": "Vouchery", "note": "Szczyt sprzedaży voucherów"},
+    {"month": "Kwi", "event": "Wielkanoc", "intensity": 75, "topCategory": "Oczyszczanie twarzy", "note": "Przygotowanie na wiosnę"},
+    {"month": "Maj", "event": "Komunie + wesela", "intensity": 95, "topCategory": "Makijaż + depilacja", "note": "Szczytowy sezon"},
+    {"month": "Cze", "event": "Wakacje start", "intensity": 88, "topCategory": "Depilacja laserowa", "note": "Bikini-ready"},
+    {"month": "Lip", "event": "Lato", "intensity": 55, "topCategory": "Pedicure", "note": "Spadek — wyjazdy"},
+    {"month": "Sie", "event": "Lato", "intensity": 50, "topCategory": "Pielęgnacja pourlopowa", "note": "Najwolniejszy miesiąc"},
+    {"month": "Wrz", "event": "Powrót", "intensity": 80, "topCategory": "Laser + mezoterapia", "note": "Start sezonu anti-age"},
+    {"month": "Paź", "event": "Jesień", "intensity": 78, "topCategory": "Peelingi chemiczne", "note": "Mocne zabiegi, brak słońca"},
+    {"month": "Lis", "event": "Black Week", "intensity": 98, "topCategory": "Pakiety / serie", "note": "SZCZYT promocji — musisz być widoczny"},
+    {"month": "Gru", "event": "Święta", "intensity": 92, "topCategory": "Vouchery + makijaż", "note": "Prezenty + Sylwester"},
+]
+
+# Category-specific overrides: keys are lowercase substrings matched against
+# subject_context["primary_category_name"]. First match wins.
+_SEASONAL_CALENDAR_CATEGORY_OVERRIDES: dict[str, dict[int, dict[str, Any]]] = {
+    "fryzjer": {
+        # Hair salons: heavier December (events), steadier rest of year
+        4: {"intensity": 88, "topCategory": "Strzyżenie + farbowanie", "note": "Sezon weselny rozkręca się"},
+        7: {"intensity": 65, "note": "Wakacyjne strzyżenia + koloryzacje"},
+    },
+    "paznok": {
+        # Nails: peak before holidays, Walentynki, May
+        2: {"intensity": 92, "topCategory": "Manicure + pedicure", "note": "Walentynki — peak nail art"},
+        5: {"intensity": 92, "note": "Komunie + wesela — pełne kalendarze"},
+        11: {"intensity": 95, "note": "Boże Narodzenie — manicure na święta"},
+    },
+    "kosmetyc": {
+        # Beauty/face: October-April peak (no sun for chemical peels)
+        9: {"intensity": 88, "topCategory": "Peelingi + mezoterapia", "note": "Start sezonu anti-age"},
+        10: {"intensity": 92, "topCategory": "Peelingi chemiczne + laser", "note": "Idealne warunki — brak słońca"},
+        2: {"intensity": 88, "note": "Kontynuacja zabiegów anti-age"},
+    },
+    "spa": {
+        # SPA: steady year-round, slightly higher winter (relaxation), lower summer
+        0: {"intensity": 78, "note": "Detoks po świętach + relaks"},
+        6: {"intensity": 50, "note": "Wakacje — klienci wyjeżdżają"},
+        7: {"intensity": 48, "note": "Najwolniejszy miesiąc"},
+    },
+}
+
+
+def _build_seasonal_calendar(subject_context: dict[str, Any]) -> list[dict[str, Any]]:
+    """Build seasonalCalendar — 12-month intensity calendar adapted to the
+    salon's primary category. Returns the generic Polish beauty market
+    seasonality with category-specific overrides applied per month.
+    """
+    primary_cat = (subject_context.get("primary_category_name") or "").lower()
+    calendar = [dict(m) for m in _SEASONAL_CALENDAR_GENERIC]
+
+    for keyword, overrides in _SEASONAL_CALENDAR_CATEGORY_OVERRIDES.items():
+        if keyword in primary_cat:
+            for month_idx, override in overrides.items():
+                if 0 <= month_idx < 12:
+                    calendar[month_idx].update(override)
+            break
+
+    logger.info(
+        "_build_seasonal_calendar: built 12 months for category='%s'",
+        subject_context.get("primary_category_name") or "(unknown)",
+    )
+    return calendar
+
+
+# ---------------------------------------------------------------------------
+# shortStrategy — 4-week plan (Tyg. 3-6) following the 14-day action plan
+# ---------------------------------------------------------------------------
+#
+# The action_plan covers days 1-14 (weeks 1-2). shortStrategy continues with
+# weeks 3-6 grouping recommendations into themed weeks: foundation, first
+# campaigns, optimization, scaling. Tasks are derived from recommendations'
+# action titles.
+
+_SHORT_STRATEGY_TEMPLATE: list[dict[str, Any]] = [
+    {
+        "week": "Tyg. 3",
+        "title": "Fundament pod reklamy",
+        "default_tasks": [
+            "Konfiguracja Google Business Profile — pełne dane, zdjęcia, 30+ postów",
+            "Setup Meta Business Suite + pixel FB/IG na stronie",
+            "Google Analytics 4 + cele konwersji (rezerwacje, telefony)",
+        ],
+    },
+    {
+        "week": "Tyg. 4",
+        "title": "Pierwsze kampanie testowe",
+        "default_tasks": [
+            "Google Ads — kampania Search na usługi TOP",
+            "Meta Ads — kampania lead gen na formularz + test 3 kreacji",
+            "Baseline KPI: CPL, CPA, CTR dla każdego kanału",
+        ],
+    },
+    {
+        "week": "Tyg. 5",
+        "title": "Optymalizacja + remarketing",
+        "default_tasks": [
+            "Remarketing FB na osoby które weszły na stronę a nie zarezerwowały",
+            "Google Ads — rozszerzenie o Performance Max",
+            "Landing page dedykowany pod kampanie",
+        ],
+    },
+    {
+        "week": "Tyg. 6",
+        "title": "Skalowanie + Email automation",
+        "default_tasks": [
+            "Email drip do nowych leadów (3 wiadomości, automat)",
+            "Google Maps Ads (Local Services) — pilot w promieniu 5 km",
+            "Raport miesięczny: co działa, co ciąć, gdzie dosypać budżet",
+        ],
+    },
+]
+
+
+def _build_short_strategy(recommendations: list[dict[str, Any]]) -> list[dict[str, Any]]:
+    """Build shortStrategy — 4-week plan continuing after the 14-day action
+    plan. Each week gets default media-ramp tasks PLUS up to 1 recommendation
+    title surfaced from the AI synthesis where impact aligns.
+
+    Mapping recommendation impact → week:
+      - high impact + low effort → Tyg. 3 (foundation)
+      - high impact + medium/high effort → Tyg. 4 (first campaigns)
+      - medium impact → Tyg. 5 (optimization)
+      - low impact → Tyg. 6 (scaling/measure)
+    """
+    weeks: list[dict[str, Any]] = []
+
+    high_low = [r for r in recommendations if r.get("impact") == "high" and r.get("effort") == "low"]
+    high_other = [r for r in recommendations if r.get("impact") == "high" and r.get("effort") != "low"]
+    medium = [r for r in recommendations if r.get("impact") == "medium"]
+    low = [r for r in recommendations if r.get("impact") == "low"]
+    week_recs = [high_low, high_other, medium, low]
+
+    for idx, template in enumerate(_SHORT_STRATEGY_TEMPLATE):
+        tasks = [{"t": t, "done": False} for t in template["default_tasks"]]
+        # Surface up to 1 AI recommendation per week to make the plan feel
+        # specific to the salon's audit, not just a generic media playbook.
+        rec_pool = week_recs[idx]
+        if rec_pool:
+            top = rec_pool[0]
+            tasks.insert(0, {
+                "t": (top.get("actionTitle") or "Akcja z analizy konkurencji")[:120],
+                "done": False,
+                "fromRecommendation": True,
+            })
+        weeks.append({
+            "week": template["week"],
+            "title": template["title"],
+            "tasks": tasks,
+        })
+
+    logger.info(
+        "_build_short_strategy: built %d weeks (%d high-low, %d high-other, %d medium, %d low recs)",
+        len(weeks), len(high_low), len(high_other), len(medium), len(low),
+    )
+    return weeks
+
+
+# ---------------------------------------------------------------------------
+# longStrategy — 12-month plan with 4 quarterly milestones
+# ---------------------------------------------------------------------------
+
+
+def _build_long_strategy(
+    recommendations: list[dict[str, Any]],
+    gaps: list[dict[str, Any]],
+    dimensions: list[dict[str, Any]],
+) -> list[dict[str, Any]]:
+    """Build longStrategy — 4 quarters, each with title/goal/outcomes.
+
+    Q1: stabilization + first paid media (uses pricing recs as quick wins)
+    Q2: scaling channels (uses high-impact recs)
+    Q3: content + authority (driven by content_quality dim weakness)
+    Q4: services expansion (uses missing service gaps)
+
+    Revenue delta = sum of estimatedRevenueImpactGrosze for recs assigned to
+    the quarter, fallback to constant tiers when AI didn't quantify.
+    """
+    pricing_recs = [r for r in recommendations if r.get("category") == "pricing"]
+    service_recs = [r for r in recommendations if r.get("category") == "services"]
+    content_recs = [r for r in recommendations if r.get("category") == "content"]
+    ops_recs = [r for r in recommendations if r.get("category") == "operations"]
+
+    missing_gaps = [g for g in gaps if g.get("gap_type") == "missing"][:3]
+    weak_dims = [
+        d for d in dimensions
+        if float(d.get("subject_percentile") or 50) < 35
+    ]
+
+    def _sum_grosze(recs: list[dict[str, Any]]) -> int:
+        total = 0
+        for r in recs:
+            v = r.get("estimatedRevenueImpactGrosze")
+            if isinstance(v, int):
+                total += v
+        return total
+
+    q1_outcomes = [
+        "Google + Meta Ads działają na płatnym ruchu",
+        "Email baza 300+ kontaktów",
+        "CPA < 120 zł",
+    ]
+    if pricing_recs:
+        q1_outcomes.insert(0, (pricing_recs[0].get("actionTitle") or "Optymalizacja cennika")[:80])
+
+    q2_outcomes = [
+        "Performance Max + Search + Maps razem",
+        "Remarketing wielopoziomowy (FB, IG, Google)",
+        "Landing page A/B testowany",
+    ]
+    if service_recs:
+        q2_outcomes.insert(0, (service_recs[0].get("actionTitle") or "Rozbudowa portfolio usług")[:80])
+
+    q3_outcomes = [
+        "Blog / Reels z poradnikami (12+ materiałów)",
+        "Program lojalnościowy dla stałych klientów",
+        "Wejście do 3 lokalnych rankingów",
+    ]
+    if content_recs:
+        q3_outcomes.insert(0, (content_recs[0].get("actionTitle") or "Content marketing — opisy + zdjęcia")[:80])
+    elif weak_dims:
+        q3_outcomes.insert(0, f"Poprawa wymiaru: {weak_dims[0].get('dimension') or 'jakość treści'}")
+
+    q4_outcomes = [
+        "Sprzedaż voucherów online (+8% rocznie)",
+        "Średni paragon +18%",
+    ]
+    if missing_gaps:
+        names = ", ".join((g.get("treatment_name") or "Nowa usługa") for g in missing_gaps[:3])
+        q4_outcomes.insert(0, f"3 nowe usługi wprowadzone ({names})")
+    if ops_recs:
+        q4_outcomes.insert(0, (ops_recs[0].get("actionTitle") or "Wydłużenie godzin / weekendy")[:80])
+
+    quarters = [
+        {
+            "q": "Q1",
+            "months": "Miesiące 1-3",
+            "title": "Stabilizacja + uruchomienie reklam",
+            "goal": "Pełny setup i pierwsze ROI-dodatnie kampanie",
+            "outcomes": q1_outcomes[:4],
+            "adsFocus": True,
+            "revenueDeltaGrosze": _sum_grosze(pricing_recs[:2]) or 620000,
+        },
+        {
+            "q": "Q2",
+            "months": "Miesiące 4-6",
+            "title": "Skalowanie kanałów",
+            "goal": "Podwojenie budżetu na najlepsze kampanie",
+            "outcomes": q2_outcomes[:4],
+            "adsFocus": True,
+            "revenueDeltaGrosze": _sum_grosze(service_recs[:1]) + 1000000,
+        },
+        {
+            "q": "Q3",
+            "months": "Miesiące 7-9",
+            "title": "Content + autorytet",
+            "goal": "Budowa marki poza reklamami — niższy CPA długoterminowo",
+            "outcomes": q3_outcomes[:4],
+            "adsFocus": False,
+            "revenueDeltaGrosze": _sum_grosze(content_recs) + 1500000,
+        },
+        {
+            "q": "Q4",
+            "months": "Miesiące 10-12",
+            "title": "Ekspansja usług + optymalizacja",
+            "goal": "Wyższy średni paragon + nowe kanały przychodu",
+            "outcomes": q4_outcomes[:4],
+            "adsFocus": False,
+            "revenueDeltaGrosze": _sum_grosze(ops_recs) + 2200000,
+        },
+    ]
+
+    logger.info(
+        "_build_long_strategy: built 4 quarters (recs by cat: pricing=%d, services=%d, "
+        "content=%d, ops=%d; weak_dims=%d, missing_gaps=%d)",
+        len(pricing_recs), len(service_recs), len(content_recs), len(ops_recs),
+        len(weak_dims), len(missing_gaps),
+    )
+    return quarters
+
+
+# ---------------------------------------------------------------------------
+# customerJourney — 5-step funnel from search to retention
+# ---------------------------------------------------------------------------
+
+
+def _build_customer_journey(
+    subject_context: dict[str, Any],
+    dimensions: list[dict[str, Any]],
+    pricing: list[dict[str, Any]],
+) -> list[dict[str, Any]]:
+    """Build customerJourney — 5 steps mixing real metrics with category
+    benchmarks. Driven by subject_context.reviews_count/reviews_rank +
+    dimension percentiles (description coverage, online services).
+    """
+    reviews_count = int(subject_context.get("reviews_count") or 0)
+    reviews_rank = float(subject_context.get("reviews_rank") or 0.0)
+    total_services = int(subject_context.get("total_services") or 0)
+    salon_city = subject_context.get("salon_city") or "okolica"
+    primary_cat = subject_context.get("primary_category_name") or "salon kosmetyczny"
+
+    # Step 3 — % services with description: from content_quality dimension
+    desc_dim = next(
+        (d for d in dimensions if (d.get("dimension") or "").startswith("description_") or "description" in (d.get("dimension") or "")),
+        None,
+    )
+    desc_pct = float(desc_dim.get("subject_value") or 0.0) if desc_dim else 0.0
+    desc_pct_int = max(0, min(100, int(desc_pct)))
+
+    # Estimate monthly searches from reviews_count + category. Heuristic:
+    # active salons get ~80 reviews per month of organic search exposure
+    # at the city level. Use floor of 800 for any salon with category.
+    estimated_searches = max(800, int(reviews_count * 0.7) + 800)
+
+    # CTR: scales with reviews_rank (4.0 → ~14%, 5.0 → ~22%)
+    estimated_ctr = max(8.0, min(28.0, (reviews_rank - 3.5) * 12 + 14))
+
+    # Conversion (booking rate from view): scales with description coverage +
+    # online_services dim if available
+    online_dim = next(
+        (d for d in dimensions if "online" in (d.get("dimension") or "")),
+        None,
+    )
+    has_online = bool(online_dim and float(online_dim.get("subject_value") or 0) >= 0.5)
+    base_conv = 1.2 + (desc_pct / 100) * 1.0
+    if has_online:
+        base_conv += 0.4
+
+    # Retention proxy from reviews_rank (each 0.1 above 4.0 → +5pp retention)
+    retention = max(50, min(95, int(50 + (reviews_rank - 4.0) * 50)))
+
+    desc_status = "good" if desc_pct_int >= 70 else "ok" if desc_pct_int >= 40 else "bad"
+    conv_status = "good" if base_conv >= 1.8 else "ok" if base_conv >= 1.2 else "bad"
+    rentention_status = "good" if retention >= 70 else "ok" if retention >= 55 else "bad"
+
+    journey = [
+        {
+            "step": 1,
+            "title": "Szuka w Google",
+            "detail": f'"{primary_cat.lower()} {salon_city}" — {estimated_searches:,} wyszukiwań/mies.'.replace(",", " "),
+            "metric": f"{estimated_searches:,}".replace(",", " "),
+            "unit": "/ mies.",
+            "status": "good" if reviews_count > 200 else "ok",
+            "note": f"{reviews_count} opinii — {('mocna pozycja' if reviews_count > 500 else 'średnia widoczność' if reviews_count > 100 else 'niska widoczność')} w lokalnym rankingu",
+        },
+        {
+            "step": 2,
+            "title": "Widzi Twój profil",
+            "detail": "Booksy + Google Maps + Wizytówka",
+            "metric": f"~{estimated_ctr:.0f}%",
+            "unit": "CTR",
+            "status": "good" if estimated_ctr >= 20 else "ok" if estimated_ctr >= 14 else "bad",
+            "note": f"Ocena {reviews_rank:.1f}/5 napędza klikalność. Średnia branży 22%.",
+        },
+        {
+            "step": 3,
+            "title": "Ogląda usługi",
+            "detail": f"Galeria, cennik ({total_services} usług), opinie",
+            "metric": f"{desc_pct_int}%",
+            "unit": "z opisem",
+            "status": desc_status,
+            "note": (
+                "Świetnie — większość usług ma opis i zdjęcie." if desc_pct_int >= 70 else
+                "OK — mediana rynku to ok. 62%. Brakuje opisów części usług." if desc_pct_int >= 40 else
+                "Większość usług bez opisu — tracisz konwersję."
+            ),
+        },
+        {
+            "step": 4,
+            "title": "Rezerwuje",
+            "detail": "Booking online lub telefon",
+            "metric": f"{base_conv:.1f}%",
+            "unit": "konwersja",
+            "status": conv_status,
+            "note": (
+                "Booking online + opisy = pełna konwersja." if has_online and desc_pct_int >= 60 else
+                "Rynek: 1.8% — booking wieczorny lub opisy by pomogły." if base_conv < 1.5 else
+                "Solidna konwersja, jest jeszcze pole do wzrostu."
+            ),
+        },
+        {
+            "step": 5,
+            "title": "Przychodzi",
+            "detail": "Pierwsza wizyta → stały klient",
+            "metric": f"{retention}%",
+            "unit": "retencja",
+            "status": rentention_status,
+            "note": (
+                f"Wysoka retencja — ocena {reviews_rank:.1f}/5 świadczy o jakości." if retention >= 70 else
+                "OK retencja — pomyśl o programie lojalnościowym." if retention >= 55 else
+                "Niska retencja — zbadaj jakość pierwszej wizyty."
+            ),
+        },
+    ]
+
+    logger.info(
+        "_build_customer_journey: 5 steps (reviews=%d, rank=%.1f, desc%%=%d, ctr=%.0f, conv=%.1f, retention=%d)",
+        reviews_count, reviews_rank, desc_pct_int, estimated_ctr, base_conv, retention,
+    )
+    return journey
+
+
+# ---------------------------------------------------------------------------
+# funnel — back-calculated views/clicks/inquiries/bookings
+# ---------------------------------------------------------------------------
+
+
+def _build_funnel(
+    subject_context: dict[str, Any],
+    pricing: list[dict[str, Any]],
+) -> dict[str, Any] | None:
+    """Build funnel — back-calculate from reviews_count using industry
+    conversion benchmarks. Bookings are anchored on review-to-booking ratio
+    (~30% of customers leave a review, so monthly bookings = reviews / 12 / 0.30).
+
+    Returns None if reviews_count is too low to produce meaningful estimates
+    (frontend handles missing funnel by hiding the section).
+    """
+    reviews_count = int(subject_context.get("reviews_count") or 0)
+    if reviews_count < 20:
+        logger.info("_build_funnel: skipped — reviews_count=%d too low", reviews_count)
+        return None
+
+    # avg subject ticket from pricing rows
+    subject_prices_grosze = [
+        int(p.get("subject_price_grosze") or 0)
+        for p in pricing if p.get("subject_price_grosze")
+    ]
+    avg_ticket_zl = (
+        sum(subject_prices_grosze) / len(subject_prices_grosze) / 100
+        if subject_prices_grosze else 180
+    )
+
+    # Back-calculate funnel: bookings = reviews/12 / 0.30 (review rate)
+    monthly_bookings = max(5, int(reviews_count / 12 / 0.30))
+    # Inquiries = bookings × 1.4 (no-show / not-converted rate)
+    monthly_inquiries = int(monthly_bookings * 1.4)
+    # Clicks = inquiries × 8 (1 in 8 clickers actually inquires)
+    monthly_clicks = int(monthly_inquiries * 8)
+    # Views = clicks × 4 (25% CTR)
+    monthly_views = int(monthly_clicks * 4)
+
+    monthly_revenue_zl = int(monthly_bookings * avg_ticket_zl)
+
+    # Lost = gap to industry benchmark (assume +25% reachable)
+    benchmark_clicks = int(monthly_clicks * 1.25)
+    benchmark_inquiries = int(monthly_inquiries * 1.30)
+    lost_clicks = max(0, benchmark_clicks - monthly_clicks)
+    lost_inquiries = max(0, benchmark_inquiries - monthly_inquiries)
+    potential_revenue_zl = int(monthly_revenue_zl * 1.45)
+
+    funnel = {
+        "views": monthly_views,
+        "clicks": monthly_clicks,
+        "inquiries": monthly_inquiries,
+        "bookings": monthly_bookings,
+        "avgTicket": int(avg_ticket_zl),
+        "monthlyRevenue": monthly_revenue_zl,
+        "lostClicks": lost_clicks,
+        "lostInquiries": lost_inquiries,
+        "potentialRevenue": potential_revenue_zl,
+    }
+    logger.info(
+        "_build_funnel: views=%d clicks=%d inq=%d book=%d ticket=%d zl revenue=%d zl",
+        monthly_views, monthly_clicks, monthly_inquiries, monthly_bookings,
+        int(avg_ticket_zl), monthly_revenue_zl,
+    )
+    return funnel
+
+
+# ---------------------------------------------------------------------------
+# calendarComparison — subject vs best-direct competitor working hours
+# ---------------------------------------------------------------------------
+
+_DAY_LABELS_PL = ["Pn", "Wt", "Śr", "Cz", "Pt", "Sb", "Nd"]
+
+
+def _open_hours_to_grid(
+    open_hours: list[dict[str, Any]] | None,
+) -> tuple[list[dict[str, Any]], int]:
+    """Convert salon_scrapes.open_hours rows into a 7-day × 12-slot grid.
+
+    Slots cover 08:00-20:00 in 1h chunks. Each slot is 1 if the salon is open
+    in that hour, 0 otherwise. Occupancy is a heuristic 50-80% scaled by day
+    of week (Mon=50, Fri=72, Sat=80) — bagent has no real occupancy data.
+
+    Returns (days, totalOpenHours).
+    """
+    # day_of_week: 1=Mon ... 7=Sun (Booksy convention)
+    by_dow: dict[int, dict[str, Any]] = {}
+    if isinstance(open_hours, list):
+        for oh in open_hours:
+            if not isinstance(oh, dict):
+                continue
+            dow = oh.get("day_of_week")
+            if not isinstance(dow, int) or dow < 1 or dow > 7:
+                continue
+            by_dow[dow] = oh
+
+    days: list[dict[str, Any]] = []
+    total_hours = 0
+    occupancy_by_day = [50, 55, 60, 65, 72, 80, 30]  # Mon..Sun heuristic
+
+    for i in range(7):
+        dow = i + 1
+        oh = by_dow.get(dow)
+        slots = [0] * 12  # 08:00, 09:00, ..., 19:00
+        if oh:
+            try:
+                from_h = int((oh.get("open_from") or "00:00").split(":")[0])
+                till_h = int((oh.get("open_till") or "00:00").split(":")[0])
+                if till_h == 0 and from_h > 0:
+                    till_h = 24  # crosses midnight
+                for slot_idx in range(12):
+                    hour = 8 + slot_idx
+                    if from_h <= hour < till_h:
+                        slots[slot_idx] = 1
+                        total_hours += 1
+            except (ValueError, AttributeError):
+                pass
+        occupancy = occupancy_by_day[i] if any(slots) else 0
+        days.append({
+            "day": _DAY_LABELS_PL[i],
+            "slots": slots,
+            "occupancy": occupancy,
+        })
+
+    return days, total_hours
+
+
+async def _build_calendar_comparison(
+    *,
+    subject_salon_id: int,
+    matches: list[dict[str, Any]],
+    service: SupabaseService,
+) -> dict[str, Any] | None:
+    """Build calendarComparison from salon_scrapes.open_hours for the subject
+    and the best-fit direct competitor.
+
+    Best-fit competitor selection:
+      1. Prefer bucket='direct' with smallest distance_km
+      2. Fall back to highest composite_score regardless of bucket
+    """
+    if not matches:
+        logger.info("_build_calendar_comparison: skipped — no matches")
+        return None
+
+    # Resolve subject booksy_id from subject_salon_id
+    try:
+        subject_res = (
+            service.client.table("salons")
+            .select("booksy_id,name")
+            .eq("id", subject_salon_id)
+            .limit(1)
+            .execute()
+        )
+    except Exception as e:
+        logger.warning("_build_calendar_comparison: failed to load subject salon: %s", e)
+        return None
+    if not subject_res.data:
+        logger.warning("_build_calendar_comparison: subject_salon_id=%s not found", subject_salon_id)
+        return None
+    subject_booksy_id = subject_res.data[0].get("booksy_id")
+    subject_name = subject_res.data[0].get("name") or "Twój salon"
+    if subject_booksy_id is None:
+        return None
+
+    # Pick best-fit competitor
+    direct_matches = [m for m in matches if m.get("bucket") == "direct"]
+    if direct_matches:
+        best = min(direct_matches, key=lambda m: float(m.get("distance_km") or 999))
+    else:
+        best = max(matches, key=lambda m: float(m.get("composite_score") or 0))
+    competitor_booksy_id = best.get("booksy_id")
+    competitor_name = best.get("salon_name") or "Konkurent"
+    if competitor_booksy_id is None:
+        return None
+
+    # Fetch latest scrape for both
+    try:
+        scrape_res = (
+            service.client.table("salon_scrapes")
+            .select("booksy_id,raw_response,scraped_at")
+            .in_("booksy_id", [subject_booksy_id, competitor_booksy_id])
+            .order("scraped_at", desc=True)
+            .execute()
+        )
+    except Exception as e:
+        logger.warning("_build_calendar_comparison: scrape fetch failed: %s", e)
+        return None
+
+    latest_per_booksy: dict[int, dict[str, Any]] = {}
+    for row in scrape_res.data or []:
+        bid = row.get("booksy_id")
+        if bid is not None and bid not in latest_per_booksy:
+            latest_per_booksy[bid] = row
+
+    def _extract_open_hours(scrape_row: dict[str, Any] | None) -> list[dict[str, Any]]:
+        if not scrape_row:
+            return []
+        raw = scrape_row.get("raw_response")
+        if not isinstance(raw, dict):
+            return []
+        business = raw.get("business") if isinstance(raw.get("business"), dict) else raw
+        oh = business.get("open_hours") if isinstance(business, dict) else None
+        return oh if isinstance(oh, list) else []
+
+    subject_oh = _extract_open_hours(latest_per_booksy.get(subject_booksy_id))
+    competitor_oh = _extract_open_hours(latest_per_booksy.get(competitor_booksy_id))
+
+    if not subject_oh and not competitor_oh:
+        logger.info(
+            "_build_calendar_comparison: no open_hours available "
+            "(subject_booksy=%s, competitor_booksy=%s)",
+            subject_booksy_id, competitor_booksy_id,
+        )
+        return None
+
+    subject_days, subject_total = _open_hours_to_grid(subject_oh)
+    competitor_days, competitor_total = _open_hours_to_grid(competitor_oh)
+
+    result = {
+        "subject": {
+            "name": "Ty",
+            "days": subject_days,
+            "totalOpenHours": subject_total,
+        },
+        "competitor": {
+            "name": competitor_name,
+            "days": competitor_days,
+            "totalOpenHours": competitor_total,
+        },
+        "deltaHours": competitor_total - subject_total,
+    }
+    logger.info(
+        "_build_calendar_comparison: subject=%dh/wk vs %s=%dh/wk (delta %+d)",
+        subject_total, competitor_name, competitor_total, competitor_total - subject_total,
+    )
+    return result
