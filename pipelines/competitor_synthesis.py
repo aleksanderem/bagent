@@ -278,6 +278,10 @@ async def synthesize_competitor_insights(
     action_plan = _build_action_plan(
         insights.get("recommendations") or [], gaps,
     )
+    summary = _build_summary(
+        matches=matches, pricing=pricing, gaps=gaps,
+        dimensions=dimensions, recommendations=insights.get("recommendations") or [],
+    )
 
     # calendarComparison needs an extra Supabase fetch (open_hours from
     # salon_scrapes for subject + best competitor). Best-effort: log and
@@ -291,7 +295,7 @@ async def synthesize_competitor_insights(
     logger.info(
         "Etap 5 enrichment built: profiles=%d, pricing=%d, score_areas=%d, "
         "opportunities=%d, seasonalCalendar=%s, shortStrategy=%d, longStrategy=%d, "
-        "customerJourney=%d, funnel=%s, calendarComparison=%s, actionPlan=%d",
+        "customerJourney=%d, funnel=%s, calendarComparison=%s, actionPlan=%d, summary=yes",
         len(competitor_profiles), len(price_comparison),
         len(score_breakdown), len(opportunities),
         "12 months" if seasonal_calendar else "skipped",
@@ -315,6 +319,7 @@ async def synthesize_competitor_insights(
         "customerJourney": customer_journey,
         "funnel": funnel,
         "actionPlan": action_plan,
+        "summary": summary,
     }
     if calendar_comparison is not None:
         persistence_payload["calendarComparison"] = calendar_comparison
@@ -1808,6 +1813,95 @@ async def _build_calendar_comparison(
         subject_total, competitor_name, competitor_total, competitor_total - subject_total,
     )
     return result
+
+
+# ---------------------------------------------------------------------------
+# summary — top-of-report KPI box (Sekcja 1: "Migawka rynku")
+# ---------------------------------------------------------------------------
+#
+# Frontend hero summary card needs: marketPosition, competitorsAnalyzed,
+# priceVsMedian, serviceGapsCount, potentialUplift, overallScore,
+# deltaLastMonth. Aggregated from already-loaded child-table data — no new
+# Supabase queries.
+
+
+def _build_summary(
+    *,
+    matches: list[dict[str, Any]],
+    pricing: list[dict[str, Any]],
+    gaps: list[dict[str, Any]],
+    dimensions: list[dict[str, Any]],
+    recommendations: list[dict[str, Any]],
+) -> dict[str, Any]:
+    """Build the top-of-report KPI summary aggregating across all child tables."""
+    competitors_analyzed = len(matches)
+
+    # Avg pricing deviation across all comparisons (bezwzględna mediana
+    # odchylenia daje informację: na ile twoje ceny dryfują od rynku)
+    deviations = [
+        float(p.get("deviation_pct") or 0)
+        for p in pricing
+        if p.get("deviation_pct") is not None
+    ]
+    if deviations:
+        avg_deviation = sum(deviations) / len(deviations)
+        price_vs_median = f"{avg_deviation:+.0f}%"
+    else:
+        price_vs_median = "—"
+
+    # Liczba luk = wszystkie gap_type='missing'
+    missing_gaps_count = sum(1 for g in gaps if g.get("gap_type") == "missing")
+
+    # Potential uplift z rekomendacji (estimatedRevenueImpactGrosze) → zł/mies
+    uplift_grosze = sum(
+        int(r.get("estimatedRevenueImpactGrosze") or 0)
+        for r in recommendations
+        if isinstance(r.get("estimatedRevenueImpactGrosze"), int)
+    )
+    potential_uplift_zl = uplift_grosze // 100 if uplift_grosze else 0
+
+    # Overall score = średnia percentylów z dimensions (cap 92 zgodnie ze
+    # score_capping rule — feedback_score_cap.md: never display 100, leave
+    # headroom for ad campaign upsell)
+    if dimensions:
+        percentiles = [float(d.get("subject_percentile") or 50) for d in dimensions]
+        overall_score = min(92, max(0, int(sum(percentiles) / len(percentiles))))
+    else:
+        overall_score = 50
+
+    # Market position: oblicz pozycję subjekta w rankingu wg composite_score.
+    # Konkurenci są w `matches`, ich composite_score jest już znany. Subject
+    # nie ma matches.composite_score (sam nie jest wymieniony), więc pozycję
+    # przybliżamy: jeśli salon ma overall_score >= 70 percentyl, to top 3;
+    # jeśli >=50, top 5; inaczej dolna połowa.
+    total = competitors_analyzed + 1
+    if overall_score >= 70:
+        position = 1 + max(0, len([m for m in matches if float(m.get("composite_score") or 0) > 0.85]))
+    elif overall_score >= 55:
+        position = max(2, total // 2)
+    else:
+        position = max(3, total - 1)
+    position = min(position, total)
+    market_position = f"#{position} z {total}"
+
+    summary = {
+        "marketPosition": market_position,
+        "competitorsAnalyzed": competitors_analyzed,
+        "priceVsMedian": price_vs_median,
+        "serviceGapsCount": missing_gaps_count,
+        "potentialUplift": potential_uplift_zl,
+        "overallScore": overall_score,
+        # delta vs last month: brak danych historycznych w base tier — null,
+        # frontend wyświetla "—" zamiast liczby
+        "deltaLastMonth": None,
+    }
+    logger.info(
+        "_build_summary: position=%s, competitors=%d, priceVsMedian=%s, gaps=%d, "
+        "uplift=%d zł, overallScore=%d",
+        market_position, competitors_analyzed, price_vs_median,
+        missing_gaps_count, potential_uplift_zl, overall_score,
+    )
+    return summary
 
 
 # ---------------------------------------------------------------------------
