@@ -3,12 +3,14 @@
 from __future__ import annotations
 
 import asyncio
+import contextlib
 import json
 import logging
 import re
 import uuid
 from pathlib import Path
 
+from arq.connections import ArqRedis
 from fastapi import BackgroundTasks, Depends, FastAPI, HTTPException, Header
 from fastapi.responses import HTMLResponse
 from pydantic import BaseModel
@@ -16,11 +18,47 @@ from sse_starlette.sse import EventSourceResponse
 
 from config import settings
 from job_store import Job, JobStore
+from workers import get_redis_pool
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s %(name)s %(levelname)s %(message)s")
 logger = logging.getLogger(__name__)
 
-app = FastAPI(title="bagent — Beauty Audit AI Analyzer")
+
+# ---------------------------------------------------------------------------
+# FastAPI lifespan: open one shared ArqRedis pool at startup, close on
+# shutdown. Endpoints enqueue jobs via app.state.arq. The actual migration
+# of background_tasks.add_task → app.state.arq.enqueue_job happens in
+# issue #21 — for now the pool is just open and ready, no callers yet.
+#
+# If Redis is unreachable at startup we log a warning and continue —
+# bagent must remain serviceable for non-queue endpoints (sync /api/ai/text,
+# /api/embeddings, dashboard) even when Redis is down. The /api/health
+# endpoint reports the actual state.
+# ---------------------------------------------------------------------------
+
+@contextlib.asynccontextmanager
+async def lifespan(fastapi_app: FastAPI):
+    arq_pool: ArqRedis | None = None
+    try:
+        arq_pool = await get_redis_pool()
+        await arq_pool.ping()
+        logger.info("arq Redis pool connected at startup")
+    except Exception as e:
+        logger.warning("arq Redis pool failed to connect at startup: %s", e)
+        arq_pool = None
+    fastapi_app.state.arq = arq_pool
+    try:
+        yield
+    finally:
+        if arq_pool is not None:
+            try:
+                await arq_pool.close()
+                logger.info("arq Redis pool closed")
+            except Exception as e:
+                logger.warning("arq Redis pool close raised: %s", e)
+
+
+app = FastAPI(title="bagent — Beauty Audit AI Analyzer", lifespan=lifespan)
 
 store = JobStore()
 
@@ -472,7 +510,28 @@ async def sse_events() -> EventSourceResponse:
 async def health() -> dict:
     running = sum(1 for j in store.list_jobs() if j.status == "running")
     total = len(store.list_jobs())
-    return {"status": "ok", "jobs_running": running, "jobs_total": total}
+
+    # Redis health: ping the arq pool stored in lifespan. Three states:
+    # - "ok"        → pool exists, ping returned successfully
+    # - "down"      → pool exists but ping raised (transient or permanent)
+    # - "disabled"  → no pool attached (startup failed earlier)
+    arq_pool: ArqRedis | None = getattr(app.state, "arq", None)
+    if arq_pool is None:
+        redis_status = "disabled"
+    else:
+        try:
+            await arq_pool.ping()
+            redis_status = "ok"
+        except Exception:
+            redis_status = "down"
+
+    overall = "ok" if redis_status in ("ok", "disabled") else "degraded"
+    return {
+        "status": overall,
+        "jobs_running": running,
+        "jobs_total": total,
+        "redis": redis_status,
+    }
 
 
 @app.get("/dashboard", response_class=HTMLResponse)

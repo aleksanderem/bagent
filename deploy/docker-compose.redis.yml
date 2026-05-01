@@ -1,0 +1,51 @@
+# Redis container for bagent arq job queue.
+#
+# Deployed on tytan in /home/booksy/docker-compose/redis-bagent/
+# alongside other bagent infrastructure. Exposed on 127.0.0.1:6379 (NOT
+# the public network — only PM2 processes on tytan reach it).
+#
+# Persistence strategy: AOF (appendonly yes) with fsync everysec, no RDB.
+# This is the recommended config for task queues — RDB-only could lose
+# the last few minutes of jobs on crash, AOF replays the WAL on restart
+# and at most loses the last second.
+#
+# To bring up:
+#   cd /home/booksy/docker-compose/redis-bagent/
+#   docker compose -f docker-compose.redis.yml up -d
+#
+# Verify:
+#   docker exec redis-bagent redis-cli ping  # → PONG
+#   docker exec redis-bagent redis-cli info persistence | grep aof_enabled
+#   curl https://bagent.booksyaudit.pl/api/health  # → "redis":"ok"
+
+# Compose V2 ignores the `version` key (it was removed; deprecated since
+# Docker 23+). Omit to silence the warning in CI.
+
+services:
+  redis-bagent:
+    image: redis:7-alpine
+    container_name: redis-bagent
+    restart: unless-stopped
+    command: >
+      redis-server
+      --appendonly yes
+      --appendfsync everysec
+      --maxmemory 512mb
+      --maxmemory-policy noeviction
+      --save ""
+    ports:
+      # Bind to localhost only — bagent + workers connect via 127.0.0.1
+      - "127.0.0.1:6379:6379"
+    volumes:
+      - /var/lib/redis-bagent:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 3s
+      retries: 3
+      start_period: 5s
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"

@@ -15,6 +15,15 @@ class Settings(BaseSettings):
     api_key: str = ""
     port: int = 3001
 
+    # Redis / arq job queue
+    # Default: localhost:6379 with no password (override in production via env).
+    # On tytan (production) Redis runs in Docker compose under the host
+    # `redis-bagent` (or `127.0.0.1:6379` if exposed on host network).
+    redis_host: str = "127.0.0.1"
+    redis_port: int = 6379
+    redis_password: str = ""
+    redis_database: int = 0
+
     model_config = {"env_file": ".env", "env_file_encoding": "utf-8"}
 
 
