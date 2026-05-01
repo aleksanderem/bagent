@@ -446,14 +446,18 @@ async def run_competitor_report_task(ctx: dict[str, Any], request: dict[str, Any
             "swotItemCount": result.get("swot_item_count", 0),
             "recommendationCount": result.get("recommendation_count", 0),
             "usedFallback": result.get("used_fallback", False),
+            # Echo user_id and tier into stats blob for downstream consumers.
+            # The actual webhook signature is (audit_id, report_id, stats) —
+            # ConvexClient pulls audit metadata from Supabase by audit_id, so
+            # passing user/tier separately is not part of the contract.
+            "userId": user_id,
+            "tier": tier,
         }
         try:
             await convex.competitor_report_complete(
                 audit_id=audit_id,
-                user_id=user_id,
-                tier=tier,
                 report_id=result.get("report_id"),
-                report_stats=report_stats,
+                stats=report_stats,
             )
         except Exception as e:  # noqa: BLE001
             logger.warning("[%s] convex.competitor_report_complete failed: %s", job_id, e)
