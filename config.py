@@ -24,6 +24,16 @@ class Settings(BaseSettings):
     redis_password: str = ""
     redis_database: int = 0
 
+    # Issue #23 — bextract scraper service used by the scrape orchestrator.
+    # bextract caches the Booksy x-api-key and serves /api/salon/:id which
+    # returns the raw business JSON we already know how to ingest.
+    bextract_api_url: str = "https://api.booksyaudit.pl"
+    bextract_api_key: str = ""
+
+    # Worker self-identification for SELECT ... FOR UPDATE SKIP LOCKED.
+    # Set per-process in PM2 ecosystem so logs + locked_by columns disambiguate.
+    scrape_worker_id: str = "scrape-worker-default"
+
     model_config = {"env_file": ".env", "env_file_encoding": "utf-8"}
 
 

@@ -127,11 +127,28 @@ async def smoke_test(ctx: dict[str, Any], message: str = "hello") -> dict[str, A
 # slow job still works, short enough that result store doesn't bloat.
 
 from .tasks import ALL_TASKS
+# Issue #23 — scrape orchestrator tasks (queue drain + scheduler + reaper).
+from .scrape_refresh import ALL_SCRAPE_TASKS
+
+# arq cron import is gated to keep imports cheap when only running tests.
+try:  # pragma: no cover
+    from arq import cron
+    SCRAPE_CRONS = [
+        # Drain the queue every minute. Each tick claims CLAIM_BATCH_SIZE.
+        cron("workers.scrape_refresh.drain_scrape_queue", minute={i for i in range(0, 60)}),
+        # Top up the queue once an hour at minute 5 (stagger off other crons).
+        cron("workers.scrape_refresh.schedule_refresh_cron", minute={5}),
+        # Reap stuck jobs every 10 minutes.
+        cron("workers.scrape_refresh.reap_stuck_jobs", minute={i for i in range(2, 60, 10)}),
+    ]
+except Exception:  # noqa: BLE001
+    SCRAPE_CRONS = []
 
 
 class WorkerSettings:
     # Production tasks from tasks.py + smoke_test for liveness verification.
-    functions = [smoke_test, *ALL_TASKS]
+    functions = [smoke_test, *ALL_TASKS, *ALL_SCRAPE_TASKS]
+    cron_jobs = SCRAPE_CRONS
     redis_settings = redis_settings
     on_startup = startup
     on_shutdown = shutdown
