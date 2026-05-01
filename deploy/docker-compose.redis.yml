@@ -34,8 +34,12 @@ services:
       --maxmemory-policy noeviction
       --save ""
     ports:
-      # Bind to localhost only — bagent + workers connect via 127.0.0.1
-      - "127.0.0.1:6379:6379"
+      # Bind to localhost only — bagent + workers connect via 127.0.0.1.
+      # NOTE: tytan already has a native redis-server on 6379 (used by other
+      # local services with a password). To avoid collision, this container
+      # exposes itself on host port 6380. bagent settings.redis_port should
+      # be 6380 in tytan's .env (or matching env override).
+      - "127.0.0.1:6380:6379"
     volumes:
       - /var/lib/redis-bagent:/data
     healthcheck:
