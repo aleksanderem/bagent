@@ -126,8 +126,12 @@ async def smoke_test(ctx: dict[str, Any], message: str = "hello") -> dict[str, A
 # keep_result: 24h — long enough that frontend polling for status after a
 # slow job still works, short enough that result store doesn't bloat.
 
+from .tasks import ALL_TASKS
+
+
 class WorkerSettings:
-    functions = [smoke_test]
+    # Production tasks from tasks.py + smoke_test for liveness verification.
+    functions = [smoke_test, *ALL_TASKS]
     redis_settings = redis_settings
     on_startup = startup
     on_shutdown = shutdown
@@ -135,7 +139,7 @@ class WorkerSettings:
     job_timeout = 1800  # 30 minutes
     keep_result = 86400  # 24 hours
     max_tries = 3
-    # TODO(#21): namespace by environment (e.g. "arq:prod:queue") so
+    # TODO(future): namespace by environment (e.g. "arq:prod:queue") so
     # accidental shared Redis between dev/staging/prod doesn't cause workers
     # to steal each other's jobs. For now we use the arq default since we
     # only have one environment running — production on tytan.

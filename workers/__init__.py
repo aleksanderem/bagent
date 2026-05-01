@@ -20,10 +20,32 @@ from .main import (
     redis_settings,
     smoke_test,
 )
+from .tasks import (
+    ALL_TASKS,
+    clear_cancel_flag,
+    run_cennik_task,
+    run_competitor_refresh_task,
+    run_competitor_report_task,
+    run_free_report_task,
+    run_report_task,
+    run_summary_task,
+    run_versum_suggest_task,
+    set_cancel_flag,
+)
 
 __all__ = [
     "WorkerSettings",
     "get_redis_pool",
     "redis_settings",
     "smoke_test",
+    "ALL_TASKS",
+    "set_cancel_flag",
+    "clear_cancel_flag",
+    "run_report_task",
+    "run_free_report_task",
+    "run_cennik_task",
+    "run_summary_task",
+    "run_competitor_report_task",
+    "run_competitor_refresh_task",
+    "run_versum_suggest_task",
 ]

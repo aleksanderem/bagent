@@ -18,7 +18,7 @@ from sse_starlette.sse import EventSourceResponse
 
 from config import settings
 from job_store import Job, JobStore
-from workers import get_redis_pool
+from workers import get_redis_pool, set_cancel_flag
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s %(name)s %(levelname)s %(message)s")
 logger = logging.getLogger(__name__)
@@ -198,6 +198,48 @@ def verify_api_key(x_api_key: str = Header(...)) -> None:
 # Use /api/audit/report → /api/audit/cennik → /api/audit/summary pipeline.
 
 
+# --- arq enqueue helper (issue #21) -----------------------------------------
+# Every pipeline endpoint follows the same pattern:
+#   1. Generate job_id, create JobStore entry (for /api/jobs listing only —
+#      worker doesn't update the JobStore live, see workers/tasks.py docstring)
+#   2. Enqueue task in arq with the same job_id (so JobStore + arq stay aligned)
+#   3. Return 202 with jobId
+#
+# If the arq pool failed to connect at startup (state.arq is None), every
+# enqueue endpoint must fail HARD with 503 — the request must NOT be silently
+# accepted and lost. This is the explicit follow-up from python-reviewer's
+# code review on #20.
+
+async def _enqueue_pipeline(
+    *,
+    task_name: str,
+    job_id: str,
+    request_payload: dict,
+) -> None:
+    """Enqueue a pipeline task in arq with our chosen job_id.
+
+    Raises HTTPException(503) if the pool is unavailable. Logs warning if
+    enqueue returns None (job_id collision — shouldn't happen with UUID).
+    """
+    pool = getattr(app.state, "arq", None)
+    if pool is None:
+        raise HTTPException(
+            status_code=503,
+            detail="job queue unavailable (Redis disconnected) — retry shortly",
+        )
+    arq_job = await pool.enqueue_job(
+        task_name,
+        request_payload,
+        _job_id=job_id,
+    )
+    if arq_job is None:
+        # arq returns None when a job with the same _job_id is already in
+        # the queue. With UUID4 this is effectively impossible, but log
+        # defensively so we'd notice a regression.
+        logger.warning("arq enqueue_job returned None for %s job_id=%s — duplicate?", task_name, job_id)
+        raise HTTPException(status_code=409, detail="duplicate job_id")
+
+
 # --- 3-bagent migration endpoints ---
 
 
@@ -205,14 +247,12 @@ def verify_api_key(x_api_key: str = Header(...)) -> None:
     "/api/audit/report", status_code=202, response_model=AnalyzeResponse,
     dependencies=[Depends(verify_api_key)],
 )
-async def start_report(
-    request: ReportRequest, background_tasks: BackgroundTasks
-) -> AnalyzeResponse:
+async def start_report(request: ReportRequest) -> AnalyzeResponse:
     """BAGENT #1 — report + content optimization.
 
-    Runs the report pipeline in the background and returns immediately with a
-    job ID. Progress updates go to Convex via /api/audit/report/progress;
-    completion via /api/audit/report/complete; failure via .../fail.
+    Enqueues an arq task and returns 202 immediately. Worker runs the
+    pipeline; progress flows to Convex via /api/audit/report/progress
+    webhooks; completion via .../complete; failure via .../fail.
     """
     job_id = str(uuid.uuid4())
     store.create_job(job_id, request.auditId, meta={
@@ -220,7 +260,11 @@ async def start_report(
         "userId": request.userId,
         "sourceUrl": request.sourceUrl,
     })
-    background_tasks.add_task(run_report_job, job_id, request)
+    await _enqueue_pipeline(
+        task_name="run_report_task",
+        job_id=job_id,
+        request_payload=request.model_dump(),
+    )
     return AnalyzeResponse(jobId=job_id)
 
 
@@ -228,17 +272,12 @@ async def start_report(
     "/api/audit/free_report", status_code=202, response_model=AnalyzeResponse,
     dependencies=[Depends(verify_api_key)],
 )
-async def start_free_report(
-    request: FreeReportRequest, background_tasks: BackgroundTasks
-) -> AnalyzeResponse:
+async def start_free_report(request: FreeReportRequest) -> AnalyzeResponse:
     """Frozen free-tier snapshot of BAGENT #1 — report + content optimization.
 
-    Calls pipelines.free_report.run_free_report_pipeline which is a
-    byte-compatible frozen mirror of pipelines.report.run_audit_pipeline at
-    snapshot time (commit 47220b7). Reuses /api/audit/report/* Convex
-    webhooks — the tier distinction will be wired in Convex in a future
-    product iteration. See docs/free_report.md for the stability contract
-    and the snapshot rationale.
+    Enqueues run_free_report_task which runs pipelines/free_report.py
+    (byte-compatible mirror of pipelines/report.py at commit 47220b7).
+    Reuses /api/audit/report/* Convex webhooks. See docs/free_report.md.
     """
     job_id = str(uuid.uuid4())
     store.create_job(job_id, request.auditId, meta={
@@ -246,7 +285,11 @@ async def start_free_report(
         "userId": request.userId,
         "sourceUrl": request.sourceUrl,
     })
-    background_tasks.add_task(run_free_report_job, job_id, request)
+    await _enqueue_pipeline(
+        task_name="run_free_report_task",
+        job_id=job_id,
+        request_payload=request.model_dump(),
+    )
     return AnalyzeResponse(jobId=job_id)
 
 
@@ -254,21 +297,23 @@ async def start_free_report(
     "/api/audit/cennik", status_code=202, response_model=AnalyzeResponse,
     dependencies=[Depends(verify_api_key)],
 )
-async def start_cennik(
-    request: CennikRequest, background_tasks: BackgroundTasks
-) -> AnalyzeResponse:
+async def start_cennik(request: CennikRequest) -> AnalyzeResponse:
     """BAGENT #2 — new pricelist generation.
 
-    Automatically triggered by Convex after BAGENT #1 finishes. Loads report
-    and scraped data from Supabase, applies transformations, restructures
-    categories, writes optimized_pricelists + categoryProposals payload.
+    Triggered by Convex after BAGENT #1 finishes. Loads report and scraped
+    data from Supabase, applies transformations, restructures categories,
+    writes optimized_pricelists + categoryProposals payload.
     """
     job_id = str(uuid.uuid4())
     store.create_job(job_id, request.auditId, meta={
         "type": "cennik",
         "userId": request.userId,
     })
-    background_tasks.add_task(run_cennik_job, job_id, request)
+    await _enqueue_pipeline(
+        task_name="run_cennik_task",
+        job_id=job_id,
+        request_payload=request.model_dump(),
+    )
     return AnalyzeResponse(jobId=job_id)
 
 
@@ -276,9 +321,7 @@ async def start_cennik(
     "/api/audit/summary", status_code=202, response_model=AnalyzeResponse,
     dependencies=[Depends(verify_api_key)],
 )
-async def start_summary(
-    request: SummaryRequest, background_tasks: BackgroundTasks
-) -> AnalyzeResponse:
+async def start_summary(request: SummaryRequest) -> AnalyzeResponse:
     """BAGENT #3 — audit summary with basic competitor preview.
 
     Triggered by Convex after user confirms competitor selection. Aggregates
@@ -290,7 +333,11 @@ async def start_summary(
         "userId": request.userId,
         "competitorCount": len(request.selectedCompetitorIds),
     })
-    background_tasks.add_task(run_summary_job, job_id, request)
+    await _enqueue_pipeline(
+        task_name="run_summary_task",
+        job_id=job_id,
+        request_payload=request.model_dump(),
+    )
     return AnalyzeResponse(jobId=job_id)
 
 
@@ -298,13 +345,10 @@ async def start_summary(
     "/api/competitor/report", status_code=202, response_model=AnalyzeResponse,
     dependencies=[Depends(verify_api_key)],
 )
-async def start_competitor_report(
-    request: CompetitorReportRequest, background_tasks: BackgroundTasks
-) -> AnalyzeResponse:
+async def start_competitor_report(request: CompetitorReportRequest) -> AnalyzeResponse:
     """Comp Etap 2 — generate a full competitor report for an audit.
 
-    Runs the top-level competitor report pipeline in the background:
-    selection (Etap 1) + deterministic analysis (Etap 4) + AI synthesis
+    Runs selection (Etap 1) + deterministic analysis (Etap 4) + AI synthesis
     (Etap 5). Webhooks to Convex for progress / complete / fail.
     """
     job_id = str(uuid.uuid4())
@@ -315,7 +359,11 @@ async def start_competitor_report(
         "selectionMode": request.selectionMode,
         "targetCount": request.targetCount,
     })
-    background_tasks.add_task(run_competitor_report_job, job_id, request)
+    await _enqueue_pipeline(
+        task_name="run_competitor_report_task",
+        job_id=job_id,
+        request_payload=request.model_dump(),
+    )
     return AnalyzeResponse(jobId=job_id)
 
 
@@ -323,29 +371,24 @@ async def start_competitor_report(
     "/api/competitor/report/refresh", status_code=202, response_model=AnalyzeResponse,
     dependencies=[Depends(verify_api_key)],
 )
-async def start_competitor_refresh(
-    request: CompetitorRefreshRequest, background_tasks: BackgroundTasks
-) -> AnalyzeResponse:
+async def start_competitor_refresh(request: CompetitorRefreshRequest) -> AnalyzeResponse:
     """Comp Etap 7 — refresh an existing premium competitor report.
 
-    Loads the existing report + its competitor_matches from Supabase,
-    re-reads the latest salon_scrapes for each competitor, computes a new
-    key_metrics snapshot, inserts a row into competitor_report_snapshots,
-    detects significant price changes (>5%) vs the previous snapshot,
-    and updates competitor_reports.next_refresh_at based on refresh_schedule.
-
-    Idempotent: if a refresh job is already running for the same reportId,
-    this request skips the duplicate run.
+    Idempotent: if a refresh job is already running for the same reportId
+    in our local JobStore (recorded at enqueue time), this request returns
+    that job's id instead of enqueuing a duplicate. Worker would dedupe
+    too if a duplicate slipped through (arq returns None on _job_id reuse),
+    but the local check avoids round-tripping to Redis for hot reportIds.
     """
     for job in store.list_jobs():
         if (
-            job.status == "running"
+            job.status in ("queued", "running")
             and isinstance(job.meta, dict)
             and job.meta.get("type") == "competitor_refresh"
             and job.meta.get("reportId") == request.reportId
         ):
             logger.info(
-                "Skipping competitor refresh for report %s — already running as job %s",
+                "Skipping competitor refresh for report %s — already in flight as job %s",
                 request.reportId, job.job_id,
             )
             return AnalyzeResponse(jobId=job.job_id, status="already_running")
@@ -356,7 +399,11 @@ async def start_competitor_refresh(
         "reportId": request.reportId,
         "userId": request.userId,
     })
-    background_tasks.add_task(run_competitor_refresh_job, job_id, request)
+    await _enqueue_pipeline(
+        task_name="run_competitor_refresh_task",
+        job_id=job_id,
+        request_payload=request.model_dump(),
+    )
     return AnalyzeResponse(jobId=job_id)
 
 
@@ -366,17 +413,17 @@ async def start_competitor_refresh(
     response_model=AnalyzeResponse,
     dependencies=[Depends(verify_api_key)],
 )
-async def suggest_versum_mappings(
-    request: VersumSuggestRequest, background_tasks: BackgroundTasks
-) -> AnalyzeResponse:
+async def suggest_versum_mappings(request: VersumSuggestRequest) -> AnalyzeResponse:
     """AI-powered Versum service mapping suggestions via MiniMax.
 
-    Async endpoint — processes services in batches of 25 in a background
-    task. Poll /api/versum/suggest-mappings/{job_id}/result for progress
-    and results when complete.
+    Async endpoint — processes services in batches of 25 in a worker task.
+    Poll /api/versum/suggest-mappings/{job_id}/result for progress and
+    results when complete.
     """
     if not request.services:
-        # Empty input: create a completed job immediately with empty result
+        # Empty input: create a completed job immediately with empty result.
+        # No worker enqueue needed — JobStore alone serves this case via
+        # the /result endpoint reading job.result_data.
         job_id = str(uuid.uuid4())
         job = store.create_job(job_id, f"versum-0-services", meta={"type": "versum_suggest"})
         job.result_data = {"suggestions": [], "serviceCount": 0, "suggestionCount": 0}
@@ -390,7 +437,11 @@ async def suggest_versum_mappings(
         "type": "versum_suggest",
         "serviceCount": len(request.services),
     })
-    background_tasks.add_task(_run_versum_suggest_job, job_id, request)
+    await _enqueue_pipeline(
+        task_name="run_versum_suggest_task",
+        job_id=job_id,
+        request_payload=request.model_dump(),
+    )
     return AnalyzeResponse(jobId=job_id)
 
 
@@ -479,11 +530,40 @@ async def get_job_logs(job_id: str) -> dict:
 
 @app.post("/api/jobs/{job_id}/cancel")
 async def cancel_job(job_id: str) -> dict:
+    """Request graceful cancellation of a running pipeline job.
+
+    Cancel mechanism (after #21 arq migration):
+    1. Set Redis key `bagent:cancel:{job_id}` with 1h TTL — this is the
+       authoritative signal across worker processes.
+    2. Also call job.request_cancel() in local JobStore — preserves /api/jobs
+       list semantics for the dashboard.
+
+    The arq worker task polls the Redis key in its on_progress callback
+    and raises CancelledError on next progress event. There is no
+    immediate kill — workers finish whatever they're doing and check at
+    the next checkpoint (typically 1-5 seconds for active pipelines).
+    """
     job = store.get_job(job_id)
     if job is None:
         raise HTTPException(status_code=404, detail="Job not found")
-    if job.status != "running":
-        raise HTTPException(status_code=400, detail=f"Cannot cancel job with status '{job.status}'")
+    if job.status not in ("running", "queued"):
+        raise HTTPException(
+            status_code=400,
+            detail=f"Cannot cancel job with status '{job.status}'",
+        )
+
+    # Set Redis cancel flag — workers across processes check this.
+    pool = getattr(app.state, "arq", None)
+    if pool is not None:
+        try:
+            await set_cancel_flag(pool, job_id)
+        except Exception as e:  # noqa: BLE001
+            logger.warning("Failed to set Redis cancel flag for %s: %s", job_id, e)
+            # Don't fail the request — local JobStore cancel still applies
+            # and the job may complete or fail naturally before next progress.
+
+    # Local JobStore cancellation (legacy path — still useful for SSE
+    # dashboard which subscribes to JobStore events).
     job.request_cancel()
     store.notify_progress(job)
     return {"jobId": job_id, "status": "cancel_requested"}
