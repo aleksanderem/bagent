@@ -218,20 +218,40 @@ async def _enqueue_pipeline(
 ) -> None:
     """Enqueue a pipeline task in arq with our chosen job_id.
 
-    Raises HTTPException(503) if the pool is unavailable. Logs warning if
-    enqueue returns None (job_id collision — shouldn't happen with UUID).
+    Raises HTTPException(503) if the pool is unavailable OR if the actual
+    enqueue raises a connection error (Redis went down post-startup).
+    Logs warning if enqueue returns None (job_id collision — shouldn't
+    happen with UUID4).
+
+    Two failure modes for 503:
+    1. `pool is None` — startup couldn't connect, lifespan kept us serving
+       non-queue endpoints but enqueue can't proceed.
+    2. `pool.enqueue_job(...)` raises — Redis died after startup. Pool object
+       still exists but underlying connection is broken. We don't try to
+       reconnect here; the next pm2 restart of bagent-booksyauditor will
+       fix it (or operator restarts redis-bagent and pm2 picks up).
     """
     pool = getattr(app.state, "arq", None)
     if pool is None:
         raise HTTPException(
             status_code=503,
-            detail="job queue unavailable (Redis disconnected) — retry shortly",
+            detail="job queue unavailable (Redis disconnected at startup) — retry shortly",
         )
-    arq_job = await pool.enqueue_job(
-        task_name,
-        request_payload,
-        _job_id=job_id,
-    )
+
+    try:
+        arq_job = await pool.enqueue_job(
+            task_name,
+            request_payload,
+            _job_id=job_id,
+        )
+    except Exception as e:  # noqa: BLE001
+        # Redis connectivity lost mid-flight, pool unhealthy, etc.
+        logger.error("arq enqueue_job failed for %s job_id=%s: %s", task_name, job_id, e)
+        raise HTTPException(
+            status_code=503,
+            detail=f"job queue unavailable ({type(e).__name__}) — retry shortly",
+        ) from e
+
     if arq_job is None:
         # arq returns None when a job with the same _job_id is already in
         # the queue. With UUID4 this is effectively impossible, but log
