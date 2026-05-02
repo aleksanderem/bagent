@@ -137,72 +137,85 @@ def _upsert_salon(
     category_id: int,
     voivodeship_id: int,
 ) -> bool:
-    """UPSERT one salon. Returns True if new (first sighting), False if update."""
+    """Discovery writes a partial row directly to `salons` (NULL
+    last_scraped_at marks "needs full scrape" — scrape orchestrator
+    drains those via enqueue_discovered_salons SQL helper).
+
+    Returns True if newly inserted (first sighting of this booksy_id
+    anywhere in our database), False if a salons row already existed
+    (from prior discovery or full scrape). Either way the
+    discovered_salon_categories mapping row is upserted so the many-
+    to-many salon ↔ (category, voivodeship) view stays accurate.
+    """
+    from datetime import datetime, timezone
+
     booksy_id = business.get("id")
     if not isinstance(booksy_id, int):
         return False
 
     location = business.get("location") or {}
-    row = {
-        "booksy_id": booksy_id,
-        "slug": (business.get("slug") or business.get("url") or "")[:200] or None,
-        "name": (business.get("name") or "")[:300] or None,
-        "city": (location.get("city") or location.get("city_name") or "")[:100] or None,
-        "lat": location.get("latitude") or business.get("latitude"),
-        "lng": location.get("longitude") or business.get("longitude"),
-        "primary_category_id": category_id,
-        "voivodeship_id": voivodeship_id,
-        "reviews_count": business.get("reviews_count"),
-        "reviews_rank": business.get("reviews_rank"),
-        "last_seen_at": "now()",
-    }
-    # Drop None geo so we don't overwrite better data on second sighting.
-    if row["lat"] is None:
-        row.pop("lat")
-    if row["lng"] is None:
-        row.pop("lng")
-    if row["last_seen_at"] == "now()":
-        # Supabase Python client doesn't expand server-side now() inside upsert;
-        # use a clientside timestamp instead.
-        from datetime import datetime, timezone
-        row["last_seen_at"] = datetime.now(tz=timezone.utc).isoformat()
+    name = (business.get("name") or "")[:300] or f"Salon {booksy_id}"
+    slug = (business.get("slug") or business.get("url") or "")[:200] or None
+    city = (location.get("city") or location.get("city_name") or "")[:100] or None
+    lat = location.get("latitude") or business.get("latitude")
+    lng = location.get("longitude") or business.get("longitude")
+    reviews_count = business.get("reviews_count")
+    reviews_rank = business.get("reviews_rank")
+    now_iso = datetime.now(tz=timezone.utc).isoformat()
 
-    # Check if existed before by counting — cheaper than INSERT-ON-CONFLICT
-    # round-trip with selected return.
+    # Check existence in salons (the canonical store). booksy_id has a
+    # UNIQUE constraint so this is a fast index hit.
     existing = (
-        client.table("discovered_salons")
-        .select("booksy_id")
+        client.table("salons")
+        .select("booksy_id,last_scraped_at")
         .eq("booksy_id", booksy_id)
         .limit(1)
         .execute()
     )
-    is_new = not (existing.data or [])
+    existing_row = (existing.data or [None])[0]
+    is_new = existing_row is None
+    has_full_scrape = existing_row is not None and existing_row.get("last_scraped_at") is not None
 
     if is_new:
-        row["first_seen_at"] = row["last_seen_at"]
-        row["seen_count"] = 1
-        client.table("discovered_salons").insert(row).execute()
-    else:
-        client.table("discovered_salons").update({
-            "name": row.get("name"),
-            "city": row.get("city"),
-            "lat": row.get("lat"),
-            "lng": row.get("lng"),
-            "reviews_count": row.get("reviews_count"),
-            "reviews_rank": row.get("reviews_rank"),
-            "last_seen_at": row["last_seen_at"],
-        }).eq("booksy_id", booksy_id).execute()
+        # Insert partial. last_scraped_at left NULL → scrape orchestrator
+        # picks this up on the next enqueue_discovered_salons run.
+        row: dict[str, Any] = {
+            "booksy_id": booksy_id,
+            "name": name,
+            "slug": slug,
+            "city": city,
+            "primary_category_id": category_id,
+            "reviews_count": reviews_count or 0,
+            "created_at": now_iso,
+            "updated_at": now_iso,
+        }
+        if lat is not None:
+            row["latitude"] = float(lat)
+        if lng is not None:
+            row["longitude"] = float(lng)
+        if reviews_rank is not None:
+            row["reviews_rank"] = float(reviews_rank)
+        client.table("salons").insert(row).execute()
+    elif not has_full_scrape:
+        # Discovery already saw this salon (also still no full scrape) —
+        # refresh the partial fields in case Booksy renamed/reclassified.
+        update: dict[str, Any] = {
+            "name": name,
+            "city": city,
+            "reviews_count": reviews_count or 0,
+            "updated_at": now_iso,
+        }
+        if reviews_rank is not None:
+            update["reviews_rank"] = float(reviews_rank)
+        if lat is not None:
+            update["latitude"] = float(lat)
+        if lng is not None:
+            update["longitude"] = float(lng)
+        client.table("salons").update(update).eq("booksy_id", booksy_id).execute()
+    # else: full-scrape salon — leave it alone, ingester knows better.
 
-    # Issue #34 follow-up: also write the many-to-many mapping so
-    # cross-category visibility is preserved (a single salon can show
-    # up under Fryzjer + Salon urody + Brwi i rzęsy at the same time).
-    # ON CONFLICT we just bump last_seen_at + seen_count.
-    mapping_row = {
-        "booksy_id": booksy_id,
-        "category_id": category_id,
-        "voivodeship_id": voivodeship_id,
-        "last_seen_at": row["last_seen_at"],
-    }
+    # Many-to-many mapping (category x voivodeship) — write regardless
+    # of whether the salons row was new, partial-update, or untouched.
     existing_map = (
         client.table("discovered_salon_categories")
         .select("seen_count")
@@ -215,13 +228,19 @@ def _upsert_salon(
     if existing_map.data:
         prev = existing_map.data[0].get("seen_count") or 1
         client.table("discovered_salon_categories").update({
-            "last_seen_at": row["last_seen_at"],
+            "last_seen_at": now_iso,
             "seen_count": prev + 1,
         }).eq("booksy_id", booksy_id).eq("category_id", category_id).eq("voivodeship_id", voivodeship_id).execute()
     else:
-        mapping_row["first_seen_at"] = row["last_seen_at"]
-        mapping_row["seen_count"] = 1
-        client.table("discovered_salon_categories").insert(mapping_row).execute()
+        client.table("discovered_salon_categories").insert({
+            "booksy_id": booksy_id,
+            "category_id": category_id,
+            "voivodeship_id": voivodeship_id,
+            "first_seen_at": now_iso,
+            "last_seen_at": now_iso,
+            "seen_count": 1,
+        }).execute()
+
     return is_new
 
 
