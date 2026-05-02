@@ -190,19 +190,31 @@ def _filter_stale(
     cadence_days: int,
 ) -> list[int]:
     """Return booksy_ids whose latest salon_scrapes.scraped_at is older
-    than `cadence_days` (or that have no scrape at all)."""
+    than `cadence_days` (or that have no scrape at all).
+
+    Chunked by 100 IDs per IN clause — PostgREST/nginx URI cap kicks
+    in around ~6 KB and 800-element IN was hitting HTTP 414.
+    """
     if not booksy_ids:
         return []
     cutoff_iso = _iso_days_ago(cadence_days)
-    # Find recent scrapes — the COMPLEMENT is what's stale.
-    res = (
-        client.table("salon_scrapes")
-        .select("booksy_id, scraped_at")
-        .in_("booksy_id", booksy_ids)
-        .gte("scraped_at", cutoff_iso)
-        .execute()
-    )
-    fresh = {row["booksy_id"] for row in (res.data or []) if row.get("booksy_id")}
+    fresh: set[int] = set()
+    for i in range(0, len(booksy_ids), 100):
+        chunk = booksy_ids[i : i + 100]
+        try:
+            res = (
+                client.table("salon_scrapes")
+                .select("booksy_id, scraped_at")
+                .in_("booksy_id", chunk)
+                .gte("scraped_at", cutoff_iso)
+                .execute()
+            )
+            for row in (res.data or []):
+                bid = row.get("booksy_id")
+                if bid is not None:
+                    fresh.add(bid)
+        except Exception as e:  # noqa: BLE001
+            logger.warning("[refresh_scheduler] _filter_stale chunk %d failed: %s", i, e)
     return [bid for bid in booksy_ids if bid not in fresh]
 
 
