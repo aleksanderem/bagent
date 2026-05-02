@@ -285,7 +285,7 @@ def _upsert_salon(
 
 async def _walk_bbox(
     http: httpx.AsyncClient,
-    client: Client,
+    _client_unused: Client | None,  # kept for back-compat; we always use module-level
     *,
     category_id: int,
     voivodeship_id: int,
@@ -318,7 +318,7 @@ async def _walk_bbox(
     # on every single probe). Cheap UPDATE — keys are PK btree.
     if run_id is not None and result.bboxes_walked % PROGRESS_FLUSH_INTERVAL == 0:
         try:
-            client.table("discovery_runs").update({
+            _get_client().table("discovery_runs").update({
                 "bboxes_walked": result.bboxes_walked,
                 "salons_found": result.salons_found,
                 "salons_new": result.salons_new,
@@ -330,6 +330,8 @@ async def _walk_bbox(
             }).eq("id", run_id).execute()
         except Exception as e:  # noqa: BLE001
             logger.warning("[discovery] progress flush failed: %s", e)
+            if "ConnectionTerminated" in str(e) or "ConnectionInputs" in str(e):
+                _reset_client()
 
     businesses = response.get("businesses") or []
     total = response.get("businesses_count") or 0
@@ -376,7 +378,7 @@ async def _walk_bbox(
         # the same area more granularly, deduped by booksy_id.
         for child in _split_bbox(bbox):
             await _walk_bbox(
-                http, client,
+                http, None,  # _client_unused; walk_bbox always uses module-level _get_client()
                 category_id=category_id,
                 voivodeship_id=voivodeship_id,
                 bbox=child,
@@ -386,12 +388,14 @@ async def _walk_bbox(
             )
         return
 
-    # Leaf — store every business in this response.
+    # Leaf — store every business in this response. Always grab a
+    # fresh handle from _get_client() so a mid-walk _reset_client()
+    # actually takes effect on the next iteration.
     bbox_added_new_mapping = False
     for biz in businesses:
         try:
             is_new_salon, is_new_mapping = _upsert_salon(
-                client, biz,
+                _get_client(), biz,
                 category_id=category_id,
                 voivodeship_id=voivodeship_id,
             )
@@ -401,7 +405,16 @@ async def _walk_bbox(
             if is_new_mapping:
                 bbox_added_new_mapping = True
         except Exception as e:  # noqa: BLE001
-            logger.warning("[discovery] upsert failed for %s: %s", biz.get("id"), e)
+            err_str = str(e)
+            logger.warning("[discovery] upsert failed for %s: %s", biz.get("id"), err_str)
+            # HTTP/2 cascade detection — supabase-py's httpx pool gets
+            # stuck after a single ConnectionTerminated and every
+            # subsequent upsert blows up the same way. Reset the
+            # module-level client so the next iteration of THIS loop
+            # AND every recursive child call gets a fresh pool.
+            if "ConnectionTerminated" in err_str or "ConnectionInputs" in err_str:
+                logger.info("[discovery] HTTP/2 cascade detected — resetting supabase client")
+                _reset_client()
 
     # Saturation tracking — bump streak when this bbox added zero new
     # combo mappings, reset to 0 when at least one new mapping landed.
@@ -457,7 +470,7 @@ async def discover_combo(
     try:
         async with httpx.AsyncClient() as http:
             await _walk_bbox(
-                http, client,
+                http, None,  # _client_unused; walker uses module-level _get_client()
                 category_id=category_id,
                 voivodeship_id=voivodeship_id,
                 bbox=root_bbox,
@@ -470,7 +483,7 @@ async def discover_combo(
         # 'done' regardless — collected data is real and committed.
         # The optional `error` field carries cap_hit notes so operators
         # can see "we stopped early" without it counting as a failure.
-        client.table("discovery_runs").update({
+        _get_client().table("discovery_runs").update({
             "status": "done",
             "finished_at": "now()",
             "bboxes_walked": result.bboxes_walked,
@@ -489,7 +502,7 @@ async def discover_combo(
     except Exception as e:  # noqa: BLE001
         result.error = str(e)[:500]
         result.finished_at = time.time()
-        client.table("discovery_runs").update({
+        _get_client().table("discovery_runs").update({
             "status": "failed",
             "finished_at": "now()",
             "bboxes_walked": result.bboxes_walked,
