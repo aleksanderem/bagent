@@ -159,16 +159,6 @@ try:  # pragma: no cover
         cron("workers.scrape_refresh.schedule_refresh_cron", minute={5}),
         # Reap stuck jobs every 10 minutes.
         cron("workers.scrape_refresh.reap_stuck_jobs", minute={i for i in range(2, 60, 10)}),
-        # Issue #34 — Sundays at 03:00 UTC: full discovery sweep across
-        # all 22 categories x 16 voivodeships. Runs sequentially inside
-        # this single task — Booksy listing API rate-limits aggressively
-        # so parallelism via fan-out gets 429'd immediately. Discovery
-        # naturally takes 1-3h depending on Booksy load.
-        cron(
-            "workers.discovery_tasks.discovery_full_sweep_cron",
-            weekday="sun", hour={3}, minute={0},
-            timeout=4 * 60 * 60,  # 4h
-        ),
         # Issue #34 — every hour at :15: bulk-enqueue newly discovered
         # salons into salon_refresh_queue so the existing scrape
         # orchestrator pulls full details when capacity allows.
@@ -181,6 +171,15 @@ try:  # pragma: no cover
         cron(
             "workers.discovery_tasks.reap_stuck_discovery_runs",
             minute={30},
+        ),
+        # Issue #34 — every 30 min: bootstrap watchdog. Fires a pump
+        # bootstrap which is no-op if a step is already in-flight (lock
+        # in Redis). Catches the case where the pump loop gets
+        # interrupted (worker crash mid-step) and the re-enqueue never
+        # happened.
+        cron(
+            "workers.discovery_tasks.bootstrap_discovery_pump",
+            minute={0, 30},
         ),
     ]
 except Exception:  # noqa: BLE001
