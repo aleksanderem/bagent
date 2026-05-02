@@ -34,7 +34,9 @@ class Settings(BaseSettings):
     # Set per-process in PM2 ecosystem so logs + locked_by columns disambiguate.
     scrape_worker_id: str = "scrape-worker-default"
 
-    model_config = {"env_file": ".env", "env_file_encoding": "utf-8"}
+    # extra="ignore" lets us put arbitrary env vars in .env (e.g. BUGSINK_DSN_*,
+    # HC_PING_*) without having to declare each one as a pydantic field.
+    model_config = {"env_file": ".env", "env_file_encoding": "utf-8", "extra": "ignore"}
 
 
 settings = Settings()
