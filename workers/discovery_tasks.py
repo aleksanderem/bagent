@@ -107,19 +107,48 @@ PUMP_LOCK_TTL_SEC = 4 * 60 * 60
 PUMP_TASK_TIMEOUT_SEC = 4 * 60 * 60  # arq per-job timeout for the pump itself
 
 
+# Cooldowns for the pump's combo selection. Without these the pump
+# re-walks the same combo every cycle (~hours apart) — observed 8x
+# re-walks of trening-i-dieta × mazowieckie in 24h, total 7485 bboxes
+# for 167 unique salons (45 bboxes/salon = 7.5x waste vs single-pass).
+#
+# DONE_COOLDOWN_HOURS: combo finished cleanly within last N hours →
+# skip. Re-walk daily is enough to catch new Booksy listings.
+# FAILED_COOLDOWN_HOURS: combo failed within last N hours → skip;
+# auto_retry_failed_discovery_runs (cron :15/:45) handles it on its
+# own schedule with its own cooldown logic.
+DONE_COOLDOWN_HOURS = 24
+FAILED_COOLDOWN_HOURS = 1
+
+
 def _pick_next_due_combo(client: Client) -> tuple[int, int] | None:
-    """Return (category_id, voivodeship_id) of the least-recently-swept
-    combo. NEVER-swept combos win first. Combos with status='running'
-    in the latest discovery_runs row are skipped (zombies/concurrent)."""
+    """Return (category_id, voivodeship_id) of the next combo due for
+    discovery, with cooldown logic to avoid re-walking the same combo
+    every pump cycle.
+
+    Priority order:
+      1. NEVER-swept combos (no discovery_runs row at all).
+      2. Combos whose latest run is past cooldown — sorted by oldest
+         started_at first. 'done' combos cool down for
+         DONE_COOLDOWN_HOURS, 'failed' for FAILED_COOLDOWN_HOURS.
+      3. (skipped) Combos currently 'running' (let them finish).
+      4. (skipped) Combos in cooldown window."""
+    from datetime import datetime, timedelta, timezone
+    now = datetime.now(tz=timezone.utc)
+    done_cutoff = now - timedelta(hours=DONE_COOLDOWN_HOURS)
+    failed_cutoff = now - timedelta(hours=FAILED_COOLDOWN_HOURS)
+
     cats = client.table("booksy_categories").select("id").execute().data or []
     voivs = client.table("booksy_voivodeships").select("id").execute().data or []
     combos = {(int(c["id"]), int(v["id"])) for c in cats for v in voivs}
     if not combos:
         return None
 
+    # Pull both started_at and finished_at — we cool down based on
+    # finished_at (when the run ENDED) not started_at.
     runs = (
         client.table("discovery_runs")
-        .select("category_id,voivodeship_id,status,started_at")
+        .select("category_id,voivodeship_id,status,started_at,finished_at")
         .order("started_at", desc=True)
         .limit(5000)
         .execute()
@@ -132,16 +161,40 @@ def _pick_next_due_combo(client: Client) -> tuple[int, int] | None:
         if key not in latest_per_combo:
             latest_per_combo[key] = r
 
+    def _parse_iso(ts: str | None) -> datetime | None:
+        if not ts:
+            return None
+        try:
+            return datetime.fromisoformat(ts.replace("Z", "+00:00"))
+        except (ValueError, AttributeError):
+            return None
+
     candidates: list[tuple[Any, tuple[int, int]]] = []
+    skipped_cooldown = 0
     for combo in combos:
         latest = latest_per_combo.get(combo)
         if latest is None:
             candidates.append(("", combo))  # NEVER-swept sorts first
-        elif latest.get("status") == "running":
             continue
-        else:
-            candidates.append((latest.get("started_at") or "0", combo))
+        status = latest.get("status")
+        if status == "running":
+            continue  # in flight
+        finished_at = _parse_iso(latest.get("finished_at")) or _parse_iso(latest.get("started_at"))
+        if finished_at is not None:
+            if status == "done" and finished_at >= done_cutoff:
+                skipped_cooldown += 1
+                continue
+            if status == "failed" and finished_at >= failed_cutoff:
+                skipped_cooldown += 1
+                continue
+        candidates.append((latest.get("started_at") or "0", combo))
+
     if not candidates:
+        if skipped_cooldown > 0:
+            logger.info(
+                "[discovery] no due combo (%d in cooldown — done<%dh or failed<%dh)",
+                skipped_cooldown, DONE_COOLDOWN_HOURS, FAILED_COOLDOWN_HOURS,
+            )
         return None
     candidates.sort(key=lambda x: x[0])
     return candidates[0][1]
