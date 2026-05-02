@@ -183,18 +183,38 @@ async def drain_scrape_queue(ctx: dict[str, Any]) -> dict[str, int]:
             ).execute()
         except LiveIngestError as e:
             error_text = str(e)[:500]
-            outcome = client.rpc(
-                "complete_salon_refresh_job",
-                {"p_id": job_id, "p_error": error_text},
-            ).execute()
-            if (outcome.data or "") == "failed":
-                counts["failed"] += 1
-            else:
-                counts["requeued"] += 1
-            logger.warning(
-                "[scrape_refresh] booksy_id=%s job=%s failed: %s",
-                booksy_id, job_id, error_text,
+            # Booksy 404/410 = salon deleted/gone permanently. Skip the
+            # 5-attempt retry loop entirely (we'd just hit the same 404
+            # 4 more times at 60s/120s/240s/... backoff). Mark the
+            # salon as deleted so enqueue_discovered_salons won't
+            # re-add it on the next :15 cron tick.
+            is_gone_from_booksy = (
+                "Booksy API 404" in error_text
+                or "Booksy API 410" in error_text
             )
+            if is_gone_from_booksy:
+                client.rpc(
+                    "mark_salon_gone_from_booksy",
+                    {"p_id": job_id, "p_error": error_text},
+                ).execute()
+                counts["failed"] += 1
+                logger.info(
+                    "[scrape_refresh] booksy_id=%s GONE from booksy (404/410) — marked deleted",
+                    booksy_id,
+                )
+            else:
+                outcome = client.rpc(
+                    "complete_salon_refresh_job",
+                    {"p_id": job_id, "p_error": error_text},
+                ).execute()
+                if (outcome.data or "") == "failed":
+                    counts["failed"] += 1
+                else:
+                    counts["requeued"] += 1
+                logger.warning(
+                    "[scrape_refresh] booksy_id=%s job=%s failed: %s",
+                    booksy_id, job_id, error_text,
+                )
         except Exception as e:  # noqa: BLE001 - safety net
             error_text = f"unexpected {type(e).__name__}: {str(e)[:400]}"
             client.rpc(
