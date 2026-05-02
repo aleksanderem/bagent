@@ -189,8 +189,24 @@ async def discovery_pump_step(ctx: dict[str, Any]) -> dict[str, Any]:
 async def bootstrap_discovery_pump(ctx: dict[str, Any]) -> dict[str, Any]:
     """One-shot kick to start the pump loop. Idempotent — fires a single
     enqueue with a 2s defer. If the loop is already running, the lock
-    inside ``discovery_pump_step`` ensures no double-pump."""
+    inside ``discovery_pump_step`` ensures no double-pump.
+
+    Also opportunistically reaps the most-recent generation of zombies
+    (rows still 'running' but with no progress in the last 5 min). The
+    hourly :30 cron handles the long-tail (>4h) case; this catches the
+    common pump_step-killed-by-deploy case where a row sat for ~minutes
+    after a worker restart and the pump can't pick its combo because
+    _pick_next_due_combo skips 'running' rows.
+    """
     pool: ArqRedis = ctx["redis"]
+    client = _get_client()
+    # Reap rows still 'running' from >5 min ago AND with bboxes_walked=0
+    # (nothing flushed yet → almost certainly killed before first probe).
+    try:
+        client.rpc("reap_stuck_discovery_runs_recent", {}).execute()
+    except Exception:
+        # Helper not present in older deploys — fall through silently.
+        pass
     await pool.enqueue_job(
         "discovery_pump_step",
         _defer_by=2,
