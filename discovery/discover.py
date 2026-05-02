@@ -182,8 +182,9 @@ def _upsert_salon(
     has_full_scrape = existing_row is not None and existing_row.get("last_scraped_at") is not None
 
     if is_new:
-        # Insert partial. last_scraped_at left NULL → scrape orchestrator
-        # picks this up on the next enqueue_discovered_salons run.
+        # Insert partial. last_scraped_at MUST be explicit None — the
+        # salons schema has DEFAULT now() so omitting the column would
+        # set it to NOW, hiding the "needs full scrape" marker.
         row: dict[str, Any] = {
             "booksy_id": booksy_id,
             "name": name,
@@ -193,6 +194,7 @@ def _upsert_salon(
             "reviews_count": reviews_count or 0,
             "created_at": now_iso,
             "updated_at": now_iso,
+            "last_scraped_at": None,
         }
         if lat is not None:
             row["latitude"] = float(lat)
