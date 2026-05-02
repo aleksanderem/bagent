@@ -178,11 +178,9 @@ async def discovery_pump_step(ctx: dict[str, Any]) -> dict[str, Any]:
     finally:
         await pool.delete(PUMP_LOCK_KEY)
 
-    await pool.enqueue_job(
-        "discovery_pump_step",
-        _defer_by=delay,
-        _job_timeout=PUMP_TASK_TIMEOUT_SEC,
-    )
+    # arq has no per-job timeout override; the global
+    # WorkerSettings.job_timeout (4h) covers us.
+    await pool.enqueue_job("discovery_pump_step", _defer_by=delay)
     return outcome
 
 
@@ -207,11 +205,7 @@ async def bootstrap_discovery_pump(ctx: dict[str, Any]) -> dict[str, Any]:
     except Exception:
         # Helper not present in older deploys — fall through silently.
         pass
-    await pool.enqueue_job(
-        "discovery_pump_step",
-        _defer_by=2,
-        _job_timeout=PUMP_TASK_TIMEOUT_SEC,
-    )
+    await pool.enqueue_job("discovery_pump_step", _defer_by=2)
     return {"bootstrapped": True}
 
 

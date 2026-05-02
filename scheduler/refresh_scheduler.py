@@ -97,10 +97,16 @@ def _tier_one_due(client: Client) -> list[int]:
     """booksy_ids in active competitor_monitoring_watchlists whose subject
     salon hasn't been scraped in the last `TIER_CADENCE_DAYS[1]` days.
 
-    competitor_monitoring_watchlists.salons is a JSON array of
-    {salonId, salonName, ...}. We pull all watchlists, flatten the
-    salon ids, and probe their freshness in salon_scrapes.
+    NOTE: ``competitorMonitoringWatchlists`` is a Convex table, NOT a
+    Supabase one — querying via supabase-py returns a 404 (table not
+    in the schema cache). Until we either add a synchronization mirror
+    table on the Supabase side or move tier-1 selection into a Convex
+    internal action, this returns an empty list. tier-2 and tier-3
+    keep covering monitoring subjects via the audit-subject path.
     """
+    return []
+    # Original implementation kept for reference — re-enable when a
+    # Convex-side fanout writes to a supabase mirror table:
     res = client.table("competitorMonitoringWatchlists").select("salons").execute()
     if not res.data:
         return []
