@@ -38,6 +38,15 @@ INTER_CALL_DELAY_SEC = 0.4
 # sweeps (mazowieckie x dense category can probe 500+ bboxes).
 PROGRESS_FLUSH_INTERVAL = 5
 
+# Saturation early-stop: once K consecutive bboxes contribute zero
+# NEW salons (everything we see is already deduped against existing
+# discovered_salon_categories rows), the subtree is exhausted —
+# further subdivision just wastes API calls without surfacing more
+# salons. Tuned so genuinely sparse rural areas can have a few empty
+# bboxes in a row without aborting; only sustained zero-streak ends
+# the walk.
+SATURATION_ZERO_STREAK = 25
+
 
 @dataclass
 class DiscoveryResult:
@@ -50,6 +59,10 @@ class DiscoveryResult:
     started_at: float = field(default_factory=time.time)
     finished_at: float | None = None
     error: str | None = None
+    # Tracking for saturation early-stop. Reset to 0 every time a
+    # bbox surfaces ANY new salon; bumped on each zero-new bbox.
+    # When it crosses SATURATION_ZERO_STREAK the recursion bails.
+    zero_new_streak: int = 0
 
     @property
     def duration_sec(self) -> float:
@@ -69,6 +82,18 @@ def _get_client() -> Client:
             options=ClientOptions(schema="public"),
         )
     return _supabase_client
+
+
+def _reset_client() -> Client:
+    """Drop the cached client and build a fresh one. Use at the start
+    of each combo to clear out HTTP/2 connection pools that have been
+    poisoned by ConnectionTerminated cascades — once httpx's HTTP/2
+    pool sees a bad GOAWAY frame, every subsequent upsert in that pool
+    raises ConnectionInputs.RECV_WINDOW_UPDATE-in-CLOSED-state until
+    the client is rebuilt. 19k errors in worker log = exactly this."""
+    global _supabase_client
+    _supabase_client = None
+    return _get_client()
 
 
 async def _fetch_listing(
@@ -146,17 +171,23 @@ def _upsert_salon(
     last_scraped_at marks "needs full scrape" — scrape orchestrator
     drains those via enqueue_discovered_salons SQL helper).
 
-    Returns True if newly inserted (first sighting of this booksy_id
-    anywhere in our database), False if a salons row already existed
-    (from prior discovery or full scrape). Either way the
-    discovered_salon_categories mapping row is upserted so the many-
-    to-many salon ↔ (category, voivodeship) view stays accurate.
+    Returns a tuple (is_new_salon, is_new_mapping):
+      - is_new_salon: first time seeing this booksy_id ANYWHERE in DB
+      - is_new_mapping: first time seeing this booksy_id in this
+        specific (category × voivodeship) combo
+
+    The mapping bool is what saturation tracking uses. A re-run of an
+    already-walked combo will report is_new_salon=False everywhere
+    (the salon exists from previous run) but is_new_mapping=False
+    only if the mapping row was already there. This keeps re-runs
+    naturally resumable: previously-walked subtrees saturate fast,
+    new bboxes still surface as work to do.
     """
     from datetime import datetime, timezone
 
     booksy_id = business.get("id")
     if not isinstance(booksy_id, int):
-        return False
+        return (False, False)
 
     location = business.get("location") or {}
     name = (business.get("name") or "")[:300] or f"Salon {booksy_id}"
@@ -232,6 +263,7 @@ def _upsert_salon(
         .limit(1)
         .execute()
     )
+    is_new_mapping = not existing_map.data
     if existing_map.data:
         prev = existing_map.data[0].get("seen_count") or 1
         client.table("discovered_salon_categories").update({
@@ -248,7 +280,7 @@ def _upsert_salon(
             "seen_count": 1,
         }).execute()
 
-    return is_new
+    return (is_new, is_new_mapping)
 
 
 async def _walk_bbox(
@@ -267,6 +299,16 @@ async def _walk_bbox(
     otherwise upsert what we got. Updates the discovery_runs row's
     progress counters every PROGRESS_FLUSH_INTERVAL probes so the
     Workers dashboard shows live activity for long-running sweeps."""
+    # Saturation early-stop: if the running zero-new-salons streak
+    # exceeded the threshold, the subtree is exhausted (every salon
+    # we'd find here is already in discovered_salon_categories). Bail
+    # WITHOUT counting this as failure — the data we have IS 100%
+    # of what Booksy will give us.
+    if result.zero_new_streak >= SATURATION_ZERO_STREAK:
+        if not result.error:
+            result.error = f"saturated: {SATURATION_ZERO_STREAK} consecutive zero-new bboxes"
+        return
+
     response = await _fetch_listing(http, category_id, voivodeship_id, bbox)
     await asyncio.sleep(INTER_CALL_DELAY_SEC)
     result.bboxes_walked += 1
@@ -281,6 +323,10 @@ async def _walk_bbox(
                 "salons_found": result.salons_found,
                 "salons_new": result.salons_new,
                 "total_count_hint": result.total_count_hint,
+                # Heartbeat for the smart reaper — see migration 031.
+                # Reaper kills 'running' rows whose last_progress_at
+                # is >30 min old, instead of an absolute 4h age cap.
+                "last_progress_at": "now()",
             }).eq("id", run_id).execute()
         except Exception as e:  # noqa: BLE001
             logger.warning("[discovery] progress flush failed: %s", e)
@@ -341,18 +387,29 @@ async def _walk_bbox(
         return
 
     # Leaf — store every business in this response.
+    bbox_added_new_mapping = False
     for biz in businesses:
         try:
-            is_new = _upsert_salon(
+            is_new_salon, is_new_mapping = _upsert_salon(
                 client, biz,
                 category_id=category_id,
                 voivodeship_id=voivodeship_id,
             )
             result.salons_found += 1
-            if is_new:
+            if is_new_salon:
                 result.salons_new += 1
+            if is_new_mapping:
+                bbox_added_new_mapping = True
         except Exception as e:  # noqa: BLE001
             logger.warning("[discovery] upsert failed for %s: %s", biz.get("id"), e)
+
+    # Saturation tracking — bump streak when this bbox added zero new
+    # combo mappings, reset to 0 when at least one new mapping landed.
+    # Empty businesses list also counts as zero-new.
+    if bbox_added_new_mapping:
+        result.zero_new_streak = 0
+    else:
+        result.zero_new_streak += 1
 
 
 async def discover_combo(
@@ -361,7 +418,12 @@ async def discover_combo(
 ) -> DiscoveryResult:
     """Walk one (category, voivodeship) combo. Records a discovery_runs row.
     Idempotent: re-running the same combo just refreshes last_seen_at."""
-    client = _get_client()
+    # Fresh client per combo — supabase-py's HTTP/2 pool gets poisoned
+    # by a single ConnectionTerminated and every subsequent upsert in
+    # that pool then raises ConnectionInputs.RECV_WINDOW_UPDATE-in-
+    # CLOSED-state forever (see 19k-error log incident). Rebuilding
+    # the client here scopes the cascade to a single combo at most.
+    client = _reset_client()
 
     voiv_resp = (
         client.table("booksy_voivodeships")
@@ -404,6 +466,10 @@ async def discover_combo(
                 run_id=run_id,
             )
         result.finished_at = time.time()
+        # Walk completed normally (with or without cap_hit). Record as
+        # 'done' regardless — collected data is real and committed.
+        # The optional `error` field carries cap_hit notes so operators
+        # can see "we stopped early" without it counting as a failure.
         client.table("discovery_runs").update({
             "status": "done",
             "finished_at": "now()",
@@ -411,12 +477,14 @@ async def discover_combo(
             "salons_found": result.salons_found,
             "salons_new": result.salons_new,
             "total_count_hint": result.total_count_hint,
+            "error": result.error,  # None for clean runs, "cap_hit:..." for graceful early-stop
         }).eq("id", run_id).execute()
         logger.info(
-            "[discovery] cat=%s voiv=%s done bboxes=%d found=%d new=%d hint=%s in %.1fs",
+            "[discovery] cat=%s voiv=%s done bboxes=%d found=%d new=%d hint=%s in %.1fs%s",
             category_id, voivodeship_id,
             result.bboxes_walked, result.salons_found, result.salons_new,
             result.total_count_hint, result.duration_sec,
+            f" [{result.error}]" if result.error else "",
         )
     except Exception as e:  # noqa: BLE001
         result.error = str(e)[:500]
