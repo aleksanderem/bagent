@@ -33,6 +33,11 @@ MIN_SPAN_DEG = 0.005
 # discovery cron throughput.
 INTER_CALL_DELAY_SEC = 0.4
 
+# Flush progress to discovery_runs every N probes. Lets the Workers
+# dashboard show live bboxes_walked / salons_found counters for long
+# sweeps (mazowieckie x dense category can probe 500+ bboxes).
+PROGRESS_FLUSH_INTERVAL = 5
+
 
 @dataclass
 class DiscoveryResult:
@@ -253,13 +258,30 @@ async def _walk_bbox(
     bbox: tuple[float, float, float, float],
     depth: int,
     result: DiscoveryResult,
+    run_id: int | None = None,
 ) -> None:
     """Quad-tree walker. Probes a bbox; if API returned full page (20)
     AND total_count > 20 AND we still have room to subdivide, recurse;
-    otherwise upsert what we got."""
+    otherwise upsert what we got. Updates the discovery_runs row's
+    progress counters every PROGRESS_FLUSH_INTERVAL probes so the
+    Workers dashboard shows live activity for long-running sweeps."""
     response = await _fetch_listing(http, category_id, voivodeship_id, bbox)
     await asyncio.sleep(INTER_CALL_DELAY_SEC)
     result.bboxes_walked += 1
+
+    # Live progress: flush counters to the discovery_runs row every
+    # PROGRESS_FLUSH_INTERVAL probes (with debounce to skip flushing
+    # on every single probe). Cheap UPDATE — keys are PK btree.
+    if run_id is not None and result.bboxes_walked % PROGRESS_FLUSH_INTERVAL == 0:
+        try:
+            client.table("discovery_runs").update({
+                "bboxes_walked": result.bboxes_walked,
+                "salons_found": result.salons_found,
+                "salons_new": result.salons_new,
+                "total_count_hint": result.total_count_hint,
+            }).eq("id", run_id).execute()
+        except Exception as e:  # noqa: BLE001
+            logger.warning("[discovery] progress flush failed: %s", e)
 
     businesses = response.get("businesses") or []
     total = response.get("businesses_count") or 0
@@ -284,6 +306,7 @@ async def _walk_bbox(
                 bbox=child,
                 depth=depth + 1,
                 result=result,
+                run_id=run_id,
             )
         return
 
@@ -348,6 +371,7 @@ async def discover_combo(
                 bbox=root_bbox,
                 depth=0,
                 result=result,
+                run_id=run_id,
             )
         result.finished_at = time.time()
         client.table("discovery_runs").update({

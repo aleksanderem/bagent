@@ -95,7 +95,11 @@ async def discovery_full_sweep_cron(ctx: dict[str, Any]) -> dict[str, int]:
 PUMP_LOCK_KEY = "discovery:pump:active"
 PUMP_IDLE_DELAY_SEC = 60        # delay between combos when work exists
 PUMP_EMPTY_DELAY_SEC = 600      # delay when no due combo is found
-PUMP_LOCK_TTL_SEC = 30 * 60     # safety TTL on the in-flight lock
+# Lock TTL needs to outlive the longest single sweep. mazowieckie x
+# dense category (Trening i Dieta, Fryzjer, Salon kosmetyczny) can
+# probe 500+ bboxes at ~1.5s each. 4h is comfortable headroom.
+PUMP_LOCK_TTL_SEC = 4 * 60 * 60
+PUMP_TASK_TIMEOUT_SEC = 4 * 60 * 60  # arq per-job timeout for the pump itself
 
 
 def _pick_next_due_combo(client: Client) -> tuple[int, int] | None:
@@ -174,7 +178,11 @@ async def discovery_pump_step(ctx: dict[str, Any]) -> dict[str, Any]:
     finally:
         await pool.delete(PUMP_LOCK_KEY)
 
-    await pool.enqueue_job("discovery_pump_step", _defer_by=delay)
+    await pool.enqueue_job(
+        "discovery_pump_step",
+        _defer_by=delay,
+        _job_timeout=PUMP_TASK_TIMEOUT_SEC,
+    )
     return outcome
 
 
@@ -183,7 +191,11 @@ async def bootstrap_discovery_pump(ctx: dict[str, Any]) -> dict[str, Any]:
     enqueue with a 2s defer. If the loop is already running, the lock
     inside ``discovery_pump_step`` ensures no double-pump."""
     pool: ArqRedis = ctx["redis"]
-    await pool.enqueue_job("discovery_pump_step", _defer_by=2)
+    await pool.enqueue_job(
+        "discovery_pump_step",
+        _defer_by=2,
+        _job_timeout=PUMP_TASK_TIMEOUT_SEC,
+    )
     return {"bootstrapped": True}
 
 
