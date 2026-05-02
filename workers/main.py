@@ -74,7 +74,16 @@ async def get_redis_pool() -> ArqRedis:
 # (this PR), we keep on_startup minimal — just log and verify connectivity.
 
 async def startup(ctx: dict[str, Any]) -> None:
-    # Issue #24 — Sentry/Bugsink for the worker process. No-op when DSN env
+    # Issue #24 — load .env into os.environ first so observability.py
+    # can see BUGSINK_DSN_*. pydantic-settings reads .env separately
+    # but doesn't merge into os.environ.
+    try:
+        from dotenv import load_dotenv
+        load_dotenv()
+    except Exception:  # noqa: BLE001
+        pass
+
+    # Sentry/Bugsink init for the worker process. No-op when DSN env
     # var is missing. Done first so import-time failures in tasks register.
     try:
         from observability import init_for_worker

@@ -16,6 +16,15 @@ from fastapi.responses import HTMLResponse
 from pydantic import BaseModel
 from sse_starlette.sse import EventSourceResponse
 
+# Issue #24 — load .env into os.environ FIRST so observability.py can
+# read BUGSINK_DSN_BAGENT before sentry_sdk.init runs. pydantic-settings
+# only reads .env, it doesn't merge into os.environ, so we use dotenv.
+try:
+    from dotenv import load_dotenv
+    load_dotenv()
+except Exception:  # noqa: BLE001
+    pass
+
 from config import settings
 from job_store import Job, JobStore
 from observability import init_for_server as init_sentry
@@ -24,8 +33,7 @@ from workers import get_redis_pool, set_cancel_flag
 logging.basicConfig(level=logging.INFO, format="%(asctime)s %(name)s %(levelname)s %(message)s")
 logger = logging.getLogger(__name__)
 
-# Issue #24 — initialize Bugsink/Sentry as early as possible so import-time
-# failures still get captured. No-op when BUGSINK_DSN_BAGENT is missing.
+# Initialize Bugsink/Sentry. No-op when BUGSINK_DSN_BAGENT is missing.
 init_sentry()
 
 
