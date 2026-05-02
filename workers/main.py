@@ -153,8 +153,16 @@ from .discovery_tasks import ALL_DISCOVERY_TASKS
 try:  # pragma: no cover
     from arq import cron
     SCRAPE_CRONS = [
-        # Drain the queue every minute. Each tick claims CLAIM_BATCH_SIZE.
-        cron("workers.scrape_refresh.drain_scrape_queue", minute={i for i in range(0, 60)}),
+        # Drain the queue twice per minute (every 30s). Each tick claims
+        # CLAIM_BATCH_SIZE. Combined ceiling: 8 × 2 × 60 = 960 salons/h,
+        # but inter-fetch sleep + Booksy ~1.5s/req keeps real throughput
+        # at ~750/h sustained. Per-tick budget ~20s, so 30s spacing
+        # leaves comfortable headroom.
+        cron(
+            "workers.scrape_refresh.drain_scrape_queue",
+            minute={i for i in range(0, 60)},
+            second={0, 30},
+        ),
         # Top up the queue once an hour at minute 5 (stagger off other crons).
         cron("workers.scrape_refresh.schedule_refresh_cron", minute={5}),
         # Reap stuck jobs every 10 minutes.

@@ -41,12 +41,15 @@ from ingestion import LiveIngestError, fetch_and_persist_salon
 
 logger = logging.getLogger("bagent.workers.scrape_refresh")
 
-# Per-tick batch size. Lowered from 10 to 5 because each salon scrape
-# triggers ~3-5 Booksy requests inside bextract (business + services +
-# reviews + top_services + gallery), and 10 jobs × 4 reqs in a one-
-# minute burst was hitting Booksy's 429 rate limit.
-# 5 per tick × 60 ticks/h = 300 salons/h sustained, low bursts.
-CLAIM_BATCH_SIZE = 5
+# Per-tick batch size. Lowered from 10 to 5 originally because of
+# Booksy 429s; bumped to 8 once the inter-fetch sleep + cron pacing
+# kept us comfortably under ~0.4 req/s sustained. Combined with the
+# twice-per-minute drain cron (see workers/main.py: second={0,30}),
+# steady-state throughput is 8 × 2 × 60 = 960 salons/h ceiling,
+# realistically ~750/h after overhead. Per-tick burst is 8 reqs in
+# ~20s = 0.4 req/s — same per-second rate as before, just doubled
+# tick frequency.
+CLAIM_BATCH_SIZE = 8
 
 # Sleep between salon fetches inside a single drain tick. Spreads
 # Booksy traffic so a slow tick doesn't pile up requests at the start.
