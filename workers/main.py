@@ -181,6 +181,14 @@ try:  # pragma: no cover
             "workers.discovery_tasks.bootstrap_discovery_pump",
             minute={0, 30},
         ),
+        # Issue #34 — every 30 min at :15 and :45: auto-retry failed
+        # combos with transient errors (timeout/restart/HTTP-flake).
+        # Cap=5 per tick, cooldown=5min, max-age=24h. Permanent
+        # failures (non-transient errors) skipped — they need a human.
+        cron(
+            "workers.discovery_tasks.auto_retry_failed_discovery_runs",
+            minute={15, 45},
+        ),
     ]
 except Exception:  # noqa: BLE001
     SCRAPE_CRONS = []

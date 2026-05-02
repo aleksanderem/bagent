@@ -235,6 +235,75 @@ async def reap_stuck_discovery_runs(ctx: dict[str, Any]) -> dict[str, int]:
     return {"reaped": reaped}
 
 
+async def auto_retry_failed_discovery_runs(ctx: dict[str, Any]) -> dict[str, Any]:
+    """Auto-recovery for transient discovery failures.
+
+    Pulls candidates from the SQL helper ``list_failed_discovery_runs_for_retry``
+    (latest run per combo is 'failed' with a known transient error
+    pattern, finished_at past the cool-down). Re-enqueues each as a
+    ``discover_combo_task`` so the failed combo gets another shot
+    without waiting for the natural pump rotation (~6-12h).
+
+    Race protection: before enqueueing, double-checks via Supabase
+    that no NEW 'running' row was inserted for the combo since the
+    helper read the snapshot. Combos already running on the pump
+    or a prior retry are skipped.
+
+    Cron: every 30 min at :45 (off-peak from bootstrap :00/:30 and
+    reap :30, leaving 15-min spacing).
+    """
+    pool: ArqRedis = ctx["redis"]
+    client = _get_client()
+
+    try:
+        res = client.rpc(
+            "list_failed_discovery_runs_for_retry",
+            {"p_cooldown_min": 5, "p_max_age_hours": 24, "p_limit": 5},
+        ).execute()
+        candidates = res.data or []
+    except Exception as e:  # noqa: BLE001
+        logger.warning("[discovery] auto-retry helper call failed: %s", e)
+        return {"enqueued": 0, "candidates": 0, "error": str(e)}
+
+    enqueued = 0
+    skipped_running = 0
+    for c in candidates:
+        cat = int(c["category_id"])
+        voiv = int(c["voivodeship_id"])
+        # Race re-check: if a newer run is now 'running' (e.g. pump
+        # picked the combo while we listed), skip — let it run.
+        latest = (
+            client.table("discovery_runs")
+            .select("status")
+            .eq("category_id", cat)
+            .eq("voivodeship_id", voiv)
+            .order("started_at", desc=True)
+            .limit(1)
+            .execute()
+            .data
+        )
+        if latest and latest[0].get("status") == "running":
+            skipped_running += 1
+            continue
+        await pool.enqueue_job("discover_combo_task", cat, voiv)
+        enqueued += 1
+        logger.info(
+            "[discovery] auto-retry enqueued cat=%s voiv=%s (was: %s)",
+            cat, voiv, c.get("error", "")[:60],
+        )
+
+    if enqueued or skipped_running:
+        logger.info(
+            "[discovery] auto-retry: enqueued=%d skipped_running=%d total_candidates=%d",
+            enqueued, skipped_running, len(candidates),
+        )
+    return {
+        "enqueued": enqueued,
+        "skipped_running": skipped_running,
+        "candidates": len(candidates),
+    }
+
+
 ALL_DISCOVERY_TASKS = [
     discover_combo_task,
     discovery_full_sweep_cron,        # legacy / manual escape hatch
@@ -242,4 +311,5 @@ ALL_DISCOVERY_TASKS = [
     reap_stuck_discovery_runs,
     discovery_pump_step,              # the loop
     bootstrap_discovery_pump,         # kicks the loop
+    auto_retry_failed_discovery_runs, # transient-failure auto-recovery
 ]
