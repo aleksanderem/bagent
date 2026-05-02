@@ -17,6 +17,7 @@ batch and live callers.
 
 from __future__ import annotations
 
+import asyncio
 import hashlib
 import json
 import logging
@@ -159,14 +160,37 @@ async def fetch_and_persist_salon(
 
     url = f"{settings.bextract_api_url.rstrip('/')}/api/salon/{booksy_id}"
     headers = {"x-api-key": settings.bextract_api_key}
-    try:
-        async with httpx.AsyncClient(timeout=timeout_sec) as client:
-            response = await client.get(url, headers=headers)
-    except httpx.HTTPError as e:
-        raise LiveIngestError(f"bextract fetch failed: {e}") from e
 
-    if response.status_code != 200:
+    # Booksy 429 backoff. bextract surfaces the upstream 429 as its own
+    # 500 with the body containing "Booksy API 429: Too Many Requests".
+    # Retry with exponential backoff so a single hot moment doesn't fail
+    # the queue job — caller (scrape worker) requeues with longer backoff
+    # only if all retries here exhaust.
+    backoff = 5.0
+    response = None
+    for attempt in range(1, 5):
+        try:
+            async with httpx.AsyncClient(timeout=timeout_sec) as client:
+                response = await client.get(url, headers=headers)
+        except httpx.HTTPError as e:
+            raise LiveIngestError(f"bextract fetch failed: {e}") from e
+
+        if response.status_code == 200:
+            break
+
         body = response.text[:500]
+        is_rate_limit = (
+            response.status_code == 429
+            or (response.status_code == 500 and "429" in body)
+        )
+        if is_rate_limit and attempt < 4:
+            logger.warning(
+                "[live_scrape] booksy_id=%s rate-limited (attempt %d), backing off %.0fs",
+                booksy_id, attempt, backoff,
+            )
+            await asyncio.sleep(backoff)
+            backoff *= 2
+            continue
         raise LiveIngestError(
             f"bextract returned HTTP {response.status_code} for booksy_id={booksy_id}: {body}"
         )

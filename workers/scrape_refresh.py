@@ -41,10 +41,16 @@ from ingestion import LiveIngestError, fetch_and_persist_salon
 
 logger = logging.getLogger("bagent.workers.scrape_refresh")
 
-# Per-tick batch size. Tier-3 cold sweeps can have thousands of due
-# jobs but bextract scrapes are ~500ms each, so 10 per tick × 60 ticks
-# × N workers = bounded throughput.
-CLAIM_BATCH_SIZE = 10
+# Per-tick batch size. Lowered from 10 to 5 because each salon scrape
+# triggers ~3-5 Booksy requests inside bextract (business + services +
+# reviews + top_services + gallery), and 10 jobs × 4 reqs in a one-
+# minute burst was hitting Booksy's 429 rate limit.
+# 5 per tick × 60 ticks/h = 300 salons/h sustained, low bursts.
+CLAIM_BATCH_SIZE = 5
+
+# Sleep between salon fetches inside a single drain tick. Spreads
+# Booksy traffic so a slow tick doesn't pile up requests at the start.
+INTER_FETCH_SLEEP_SEC = 1.0
 
 
 _supabase_client: Client | None = None
@@ -148,7 +154,12 @@ async def drain_scrape_queue(ctx: dict[str, Any]) -> dict[str, int]:
 
     counts = {"claimed": len(jobs), "succeeded": 0, "requeued": 0, "failed": 0, "skipped": 0}
 
-    for job in jobs:
+    for idx, job in enumerate(jobs):
+        # Politeness delay: give Booksy ~1s between salon fetches so a
+        # full batch (5 salons * ~4 inner Booksy reqs = 20 reqs) is
+        # spread over ~5s instead of bursting in <1s.
+        if idx > 0:
+            await asyncio.sleep(INTER_FETCH_SLEEP_SEC)
         job_id = job["id"]
         booksy_id = int(job["booksy_id"])
         tier = int(job.get("tier", 3))
