@@ -160,11 +160,14 @@ try:  # pragma: no cover
         # Reap stuck jobs every 10 minutes.
         cron("workers.scrape_refresh.reap_stuck_jobs", minute={i for i in range(2, 60, 10)}),
         # Issue #34 — Sundays at 03:00 UTC: full discovery sweep across
-        # all 22 categories x 16 voivodeships. Each combo is fanned
-        # out as its own arq task.
+        # all 22 categories x 16 voivodeships. Runs sequentially inside
+        # this single task — Booksy listing API rate-limits aggressively
+        # so parallelism via fan-out gets 429'd immediately. Discovery
+        # naturally takes 1-3h depending on Booksy load.
         cron(
             "workers.discovery_tasks.discovery_full_sweep_cron",
             weekday="sun", hour={3}, minute={0},
+            timeout=4 * 60 * 60,  # 4h
         ),
         # Issue #34 — every hour at :15: bulk-enqueue newly discovered
         # salons into salon_refresh_queue so the existing scrape

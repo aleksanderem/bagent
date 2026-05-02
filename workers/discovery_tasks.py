@@ -60,27 +60,26 @@ async def discover_combo_task(
 
 
 async def discovery_full_sweep_cron(ctx: dict[str, Any]) -> dict[str, int]:
-    """Fan out one task per (category, voivodeship). Idempotent: each
-    combo task UPSERTs by booksy_id so re-runs just refresh last_seen_at."""
-    client = _get_client()
-    cats = client.table("booksy_categories").select("id").execute().data or []
-    voivs = client.table("booksy_voivodeships").select("id").execute().data or []
+    """Run all (category, voivodeship) combos sequentially in this task.
 
-    pool: ArqRedis = ctx["redis"]
-    queued = 0
-    for cat in cats:
-        for voiv in voivs:
-            await pool.enqueue_job(
-                "discover_combo_task",
-                int(cat["id"]),
-                int(voiv["id"]),
-            )
-            queued += 1
-    logger.info(
-        "[discovery] weekly sweep queued %d combos (%d cats x %d voivs)",
-        queued, len(cats), len(voivs),
-    )
-    return {"queued_combos": queued, "categories": len(cats), "voivodeships": len(voivs)}
+    Earlier version fanned out 352 sub-tasks to arq, but bagent-worker
+    drains 20 in parallel which immediately tripped Booksy's 429 rate
+    limit. Doing it sequentially in one long-running task gives us
+    deterministic spacing (with the per-call sleep + backoff inside
+    discover.py) and naturally skips combos already covered by a fresh
+    UPSERT during this run.
+    """
+    from discovery import discover_all
+    results = await discover_all()
+    total_new = sum(r.salons_new for r in results)
+    total_found = sum(r.salons_found for r in results)
+    failed = sum(1 for r in results if r.error)
+    return {
+        "combos_run": len(results),
+        "salons_found": total_found,
+        "salons_new": total_new,
+        "failed_combos": failed,
+    }
 
 
 async def enqueue_discovered_to_refresh_queue(ctx: dict[str, Any]) -> dict[str, int]:

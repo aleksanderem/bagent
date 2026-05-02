@@ -75,6 +75,11 @@ async def _fetch_listing(
     """Call bextract /api/booksy/listing for one bbox probe.
 
     bbox = (lat_max, lng_max, lat_min, lng_min)
+
+    On HTTP 429 from Booksy (surfaced as 500 by bextract) we backoff
+    and retry up to 4 times. Discovery is rate-limited end-to-end so
+    even when the cron fans out many combos serial-ish, bursts can hit
+    the limit; serial-with-backoff is enough.
     """
     if not settings.bextract_api_url or not settings.bextract_api_key:
         raise RuntimeError("bextract_api_url / bextract_api_key not configured")
@@ -86,10 +91,24 @@ async def _fetch_listing(
         "area": area,
     }
     headers = {"x-api-key": settings.bextract_api_key}
-    r = await http.get(url, params=params, headers=headers, timeout=30.0)
-    if r.status_code != 200:
-        raise RuntimeError(f"bextract listing returned HTTP {r.status_code}: {r.text[:200]}")
-    return r.json()
+
+    backoff = 5.0
+    for attempt in range(1, 5):
+        r = await http.get(url, params=params, headers=headers, timeout=30.0)
+        if r.status_code == 200:
+            return r.json()
+        body = r.text[:300]
+        is_rate_limit = "429" in body or r.status_code in (429, 503)
+        if is_rate_limit and attempt < 4:
+            logger.warning(
+                "[discovery] bextract %s rate-limited (attempt %d), backing off %.0fs",
+                r.status_code, attempt, backoff,
+            )
+            await asyncio.sleep(backoff)
+            backoff *= 2
+            continue
+        raise RuntimeError(f"bextract listing returned HTTP {r.status_code}: {body}")
+    raise RuntimeError("bextract listing exhausted retries")
 
 
 def _split_bbox(
