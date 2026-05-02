@@ -146,6 +146,8 @@ async def smoke_test(ctx: dict[str, Any], message: str = "hello") -> dict[str, A
 from .tasks import ALL_TASKS
 # Issue #23 — scrape orchestrator tasks (queue drain + scheduler + reaper).
 from .scrape_refresh import ALL_SCRAPE_TASKS
+# Issue #34 — Booksy listing discovery tasks.
+from .discovery_tasks import ALL_DISCOVERY_TASKS
 
 # arq cron import is gated to keep imports cheap when only running tests.
 try:  # pragma: no cover
@@ -157,6 +159,20 @@ try:  # pragma: no cover
         cron("workers.scrape_refresh.schedule_refresh_cron", minute={5}),
         # Reap stuck jobs every 10 minutes.
         cron("workers.scrape_refresh.reap_stuck_jobs", minute={i for i in range(2, 60, 10)}),
+        # Issue #34 — Sundays at 03:00 UTC: full discovery sweep across
+        # all 22 categories x 16 voivodeships. Each combo is fanned
+        # out as its own arq task.
+        cron(
+            "workers.discovery_tasks.discovery_full_sweep_cron",
+            weekday="sun", hour={3}, minute={0},
+        ),
+        # Issue #34 — every hour at :15: bulk-enqueue newly discovered
+        # salons into salon_refresh_queue so the existing scrape
+        # orchestrator pulls full details when capacity allows.
+        cron(
+            "workers.discovery_tasks.enqueue_discovered_to_refresh_queue",
+            minute={15},
+        ),
     ]
 except Exception:  # noqa: BLE001
     SCRAPE_CRONS = []
@@ -164,7 +180,7 @@ except Exception:  # noqa: BLE001
 
 class WorkerSettings:
     # Production tasks from tasks.py + smoke_test for liveness verification.
-    functions = [smoke_test, *ALL_TASKS, *ALL_SCRAPE_TASKS]
+    functions = [smoke_test, *ALL_TASKS, *ALL_SCRAPE_TASKS, *ALL_DISCOVERY_TASKS]
     cron_jobs = SCRAPE_CRONS
     redis_settings = redis_settings
     on_startup = startup
