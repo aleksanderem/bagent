@@ -33,10 +33,17 @@ logger = logging.getLogger("bagent.scheduler.refresh_scheduler")
 
 
 # Cadence per tier (days). Issue #23 acceptance criteria.
+# tier 1: paying monitoring subscribers (weekly)
+# tier 2: recent audit subjects (monthly)
+# tier 3: cold catalogue (= continuous change-detection sweep). The
+#   ingester dedupes by content_hash so a stable salon producing the
+#   same JSON re-checks but only one salon_scrapes row stays. Cadence
+#   was 90d but we lowered to 14d so a change anywhere is surfaced
+#   within 2 weeks at our 300 salons/h capacity.
 TIER_CADENCE_DAYS: dict[int, int] = {
     1: 7,
     2: 30,
-    3: 90,
+    3: 14,
 }
 
 # Per-tier max enqueue per scheduler run. Tier 3 is huge (>5K salons),
