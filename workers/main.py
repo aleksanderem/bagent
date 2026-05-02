@@ -176,6 +176,12 @@ try:  # pragma: no cover
             "workers.discovery_tasks.enqueue_discovered_to_refresh_queue",
             minute={15},
         ),
+        # Issue #34 — every hour at :30: reap discovery_runs rows still
+        # 'running' after 4h (worker SIGINT during restart leaves zombies).
+        cron(
+            "workers.discovery_tasks.reap_stuck_discovery_runs",
+            minute={30},
+        ),
     ]
 except Exception:  # noqa: BLE001
     SCRAPE_CRONS = []

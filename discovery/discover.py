@@ -183,12 +183,6 @@ def _upsert_salon(
         row["seen_count"] = 1
         client.table("discovered_salons").insert(row).execute()
     else:
-        # Don't increment seen_count via supabase-py raw — RPC would be cleaner,
-        # but a 1-extra-query update is fine at discovery scale.
-        client.rpc(
-            "exec_sql",  # if not present, fall through to plain update with RPC missing
-            {},
-        ) if False else None
         client.table("discovered_salons").update({
             "name": row.get("name"),
             "city": row.get("city"),
@@ -198,6 +192,36 @@ def _upsert_salon(
             "reviews_rank": row.get("reviews_rank"),
             "last_seen_at": row["last_seen_at"],
         }).eq("booksy_id", booksy_id).execute()
+
+    # Issue #34 follow-up: also write the many-to-many mapping so
+    # cross-category visibility is preserved (a single salon can show
+    # up under Fryzjer + Salon urody + Brwi i rzęsy at the same time).
+    # ON CONFLICT we just bump last_seen_at + seen_count.
+    mapping_row = {
+        "booksy_id": booksy_id,
+        "category_id": category_id,
+        "voivodeship_id": voivodeship_id,
+        "last_seen_at": row["last_seen_at"],
+    }
+    existing_map = (
+        client.table("discovered_salon_categories")
+        .select("seen_count")
+        .eq("booksy_id", booksy_id)
+        .eq("category_id", category_id)
+        .eq("voivodeship_id", voivodeship_id)
+        .limit(1)
+        .execute()
+    )
+    if existing_map.data:
+        prev = existing_map.data[0].get("seen_count") or 1
+        client.table("discovered_salon_categories").update({
+            "last_seen_at": row["last_seen_at"],
+            "seen_count": prev + 1,
+        }).eq("booksy_id", booksy_id).eq("category_id", category_id).eq("voivodeship_id", voivodeship_id).execute()
+    else:
+        mapping_row["first_seen_at"] = row["last_seen_at"]
+        mapping_row["seen_count"] = 1
+        client.table("discovered_salon_categories").insert(mapping_row).execute()
     return is_new
 
 

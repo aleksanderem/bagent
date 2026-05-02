@@ -95,8 +95,22 @@ async def enqueue_discovered_to_refresh_queue(ctx: dict[str, Any]) -> dict[str, 
     return {"enqueued": enqueued}
 
 
+async def reap_stuck_discovery_runs(ctx: dict[str, Any]) -> dict[str, int]:
+    """Mark discovery_runs rows still 'running' after 4h as 'failed'.
+    arq SIGINT during a worker restart kills the task before its
+    try/finally can update the row, leaving zombies. Hourly cron
+    cleans them up."""
+    client = _get_client()
+    res = client.rpc("reap_stuck_discovery_runs", {}).execute()
+    reaped = int(res.data or 0)
+    if reaped > 0:
+        logger.warning("[discovery] reaped %d stuck discovery_runs rows", reaped)
+    return {"reaped": reaped}
+
+
 ALL_DISCOVERY_TASKS = [
     discover_combo_task,
     discovery_full_sweep_cron,
     enqueue_discovered_to_refresh_queue,
+    reap_stuck_discovery_runs,
 ]
