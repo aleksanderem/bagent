@@ -15,6 +15,8 @@ dependencies = [
     "sse-starlette>=3.3.4",
     "arq>=0.26.0",
     "redis>=5.0.0",
+    # Issue #24 — Bugsink (Sentry-API compatible) error reporter
+    "sentry-sdk[fastapi]>=2.18.0",
 ]
 
 [project.optional-dependencies]

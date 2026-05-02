@@ -74,6 +74,14 @@ async def get_redis_pool() -> ArqRedis:
 # (this PR), we keep on_startup minimal — just log and verify connectivity.
 
 async def startup(ctx: dict[str, Any]) -> None:
+    # Issue #24 — Sentry/Bugsink for the worker process. No-op when DSN env
+    # var is missing. Done first so import-time failures in tasks register.
+    try:
+        from observability import init_for_worker
+        init_for_worker()
+    except Exception as e:  # noqa: BLE001
+        logger.warning("Sentry init for worker failed: %s", e)
+
     logger.info("arq worker starting up")
     logger.info(
         "redis target host=%s port=%s database=%s password=%s",

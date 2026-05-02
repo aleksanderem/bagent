@@ -18,10 +18,15 @@ from sse_starlette.sse import EventSourceResponse
 
 from config import settings
 from job_store import Job, JobStore
+from observability import init_for_server as init_sentry
 from workers import get_redis_pool, set_cancel_flag
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s %(name)s %(levelname)s %(message)s")
 logger = logging.getLogger(__name__)
+
+# Issue #24 — initialize Bugsink/Sentry as early as possible so import-time
+# failures still get captured. No-op when BUGSINK_DSN_BAGENT is missing.
+init_sentry()
 
 
 # ---------------------------------------------------------------------------
