@@ -135,18 +135,15 @@ def _tier_one_due(client: Client) -> list[int]:
 
 def _tier_two_due(client: Client) -> list[int]:
     """booksy_ids whose audits row was created in the last 90 days.
-    Filter to those whose latest scrape is older than 30 days."""
+    Filter to those whose latest scrape is older than 30 days.
+
+    NOTE: ``audits`` is a Convex table, not a Supabase one. We read
+    the Supabase mirror via ``competitor_reports.subject_salon_id``
+    which represents every salon that's ever been an audit subject.
+    The earlier client.table("audits") query was a leftover that
+    crashed the whole schedule_refresh_cron with PGRST205.
+    """
     cutoff_iso = _iso_days_ago(90)
-    res = (
-        client.table("audits")
-        .select("salonName, sourceUrl")  # cheap projection — actual booksy_id lives in salons
-        .gte("createdAt" if False else "_creationTime", cutoff_iso)
-        .limit(2000)
-        .execute()
-    )
-    # NOTE: convex audits live in Convex, not Supabase. The Supabase mirror
-    # of audit subjects is `competitor_reports.subject_salon_id`. So we
-    # actually pull from there:
     cr = (
         client.table("competitor_reports")
         .select("subject_salon_id, created_at")
