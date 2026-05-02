@@ -194,7 +194,12 @@ class WorkerSettings:
     on_startup = startup
     on_shutdown = shutdown
     max_jobs = 20
-    job_timeout = 1800  # 30 minutes
+    # 4h — covers worst-case discovery_pump_step (mazowieckie x dense
+    # category quad-tree). Audit + competitor pipelines never approach
+    # this; their own logic enforces shorter timeouts via wait_for /
+    # httpx timeout. Per-job overrides aren't supported by arq, so we
+    # raise the global to the tallest envelope.
+    job_timeout = 4 * 60 * 60
     keep_result = 86400  # 24 hours
     max_tries = 3
     # TODO(future): namespace by environment (e.g. "arq:prod:queue") so

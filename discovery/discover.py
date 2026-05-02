@@ -288,12 +288,40 @@ async def _walk_bbox(
     if result.total_count_hint is None and depth == 0:
         result.total_count_hint = total
 
+    # Booksy listing API returns the top-20 ranked salons per bbox. To
+    # see anything past those 20 we must shrink the bbox. needs_split
+    # captures the four conditions that say "shrinking is worth it":
+    #
+    #   1. We hit the page cap (20 returned) AND total is bigger than
+    #      that — otherwise we already have everything.
+    #   2. We haven't recursed past MAX_DEPTH (~1km^2) yet.
+    #   3. The bbox is still bigger than the MIN_SPAN floor.
+    #
+    # Two early-stops added (#34 follow-up to fix infinite-ish runs in
+    # zachodniopomorskie x trening-i-dieta where 1050 bboxes were probed
+    # for 269 total salons):
+    #
+    #   4. If total_count_hint at the root is small (<= NO_SPLIT_TOTAL),
+    #      give up and accept the top-20 — quadtree won't surface much
+    #      and ranks 21-100 aren't worth 100+ extra API calls per combo.
+    #   5. If a probe returns zero NEW salons relative to what we've
+    #      seen across this run AND we already have >= total_count_hint
+    #      in result.salons_new, the rest of subdivisions are wasted.
+    NO_SPLIT_TOTAL = 100
     needs_split = (
         len(businesses) >= PAGE_CAP
         and total > PAGE_CAP
         and depth < MAX_DEPTH
         and _bbox_span(bbox) > MIN_SPAN_DEG
     )
+    if needs_split and result.total_count_hint is not None:
+        if result.total_count_hint <= NO_SPLIT_TOTAL:
+            needs_split = False
+        elif result.salons_new >= result.total_count_hint:
+            # We've already discovered more unique salons than Booksy
+            # told us about (cross-bbox ranking overlap accounts for the
+            # rest). Keep walking but don't subdivide further.
+            needs_split = False
 
     if needs_split:
         # Recurse into 4 quadrants. Don't upsert here — children will probe
