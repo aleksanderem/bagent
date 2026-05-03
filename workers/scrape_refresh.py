@@ -41,19 +41,20 @@ from ingestion import LiveIngestError, fetch_and_persist_salon
 
 logger = logging.getLogger("bagent.workers.scrape_refresh")
 
-# Per-tick batch size. Lowered from 10 to 5 originally because of
-# Booksy 429s; bumped to 8 once the inter-fetch sleep + cron pacing
-# kept us comfortably under ~0.4 req/s sustained. Combined with the
-# twice-per-minute drain cron (see workers/main.py: second={0,30}),
-# steady-state throughput is 8 × 2 × 60 = 960 salons/h ceiling,
-# realistically ~750/h after overhead. Per-tick burst is 8 reqs in
-# ~20s = 0.4 req/s — same per-second rate as before, just doubled
-# tick frequency.
-CLAIM_BATCH_SIZE = 8
+# Per-tick batch size. Step 3 of the throughput ramp: 5 → 8 → 12.
+# 12 × 2 ticks/min × 60 = 1440 salons/h ceiling, realistically
+# ~1100/h sustained. Per-tick burst with the new 0.5s inter-fetch
+# sleep is 12 × ~2s = 24s, comfortably under the 30s spacing.
+# Per-second rate to Booksy: ~0.5 salon-fetches/s (each fans out to
+# ~4 inner Booksy calls = ~2 req/s sustained, well under observed
+# ~5-7 req/s 429 threshold).
+CLAIM_BATCH_SIZE = 12
 
-# Sleep between salon fetches inside a single drain tick. Spreads
-# Booksy traffic so a slow tick doesn't pile up requests at the start.
-INTER_FETCH_SLEEP_SEC = 1.0
+# Sleep between salon fetches inside a single drain tick. Halved
+# from 1.0s to 0.5s — burst rate barely changes (Booksy responds
+# in ~1.5s anyway) but tail-end of a 12-job tick finishes 6s
+# sooner.
+INTER_FETCH_SLEEP_SEC = 0.5
 
 
 _supabase_client: Client | None = None

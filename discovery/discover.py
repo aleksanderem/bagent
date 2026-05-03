@@ -28,10 +28,12 @@ MAX_DEPTH = 12
 # count > 20 — prevents us from probing 100m × 100m squares.
 MIN_SPAN_DEG = 0.005
 
-# Politeness delay between API calls (seconds). bextract is local so
-# this is per-call sleep rather than a token bucket; works fine for
-# discovery cron throughput.
-INTER_CALL_DELAY_SEC = 0.4
+# Politeness delay between API calls (seconds). bextract is local
+# so this throttles the discovery side's per-bbox cadence. Lowered
+# 0.4 → 0.2 (= 5 probes/s discovery side). Combined with scrape
+# orchestrator at ~2 req/s, total Booksy load ~7 req/s sustained —
+# still under the 429 threshold observed earlier in this issue.
+INTER_CALL_DELAY_SEC = 0.2
 
 # Flush progress to discovery_runs every N probes. Lets the Workers
 # dashboard show live bboxes_walked / salons_found counters for long

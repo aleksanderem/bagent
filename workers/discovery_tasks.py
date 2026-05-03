@@ -93,12 +93,13 @@ async def discovery_full_sweep_cron(ctx: dict[str, Any]) -> dict[str, int]:
 # while a step is mid-flight).
 
 PUMP_LOCK_KEY = "discovery:pump:active"
-# Delay between combos when work exists. The pump runs serially
-# (one combo at a time) so this is pure inter-step idle. Reduced
-# 60→15 because most of the wall-clock time is inside discover_combo
-# itself (minutes), not the wait between — shaving the wait
-# noticeably accelerates throughput on small/quick combos.
-PUMP_IDLE_DELAY_SEC = 15
+# Delay between combos when work exists. Step 2: 60→15→5. The pump
+# runs serially so this is pure inter-step idle and there's no
+# downside to dropping it close to zero — discover_combo itself
+# dominates wall clock. 5s gives a tiny breather between bursts of
+# tiny rural combos so we don't slam Booksy with back-to-back
+# zero-second turnarounds.
+PUMP_IDLE_DELAY_SEC = 5
 PUMP_EMPTY_DELAY_SEC = 600      # delay when no due combo is found
 # Lock TTL needs to outlive the longest single sweep. mazowieckie x
 # dense category (Trening i Dieta, Fryzjer, Salon kosmetyczny) can
