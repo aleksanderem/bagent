@@ -166,7 +166,10 @@ def _tier_two_due(client: Client) -> list[int]:
 
 def _tier_three_due(client: Client, limit: int) -> list[int]:
     """Tier 3: cold sweep of catalog. Pulls a slice of salons with
-    booksy_id NOT NULL whose latest scrape is older than 90 days."""
+    booksy_id NOT NULL whose latest scrape is older than the tier-3
+    cadence. Excludes deleted_at IS NOT NULL — those are salons that
+    bextract proved are gone from Booksy (404/410); re-enqueueing
+    them just produces another 404 for the dashboard to log."""
     # Get a window of salons. We don't sort by latest scrape (no JOIN
     # convenience here), instead we rely on _filter_stale to weed out
     # fresh ones. The window is `limit * 4` to leave headroom for the
@@ -176,6 +179,7 @@ def _tier_three_due(client: Client, limit: int) -> list[int]:
         client.table("salons")
         .select("booksy_id")
         .not_.is_("booksy_id", "null")
+        .is_("deleted_at", "null")
         .order("id", desc=False)
         .limit(window)
         .execute()
