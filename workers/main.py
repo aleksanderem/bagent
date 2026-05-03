@@ -167,12 +167,18 @@ try:  # pragma: no cover
         cron("workers.scrape_refresh.schedule_refresh_cron", minute={5}),
         # Reap stuck jobs every 10 minutes.
         cron("workers.scrape_refresh.reap_stuck_jobs", minute={i for i in range(2, 60, 10)}),
-        # Issue #34 — every hour at :15: bulk-enqueue newly discovered
+        # Issue #34 — every minute: bulk-enqueue newly discovered
         # salons into salon_refresh_queue so the existing scrape
         # orchestrator pulls full details when capacity allows.
+        # Was hourly at :15 but the scrape orchestrator (1100/h
+        # capacity) drained the queue in <5min and then idled for
+        # the rest of the hour while discovery kept piling up new
+        # rows in `salons`. Per-minute enqueue keeps the queue
+        # warm without waste — the SQL helper is cheap (single
+        # SELECT + bulk INSERT) and caps at p_limit=1000.
         cron(
             "workers.discovery_tasks.enqueue_discovered_to_refresh_queue",
-            minute={15},
+            minute={i for i in range(0, 60)},
         ),
         # Issue #34 — every hour at :30: reap discovery_runs rows still
         # 'running' after 4h (worker SIGINT during restart leaves zombies).
