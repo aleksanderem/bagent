@@ -44,10 +44,22 @@ PROGRESS_FLUSH_INTERVAL = 5
 # NEW salons (everything we see is already deduped against existing
 # discovered_salon_categories rows), the subtree is exhausted —
 # further subdivision just wastes API calls without surfacing more
-# salons. Tuned so genuinely sparse rural areas can have a few empty
-# bboxes in a row without aborting; only sustained zero-streak ends
-# the walk.
-SATURATION_ZERO_STREAK = 25
+# salons. Bumped 25 → 200 after coverage audit found 4.85% global
+# coverage (16k/345k Booksy-reported). Salon Kosmetyczny × mazowieckie
+# was bailing at 42/7984 = 0.5% because the first 25 bboxes returned
+# the SAME top-20 ranked salons from every quadrant of Warsaw —
+# the streak triggered before quad-tree could go deep enough to
+# surface ranks 21+. 200 gives the walker enough runway to descend
+# into actually-different geographic areas before giving up.
+SATURATION_ZERO_STREAK = 200
+
+# Hard "you don't get to bail" coverage floor: if Booksy reported
+# total_count_hint says there are >5x more salons in this combo than
+# we've discovered so far in this run, IGNORE the saturation streak
+# and keep walking. This catches the "dense city" pathology where
+# top-20 ranking overlap dominates early bboxes and looks like
+# saturation but actually just means we haven't subdivided enough.
+COVERAGE_FLOOR_RATIO = 5
 
 
 @dataclass
@@ -301,15 +313,38 @@ async def _walk_bbox(
     otherwise upsert what we got. Updates the discovery_runs row's
     progress counters every PROGRESS_FLUSH_INTERVAL probes so the
     Workers dashboard shows live activity for long-running sweeps."""
-    # Saturation early-stop: if the running zero-new-salons streak
-    # exceeded the threshold, the subtree is exhausted (every salon
-    # we'd find here is already in discovered_salon_categories). Bail
-    # WITHOUT counting this as failure — the data we have IS 100%
-    # of what Booksy will give us.
+    # Saturation early-stop: streak only triggers if we're NOT
+    # severely under-covered. Without this guard, dense urban combos
+    # (Salon Kosmetyczny × mazowieckie: 7984 reported) bailed at
+    # ~42 unique salons because Booksy's top-20 ranking returns the
+    # same Warsaw salons from every quadrant — looks like saturation
+    # but is just shallow exploration.
+    #
+    # Coverage floor rule: if Booksy hint says 5x more salons exist
+    # than we've discovered THIS RUN, ignore the streak — there's
+    # provably more to find, the streak is a false signal.
     if result.zero_new_streak >= SATURATION_ZERO_STREAK:
-        if not result.error:
-            result.error = f"saturated: {SATURATION_ZERO_STREAK} consecutive zero-new bboxes"
-        return
+        hint = result.total_count_hint or 0
+        provably_under_covered = (
+            hint > 0
+            and hint > result.salons_new * COVERAGE_FLOOR_RATIO
+        )
+        if not provably_under_covered:
+            if not result.error:
+                result.error = (
+                    f"saturated: {SATURATION_ZERO_STREAK} zero-new bboxes "
+                    f"(salons_new={result.salons_new}, hint={hint or 'unknown'})"
+                )
+            return
+        # Coverage floor blocks the bail-out — reset the streak so
+        # we don't immediately re-trigger on the next bbox, and keep
+        # walking. Logged so the dashboard can show "we're trying
+        # harder than usual on this combo".
+        logger.info(
+            "[discovery] coverage-floor override: salons_new=%d hint=%d ratio=%.1fx — keep walking",
+            result.salons_new, hint, hint / max(result.salons_new, 1),
+        )
+        result.zero_new_streak = 0
 
     response = await _fetch_listing(http, category_id, voivodeship_id, bbox)
     await asyncio.sleep(INTER_CALL_DELAY_SEC)
