@@ -46,11 +46,16 @@ async def discover_combo_task(
     category_id: int,
     voivodeship_id: int,
 ) -> dict[str, Any]:
-    result = await discover_combo(int(category_id), int(voivodeship_id))
+    # Switched to location-hierarchy walker — see commit 5ed9f1f and
+    # discovery/locations.py for the rationale (bbox quad-tree caps at
+    # ~0.5% coverage on dense urban combos because Booksy returns the
+    # same top-N for every nearby bbox).
+    from discovery.locations import discover_combo_via_locations
+    result = await discover_combo_via_locations(int(category_id), int(voivodeship_id))
     return {
         "category_id": result.category_id,
         "voivodeship_id": result.voivodeship_id,
-        "bboxes_walked": result.bboxes_walked,
+        "locations_walked": result.locations_walked,
         "salons_found": result.salons_found,
         "salons_new": result.salons_new,
         "total_count_hint": result.total_count_hint,
