@@ -223,9 +223,15 @@ async def discovery_pump_step(ctx: dict[str, Any]) -> dict[str, Any]:
             outcome = {"swept": False, "reason": "no_due_combos", "next_step_in_sec": delay}
         else:
             cat_id, voiv_id = combo
-            logger.info("[discovery] pump: sweeping cat=%s voiv=%s", cat_id, voiv_id)
-            from discovery import discover_combo
-            result = await discover_combo(cat_id, voiv_id)
+            logger.info("[discovery] pump: sweeping cat=%s voiv=%s (location-walk)", cat_id, voiv_id)
+            # Switched from discover_combo (bbox quad-tree) to
+            # discover_combo_via_locations (canonical hierarchy walker).
+            # Empirical: bbox approach hit 0.5% coverage on dense urban
+            # combos. Hierarchy walker uses Booksy's per-location top-100
+            # listing for each canonical_children sublocation (Warsaw alone
+            # has 194 districts) — projected 50-100% coverage.
+            from discovery.locations import discover_combo_via_locations
+            result = await discover_combo_via_locations(cat_id, voiv_id)
             delay = PUMP_IDLE_DELAY_SEC
             outcome = {
                 "swept": True,
@@ -233,7 +239,8 @@ async def discovery_pump_step(ctx: dict[str, Any]) -> dict[str, Any]:
                 "voivodeship_id": voiv_id,
                 "salons_found": result.salons_found,
                 "salons_new": result.salons_new,
-                "bboxes_walked": result.bboxes_walked,
+                "new_mappings": result.new_mappings,
+                "locations_walked": result.locations_walked,
                 "duration_sec": int(result.duration_sec),
                 "error": result.error,
                 "next_step_in_sec": delay,
