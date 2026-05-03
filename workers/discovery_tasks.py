@@ -108,17 +108,21 @@ PUMP_LOCK_TTL_SEC = 4 * 60 * 60
 PUMP_TASK_TIMEOUT_SEC = 4 * 60 * 60  # arq per-job timeout for the pump itself
 
 
-# Cooldowns for the pump's combo selection. Without these the pump
-# re-walks the same combo every cycle (~hours apart) — observed 8x
-# re-walks of trening-i-dieta × mazowieckie in 24h, total 7485 bboxes
-# for 167 unique salons (45 bboxes/salon = 7.5x waste vs single-pass).
+# Cooldowns for the pump's combo selection. Tuned after first full
+# 368-combo sweep finished in <24h: with 24h cooldown the entire
+# pump went idle waiting for cooldowns to expire, scrape orchestrator
+# starved (queue empty for hours).
 #
-# DONE_COOLDOWN_HOURS: combo finished cleanly within last N hours →
-# skip. Re-walk daily is enough to catch new Booksy listings.
-# FAILED_COOLDOWN_HOURS: combo failed within last N hours → skip;
-# auto_retry_failed_discovery_runs (cron :15/:45) handles it on its
-# own schedule with its own cooldown logic.
-DONE_COOLDOWN_HOURS = 24
+# Dropped to 4h — 368 combos × ~75s saturated-rewalk avg = ~7.7h
+# per cycle, so ~3 full cycles/day. Saturation early-stop (25
+# zero-new bboxes) makes re-walks cheap because most salons already
+# in DB; per-cycle cost is dominated by genuinely-new salons we're
+# catching from Booksy (the whole point of frequent re-walks).
+#
+# FAILED_COOLDOWN_HOURS: short so auto_retry_failed_discovery_runs
+# (cron :15/:45) gets first crack but pump can step in if retry
+# misses something.
+DONE_COOLDOWN_HOURS = 4
 FAILED_COOLDOWN_HOURS = 1
 
 
