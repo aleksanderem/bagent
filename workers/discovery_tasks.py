@@ -133,16 +133,23 @@ FAILED_COOLDOWN_HOURS = 1
 
 def _pick_next_due_combo(client: Client) -> tuple[int, int] | None:
     """Return (category_id, voivodeship_id) of the next combo due for
-    discovery, with cooldown logic to avoid re-walking the same combo
-    every pump cycle.
+    discovery, with cooldown logic + COVERAGE-AWARE priority so the
+    pump auto-prioritizes dense urban combos that need the most work.
 
-    Priority order:
-      1. NEVER-swept combos (no discovery_runs row at all).
-      2. Combos whose latest run is past cooldown — sorted by oldest
-         started_at first. 'done' combos cool down for
-         DONE_COOLDOWN_HOURS, 'failed' for FAILED_COOLDOWN_HOURS.
-      3. (skipped) Combos currently 'running' (let them finish).
-      4. (skipped) Combos in cooldown window."""
+    Sort key (smaller wins, picked first):
+      Tier 0: NEVER-swept combos (no discovery_runs row).
+      Tier 1: Combos with biggest absolute coverage gap
+              (booksy_reported_total - our_unique_count). A run that's
+              missing 7,000 salons trumps one missing 200, regardless
+              of when it last finished.
+      Tier 2: For combos without a known booksy_reported_total (or with
+              equal gaps), fall back to oldest started_at.
+      Skipped: currently 'running', or in cooldown window.
+
+    Without coverage-awareness, pump rolled chronologically through
+    351 done-eligible combos at ~10min each = 50+h before re-touching
+    dense urban (Salon Kosmetyczny × mazowieckie etc). Now those jump
+    to the front of the queue automatically."""
     from datetime import datetime, timedelta, timezone
     now = datetime.now(tz=timezone.utc)
     done_cutoff = now - timedelta(hours=DONE_COOLDOWN_HOURS)
@@ -171,6 +178,29 @@ def _pick_next_due_combo(client: Client) -> tuple[int, int] | None:
         if key not in latest_per_combo:
             latest_per_combo[key] = r
 
+    # Pull coverage gap snapshot — used for absolute-priority sort.
+    # `v_discovery_coverage` already exists (BEAUTY_AUDIT migration 028).
+    gap_per_combo: dict[tuple[int, int], int] = {}
+    try:
+        cov = (
+            client.table("v_discovery_coverage")
+            .select("category_id,voivodeship_id,our_unique_count,booksy_reported_total")
+            .execute()
+            .data
+            or []
+        )
+        for row in cov:
+            cid = row.get("category_id")
+            vid = row.get("voivodeship_id")
+            ours = row.get("our_unique_count") or 0
+            theirs = row.get("booksy_reported_total")
+            if cid is None or vid is None or theirs is None:
+                continue
+            gap = max(0, int(theirs) - int(ours))
+            gap_per_combo[(int(cid), int(vid))] = gap
+    except Exception as e:  # noqa: BLE001
+        logger.warning("[discovery] coverage view unavailable, falling back to age sort: %s", e)
+
     def _parse_iso(ts: str | None) -> datetime | None:
         if not ts:
             return None
@@ -179,16 +209,20 @@ def _pick_next_due_combo(client: Client) -> tuple[int, int] | None:
         except (ValueError, AttributeError):
             return None
 
-    candidates: list[tuple[Any, tuple[int, int]]] = []
+    # Sort key shape: (tier, neg_gap, started_at_str)
+    #   tier 0 = never-swept (highest priority), tier 1 = walked
+    #   neg_gap = -gap so larger gap sorts first
+    #   started_at = secondary tiebreaker (older first)
+    candidates: list[tuple[tuple[int, int, str], tuple[int, int]]] = []
     skipped_cooldown = 0
     for combo in combos:
         latest = latest_per_combo.get(combo)
         if latest is None:
-            candidates.append(("", combo))  # NEVER-swept sorts first
+            candidates.append(((0, 0, ""), combo))
             continue
         status = latest.get("status")
         if status == "running":
-            continue  # in flight
+            continue
         finished_at = _parse_iso(latest.get("finished_at")) or _parse_iso(latest.get("started_at"))
         if finished_at is not None:
             if status == "done" and finished_at >= done_cutoff:
@@ -197,7 +231,10 @@ def _pick_next_due_combo(client: Client) -> tuple[int, int] | None:
             if status == "failed" and finished_at >= failed_cutoff:
                 skipped_cooldown += 1
                 continue
-        candidates.append((latest.get("started_at") or "0", combo))
+        gap = gap_per_combo.get(combo, 0)
+        # Tier 1 + biggest gap first (negative for ascending sort).
+        # started_at as final tiebreaker (oldest first).
+        candidates.append(((1, -gap, latest.get("started_at") or "0"), combo))
 
     if not candidates:
         if skipped_cooldown > 0:
