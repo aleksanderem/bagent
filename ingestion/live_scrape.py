@@ -28,7 +28,9 @@ from pathlib import Path
 from typing import Any
 
 import httpx
-from supabase import Client, ClientOptions, create_client
+from supabase import Client
+
+from services.sb_client import make_supabase_client
 
 from config import settings
 from scripts.ingest_salon_jsons import IngestError, SalonJsonIngester
@@ -64,10 +66,9 @@ def _get_supabase_client() -> Client:
     if _supabase_client is None:
         if not settings.supabase_url or not settings.supabase_service_key:
             raise LiveIngestError("supabase_url / supabase_service_key not configured")
-        _supabase_client = create_client(
+        _supabase_client = make_supabase_client(
             settings.supabase_url,
             settings.supabase_service_key,
-            options=ClientOptions(schema="public"),
         )
     return _supabase_client
 

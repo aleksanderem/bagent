@@ -31,17 +31,18 @@ import sys
 from typing import Optional
 
 from arq.connections import create_pool
-from supabase import Client, ClientOptions, create_client
+from supabase import Client
+
+from services.sb_client import make_supabase_client
 
 from config import settings
 from workers.main import redis_settings
 
 
 def _client() -> Client:
-    return create_client(
+    return make_supabase_client(
         settings.supabase_url,
         settings.supabase_service_key,
-        options=ClientOptions(schema="public"),
     )
 
 

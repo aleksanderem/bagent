@@ -25,7 +25,9 @@ import logging
 from dataclasses import dataclass, field
 from typing import Any
 
-from supabase import Client, ClientOptions, create_client
+from supabase import Client
+
+from services.sb_client import make_supabase_client
 
 from config import settings
 
@@ -70,10 +72,9 @@ _supabase_client: Client | None = None
 def _get_client() -> Client:
     global _supabase_client
     if _supabase_client is None:
-        _supabase_client = create_client(
+        _supabase_client = make_supabase_client(
             settings.supabase_url,
             settings.supabase_service_key,
-            options=ClientOptions(schema="public"),
         )
     return _supabase_client
 

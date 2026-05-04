@@ -44,7 +44,9 @@ REPO_ROOT = Path(__file__).resolve().parent.parent
 if str(REPO_ROOT) not in sys.path:
     sys.path.insert(0, str(REPO_ROOT))
 
-from supabase import Client, ClientOptions, create_client  # noqa: E402
+from supabase import Client
+
+from services.sb_client import make_supabase_client  # noqa: E402
 
 from config import settings  # noqa: E402
 
@@ -864,10 +866,10 @@ def main() -> int:
         logger.error("SUPABASE_URL or SUPABASE_SERVICE_KEY not set in environment/.env")
         return 2
 
-    client: Client = create_client(
+    client: Client = make_supabase_client(
         settings.supabase_url,
         settings.supabase_service_key,
-        options=ClientOptions(headers={"ngrok-skip-browser-warning": "true"}),
+        headers={"ngrok-skip-browser-warning": "true"},
     )
     ingester = SalonJsonIngester(client, batch_tag=args.batch_tag, dry_run=args.dry_run)
 

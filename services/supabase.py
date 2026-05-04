@@ -3,7 +3,9 @@
 import logging
 from typing import Any
 
-from supabase import Client, ClientOptions, create_client
+from supabase import Client
+
+from services.sb_client import make_supabase_client
 
 from config import settings
 
@@ -133,10 +135,10 @@ def _coerce_int(value: object, default: int = 0) -> int:
 
 class SupabaseService:
     def __init__(self) -> None:
-        self.client: Client = create_client(
+        self.client: Client = make_supabase_client(
             settings.supabase_url,
             settings.supabase_service_key,
-            options=ClientOptions(headers={"ngrok-skip-browser-warning": "true"}),
+            headers={"ngrok-skip-browser-warning": "true"},
         )
 
     async def get_scraped_data(self, convex_audit_id: str) -> dict:
