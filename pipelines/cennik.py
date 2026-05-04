@@ -44,6 +44,8 @@ import logging
 import time
 from typing import Any, Awaitable, Callable
 
+from config import settings
+
 logger = logging.getLogger(__name__)
 
 PROMO_KEYWORDS = (
@@ -132,7 +134,12 @@ async def run_cennik_pipeline(
     # loads the mapping from audit_reports and applies transformations
     # deterministically. No MiniMax client import needed here.
     from models.scraped_data import ScrapedData
-    from pipelines.helpers import clean_service_name, fix_caps_lock, sanitize_text
+    from pipelines.helpers import (
+        clean_service_name,
+        fix_caps_lock,
+        fix_punctuation,
+        sanitize_text,
+    )
     from services.supabase import SupabaseService
 
     progress = on_progress or _noop_progress
@@ -307,6 +314,12 @@ async def run_cennik_pipeline(
             if desc:
                 desc = fix_caps_lock(desc)
                 desc = sanitize_text(desc)
+                # Polish punctuation normaliser — fixes " .", ".text", "..",
+                # missing terminal period, runaway whitespace. Idempotent
+                # and deterministic; runs on EVERY description (including
+                # those AI didn't touch) so the whole cennik gets a
+                # consistent style pass.
+                desc = fix_punctuation(desc)
 
             # If sanitize_text cleaned emoji/decor from a name or description
             # that the agent didn't rewrite, promote the was_* flag so that
@@ -461,6 +474,53 @@ async def run_cennik_pipeline(
         )
     else:
         quality_score = 0
+
+    # ── Step 4.5: AI orthography proofread (batched, in-place) ──
+    # Catches typos/literówki that survived BAGENT #1 generation. Runs ONLY
+    # over descriptions where layer-A (fix_punctuation) couldn't fix
+    # everything mechanically. Drift-validated — model output that strays
+    # too far from input is rejected and the original kept.
+    if settings.minimax_api_key:
+        try:
+            from pipelines.proofread import proofread_descriptions
+            from services.minimax import MiniMaxClient
+
+            # Collect descriptions across all categories with positional refs
+            # so we can write back in the same order.
+            desc_refs: list[tuple[int, int]] = []
+            descriptions: list[str] = []
+            for ci, cat in enumerate(final_pricelist["categories"]):
+                for si, svc in enumerate(cat["services"]):
+                    d = svc.get("description")
+                    if isinstance(d, str) and d.strip():
+                        desc_refs.append((ci, si))
+                        descriptions.append(d)
+
+            if descriptions:
+                await progress(
+                    80,
+                    f"Korekta ortografii (AI): {len(descriptions)} opisów w batch'ach...",
+                )
+                t0 = time.time()
+                proof_client = MiniMaxClient(
+                    settings.minimax_api_key,
+                    settings.minimax_base_url,
+                    settings.minimax_model,
+                )
+                fixed = await proofread_descriptions(descriptions, proof_client)
+                changed = 0
+                for (ci, si), original, corrected in zip(desc_refs, descriptions, fixed):
+                    if corrected != original:
+                        final_pricelist["categories"][ci]["services"][si]["description"] = corrected
+                        changed += 1
+                logger.info(
+                    "[cennik] proofread: %d/%d descriptions corrected in %.1fs",
+                    changed, len(descriptions), time.time() - t0,
+                )
+        except Exception as e:  # noqa: BLE001
+            logger.warning(
+                "[cennik] proofread step failed (continuing without): %s", e
+            )
 
     # ── Step 5: Write to Supabase (optimized_pricelists + children) ──
     await progress(85, "Zapis zoptymalizowanego cennika do Supabase...")

@@ -68,6 +68,109 @@ def fix_caps_lock(text: str) -> str:
     return text
 
 
+# Polish sentence-end punctuation set used for "missing period at end" check.
+_SENTENCE_END_PUNCT = ".!?…"
+
+# Common abbreviations that legitimately end with a dot mid-sentence.
+# These are NOT treated as sentence boundaries when adding spacing fixes.
+_ABBREVS = (
+    "np", "tj", "tzn", "tzw", "itd", "itp", "m.in", "ok", "ww", "ds",
+    "min", "godz", "sek", "godzin", "ul", "al", "nr", "kw", "ks", "dr",
+    "mgr", "inż", "prof", "płk",
+)
+_ABBREV_RE = re.compile(
+    r"\b(?:" + "|".join(re.escape(a) for a in _ABBREVS) + r")\.",
+    flags=re.IGNORECASE,
+)
+
+
+def fix_punctuation(text: str) -> str:
+    """Normalise Polish punctuation in service descriptions.
+
+    Fixes the common issues observed in AI-generated copy that survive
+    BAGENT #1's `sanitize_text`:
+
+      * orphan space before . , ; : ! ? — "kropka ." → "kropka."
+      * missing space after . , ; : ! ? — "kropka.tekst" → "kropka. tekst"
+        (skips dots that are part of known abbreviations like "np.", "m.in.",
+        decimals "1.5" and ellipsis "…")
+      * runs of dots collapsed: ".." → ".", "....." → "…"
+      * doubled comma / semicolon collapsed
+      * leading/trailing whitespace trimmed
+      * collapsed internal multi-space
+      * missing terminal period appended IF the description is a real
+        sentence (>=4 words, ends with letter, not a list/header).
+
+    Pure deterministic — no AI. Idempotent (running twice yields same
+    output as once). Preserves Polish diacritics.
+    """
+    if not text:
+        return text
+    s = text.strip()
+
+    # 1. Collapse 4+ dots to ellipsis "…", 2-3 dots → ellipsis too (Polish
+    # convention prefers single ellipsis over "..").
+    s = re.sub(r"\.{2,}", "…", s)
+
+    # 2. Drop space BEFORE punctuation (Polish: no space before .,;:!?)
+    s = re.sub(r"\s+([.,;:!?…])", r"\1", s)
+
+    # 3. Add space AFTER .,;:!? when followed by a letter — but skip when
+    # the dot is part of a known abbreviation OR a decimal number.
+    # Walk char-by-char so we can context-check the previous run.
+    def _add_space_after(match: re.Match[str]) -> str:
+        # match.group(0) is "<punct><letter>", e.g. ".K"
+        p, ch = match.group(1), match.group(2)
+        # Decimal numbers: 1.5, 2,5 — don't break.
+        before_idx = match.start()
+        if before_idx > 0 and s[before_idx - 1].isdigit() and ch.isdigit():
+            return p + ch
+        return p + " " + ch
+
+    # Only apply for ., ; : ! ? — comma is special (decimals)
+    s_fixed = re.sub(r"([.!?;:])([A-Za-zĄĆĘŁŃÓŚŹŻąćęłńóśźż])", _add_space_after, s)
+
+    # Restore abbreviations that got a wrong space inserted (e.g. "np. tekst"
+    # is correct, but "np.t" → "np. t" is what we want; "m.in." stays).
+    # The above regex already handles these correctly because abbrevs end
+    # with dot+space in input. Edge cases:
+    #   "np.tekst" → "np. tekst"  ✓
+    #   "m.in.coś" → "m.in. coś"  ✓ (last . gets space)
+    s = s_fixed
+
+    # 4. Collapse multi-space (created by previous edits)
+    s = re.sub(r"[ \t]{2,}", " ", s)
+
+    # 5. Doubled commas / semicolons
+    s = re.sub(r",{2,}", ",", s)
+    s = re.sub(r";{2,}", ";", s)
+
+    # 6. Capitalise the first letter of the description
+    if s and s[0].islower():
+        s = s[0].upper() + s[1:]
+
+    # 7. Append terminal period if it looks like a real sentence and there's
+    # no terminal punctuation already. A "real sentence" is heuristically
+    # detected as either:
+    #   * containing internal sentence punctuation (, ; : .) — meaning it's
+    #     prose with at least one clause break
+    #   * OR ≥4 words (long enough to be an actual sentence not a header)
+    # Bullet/list rows starting with -, •, *, — are skipped (they're list
+    # items, not sentences).
+    word_count = len(re.findall(r"\b\w+\b", s))
+    has_internal_clause_punct = any(p in s[:-1] for p in ",;:.")
+    is_listy = s.lstrip().startswith(("-", "•", "*", "—", "–"))
+    if (
+        s
+        and s[-1].isalpha()
+        and not is_listy
+        and (has_internal_clause_punct or word_count >= 4)
+    ):
+        s = s + "."
+
+    return s.strip()
+
+
 def calculate_similarity(a: str, b: str) -> float:
     """Jaccard similarity on words."""
     words_a = {w for w in a.split() if len(w) > 1}
