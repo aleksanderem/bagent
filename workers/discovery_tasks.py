@@ -16,6 +16,7 @@ Two task types registered:
 from __future__ import annotations
 
 import logging
+import os
 from typing import Any
 
 from arq.connections import ArqRedis
@@ -98,20 +99,49 @@ async def discovery_full_sweep_cron(ctx: dict[str, Any]) -> dict[str, int]:
 # parallel (which would happen if a bootstrap is mistakenly fired
 # while a step is mid-flight).
 
-PUMP_LOCK_KEY = "discovery:pump:active"
-# Delay between combos when work exists. Step 2: 60→15→5. The pump
-# runs serially so this is pure inter-step idle and there's no
-# downside to dropping it close to zero — discover_combo itself
-# dominates wall clock. 5s gives a tiny breather between bursts of
-# tiny rural combos so we don't slam Booksy with back-to-back
-# zero-second turnarounds.
+# --- Parallel pump configuration -------------------------------------------
+#
+# The pump used to be strictly sequential — single Redis lock
+# `discovery:pump:active` enforced one combo at a time. With 368 combos
+# and ~30 min/walk, throughput peaked at ~3-4 combos/h. After all combos
+# walked once (we're now in re-walk mode) the long tail of low-coverage
+# combos took weeks to converge.
+#
+# Now: N parallel slots (default 3, tunable via MAX_PARALLEL_PUMPS env).
+# Each slot holds its own lock `discovery:pump:slot:{i}` and runs
+# discovery_pump_step independently. A per-combo Redis claim
+# (`discovery:pump:claim:{cat}:{voiv}`) prevents two slots from
+# accidentally racing on the same combo before the DB-level dedup guard
+# in `discover_combo_via_locations` kicks in.
+#
+# 3 parallel slots × ~20-30 min/combo = ~6-9 combos/h, ~3× current
+# throughput. Bextract API/proxies handle 2.5 req/s sustained per
+# walker so 3× = 7.5 req/s — still under Booksy's observed ~10 req/s
+# soft limit. Bump to 5+ if Bextract scales.
+MAX_PARALLEL_PUMPS = int(os.environ.get("MAX_PARALLEL_PUMPS", "3"))
+
+# Per-slot lock key prefix. {i} ranges over 0..MAX_PARALLEL_PUMPS-1.
+PUMP_SLOT_LOCK_PREFIX = "discovery:pump:slot:"
+# Per-combo claim prefix. Set on pick, deleted on finish. TTL longer
+# than the worst-case walk so an orphaned claim from a crashed worker
+# auto-expires.
+PUMP_COMBO_CLAIM_PREFIX = "discovery:pump:claim:"
+
+# Delay between combos when work exists. Step 2: 60→15→5. Each slot
+# self-paces so this is pure intra-slot idle.
 PUMP_IDLE_DELAY_SEC = 5
 PUMP_EMPTY_DELAY_SEC = 600      # delay when no due combo is found
 # Lock TTL needs to outlive the longest single sweep. mazowieckie x
 # dense category (Trening i Dieta, Fryzjer, Salon kosmetyczny) can
 # probe 500+ bboxes at ~1.5s each. 4h is comfortable headroom.
 PUMP_LOCK_TTL_SEC = 4 * 60 * 60
+PUMP_COMBO_CLAIM_TTL_SEC = 4 * 60 * 60  # match slot TTL — claim auto-clears if pump crashes
 PUMP_TASK_TIMEOUT_SEC = 4 * 60 * 60  # arq per-job timeout for the pump itself
+
+# Backward compat: legacy single-lock key. Kept so existing watchdog
+# crons that probe this don't false-alarm during rollout. The pump no
+# longer reads/writes it; slot locks above are the source of truth.
+PUMP_LOCK_KEY = "discovery:pump:active"
 
 
 # Cooldowns for the pump's combo selection. Tuned after first full
@@ -131,11 +161,35 @@ PUMP_TASK_TIMEOUT_SEC = 4 * 60 * 60  # arq per-job timeout for the pump itself
 DONE_COOLDOWN_HOURS = 4
 FAILED_COOLDOWN_HOURS = 1
 
+# Saturation-aware cooldown — when the last walk found very few new
+# salons, the combo is essentially saturated against canonical_children
+# walking. Re-walking it every 4h wastes pump cycles that should go to
+# bigger gaps. Combos under SATURATION_NEW_THRESHOLD jump to longer
+# cooldown.
+#
+# Empirical: a combo at 99%+ coverage finds 0-2 new per walk; the
+# whole walk is ~99.8% duplicates. With 158 combos in the 1-30% bucket
+# (still 100k missing salons), pump time is much better spent on
+# those gaps than re-walking saturated ones.
+#
+# Threshold of 5 new is conservative — gives a combo a chance to find
+# legitimately new salons that were just added on Booksy, while
+# stepping out of the way once it's clearly saturated.
+SATURATION_NEW_THRESHOLD = 5
+SATURATION_COOLDOWN_HOURS = 24
 
-def _pick_next_due_combo(client: Client) -> tuple[int, int] | None:
-    """Return (category_id, voivodeship_id) of the next combo due for
-    discovery, with cooldown logic + COVERAGE-AWARE priority so the
-    pump auto-prioritizes dense urban combos that need the most work.
+
+def _pick_next_due_combos(
+    client: Client, top_k: int = 10
+) -> list[tuple[int, int]]:
+    """Return up to ``top_k`` (category_id, voivodeship_id) tuples of
+    combos due for discovery, ordered by priority. Caller (parallel
+    pump) iterates these and SETNX-claims the first available one.
+
+    Returns a LIST (was: single combo) so parallel pumps each pick a
+    different combo from the same priority-sorted snapshot, falling
+    back to lower-priority items if the top-priority combo is already
+    claimed by another slot.
 
     Sort key (smaller wins, picked first):
       Tier 0: NEVER-swept combos (no discovery_runs row).
@@ -145,28 +199,31 @@ def _pick_next_due_combo(client: Client) -> tuple[int, int] | None:
               of when it last finished.
       Tier 2: For combos without a known booksy_reported_total (or with
               equal gaps), fall back to oldest started_at.
-      Skipped: currently 'running', or in cooldown window.
+      Skipped: currently 'running', or in cooldown window. Saturated
+              combos (last run found <SATURATION_NEW_THRESHOLD new) get
+              SATURATION_COOLDOWN_HOURS instead of DONE_COOLDOWN_HOURS.
 
-    Without coverage-awareness, pump rolled chronologically through
-    351 done-eligible combos at ~10min each = 50+h before re-touching
-    dense urban (Salon Kosmetyczny × mazowieckie etc). Now those jump
-    to the front of the queue automatically."""
+    Saturation cooldown pushes already-converged combos out of the
+    way so parallel pumps spend cycles on the long tail of 1-30%
+    combos instead of burning runs on 99%-saturated ones."""
     from datetime import datetime, timedelta, timezone
     now = datetime.now(tz=timezone.utc)
     done_cutoff = now - timedelta(hours=DONE_COOLDOWN_HOURS)
     failed_cutoff = now - timedelta(hours=FAILED_COOLDOWN_HOURS)
+    saturation_cutoff = now - timedelta(hours=SATURATION_COOLDOWN_HOURS)
 
     cats = client.table("booksy_categories").select("id").execute().data or []
     voivs = client.table("booksy_voivodeships").select("id").execute().data or []
     combos = {(int(c["id"]), int(v["id"])) for c in cats for v in voivs}
     if not combos:
-        return None
+        return []
 
-    # Pull both started_at and finished_at — we cool down based on
-    # finished_at (when the run ENDED) not started_at.
+    # Pull started_at, finished_at, and salons_new — we cool down
+    # based on finished_at, and apply saturation cooldown when
+    # latest.salons_new < SATURATION_NEW_THRESHOLD.
     runs = (
         client.table("discovery_runs")
-        .select("category_id,voivodeship_id,status,started_at,finished_at")
+        .select("category_id,voivodeship_id,status,started_at,finished_at,salons_new")
         .order("started_at", desc=True)
         .limit(5000)
         .execute()
@@ -216,6 +273,7 @@ def _pick_next_due_combo(client: Client) -> tuple[int, int] | None:
     #   started_at = secondary tiebreaker (older first)
     candidates: list[tuple[tuple[int, int, str], tuple[int, int]]] = []
     skipped_cooldown = 0
+    skipped_saturated = 0
     for combo in combos:
         latest = latest_per_combo.get(combo)
         if latest is None:
@@ -226,9 +284,23 @@ def _pick_next_due_combo(client: Client) -> tuple[int, int] | None:
             continue
         finished_at = _parse_iso(latest.get("finished_at")) or _parse_iso(latest.get("started_at"))
         if finished_at is not None:
-            if status == "done" and finished_at >= done_cutoff:
-                skipped_cooldown += 1
-                continue
+            if status == "done":
+                # Saturation-aware cooldown: combos whose last run found
+                # <SATURATION_NEW_THRESHOLD new salons get the longer
+                # SATURATION_COOLDOWN_HOURS so the pump doesn't burn
+                # cycles re-walking already-converged combos.
+                salons_new = latest.get("salons_new")
+                is_saturated = (
+                    salons_new is not None
+                    and int(salons_new) < SATURATION_NEW_THRESHOLD
+                )
+                effective_cutoff = saturation_cutoff if is_saturated else done_cutoff
+                if finished_at >= effective_cutoff:
+                    if is_saturated:
+                        skipped_saturated += 1
+                    else:
+                        skipped_cooldown += 1
+                    continue
             if status == "failed" and finished_at >= failed_cutoff:
                 skipped_cooldown += 1
                 continue
@@ -238,35 +310,97 @@ def _pick_next_due_combo(client: Client) -> tuple[int, int] | None:
         candidates.append(((1, -gap, latest.get("started_at") or "0"), combo))
 
     if not candidates:
-        if skipped_cooldown > 0:
+        if skipped_cooldown or skipped_saturated:
             logger.info(
-                "[discovery] no due combo (%d in cooldown — done<%dh or failed<%dh)",
+                "[discovery] no due combo (%d in cooldown done<%dh/failed<%dh, "
+                "%d saturated <%d new in last walk → cooldown<%dh)",
                 skipped_cooldown, DONE_COOLDOWN_HOURS, FAILED_COOLDOWN_HOURS,
+                skipped_saturated, SATURATION_NEW_THRESHOLD, SATURATION_COOLDOWN_HOURS,
             )
-        return None
+        return []
     candidates.sort(key=lambda x: x[0])
-    return candidates[0][1]
+    return [c[1] for c in candidates[:top_k]]
 
 
-async def discovery_pump_step(ctx: dict[str, Any]) -> dict[str, Any]:
-    """One-combo discovery step + self-reschedule. Holds Redis lock
-    so concurrent pumps can't double-fire."""
+def _pick_next_due_combo(client: Client) -> tuple[int, int] | None:
+    """Backward-compat shim. Returns first candidate or None.
+    New code paths should call ``_pick_next_due_combos`` directly to
+    enable parallel-pump SETNX-based combo claiming."""
+    combos = _pick_next_due_combos(client, top_k=1)
+    return combos[0] if combos else None
+
+
+async def discovery_pump_step(
+    ctx: dict[str, Any], slot: int = 0
+) -> dict[str, Any]:
+    """One-combo discovery step + self-reschedule. Each slot holds
+    its own Redis lock (`discovery:pump:slot:{slot}`) so up to
+    MAX_PARALLEL_PUMPS slots can run concurrently. Per-combo SETNX
+    claim (`discovery:pump:claim:{cat}:{voiv}`) prevents two slots
+    from racing on the same combo before the in-process dedup guard
+    in `discover_combo_via_locations` (5-min freshness check on
+    running rows) catches it.
+
+    On any exit path (success, no-due-combos, exception) the slot
+    re-enqueues itself with the same slot id so the parallel fan-out
+    persists across worker restarts (modulo arq job persistence)."""
     pool: ArqRedis = ctx["redis"]
-    locked = await pool.set(PUMP_LOCK_KEY, "1", ex=PUMP_LOCK_TTL_SEC, nx=True)
+    slot_key = f"{PUMP_SLOT_LOCK_PREFIX}{slot}"
+    locked = await pool.set(slot_key, "1", ex=PUMP_LOCK_TTL_SEC, nx=True)
     if not locked:
-        logger.info("[discovery] pump step: another step holds the lock, skipping")
-        return {"skipped": True}
+        logger.info(
+            "[discovery] pump slot=%d: another step already holds this slot, skipping",
+            slot,
+        )
+        return {"skipped": True, "slot": slot}
 
     outcome: dict[str, Any]
+    claimed_combo: tuple[int, int] | None = None
+    delay = PUMP_IDLE_DELAY_SEC
     try:
         client = _get_client()
-        combo = _pick_next_due_combo(client)
+        # Pick a list of top-K candidates and SETNX-claim the first
+        # one not already locked by another slot. This decorrelates
+        # parallel slots cleanly without a coordinator. Top-K depth
+        # of MAX_PARALLEL_PUMPS*4 leaves ample headroom even when
+        # multiple slots all happen to picker-tick within the same
+        # second.
+        candidates = _pick_next_due_combos(
+            client, top_k=max(MAX_PARALLEL_PUMPS * 4, 10)
+        )
+        combo: tuple[int, int] | None = None
+        for cand in candidates:
+            cat, voiv = cand
+            claim_key = f"{PUMP_COMBO_CLAIM_PREFIX}{cat}:{voiv}"
+            claimed = await pool.set(
+                claim_key, str(slot), ex=PUMP_COMBO_CLAIM_TTL_SEC, nx=True
+            )
+            if claimed:
+                combo = cand
+                claimed_combo = cand
+                break
+            else:
+                logger.info(
+                    "[discovery] pump slot=%d: combo cat=%s voiv=%s already "
+                    "claimed by another slot, trying next candidate",
+                    slot, cat, voiv,
+                )
+
         if combo is None:
             delay = PUMP_EMPTY_DELAY_SEC
-            outcome = {"swept": False, "reason": "no_due_combos", "next_step_in_sec": delay}
+            outcome = {
+                "slot": slot,
+                "swept": False,
+                "reason": "no_due_combos_or_all_claimed",
+                "candidates_seen": len(candidates),
+                "next_step_in_sec": delay,
+            }
         else:
             cat_id, voiv_id = combo
-            logger.info("[discovery] pump: sweeping cat=%s voiv=%s (location-walk)", cat_id, voiv_id)
+            logger.info(
+                "[discovery] pump slot=%d: sweeping cat=%s voiv=%s (location-walk)",
+                slot, cat_id, voiv_id,
+            )
             # Switched from discover_combo (bbox quad-tree) to
             # discover_combo_via_locations (canonical hierarchy walker).
             # Empirical: bbox approach hit 0.5% coverage on dense urban
@@ -275,8 +409,8 @@ async def discovery_pump_step(ctx: dict[str, Any]) -> dict[str, Any]:
             # has 194 districts) — projected 50-100% coverage.
             from discovery.locations import discover_combo_via_locations
             result = await discover_combo_via_locations(cat_id, voiv_id)
-            delay = PUMP_IDLE_DELAY_SEC
             outcome = {
+                "slot": slot,
                 "swept": True,
                 "category_id": cat_id,
                 "voivodeship_id": voiv_id,
@@ -289,25 +423,31 @@ async def discovery_pump_step(ctx: dict[str, Any]) -> dict[str, Any]:
                 "next_step_in_sec": delay,
             }
     finally:
-        await pool.delete(PUMP_LOCK_KEY)
+        # Always release this slot's lock and any per-combo claim,
+        # even on exception, so the next pump_step can pick up.
+        await pool.delete(slot_key)
+        if claimed_combo is not None:
+            cat, voiv = claimed_combo
+            await pool.delete(f"{PUMP_COMBO_CLAIM_PREFIX}{cat}:{voiv}")
 
-    # arq has no per-job timeout override; the global
-    # WorkerSettings.job_timeout (4h) covers us.
-    await pool.enqueue_job("discovery_pump_step", _defer_by=delay)
+    # Re-enqueue this same slot — keeps the parallel fan-out stable
+    # across self-rescheduling. arq has no per-job timeout override;
+    # the global WorkerSettings.job_timeout (4h) covers us.
+    await pool.enqueue_job("discovery_pump_step", slot, _defer_by=delay)
     return outcome
 
 
 async def bootstrap_discovery_pump(ctx: dict[str, Any]) -> dict[str, Any]:
-    """One-shot kick to start the pump loop. Idempotent — fires a single
-    enqueue with a 2s defer. If the loop is already running, the lock
-    inside ``discovery_pump_step`` ensures no double-pump.
+    """Idempotent watchdog: fires MAX_PARALLEL_PUMPS pump_step jobs
+    (one per slot). Slots already running (lock held) will exit
+    cleanly on entry — no double-pump risk.
 
     Also opportunistically reaps the most-recent generation of zombies
     (rows still 'running' but with no progress in the last 5 min). The
     hourly :30 cron handles the long-tail (>4h) case; this catches the
     common pump_step-killed-by-deploy case where a row sat for ~minutes
-    after a worker restart and the pump can't pick its combo because
-    _pick_next_due_combo skips 'running' rows.
+    after a worker restart and the picker can't see its combo because
+    _pick_next_due_combos skips 'running' rows.
     """
     pool: ArqRedis = ctx["redis"]
     client = _get_client()
@@ -318,8 +458,12 @@ async def bootstrap_discovery_pump(ctx: dict[str, Any]) -> dict[str, Any]:
     except Exception:
         # Helper not present in older deploys — fall through silently.
         pass
-    await pool.enqueue_job("discovery_pump_step", _defer_by=2)
-    return {"bootstrapped": True}
+    # Fan out one pump_step per slot. Tiny per-slot stagger so they
+    # don't all hit the picker in the same millisecond — reduces the
+    # window where two slots could read the same set of candidates.
+    for s in range(MAX_PARALLEL_PUMPS):
+        await pool.enqueue_job("discovery_pump_step", s, _defer_by=2 + s)
+    return {"bootstrapped": True, "slots": MAX_PARALLEL_PUMPS}
 
 
 async def enqueue_discovered_to_refresh_queue(ctx: dict[str, Any]) -> dict[str, int]:
