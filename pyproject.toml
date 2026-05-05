@@ -31,6 +31,7 @@ dev = [
 asyncio_mode = "auto"
 markers = [
     "integration: marks tests requiring external APIs (deselect with '-m \"not integration\"')",
+    "e2e: salon-driven end-to-end pipeline tests (subset of integration; run with '-m e2e')",
 ]
 
 [tool.ruff]
