@@ -39,8 +39,15 @@ from discovery.discover import (  # reuse existing bits
     _get_client,
     _reset_client,
     _upsert_salon,
-    PROGRESS_FLUSH_INTERVAL,
 )
+
+# Override the bbox walker's PROGRESS_FLUSH_INTERVAL=5 — location walker
+# can spend 1-5 minutes inside a single _walk_location call when the
+# canonical_children list is deep, so flushing every 5 locations leaves
+# the heartbeat gap >30 min in worst cases. The smart reaper (migration
+# 031) reaps after 30 min of stale heartbeat — too aggressive at flush=5.
+# Flushing every location keeps heartbeat under ~1 min.
+PROGRESS_FLUSH_INTERVAL = 1
 
 logger = logging.getLogger("bagent.discovery.locations")
 
@@ -100,10 +107,20 @@ async def _fetch_listing_by_location(
         if r.status_code == 200:
             return r.json()
         body = r.text[:300]
-        is_rate_limit = "429" in body or r.status_code in (429, 503)
-        if is_rate_limit and attempt < 4:
+        # Retry on:
+        #   * 429 / 503 — explicit rate limit / overload
+        #   * 500 with "terminated" / "timeout" / "ECONNRESET" body — Booksy
+        #     occasionally drops the upstream connection mid-request and
+        #     bextract surfaces it as 500. Re-trying with fresh connection
+        #     usually succeeds.
+        is_transient = (
+            "429" in body
+            or r.status_code in (429, 503, 502, 504)
+            or (r.status_code == 500 and any(s in body.lower() for s in ("terminated", "timeout", "econnreset", "socket hang up")))
+        )
+        if is_transient and attempt < 4:
             logger.warning(
-                "[locations] bextract %s rate-limited (attempt %d), backing off %.0fs",
+                "[locations] bextract %s transient (attempt %d), backing off %.0fs",
                 r.status_code, attempt, backoff,
             )
             await asyncio.sleep(backoff)
