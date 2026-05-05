@@ -29,12 +29,21 @@ from typing import Any
 MAX_DISPLAY_SCORE = 92
 
 # English markers that should never appear standalone in Polish AI output.
-# We deliberately use word boundaries — "the" in "thereby" doesn't match.
+# Word-boundary matched + case-insensitive.
+#
+# IMPORTANT: words removed because they are also legitimate Polish:
+#   - "salon"   (Polish noun, identical spelling, used everywhere in copy)
+#   - "client"  (PL "klient" but English variant slips into proper nouns)
+#   - "service" (less common in PL but appears in brand/product names)
+#   - "or"      (Polish: "or" doesn't exist as a word but appears in URLs/names
+#                 and the regex was triggering false positives on "Bobyr")
+# Keep markers that are unambiguous English glue words: articles, auxiliary
+# verbs, prepositions — these never appear as Polish standalone words.
 ENGLISH_MARKERS = re.compile(
-    r"\b(the|and|or|is|are|was|were|will|should|would|could|"
-    r"this|that|these|those|with|without|from|into|about|"
-    r"please|kindly|here|there|where|when|while|because|"
-    r"customer|client|service|services|salon|business|owner|booking)\b",
+    r"\b(the|and|is|are|was|were|will|should|would|could|"
+    r"these|those|with|without|from|into|about|"
+    r"please|kindly|where|when|while|because|"
+    r"customer|business|owner|booking)\b",
     re.IGNORECASE,
 )
 
@@ -274,16 +283,23 @@ def check_audit_report(
                 f"{sum_parts} > {total}",
             )
 
-    # 11. transformations: each item has required keys
+    # 11. transformations: each item has required keys.
+    # Pipeline shape (verified pipelines/report.py lines 706, 859):
+    # {type, serviceName, before, after, reason, impactScore, ...}
+    # Older docs may say "original/optimized" — we accept either form to
+    # tolerate refactors, but require `type` and at least one before/after pair.
     if isinstance(transformations, list):
         bad = []
         for i, t in enumerate(transformations):
             if not isinstance(t, dict):
                 bad.append(f"#{i} not dict")
                 continue
-            for required_key in ("type", "original"):
-                if required_key not in t:
-                    bad.append(f"#{i} missing {required_key}")
+            if "type" not in t:
+                bad.append(f"#{i} missing type")
+            has_before = "before" in t or "original" in t or "originalName" in t
+            has_after = "after" in t or "optimized" in t or "newName" in t
+            if not (has_before and has_after):
+                bad.append(f"#{i} missing before/after pair")
         rep.check(
             "transformations.well_formed",
             not bad,

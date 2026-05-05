@@ -92,12 +92,16 @@ def salon_pool(e2e_db_client, e2e_seed: int, request: pytest.FixtureRequest) -> 
     max_svc = int(request.config.getoption("--e2e-max-services"))
 
     # Pull a wide candidate pool: latest scrape per salon, with services
-    # count in range, scraped recently (so data is fresh).
+    # count in range, scraped recently (so data is fresh). Schema notes:
+    # - `salon_ref_id` FK → salons.id (the canonical identity in our DB)
+    # - `booksy_id` is Booksy's external ID, used when salon_ref_id is NULL
+    # - There's no salon_scrape_categories table — categories live inline
+    #   on salon_scrape_services (category_name + category_sort_order).
     rows = (
         e2e_db_client.table("salon_scrapes")
         .select(
-            "id, salon_id, salon_name, salon_address, primary_category_id, "
-            "primary_category_name, total_services, scraped_at"
+            "id, salon_ref_id, booksy_id, salon_name, salon_address, "
+            "salon_city, primary_category_id, total_services, scraped_at"
         )
         .gte("total_services", min_svc)
         .lte("total_services", max_svc)
@@ -110,12 +114,15 @@ def salon_pool(e2e_db_client, e2e_seed: int, request: pytest.FixtureRequest) -> 
     if not rows:
         pytest.skip("No salons matched E2E criteria — check Supabase or relax services bounds")
 
-    # De-dupe to latest scrape per salon_id
+    # Synthesize a stable salon_id per row: salon_ref_id when present,
+    # else "booksy:{booksy_id}" so de-dupe works for orphan scrapes too.
+    for r in rows:
+        r["salon_id"] = r.get("salon_ref_id") or f"booksy:{r.get('booksy_id')}"
+
+    # De-dupe to latest scrape per salon
     by_salon: dict[Any, dict[str, Any]] = {}
     for r in rows:
-        sid = r.get("salon_id")
-        if sid is None:
-            continue
+        sid = r["salon_id"]
         if sid not in by_salon:
             by_salon[sid] = r
     candidates = list(by_salon.values())
@@ -177,12 +184,19 @@ class _ScrapedData:
 
     Pipelines accept any object with these attrs — we don't need the
     real pydantic model in tests, and avoiding the import lets these
-    tests run even if model schemas drift slightly between deploys."""
+    tests run even if model schemas drift slightly between deploys.
+
+    Attribute set verified against:
+      - pipelines/report.py — reads salonCity for benchmark fetch
+      - pipelines/cennik.py — reads salonName, totalServices, categories
+      - pipelines/helpers.py — reads totalServices, categories
+    """
     salonName: str
     salonAddress: str
     salonLogoUrl: str | None
     totalServices: int
     categories: list[_Category]
+    salonCity: str | None = None
     primaryCategoryId: int | None = None
     primaryCategoryName: str | None = None
     salonId: int | None = None
@@ -197,68 +211,74 @@ def scraped_data_for(e2e_db_client):
 
     def _build(salon_row: dict[str, Any]) -> _ScrapedData:
         scrape_id = salon_row["id"]
-        cats = (
-            e2e_db_client.table("salon_scrape_categories")
-            .select("id, name, position")
-            .eq("scrape_id", scrape_id)
-            .order("position")
-            .execute()
-            .data
-            or []
-        )
-        cat_id_to_name = {c["id"]: c["name"] for c in cats}
-
+        # Categories live inline on salon_scrape_services — there's no
+        # separate salon_scrape_categories table. We derive the
+        # ordered category list by grouping services on category_name +
+        # min(category_sort_order).
         svcs = (
             e2e_db_client.table("salon_scrape_services")
-            .select("id, category_id, name, price, duration, description, image_url, variants")
+            .select(
+                "id, category_id, category_name, category_sort_order, "
+                "name, price, duration_minutes, duration_seconds, "
+                "description, image_url"
+            )
             .eq("scrape_id", scrape_id)
+            .order("category_sort_order")
             .execute()
             .data
             or []
         )
 
-        # Group services by category
-        cat_to_services: dict[Any, list[_Service]] = {c["id"]: [] for c in cats}
+        # Build (cat_name, sort_order) → list[Service]
+        cat_meta: dict[str, int] = {}  # name → min sort_order seen
+        cat_to_services: dict[str, list[_Service]] = {}
         for s in svcs:
-            cid = s.get("category_id")
-            if cid not in cat_to_services:
-                cat_to_services[cid] = []
-            variants = None
-            raw_variants = s.get("variants")
-            if isinstance(raw_variants, list) and raw_variants:
-                variants = [
-                    _Variant(
-                        label=v.get("label", ""),
-                        price=v.get("price", ""),
-                        duration=v.get("duration"),
-                    )
-                    for v in raw_variants
-                    if isinstance(v, dict)
-                ]
-            cat_to_services[cid].append(
+            cname = s.get("category_name") or "Pozostałe"
+            sort_order = s.get("category_sort_order")
+            if isinstance(sort_order, int):
+                cat_meta[cname] = min(cat_meta.get(cname, 10**9), sort_order)
+            else:
+                cat_meta.setdefault(cname, 10**9)
+            cat_to_services.setdefault(cname, [])
+            # Normalise duration: prefer duration_minutes, fall back to seconds
+            dur_min = s.get("duration_minutes")
+            duration_str: str | None
+            if isinstance(dur_min, int) and dur_min > 0:
+                duration_str = f"{dur_min} min"
+            elif isinstance(s.get("duration_seconds"), int) and s["duration_seconds"] > 0:
+                duration_str = f"{s['duration_seconds'] // 60} min"
+            else:
+                duration_str = None
+            cat_to_services[cname].append(
                 _Service(
                     name=s.get("name") or "",
                     price=s.get("price") or "",
-                    duration=s.get("duration"),
+                    duration=duration_str,
                     description=s.get("description"),
                     imageUrl=s.get("image_url"),
-                    variants=variants,
+                    variants=None,  # variants live in a separate table; not needed for invariant tests
                 )
             )
 
+        # Order categories by their min sort_order
+        ordered_cat_names = sorted(cat_meta.keys(), key=lambda n: cat_meta[n])
         categories = [
-            _Category(name=c["name"], services=cat_to_services.get(c["id"], []))
-            for c in cats
+            _Category(name=cname, services=cat_to_services[cname])
+            for cname in ordered_cat_names
         ]
 
         return _ScrapedData(
             salonName=salon_row.get("salon_name") or "Unknown",
             salonAddress=salon_row.get("salon_address") or "",
             salonLogoUrl=None,
-            totalServices=salon_row.get("total_services") or sum(len(c.services) for c in categories),
+            totalServices=(
+                salon_row.get("total_services")
+                or sum(len(c.services) for c in categories)
+            ),
             categories=categories,
+            salonCity=salon_row.get("salon_city"),
             primaryCategoryId=salon_row.get("primary_category_id"),
-            primaryCategoryName=salon_row.get("primary_category_name"),
+            primaryCategoryName=None,  # not stored on salon_scrapes; resolved via JOIN if needed
             salonId=salon_row.get("salon_id"),
         )
 

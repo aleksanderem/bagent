@@ -61,8 +61,8 @@ def pick_salons(client, n: int, seed: int, min_svc: int, max_svc: int) -> list[d
     rows = (
         client.table("salon_scrapes")
         .select(
-            "id, salon_id, salon_name, salon_address, primary_category_id, "
-            "primary_category_name, total_services, scraped_at"
+            "id, salon_ref_id, booksy_id, salon_name, salon_address, "
+            "salon_city, primary_category_id, total_services, scraped_at"
         )
         .gte("total_services", min_svc)
         .lte("total_services", max_svc)
@@ -75,10 +75,13 @@ def pick_salons(client, n: int, seed: int, min_svc: int, max_svc: int) -> list[d
     if not rows:
         return []
 
+    for r in rows:
+        r["salon_id"] = r.get("salon_ref_id") or f"booksy:{r.get('booksy_id')}"
+
     by_salon: dict[Any, dict[str, Any]] = {}
     for r in rows:
-        sid = r.get("salon_id")
-        if sid is not None and sid not in by_salon:
+        sid = r["salon_id"]
+        if sid not in by_salon:
             by_salon[sid] = r
     candidates = list(by_salon.values())
 
@@ -102,48 +105,51 @@ def pick_salons(client, n: int, seed: int, min_svc: int, max_svc: int) -> list[d
 
 def build_scraped(client, salon_row: dict[str, Any]) -> _ScrapedData:
     scrape_id = salon_row["id"]
-    cats = (
-        client.table("salon_scrape_categories")
-        .select("id, name, position")
-        .eq("scrape_id", scrape_id)
-        .order("position")
-        .execute()
-        .data
-        or []
-    )
+    # Categories are inline on services (category_name + category_sort_order)
     svcs = (
         client.table("salon_scrape_services")
-        .select("id, category_id, name, price, duration, description, image_url, variants")
+        .select(
+            "id, category_id, category_name, category_sort_order, "
+            "name, price, duration_minutes, duration_seconds, "
+            "description, image_url"
+        )
         .eq("scrape_id", scrape_id)
+        .order("category_sort_order")
         .execute()
         .data
         or []
     )
-    cat_to_services: dict[Any, list[_Service]] = {c["id"]: [] for c in cats}
+    cat_meta: dict[str, int] = {}
+    cat_to_services: dict[str, list[_Service]] = {}
     for s in svcs:
-        cid = s.get("category_id")
-        if cid not in cat_to_services:
-            cat_to_services[cid] = []
-        variants = None
-        rv = s.get("variants")
-        if isinstance(rv, list) and rv:
-            variants = [
-                _Variant(label=v.get("label", ""), price=v.get("price", ""), duration=v.get("duration"))
-                for v in rv if isinstance(v, dict)
-            ]
-        cat_to_services[cid].append(
+        cname = s.get("category_name") or "Pozostałe"
+        sort_order = s.get("category_sort_order")
+        if isinstance(sort_order, int):
+            cat_meta[cname] = min(cat_meta.get(cname, 10**9), sort_order)
+        else:
+            cat_meta.setdefault(cname, 10**9)
+        cat_to_services.setdefault(cname, [])
+        dur_min = s.get("duration_minutes")
+        if isinstance(dur_min, int) and dur_min > 0:
+            duration_str = f"{dur_min} min"
+        elif isinstance(s.get("duration_seconds"), int) and s["duration_seconds"] > 0:
+            duration_str = f"{s['duration_seconds'] // 60} min"
+        else:
+            duration_str = None
+        cat_to_services[cname].append(
             _Service(
                 name=s.get("name") or "",
                 price=s.get("price") or "",
-                duration=s.get("duration"),
+                duration=duration_str,
                 description=s.get("description"),
                 imageUrl=s.get("image_url"),
-                variants=variants,
+                variants=None,
             )
         )
+    ordered_cat_names = sorted(cat_meta.keys(), key=lambda n: cat_meta[n])
     categories = [
-        _Category(name=c["name"], services=cat_to_services.get(c["id"], []))
-        for c in cats
+        _Category(name=cname, services=cat_to_services[cname])
+        for cname in ordered_cat_names
     ]
     return _ScrapedData(
         salonName=salon_row.get("salon_name") or "Unknown",
@@ -151,8 +157,9 @@ def build_scraped(client, salon_row: dict[str, Any]) -> _ScrapedData:
         salonLogoUrl=None,
         totalServices=salon_row.get("total_services") or sum(len(c.services) for c in categories),
         categories=categories,
+        salonCity=salon_row.get("salon_city"),
         primaryCategoryId=salon_row.get("primary_category_id"),
-        primaryCategoryName=salon_row.get("primary_category_name"),
+        primaryCategoryName=None,
         salonId=salon_row.get("salon_id"),
     )
 
@@ -183,25 +190,23 @@ async def run_audit(scraped: _ScrapedData, salon_id: Any, salon_name: str) -> Pi
 
 
 async def run_cennik(scraped: _ScrapedData, salon_id: Any, salon_name: str) -> PipelineRunResult:
-    from pipelines.cennik import run_cennik_pipeline
+    """Cennik is tightly coupled to Supabase — `run_cennik_pipeline`
+    only takes `audit_id` and loads scrape + audit_report + transformations
+    from DB. In-process testing requires either:
+      (a) seeding a synthetic audit_reports row (would write to prod), or
+      (b) refactoring cennik to accept pre-loaded inputs (test seam), or
+      (c) picking a real existing audit_id with a complete report
 
-    t0 = time.time()
-    result = PipelineRunResult(pipeline="cennik", salon_id=salon_id, salon_name=salon_name, duration_sec=0)
-    try:
-        cennik_output = await run_cennik_pipeline(
-            audit_id=f"e2e-runner-cennik-{salon_id}",
-            salon_id=str(salon_id),
-            scrape_id="e2e-runner",
-            on_progress=_noop_progress,
-        )
-        rep = check_cennik_output(cennik_output, scraped)
-        result.invariants_passed = rep.passed
-        result.invariants_failed = rep.failures
-    except Exception as e:
-        result.error = f"{type(e).__name__}: {e}"
-    finally:
-        result.duration_sec = round(time.time() - t0, 1)
-    return result
+    For now we mark cennik as not_implemented and focus on audit. Add
+    one of the above strategies in a follow-up if cennik regression
+    coverage becomes a priority."""
+    return PipelineRunResult(
+        pipeline="cennik",
+        salon_id=salon_id,
+        salon_name=salon_name,
+        duration_sec=0.0,
+        error="not_implemented: cennik is DB-coupled — needs test seam refactor or real audit_id seed",
+    )
 
 
 async def main_async(args: argparse.Namespace) -> int:
