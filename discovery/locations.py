@@ -204,8 +204,48 @@ async def discover_combo_via_locations(
     voivodeship_id: int,
 ) -> LocationDiscoveryResult:
     """Walk one (category, voivodeship) combo via location-id hierarchy.
-    Drop-in replacement for discover_combo() in the bbox approach."""
+    Drop-in replacement for discover_combo() in the bbox approach.
+
+    Per-combo de-dupe: refuse to start a new run if one is already
+    'running' for this combo with a fresh heartbeat (last_progress_at
+    within DEDUP_HEARTBEAT_FRESH_SEC). Without this guard, arq retries
+    after worker restart create concurrent duplicate runs for the
+    same combo (observed: 6× brwi-i-rzesy×śląskie + 6× zakupy×śląskie
+    running simultaneously, all walking the same canonical_children
+    tree and competing on supabase upserts)."""
+    DEDUP_HEARTBEAT_FRESH_SEC = 5 * 60  # treat heartbeat fresher than 5 min as live
+
     client = _reset_client()
+
+    # Per-combo de-dupe — check for an active sibling first.
+    from datetime import datetime, timezone, timedelta
+    cutoff = (datetime.now(tz=timezone.utc) - timedelta(seconds=DEDUP_HEARTBEAT_FRESH_SEC)).isoformat()
+    try:
+        existing = (
+            client.table("discovery_runs")
+            .select("id, last_progress_at")
+            .eq("category_id", category_id)
+            .eq("voivodeship_id", voivodeship_id)
+            .eq("status", "running")
+            .gte("last_progress_at", cutoff)
+            .limit(1)
+            .execute()
+            .data
+        )
+        if existing:
+            logger.info(
+                "[locations] skip cat=%s voiv=%s — already running (id=%s, fresh hb)",
+                category_id, voivodeship_id, existing[0].get("id"),
+            )
+            return LocationDiscoveryResult(
+                category_id=category_id,
+                voivodeship_id=voivodeship_id,
+                error="skipped: another run already in progress for this combo",
+                finished_at=time.time(),
+            )
+    except Exception as e:  # noqa: BLE001
+        # Don't block discovery on a guard-check error — log and proceed.
+        logger.warning("[locations] dedup check failed (continuing): %s", e)
 
     # Open a discovery_runs row so the dashboard sees progress
     run_insert = (
