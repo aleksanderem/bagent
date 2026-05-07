@@ -303,42 +303,112 @@ def capture_progress():
 
 
 # ---------------------------------------------------------------------------
-# Supabase write shim (so pipelines don't pollute prod)
+# Supabase write blocker (so pipelines don't pollute prod)
 # ---------------------------------------------------------------------------
+
+class _BlockedWriteError(AssertionError):
+    """Raised when a test tries to write to Supabase. Blocks all
+    insert/update/upsert/delete by patching the postgrest builder
+    methods at the class level."""
+
+
+def _install_supabase_write_blocker(monkeypatch) -> list[dict[str, Any]]:
+    """Implementation shared by ``disable_supabase_writes`` (legacy
+    fixture name) and ``read_only_supabase`` (preferred name).
+
+    Patches postgrest builder + SyncClient.rpc so writes raise
+    _BlockedWriteError. Returns the captured-writes list.
+
+    Why this is better than the old per-method approach:
+      - The old `disable_supabase_writes` patched a hand-curated list of
+        4 SupabaseService methods. Easy to miss new writers, and many
+        pipelines bypass SupabaseService entirely (.table().insert()
+        directly).
+      - This patches one level down so EVERY write path is blocked,
+        without needing to enumerate them.
+
+    Captured writes are recorded for assertion: tests can check
+    `recorded_writes` to verify the pipeline TRIED to write the right
+    thing without actually writing.
+    """
+    from postgrest._sync.request_builder import SyncRequestBuilder
+
+    recorded_writes: list[dict[str, Any]] = []
+
+    def _make_blocker(method_name: str):
+        def _blocked(self, *args, **kwargs):
+            payload = args[0] if args else kwargs.get("json") or kwargs
+            try:
+                table = getattr(self, "_table", None) or getattr(self, "table_name", "?")
+            except Exception:
+                table = "?"
+            recorded_writes.append({
+                "method": method_name,
+                "table": str(table),
+                "payload_preview": _safe_payload_preview(payload),
+            })
+            raise _BlockedWriteError(
+                f"E2E read_only_supabase blocked .{method_name}() on table={table!r} "
+                f"— payload preview: {_safe_payload_preview(payload)!r}"
+            )
+        _blocked.__name__ = f"_blocked_{method_name}"
+        return _blocked
+
+    for method in ("insert", "update", "upsert", "delete"):
+        if hasattr(SyncRequestBuilder, method):
+            monkeypatch.setattr(SyncRequestBuilder, method, _make_blocker(method))
+
+    # Also block RPC calls that mutate (helpers like enqueue_*, reap_*)
+    # — but allow read-only RPC like benchmark fetches. We can't reliably
+    # tell from the call site, so use a denylist of known mutating RPCs.
+    MUTATING_RPCS = {
+        "enqueue_discovered_salons",
+        "reap_stuck_discovery_runs",
+        "reap_stuck_discovery_runs_recent",
+        "reap_stuck_jobs",
+        "list_failed_discovery_runs_for_retry",
+    }
+
+    try:
+        from supabase._sync.client import SyncClient
+        original_rpc = SyncClient.rpc
+
+        def _rpc_guard(self, fn: str, params: dict | None = None):
+            if fn in MUTATING_RPCS:
+                recorded_writes.append({
+                    "method": "rpc",
+                    "fn": fn,
+                    "params": params,
+                })
+                raise _BlockedWriteError(
+                    f"E2E read_only_supabase blocked rpc({fn!r}) — params={params!r}"
+                )
+            return original_rpc(self, fn, params)
+
+        monkeypatch.setattr(SyncClient, "rpc", _rpc_guard)
+    except Exception:
+        # SDK shape may differ — best-effort
+        pass
+
+    return recorded_writes
+
+
+def _safe_payload_preview(payload: Any) -> str:
+    """Truncate payload for logging without leaking PII or huge dumps."""
+    s = repr(payload)
+    if len(s) > 200:
+        return s[:200] + "…"
+    return s
+
+
+@pytest.fixture
+def read_only_supabase(monkeypatch):
+    """Preferred name for the write blocker fixture (see
+    ``_install_supabase_write_blocker`` for the implementation)."""
+    return _install_supabase_write_blocker(monkeypatch)
+
 
 @pytest.fixture
 def disable_supabase_writes(monkeypatch):
-    """Monkeypatch SupabaseService methods that WRITE so the pipeline
-    runs without touching prod tables. The pipelines call SupabaseService
-    for benchmark fetches (read OK) and report saves (write — must be
-    blocked).
-
-    Usage: include this fixture in any e2e test that runs a pipeline
-    end-to-end against real Supabase reads."""
-    from services.supabase import SupabaseService
-
-    saved_payloads: list[dict[str, Any]] = []
-
-    def _capture_save(*args, **kwargs):
-        # Last positional is usually the report dict
-        for a in args:
-            if isinstance(a, dict):
-                saved_payloads.append(a)
-        for v in kwargs.values():
-            if isinstance(v, dict):
-                saved_payloads.append(v)
-        return None
-
-    # Block known write methods. Add more if pipelines start calling
-    # additional writers.
-    write_methods = [
-        "save_audit_report",
-        "save_optimized_pricelist",
-        "save_competitor_report",
-        "upsert_salon",
-    ]
-    for m in write_methods:
-        if hasattr(SupabaseService, m):
-            monkeypatch.setattr(SupabaseService, m, _capture_save)
-
-    return saved_payloads
+    """Legacy fixture name kept for the existing audit/cennik tests."""
+    return _install_supabase_write_blocker(monkeypatch)
