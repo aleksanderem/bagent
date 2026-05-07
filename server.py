@@ -1286,6 +1286,80 @@ async def run_competitor_report_job(
         report_logger.removeHandler(handler)
 
 
+# ---------------------------------------------------------------------------
+# Meta Ads attribution: UTM-tagged redirect endpoint
+# ---------------------------------------------------------------------------
+#
+# Every Meta ad's destination URL points here, not directly to Booksy.
+# Format: https://api.booksyaudit.pl/r/<booksy_id>?utm_source=meta&...
+# Endpoint logs the click to ad_clicks (with hashed IP for privacy/dedup),
+# then 302-redirects to the actual booksy.com URL with all UTMs preserved.
+#
+# This is the only way to close the attribution loop — Meta only knows
+# clicks happened, but doesn't know whether a Booksy booking followed.
+# By logging click → matching against later salon_scrapes diffs we get
+# real "ad click → booking" attribution.
+
+from fastapi import Request
+from fastapi.responses import RedirectResponse
+
+
+@app.get("/r/{booksy_id}")
+async def attribution_redirect(
+    booksy_id: int,
+    request: Request,
+    bg: BackgroundTasks,
+):
+    """UTM-tagged redirect → Booksy. Logs click event, 302's to real URL.
+
+    URL params (passed through to Booksy):
+      utm_source=meta, utm_medium=cpc, utm_campaign=<meta_campaign_id>,
+      utm_content=<adset_id>, utm_term=<ad_id>, ba_audit=<audit_id>
+
+    Anything not utm_* is also passed through so future channels (Google,
+    TikTok) work without code changes."""
+    import hashlib
+    from datetime import datetime, timezone
+    from urllib.parse import urlencode
+
+    qp = dict(request.query_params)
+
+    # Privacy-preserving IP hash with daily-rotating salt — enables
+    # within-day dedup without storing raw PII.
+    client_ip = request.client.host if request.client else ""
+    daily_salt = datetime.now(tz=timezone.utc).strftime("%Y-%m-%d")
+    ip_hash = hashlib.sha256(f"{client_ip}|{daily_salt}".encode()).hexdigest()[:32]
+
+    # Construct destination URL — Booksy salon profile by booksy_id
+    booksy_url = f"https://booksy.com/pl-pl/{booksy_id}"
+    if qp:
+        booksy_url = f"{booksy_url}?{urlencode(qp)}"
+
+    async def log_click() -> None:
+        try:
+            from services.sb_client import make_supabase_client
+            client = make_supabase_client(
+                settings.supabase_url, settings.supabase_service_key,
+            )
+            client.table("ad_clicks").insert({
+                "ip_hash": ip_hash,
+                "user_agent": request.headers.get("user-agent", "")[:500],
+                "utm_source": qp.get("utm_source"),
+                "utm_medium": qp.get("utm_medium"),
+                "utm_campaign": qp.get("utm_campaign"),
+                "utm_content": qp.get("utm_content"),
+                "utm_term": qp.get("utm_term"),
+                "ba_audit": qp.get("ba_audit"),
+                "booksy_id": booksy_id,
+                "destination_url": booksy_url,
+            }).execute()
+        except Exception as e:  # noqa: BLE001
+            logger.warning("ad_clicks insert failed (non-blocking): %s", e)
+
+    bg.add_task(log_click)
+    return RedirectResponse(url=booksy_url, status_code=302)
+
+
 if __name__ == "__main__":
     import uvicorn
 
