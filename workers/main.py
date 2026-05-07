@@ -148,6 +148,8 @@ from .tasks import ALL_TASKS
 from .scrape_refresh import ALL_SCRAPE_TASKS
 # Issue #34 — Booksy listing discovery tasks.
 from .discovery_tasks import ALL_DISCOVERY_TASKS
+# Meta Ads automation — push approved drafts, daily metrics fetch, attribution diff.
+from .campaign_tasks import ALL_CAMPAIGN_TASKS
 
 # arq cron import is gated to keep imports cheap when only running tests.
 try:  # pragma: no cover
@@ -200,6 +202,29 @@ try:  # pragma: no cover
             "workers.discovery_tasks.auto_retry_failed_discovery_runs",
             minute={15, 45},
         ),
+        # Meta Ads — push approved campaign drafts to Meta API every 5 min.
+        # Idempotent (Convex query filters out already-pushed). Fast path
+        # so client sees campaign go from 'approved' to 'paused on Meta'
+        # within minutes, not hours.
+        cron(
+            "workers.campaign_tasks.push_approved_campaigns",
+            minute={i for i in range(0, 60, 5)},
+        ),
+        # Meta Ads — daily metrics fetch at 02:00 UTC. Runs once per day
+        # for all active campaigns, pulls yesterday's insights via Meta
+        # Marketing API, upserts into Convex campaign_daily_metrics.
+        cron(
+            "workers.campaign_tasks.fetch_daily_metrics",
+            hour={2}, minute={0},
+        ),
+        # Meta Ads — booking attribution diff every 30 min. Reads
+        # v_salon_scrape_pairs (migration 039) for new diffs, matches
+        # against ad_clicks (migration 040) within 7-day window, records
+        # ad_booking_attributions + mirrors to Convex events.
+        cron(
+            "workers.campaign_tasks.attribute_bookings",
+            minute={0, 30},
+        ),
     ]
 except Exception:  # noqa: BLE001
     SCRAPE_CRONS = []
@@ -207,7 +232,13 @@ except Exception:  # noqa: BLE001
 
 class WorkerSettings:
     # Production tasks from tasks.py + smoke_test for liveness verification.
-    functions = [smoke_test, *ALL_TASKS, *ALL_SCRAPE_TASKS, *ALL_DISCOVERY_TASKS]
+    functions = [
+        smoke_test,
+        *ALL_TASKS,
+        *ALL_SCRAPE_TASKS,
+        *ALL_DISCOVERY_TASKS,
+        *ALL_CAMPAIGN_TASKS,
+    ]
     cron_jobs = SCRAPE_CRONS
     redis_settings = redis_settings
     on_startup = startup

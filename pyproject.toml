@@ -17,6 +17,10 @@ dependencies = [
     "redis>=5.0.0",
     # Issue #24 — Bugsink (Sentry-API compatible) error reporter
     "sentry-sdk[fastapi]>=2.18.0",
+    # Meta Ads automation
+    # OpenAI used directly via httpx for gpt-image-1 (image gen endpoint)
+    # — no SDK needed because we already have httpx and we want raw bytes
+    "Pillow>=11.0.0",
 ]
 
 [project.optional-dependencies]
