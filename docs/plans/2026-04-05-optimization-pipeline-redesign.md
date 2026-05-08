@@ -696,7 +696,7 @@ Expected: All 7 tests pass:
 - no legacy URLs in page source
 - audit results page loads with existing audit
 - pricing page loads without legacy generator code
-- embed script uses auditorai.pl domain
+- embed script uses booksyaudit.pl domain
 - navigation between main pages works
 
 - [ ] **Step 11: Verify console errors across all pages**
