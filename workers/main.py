@@ -150,6 +150,10 @@ from .scrape_refresh import ALL_SCRAPE_TASKS
 from .discovery_tasks import ALL_DISCOVERY_TASKS
 # Meta Ads automation — push approved drafts, daily metrics fetch, attribution diff.
 from .campaign_tasks import ALL_CAMPAIGN_TASKS
+# Iter 8 — outreach automation (wintact deployment + send loop + state machine).
+from .outreach_deployer import ALL_OUTREACH_DEPLOYER_TASKS
+from .outreach_orchestrator import ALL_OUTREACH_ORCHESTRATOR_TASKS
+from .state_transition_processor import ALL_OUTREACH_STATE_TASKS
 
 # arq cron import is gated to keep imports cheap when only running tests.
 try:  # pragma: no cover
@@ -225,6 +229,46 @@ try:  # pragma: no cover
             "workers.campaign_tasks.attribute_bookings",
             minute={0, 30},
         ),
+        # Iter 8 — outreach deployer: ship approved templates and
+        # segments to wintact every 2 min. Idempotent (skip rows whose
+        # wintact_*_id is already set).
+        cron(
+            "workers.outreach_deployer.deploy_approved_templates",
+            minute={i for i in range(0, 60, 2)},
+        ),
+        cron(
+            "workers.outreach_deployer.deploy_approved_segments",
+            minute={i for i in range(0, 60, 5)},
+        ),
+        cron(
+            "workers.outreach_deployer.activate_approved_sequences",
+            minute={i for i in range(0, 60, 5)},
+        ),
+        # Iter 8 — outreach orchestrator: enrol every 5 min, send loop
+        # every minute (capped at 25 sends per minute by wintact rate
+        # limit; orchestrator slices accordingly).
+        cron(
+            "workers.outreach_orchestrator.enroll_due_contacts",
+            minute={i for i in range(0, 60, 5)},
+        ),
+        cron(
+            "workers.outreach_orchestrator.send_due_messages",
+            minute={i for i in range(0, 60)},
+        ),
+        # Iter 8 — state machine: cold ingestion every 30 min,
+        # purchase-driven transitions every 15 min, stale expiry hourly.
+        cron(
+            "workers.state_transition_processor.ingest_new_cold_contacts",
+            minute={0, 30},
+        ),
+        cron(
+            "workers.state_transition_processor.apply_purchase_transitions",
+            minute={i for i in range(0, 60, 15)},
+        ),
+        cron(
+            "workers.state_transition_processor.expire_stale_states",
+            minute={45},
+        ),
     ]
 except Exception:  # noqa: BLE001
     SCRAPE_CRONS = []
@@ -238,6 +282,9 @@ class WorkerSettings:
         *ALL_SCRAPE_TASKS,
         *ALL_DISCOVERY_TASKS,
         *ALL_CAMPAIGN_TASKS,
+        *ALL_OUTREACH_DEPLOYER_TASKS,
+        *ALL_OUTREACH_ORCHESTRATOR_TASKS,
+        *ALL_OUTREACH_STATE_TASKS,
     ]
     cron_jobs = SCRAPE_CRONS
     redis_settings = redis_settings

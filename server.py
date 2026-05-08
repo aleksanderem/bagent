@@ -1360,6 +1360,159 @@ async def attribution_redirect(
     return RedirectResponse(url=booksy_url, status_code=302)
 
 
+# ---------------------------------------------------------------------------
+# Iter 8 — Outreach automation: wintact webhook handler
+# ---------------------------------------------------------------------------
+#
+# Wintact pushes message lifecycle events here:
+#   email.delivered, email.opened, email.clicked, email.bounced,
+#   email.complained, email.unsubscribed
+#
+# We persist the raw payload to outreach_wintact_events for audit, then
+# update the corresponding outreach_messages.{opened_at,clicked_at,...}
+# fields. The transactional.send call records wintact_message_id at
+# send time so this handler is a simple lookup-and-patch.
+#
+# Auth model: wintact does NOT support Bearer auth on its outgoing
+# webhooks. We rely on a shared secret in the URL path component
+# (settings.wintact_webhook_secret). This is the same pattern the
+# Stripe webhook uses elsewhere in the stack.
+
+@app.post("/api/wintact/webhook/{secret}")
+async def wintact_webhook(
+    secret: str,
+    request: Request,
+    bg: BackgroundTasks,
+) -> dict:
+    """Receive wintact lifecycle events, fan out to outreach_messages.
+
+    Path:        /api/wintact/webhook/<secret>
+    Auth:        path-segment shared secret (settings.api_key reused as
+                 default — operator should set a dedicated value).
+    Body:        wintact event JSON, shape per /webhooks.eventTypes.
+    Side effect: row in outreach_wintact_events + patch on
+                 outreach_messages.<opened|clicked|...>_at.
+    """
+    expected = getattr(settings, "wintact_webhook_secret", "") or settings.api_key
+    if not expected or secret != expected:
+        raise HTTPException(status_code=401, detail="Invalid webhook secret")
+
+    payload = await request.json()
+    bg.add_task(_process_wintact_event, payload)
+    return {"ok": True}
+
+
+async def _process_wintact_event(payload: dict) -> None:
+    """Persist raw event + patch outreach_messages columns."""
+    from datetime import datetime, timezone
+
+    from services.sb_client import make_supabase_client
+
+    try:
+        sb = make_supabase_client(
+            settings.supabase_url, settings.supabase_service_key,
+        )
+    except Exception as exc:  # noqa: BLE001
+        logger.error("Wintact webhook: SB client failed: %s", exc)
+        return
+
+    event_type = (payload.get("type") or payload.get("event") or "").lower()
+    wintact_message_id = (
+        payload.get("message_id")
+        or payload.get("data", {}).get("message_id")
+        or payload.get("id")
+    )
+    contact_email = (
+        payload.get("contact_email")
+        or payload.get("data", {}).get("contact_email")
+        or payload.get("email")
+        or ""
+    ).lower()
+
+    # 1. Raw audit log — always recorded so we can replay if mapping fails.
+    try:
+        sb.table("outreach_wintact_events").insert({
+            "wintact_event_type": event_type,
+            "wintact_message_id": wintact_message_id,
+            "contact_email_hash": (
+                __import__("hashlib").sha256(contact_email.encode()).hexdigest()
+                if contact_email else None
+            ),
+            "raw_payload": payload,
+        }).execute()
+    except Exception as exc:  # noqa: BLE001
+        logger.error("Wintact webhook: audit insert failed: %s", exc)
+
+    # 2. Patch outreach_messages with the lifecycle timestamp.
+    if not wintact_message_id:
+        return
+
+    field_map = {
+        "email.delivered":    "delivered_at",
+        "email.opened":       "opened_at",
+        "email.clicked":      "clicked_at",
+        "email.replied":      "replied_at",
+        "email.bounced":      "bounced_at",
+        "email.complained":   "complained_at",
+        "email.unsubscribed": "unsubscribed_at",
+        "email.failed":       "failed_at",
+    }
+    column = field_map.get(event_type)
+    if not column:
+        return
+
+    now_iso = datetime.now(timezone.utc).isoformat()
+    update: dict = {column: now_iso}
+    if event_type == "email.bounced":
+        update["bounce_type"] = (payload.get("bounce_type")
+                                 or payload.get("data", {}).get("bounce_type")
+                                 or "soft")
+    if event_type == "email.failed":
+        reason = (payload.get("reason")
+                  or payload.get("data", {}).get("reason")
+                  or "")
+        update["failure_reason"] = reason[:500]
+
+    try:
+        sb.table("outreach_messages").update(update).eq(
+            "wintact_message_id", wintact_message_id,
+        ).execute()
+    except Exception as exc:  # noqa: BLE001
+        logger.error("Wintact webhook: outreach_messages patch failed: %s", exc)
+        return
+
+    # 3. Cascading state effects: unsubscribe / complaint must close out
+    # all active states for this contact across funnels.
+    if event_type in ("email.unsubscribed", "email.complained"):
+        try:
+            row = (
+                sb.table("outreach_messages")
+                .select("contact_id")
+                .eq("wintact_message_id", wintact_message_id)
+                .single()
+                .execute()
+            ).data
+            if row and row.get("contact_id"):
+                contact_id = row["contact_id"]
+                sb.table("outreach_contacts").update({
+                    "unsubscribed_at": now_iso,
+                    "unsubscribe_reason": event_type,
+                }).eq("id", contact_id).execute()
+                sb.table("outreach_customer_states").update({
+                    "status": "opted_out",
+                    "exited_at": now_iso,
+                }).eq("contact_id", contact_id).eq("status", "active").execute()
+                sb.table("outreach_state_transitions").insert({
+                    "contact_id": contact_id,
+                    "funnel": "audit",
+                    "from_state": None,
+                    "to_state": "opted_out",
+                    "trigger_event": event_type,
+                }).execute()
+        except Exception as exc:  # noqa: BLE001
+            logger.error("Wintact webhook: opt-out cascade failed: %s", exc)
+
+
 if __name__ == "__main__":
     import uvicorn
 
