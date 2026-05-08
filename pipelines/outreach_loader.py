@@ -725,7 +725,10 @@ def submit_funnel(bundle: FunnelBundle, *, dry_run: bool = False) -> dict[str, A
         }).execute()
         summary["segments_inserted"] += 1
 
-    # Templates
+    # Templates — render body_md → body_html using the brand shell so
+    # the operator previews exactly what wintact will receive.
+    from services.email_renderer import render_email_html  # local import keeps validate-only mode dep-free
+
     for front, subject, body in bundle.templates:
         existing = (
             sb.table("outreach_template_variants")
@@ -739,6 +742,20 @@ def submit_funnel(bundle: FunnelBundle, *, dry_run: bool = False) -> dict[str, A
         if existing.data:
             summary["templates_skipped"] += 1
             continue
+
+        utm_campaign = f"{front['funnel']}_{front['step_key']}"
+        try:
+            body_html = render_email_html(
+                body_md=body,
+                subject=subject,
+                preview_text=front.get("preview_text"),
+                utm_campaign=utm_campaign,
+            )
+        except Exception as exc:  # noqa: BLE001
+            logger.error("Email shell render failed for %s/%s: %s",
+                         front["funnel"], front["step_key"], exc)
+            body_html = None  # deployer will fall back to body_md
+
         sb.table("outreach_template_variants").insert({
             "funnel": front["funnel"],
             "step_key": front["step_key"],
@@ -746,6 +763,7 @@ def submit_funnel(bundle: FunnelBundle, *, dry_run: bool = False) -> dict[str, A
             "vertical": front["vertical"],
             "subject": subject,
             "body_md": body,
+            "body_html": body_html,
             "preview_text": front.get("preview_text"),
             "variables_required": front.get("variables_required") or [],
             "variant_label": front.get("variant_label", "A"),

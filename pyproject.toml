@@ -21,6 +21,11 @@ dependencies = [
     # OpenAI used directly via httpx for gpt-image-1 (image gen endpoint)
     # — no SDK needed because we already have httpx and we want raw bytes
     "Pillow>=11.0.0",
+    # Iter 8 — outreach automation: markdown body → HTML for email shell.
+    # Mistune chosen over python-markdown for safe-by-default escape and
+    # zero CommonMark surprises in salon-owner copy.
+    "mistune>=3.0.0",
+    "PyYAML>=6.0.0",
 ]
 
 [project.optional-dependencies]
