@@ -93,8 +93,14 @@ def _markdown_to_html(body_md: str) -> str:
     (blank lines) still work as normal paragraphs.
     """
     renderer = _EmailHtmlRenderer()
+    # escape=False allows raw HTML/SVG in copywriter markdown — needed
+    # for inline visualizations (system strip, heatmap, ranking bars,
+    # sparklines, mini live-alert cards). Templates are author-controlled
+    # and pass compliance review in the approval queue before going out,
+    # so XSS surface is bounded to operators with write access to the
+    # templates dir, not user-submitted content.
     md = mistune.create_markdown(
-        escape=True,
+        escape=False,
         renderer=renderer,
         hard_wrap=True,
     )
@@ -103,6 +109,12 @@ def _markdown_to_html(body_md: str) -> str:
 
 class _EmailHtmlRenderer(mistune.HTMLRenderer):
     """Inline-styled HTML for email clients (Outlook in particular)."""
+
+    def __init__(self) -> None:
+        # HTMLRenderer carries its own `escape` flag that takes precedence
+        # over the create_markdown(escape=False) argument. Pass it through
+        # explicitly so raw HTML/SVG blocks in templates render verbatim.
+        super().__init__(escape=False)
 
     def paragraph(self, text: str) -> str:
         return f'<p style="margin:0 0 14px 0; font-size:15px; line-height:1.65; color:#1F2937;">{text}</p>\n'
