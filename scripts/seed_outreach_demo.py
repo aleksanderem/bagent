@@ -52,9 +52,25 @@ DEMO_TEMPLATE_FILES = [
 
 
 def cleanup_prior_demo_rows() -> None:
-    """Idempotent — clean any rows from a previous seed run."""
+    """Idempotent — clean any rows from a previous seed run.
+
+    Also sweeps templates with step_keys we own here that may have been
+    inserted by older subagent runs (created_by != 'demo_seed'), so the
+    queue doesn't accumulate duplicates as the demo evolves between
+    sessions. Only step_keys explicitly owned by this seed script are
+    swept; nothing else is touched.
+    """
     sb.table("outreach_audience_segments").delete().like("name", "demo_%").execute()
     sb.table("outreach_template_variants").delete().eq("created_by", "demo_seed").execute()
+    OWNED_STEP_KEYS = [
+        "demo_d0_cold_desc_gap",
+        "demo_d3_followup",
+        "demo_d7_case_study",
+        "demo_d7_last_chance",
+        "demo_d14_final_offer",
+    ]
+    for sk in OWNED_STEP_KEYS:
+        sb.table("outreach_template_variants").delete().eq("step_key", sk).execute()
     sb.table("outreach_sequences").delete().like("name", "demo_%").execute()
 
 
