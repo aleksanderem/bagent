@@ -1742,7 +1742,7 @@ class SupabaseService:
         try:
             salon_res = (
                 self.client.table("salons")
-                .select("id,booksy_id,name,reviews_rank,reviews_count,city")
+                .select("id,booksy_id,name,reviews_rank,reviews_count,city,thumbnail_photo")
                 .in_("id", salon_ids)
                 .execute()
             )
@@ -1762,6 +1762,7 @@ class SupabaseService:
                 m["reviews_rank"] = s.get("reviews_rank")
                 m["reviews_count"] = s.get("reviews_count")
                 m["city"] = s.get("city")
+                m["thumbnail_photo"] = s.get("thumbnail_photo")
         return matches
 
     async def get_competitor_pricing_comparisons(
