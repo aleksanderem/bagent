@@ -154,6 +154,8 @@ from .campaign_tasks import ALL_CAMPAIGN_TASKS
 from .outreach_deployer import ALL_OUTREACH_DEPLOYER_TASKS
 from .outreach_orchestrator import ALL_OUTREACH_ORCHESTRATOR_TASKS
 from .state_transition_processor import ALL_OUTREACH_STATE_TASKS
+# Taxonomy maintenance — nightly mv refresh + service embedding + inference backfill.
+from .taxonomy_refresh import ALL_TAXONOMY_TASKS
 
 # arq cron import is gated to keep imports cheap when only running tests.
 try:  # pragma: no cover
@@ -269,6 +271,27 @@ try:  # pragma: no cover
             "workers.state_transition_processor.expire_stale_states",
             minute={45},
         ),
+        # ── Taxonomy maintenance (nightly cascade, ~30min total budget) ──
+        # 03:00 — refresh materialized views (mv_booksy_treatments +
+        #         mv_treatment_name_lookup) so new treatments from yesterday's
+        #         scrapes show up in the canonical taxonomy. ~5-15s.
+        cron(
+            "workers.taxonomy_refresh.refresh_taxonomy_views",
+            hour={3}, minute={0},
+        ),
+        # 03:15 — embed new services that landed today via OpenAI
+        #         text-embedding-3-small. Capped 50k/night (~$0.015 budget).
+        cron(
+            "workers.taxonomy_refresh.embed_new_services",
+            hour={3}, minute={15},
+        ),
+        # 03:30 — refresh inferred_treatment_id: mark stale rows (>7d) +
+        #         drain backfill until exhausted or 200k cap hit. Catches
+        #         new scrapes + taxonomy evolution. ~10-15 min budget.
+        cron(
+            "workers.taxonomy_refresh.refresh_inferred_treatments",
+            hour={3}, minute={30},
+        ),
     ]
 except Exception:  # noqa: BLE001
     SCRAPE_CRONS = []
@@ -285,6 +308,7 @@ class WorkerSettings:
         *ALL_OUTREACH_DEPLOYER_TASKS,
         *ALL_OUTREACH_ORCHESTRATOR_TASKS,
         *ALL_OUTREACH_STATE_TASKS,
+        *ALL_TAXONOMY_TASKS,
     ]
     cron_jobs = SCRAPE_CRONS
     redis_settings = redis_settings
