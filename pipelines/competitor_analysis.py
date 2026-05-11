@@ -36,6 +36,7 @@ from pipelines.competitor_dimensional_scores import (
 )
 from pipelines.competitor_selection import CompetitorCandidate, select_competitors
 from services.supabase import SupabaseService
+from services.taxonomy_inference import infer_and_apply
 
 logger = logging.getLogger(__name__)
 
@@ -169,6 +170,32 @@ async def compute_competitor_analysis(
     _apply_versum_mappings(subject_data, versum_map)
     for _, cdata in aligned_competitors:
         _apply_versum_mappings(cdata, versum_map)
+
+    # Taxonomy inference: correct mis-tagged booksy_treatment_id values for
+    # subject + each competitor using crowd lookup (migration 042 — RPC
+    # infer_treatment_id pulled from mv_treatment_name_lookup). Many salon
+    # owners pick the wrong tid in Booksy panel (e.g. all manicure variants
+    # tagged as "Paznokcie żelowe"); this re-anchors them on what the
+    # majority of similarly-named services in our DB use. Idempotent —
+    # services whose original tid matches inferred get a no-op, and entries
+    # with specificity markers (mega/3d/akryl/...) keep their original.
+    await progress(40, "Inferencja taxonomy z crowd lookup...")
+    try:
+        await infer_and_apply(
+            service, subject_data.get("services") or [], label="subject",
+        )
+        for _, cdata in aligned_competitors:
+            await infer_and_apply(
+                service, cdata.get("services") or [],
+                label=f"competitor booksy_id={cdata.get('booksy_id')}",
+            )
+    except Exception as e:
+        # Non-fatal: if RPC missing (migration 042 not yet applied), or any
+        # other failure, fall through to raw Booksy tids. Pipeline keeps
+        # running with degraded precision rather than blowing up.
+        logger.warning(
+            "Taxonomy inference failed (continuing with raw tids): %s", e,
+        )
 
     # ── Step 4: Pricing comparisons ──
     await progress(45, "Pricing comparisons per treatment_id...")
