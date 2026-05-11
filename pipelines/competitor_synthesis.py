@@ -233,9 +233,18 @@ async def synthesize_competitor_insights(
         int(m["booksy_id"]) for m in matches if m.get("booksy_id") is not None
     }
 
-    # ── Step 3: MiniMax agent loop (with graceful fallback) ──
+    # ── Step 3: Synthesis with provider chain ──
+    #
+    # Tier 1: MiniMax M2.7 (primary — best quality, supports tool_use loop)
+    # Tier 2: OpenAI gpt-4o-mini Structured Outputs (faster, more reliable,
+    #         single-shot JSON, no tool loop)
+    # Tier 3: Deterministic template from data (no LLM, always succeeds)
+    #
+    # We don't try Anthropic Claude directly because we don't have the API
+    # key (only MiniMax via Anthropic-compatible endpoint).
     await progress(40, "MiniMax agent synthesis...")
     used_fallback = False
+    fallback_source = None
     try:
         insights = await _run_minimax_synthesis(context)
         insights = _sanitize_insights(
@@ -245,17 +254,38 @@ async def synthesize_competitor_insights(
         )
     except Exception as e:
         logger.warning(
-            "Etap 5 MiniMax synthesis failed for report_id=%s: %s — falling back",
+            "Etap 5 MiniMax synthesis failed for report_id=%s: %s — trying OpenAI fallback",
             report_id, e,
         )
-        used_fallback = True
-        insights = _deterministic_fallback(
-            subject_context=subject_context,
-            matches=matches,
-            pricing=pricing,
-            gaps=gaps,
-            dimensions=dimensions,
-        )
+        await progress(50, "MiniMax failed — OpenAI fallback synthesis...")
+        try:
+            from services.openai_synthesis import synthesize_via_openai
+            insights = await synthesize_via_openai(context)
+            insights = _sanitize_insights(
+                insights,
+                valid_ids=valid_ids,
+                valid_competitor_ids=valid_competitor_ids,
+            )
+            used_fallback = True
+            fallback_source = "openai_gpt_4o_mini"
+            logger.info(
+                "Etap 5 OpenAI fallback succeeded for report_id=%s",
+                report_id,
+            )
+        except Exception as e2:
+            logger.warning(
+                "Etap 5 OpenAI fallback also failed for report_id=%s: %s — using deterministic template",
+                report_id, e2,
+            )
+            used_fallback = True
+            fallback_source = "deterministic_template"
+            insights = _deterministic_fallback(
+                subject_context=subject_context,
+                matches=matches,
+                pricing=pricing,
+                gaps=gaps,
+                dimensions=dimensions,
+            )
 
     # ── Step 4: Persist narrative + SWOT + deterministic enrichment ──
     # Frontend rich UI (BEAUTY_AUDIT competitor report) needs more fields than
