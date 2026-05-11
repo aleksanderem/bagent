@@ -969,6 +969,7 @@ def _build_competitor_profiles(
         booksy_id = m.get("booksy_id")
         if salon_id is None and booksy_id is None:
             continue
+        thumbnail = m.get("thumbnail_photo")
         profiles.append({
             "id": int(salon_id) if salon_id is not None else int(booksy_id or 0),
             "salon_id": int(salon_id) if salon_id is not None else None,
@@ -981,6 +982,8 @@ def _build_competitor_profiles(
             "reviews_rank": float(m.get("reviews_rank") or 0.0),
             "reviews_count": int(m.get("reviews_count") or 0),
             "overlap": _DEFAULT_OVERLAP,
+            "thumbnailPhoto": thumbnail if isinstance(thumbnail, str) and thumbnail else None,
+            "thumbnail_photo": thumbnail if isinstance(thumbnail, str) and thumbnail else None,
         })
     logger.info(
         "_build_competitor_profiles: built %d profiles from %d matches",
