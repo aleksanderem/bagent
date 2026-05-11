@@ -102,14 +102,27 @@ async def _call_infer_rpc(
     name: str,
     parent_hint: int | None,
 ) -> dict[str, Any] | None:
-    """Wrap the `infer_treatment_id` Postgres RPC. Returns None on no match
-    or any error (caller treats as 'no inference')."""
+    """Wrap the `match_treatment_by_name` Postgres RPC (canonical-name
+    pg_trgm matching from migration 043). Returns None on no match or
+    any error (caller treats as 'no inference').
+
+    The RPC matches a service name against canonical Booksy taxonomy
+    (mv_booksy_treatments — 368 rows). Parent_hint boosts intra-family
+    matches 1.3x but doesn't hard-exclude — useful for salons that
+    tagged the wrong tid (e.g. Floral putting brwi services under
+    paznokcie family); the match can still hop to the correct family.
+
+    Returns dict with keys:
+      - inferred_tid: int
+      - confidence: float (trigram similarity score, possibly boosted)
+      - sample_n: int (constant 1 — kept for API compat with old crowd RPC)
+      - match_source: str ('trigram_parent_boost' | 'trigram')
+    """
     try:
-        # Run blocking RPC in thread to keep pipeline async
         def _do_call() -> Any:
             return (
                 supabase.client.rpc(
-                    "infer_treatment_id",
+                    "match_treatment_by_name",
                     {"p_name": name, "p_parent_hint": parent_hint},
                 )
                 .execute()
@@ -119,16 +132,18 @@ async def _call_infer_rpc(
         rows = res.data or []
         if not rows:
             return None
-        # RPC returns at most 1 row (LIMIT 1 inside)
         row = rows[0] if isinstance(rows, list) else rows
+        tid = row.get("inferred_tid")
+        if tid is None:
+            return None
         return {
-            "inferred_tid": row.get("inferred_tid"),
-            "confidence": float(row.get("confidence") or 0.0),
-            "sample_n": int(row.get("sample_n") or 0),
-            "match_source": row.get("match_source") or "unknown",
+            "inferred_tid": int(tid),
+            "confidence": float(row.get("score") or 0.0),
+            "sample_n": 1,
+            "match_source": row.get("source") or "trigram",
         }
     except Exception as e:
-        logger.debug("infer_treatment_id RPC failed for name=%r: %s", name, e)
+        logger.debug("match_treatment_by_name RPC failed for name=%r: %s", name, e)
         return None
 
 
@@ -184,8 +199,8 @@ async def enrich_services_with_inference(
 def apply_inference_overrides(
     services: list[dict[str, Any]],
     *,
-    min_confidence: float = 0.6,
-    min_sample_n: int = 5,
+    min_confidence: float = 0.30,
+    min_sample_n: int = 1,
     preserve_specificity: bool = True,
     raw_tid_key: str = "booksy_treatment_id",
     final_tid_key: str = "booksy_treatment_id",
@@ -263,8 +278,8 @@ async def infer_and_apply(
     supabase: SupabaseService,
     services: list[dict[str, Any]],
     *,
-    min_confidence: float = 0.6,
-    min_sample_n: int = 5,
+    min_confidence: float = 0.30,
+    min_sample_n: int = 1,
     preserve_specificity: bool = True,
     label: str = "services",
 ) -> dict[str, int]:
