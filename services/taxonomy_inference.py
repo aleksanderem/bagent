@@ -45,6 +45,7 @@ from __future__ import annotations
 
 import asyncio
 import logging
+import os
 import re
 import unicodedata
 from collections.abc import Iterable
@@ -53,6 +54,45 @@ from typing import Any
 from services.supabase import SupabaseService
 
 logger = logging.getLogger(__name__)
+
+
+# OpenAI client is lazily created — only when hybrid mode is enabled and
+# we actually need to embed something. Embedding the entire pipeline run
+# (~30-300 services) costs <$0.001.
+_OAI_CLIENT = None
+
+
+def _get_openai_client():
+    global _OAI_CLIENT
+    if _OAI_CLIENT is None:
+        try:
+            from openai import OpenAI
+            _OAI_CLIENT = OpenAI()
+        except Exception as e:
+            logger.warning("OpenAI client unavailable, falling back to trigram-only: %s", e)
+            _OAI_CLIENT = False  # explicit "tried and failed"
+    return _OAI_CLIENT if _OAI_CLIENT else None
+
+
+async def _embed_batch(names: list[str]) -> list[list[float]] | None:
+    """Embed a batch of names via OpenAI text-embedding-3-small.
+    Returns None when client unavailable — caller falls back to trigram."""
+    oai = _get_openai_client()
+    if oai is None:
+        return None
+
+    def _do_call():
+        return oai.embeddings.create(
+            model="text-embedding-3-small",
+            input=[n.strip()[:512] if n else "" for n in names],
+        )
+
+    try:
+        resp = await asyncio.to_thread(_do_call)
+        return [list(d.embedding) for d in resp.data]
+    except Exception as e:
+        logger.warning("OpenAI embedding call failed: %s — falling back to trigram", e)
+        return None
 
 
 # Keywords that indicate a service is MORE specific than the average crowd
@@ -101,32 +141,31 @@ async def _call_infer_rpc(
     supabase: SupabaseService,
     name: str,
     parent_hint: int | None,
+    embedding: list[float] | None = None,
 ) -> dict[str, Any] | None:
-    """Wrap the `match_treatment_by_name` Postgres RPC (canonical-name
-    pg_trgm matching from migration 043). Returns None on no match or
-    any error (caller treats as 'no inference').
+    """Wrap canonical-taxonomy matching RPC.
 
-    The RPC matches a service name against canonical Booksy taxonomy
-    (mv_booksy_treatments — 368 rows). Parent_hint boosts intra-family
-    matches 1.3x but doesn't hard-exclude — useful for salons that
-    tagged the wrong tid (e.g. Floral putting brwi services under
-    paznokcie family); the match can still hop to the correct family.
+    When `embedding` is provided → call hybrid RPC (trigram + cosine,
+    migration 045). Otherwise → fall back to trigram-only RPC (migration 043).
+    The trigram fallback is graceful degradation when OpenAI is unavailable.
 
-    Returns dict with keys:
-      - inferred_tid: int
-      - confidence: float (trigram similarity score, possibly boosted)
-      - sample_n: int (constant 1 — kept for API compat with old crowd RPC)
-      - match_source: str ('trigram_parent_boost' | 'trigram')
+    Returns dict with keys: inferred_tid, inferred_canonical_name,
+    inferred_parent_id, confidence, sample_n, match_source.
     """
+    if embedding is not None:
+        rpc_name = "match_treatment_hybrid"
+        rpc_args = {
+            "p_name": name,
+            "p_embedding": embedding,
+            "p_parent_hint": parent_hint,
+        }
+    else:
+        rpc_name = "match_treatment_by_name"
+        rpc_args = {"p_name": name, "p_parent_hint": parent_hint}
+
     try:
         def _do_call() -> Any:
-            return (
-                supabase.client.rpc(
-                    "match_treatment_by_name",
-                    {"p_name": name, "p_parent_hint": parent_hint},
-                )
-                .execute()
-            )
+            return supabase.client.rpc(rpc_name, rpc_args).execute()
 
         res = await asyncio.to_thread(_do_call)
         rows = res.data or []
@@ -138,12 +177,14 @@ async def _call_infer_rpc(
             return None
         return {
             "inferred_tid": int(tid),
+            "inferred_canonical_name": row.get("canonical_name"),
+            "inferred_parent_id": row.get("parent_id"),
             "confidence": float(row.get("score") or 0.0),
             "sample_n": 1,
-            "match_source": row.get("source") or "trigram",
+            "match_source": row.get("source") or rpc_name,
         }
     except Exception as e:
-        logger.debug("match_treatment_by_name RPC failed for name=%r: %s", name, e)
+        logger.debug("%s RPC failed for name=%r: %s", rpc_name, name, e)
         return None
 
 
@@ -172,6 +213,20 @@ async def enrich_services_with_inference(
     if not services:
         return services
 
+    # Try to batch-embed all service names upfront (single OpenAI call when
+    # possible). If OpenAI unavailable, embeddings stays None → graceful
+    # fallback to trigram-only via _call_infer_rpc.
+    valid_services = [
+        s for s in services
+        if (s.get(name_key) or "") and len(s.get(name_key, "").strip()) >= 3
+    ]
+    names_to_embed = [s[name_key].strip()[:512] for s in valid_services]
+    embeddings_list = await _embed_batch(names_to_embed) if names_to_embed else None
+    emb_by_id: dict[int, list[float] | None] = {}
+    if embeddings_list is not None:
+        for s, e in zip(valid_services, embeddings_list):
+            emb_by_id[id(s)] = e
+
     sem = asyncio.Semaphore(concurrency)
 
     async def _one(svc: dict[str, Any]) -> None:
@@ -179,15 +234,20 @@ async def enrich_services_with_inference(
         parent = svc.get(parent_key)
         if not name or len(name.strip()) < 3:
             return
+        emb = emb_by_id.get(id(svc))
         async with sem:
-            result = await _call_infer_rpc(supabase, name, parent)
+            result = await _call_infer_rpc(supabase, name, parent, embedding=emb)
         if result:
             svc["inferred_treatment_id"] = result["inferred_tid"]
+            svc["inferred_canonical_name"] = result.get("inferred_canonical_name")
+            svc["inferred_parent_id"] = result.get("inferred_parent_id")
             svc["inference_confidence"] = result["confidence"]
             svc["inference_sample_n"] = result["sample_n"]
             svc["inference_source"] = result["match_source"]
         else:
             svc["inferred_treatment_id"] = None
+            svc["inferred_canonical_name"] = None
+            svc["inferred_parent_id"] = None
             svc["inference_confidence"] = None
             svc["inference_sample_n"] = None
             svc["inference_source"] = None
@@ -199,7 +259,7 @@ async def enrich_services_with_inference(
 def apply_inference_overrides(
     services: list[dict[str, Any]],
     *,
-    min_confidence: float = 0.30,
+    min_confidence: float = 0.55,
     min_sample_n: int = 1,
     preserve_specificity: bool = True,
     raw_tid_key: str = "booksy_treatment_id",
@@ -266,9 +326,24 @@ def apply_inference_overrides(
                     stats["specificity_preserved"] += 1
                     continue
 
-        # Apply override
+        # Apply override — also update treatment_name and treatment_parent_id
+        # to the canonical values so downstream pipeline code
+        # (_compute_pricing_comparisons, _compute_service_gaps,
+        # _build_opportunities, _build_long_strategy, …) sees consistent
+        # canonical labels everywhere instead of denormalized stale strings.
+        # Preserve the originals under *_raw keys for audit.
         svc[final_tid_key] = inferred
         svc["inference_applied"] = True
+        original_name = svc.get("treatment_name")
+        canonical_name = svc.get("inferred_canonical_name")
+        if canonical_name and original_name != canonical_name:
+            svc["treatment_name_raw"] = original_name
+            svc["treatment_name"] = canonical_name
+        original_parent = svc.get("treatment_parent_id")
+        canonical_parent = svc.get("inferred_parent_id")
+        if canonical_parent is not None and original_parent != canonical_parent:
+            svc["treatment_parent_id_raw"] = original_parent
+            svc["treatment_parent_id"] = canonical_parent
         stats["overridden"] += 1
 
     return stats
@@ -278,7 +353,7 @@ async def infer_and_apply(
     supabase: SupabaseService,
     services: list[dict[str, Any]],
     *,
-    min_confidence: float = 0.30,
+    min_confidence: float = 0.55,
     min_sample_n: int = 1,
     preserve_specificity: bool = True,
     label: str = "services",
