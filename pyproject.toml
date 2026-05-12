@@ -29,6 +29,11 @@ dependencies = [
     # zero CommonMark surprises in salon-owner copy.
     "mistune>=3.0.0",
     "PyYAML>=6.0.0",
+    # Iter 9 — salon_scrapes raw_response delta encoding.
+    # jsonpatch implements RFC 6902 (Patch) and RFC 6901 (Pointer) used by
+    # the dedup write path in scripts/ingest_salon_jsons.py and the
+    # reconstruction helper in services/scrape_history.py.
+    "jsonpatch>=1.33",
 ]
 
 [project.optional-dependencies]
