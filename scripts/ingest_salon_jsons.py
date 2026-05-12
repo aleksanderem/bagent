@@ -47,6 +47,11 @@ if str(REPO_ROOT) not in sys.path:
 from supabase import Client
 
 from services.sb_client import make_supabase_client  # noqa: E402
+from services.scrape_history import (  # noqa: E402
+    CHECKPOINT_EVERY,
+    compute_content_hash,
+    compute_reverse_patch,
+)
 
 from config import settings  # noqa: E402
 
@@ -330,11 +335,203 @@ class SalonJsonIngester:
             return int(sel.data[0]["id"])
         return int(res.data[0]["id"])
 
-    # -- salon_scrapes (append) ---------------------------------------------
+    # -- salon_scrapes (append OR dedup against chain head) -----------------
 
-    def _insert_scrape(self, business: dict, raw_payload: dict, scraped_at: str,
-                       partner_system: str, salon_ref_id: int | None) -> str:
-        """APPEND a row into salon_scrapes. Returns the new scrape UUID."""
+    def _fetch_chain_head(self, booksy_id: int) -> dict[str, Any] | None:
+        """Return the current new-system chain head for ``booksy_id``, or None.
+
+        The partial unique index ``uniq_salon_scrapes_chain_head`` guarantees
+        at most one row matches. We still ORDER BY scraped_at DESC + LIMIT 1
+        as a defensive measure in case migration left orphans.
+        """
+        try:
+            res = _retry_http(
+                lambda: self.client.table("salon_scrapes")
+                    .select("id, content_hash, chain_length, raw_response, snapshot_kind, scraped_at")
+                    .eq("booksy_id", booksy_id)
+                    .eq("is_chain_head", True)
+                    .order("scraped_at", desc=True)
+                    .limit(1)
+                    .execute(),
+                op_name="salon_scrapes.fetch_chain_head",
+            )
+        except Exception as e:  # noqa: BLE001
+            logger.warning("fetch_chain_head failed for booksy_id=%s: %s", booksy_id, e)
+            return None
+        return (res.data or [None])[0]
+
+    def _bump_unchanged_head(self, head_id: str, scraped_at: str) -> None:
+        """Unchanged crawl rollup — UPDATE last_seen_at + counter on the head.
+
+        We rely on Postgres-side increment instead of read-modify-write to
+        avoid races between concurrent crawl workers. Supabase's PostgREST
+        doesn't expose a true atomic increment, so we issue an RPC-equivalent
+        UPDATE that pulls the current count first. For our workload (one
+        worker per booksy_id at a time, serialized by the discovery pump)
+        this is safe; concurrent updates would at worst lose one counter
+        increment, which is purely cosmetic.
+        """
+        try:
+            existing = _retry_http(
+                lambda: self.client.table("salon_scrapes")
+                    .select("unchanged_crawl_count")
+                    .eq("id", head_id)
+                    .single()
+                    .execute(),
+                op_name="salon_scrapes.fetch_unchanged_count",
+            )
+            cur = int((existing.data or {}).get("unchanged_crawl_count") or 0)
+        except Exception:  # noqa: BLE001
+            cur = 0
+        _retry_http(
+            lambda: self.client.table("salon_scrapes")
+                .update({
+                    "last_seen_at": scraped_at,
+                    "unchanged_crawl_count": cur + 1,
+                })
+                .eq("id", head_id)
+                .execute(),
+            op_name="salon_scrapes.bump_unchanged_head",
+        )
+
+    def _promote_chain_head(
+        self,
+        *,
+        new_scrape_id: str,
+        prev_head: dict[str, Any] | None,
+        new_payload: dict,
+    ) -> None:
+        """Atomically flip the chain head after a CHANGED-content insert.
+
+        Sequence:
+            1. If ``prev_head`` is None (first new-system write for this salon):
+               just UPDATE new row SET is_chain_head=TRUE.
+            2. Else: compute checkpoint flag, flip prev_head off, optionally
+               convert it to a delta (raw_response → NULL, snapshot_kind →
+               'delta', delta_ops, applies_against_scrape_id → new), then
+               flip new row on with the right chain_length.
+
+        Between step 2's "flip prev off" and "flip new on" there is a brief
+        window where the booksy_id has no head row. That is acceptable: the
+        scrape worker for that salon is the only writer and concurrent
+        readers see "no current head" → they fall through to the legacy
+        DISTINCT ON pattern which still returns the correct latest row.
+        """
+        if prev_head is None:
+            _retry_http(
+                lambda: self.client.table("salon_scrapes")
+                    .update({"is_chain_head": True, "chain_length": 0})
+                    .eq("id", new_scrape_id)
+                    .execute(),
+                op_name="salon_scrapes.promote_first_head",
+            )
+            return
+
+        prev_id = prev_head["id"]
+        prev_chain_len = int(prev_head.get("chain_length") or 0)
+        prev_raw = prev_head.get("raw_response")
+        next_chain_len = prev_chain_len + 1
+        is_checkpoint = next_chain_len >= CHECKPOINT_EVERY
+
+        # Step 1: flip the previous head OFF. If converting to delta, do that
+        # in the same UPDATE so the index/CHECK constraints stay consistent.
+        if is_checkpoint or prev_raw is None or prev_head.get("snapshot_kind") != "base":
+            # Checkpoint: keep prev as base (full raw_response stays), just
+            # demote from head. Also covers the safety case where prev is
+            # already a delta (shouldn't happen but be defensive).
+            _retry_http(
+                lambda: self.client.table("salon_scrapes")
+                    .update({"is_chain_head": False})
+                    .eq("id", prev_id)
+                    .execute(),
+                op_name="salon_scrapes.demote_prev_checkpoint",
+            )
+            new_chain_len = 0
+        else:
+            # Convert prev to delta: compute reverse patch so applying
+            # delta_ops to new raw_response reproduces prev raw_response.
+            try:
+                ops = compute_reverse_patch(new_payload, prev_raw)
+            except Exception as e:  # noqa: BLE001
+                logger.warning(
+                    "compute_reverse_patch failed for prev=%s — keeping prev as base instead. Error: %s",
+                    prev_id, e,
+                )
+                _retry_http(
+                    lambda: self.client.table("salon_scrapes")
+                        .update({"is_chain_head": False})
+                        .eq("id", prev_id)
+                        .execute(),
+                    op_name="salon_scrapes.demote_prev_fallback",
+                )
+                new_chain_len = 0
+            else:
+                _retry_http(
+                    lambda: self.client.table("salon_scrapes")
+                        .update({
+                            "is_chain_head": False,
+                            "snapshot_kind": "delta",
+                            "delta_ops": ops,
+                            "raw_response": None,
+                            "applies_against_scrape_id": new_scrape_id,
+                        })
+                        .eq("id", prev_id)
+                        .execute(),
+                    op_name="salon_scrapes.convert_prev_to_delta",
+                )
+                new_chain_len = next_chain_len
+
+        # Step 2: flip the new row ON. From this point the salon has a
+        # single head with content_hash != NULL.
+        _retry_http(
+            lambda: self.client.table("salon_scrapes")
+                .update({"is_chain_head": True, "chain_length": new_chain_len})
+                .eq("id", new_scrape_id)
+                .execute(),
+            op_name="salon_scrapes.promote_new_head",
+        )
+
+    def _insert_scrape(
+        self, business: dict, raw_payload: dict, scraped_at: str,
+        partner_system: str, salon_ref_id: int | None,
+    ) -> tuple[str, str, dict[str, Any] | None]:
+        """Insert a salon_scrapes row OR roll-up an unchanged crawl.
+
+        Returns ``(scrape_id, action, prev_head)`` where:
+
+        * ``scrape_id`` — the row id callers should use for child inserts and
+          audit logging. For ``action='unchanged'`` this is the existing
+          chain head's id (no new row was written). For all other actions
+          it is the freshly inserted row.
+        * ``action`` — one of ``'new'`` (no prior new-system head),
+          ``'unchanged'`` (content hash matches current head), ``'changed'``
+          (different content; new row inserted but not yet promoted to head).
+        * ``prev_head`` — the prior chain head row (for callers that will
+          run ``_promote_chain_head`` after children commit). None for
+          ``'new'`` and ``'unchanged'``.
+        """
+        booksy_id = _as_int(business.get("id"))
+        if booksy_id is None:
+            raise IngestError("business.id missing for snapshot dedup")
+
+        # ---- Dedup decision: hash + chain head lookup --------------------
+        content_hash = compute_content_hash(raw_payload)
+
+        prev_head: dict[str, Any] | None = None
+        if not self.dry_run:
+            prev_head = self._fetch_chain_head(booksy_id)
+            if prev_head and prev_head.get("content_hash") == content_hash:
+                # Unchanged content — roll up into the existing head.
+                head_id = str(prev_head["id"])
+                self._bump_unchanged_head(head_id, scraped_at)
+                logger.debug(
+                    "salon_scrapes dedup: booksy_id=%s unchanged (hash=%s) — rolled into head=%s",
+                    booksy_id, content_hash[:12], head_id,
+                )
+                return head_id, "unchanged", None
+
+        action = "changed" if prev_head else "new"
+
         location = business.get("location") or {}
         coord = (location or {}).get("coordinate") or {}
         city, region_state, country = _extract_city_from_regions(business.get("regions"))
@@ -431,10 +628,22 @@ class SalonJsonIngester:
             "service_fee": _as_float(business.get("service_fee")),
             "parking_info": _non_empty(business.get("parking")),
             "wheelchair_access": _non_empty(business.get("wheelchair_access")),
+
+            # Snapshot dedup metadata. is_chain_head stays FALSE here; the
+            # caller flips it on via _promote_chain_head AFTER child rows
+            # (services/reviews/top_services) commit. last_seen_at mirrors
+            # scraped_at so analytics can ignore the distinction on fresh
+            # rows that never see an unchanged rollup.
+            "content_hash": content_hash,
+            "snapshot_kind": "base",
+            "is_chain_head": False,
+            "chain_length": 0,
+            "unchanged_crawl_count": 0,
+            "last_seen_at": scraped_at,
         }
 
         if self.dry_run:
-            return "dry-run-uuid"
+            return "dry-run-uuid", action, prev_head
 
         res = _retry_http(
             lambda: self.client.table("salon_scrapes").insert(row).execute(),
@@ -442,7 +651,7 @@ class SalonJsonIngester:
         )
         if not res.data:
             raise IngestError(f"Failed to insert salon_scrapes for booksy_id={row['booksy_id']}")
-        return str(res.data[0]["id"])
+        return str(res.data[0]["id"]), action, prev_head
 
     # -- salon_scrape_services (append) -------------------------------------
 
@@ -769,17 +978,23 @@ class SalonJsonIngester:
         # 1. salons upsert (idempotent in itself — safe even on partial failure)
         salon_id = self._upsert_salon(business, scraped_at)
 
-        # 2. salon_scrapes append — from here we own an unwind dependency
-        scrape_id = self._insert_scrape(
+        # 2. salon_scrapes — may be an INSERT (new/changed content) or an
+        # UPDATE-only rollup (unchanged content). The action flag drives the
+        # child-insert decision below.
+        scrape_id, dedup_action, prev_head = self._insert_scrape(
             business, payload, scraped_at, partner_system,
             salon_ref_id=salon_id if salon_id > 0 else None,
         )
 
-        # 3-5. services / reviews / top_services — on ANY failure we unwind
-        # the scrape (which cascades children) so a retry produces a clean
-        # new row instead of a duplicate.
+        # 3-5. Child writes. For 'unchanged' content we skip salon_scrape_services
+        # entirely (no new normalized snapshot needed — the previous head's
+        # services are still the latest state). salon_reviews and
+        # salon_top_services are inherently idempotent (UPSERT) so we keep
+        # calling them — new reviews and top-service edits land normally.
+        services_count = 0
         try:
-            services_count = self._insert_services(business, scrape_id, booksy_id, scraped_at)
+            if dedup_action != "unchanged":
+                services_count = self._insert_services(business, scrape_id, booksy_id, scraped_at)
 
             reviews_count = self._insert_reviews(business, salon_id if salon_id > 0 else 0, scraped_at) \
                 if salon_id > 0 else 0
@@ -787,21 +1002,23 @@ class SalonJsonIngester:
             top_services_count = self._insert_top_services(business, salon_id if salon_id > 0 else 0, scraped_at) \
                 if salon_id > 0 else 0
         except Exception as e:
-            # Best-effort cleanup before re-raising so the retry on next
-            # run isn't working against a half-committed state.
-            if not self.dry_run and scrape_id != "dry-run-uuid":
+            # Best-effort cleanup. We only unwind for NEW INSERT cases —
+            # for 'unchanged' the chain head pre-existed and we don't own it.
+            if not self.dry_run and scrape_id != "dry-run-uuid" and dedup_action != "unchanged":
                 self._unwind_scrape(scrape_id)
             raise IngestError(f"failed during child inserts: {type(e).__name__}: {e}") from e
 
         counts = {
-            "scrapes": 1,
+            "scrapes": 0 if dedup_action == "unchanged" else 1,
             "services": services_count,
             "reviews": reviews_count,
             "top_services": top_services_count,
+            "dedup_action": dedup_action,  # debug aid; the column is JSONB
         }
 
-        # 6. audit log (MUST be last so that if anything above failed, the
-        # content_hash is NOT recorded and next run will retry this file)
+        # 6. audit log (MUST happen before promote_chain_head — if the audit
+        # fails we still want to unwind the new scrape, and we can only safely
+        # do that while the old head is still alive with its full raw_response).
         try:
             self._log_ingestion(
                 file_name=file_path.name,
@@ -814,9 +1031,39 @@ class SalonJsonIngester:
                 file_mtime=file_mtime_iso,
             )
         except Exception as e:
-            if not self.dry_run and scrape_id != "dry-run-uuid":
+            if not self.dry_run and scrape_id != "dry-run-uuid" and dedup_action != "unchanged":
                 self._unwind_scrape(scrape_id)
             raise IngestError(f"failed during audit log: {type(e).__name__}: {e}") from e
+
+        # 7. Promote the new row to chain head (and convert the previous
+        # head to a delta when applicable). For 'unchanged' this is a
+        # no-op — the head already exists and was already bumped during
+        # _insert_scrape via _bump_unchanged_head.
+        if (
+            dedup_action != "unchanged"
+            and not self.dry_run
+            and scrape_id != "dry-run-uuid"
+        ):
+            try:
+                self._promote_chain_head(
+                    new_scrape_id=scrape_id,
+                    prev_head=prev_head,
+                    new_payload=payload,
+                )
+            except Exception as e:  # noqa: BLE001
+                # Promotion failure is logged loudly but not fatal — the new
+                # row exists with raw_response and the audit row is committed.
+                # Next ingest run for the same booksy_id will treat this as
+                # a 'new' (no head visible) and self-heal by inserting again
+                # against fresh state. We log so operators can watch the
+                # frequency and intervene if it stays elevated.
+                logger.error(
+                    "salon_scrapes._promote_chain_head failed for booksy_id=%s "
+                    "scrape_id=%s prev_head=%s action=%s: %s",
+                    booksy_id, scrape_id,
+                    prev_head.get("id") if prev_head else None,
+                    dedup_action, e,
+                )
 
         return counts
 
