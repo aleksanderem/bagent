@@ -175,6 +175,8 @@ from .outreach_orchestrator import ALL_OUTREACH_ORCHESTRATOR_TASKS
 from .state_transition_processor import ALL_OUTREACH_STATE_TASKS
 # Taxonomy maintenance — nightly mv refresh + service embedding + inference backfill.
 from .taxonomy_refresh import ALL_TAXONOMY_TASKS
+# SLO probes — proactive semantic correctness checks (not plain liveness).
+from .slo_probes import ALL_SLO_TASKS
 
 # arq cron import is gated to keep imports cheap when only running tests.
 try:  # pragma: no cover
@@ -319,6 +321,42 @@ try:  # pragma: no cover
             "workers.main.worker_heartbeat",
             minute={i for i in range(0, 60, 5)},
         ),
+
+        # ── SLO probes — semantic-correctness checks for data flow ────────
+        # Each probe queries Supabase, applies a threshold, pings its own
+        # Healthchecks endpoint with /success or /fail. See workers/slo_probes.py
+        # for what each probe measures.
+
+        # Scrape pipeline progressing — every 30 min (matches probe grace 90 min).
+        cron(
+            "workers.slo_probes.slo_scrape_pipeline_progressing",
+            minute={0, 30},
+        ),
+        # Chain heads growing — every 1h on :07 (staggered off other crons).
+        cron(
+            "workers.slo_probes.slo_chain_heads_growing",
+            minute={7},
+        ),
+        # Reviews ingesting — every 6h on :12 (daily-volume probe).
+        cron(
+            "workers.slo_probes.slo_reviews_ingesting",
+            hour={2, 8, 14, 20}, minute={12},
+        ),
+        # Discovery active — every 4h on :17.
+        cron(
+            "workers.slo_probes.slo_discovery_active",
+            hour={1, 5, 9, 13, 17, 21}, minute={17},
+        ),
+        # Storage budget — every 6h on :22.
+        cron(
+            "workers.slo_probes.slo_storage_budget",
+            hour={3, 9, 15, 21}, minute={22},
+        ),
+        # Logflare bounded — every 6h on :27.
+        cron(
+            "workers.slo_probes.slo_logflare_bounded",
+            hour={4, 10, 16, 22}, minute={27},
+        ),
     ]
 except Exception:  # noqa: BLE001
     SCRAPE_CRONS = []
@@ -337,6 +375,7 @@ class WorkerSettings:
         *ALL_OUTREACH_ORCHESTRATOR_TASKS,
         *ALL_OUTREACH_STATE_TASKS,
         *ALL_TAXONOMY_TASKS,
+        *ALL_SLO_TASKS,
     ]
     cron_jobs = SCRAPE_CRONS
     redis_settings = redis_settings
