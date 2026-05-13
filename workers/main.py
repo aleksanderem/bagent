@@ -109,6 +109,25 @@ async def shutdown(ctx: dict[str, Any]) -> None:
 
 
 # ---------------------------------------------------------------------------
+# Worker heartbeat — Healthchecks ping every 5 minutes (issue: monitoring)
+# ---------------------------------------------------------------------------
+# Standalone heartbeat cron so Healthchecks alerts when the worker process
+# dies entirely. Each named cron has its own check; this one specifically
+# proves the worker is alive between scheduled jobs.
+
+async def worker_heartbeat(ctx: dict[str, Any]) -> str:
+    """Ping the bagent-worker-heartbeat Healthchecks endpoint.
+
+    Fired every 5 minutes by the arq scheduler. If the worker process is
+    killed, this stops pinging and Healthchecks alerts after the grace
+    window (10 minutes for this check).
+    """
+    from services.healthcheck import ping
+    await ping("HC_PING_BAGENT_WORKER_HEARTBEAT")
+    return "ok"
+
+
+# ---------------------------------------------------------------------------
 # Smoke test task — proof that enqueue → execute works
 # ---------------------------------------------------------------------------
 # Real production tasks (audit, competitor_report, etc) come in #21. This
@@ -292,6 +311,14 @@ try:  # pragma: no cover
             "workers.taxonomy_refresh.refresh_inferred_treatments",
             hour={3}, minute={30},
         ),
+        # Worker heartbeat — every 5 minutes pings the Healthchecks
+        # bagent-worker-heartbeat URL so HC alerts when the process dies.
+        # All other named crons have their own checks; this one specifically
+        # proves the worker process itself is alive between scheduled jobs.
+        cron(
+            "workers.main.worker_heartbeat",
+            minute={i for i in range(0, 60, 5)},
+        ),
     ]
 except Exception:  # noqa: BLE001
     SCRAPE_CRONS = []
@@ -301,6 +328,7 @@ class WorkerSettings:
     # Production tasks from tasks.py + smoke_test for liveness verification.
     functions = [
         smoke_test,
+        worker_heartbeat,
         *ALL_TASKS,
         *ALL_SCRAPE_TASKS,
         *ALL_DISCOVERY_TASKS,

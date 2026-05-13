@@ -243,7 +243,8 @@ async def schedule_refresh_cron(ctx: dict[str, Any]) -> dict[str, int]:
 
     result = await asyncio.to_thread(schedule_due_refreshes)
     # Issue #25 — heartbeat to Healthchecks so we know the cron is alive
-    await _healthcheck_ping("HC_PING_SCRAPE_ORCHESTRATOR")
+    from services.healthcheck import ping
+    await ping("HC_PING_SCRAPE_ORCHESTRATOR")
     return {
         "tier1_enqueued": result.enqueued.get(1, 0),
         "tier2_enqueued": result.enqueued.get(2, 0),
@@ -269,24 +270,13 @@ async def reap_stuck_jobs(ctx: dict[str, Any]) -> dict[str, int]:
 
 
 async def _healthcheck_ping(env_var_name: str, fail: bool = False) -> None:
-    """Fire-and-forget GET to a Healthchecks ping URL.
+    """Compatibility shim — delegate to services.healthcheck.ping.
 
-    Reads the URL from env var ``env_var_name``; no-ops when missing so
-    the orchestrator works without observability wired up. Always
-    swallows exceptions — a healthcheck ping failure must never break
-    the actual job.
+    Kept so older imports inside this file still work; new code should
+    import :func:`services.healthcheck.ping` directly.
     """
-    import os
-    url = os.environ.get(env_var_name)
-    if not url:
-        return
-    if fail:
-        url = url.rstrip("/") + "/fail"
-    try:
-        async with httpx.AsyncClient(timeout=5.0) as client:
-            await client.get(url)
-    except Exception as e:  # noqa: BLE001
-        logger.warning("[scrape_refresh] healthcheck ping failed: %s", e)
+    from services.healthcheck import ping
+    await ping(env_var_name, fail=fail)
 
 
 # All scrape-orchestrator tasks for registration in WorkerSettings.
