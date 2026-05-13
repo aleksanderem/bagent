@@ -16,14 +16,24 @@ Volatile field stripping
 Booksy's raw response carries values that fluctuate every crawl without
 representing a meaningful change to the salon's offer:
 
-* ``reviews_count`` / ``reviews_rank`` — re-computed every time a new review
-  lands; the new review itself is captured separately in ``salon_reviews``
-  and in the underlying ``reviews`` array, so we don't lose signal by
-  ignoring the scalar count.
+* ``reviews_rank`` — derivative of reviews_count + per-review ranks;
+  bumps whenever reviews change, but bumps WITHOUT signal beyond what
+  ``reviews_count`` already shows.
 * ``last_updated`` / ``synced_at`` / ``cached_at`` — Booksy bookkeeping
   timestamps; they bump even when no business data changed.
 * ``popularity_*`` / ``trending_score`` — analytics knobs that drift
   continuously.
+
+KEPT in hash (NOT stripped):
+
+* ``reviews_count`` — Booksy bumps this when a new review is published.
+  Each new review is a real "change event" we want to surface on the
+  salon-changes dashboard (panel "Reviews dodane — 7 dni" derived from
+  reviews_count_delta in v_salon_scrape_pairs). We previously stripped
+  this for storage savings but lost dashboard signal — restored
+  2026-05-13 after observing 0 paired changes/day post-dedup deploy.
+  Storage cost: ~3x more chain heads for active salons. Still 90%+
+  saving vs pre-dedup.
 
 The strip list is conservative — when in doubt we keep the field, so the hash
 is slightly noisier than optimal but never silently swallows a real change.
@@ -51,11 +61,10 @@ CHECKPOINT_EVERY: int = 30
 
 # Top-level keys inside ``business`` that we strip before hashing. The strip is
 # applied at every depth where the key appears, except where doing so would
-# meaningfully alter semantics (e.g. we keep the ``reviews`` array; only the
-# scalar count is dropped).
+# meaningfully alter semantics. ``reviews_count`` is INTENTIONALLY NOT here
+# (see docstring) — it carries real change signal we want surfaced.
 _VOLATILE_BUSINESS_KEYS: frozenset[str] = frozenset(
     {
-        "reviews_count",
         "reviews_rank",
         "last_updated",
         "synced_at",

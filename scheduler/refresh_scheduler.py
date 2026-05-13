@@ -40,12 +40,14 @@ logger = logging.getLogger("bagent.scheduler.refresh_scheduler")
 # tier 3: cold catalogue (= continuous change-detection sweep). The
 #   ingester dedupes by content_hash so a stable salon producing the
 #   same JSON re-checks but only one salon_scrapes row stays. Cadence
-#   was 90d but we lowered to 14d so a change anywhere is surfaced
-#   within 2 weeks at our 300 salons/h capacity.
+#   was 14d but we lowered to 7d on 2026-05-13 — at 300 salons/h we
+#   can re-scrape 50k salons in ~7 days, matching the cadence so the
+#   queue is always non-empty and the salon-changes dashboard always
+#   shows fresh diffs.
 TIER_CADENCE_DAYS: dict[int, int] = {
     1: 7,
     2: 30,
-    3: 14,
+    3: 7,
 }
 
 # Per-tier max enqueue per scheduler run. Tier 3 is huge (>5K salons),
@@ -166,63 +168,30 @@ def _tier_two_due(client: Client) -> list[int]:
 
 
 def _tier_three_due(client: Client, limit: int) -> list[int]:
-    """Tier 3: cold sweep of catalog. Pulls salons with booksy_id NOT
-    NULL whose latest scrape is older than the tier-3 cadence, ordered
-    by oldest-scrape-first so the long tail of overdue salons surfaces
-    instead of forever cycling the first ``limit*4`` salons by id.
+    """Tier 3: cold sweep of catalog.
 
-    The old implementation used ``.order("id", desc=False)`` which
-    meant only the first ~3200 salons by primary key were ever
-    considered. With 54k+ salons that left 47k+ invisible to the
-    scheduler — change tracking saw ~0 re-scrapes/week despite ~13k
-    overdue salons. Fix: order by ``last_scraped_at NULLS FIRST`` so
-    the never-scraped + most-stale always reach the top of the window.
+    Delegates to the SQL RPC ``get_tier_three_due_booksy_ids`` (migration 050)
+    which selects booksy_ids whose **chain head** (or pre-dedup latest scrape)
+    is older than ``TIER_CADENCE_DAYS[3]`` days.
 
-    Excludes deleted_at IS NOT NULL — those are salons that bextract
-    proved are gone from Booksy (404/410); re-enqueueing produces only
-    another 404 for the dashboard to log.
+    Why an RPC: pre-dedup we filtered on ``salons.last_scraped_at`` which is
+    bumped on EVERY crawl (including 'unchanged' dedup rollups under the
+    post-2026-05-12 write path). That meant the entire universe of 54k+
+    salons looked "fresh" to the scheduler and the queue stayed empty
+    indefinitely — the salon-changes dashboard observed 0 pairs/day. The
+    RPC instead looks at ``salon_scrapes`` chain head ``scraped_at``, i.e.
+    "when did this salon's content last actually change". A salon whose
+    content has been confirmed unchanged for N days is exactly the right
+    candidate to re-check.
+
+    Excludes ``salons.deleted_at IS NOT NULL`` — those are 404'd on bextract.
     """
-    # Compute the cadence cutoff up front and let Postgres filter
-    # server-side. This is much tighter than pulling a window and
-    # filtering via _filter_stale: the .lt(...) below selects ONLY
-    # rows that are actually overdue, so a 3-page select reliably
-    # returns enqueue-able candidates instead of nothing on a window
-    # of fresh salons.
     cadence_days = TIER_CADENCE_DAYS[3]
-    cutoff_iso = _iso_days_ago(cadence_days)
-
-    # First pass: salons that have been scraped before but are stale.
-    res_stale = (
-        client.table("salons")
-        .select("booksy_id, last_scraped_at")
-        .not_.is_("booksy_id", "null")
-        .is_("deleted_at", "null")
-        .not_.is_("last_scraped_at", "null")
-        .lt("last_scraped_at", cutoff_iso)
-        .order("last_scraped_at", desc=False)
-        .limit(limit)
-        .execute()
-    )
-    stale_ids = [row["booksy_id"] for row in (res_stale.data or []) if row.get("booksy_id")]
-
-    # Second pass: never-scraped salons (treat as infinitely stale).
-    # Only fill remaining budget so we don't starve the stale pool.
-    remaining = max(limit - len(stale_ids), 0)
-    never_ids: list[int] = []
-    if remaining > 0:
-        res_never = (
-            client.table("salons")
-            .select("booksy_id")
-            .not_.is_("booksy_id", "null")
-            .is_("deleted_at", "null")
-            .is_("last_scraped_at", "null")
-            .order("id", desc=False)
-            .limit(remaining)
-            .execute()
-        )
-        never_ids = [row["booksy_id"] for row in (res_never.data or []) if row.get("booksy_id")]
-
-    return stale_ids + never_ids
+    res = client.rpc(
+        "get_tier_three_due_booksy_ids",
+        {"p_cadence_days": cadence_days, "p_limit": limit},
+    ).execute()
+    return [row["booksy_id"] for row in (res.data or []) if row.get("booksy_id")]
 
 
 def _filter_stale(
