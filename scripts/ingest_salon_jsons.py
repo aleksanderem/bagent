@@ -59,6 +59,44 @@ logger = logging.getLogger("ingest_salon_jsons")
 
 
 # ---------------------------------------------------------------------------
+# Inline OpenAI embedding for salon_scrape_services.name_embedding
+# ---------------------------------------------------------------------------
+# Why inline: downstream consumers (competitor analysis, hybrid taxonomy
+# match) read embeddings off salon_scrape_services. Deferring to the
+# nightly cron means freshly-scraped salons can't participate in hybrid
+# matching for up to 24h. Inline embed costs ~$0.0001 per scrape (one
+# batched OpenAI text-embedding-3-small call) and ~0.5s of latency. The
+# nightly cron stays as a CATCH-UP for legacy rows whose ingest predates
+# this feature (or for rows where the inline call failed).
+
+def _embed_service_names_sync(names: list[str]) -> list[list[float]] | None:
+    """Batch-embed service names via OpenAI text-embedding-3-small.
+
+    Returns one vector per input name. Returns None on any failure
+    (missing key, network blip, quota) — caller falls through to a
+    bare INSERT and the nightly cron picks up the work.
+    """
+    if not os.getenv("OPENAI_API_KEY"):
+        return None
+    if not names:
+        return None
+    try:
+        from openai import OpenAI
+        client = OpenAI()
+        # Cap to 512 chars per name to keep token usage predictable on
+        # accidental garbage data.
+        sanitized = [(n or "").strip()[:512] for n in names]
+        resp = client.embeddings.create(
+            model="text-embedding-3-small",
+            input=sanitized,
+        )
+        return [list(d.embedding) for d in resp.data]
+    except Exception as e:  # noqa: BLE001
+        logger.warning("inline embedding failed: %s — nightly cron will catch up", e)
+        return None
+
+
+# ---------------------------------------------------------------------------
 # Small helpers
 # ---------------------------------------------------------------------------
 
@@ -772,8 +810,10 @@ class SalonJsonIngester:
         if self.dry_run:
             return len(rows)
 
-        # Batch-insert in chunks of 500 to keep single requests reasonable
-        inserted = 0
+        # Batch-insert in chunks of 500 to keep single requests reasonable.
+        # Collect the returned rows so we know the IDs assigned by BIGSERIAL
+        # — needed for the post-insert embedding payload below.
+        inserted_rows: list[dict[str, Any]] = []
         for i in range(0, len(rows), 500):
             chunk = rows[i : i + 500]
             res = _retry_http(
@@ -785,8 +825,43 @@ class SalonJsonIngester:
                     f"Failed to insert salon_scrape_services chunk "
                     f"(booksy_id={booksy_id}, chunk_start={i})"
                 )
-            inserted += len(res.data)
-        return inserted
+            inserted_rows.extend(res.data)
+
+        # Inline embedding — vectorize every newly inserted row so hybrid
+        # taxonomy match can run against fresh data without waiting for
+        # the nightly cron. Non-fatal: on failure we leave name_embedding
+        # NULL and the catch-up cron picks it up at 03:15 UTC.
+        try:
+            names = [(r.get("name") or "") for r in inserted_rows]
+            embeddings = _embed_service_names_sync(names)
+            if embeddings is not None and len(embeddings) == len(inserted_rows):
+                payload = [
+                    {"id": int(row["id"]), "embedding": emb}
+                    for row, emb in zip(inserted_rows, embeddings)
+                ]
+                # Chunk the RPC call too — 1536-dim vectors per row
+                # produce sizeable JSON payloads.
+                for j in range(0, len(payload), 200):
+                    sub = payload[j : j + 200]
+                    _retry_http(
+                        lambda sub=sub: self.client.rpc(
+                            "bulk_update_service_embeddings",
+                            {"payloads": sub},
+                        ).execute(),
+                        op_name="bulk_update_service_embeddings",
+                    )
+                logger.debug(
+                    "inline embedded %d services for booksy_id=%s",
+                    len(payload), booksy_id,
+                )
+        except Exception as e:  # noqa: BLE001
+            # Embedding is a non-blocking enrichment — log loud, move on.
+            logger.warning(
+                "inline embedding step failed for booksy_id=%s: %s — nightly cron will catch up",
+                booksy_id, e,
+            )
+
+        return len(inserted_rows)
 
     # -- salon_reviews (append with ON CONFLICT DO NOTHING) -----------------
 
