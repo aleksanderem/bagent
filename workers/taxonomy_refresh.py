@@ -53,6 +53,7 @@ async def refresh_taxonomy_views(ctx: dict[str, Any]) -> str:
     CONCURRENTLY = doesn't block readers during refresh. Both views have
     UNIQUE indexes (required for CONCURRENTLY).
     """
+    from services.healthcheck import ping
     from services.sb_client import make_supabase_client
     from config import settings
 
@@ -65,9 +66,11 @@ async def refresh_taxonomy_views(ctx: dict[str, Any]) -> str:
         dt = time.time() - t0
         msg = f"taxonomy_views refreshed in {dt:.1f}s"
         logger.info(msg)
+        await ping("HC_PING_TAXONOMY_VIEWS_REFRESH")
         return msg
     except Exception as e:
         logger.exception("refresh_taxonomy_views failed: %s", e)
+        await ping("HC_PING_TAXONOMY_VIEWS_REFRESH", fail=True)
         raise
 
 
@@ -76,9 +79,18 @@ async def embed_new_services(ctx: dict[str, Any]) -> str:
 
     Uses OpenAI text-embedding-3-small + bulk_update_service_embeddings RPC
     for efficient persistence. Skips silently when OPENAI_API_KEY missing.
+
+    Note: as of 2026-05-13 the ingest write path embeds inline (see
+    scripts/ingest_salon_jsons._embed_service_names_sync). This cron's
+    role is therefore CATCH-UP for legacy rows or rows where the inline
+    embed failed (network blip / OpenAI rate limit during ingest).
     """
+    from services.healthcheck import ping
+
     if not os.getenv("OPENAI_API_KEY"):
         logger.warning("OPENAI_API_KEY missing — embed_new_services skipped")
+        # Still ping so the check stays green when intentionally unwired.
+        await ping("HC_PING_TAXONOMY_EMBED_CATCHUP")
         return "skipped: no openai key"
 
     from openai import AsyncOpenAI
@@ -145,6 +157,7 @@ async def embed_new_services(ctx: dict[str, Any]) -> str:
     dt = time.time() - t_start
     msg = f"embed_new_services: {total_done} rows in {dt:.0f}s"
     logger.info(msg)
+    await ping("HC_PING_TAXONOMY_EMBED_CATCHUP")
     return msg
 
 
@@ -160,6 +173,7 @@ async def refresh_inferred_treatments(ctx: dict[str, Any]) -> str:
 
     Step (2) is done by mark_stale_inferred_treatments_for_refresh().
     """
+    from services.healthcheck import ping
     from services.sb_client import make_supabase_client
     from config import settings
 
@@ -196,6 +210,7 @@ async def refresh_inferred_treatments(ctx: dict[str, Any]) -> str:
         f"processed={total_processed} in {dt:.0f}s"
     )
     logger.info(msg)
+    await ping("HC_PING_TAXONOMY_INFERENCE_REFRESH")
     return msg
 
 
