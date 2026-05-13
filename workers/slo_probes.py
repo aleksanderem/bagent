@@ -147,11 +147,14 @@ async def probe_discovery_active(client) -> ProbeResult:
 
     PASS: >= 50 new triplets in last 6h (probe interval).
     FAIL: 0 for 6h → discovery pump stalled.
+
+    Table is keyed by (booksy_id, category_id, voivodeship_id) composite PK,
+    no `id` column. The freshness column is `first_seen_at`.
     """
     res = (
         client.table("discovered_salon_categories")
-        .select("id", count="exact")
-        .gte("created_at", _iso_ago(seconds=21600))
+        .select("booksy_id", count="exact")
+        .gte("first_seen_at", _iso_ago(seconds=21600))
         .execute()
     )
     n = res.count or 0
