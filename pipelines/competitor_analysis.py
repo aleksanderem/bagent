@@ -308,6 +308,59 @@ def _apply_versum_mappings(
 # ---------------------------------------------------------------------------
 
 
+def _active_services_with_variant(
+    services: list[dict[str, Any]],
+) -> dict[tuple[int, int], dict[str, Any]]:
+    """Return {(treatment_id, variant_id): service_row} for active services
+    that have BOTH a treatment_id AND a variant_id assigned.
+
+    Phase 5 of "no comparisons without embeddings": pricing comparisons
+    are grouped by (tid, variant_id) instead of tid alone. This eliminates
+    the subgroup confusion that produced false signals like "Botoks raise"
+    for a salon whose Botoks listings include a 100 zł brwi-stylizacja+botoks
+    mixed in with 600 zł classic 1-okolica botox.
+
+    Services without variant_id (no embedding, no matching variant in
+    treatment_variants for their parent tid, or confidence below threshold)
+    are dropped. Better zero than false comparisons.
+
+    When a salon has multiple services in the same (tid, variant) bucket
+    (e.g. two different price points of "Botoks 1 okolica"), we take the
+    one with the LOWEST price_grosze.
+    """
+    out: dict[tuple[int, int], dict[str, Any]] = {}
+    skipped_no_variant = 0
+    for svc in services:
+        if not svc.get("is_active", True):
+            continue
+        tid = svc.get("booksy_treatment_id")
+        vid = svc.get("variant_id")
+        if tid is None or vid is None:
+            skipped_no_variant += 1
+            continue
+        key = (int(tid), int(vid))
+        existing = out.get(key)
+        if existing is None:
+            out[key] = svc
+            continue
+        existing_price = existing.get("price_grosze")
+        new_price = svc.get("price_grosze")
+        if existing_price is None and new_price is not None:
+            out[key] = svc
+        elif (
+            existing_price is not None
+            and new_price is not None
+            and new_price < existing_price
+        ):
+            out[key] = svc
+    if skipped_no_variant > 0:
+        logger.info(
+            "_active_services_with_variant: dropped %d services without variant_id "
+            "(hard gate — Phase 5)", skipped_no_variant,
+        )
+    return out
+
+
 def _active_services_with_treatment(
     services: list[dict[str, Any]],
 ) -> dict[int, dict[str, Any]]:
@@ -370,40 +423,44 @@ def _compute_pricing_comparisons(
     subject_data: dict[str, Any],
     aligned_competitors: list[tuple[CompetitorCandidate, dict[str, Any]]],
 ) -> list[dict[str, Any]]:
-    """Compute per-treatment pricing comparison rows.
+    """Compute per-variant pricing comparison rows (Phase 5).
 
-    For each treatment_id that the subject offers AND at least 2
-    competitors (counts_in_aggregates=True) also offer, compute the
-    market distribution and return a dict ready for insertion into
-    competitor_pricing_comparisons.
+    Groups services by (treatment_id, variant_id) tuple instead of plain
+    treatment_id. Each comparison row represents a SPECIFIC market segment
+    ("Botoks 1 okolica", not just "Botoks"). For each (tid, variant_id)
+    pair that the subject offers AND at least 2 competitors also offer,
+    compute the market distribution.
+
+    Variant labels come from treatment_variants (migracja 057). Services
+    without variant_id are silently dropped — comparable variants by
+    definition cannot exist without a variant identity.
     """
-    subject_svcs = _active_services_with_treatment(subject_data.get("services") or [])
+    subject_svcs = _active_services_with_variant(subject_data.get("services") or [])
     if not subject_svcs:
         logger.info("Etap 4: subject has no services with treatment_id — no pricing comparisons")
         return []
 
-    # Build per-treatment competitor price lists (only for counts_in_aggregates competitors)
-    competitor_prices_by_tid: dict[int, list[int]] = {}
+    # Build per-(tid, variant_id) competitor price lists.
+    competitor_prices_by_variant: dict[tuple[int, int], list[int]] = {}
     for cand, cdata in aligned_competitors:
         if not cand.counts_in_aggregates:
             continue
-        comp_svcs = _active_services_with_treatment(cdata.get("services") or [])
-        for tid, svc in comp_svcs.items():
+        comp_svcs = _active_services_with_variant(cdata.get("services") or [])
+        for variant_key, svc in comp_svcs.items():
             price = svc.get("price_grosze")
             if price is None:
                 continue
-            competitor_prices_by_tid.setdefault(tid, []).append(int(price))
+            competitor_prices_by_variant.setdefault(variant_key, []).append(int(price))
 
     rows: list[dict[str, Any]] = []
-    for tid, subject_svc in subject_svcs.items():
-        market_prices = competitor_prices_by_tid.get(tid, [])
+    for variant_key, subject_svc in subject_svcs.items():
+        tid, variant_id = variant_key
+        market_prices = competitor_prices_by_variant.get(variant_key, [])
         # Need at least 2 competitors with a price for the comparison to be meaningful
         if len(market_prices) < 2:
             continue
         subject_price = subject_svc.get("price_grosze")
         if subject_price is None:
-            # Include the row but flag: subject has no price for this treatment
-            # Skip for now — no way to compute deviation without a subject price
             continue
 
         percentiles = compute_percentiles([float(p) for p in market_prices])
@@ -419,6 +476,7 @@ def _compute_pricing_comparisons(
         rows.append({
             "report_id": report_id,
             "booksy_treatment_id": tid,
+            "variant_id": variant_id,
             "treatment_name": (
                 subject_svc.get("treatment_name") or subject_svc.get("name") or "Unknown"
             ),
