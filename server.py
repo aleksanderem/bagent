@@ -652,6 +652,115 @@ async def dashboard() -> HTMLResponse:
     return HTMLResponse(_get_dashboard_html())
 
 
+# --- Staff data endpoints (read-only, RPC wrappers from migration 053) ---
+# Thin wrappers around fn_salon_team_summary / fn_competitor_recent_changes /
+# fn_staff_migrations_for_salon. Used by:
+#   - Audit "Twój zespół" section (via Convex action, but bagent endpoint
+#     gives a programmatic surface for cron jobs and external tools)
+#   - Pulse alert cron (when launched): poll each subscribed competitor's
+#     recent-changes + migrations-for-salon, write to competitorMonitoringAlerts
+#   - Future n8n / external integrations
+# All gated by API key. Data itself is from publicly visible Booksy profiles,
+# but the aggregated/scored output is a product output we don't want public.
+
+
+@app.get("/api/staff/team-summary/{booksy_id}", dependencies=[Depends(verify_api_key)])
+async def staff_team_summary(booksy_id: int) -> dict:
+    """Single-row team summary for one salon (current state + 30d events +
+    city rotation benchmarks). Returns 404 if the salon has no chain head
+    in salon_scrapes."""
+    from services.sb_client import make_supabase_client
+
+    sb = make_supabase_client(
+        settings.supabase_url, settings.supabase_service_key,
+    )
+    res = sb.rpc("fn_salon_team_summary", {"p_booksy_id": booksy_id}).execute()
+    rows = res.data or []
+    if not rows:
+        raise HTTPException(status_code=404, detail="No team summary for booksy_id")
+    return {"booksy_id": booksy_id, "summary": rows[0]}
+
+
+@app.get(
+    "/api/staff/competitor-changes/{booksy_id}",
+    dependencies=[Depends(verify_api_key)],
+)
+async def staff_competitor_changes(booksy_id: int, hours: int = 24) -> dict:
+    """Recent staff events at ONE salon over the last `hours`. Drives the
+    "konkurent stracił N osób w 24h" Pulse alert. hours clamped to [1, 720]."""
+    from services.sb_client import make_supabase_client
+
+    hours = max(1, min(720, hours))
+    sb = make_supabase_client(
+        settings.supabase_url, settings.supabase_service_key,
+    )
+    res = sb.rpc(
+        "fn_competitor_recent_changes",
+        {"p_booksy_id": booksy_id, "p_hours": hours},
+    ).execute()
+    rows = res.data or []
+    counts = {
+        "joined": sum(1 for r in rows if r.get("event") == "joined"),
+        "left": sum(1 for r in rows if r.get("event") == "left"),
+        "position_changed": sum(1 for r in rows if r.get("event") == "position_changed"),
+        "renamed": sum(1 for r in rows if r.get("event") == "renamed"),
+        "score_jump_up": sum(
+            1 for r in rows
+            if r.get("event") == "score_jump" and (r.get("score_delta") or 0) > 0
+        ),
+        "score_jump_down": sum(
+            1 for r in rows
+            if r.get("event") == "score_jump" and (r.get("score_delta") or 0) < 0
+        ),
+    }
+    return {
+        "booksy_id": booksy_id,
+        "hours": hours,
+        "total_events": len(rows),
+        "counts": counts,
+        "events": rows,
+    }
+
+
+@app.get("/api/staff/migrations/{booksy_id}", dependencies=[Depends(verify_api_key)])
+async def staff_migrations(
+    booksy_id: int,
+    days: int = 30,
+    direction: str = "both",
+    min_confidence: float = 0.5,
+) -> dict:
+    """Cross-salon staff migrations involving this booksy_id. direction:
+    'from' (this salon LOST staff), 'to' (this salon GAINED), 'both'."""
+    from services.sb_client import make_supabase_client
+
+    if direction not in {"from", "to", "both"}:
+        raise HTTPException(status_code=400, detail="direction must be from|to|both")
+    days = max(1, min(365, days))
+    min_confidence = max(0.0, min(1.0, min_confidence))
+
+    sb = make_supabase_client(
+        settings.supabase_url, settings.supabase_service_key,
+    )
+    res = sb.rpc(
+        "fn_staff_migrations_for_salon",
+        {
+            "p_booksy_id": booksy_id,
+            "p_days": days,
+            "p_direction": direction,
+            "p_min_confidence": min_confidence,
+        },
+    ).execute()
+    rows = res.data or []
+    return {
+        "booksy_id": booksy_id,
+        "days": days,
+        "direction": direction,
+        "min_confidence": min_confidence,
+        "total": len(rows),
+        "migrations": rows,
+    }
+
+
 # --- Synchronous AI endpoints (no background job, direct response) ---
 
 
