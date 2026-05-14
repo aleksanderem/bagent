@@ -175,6 +175,8 @@ from .outreach_orchestrator import ALL_OUTREACH_ORCHESTRATOR_TASKS
 from .state_transition_processor import ALL_OUTREACH_STATE_TASKS
 # Taxonomy maintenance — nightly mv refresh + service embedding + inference backfill.
 from .taxonomy_refresh import ALL_TAXONOMY_TASKS
+# Staff identity links — nightly cross-salon migration detection (migration 052).
+from .staff_identity_refresh import ALL_STAFF_IDENTITY_TASKS
 # SLO probes — proactive semantic correctness checks (not plain liveness).
 from .slo_probes import ALL_SLO_TASKS
 
@@ -313,6 +315,15 @@ try:  # pragma: no cover
             "workers.taxonomy_refresh.refresh_inferred_treatments",
             hour={3}, minute={30},
         ),
+        # 03:45 — recompute staff_identity_links over last 90 days. The
+        #         Postgres RPC scans v_salon_staff_events, pairs lefts↔
+        #         joins by normalized name + geo proximity + time window,
+        #         scores confidence, upserts. ~1s on current data; capped
+        #         at 5min via per-function statement_timeout.
+        cron(
+            "workers.staff_identity_refresh.refresh_staff_identity_links",
+            hour={3}, minute={45},
+        ),
         # Worker heartbeat — every 5 minutes pings the Healthchecks
         # bagent-worker-heartbeat URL so HC alerts when the process dies.
         # All other named crons have their own checks; this one specifically
@@ -375,6 +386,7 @@ class WorkerSettings:
         *ALL_OUTREACH_ORCHESTRATOR_TASKS,
         *ALL_OUTREACH_STATE_TASKS,
         *ALL_TAXONOMY_TASKS,
+        *ALL_STAFF_IDENTITY_TASKS,
         *ALL_SLO_TASKS,
     ]
     cron_jobs = SCRAPE_CRONS
