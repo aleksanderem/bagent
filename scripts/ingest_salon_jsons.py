@@ -454,7 +454,39 @@ class SalonJsonIngester:
         scrape worker for that salon is the only writer and concurrent
         readers see "no current head" → they fall through to the legacy
         DISTINCT ON pattern which still returns the correct latest row.
+
+        HARD GATE from 2026-05-15 (Phase 2): before promoting, verify that
+        all services attached to this scrape have embeddings. If any service
+        is missing `embedding_applied_at`, refuse to promote — the previous
+        chain head stays active. A follow-up scrape attempt will retry once
+        embedding succeeds. This prevents the "comparisons without embeddings"
+        contamination class of bugs.
         """
+        # Gate: count services in this scrape that lack an embedding.
+        try:
+            missing = (
+                self.client.table("salon_scrape_services")
+                .select("id", count="exact")
+                .eq("scrape_id", new_scrape_id)
+                .is_("embedding_applied_at", "null")
+                .execute()
+            )
+            missing_count = missing.count or 0
+        except Exception as e:
+            logger.warning(
+                "promote_chain_head: failed to verify embedding coverage for "
+                "scrape %s: %s — refusing to promote conservatively",
+                new_scrape_id, e,
+            )
+            return
+        if missing_count > 0:
+            logger.warning(
+                "promote_chain_head: %d services in scrape %s lack embeddings "
+                "— NOT promoting. Previous head stays active until retry succeeds.",
+                missing_count, new_scrape_id,
+            )
+            return
+
         if prev_head is None:
             _retry_http(
                 lambda: self.client.table("salon_scrapes")

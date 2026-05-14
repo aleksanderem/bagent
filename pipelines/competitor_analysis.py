@@ -311,7 +311,16 @@ def _apply_versum_mappings(
 def _active_services_with_treatment(
     services: list[dict[str, Any]],
 ) -> dict[int, dict[str, Any]]:
-    """Return {treatment_id: service_row} for active services with a treatment_id.
+    """Return {treatment_id: service_row} for active services with treatment_id
+    AND a precomputed name embedding.
+
+    Hard gate from 2026-05-15 (Phase 2 of "no comparisons without embeddings"):
+    services without `name_embedding` are silently dropped. The variant
+    clustering / hybrid taxonomy match all depend on embeddings, so a service
+    without one cannot participate in apples-to-apples pricing comparison —
+    we'd be doing a string match in disguise. The embed_chain_heads_priority
+    backfill ensures coverage; the inline embedding step in ingest blocks
+    promotion of chain heads that fail to embed.
 
     When a salon has multiple services under the same treatment_id, we take
     the one with the LOWEST price_grosze (conservative: picks the base
@@ -319,11 +328,18 @@ def _active_services_with_treatment(
     only if no priced service exists for that treatment.
     """
     out: dict[int, dict[str, Any]] = {}
+    skipped_no_embedding = 0
     for svc in services:
         if not svc.get("is_active", True):
             continue
         tid = svc.get("booksy_treatment_id")
         if tid is None:
+            continue
+        # HARD GATE — require embedding presence. Services without one are
+        # excluded from pricing comparisons entirely. Phase 5 will add a
+        # second gate on variant_id once treatment_variants table is live.
+        if not svc.get("name_embedding") and not svc.get("has_embedding"):
+            skipped_no_embedding += 1
             continue
         tid = int(tid)
         existing = out.get(tid)
@@ -341,6 +357,11 @@ def _active_services_with_treatment(
             and new_price < existing_price
         ):
             out[tid] = svc
+    if skipped_no_embedding > 0:
+        logger.info(
+            "_active_services_with_treatment: dropped %d services without embedding "
+            "(hard gate — see Phase 2)", skipped_no_embedding,
+        )
     return out
 
 

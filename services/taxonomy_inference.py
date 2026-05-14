@@ -145,23 +145,29 @@ async def _call_infer_rpc(
 ) -> dict[str, Any] | None:
     """Wrap canonical-taxonomy matching RPC.
 
-    When `embedding` is provided → call hybrid RPC (trigram + cosine,
-    migration 045). Otherwise → fall back to trigram-only RPC (migration 043).
-    The trigram fallback is graceful degradation when OpenAI is unavailable.
+    HARD GATE from 2026-05-15 (Phase 2): only hybrid match with embedding
+    is supported. The previous trigram-only fallback (`match_treatment_by_name`,
+    migration 043) is removed because it produces low-quality matches that
+    silently contaminate pricing comparisons — see Beauty4ever Botoks-vs-Brwi
+    diagnostics. Services without embeddings are dropped earlier in the
+    pipeline; this function should never be reached with embedding=None.
 
     Returns dict with keys: inferred_tid, inferred_canonical_name,
-    inferred_parent_id, confidence, sample_n, match_source.
+    inferred_parent_id, confidence, sample_n, match_source. Returns None
+    when no embedding (logged) or RPC failure.
     """
-    if embedding is not None:
-        rpc_name = "match_treatment_hybrid"
-        rpc_args = {
-            "p_name": name,
-            "p_embedding": embedding,
-            "p_parent_hint": parent_hint,
-        }
-    else:
-        rpc_name = "match_treatment_by_name"
-        rpc_args = {"p_name": name, "p_parent_hint": parent_hint}
+    if embedding is None:
+        logger.debug(
+            "skip inference for %r — no embedding (hard gate, Phase 2)", name,
+        )
+        return None
+
+    rpc_name = "match_treatment_hybrid"
+    rpc_args = {
+        "p_name": name,
+        "p_embedding": embedding,
+        "p_parent_hint": parent_hint,
+    }
 
     try:
         def _do_call() -> Any:
