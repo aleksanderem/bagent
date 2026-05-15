@@ -303,8 +303,14 @@ async def synthesize_competitor_insights(
     long_strategy = _build_long_strategy(
         insights.get("recommendations") or [], gaps, dimensions,
     )
-    customer_journey = _build_customer_journey(subject_context, dimensions, pricing)
-    funnel = _build_funnel(subject_context, pricing)
+    # customerJourney + funnel removed 2026-05-15: oba były back-calculated
+    # heurystykami z reviews_count (np. `views = reviews/12/0.30 × 8 × 4`),
+    # ale UI pokazywał precyzyjne metryki ("4544 views/mies", "27434 zł
+    # monthly revenue", "~28% CTR") jako twarde dane. Nie mamy realnej
+    # telemetrii Booksy więc te liczby były wymysłem. Lepiej zero niż
+    # false signal. Frontend hide-uje sekcje gdy pole brakuje.
+    customer_journey: list[dict[str, Any]] = []
+    funnel: dict[str, Any] | None = None
     action_plan = _build_action_plan(
         insights.get("recommendations") or [], gaps,
     )

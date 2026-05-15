@@ -661,12 +661,20 @@ def _build_active_promotions(
         }
       }
 
-    Keys competitor entries by the string salon_id (serializable to JSON).
+    Filters entries where promoPrice IS NULL AND discountPct IS NULL — those
+    aren't actual promotions, just regular prices. UI labels the field as
+    "Active promotions" so passing through regular prices is misleading.
+    Filter dropped at this layer so downstream renderers don't need to
+    re-implement the check. Empty competitor lists are also dropped
+    (don't show an empty "no promotions" key per salon).
     """
-    subject_promos = promo_map.get(subject_booksy_id, [])
+    def _is_real_promo(p: dict[str, Any]) -> bool:
+        return p.get("promoPrice") is not None or p.get("discountPct") is not None
+
+    subject_promos = [p for p in promo_map.get(subject_booksy_id, []) if _is_real_promo(p)]
     competitor_promos: dict[str, list[dict[str, Any]]] = {}
     for c in candidates:
-        promos = promo_map.get(c.booksy_id, [])
+        promos = [p for p in promo_map.get(c.booksy_id, []) if _is_real_promo(p)]
         if promos:
             competitor_promos[str(c.booksy_id)] = promos
     return {
