@@ -625,15 +625,27 @@ def _cand(*, salon_id: int, counts_in_aggregates: bool = True) -> CompetitorCand
     )
 
 
+_NEXT_SVC_ID = [10_000]
+
+
 def _svc(
     *,
     treatment_id: int,
     price_grosze: int | None = 10000,
     name: str = "x",
     is_active: bool = True,
+    variant_id: int | None = None,
+    service_id: int | None = None,
 ) -> dict:
+    # Auto-id so each fixture row has a unique pk for embedding lookups.
+    _NEXT_SVC_ID[0] += 1
     return {
+        "id": service_id if service_id is not None else _NEXT_SVC_ID[0],
         "booksy_treatment_id": treatment_id,
+        # Phase 5 made variant_id mandatory for pricing comparisons; default
+        # to a deterministic synthetic per-tid variant so callers don't have
+        # to thread it through every assertion.
+        "variant_id": variant_id if variant_id is not None else treatment_id * 10,
         "price_grosze": price_grosze,
         "name": name,
         "treatment_name": name,
@@ -644,33 +656,59 @@ def _svc(
     }
 
 
+def _mock_supabase_no_verify() -> AsyncMock:
+    """Stub SupabaseService that returns no centroids / no embeddings.
+
+    Verification still runs when |deviation| > 80%, but with no centroid +
+    no name_embedding the embedding check is skipped, no package keyword is
+    detected (test names use 'x' / 'A' / 'Lase'), duration is unknown, so
+    every extreme row falls to 'extreme_outlier' and is kept.
+    """
+    service = AsyncMock()
+    service.get_variant_centroids.return_value = {}
+    service.get_service_embeddings.return_value = {}
+    return service
+
+
 class TestComputePricingComparisons:
-    def test_empty_subject_returns_empty(self) -> None:
+    @pytest.mark.asyncio
+    async def test_empty_subject_returns_empty(self) -> None:
         subject_data = {"services": []}
-        result = _compute_pricing_comparisons(report_id=1, subject_data=subject_data, aligned_competitors=[])
+        result = await _compute_pricing_comparisons(
+            _mock_supabase_no_verify(), report_id=1,
+            subject_data=subject_data, aligned_competitors=[],
+        )
         assert result == []
 
-    def test_skips_treatments_with_less_than_two_competitor_prices(self) -> None:
+    @pytest.mark.asyncio
+    async def test_skips_treatments_with_less_than_two_competitor_prices(self) -> None:
         subject_data = {
             "services": [_svc(treatment_id=1, price_grosze=1000, name="A")],
         }
         aligned = [
-            (_cand(salon_id=1), {"services": [_svc(treatment_id=1, price_grosze=900)]}),
+            (_cand(salon_id=1), {"services": [_svc(treatment_id=1, price_grosze=900)], "scrape": {"salon_name": "Cand1"}}),
         ]
-        result = _compute_pricing_comparisons(report_id=1, subject_data=subject_data, aligned_competitors=aligned)
+        result = await _compute_pricing_comparisons(
+            _mock_supabase_no_verify(), report_id=1,
+            subject_data=subject_data, aligned_competitors=aligned,
+        )
         assert result == []  # Only 1 competitor price → skip
 
-    def test_computes_deviation_and_action(self) -> None:
+    @pytest.mark.asyncio
+    async def test_computes_deviation_and_action(self) -> None:
         # Subject 1000, market [500, 600, 700] → median 600, deviation = +66.67% → lower
         subject_data = {
             "services": [_svc(treatment_id=5, price_grosze=1000, name="Lase")],
         }
         aligned = [
-            (_cand(salon_id=1), {"services": [_svc(treatment_id=5, price_grosze=500)]}),
-            (_cand(salon_id=2), {"services": [_svc(treatment_id=5, price_grosze=600)]}),
-            (_cand(salon_id=3), {"services": [_svc(treatment_id=5, price_grosze=700)]}),
+            (_cand(salon_id=1), {"services": [_svc(treatment_id=5, price_grosze=500)], "scrape": {"salon_name": "Cand1"}, "salon_id": 1}),
+            (_cand(salon_id=2), {"services": [_svc(treatment_id=5, price_grosze=600)], "scrape": {"salon_name": "Cand2"}, "salon_id": 2}),
+            (_cand(salon_id=3), {"services": [_svc(treatment_id=5, price_grosze=700)], "scrape": {"salon_name": "Cand3"}, "salon_id": 3}),
         ]
-        result = _compute_pricing_comparisons(report_id=1, subject_data=subject_data, aligned_competitors=aligned)
+        result = await _compute_pricing_comparisons(
+            _mock_supabase_no_verify(), report_id=1,
+            subject_data=subject_data, aligned_competitors=aligned,
+        )
         assert len(result) == 1
         row = result[0]
         assert row["booksy_treatment_id"] == 5
@@ -679,17 +717,48 @@ class TestComputePricingComparisons:
         assert row["sample_size"] == 3
         assert abs(row["deviation_pct"] - 66.67) < 0.01
         assert row["recommended_action"] == "lower"
+        # Mig 064 fields surface on every row.
+        assert row["verification_status"] == "verified"  # 66% ≤ 80% threshold
+        assert isinstance(row["competitor_samples"], list)
+        assert len(row["competitor_samples"]) == 3
 
-    def test_skips_non_counting_competitors(self) -> None:
+    @pytest.mark.asyncio
+    async def test_skips_non_counting_competitors(self) -> None:
         subject_data = {
             "services": [_svc(treatment_id=5, price_grosze=1000)],
         }
         aligned = [
-            (_cand(salon_id=1, counts_in_aggregates=False), {"services": [_svc(treatment_id=5, price_grosze=500)]}),
-            (_cand(salon_id=2), {"services": [_svc(treatment_id=5, price_grosze=1000)]}),
+            (_cand(salon_id=1, counts_in_aggregates=False), {"services": [_svc(treatment_id=5, price_grosze=500)], "scrape": {"salon_name": "Cand1"}}),
+            (_cand(salon_id=2), {"services": [_svc(treatment_id=5, price_grosze=1000)], "scrape": {"salon_name": "Cand2"}}),
         ]
-        result = _compute_pricing_comparisons(report_id=1, subject_data=subject_data, aligned_competitors=aligned)
+        result = await _compute_pricing_comparisons(
+            _mock_supabase_no_verify(), report_id=1,
+            subject_data=subject_data, aligned_competitors=aligned,
+        )
         # Only 1 counting competitor → skip
+        assert result == []
+
+    @pytest.mark.asyncio
+    async def test_extreme_deviation_with_package_keyword_is_dropped(self) -> None:
+        # Subject 280000 grosze (2800 zł) "Onda 4 zabiegi" vs market median
+        # ~20000 (200 zł) = +1300% deviation. Package keyword "4 zabiegi"
+        # in subject name should drop the row before display.
+        subject_data = {
+            "services": [_svc(
+                treatment_id=7, price_grosze=280000,
+                name="Onda 4 zabiegi 1 obszar",
+            )],
+        }
+        aligned = [
+            (_cand(salon_id=1), {"services": [_svc(treatment_id=7, price_grosze=15000)], "scrape": {"salon_name": "Cand1"}, "salon_id": 1}),
+            (_cand(salon_id=2), {"services": [_svc(treatment_id=7, price_grosze=20000)], "scrape": {"salon_name": "Cand2"}, "salon_id": 2}),
+            (_cand(salon_id=3), {"services": [_svc(treatment_id=7, price_grosze=25000)], "scrape": {"salon_name": "Cand3"}, "salon_id": 3}),
+        ]
+        result = await _compute_pricing_comparisons(
+            _mock_supabase_no_verify(), report_id=1,
+            subject_data=subject_data, aligned_competitors=aligned,
+        )
+        # Dropped — package mismatch.
         assert result == []
 
 
@@ -867,6 +936,10 @@ def _mock_supabase_for_e2e() -> AsyncMock:
     mock.update_competitor_report_status = AsyncMock(return_value=None)
     mock.get_versum_mappings = AsyncMock(return_value={})
     mock.get_active_promotions = AsyncMock(return_value={})
+    # Mig 064: pricing verification fetches — return empty dicts so no
+    # row enters the verify path (smoke tests above cover the verify branch).
+    mock.get_variant_centroids = AsyncMock(return_value={})
+    mock.get_service_embeddings = AsyncMock(return_value={})
 
     # Etap 4 readers
     def _mk_salon_data(salon_id: int, reviews_count: int) -> dict:

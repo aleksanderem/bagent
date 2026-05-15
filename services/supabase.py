@@ -1225,6 +1225,85 @@ class SupabaseService:
         result = self.client.table("competitor_service_gaps").insert(rows).execute()
         return len(result.data or [])
 
+    async def get_variant_centroids(
+        self, variant_ids: list[int],
+    ) -> dict[int, dict[str, Any]]:
+        """Return {variant_id: {centroid_embedding, canonical_variant_name,
+        parent_treatment_id}} for the given variant_ids.
+
+        Used by pricing comparison verification (migracja 064) to check
+        cosine similarity between subject service name embeddings and
+        variant centroids when |deviation| > 80%. Centroid is fetched as
+        pgvector string form (e.g. "[0.1,0.2,...]") and parsed downstream
+        by pricing_verification.compute_name_embedding_similarity.
+        """
+        if not variant_ids:
+            return {}
+        try:
+            res = (
+                self.client.table("treatment_variants")
+                .select(
+                    "id,parent_treatment_id,canonical_variant_name,centroid_embedding"
+                )
+                .in_("id", variant_ids)
+                .execute()
+            )
+        except Exception as e:
+            logger.warning(
+                "Failed to load treatment_variants for ids=%s: %s",
+                variant_ids[:10], e,
+            )
+            return {}
+        out: dict[int, dict[str, Any]] = {}
+        for row in res.data or []:
+            vid = row.get("id")
+            if vid is None:
+                continue
+            out[int(vid)] = {
+                "centroid_embedding": row.get("centroid_embedding"),
+                "canonical_variant_name": row.get("canonical_variant_name"),
+                "parent_treatment_id": row.get("parent_treatment_id"),
+            }
+        return out
+
+    async def get_service_embeddings(
+        self, service_ids: list[int],
+    ) -> dict[int, Any]:
+        """Return {service_id: name_embedding} for the given service_ids.
+
+        Embedding is fetched as pgvector string form and parsed downstream
+        by pricing_verification.compute_name_embedding_similarity (it accepts
+        list[float], pgvector string, or np.ndarray). Used to drive the
+        re-verification of high-deviation pricing comparisons against
+        treatment_variants centroids (migracja 064).
+        """
+        if not service_ids:
+            return {}
+        # Supabase REST has limits on .in_() list size — chunk to 500 ids
+        out: dict[int, Any] = {}
+        CHUNK = 500
+        for i in range(0, len(service_ids), CHUNK):
+            chunk = service_ids[i : i + CHUNK]
+            try:
+                res = (
+                    self.client.table("salon_scrape_services")
+                    .select("id,name_embedding")
+                    .in_("id", chunk)
+                    .execute()
+                )
+            except Exception as e:
+                logger.warning(
+                    "Failed to load name_embedding for service ids %s..%s: %s",
+                    chunk[0], chunk[-1], e,
+                )
+                continue
+            for row in res.data or []:
+                sid = row.get("id")
+                emb = row.get("name_embedding")
+                if sid is not None and emb is not None:
+                    out[int(sid)] = emb
+        return out
+
     async def insert_competitor_dimensional_scores(self, rows: list[dict]) -> int:
         """Batch-insert competitor_dimensional_scores rows. Returns count."""
         if not rows:

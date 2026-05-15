@@ -35,6 +35,11 @@ from pipelines.competitor_dimensional_scores import (
     compute_subject_percentile,
 )
 from pipelines.competitor_selection import CompetitorCandidate, select_competitors
+from services.pricing_verification import (
+    VERIFICATION_THRESHOLD_PCT,
+    should_drop_from_display,
+    verify_pricing_comparison,
+)
 from services.supabase import SupabaseService
 from services.taxonomy_inference import infer_and_apply
 
@@ -199,8 +204,8 @@ async def compute_competitor_analysis(
 
     # ── Step 4: Pricing comparisons ──
     await progress(45, "Pricing comparisons per treatment_id...")
-    pricing_rows = _compute_pricing_comparisons(
-        report_id, subject_data, aligned_competitors,
+    pricing_rows = await _compute_pricing_comparisons(
+        service, report_id, subject_data, aligned_competitors,
     )
     n_pricing = await service.insert_competitor_pricing_comparisons(pricing_rows)
     logger.info("Etap 4: inserted %d pricing_comparisons", n_pricing)
@@ -426,12 +431,13 @@ def _active_services_with_treatment(
     return out
 
 
-def _compute_pricing_comparisons(
+async def _compute_pricing_comparisons(
+    service: SupabaseService,
     report_id: int,
     subject_data: dict[str, Any],
     aligned_competitors: list[tuple[CompetitorCandidate, dict[str, Any]]],
 ) -> list[dict[str, Any]]:
-    """Compute per-variant pricing comparison rows (Phase 5).
+    """Compute per-variant pricing comparison rows (Phase 5 + mig 064 verify).
 
     Groups services by (treatment_id, variant_id) tuple instead of plain
     treatment_id. Each comparison row represents a SPECIFIC market segment
@@ -442,44 +448,154 @@ def _compute_pricing_comparisons(
     Variant labels come from treatment_variants (migracja 057). Services
     without variant_id are silently dropped — comparable variants by
     definition cannot exist without a variant identity.
+
+    Mig 064 layer: rows with |deviation_pct| > VERIFICATION_THRESHOLD_PCT
+    are re-verified against the variant centroid (package keyword regex +
+    embedding cosine + optional duration check). Rows flagged as
+    package_mismatch / low_name_similarity / duration_mismatch are dropped
+    from output; extreme_outlier rows are kept with a flag so UI can warn.
+    Each row carries competitor_samples (the per-competitor contributions
+    that produced market_min/median/max) for click-expand details in UI.
     """
     subject_svcs = _active_services_with_variant(subject_data.get("services") or [])
     if not subject_svcs:
         logger.info("Etap 4: subject has no services with treatment_id — no pricing comparisons")
         return []
 
-    # Build per-(tid, variant_id) competitor price lists.
-    competitor_prices_by_variant: dict[tuple[int, int], list[int]] = {}
+    # Build per-(tid, variant_id) competitor sample lists with full metadata.
+    # Each sample preserves salon identity + the offered service so UI can
+    # render a per-row drill-down.
+    competitor_samples_by_variant: dict[
+        tuple[int, int], list[dict[str, Any]]
+    ] = {}
     for cand, cdata in aligned_competitors:
         if not cand.counts_in_aggregates:
             continue
+        comp_scrape = cdata.get("scrape") or {}
+        salon_name = comp_scrape.get("salon_name") or ""
         comp_svcs = _active_services_with_variant(cdata.get("services") or [])
         for variant_key, svc in comp_svcs.items():
             price = svc.get("price_grosze")
             if price is None:
                 continue
-            competitor_prices_by_variant.setdefault(variant_key, []).append(int(price))
+            competitor_samples_by_variant.setdefault(variant_key, []).append({
+                "salon_id": cdata.get("salon_id"),
+                "salon_name": salon_name,
+                "booksy_id": cand.booksy_id,
+                "service_id": svc.get("id"),
+                "service_name": svc.get("name"),
+                "price_grosze": int(price),
+                "duration_minutes": svc.get("duration_minutes"),
+            })
 
-    rows: list[dict[str, Any]] = []
+    # Pre-pass: figure out which subject service embeddings + which variant
+    # centroids we need to fetch. Only rows with |deviation| > threshold
+    # trigger verification, so we filter the fetch set accordingly.
+    variant_ids_needing_verify: set[int] = set()
+    subject_service_ids_needing_verify: set[int] = set()
+    prelim: list[dict[str, Any]] = []
     for variant_key, subject_svc in subject_svcs.items():
         tid, variant_id = variant_key
-        market_prices = competitor_prices_by_variant.get(variant_key, [])
-        # Need at least 2 competitors with a price for the comparison to be meaningful
-        if len(market_prices) < 2:
+        samples = competitor_samples_by_variant.get(variant_key, [])
+        if len(samples) < 2:
             continue
         subject_price = subject_svc.get("price_grosze")
         if subject_price is None:
             continue
-
-        percentiles = compute_percentiles([float(p) for p in market_prices])
+        market_prices_f = [float(s["price_grosze"]) for s in samples]
+        percentiles = compute_percentiles(market_prices_f)
         median = percentiles["market_p50"]
         deviation_pct = (
             ((float(subject_price) - median) / median * 100.0) if median > 0 else 0.0
         )
+        prelim.append({
+            "variant_key": variant_key,
+            "tid": tid,
+            "variant_id": variant_id,
+            "subject_svc": subject_svc,
+            "subject_price": subject_price,
+            "samples": samples,
+            "market_prices_f": market_prices_f,
+            "percentiles": percentiles,
+            "deviation_pct": deviation_pct,
+        })
+        if abs(deviation_pct) > VERIFICATION_THRESHOLD_PCT:
+            variant_ids_needing_verify.add(int(variant_id))
+            sid = subject_svc.get("id")
+            if sid is not None:
+                subject_service_ids_needing_verify.add(int(sid))
+
+    # Batch fetch centroids + subject embeddings only for rows we'll verify.
+    variant_centroids = await service.get_variant_centroids(
+        list(variant_ids_needing_verify),
+    )
+    subject_embeddings = await service.get_service_embeddings(
+        list(subject_service_ids_needing_verify),
+    )
+
+    rows: list[dict[str, Any]] = []
+    dropped_counts = {
+        "package_mismatch": 0,
+        "low_name_similarity": 0,
+        "duration_mismatch": 0,
+    }
+    for item in prelim:
+        subject_svc = item["subject_svc"]
+        samples = item["samples"]
+        deviation_pct = item["deviation_pct"]
+        percentiles = item["percentiles"]
+        subject_price = item["subject_price"]
+        market_prices_f = item["market_prices_f"]
+        tid = item["tid"]
+        variant_id = item["variant_id"]
+
         recommended_action = _classify_pricing_action(deviation_pct)
         subject_pct = compute_subject_percentile(
-            float(subject_price), [float(p) for p in market_prices],
+            float(subject_price), market_prices_f,
         )
+
+        # Verification gate — only when deviation is extreme.
+        verification_status = "verified"
+        verification_details: dict[str, Any] = {}
+        if abs(deviation_pct) > VERIFICATION_THRESHOLD_PCT:
+            sid = subject_svc.get("id")
+            subject_emb = subject_embeddings.get(int(sid)) if sid is not None else None
+            variant_meta = variant_centroids.get(int(variant_id)) or {}
+            # Approximate market median duration from samples (best-effort —
+            # many salons skip duration_minutes; we filter Nones out).
+            durations = [
+                float(s["duration_minutes"]) for s in samples
+                if s.get("duration_minutes") is not None
+            ]
+            market_median_duration = (
+                sorted(durations)[len(durations) // 2] if durations else None
+            )
+
+            verification_status, verification_details = verify_pricing_comparison(
+                subject_service={
+                    "name": subject_svc.get("name"),
+                    "duration_minutes": subject_svc.get("duration_minutes"),
+                    "name_embedding": subject_emb,
+                },
+                variant_centroid_embedding=variant_meta.get("centroid_embedding"),
+                variant_canonical_name=variant_meta.get("canonical_variant_name"),
+                deviation_pct=deviation_pct,
+                market_median_duration=market_median_duration,
+            )
+            verification_details["samples_count"] = len(samples)
+
+            if should_drop_from_display(verification_status):
+                dropped_counts[verification_status] = (
+                    dropped_counts.get(verification_status, 0) + 1
+                )
+                logger.info(
+                    "Dropped pricing comparison report=%s tid=%s variant_id=%s "
+                    "(%s): subject_name=%r deviation=%.1f%% details=%s",
+                    report_id, tid, variant_id, verification_status,
+                    (subject_svc.get("name") or "")[:80],
+                    deviation_pct, verification_details,
+                )
+                continue
 
         rows.append({
             "report_id": report_id,
@@ -499,9 +615,24 @@ def _compute_pricing_comparisons(
             "market_max_grosze": int(percentiles["market_max"]),
             "subject_percentile": round(subject_pct, 2),
             "deviation_pct": round(deviation_pct, 2),
-            "sample_size": len(market_prices),
+            "sample_size": len(samples),
             "recommended_action": recommended_action,
+            "verification_status": verification_status,
+            "verification_details": verification_details or None,
+            "competitor_samples": samples,
         })
+
+    total_dropped = sum(dropped_counts.values())
+    if total_dropped > 0:
+        logger.info(
+            "Pricing verification: dropped %d/%d rows (package=%d, "
+            "low_name_sim=%d, duration=%d) for report=%s",
+            total_dropped, total_dropped + len(rows),
+            dropped_counts["package_mismatch"],
+            dropped_counts["low_name_similarity"],
+            dropped_counts["duration_mismatch"],
+            report_id,
+        )
 
     return rows
 
