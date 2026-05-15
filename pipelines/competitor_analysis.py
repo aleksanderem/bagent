@@ -806,8 +806,19 @@ def _build_active_promotions(
     competitor_promos: dict[str, list[dict[str, Any]]] = {}
     for c in candidates:
         promos = [p for p in promo_map.get(c.booksy_id, []) if _is_real_promo(p)]
-        if promos:
-            competitor_promos[str(c.booksy_id)] = promos
+        if not promos:
+            continue
+        # Mig 064 follow-up: stamp salonName on every promo entry. UI's
+        # mapPromotionsFromBagent needs the salon label, but the keyed
+        # `competitors: {<booksy_id>: [...]}` shape used to leave entries
+        # anonymous — the adapter then had to look the name up via the
+        # competitors map keyed by booksyId, which Convex's CompetitorMatch
+        # doesn't expose (only competitorSalonId). Embedding salonName at
+        # build time is O(promo) and keeps the snapshot self-contained.
+        salon_name = c.name or f"Salon {c.booksy_id}"
+        for entry in promos:
+            entry.setdefault("salonName", salon_name)
+        competitor_promos[str(c.booksy_id)] = promos
     return {
         "subject": subject_promos,
         "competitors": competitor_promos,
