@@ -1465,7 +1465,13 @@ class SupabaseService:
         scrape.pop("raw_response", None)
 
     def _load_services_for_scrape(self, scrape_id: Any) -> list[dict[str, Any]]:
-        """Load all salon_scrape_services rows for a given scrape_id."""
+        """Load all salon_scrape_services rows for a given scrape_id.
+
+        Includes `embedding_applied_at` (timestamp signal, not the full 1536-
+        float vector) so the competitor pipeline can hard-gate on embedding
+        presence without pulling vector data over the wire. Also includes
+        `inferred_treatment_id` for Phase 5 variant grouping.
+        """
         try:
             res = (
                 self.client.table("salon_scrape_services")
@@ -1473,7 +1479,8 @@ class SupabaseService:
                     "id,category_name,name,booksy_treatment_id,booksy_service_id,"
                     "treatment_name,treatment_parent_id,price_grosze,is_from_price,"
                     "duration_minutes,is_active,is_promo,omnibus_price_grosze,"
-                    "description,description_type,photos,combo_type,variants"
+                    "description,description_type,photos,combo_type,variants,"
+                    "embedding_applied_at,inferred_treatment_id"
                 )
                 .eq("scrape_id", scrape_id)
                 .execute()
@@ -1481,7 +1488,12 @@ class SupabaseService:
         except Exception as e:
             logger.warning("Failed to load services for scrape %s: %s", scrape_id, e)
             return []
-        return list(res.data or [])
+        rows = list(res.data or [])
+        # Surface a lightweight has_embedding boolean for the hard gate in
+        # competitor_analysis._active_services_with_treatment.
+        for r in rows:
+            r["has_embedding"] = bool(r.get("embedding_applied_at"))
+        return rows
 
     def _load_reviews_for_salon(self, salon_id: int) -> list[dict[str, Any]]:
         """Load salon_reviews rows for a salon_id. Small sample (3-50 rows)."""
