@@ -333,7 +333,15 @@ def _active_services_with_variant(
     for svc in services:
         if not svc.get("is_active", True):
             continue
-        tid = svc.get("booksy_treatment_id")
+        # IMPORTANT: prefer the raw tid that was active when variant_id was
+        # assigned during Krok C backfill — otherwise taxonomy_inference.
+        # infer_and_apply (which runs BEFORE pricing comparisons) mutates
+        # booksy_treatment_id to a different tid, breaking the (tid,
+        # variant_id) key consistency between subject and competitors that
+        # had different inference outcomes. The _raw key is set by
+        # infer_and_apply when it overrides; absent it, the column was
+        # never touched and is the original.
+        tid = svc.get("booksy_treatment_id_raw") or svc.get("booksy_treatment_id")
         vid = svc.get("variant_id")
         if tid is None or vid is None:
             skipped_no_variant += 1
