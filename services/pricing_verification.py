@@ -31,14 +31,15 @@ from typing import Any
 
 import numpy as np
 
-# Verification threshold — apply checks only when |deviation| > VERIFICATION_THRESHOLD_PCT.
-# Obniżone z 80% do 20% 2026-05-16 po empirycznym audicie report 34:
-# - "Niechirurgiczny lifting twarzy" (deviation -62.83%) matchował się przez
-#   variant 836 do "Masaż transbukalny + lifting twarzy" — embedding sim 0.767,
-#   poniżej 0.85 threshold. Weryfikacja by to złapała, ale 80% gate blokował.
-# - Większość mniejszych deviation rows też wymagają weryfikacji jakości
-#   match'a — variant clustering ma false positives na poziomie tytułu usługi.
-VERIFICATION_THRESHOLD_PCT = 20.0
+# Verification threshold — apply checks ALWAYS (0 = no gate). Embedding check
+# is cheap (one cosine per row, embeddings already in memory from initial
+# fetch), and false-positive variant matches happen at ALL deviation levels.
+# Empiryka:
+# - "Botoks" subject vs variant "Bruksizm" (deviation -18.52%) — różne zabiegi
+#   (botoks na zmarszczki vs botoks na zgrzytanie zębów), embedding sim
+#   prawdopodobnie <0.80. Z threshold 20% nie ran, ze threshold 0 — złapie.
+# - Wcześniej tryb 80% gate przepuszczał WSZYSTKO poniżej 80% i to było źle.
+VERIFICATION_THRESHOLD_PCT = 0.0
 
 # Name similarity threshold — below = mismatch.
 # 0.80 (obniżone z 0.85) żeby przepuścić borderline match'e jak
