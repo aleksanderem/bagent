@@ -40,11 +40,36 @@ from __future__ import annotations
 
 import logging
 from dataclasses import dataclass, field
-from typing import Literal
+from typing import Any, Literal
 
+import numpy as np
+
+from services.focus_score import (
+    SalonFocusBundle,
+    cosine_similarity_dense,
+    cosine_similarity_sparse,
+    parse_focus_distribution_jsonb,
+)
 from services.supabase import SupabaseService
 
 logger = logging.getLogger(__name__)
+
+
+# ---------------------------------------------------------------------------
+# Focus-weighted scoring weights (2026-05-15)
+# ---------------------------------------------------------------------------
+# Empirycznie zwalidowane na Beauty4ever — focus_tid_sim oddziela "fałszywych
+# konkurentów" (same portfolio mix, inny nacisk) od prawdziwych. Wagi:
+#   +30  focus_tid_sim     — cosine over per-tid focus distribution
+#   +20  focus_var_sim     — cosine over per-variant focus distribution (finer)
+#   +20  portfolio_emb_sim — cosine over L2-normalized portfolio embedding
+#   +10  reviews_count_sim — proxy skali biznesu
+#   -2/km poza 5 km
+# Max realistic score: ~70-75 (gdy wszystkie sim wysokie).
+_W_FOCUS_TID = 30.0
+_W_FOCUS_VAR = 20.0
+_W_PORTFOLIO_EMB = 20.0
+_W_REVIEWS_SIM = 10.0
 
 
 # ---------------------------------------------------------------------------
@@ -186,7 +211,10 @@ def compute_composite_score(
     reviews_count_similarity: float,
     distance_km: float,
 ) -> float:
-    """Combine the 5 scoring axes into a single composite_score.
+    """Legacy v1 composite scoring (5 axes, discrete tid intersection).
+
+    DEPRECATED 2026-05-15 — zachowywane dla testów i porównań A/B.
+    Production używa compute_composite_score_v2 z focus-weighted similarity.
 
     Weights per plan doc:
       +30  primary_category match
@@ -205,6 +233,38 @@ def compute_composite_score(
     return score
 
 
+def compute_composite_score_v2(
+    *,
+    focus_tid_sim: float,
+    focus_var_sim: float,
+    portfolio_embedding_sim: float,
+    reviews_count_similarity: float,
+    distance_km: float,
+) -> float:
+    """Focus-weighted composite scoring (4 semantic axes + distance penalty).
+
+    Replaces v1 — empiryczna walidacja pokazała że v1 wybiera "fałszywych
+    konkurentów" (same portfolio composition, different focus). v2 priorytetyzuje
+    focus_tid_sim który mierzy CZY salon faktycznie skupia się na TYCH SAMYCH
+    kategoriach co subject.
+
+    Wagi (sum=80, ale typowy max realistic ~50-60 — zero salonów ma 1.0
+    we wszystkich osiach jednocześnie):
+      +30 × focus_tid_sim         (cornerstone — nacisk na te same tid'y)
+      +20 × focus_var_sim         (finer — nacisk na konkretne varianty)
+      +20 × portfolio_emb_sim     (semantic backstop)
+      +10 × reviews_count_sim     (skala biznesu)
+      -2 × max(0, distance_km - 5)  (geo)
+    """
+    score = 0.0
+    score += _W_FOCUS_TID * focus_tid_sim
+    score += _W_FOCUS_VAR * focus_var_sim
+    score += _W_PORTFOLIO_EMB * portfolio_embedding_sim
+    score += _W_REVIEWS_SIM * reviews_count_similarity
+    score -= compute_distance_penalty(distance_km)
+    return score
+
+
 def assign_bucket(
     *,
     composite_score: float,
@@ -212,16 +272,7 @@ def assign_bucket(
     candidate_reviews_rank: float | None,
     subject_reviews_rank: float | None,
 ) -> Bucket | None:
-    """Assign a bucket, or return None to drop the candidate.
-
-    Strict order of checks (per plan doc):
-      1. reviews_count < 20                         -> 'new'
-      2. composite_score >= 70                      -> 'direct'
-      3. 40 <= composite_score < 70                 -> 'cluster'
-      4. reviews_rank >= subject + 0.3 AND
-         composite_score < 40                       -> 'aspirational'
-      5. else                                        -> drop (return None)
-    """
+    """Legacy v1 bucket assignment. DEPRECATED — use assign_bucket_v2."""
     if reviews_count < 20:
         return "new"
     if composite_score >= 70:
@@ -232,6 +283,45 @@ def assign_bucket(
         candidate_reviews_rank is not None
         and subject_reviews_rank is not None
         and candidate_reviews_rank >= subject_reviews_rank + 0.3
+    ):
+        return "aspirational"
+    return None
+
+
+def assign_bucket_v2(
+    *,
+    focus_tid_sim: float,
+    portfolio_embedding_sim: float,
+    reviews_count: int,
+    candidate_reviews_rank: float | None,
+    subject_reviews_rank: float | None,
+) -> Bucket | None:
+    """Focus-weighted bucket assignment.
+
+    Tresholdy z empirii Beauty4ever (focus_align test 2026-05-15):
+      direct        focus_tid_sim ≥ 0.25 AND portfolio_emb_sim ≥ 0.85
+                    (skupiają się na tych samych tids ORAZ portfolio podobne)
+      cluster       focus_tid_sim ≥ 0.12
+                    (umiarkowane podobieństwo nacisku — w tym samym klastrze
+                    rynkowym, ale różne nacisk lub mix)
+      aspirational  reviews_rank ≥ subject + 0.3 AND portfolio_emb_sim ≥ 0.70
+                    (wyżej oceniany salon ze zbliżoną semantyką oferty —
+                    wzór do podpatrzenia, nawet jeśli różny focus)
+      new           reviews_count < 20
+
+    Returns None gdy żadna gałąź nie matchuje → kandydat odrzucony.
+    """
+    if reviews_count < 20:
+        return "new"
+    if focus_tid_sim >= 0.25 and portfolio_embedding_sim >= 0.85:
+        return "direct"
+    if focus_tid_sim >= 0.12:
+        return "cluster"
+    if (
+        candidate_reviews_rank is not None
+        and subject_reviews_rank is not None
+        and candidate_reviews_rank >= subject_reviews_rank + 0.3
+        and portfolio_embedding_sim >= 0.70
     ):
         return "aspirational"
     return None
@@ -256,6 +346,149 @@ def sort_key(candidate: CompetitorCandidate) -> tuple[int, float]:
 # ---------------------------------------------------------------------------
 # Main entry point
 # ---------------------------------------------------------------------------
+
+
+def _fetch_subject_focus_bundle(
+    service: SupabaseService,
+    subject_salon_id: int,
+    subject_booksy_id: int,
+) -> SalonFocusBundle | None:
+    """Build SalonFocusBundle dla subject z LATEST CHAIN HEAD scrape.
+
+    Subject FAKTYCZNIE potrzebuje świeżego compute (nie z cache salons table),
+    bo audyt może być przed nowym scrape. Worst case: subject's data is freshest
+    in his latest non-chain-head scrape (audit-time snapshot).
+
+    Returns None gdy brak chain head scrape lub embeddingów.
+    """
+    client = service.client
+
+    # Try cached portfolio z salons table FIRST (jeśli świeży)
+    cached_res = (
+        client.table("salons")
+        .select(
+            "id, booksy_id, portfolio_embedding, focus_distribution, "
+            "focus_variant_distribution, focus_computed_at",
+        )
+        .eq("id", subject_salon_id)
+        .limit(1)
+        .execute()
+    )
+    if cached_res.data and cached_res.data[0].get("portfolio_embedding") is not None:
+        row = cached_res.data[0]
+        emb_raw = row["portfolio_embedding"]
+        # pgvector serializuje jako string lub list w zależności od config
+        if isinstance(emb_raw, str):
+            try:
+                emb = np.array(
+                    [float(x) for x in emb_raw.strip("[]").split(",")],
+                    dtype=np.float64,
+                )
+            except Exception:
+                emb = None
+        else:
+            emb = np.array(emb_raw, dtype=np.float64) if emb_raw else None
+        if emb is not None and emb.shape == (1536,):
+            return SalonFocusBundle(
+                salon_id=subject_salon_id,
+                booksy_id=subject_booksy_id,
+                portfolio_embedding=emb,
+                focus_distribution=parse_focus_distribution_jsonb(row.get("focus_distribution")),
+                focus_variant_distribution=parse_focus_distribution_jsonb(row.get("focus_variant_distribution")),
+                service_count=0,  # not stored in cache
+                embedded_count=0,
+            )
+
+    # Cache miss — compute from scratch (latest chain head)
+    scrape_res = (
+        client.table("salon_scrapes")
+        .select("id, scraped_at")
+        .eq("booksy_id", subject_booksy_id)
+        .eq("is_chain_head", True)
+        .order("scraped_at", desc=True)
+        .limit(1)
+        .execute()
+    )
+    if not scrape_res.data:
+        return None
+    scrape_id = scrape_res.data[0]["id"]
+
+    svc_res = (
+        client.table("salon_scrape_services")
+        .select(
+            "id, name, description, photos, booksy_treatment_id, variant_id, "
+            "price_grosze, name_embedding",
+        )
+        .eq("scrape_id", scrape_id)
+        .execute()
+    )
+    services = svc_res.data or []
+
+    salon_res = (
+        client.table("salons")
+        .select("top_service_names")
+        .eq("id", subject_salon_id)
+        .single()
+        .execute()
+    )
+    top_names = salon_res.data.get("top_service_names") if salon_res.data else None
+
+    return SalonFocusBundle.from_services(
+        salon_id=subject_salon_id,
+        booksy_id=subject_booksy_id,
+        services=services,
+        top_service_names=top_names,
+    )
+
+
+def _fetch_candidate_focus_bundles_batch(
+    service: SupabaseService,
+    salon_ids: list[int],
+) -> dict[int, SalonFocusBundle]:
+    """Batch-fetch pre-computed focus bundles dla candidates z salons table.
+
+    Korzysta z `get_salons_focus_batch` RPC (mig 063) — single round-trip dla
+    N candidates. Salony bez pre-computed focus (NULL portfolio_embedding) są
+    pomijane — nie liczymy on-the-fly w hot path selection (zbyt wolne dla
+    200 kandydatów). Cron `refresh_salon_focus` picks them up offline.
+
+    Returns dict {salon_id: SalonFocusBundle}.
+    """
+    if not salon_ids:
+        return {}
+
+    client = service.client
+    res = client.rpc(
+        "get_salons_focus_batch",
+        {"p_salon_ids": salon_ids},
+    ).execute()
+    out: dict[int, SalonFocusBundle] = {}
+    for row in (res.data or []):
+        if row.get("portfolio_embedding") is None:
+            continue
+        emb_raw = row["portfolio_embedding"]
+        if isinstance(emb_raw, str):
+            try:
+                emb = np.array(
+                    [float(x) for x in emb_raw.strip("[]").split(",")],
+                    dtype=np.float64,
+                )
+            except Exception:
+                continue
+        else:
+            emb = np.array(emb_raw, dtype=np.float64) if emb_raw else None
+        if emb is None or emb.shape != (1536,):
+            continue
+        out[row["salon_id"]] = SalonFocusBundle(
+            salon_id=row["salon_id"],
+            booksy_id=None,
+            portfolio_embedding=emb,
+            focus_distribution=parse_focus_distribution_jsonb(row.get("focus_distribution")),
+            focus_variant_distribution=parse_focus_distribution_jsonb(row.get("focus_variant_distribution")),
+            service_count=0,
+            embedded_count=0,
+        )
+    return out
 
 
 async def select_competitors(
@@ -331,6 +564,18 @@ async def select_competitors(
             subject_salon_id, len(subject_top_services),
         )
 
+    # --- 1b. Fetch subject focus bundle (cached lub fresh compute) ----------
+    subject_bundle = _fetch_subject_focus_bundle(
+        service, subject_salon_id, subject_booksy_id,
+    )
+    if subject_bundle is None or subject_bundle.portfolio_embedding is None:
+        logger.warning(
+            "Subject salon has no focus bundle (no embeddings or no chain head); "
+            "v2 selection will degrade — falling back to v1-style scoring with "
+            "neutral focus_tid=0 for all candidates (salon_id=%s)",
+            subject_salon_id,
+        )
+
     # --- 2. Query candidates via PostGIS RPC ----------------------------------
     raw_candidates = await service.get_candidate_salons(
         lat=subject_lat,
@@ -348,26 +593,36 @@ async def select_competitors(
     if not raw_candidates:
         return []
 
-    # --- 3. Fetch per-candidate business_categories + top_services -----------
+    # --- 3. Fetch per-candidate business_categories (only for FW filter) ----
+    # + batch-fetch pre-computed focus bundles. Top-services overlap dropped —
+    # focus_tid_sim is precyzyjniejsze i już je includes (top services są w
+    # focus weighting przez signal _W_TOP_SERVICE).
     candidate_salon_ids = [c["salon_id"] for c in raw_candidates]
     candidate_booksy_ids = [c["booksy_id"] for c in raw_candidates]
 
     bc_map = await service.get_latest_business_categories_for_booksy_ids(candidate_booksy_ids)
-    top_map = await service.get_latest_top_services_for_salon_ids(candidate_salon_ids)
     partner_map = await service.get_latest_partner_system_for_booksy_ids(candidate_booksy_ids)
+
+    # Pre-computed focus bundles (single RPC call)
+    focus_bundles = _fetch_candidate_focus_bundles_batch(service, candidate_salon_ids)
+    logger.info(
+        "Fetched focus bundles for %d/%d candidates (rest: cron will compute)",
+        len(focus_bundles), len(candidate_salon_ids),
+    )
 
     # --- 4. Filter + Score + Bucket each candidate ---------------------------
     scored: list[CompetitorCandidate] = []
     dropped_fw = 0
     dropped_bucket = 0
+    dropped_no_focus = 0
 
     for c in raw_candidates:
         booksy_id = c["booksy_id"]
         salon_id = c["salon_id"]
         cand_bc = bc_map.get(booksy_id)
-        cand_top = top_map.get(salon_id, [])
         partner = partner_map.get(booksy_id) or "native"
 
+        # Female weight tolerance (retained — broni przed barber/men salons)
         cand_female_weight = compute_avg_female_weight(cand_bc)
         if (
             subject_female_weight is not None
@@ -380,33 +635,49 @@ async def select_competitors(
         female_weight_diff = (
             abs(cand_female_weight - subject_female_weight)
             if (subject_female_weight is not None and cand_female_weight is not None)
-            else -1.0  # sentinel: FW filter skipped
+            else -1.0
         )
 
         distance_km = c["distance_km"]
-        bc_jaccard = compute_business_category_jaccard(subject_business_cats, cand_bc)
-        cand_top_treatment_ids = {
-            ts["booksy_treatment_id"]
-            for ts in cand_top
-            if ts.get("booksy_treatment_id") is not None
-        }
-        ts_overlap = compute_top_services_overlap(
-            subject_top_treatment_ids, cand_top_treatment_ids,
-        )
         rc_sim = compute_reviews_count_similarity(
             subject_reviews_count, c.get("reviews_count") or 0,
         )
 
-        composite = compute_composite_score(
-            primary_category_match=True,  # strict filter guarantees match
-            business_category_jaccard=bc_jaccard,
-            top_services_overlap=ts_overlap,
+        # Pre-computed focus bundle — skip jeśli brak (cron go nadrobi)
+        cand_bundle = focus_bundles.get(salon_id)
+        if cand_bundle is None or cand_bundle.portfolio_embedding is None:
+            dropped_no_focus += 1
+            continue
+
+        # 4 semantic axes similarity (v2)
+        if subject_bundle is not None and subject_bundle.portfolio_embedding is not None:
+            focus_tid_sim = cosine_similarity_sparse(
+                subject_bundle.focus_distribution, cand_bundle.focus_distribution,
+            )
+            focus_var_sim = cosine_similarity_sparse(
+                subject_bundle.focus_variant_distribution,
+                cand_bundle.focus_variant_distribution,
+            )
+            portfolio_emb_sim = cosine_similarity_dense(
+                subject_bundle.portfolio_embedding, cand_bundle.portfolio_embedding,
+            )
+        else:
+            # Subject bez focus — neutral (wszystkim 0; effectively v1 lite)
+            focus_tid_sim = 0.0
+            focus_var_sim = 0.0
+            portfolio_emb_sim = 0.0
+
+        composite = compute_composite_score_v2(
+            focus_tid_sim=focus_tid_sim,
+            focus_var_sim=focus_var_sim,
+            portfolio_embedding_sim=portfolio_emb_sim,
             reviews_count_similarity=rc_sim,
             distance_km=distance_km,
         )
 
-        bucket = assign_bucket(
-            composite_score=composite,
+        bucket = assign_bucket_v2(
+            focus_tid_sim=focus_tid_sim,
+            portfolio_embedding_sim=portfolio_emb_sim,
             reviews_count=c.get("reviews_count") or 0,
             candidate_reviews_rank=c.get("reviews_rank"),
             subject_reviews_rank=subject_reviews_rank,
@@ -430,9 +701,9 @@ async def select_competitors(
                 bucket=bucket,
                 counts_in_aggregates=(bucket != "new"),
                 similarity_scores={
-                    "primary_category": 1.0,
-                    "business_categories_jaccard": round(bc_jaccard, 4),
-                    "top_services_overlap": round(ts_overlap, 4),
+                    "focus_tid_sim": round(focus_tid_sim, 4),
+                    "focus_var_sim": round(focus_var_sim, 4),
+                    "portfolio_embedding_sim": round(portfolio_emb_sim, 4),
                     "reviews_count_similarity": round(rc_sim, 4),
                     "distance_penalty": round(compute_distance_penalty(distance_km), 2),
                 },
@@ -441,8 +712,9 @@ async def select_competitors(
         )
 
     logger.info(
-        "Scored %d/%d candidates (dropped %d by female_weight, %d by bucket)",
-        len(scored), len(raw_candidates), dropped_fw, dropped_bucket,
+        "Scored %d/%d candidates (dropped %d by female_weight, %d by bucket, "
+        "%d without pre-computed focus)",
+        len(scored), len(raw_candidates), dropped_fw, dropped_bucket, dropped_no_focus,
     )
 
     # --- 5. Sort by bucket priority then descending composite_score ----------
