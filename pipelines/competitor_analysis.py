@@ -25,6 +25,7 @@ See docs/plans/2026-04-08-competitor-report-pipeline.md sections
 from __future__ import annotations
 
 import logging
+import re
 from datetime import datetime, timezone
 from typing import Any, Awaitable, Callable
 
@@ -37,6 +38,7 @@ from pipelines.competitor_dimensional_scores import (
 from pipelines.competitor_selection import CompetitorCandidate, select_competitors
 from services.pricing_verification import (
     VERIFICATION_THRESHOLD_PCT,
+    detect_package_keyword,
     should_drop_from_display,
     verify_pricing_comparison,
 )
@@ -313,6 +315,30 @@ def _apply_versum_mappings(
 # ---------------------------------------------------------------------------
 
 
+# Subject service names that signal a promotional listing — exclude from
+# pricing comparisons, otherwise the discounted price compares against
+# competitors' full prices and generates false "raise price" recommendations.
+# detect_package_keyword from pricing_verification handles pakiet/Nx/×N/N
+# zabiegów; this is a focused check for explicit promotion markers.
+_PROMO_MARKERS = re.compile(
+    r"\b(?:PROMOCJA|PROMOCJI|PROMO|RABAT|AKCJA|OKAZJA|TANIO|TANIEJ|"
+    r"WYPRZEDA[ŻZ]\w*|NOWO[ŚS][CĆ]|HAPPY\s+HOUR|WALENTYNK\w*|"
+    r"DZIE[ŃN]\s+KOBIET)\b",
+    re.IGNORECASE,
+)
+
+
+def _has_promo_marker(name: str) -> bool:
+    """True if service name contains an explicit promotion marker (PROMOCJA,
+    RABAT, OKAZJA, …). Used by `_active_services_with_variant` to keep
+    promotional listings out of price comparisons — they would compare
+    a discounted price against competitors' regular cennik and inflate
+    'raise price' rekomendacje."""
+    if not name:
+        return False
+    return bool(_PROMO_MARKERS.search(name))
+
+
 def _active_services_with_variant(
     services: list[dict[str, Any]],
 ) -> dict[tuple[int, int], dict[str, Any]]:
@@ -335,8 +361,19 @@ def _active_services_with_variant(
     """
     out: dict[tuple[int, int], dict[str, Any]] = {}
     skipped_no_variant = 0
+    skipped_promo_pakiet = 0
     for svc in services:
         if not svc.get("is_active", True):
+            continue
+        # Filter subject services that are promotional / multi-pack listings.
+        # Empirycznie (report 34): "Dermapen 4 - 1 zabieg - twarz - PROMOCJA"
+        # 600 zł vs market full-price 800 zł = -25% — fałszywe „podnieś cenę"
+        # bo subject jest już w obniżonej cenie promocyjnej. Tak samo
+        # "3x Red Touch", "Onda 4 zabiegi" — pakiety wielokrotne porównane
+        # do single zabiegów.
+        name = svc.get("name") or ""
+        if detect_package_keyword(name) or _has_promo_marker(name) or svc.get("is_promo"):
+            skipped_promo_pakiet += 1
             continue
         # IMPORTANT: prefer the raw tid that was active when variant_id was
         # assigned during Krok C backfill — otherwise taxonomy_inference.
@@ -366,6 +403,12 @@ def _active_services_with_variant(
             and new_price < existing_price
         ):
             out[key] = svc
+    if skipped_promo_pakiet > 0:
+        logger.info(
+            "_active_services_with_variant: dropped %d promotional / package services "
+            "from subject side (mig 064 — prevents false 'raise price' signals)",
+            skipped_promo_pakiet,
+        )
     if skipped_no_variant > 0:
         logger.info(
             "_active_services_with_variant: dropped %d services without variant_id "

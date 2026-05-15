@@ -31,11 +31,21 @@ from typing import Any
 
 import numpy as np
 
-# Verification threshold — apply checks only when |deviation| > VERIFICATION_THRESHOLD_PCT
-VERIFICATION_THRESHOLD_PCT = 80.0
+# Verification threshold — apply checks only when |deviation| > VERIFICATION_THRESHOLD_PCT.
+# Obniżone z 80% do 20% 2026-05-16 po empirycznym audicie report 34:
+# - "Niechirurgiczny lifting twarzy" (deviation -62.83%) matchował się przez
+#   variant 836 do "Masaż transbukalny + lifting twarzy" — embedding sim 0.767,
+#   poniżej 0.85 threshold. Weryfikacja by to złapała, ale 80% gate blokował.
+# - Większość mniejszych deviation rows też wymagają weryfikacji jakości
+#   match'a — variant clustering ma false positives na poziomie tytułu usługi.
+VERIFICATION_THRESHOLD_PCT = 20.0
 
-# Name similarity threshold — below = mismatch
-NAME_SIMILARITY_THRESHOLD = 0.85
+# Name similarity threshold — below = mismatch.
+# 0.80 (obniżone z 0.85) żeby przepuścić borderline match'e jak
+# "Dermapen 4 - 1 zabieg - twarz - PROMOCJA" → "Dermapen 4.0 - twarz + szyja"
+# (sim 0.833), które są legit, ale odrzucić Plexr lifting → Masaż transbukalny
+# (sim 0.767), które są false positive.
+NAME_SIMILARITY_THRESHOLD = 0.80
 
 # Duration ratio threshold — subject_duration / variant_duration > this = pakiet
 DURATION_RATIO_THRESHOLD = 2.0
