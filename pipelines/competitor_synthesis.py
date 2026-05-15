@@ -1042,6 +1042,14 @@ def _build_price_comparison(
     market_min/p25/p50/p75/max grosze, deviation_pct, sample_size,
     recommended_action. We pass them through verbatim, only sorting by
     absolute deviation so the most interesting rows render first.
+
+    Mig 064: also forward `competitor_samples` (per-row drill-down payload),
+    `verification_status`, and `verification_details` so the report_data JSON
+    snapshot stays self-contained and matches what
+    getCompetitorPricingComparisons returns from the dedicated table. This
+    snapshot is the fallback feed for the rich adapter when the live table
+    query is empty/stale and is also consumed by the legacy
+    CompetitorReportTab + PDF export.
     """
     rows: list[dict[str, Any]] = []
     for p in pricing:
@@ -1062,6 +1070,9 @@ def _build_price_comparison(
             "sample_size": p.get("sample_size"),
             "subject_duration_minutes": p.get("subject_duration_minutes"),
             "recommended_action": p.get("recommended_action") or "hold",
+            "verification_status": p.get("verification_status") or "verified",
+            "verification_details": p.get("verification_details"),
+            "competitor_samples": p.get("competitor_samples") or [],
         })
     rows.sort(
         key=lambda r: abs(float(r.get("deviation_pct") or 0)),
