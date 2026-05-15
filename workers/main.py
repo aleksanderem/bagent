@@ -324,6 +324,15 @@ try:  # pragma: no cover
             "workers.staff_identity_refresh.refresh_staff_identity_links",
             hour={3}, minute={45},
         ),
+        # 04:00 — refresh salon focus distributions + portfolio embeddings.
+        #         Picks up salons with NULL focus_computed_at (new chain heads
+        #         via mig 063 trigger) or older than 14 days. Cap 5000/night
+        #         (~10 min @ 10/s). Used by competitor_selection v2 for
+        #         focus-weighted matching.
+        cron(
+            "workers.taxonomy_refresh.refresh_salon_focus_distributions",
+            hour={4}, minute={0},
+        ),
         # Worker heartbeat — every 5 minutes pings the Healthchecks
         # bagent-worker-heartbeat URL so HC alerts when the process dies.
         # All other named crons have their own checks; this one specifically

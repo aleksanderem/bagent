@@ -41,6 +41,8 @@ EMBED_BATCH_CAP = 50_000        # ~$0.015 OpenAI cost at $0.02/1M tokens
 INFERENCE_BATCH_CAP = 200_000   # ~10 min Postgres time
 INFERENCE_BATCH_SIZE = 5_000    # per LATERAL call to match_treatment_hybrid
 STALE_INFERENCE_DAYS = 7        # re-run inference for rows older than this
+FOCUS_BATCH_CAP = 5_000         # ~10 min @ 10/s; trigger refreshes ~daily
+STALE_FOCUS_DAYS = 14           # re-compute focus older than this
 
 
 async def refresh_taxonomy_views(ctx: dict[str, Any]) -> str:
@@ -214,8 +216,127 @@ async def refresh_inferred_treatments(ctx: dict[str, Any]) -> str:
     return msg
 
 
+async def refresh_salon_focus_distributions(ctx: dict[str, Any]) -> str:
+    """Refresh salons.{portfolio_embedding, focus_distribution,
+    focus_variant_distribution} dla salonów stale lub nigdy nie liczonych.
+
+    Trigger: trg_invalidate_salon_focus (mig 063) nulluje focus_computed_at gdy
+    chain head zmienia się. Plus stale po STALE_FOCUS_DAYS od ostatniego compute.
+    Cap: FOCUS_BATCH_CAP salonów per night (~10 min @ 10/s).
+    """
+    from datetime import datetime, timedelta, timezone
+
+    from services.focus_score import SalonFocusBundle
+    from services.healthcheck import ping
+    from services.sb_client import make_supabase_client
+    from config import settings
+
+    client = make_supabase_client(settings.supabase_url, settings.supabase_service_key)
+    t_start = time.time()
+
+    cutoff = (datetime.now(timezone.utc) - timedelta(days=STALE_FOCUS_DAYS)).isoformat()
+
+    null_ids: list[int] = []
+    start = 0
+    while True:
+        page = await asyncio.to_thread(
+            lambda s=start: client.table("salons")
+                .select("id")
+                .is_("focus_computed_at", "null")
+                .range(s, s + 999)
+                .execute()
+        )
+        rows = page.data or []
+        null_ids.extend(r["id"] for r in rows)
+        if len(rows) < 1000 or len(null_ids) >= FOCUS_BATCH_CAP:
+            break
+        start += 1000
+
+    old_ids: list[int] = []
+    if len(null_ids) < FOCUS_BATCH_CAP:
+        start = 0
+        while True:
+            page = await asyncio.to_thread(
+                lambda s=start: client.table("salons")
+                    .select("id")
+                    .lt("focus_computed_at", cutoff)
+                    .range(s, s + 999)
+                    .execute()
+            )
+            rows = page.data or []
+            old_ids.extend(r["id"] for r in rows)
+            if len(rows) < 1000 or len(null_ids) + len(old_ids) >= FOCUS_BATCH_CAP:
+                break
+            start += 1000
+
+    salon_ids = list(set(null_ids + old_ids))[:FOCUS_BATCH_CAP]
+    logger.info(
+        "refresh_salon_focus: %d candidates (null=%d, old=%d, cap=%d)",
+        len(salon_ids), len(null_ids), len(old_ids), FOCUS_BATCH_CAP,
+    )
+
+    if not salon_ids:
+        await ping("HC_PING_SALON_FOCUS_REFRESH")
+        return "refresh_salon_focus: 0 stale"
+
+    success = 0
+    skipped = 0
+    for salon_id in salon_ids:
+        try:
+            salon_res = await asyncio.to_thread(
+                lambda sid=salon_id: client.table("salons")
+                    .select("id, booksy_id, top_service_names")
+                    .eq("id", sid).single().execute()
+            )
+            if not salon_res.data:
+                skipped += 1
+                continue
+            booksy_id = salon_res.data.get("booksy_id")
+            top_names = salon_res.data.get("top_service_names") or []
+
+            scrape_res = await asyncio.to_thread(
+                lambda bid=booksy_id: client.table("salon_scrapes")
+                    .select("id").eq("booksy_id", bid).eq("is_chain_head", True)
+                    .order("scraped_at", desc=True).limit(1).execute()
+            )
+            if not scrape_res.data:
+                skipped += 1
+                continue
+            scrape_id = scrape_res.data[0]["id"]
+
+            svc_res = await asyncio.to_thread(
+                lambda sid=scrape_id: client.table("salon_scrape_services").select(
+                    "id, name, description, photos, booksy_treatment_id, "
+                    "variant_id, price_grosze, name_embedding",
+                ).eq("scrape_id", sid).execute()
+            )
+            services = svc_res.data or []
+
+            bundle = SalonFocusBundle.from_services(
+                salon_id=salon_id, booksy_id=booksy_id,
+                services=services, top_service_names=top_names,
+            )
+            payload = bundle.to_db_payload()
+            payload["focus_computed_at"] = datetime.now(timezone.utc).isoformat()
+            await asyncio.to_thread(
+                lambda sid=salon_id, p=payload: client.table("salons")
+                    .update(p).eq("id", sid).execute()
+            )
+            success += 1
+        except Exception as e:  # noqa: BLE001
+            logger.warning("refresh_salon_focus failed for salon_id=%s: %s", salon_id, e)
+            skipped += 1
+
+    dt = time.time() - t_start
+    msg = f"refresh_salon_focus: {success} done, {skipped} skipped in {dt:.0f}s"
+    logger.info(msg)
+    await ping("HC_PING_SALON_FOCUS_REFRESH")
+    return msg
+
+
 ALL_TAXONOMY_TASKS = [
     refresh_taxonomy_views,
     embed_new_services,
     refresh_inferred_treatments,
+    refresh_salon_focus_distributions,
 ]
