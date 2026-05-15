@@ -1717,62 +1717,122 @@ class SupabaseService:
 
         Tries promotion_data first, then variant-level promotion fields.
         Returns {serviceName, originalPrice, promoPrice, discountPct} or None.
+
+        Booksy's promotion_data has this shape (empirycznie zweryfikowane na
+        booksy 161091 — 80 promo rows):
+            {
+              "rate": 10,                        # discount percentage
+              "price": {                         # NESTED dict, not a number
+                "price": 648,                    # promo price IN ZŁOTY (not grosze)
+                "formatted_price": "648,00 zł+"
+              },
+              "discount_type": "R",
+              "discount_amount": 10              # same as rate (percentage)
+            }
+        `original_price` field NIE istnieje — używamy `price_grosze` z wiersza
+        usługi jako bazy. Stara wersja tego kodu zakładała kształt `{price: <number>,
+        original_price: <number>}` w grosze — co odpadało już na pierwszym
+        `isinstance(promo_price, (int, float))` (bo `promo["price"]` to dict),
+        więc każdy promo wypadał z report_data.activePromotions i UI nie miał
+        co pokazać.
         """
         name = svc.get("name") or ""
         base_price_grosze = svc.get("price_grosze")
 
-        # Try promotion_data JSONB (from variants[].promotion)
+        def _coerce_promo_price_grosze(p: Any) -> float | None:
+            """Booksy embeds promo price as either `{price: <zł>}` (current)
+            or a bare number (legacy/some tenants). Normalize to grosze."""
+            if isinstance(p, dict):
+                inner = p.get("price")
+                if isinstance(inner, (int, float)) and inner > 0:
+                    return float(inner) * 100.0  # złoty → grosze
+                return None
+            if isinstance(p, (int, float)) and p > 0:
+                # Heuristic: if value > 100x base then assume already grosze;
+                # otherwise assume złoty. Real Booksy data so far = złoty.
+                return float(p) * 100.0
+            return None
+
+        def _coerce_discount_pct(promo: dict, promo_grosze: float | None) -> int | None:
+            """Prefer explicit rate / discount_amount when present; fall back
+            to computing from (base − promo) / base. Both rate and
+            discount_amount have been observed; rate is the documented one."""
+            for key in ("rate", "discount_amount"):
+                v = promo.get(key)
+                if isinstance(v, (int, float)) and v > 0:
+                    return round(float(v))
+            base = base_price_grosze if isinstance(base_price_grosze, (int, float)) else None
+            if base and base > 0 and promo_grosze and promo_grosze > 0:
+                return round((1 - promo_grosze / float(base)) * 100)
+            return None
+
+        # ── Path A: top-level promotion_data ──
         promo = svc.get("promotion_data")
         if isinstance(promo, dict):
-            promo_price = promo.get("price")
-            original = promo.get("original_price") or base_price_grosze
-            if isinstance(promo_price, (int, float)) and promo_price > 0:
-                original_val = float(original) if isinstance(original, (int, float)) else None
-                discount = (
-                    round((1 - promo_price / original_val) * 100)
-                    if original_val and original_val > 0
-                    else None
-                )
+            promo_grosze = _coerce_promo_price_grosze(promo.get("price"))
+            disc_pct = _coerce_discount_pct(promo, promo_grosze)
+            if promo_grosze is not None:
                 return {
                     "serviceName": name,
-                    "originalPrice": f"{original_val / 100:.0f} zł" if original_val else None,
-                    "promoPrice": f"{promo_price / 100:.0f} zł",
-                    "discountPct": discount,
+                    "originalPrice": (
+                        f"{base_price_grosze / 100:.0f} zł"
+                        if isinstance(base_price_grosze, (int, float)) and base_price_grosze > 0
+                        else None
+                    ),
+                    "promoPrice": f"{promo_grosze / 100:.0f} zł",
+                    "discountPct": disc_pct,
                 }
 
-        # Fallback: scan variants for promotion entries
+        # ── Path B: variant-level promotion entries ──
         variants = svc.get("variants")
         if isinstance(variants, list):
             for v in variants:
                 if not isinstance(v, dict):
                     continue
                 v_promo = v.get("promotion")
-                if isinstance(v_promo, dict):
-                    pp = v_promo.get("price")
-                    op = v_promo.get("original_price") or v.get("price") or base_price_grosze
-                    if isinstance(pp, (int, float)) and pp > 0:
-                        op_val = float(op) if isinstance(op, (int, float)) else None
-                        disc = (
-                            round((1 - pp / op_val) * 100)
-                            if op_val and op_val > 0
-                            else None
-                        )
-                        return {
-                            "serviceName": name,
-                            "originalPrice": f"{op_val / 100:.0f} zł" if op_val else None,
-                            "promoPrice": f"{pp / 100:.0f} zł",
-                            "discountPct": disc,
-                        }
+                if not isinstance(v_promo, dict):
+                    continue
+                pp_grosze = _coerce_promo_price_grosze(v_promo.get("price"))
+                if pp_grosze is None:
+                    continue
+                # Variant base price candidates: variant.price (often dict
+                # `{price: <zł>}`) or fall back to the service base.
+                v_base = v.get("price")
+                if isinstance(v_base, dict):
+                    inner = v_base.get("price")
+                    op_grosze = (
+                        float(inner) * 100.0
+                        if isinstance(inner, (int, float)) and inner > 0
+                        else None
+                    )
+                elif isinstance(v_base, (int, float)) and v_base > 0:
+                    op_grosze = float(v_base) * 100.0
+                else:
+                    op_grosze = (
+                        float(base_price_grosze)
+                        if isinstance(base_price_grosze, (int, float))
+                        and base_price_grosze > 0
+                        else None
+                    )
+                # discount: prefer variant promo.rate, fall back to computed
+                disc = None
+                for key in ("rate", "discount_amount"):
+                    val = v_promo.get(key)
+                    if isinstance(val, (int, float)) and val > 0:
+                        disc = round(float(val))
+                        break
+                if disc is None and op_grosze and op_grosze > 0:
+                    disc = round((1 - pp_grosze / op_grosze) * 100)
+                return {
+                    "serviceName": name,
+                    "originalPrice": f"{op_grosze / 100:.0f} zł" if op_grosze else None,
+                    "promoPrice": f"{pp_grosze / 100:.0f} zł",
+                    "discountPct": disc,
+                }
 
-        # Promo flag set but no price data found
-        if base_price_grosze:
-            return {
-                "serviceName": name,
-                "originalPrice": f"{base_price_grosze / 100:.0f} zł",
-                "promoPrice": None,
-                "discountPct": None,
-            }
-
+        # ── Path C: is_promo flag set but no structured discount data ──
+        # Don't emit a row — `_build_active_promotions` filters these out via
+        # `_is_real_promo`. Return None so we don't pollute the array.
         return None
 
     # ---- Competitor synthesis helpers (Comp Etap 5) ---------------------
