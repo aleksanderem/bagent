@@ -1480,7 +1480,7 @@ class SupabaseService:
                     "treatment_name,treatment_parent_id,price_grosze,is_from_price,"
                     "duration_minutes,is_active,is_promo,omnibus_price_grosze,"
                     "description,description_type,photos,combo_type,variants,"
-                    "embedding_applied_at,inferred_treatment_id"
+                    "embedding_applied_at,inferred_treatment_id,variant_id"
                 )
                 .eq("scrape_id", scrape_id)
                 .execute()
