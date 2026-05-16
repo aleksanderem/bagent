@@ -1394,6 +1394,44 @@ class SupabaseService:
         # populate these columns, only the batch ingester did).
         self._enrich_scrape_from_raw(scrape)
 
+        # Audit-triggered scrape może mieć NULL na kluczowych kolumnach
+        # (partner_system, has_online_services, has_online_vouchers,
+        # pos_pay_by_app, booking_max_*, deposit_cancel_days) bo audit
+        # pipeline ich nie populuje — tylko batch ingester z chain-head
+        # discovery wpisuje. Pull missing values z najnowszego chain-head
+        # scrape dla tego booksy_id (zwykle 2-7 dni świeży, populuje
+        # wszystkie kolumny).
+        chainhead_columns = [
+            "partner_system", "has_online_services", "has_online_vouchers",
+            "pos_pay_by_app", "pos_market_pay", "has_safety_rules",
+            "booking_max_modification_time", "booking_max_lead_time",
+            "deposit_cancel_days", "primary_category_id", "business_categories",
+            "salon_lat", "salon_lng", "salon_description",
+        ]
+        if any(scrape.get(c) in (None, "") for c in chainhead_columns):
+            try:
+                ch_res = (
+                    self.client.table("salon_scrapes")
+                    .select(
+                        ",".join(chainhead_columns)
+                    )
+                    .eq("booksy_id", booksy_id)
+                    .eq("is_chain_head", True)
+                    .order("scraped_at", desc=True)
+                    .limit(1)
+                    .execute()
+                )
+                if ch_res.data:
+                    ch = ch_res.data[0]
+                    for col in chainhead_columns:
+                        if scrape.get(col) in (None, "") and ch.get(col) not in (None, ""):
+                            scrape[col] = ch[col]
+            except Exception as e:
+                logger.warning(
+                    "Failed to enrich subject scrape with chain-head columns for booksy_id=%s: %s",
+                    booksy_id, e,
+                )
+
         # Prefer salons.* values when scrape's version is missing
         for key in ("reviews_count", "reviews_rank", "facebook_url", "instagram_url", "website"):
             if scrape.get(key) in (None, "") and salon_row.get(key):
