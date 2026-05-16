@@ -2536,80 +2536,12 @@ async def _resolve_service_taxonomy(
         label, len(emb_map), len(service_ids),
     )
 
-    # ── 2. Rule 2 (salon-defined): services with non-empty category_name. ──
-    #     Group by normalized name so we only embed/upsert once per unique
-    #     category, then point every service in that bucket at the same id.
-    rule2_groups: dict[str, list[tuple[int, dict[str, Any]]]] = {}
-    rule_3_4_1_candidates: list[tuple[int, dict[str, Any]]] = []
-    for idx, svc in candidates:
-        cat = (svc.get("category_name") or "").strip()
-        if cat and cat.lower() != "bez kategorii":
-            norm = _normalize_synthetic(cat)
-            rule2_groups.setdefault(norm, []).append((idx, svc))
-        else:
-            rule_3_4_1_candidates.append((idx, svc))
-
-    for norm_name, group in rule2_groups.items():
-        # Canonical name = the most common original-casing in the group.
-        canon_choices = [
-            (s.get("category_name") or "").strip() for _, s in group
-        ]
-        canonical = max(set(canon_choices), key=canon_choices.count)
-        logger.info(
-            "_resolve_service_taxonomy [%s] rule_2: canonical=%r normalized=%r "
-            "group_size=%d dry_run=%s",
-            label, canonical, norm_name, len(group), dry_run,
-        )
-        if dry_run:
-            syn_id = -1  # sentinel for trace
-        else:
-            embedding = await embed_short_text(canonical)
-            syn_id = await supabase.upsert_synthetic_category_salon_defined(
-                normalized_name=norm_name,
-                canonical_name=canonical,
-                embedding=embedding,
-                audit_id=audit_id,
-            )
-            logger.info(
-                "_resolve_service_taxonomy [%s] rule_2: upserted "
-                "synthetic_id=%d canonical=%r (audit_id=%s)",
-                label, syn_id, canonical, audit_id,
-            )
-
-        for idx, svc in group:
-            svc["synthetic_treatment_id"] = syn_id
-            svc["taxonomy_source"] = "salon_defined"
-            svc["synthetic_canonical_name"] = canonical
-            stats["rule_2"] += 1
-            if trace_collector is not None:
-                trace_collector.append({
-                    "svc_id": svc.get("id"),
-                    "svc_name": svc.get("name"),
-                    "original_tid": None,
-                    "original_category": svc.get("category_name"),
-                    "rule": "2",
-                    "decision": "matched",
-                    "details": {
-                        "normalized_name": norm_name,
-                        "canonical_name": canonical,
-                        "group_size_in_audit": len(group),
-                    },
-                    "embedding_top_k": [],
-                    "llm_response": None,
-                    "final": {
-                        "booksy_tid": None,
-                        "synthetic_tid": syn_id,
-                        "taxonomy_source": "salon_defined",
-                        "treatment_name": svc.get("name"),
-                    },
-                })
-
-    if stats["rule_2"]:
-        logger.info(
-            "_resolve_service_taxonomy [%s] rule_2 summary: %d services "
-            "across %d unique synthetic categories",
-            label, stats["rule_2"], len(rule2_groups),
-        )
+    # ── 2. ALL candidates enter Rule 3 first (per user spec 2026-05-16:
+    #      "Jeśli mamy dodaną kategorie ręcznie A NIE MA JEJ W SYSTEMIE"
+    #      means Rule 2 only fires for services whose category doesn't
+    #      resolve to a Booksy tid). Rule 2 becomes a fallback after Rule 3
+    #      fails — see the second Rule 2 block AFTER Rule 3 below. ──
+    rule_3_4_1_candidates: list[tuple[int, dict[str, Any]]] = list(candidates)
 
     # ── 3. Rule 3 (LLM disambiguation against Booksy tids). ──
     #     Only services that ALSO have a description >= 30 chars qualify
@@ -2803,10 +2735,93 @@ async def _resolve_service_taxonomy(
                 if s.get("variant_id") is not None
             )
 
+    # ── 3b. Rule 2 (salon-defined synthetic) — runs AFTER Rule 3 so we
+    #       only fire it for services whose category did NOT resolve to a
+    #       Booksy native tid via LLM disambiguation. Per user spec
+    #       2026-05-16: "Jeśli mamy dodaną kategorie ręcznie A NIE MA JEJ
+    #       W SYSTEMIE wciągmay ją" — Rule 2 trigger requires both
+    #       category_name set AND no Booksy match.
+    #
+    #       Group by normalized category_name so a single synthetic row
+    #       backs every service in the bucket. Services that fell through
+    #       Rule 3 here AND lack category_name proceed to Rule 4.
+    rule2_queue = rule4_only + rule3_to_rule4_fallback
+    rule2_groups: dict[str, list[tuple[int, dict[str, Any]]]] = {}
+    rule_4_queue_after_rule2: list[tuple[int, dict[str, Any]]] = []
+    for idx, svc in rule2_queue:
+        cat = (svc.get("category_name") or "").strip()
+        if cat and cat.lower() != "bez kategorii":
+            norm = _normalize_synthetic(cat)
+            rule2_groups.setdefault(norm, []).append((idx, svc))
+        else:
+            rule_4_queue_after_rule2.append((idx, svc))
+
+    for norm_name, group in rule2_groups.items():
+        canon_choices = [
+            (s.get("category_name") or "").strip() for _, s in group
+        ]
+        canonical = max(set(canon_choices), key=canon_choices.count)
+        logger.info(
+            "_resolve_service_taxonomy [%s] rule_2: canonical=%r normalized=%r "
+            "group_size=%d dry_run=%s",
+            label, canonical, norm_name, len(group), dry_run,
+        )
+        if dry_run:
+            syn_id = -1
+        else:
+            embedding = await embed_short_text(canonical)
+            syn_id = await supabase.upsert_synthetic_category_salon_defined(
+                normalized_name=norm_name,
+                canonical_name=canonical,
+                embedding=embedding,
+                audit_id=audit_id,
+            )
+            logger.info(
+                "_resolve_service_taxonomy [%s] rule_2: upserted "
+                "synthetic_id=%d canonical=%r (audit_id=%s)",
+                label, syn_id, canonical, audit_id,
+            )
+
+        for idx, svc in group:
+            svc["synthetic_treatment_id"] = syn_id
+            svc["taxonomy_source"] = "salon_defined"
+            svc["synthetic_canonical_name"] = canonical
+            stats["rule_2"] += 1
+            if trace_collector is not None:
+                trace_collector.append({
+                    "svc_id": svc.get("id"),
+                    "svc_name": svc.get("name"),
+                    "original_tid": None,
+                    "original_category": svc.get("category_name"),
+                    "rule": "2",
+                    "decision": "matched",
+                    "details": {
+                        "normalized_name": norm_name,
+                        "canonical_name": canonical,
+                        "group_size_in_audit": len(group),
+                        "fired_after_rule_3_failed": True,
+                    },
+                    "embedding_top_k": [],
+                    "llm_response": None,
+                    "final": {
+                        "booksy_tid": None,
+                        "synthetic_tid": syn_id,
+                        "taxonomy_source": "salon_defined",
+                        "treatment_name": svc.get("name"),
+                    },
+                })
+
+    if stats["rule_2"]:
+        logger.info(
+            "_resolve_service_taxonomy [%s] rule_2 summary: %d services "
+            "across %d unique synthetic categories (post-Rule 3 fallback)",
+            label, stats["rule_2"], len(rule2_groups),
+        )
+
     # ── 4. Rule 4 (embedding inheritance from existing synthetic). ──
-    #     Combined queue: services that bypassed Rule 3 (no description /
-    #     no LLM) + Rule 3 fall-throughs.
-    rule4_queue = rule4_only + rule3_to_rule4_fallback
+    #     Queue now contains services that fell through BOTH Rule 3
+    #     (no Booksy match) AND Rule 2 (no salon-defined category).
+    rule4_queue = rule_4_queue_after_rule2
     rule4_unmatched: list[tuple[int, dict[str, Any]]] = []
     for idx, svc in rule4_queue:
         emb = emb_map.get(int(svc["id"]))
