@@ -214,8 +214,8 @@ async def compute_competitor_analysis(
 
     # ── Step 5: Service gaps ──
     await progress(60, "Service gap analysis (missing + unique USP)...")
-    gap_rows = _compute_service_gaps(
-        report_id, subject_data, aligned_competitors,
+    gap_rows = await _compute_service_gaps(
+        service, report_id, subject_data, aligned_competitors,
     )
     n_gaps = await service.insert_competitor_service_gaps(gap_rows)
     logger.info("Etap 4: inserted %d service_gaps", n_gaps)
@@ -706,7 +706,8 @@ def _classify_pricing_action(deviation_pct: float) -> str:
 # ---------------------------------------------------------------------------
 
 
-def _compute_service_gaps(
+async def _compute_service_gaps(
+    service: SupabaseService,
     report_id: int,
     subject_data: dict[str, Any],
     aligned_competitors: list[tuple[CompetitorCandidate, dict[str, Any]]],
@@ -716,8 +717,13 @@ def _compute_service_gaps(
     - 'missing': top 10 treatments that ≥1 counts_in_aggregates competitor
       offers but the subject does not. Popularity score = competitor_count
       weighted by review mentions (limited due to 3-sample review cap).
-    - 'unique_usp': up to 5 treatments only the subject offers (no
-      counts_in_aggregates competitor has them). Popularity score = 1.0.
+    - 'unique_usp': up to 5 treatments only the subject offers, WERYFIKOWANE
+      przez embedding similarity vs wszystkie services konkurentów. Subject
+      może mieć brand-specific name (Thunder, Onda, Light&Bright) który
+      mapuje na inny tid niż konkurenci, ale TO TA SAMA PROCEDURA.
+      User insight: \"jeśli to jest nic innego jak depilacja laserowa
+      tylko innym urządzeniem, to są kretynami\" — fałszywe USP rujnują
+      pozycjonowanie i marketing.
     """
     subject_svcs = _active_services_with_treatment(subject_data.get("services") or [])
     subject_tids = set(subject_svcs.keys())
@@ -793,32 +799,137 @@ def _compute_service_gaps(
         row["sort_order"] = idx
 
     # ── Type B: unique USPs (subject has, no competitor does) ──
-    unique_usps: list[dict[str, Any]] = []
+    # Pre-filter: subject services których żaden konkurent NIE ma pod tym
+    # samym tid. Drugą iteracją weryfikujemy każdy candidate po embedding
+    # similarity — jeśli konkurent ma similar service pod innym tid /
+    # inną nazwą, to NIE prawdziwy USP.
+    usp_candidates: list[tuple[int, dict[str, Any]]] = []
     for tid, svc in subject_svcs.items():
         if tid in competitor_counts:
             continue
-        unique_usps.append({
-            "report_id": report_id,
-            "gap_type": "unique_usp",
-            "booksy_treatment_id": tid,
-            "treatment_name": (
-                svc.get("treatment_name") or svc.get("name") or "Unknown"
-            ),
-            "treatment_parent_id": svc.get("treatment_parent_id"),
-            "competitor_count": 0,
-            "avg_price_grosze": svc.get("price_grosze"),
-            "popularity_score": 1.0,
-            "sort_order": 0,
-        })
+        usp_candidates.append((tid, svc))
+
+    # Verify USP candidates by embedding similarity against every competitor
+    # service. Threshold 0.80 — same as pricing verification. False USPs
+    # (konkurent ma podobną usługę pod inną nazwą / tid) są dropowane, więc
+    # właściciel salonu nie zostanie błędnie zachęcony do marketingu fałszywej
+    # unikalności.
+    verified_usps: list[dict[str, Any]] = []
+    if usp_candidates:
+        # 1. Subject candidate embeddings
+        candidate_service_ids = [
+            int(svc["id"]) for _, svc in usp_candidates
+            if isinstance(svc.get("id"), (int, str))
+        ]
+        candidate_embeddings = await service.get_service_embeddings(
+            candidate_service_ids,
+        )
+
+        # 2. Competitor service embeddings — across all 5 competitors.
+        # Każdy może mieć 30-60 services, łącznie 150-300 embeddings.
+        competitor_service_ids: list[int] = []
+        competitor_service_meta: dict[int, dict[str, Any]] = {}
+        for cand, cdata in aligned_competitors:
+            comp_scrape = cdata.get("scrape") or {}
+            salon_name = comp_scrape.get("salon_name") or f"Salon #{cand.booksy_id}"
+            for csvc in (cdata.get("services") or []):
+                csvc_id = csvc.get("id")
+                if csvc_id is None or not csvc.get("is_active", True):
+                    continue
+                if not csvc.get("has_embedding"):
+                    continue
+                competitor_service_ids.append(int(csvc_id))
+                competitor_service_meta[int(csvc_id)] = {
+                    "name": csvc.get("name"),
+                    "salon_name": salon_name,
+                    "booksy_id": cand.booksy_id,
+                }
+        competitor_embeddings = await service.get_service_embeddings(
+            competitor_service_ids,
+        )
+
+        from services.pricing_verification import (
+            NAME_SIMILARITY_THRESHOLD,
+            compute_name_embedding_similarity,
+        )
+
+        dropped_pseudo = 0
+        for tid, svc in usp_candidates:
+            svc_id = svc.get("id")
+            cand_emb = candidate_embeddings.get(int(svc_id)) if svc_id is not None else None
+            if cand_emb is None:
+                # Bez embedding nie możemy zweryfikować → keep as USP
+                # (zachowawcza decyzja — można dyskutować).
+                verified_usps.append({
+                    "report_id": report_id,
+                    "gap_type": "unique_usp",
+                    "booksy_treatment_id": tid,
+                    "treatment_name": (
+                        svc.get("treatment_name") or svc.get("name") or "Unknown"
+                    ),
+                    "treatment_parent_id": svc.get("treatment_parent_id"),
+                    "competitor_count": 0,
+                    "avg_price_grosze": svc.get("price_grosze"),
+                    "popularity_score": 1.0,
+                    "sort_order": 0,
+                })
+                continue
+
+            # Find max similarity vs competitor services
+            max_sim = -1.0
+            max_match_meta: dict[str, Any] | None = None
+            for comp_id, comp_emb in competitor_embeddings.items():
+                sim = compute_name_embedding_similarity(cand_emb, comp_emb)
+                if sim is None:
+                    continue
+                if sim > max_sim:
+                    max_sim = sim
+                    max_match_meta = competitor_service_meta.get(comp_id)
+
+            if max_sim >= NAME_SIMILARITY_THRESHOLD:
+                # Pseudo-USP — konkurent ma similar service. Drop.
+                dropped_pseudo += 1
+                logger.info(
+                    "Dropped pseudo-USP (sim=%.3f >= %.2f): subject=%r → "
+                    "competitor=%r (%s, booksy_id=%s)",
+                    max_sim, NAME_SIMILARITY_THRESHOLD,
+                    (svc.get("name") or "")[:60],
+                    (max_match_meta or {}).get("name", "")[:60],
+                    (max_match_meta or {}).get("salon_name", "?"),
+                    (max_match_meta or {}).get("booksy_id", "?"),
+                )
+                continue
+
+            verified_usps.append({
+                "report_id": report_id,
+                "gap_type": "unique_usp",
+                "booksy_treatment_id": tid,
+                "treatment_name": (
+                    svc.get("treatment_name") or svc.get("name") or "Unknown"
+                ),
+                "treatment_parent_id": svc.get("treatment_parent_id"),
+                "competitor_count": 0,
+                "avg_price_grosze": svc.get("price_grosze"),
+                "popularity_score": 1.0,
+                "sort_order": 0,
+            })
+
+        if dropped_pseudo > 0:
+            logger.info(
+                "USP verification: dropped %d pseudo-USPs (similar to competitor "
+                "services under different names/tids) — keeps marketing honest",
+                dropped_pseudo,
+            )
+
     # Top 5 by price (higher-priced uniques are typically more valuable USPs)
-    unique_usps.sort(
+    verified_usps.sort(
         key=lambda r: -(r["avg_price_grosze"] or 0),
     )
-    unique_usps = unique_usps[:5]
-    for idx, row in enumerate(unique_usps):
+    verified_usps = verified_usps[:5]
+    for idx, row in enumerate(verified_usps):
         row["sort_order"] = idx
 
-    return missing + unique_usps
+    return missing + verified_usps
 
 
 # ---------------------------------------------------------------------------

@@ -69,26 +69,36 @@ logger = logging.getLogger("ingest_salon_jsons")
 # nightly cron stays as a CATCH-UP for legacy rows whose ingest predates
 # this feature (or for rows where the inline call failed).
 
-def _embed_service_names_sync(names: list[str]) -> list[list[float]] | None:
-    """Batch-embed service names via OpenAI text-embedding-3-small.
+def _embed_service_names_sync(rows: list[dict]) -> list[list[float]] | None:
+    """Batch-embed services via OpenAI text-embedding-3-small.
 
-    Returns one vector per input name. Returns None on any failure
-    (missing key, network blip, quota) — caller falls through to a
-    bare INSERT and the nightly cron picks up the work.
+    Each row is `{"name": str, "description": str | None}`. Input do
+    embedding to "name. description"[:1500] — opis dodaje kontekst
+    branżowy (np. "Onda 4 zabiegi" + "modelowanie sylwetki Coolwaves")
+    który radykalnie poprawia variant matching dla custom brand names.
+
+    Returns one vector per input row. Returns None on any failure.
     """
     if not os.getenv("OPENAI_API_KEY"):
         return None
-    if not names:
+    if not rows:
         return None
     try:
         from openai import OpenAI
         client = OpenAI()
-        # Cap to 512 chars per name to keep token usage predictable on
-        # accidental garbage data.
-        sanitized = [(n or "").strip()[:512] for n in names]
+        # Compose name + description with hard 1500-char cap. text-embedding-
+        # 3-small bierze do 8K tokenów, 1500 znaków to ~400 tokenów —
+        # przewidywalny rozmiar, bogaty kontekst.
+        def _compose(r: dict) -> str:
+            name = (r.get("name") or "").strip()
+            desc = (r.get("description") or "").strip()
+            if not desc:
+                return name[:1500]
+            return f"{name}. {desc}"[:1500]
+        inputs = [_compose(r) for r in rows]
         resp = client.embeddings.create(
             model="text-embedding-3-small",
-            input=sanitized,
+            input=inputs,
         )
         return [list(d.embedding) for d in resp.data]
     except Exception as e:  # noqa: BLE001
@@ -864,8 +874,11 @@ class SalonJsonIngester:
         # the nightly cron. Non-fatal: on failure we leave name_embedding
         # NULL and the catch-up cron picks it up at 03:15 UTC.
         try:
-            names = [(r.get("name") or "") for r in inserted_rows]
-            embeddings = _embed_service_names_sync(names)
+            embed_inputs = [
+                {"name": r.get("name") or "", "description": r.get("description") or ""}
+                for r in inserted_rows
+            ]
+            embeddings = _embed_service_names_sync(embed_inputs)
             if embeddings is not None and len(embeddings) == len(inserted_rows):
                 payload = [
                     {"id": int(row["id"]), "embedding": emb}

@@ -25,19 +25,49 @@ from services.sb_client import make_supabase_client
 
 
 BATCH_FETCH = 5000   # rows pulled from DB per round
-BATCH_EMBED = 500    # names per OpenAI request (max 2048)
+BATCH_EMBED = 500    # rows per OpenAI request (max 2048)
 PARALLELISM = 6      # concurrent OpenAI requests
+
+# Rich embedding cap — text-embedding-3-small handles up to ~8K tokens.
+# Empirycznie: name ~30-100 znaków, description ~800-2500 dla rozbudowanych
+# katalogów (Beauty4ever ma opisy 989-2537 zn.). Cap 1500 znaków łącznie
+# daje embedding bogaty w kontekst (brand+procedura+technologia) ale
+# trzyma latency przewidywalne.
+INPUT_CHAR_CAP = 1500
+
+
+def _build_input(row: dict) -> str:
+    """Compose embedding input from name + description.
+
+    Wcześniej embed brał tylko name. Dla salonów które mają custom branded
+    services (Plexr, Thunder, Onda, Light&Bright, EMBODY, X-Wave, DR CYJ,
+    Red Touch — Beauty4ever ma ich kilkadziesiąt), name jest niejasny
+    ("Onda 4 zabiegi"), a opis explicite mówi co to za zabieg
+    ("Onda – modelowanie sylwetki za pomocą technologii Coolwaves").
+    Włączenie description w embedding sprawia że matching variant
+    clustering / opportunity overlap działa też dla custom names —
+    "Thunder Całe ciało" zostanie z embedding podobny do "Depilacja
+    laserowa całe ciało" u konkurenta.
+    """
+    name = (row.get("name") or "").strip()
+    desc = (row.get("description") or "").strip()
+    if not desc:
+        return name[:INPUT_CHAR_CAP]
+    # Name+description z separatorem; obcięcie do INPUT_CHAR_CAP zostawia
+    # priorytet dla name (jest first), opis dopełnia kontekst.
+    combined = f"{name}. {desc}"
+    return combined[:INPUT_CHAR_CAP]
 
 
 def embed_chunk(oai: OpenAI, rows: list[dict]) -> list[dict]:
-    names = [r["name"].strip()[:512] for r in rows]
+    inputs = [_build_input(r) for r in rows]
     try:
-        resp = oai.embeddings.create(model="text-embedding-3-small", input=names)
+        resp = oai.embeddings.create(model="text-embedding-3-small", input=inputs)
     except Exception as e:
         # One retry after brief sleep — typical rate-limit relief
         print(f"  OpenAI error: {e}; retry after 3s", flush=True)
         time.sleep(3)
-        resp = oai.embeddings.create(model="text-embedding-3-small", input=names)
+        resp = oai.embeddings.create(model="text-embedding-3-small", input=inputs)
     return [
         {"id": r["id"], "embedding": list(ed.embedding)}
         for r, ed in zip(rows, resp.data)
@@ -55,7 +85,7 @@ def main() -> int:
     while True:
         rows = (
             client.table("salon_scrape_services")
-            .select("id,name")
+            .select("id,name,description")
             .is_("embedding_applied_at", "null")
             .not_.is_("name", "null")
             .order("id")
