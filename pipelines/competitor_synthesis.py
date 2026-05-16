@@ -981,6 +981,47 @@ _BUCKET_FALLBACK = "cluster"
 _DEFAULT_OVERLAP = 0.5
 
 
+_UI_TOP_COUNT = 5
+_UI_TOP_BUCKETS = {"direct", "cluster"}
+
+
+def _reorder_matches_for_ui(
+    matches: list[dict[str, Any]],
+) -> list[dict[str, Any]]:
+    """Reorder matches so the first 5 are the geographically closest
+    direct/cluster competitors (UI shows them as "moi sąsiedzi"), while
+    the rest preserves the composite_score ordering produced by the
+    selection layer (used for aggregates, radars, score breakdowns).
+
+    Rationale: composite_score_v2 (focus_tid_sim + portfolio + reviews + soft
+    geo penalty ≥5km) puts highest-similarity peers first regardless of how
+    close they are. The user-facing top 5 should answer "who's competing
+    with me for walk-ins" — a distance question — not "who's most
+    semantically aligned". This helper splits the two axes.
+
+    Edge cases:
+      - matches has fewer than 5 direct/cluster rows → take all available,
+        fill the remaining slots from the rest in original order.
+      - distance_km is None → treated as +∞ (sorted last among neighbours).
+      - Stable sort preserves composite_score order on ties.
+    """
+    if not matches:
+        return matches
+
+    def _dist(m: dict[str, Any]) -> float:
+        d = m.get("distance_km")
+        return float(d) if d is not None else float("inf")
+
+    neighbours = sorted(
+        (m for m in matches if m.get("bucket") in _UI_TOP_BUCKETS),
+        key=_dist,
+    )
+    top = neighbours[:_UI_TOP_COUNT]
+    top_marker = {id(m) for m in top}
+    rest = [m for m in matches if id(m) not in top_marker]
+    return top + rest
+
+
 def _build_competitor_profiles(
     matches: list[dict[str, Any]],
 ) -> list[dict[str, Any]]:
@@ -997,13 +1038,21 @@ def _build_competitor_profiles(
       id, name, city, distance_km, composite_score, bucket, reviews_rank,
       reviews_count, salon_id, booksy_id.
 
+    Front-end takes competitors.slice(0, 5) for the visible list (see
+    components/results/competitor/rich/booksy.tsx). To make those 5 reflect
+    the closest direct/cluster neighbours rather than the highest-scoring
+    semantic peers, we reorder the input matches via
+    _reorder_matches_for_ui() before mapping. Aggregates that consume the
+    full list (radar, gaps, score breakdown) get the full pool unchanged.
+
     The React adapter has a fallback for lat/lng (Warsaw default) when those
     are missing, so we don't fetch them here — keeps this helper pure and
     cheap. Future enrichment (lat/lng/top_services/working_hours) should go
     through a separate Supabase batch fetch in the synthesis pipeline.
     """
+    ordered_matches = _reorder_matches_for_ui(matches)
     profiles: list[dict[str, Any]] = []
-    for idx, m in enumerate(matches):
+    for idx, m in enumerate(ordered_matches):
         salon_id = m.get("competitor_salon_id")
         booksy_id = m.get("booksy_id")
         if salon_id is None and booksy_id is None:
