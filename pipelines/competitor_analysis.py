@@ -1087,6 +1087,23 @@ def _detect_hidden_services(
     Returns list of {service_id, name, description, matched_keyword,
     suggested_prefix, price_grosze} sorted by price desc.
     """
+    # Service names that look like consultations / packages / etc. — exclude
+    # od hidden services, bo to NIE są zabiegi do których klient szuka
+    # generic procedure ("konsultacja", "voucher").
+    _EXCLUDE_NAME_PREFIXES = (
+        "konsultacja", "konsultacje",
+        "voucher", "bon ", "karta podarunkowa", "kart prezent",
+        "pakiet ", "abonament", "karnet",
+    )
+
+    # Counter-keywords — gdy występują w opisie BLISKO matched_keyword
+    # (w pierwszych 300 chars), traktuj match jako fałszywy. Empirycznie
+    # (Beauty4ever Red Touch): opis ma „świetnie nadaje się do
+    # poprawiania wypełniaczy" → matchował "wypełniacz" mimo że to laser
+    # fractional. Counter-keyword "laser" w pierwszej linii unieważnia
+    # mniej specyficzny match.
+    _LASER_DEVICE_HINTS = ("laser", "fractional", "frakcyjny", "diodow", "nd:yag")
+
     out: list[dict[str, Any]] = []
     for svc in services:
         if not svc.get("is_active", True):
@@ -1096,7 +1113,12 @@ def _detect_hidden_services(
         if not name or len(desc) < 60:
             continue
 
+        # FIX 2: Wyklucz konsultacje / vouchery / pakiety — to nie są
+        # zabiegi z procedury do której pasuje generic keyword.
         name_lower = name.lower()
+        if any(name_lower.startswith(p) for p in _EXCLUDE_NAME_PREFIXES):
+            continue
+
         desc_lower = desc.lower()
 
         # Sprawdź czy NAME nie ma żadnego generic keyword
@@ -1104,28 +1126,52 @@ def _detect_hidden_services(
         if name_has_keyword:
             continue
 
-        # Sprawdź czy DESCRIPTION ma jakikolwiek generic keyword
-        matched_keyword = None
+        # Find ALL matching keywords w description (zbieramy wszystkie żeby
+        # wybrać najbardziej discriminative — pierwszy w mappingu, czyli
+        # najspecyficzniejszy. Plus context-aware adjustment niżej.)
+        matches_with_pos: list[tuple[str, int]] = []
         for kw in _GENERIC_PROCEDURE_KEYWORDS:
-            if kw in desc_lower:
-                matched_keyword = kw
-                break
-        if not matched_keyword:
+            pos = desc_lower.find(kw)
+            if pos >= 0:
+                matches_with_pos.append((kw, pos))
+        if not matches_with_pos:
             continue
 
-        # Deterministyczny suggested_prefix z mappingu keyword → readable.
-        # Wcześniej próba ekstrakcji z opisu dawała poszarpane prefiksy
-        # ("Depilacj", "ONDA – precyzyjne modelowanie sylwetki za pomocą t",
-        # "Innowacyjny laser Red Touch firmy Deka to przełom") — heurystyka
-        # po split znakach była zawodna.
-        suggested_prefix = _suggested_prefix_for_keyword(matched_keyword)
+        # FIX 1: Context-aware match selection. Jeśli pierwsze 300 znaków
+        # opisu zawierają hint na laser device (laser/fractional/diodowy/...)
+        # ale chosen keyword to "wypełniacz"/"botoks"/inny non-laser, to
+        # prefer match "laser" (catch-all) zamiast misleading procedure.
+        # Empirycznie Red Touch: pierwsze 100 chars to "Innowacyjny laser
+        # Red Touch firmy Deka to przełom w nieinwazyjnym odmładzaniu skóry"
+        # → "laser" wins, nie "wypełniacz" który występuje gdzieś dalej.
+        prefix_text = desc_lower[:300]
+        has_laser_hint = any(h in prefix_text for h in _LASER_DEVICE_HINTS)
+
+        # Choose match: keyword z najwcześniejszym position w opisie wygrywa
+        # (najbardziej salient signal). Z laser hint w prefiksie i jeśli
+        # "laser" jest jednym z matches, wybierz "laser".
+        chosen_keyword: str
+        if has_laser_hint and any(kw == "laser" for kw, _ in matches_with_pos):
+            chosen_keyword = "laser"
+        else:
+            # Najwcześniejszy match w opisie
+            matches_with_pos.sort(key=lambda x: x[1])
+            chosen_keyword = matches_with_pos[0][0]
+
+        suggested_prefix = _suggested_prefix_for_keyword(chosen_keyword)
+
+        # FIX 3: skróć powtórzenia — jeśli sugerowany prefix duplikuje słowo
+        # w aktualnej nazwie (np. "Depilacja Thunder - Depilacja całe ciało"),
+        # zostaw tylko prefix + slug usługi. Plus skróć powtórzenia długich
+        # fraz dla czytelności.
+        suggested_name = _compose_suggested_name(suggested_prefix, name)
 
         out.append({
             "service_id": svc.get("id"),
             "name": name,
-            "matched_keyword": matched_keyword,
+            "matched_keyword": chosen_keyword,
             "suggested_prefix": suggested_prefix,
-            "suggested_name": f"{suggested_prefix} {name}".strip(),
+            "suggested_name": suggested_name,
             "price_grosze": svc.get("price_grosze"),
             "description_preview": desc[:200],
         })
@@ -1133,6 +1179,30 @@ def _detect_hidden_services(
     # Sort by price desc — drogie ukryte usługi to większa strata
     out.sort(key=lambda x: -(x.get("price_grosze") or 0))
     return out
+
+
+def _compose_suggested_name(prefix: str, current_name: str) -> str:
+    """Compose human-readable suggested name from prefix + current name.
+
+    Avoid duplicate words (e.g. "Depilacja Depilacja Thunder"). Trim
+    leading symbols (✦, ⭕) from current_name so they don't pollute
+    the new suggestion.
+    """
+    # Strip leading non-word symbols + spaces from current name
+    cleaned = current_name.lstrip("✦⭕🔲💎⭐•· -*").strip()
+    # Drop hyphen-prefixed leading separators
+    if cleaned.startswith("- "):
+        cleaned = cleaned[2:].strip()
+
+    # Avoid duplicate first word: if cleaned starts with the same word as prefix,
+    # don't double it. E.g. prefix="Depilacja" + cleaned="Depilacja laserowa..."
+    # → return cleaned ("Depilacja laserowa..." — opis salonu).
+    prefix_first_word = prefix.split()[0].lower() if prefix else ""
+    cleaned_first_word = cleaned.split()[0].lower() if cleaned else ""
+    if prefix_first_word and prefix_first_word == cleaned_first_word:
+        return cleaned
+
+    return f"{prefix} {cleaned}".strip()
 
 
 def _build_active_promotions(
