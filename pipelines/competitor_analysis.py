@@ -2448,7 +2448,22 @@ async def _apply_llm_taxonomy_to_null_tid_services(
         if inferred_tid is None or confidence < min_confidence:
             continue
         svc = services[idx]
-        # Zachowaj oryginalne wartości dla audytu.
+        # Preserve original BEFORE override using the `_raw` convention
+        # established by services/taxonomy_inference.py:303. Downstream
+        # readers in this file (lines 488, 1108, 1128, 1419, 1434) use
+        # `svc.get("booksy_treatment_id_raw") or svc.get("booksy_treatment_id")`
+        # so writing the original here ensures the ORIGINAL tid wins for
+        # services that already had a native tid (currently this function
+        # targets NULL-tid services so original is None — but the contract
+        # has to be consistent across both inference paths to stop the
+        # quiet drift that produced phantom-row bugs like the
+        # Beauty4ever / Tlenoterapia incident, 2026-05-16).
+        if "booksy_treatment_id_raw" not in svc:
+            svc["booksy_treatment_id_raw"] = svc.get("booksy_treatment_id")
+        # Legacy `_original` fields — set but never read anywhere in the
+        # repo (audit grep 2026-05-16). Keep them populated as a
+        # defensive null-op so any future consumer that picked the old
+        # name still gets the value; new code MUST use `_raw`.
         svc["booksy_treatment_id_original"] = svc.get("booksy_treatment_id")
         svc["treatment_name_original"] = svc.get("treatment_name")
         # Override tid + canonical name (po to żeby downstream pipeline
