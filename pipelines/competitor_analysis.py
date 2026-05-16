@@ -42,8 +42,15 @@ from services.pricing_verification import (
     should_drop_from_display,
     verify_pricing_comparison,
 )
+from services.hidden_service_inference import (
+    DEFAULT_MIN_CONFIDENCE as HIDDEN_MIN_CONFIDENCE,
+    infer_hidden_services_batch,
+)
+from services.minimax import MiniMaxClient
 from services.supabase import SupabaseService
 from services.taxonomy_inference import infer_and_apply
+
+from config import settings
 
 logger = logging.getLogger(__name__)
 
@@ -244,6 +251,29 @@ async def compute_competitor_analysis(
             "generic procedure in title — invisible to Booksy search)",
             len(hidden_services),
         )
+        # Enrich z taxonomy LLM inference — sugerujemy realną kategorię
+        # Booksy zamiast wyniku keyword mapping. POC pokazał: Thunder →
+        # "Depilacja ciała" (LLM 0.95), Light&Bright → "Fotoodmładzanie"
+        # (LLM 0.88), Modelka-ONDA → "Zabiegi na ciało i modelowanie
+        # sylwetki" (LLM 0.95). Keyword mapping nadal jest fallback'iem
+        # gdy LLM zwróci unfixable.
+        try:
+            hidden_services = await _enhance_hidden_services_with_inference(
+                hidden_services, service,
+            )
+            llm_count = sum(
+                1 for h in hidden_services if h.get("inference_method") == "llm"
+            )
+            logger.info(
+                "Etap 4: LLM inference applied to %d/%d hidden services",
+                llm_count, len(hidden_services),
+            )
+        except Exception as exc:
+            logger.warning(
+                "Etap 4: hidden services LLM inference failed (%s) — "
+                "falling back to keyword mapping for all",
+                exc,
+            )
 
     # ── Step 7: Extract active promotions ──
     await progress(85, "Ekstrakcja aktywnych promocji...")
@@ -1137,11 +1167,15 @@ def _detect_hidden_services(
         if not matches_with_pos:
             continue
 
-        # Najpierw: choose by position w opisie — pierwszy match = najbardziej
-        # salient signal. Specyficzne keywords ("depilacja laserowa",
-        # "mezoterapia mikroigłowa", "ipl") wygrywają z general ("laser")
-        # gdy oba pojawiają się — bo pierwszy w mappingu jest specific.
-        matches_with_pos.sort(key=lambda x: x[1])
+        # Choose by mapping order (specificity), nie po position w opisie.
+        # _PROCEDURE_KEYWORD_MAPPING jest posortowane od najspecyficzniejszego
+        # ("depilacja laserowa") do ogólnego ("laser"). Empirycznie Thunder:
+        # opis zaczyna się "⭕Laser Thunder to najmocniejsza..." więc "laser"
+        # ma najwcześniejszą position, ALE w opisie też jest "depilacji
+        # laserowej" / "depilacja". Position-based wygrywało "laser",
+        # mapping-order wygrywa "depilacj" → suggested "Depilacja Thunder...".
+        kw_rank = {kw: idx for idx, kw in enumerate(_GENERIC_PROCEDURE_KEYWORDS)}
+        matches_with_pos.sort(key=lambda x: kw_rank.get(x[0], 9999))
         chosen_keyword = matches_with_pos[0][0]
 
         # FIX 1: Context-aware override TYLKO dla mylących non-laser
@@ -1190,6 +1224,153 @@ def _detect_hidden_services(
     # Sort by price desc — drogie ukryte usługi to większa strata
     out.sort(key=lambda x: -(x.get("price_grosze") or 0))
     return out
+
+
+# Lazy-init MiniMax client. Reused across multiple pipeline runs in the
+# same process. None if MINIMAX_API_KEY not configured (graceful fallback).
+_HIDDEN_LLM_CLIENT: MiniMaxClient | None = None
+_HIDDEN_LLM_TRIED = False
+
+
+def _get_hidden_inference_llm() -> MiniMaxClient | None:
+    global _HIDDEN_LLM_CLIENT, _HIDDEN_LLM_TRIED
+    if _HIDDEN_LLM_TRIED:
+        return _HIDDEN_LLM_CLIENT
+    _HIDDEN_LLM_TRIED = True
+    if not settings.minimax_api_key:
+        logger.info(
+            "hidden_service_inference: MINIMAX_API_KEY not set — "
+            "fallback to keyword mapping",
+        )
+        return None
+    try:
+        _HIDDEN_LLM_CLIENT = MiniMaxClient(
+            api_key=settings.minimax_api_key,
+            base_url=settings.minimax_base_url,
+            model=settings.minimax_model,
+        )
+    except Exception as e:
+        logger.warning(
+            "hidden_service_inference: failed to init MiniMax client (%s) — "
+            "fallback to keyword mapping",
+            e,
+        )
+        _HIDDEN_LLM_CLIENT = None
+    return _HIDDEN_LLM_CLIENT
+
+
+async def _enhance_hidden_services_with_inference(
+    hidden_services: list[dict[str, Any]],
+    supabase: SupabaseService,
+) -> list[dict[str, Any]]:
+    """For each detected hidden service, run embedding+LLM taxonomy
+    inference and override the keyword-derived suggested prefix/name
+    with the inferred canonical Booksy category — IF the inference
+    method is 'llm' or 'embedding' with confidence >= threshold.
+
+    Mutates each hidden_service dict in-place adding:
+      - `inference_method`: 'llm' | 'embedding' | 'rule' | 'unfixable'
+      - `inference_confidence`: float 0-1 (None for rule fallback)
+      - `inference_reasoning`: str
+      - `inferred_tid`: int | None
+      - `parent_category`: str | None
+
+    Falls back to the existing keyword-derived values when inference
+    returns 'unfixable' or unavailable (no MiniMax key / RPC failure).
+    """
+    if not hidden_services:
+        return hidden_services
+
+    llm = _get_hidden_inference_llm()
+
+    # 1. Batch-load name_embedding for all candidate service ids.
+    service_ids = [
+        int(h["service_id"]) for h in hidden_services
+        if h.get("service_id") is not None
+    ]
+    if not service_ids:
+        # No service ids — can't load embeddings. Mark all as 'rule' fallback.
+        for h in hidden_services:
+            h.setdefault("inference_method", "rule")
+            h.setdefault("inference_confidence", None)
+            h.setdefault("inference_reasoning", "Brak service_id — keyword fallback")
+            h.setdefault("inferred_tid", None)
+            h.setdefault("parent_category", None)
+        return hidden_services
+
+    try:
+        emb_map = await supabase.get_service_embeddings(service_ids)
+    except Exception as e:
+        logger.warning(
+            "hidden_service_inference: get_service_embeddings failed (%s) — "
+            "marking all as rule fallback",
+            e,
+        )
+        emb_map = {}
+
+    # 2. Build candidate inputs for inference. Each needs name, description,
+    #    name_embedding.
+    candidates_for_inference: list[tuple[int, dict[str, Any]]] = []
+    for idx, h in enumerate(hidden_services):
+        sid = h.get("service_id")
+        if sid is None:
+            continue
+        emb = emb_map.get(int(sid))
+        if not emb:
+            continue
+        candidates_for_inference.append((idx, {
+            "name": h.get("name") or "",
+            "description": h.get("description_preview") or "",
+            "name_embedding": emb,
+        }))
+
+    # 3. Run inference in parallel (semaphore=4 in batch util — gentle on LLM).
+    results: list[dict[str, Any]] = []
+    if candidates_for_inference and llm is not None:
+        results = await infer_hidden_services_batch(
+            [c[1] for c in candidates_for_inference],
+            supabase,
+            llm,
+            min_confidence=HIDDEN_MIN_CONFIDENCE,
+        )
+
+    # 4. Apply results — override suggested_prefix / suggested_name where
+    #    inference succeeded; otherwise keep keyword fallback that already
+    #    sits in hidden_services entries.
+    result_iter = iter(results) if results else iter(())
+    for idx, _ in candidates_for_inference:
+        try:
+            res = next(result_iter)
+        except StopIteration:
+            break
+        h = hidden_services[idx]
+        method = res.get("method")
+        if method in ("llm", "embedding") and res.get("inferred_canonical_name"):
+            prefix = res["inferred_canonical_name"]
+            h["suggested_prefix"] = prefix
+            h["suggested_name"] = _compose_suggested_name(prefix, h.get("name") or "")
+            h["inference_method"] = method
+            h["inference_confidence"] = res.get("confidence")
+            h["inference_reasoning"] = res.get("reasoning")
+            h["inferred_tid"] = res.get("inferred_tid")
+            h["parent_category"] = res.get("inferred_parent_name")
+        else:
+            # Unfixable — keep keyword-derived prefix/name, but mark explicitly.
+            h["inference_method"] = "rule"
+            h["inference_confidence"] = None
+            h["inference_reasoning"] = res.get("reasoning") or "LLM unfixable, użyto keyword fallback"
+            h["inferred_tid"] = None
+            h["parent_category"] = None
+
+    # Ensure all hidden services have the inference fields, even if not run.
+    for h in hidden_services:
+        h.setdefault("inference_method", "rule")
+        h.setdefault("inference_confidence", None)
+        h.setdefault("inference_reasoning", "")
+        h.setdefault("inferred_tid", None)
+        h.setdefault("parent_category", None)
+
+    return hidden_services
 
 
 def _compose_suggested_name(prefix: str, current_name: str) -> str:
