@@ -44,9 +44,9 @@ from services.pricing_verification import (
 )
 from services.hidden_service_inference import (
     DEFAULT_MIN_CONFIDENCE as HIDDEN_MIN_CONFIDENCE,
+    GeminiLLMClient,
     infer_hidden_services_batch,
 )
-from services.minimax import MiniMaxClient
 from services.supabase import SupabaseService
 from services.taxonomy_inference import infer_and_apply
 
@@ -1226,36 +1226,68 @@ def _detect_hidden_services(
     return out
 
 
-# Lazy-init MiniMax client. Reused across multiple pipeline runs in the
-# same process. None if MINIMAX_API_KEY not configured (graceful fallback).
-_HIDDEN_LLM_CLIENT: MiniMaxClient | None = None
+# Lazy-init Gemini Flash client (OpenAI-compat endpoint). Gemini Flash 2.0
+# jest preferowany nad MiniMax M2.7 dla taxonomy disambiguation:
+#   - szybszy (~500ms vs ~5-15s na MiniMax thinking)
+#   - tańszy (~10x niższy koszt input/output)
+#   - deterministyczny JSON output (response_format=json_object) — bez
+#     thinking blocks zżerających token budget
+# Lazy + cached na proces. None gdy GEMINI_API_KEY niepełny (graceful fallback).
+_HIDDEN_LLM_CLIENT: GeminiLLMClient | None = None
 _HIDDEN_LLM_TRIED = False
 
 
-def _get_hidden_inference_llm() -> MiniMaxClient | None:
+def _get_hidden_inference_llm() -> GeminiLLMClient | None:
+    """Lazy-init LLM client dla taxonomy disambiguation. Preferuje OpenAI
+    (paid, reliable, JSON output), fallback do Gemini (jeśli paid key
+    będzie dostępny w przyszłości). None jeśli żaden klucz."""
     global _HIDDEN_LLM_CLIENT, _HIDDEN_LLM_TRIED
     if _HIDDEN_LLM_TRIED:
         return _HIDDEN_LLM_CLIENT
     _HIDDEN_LLM_TRIED = True
-    if not settings.minimax_api_key:
-        logger.info(
-            "hidden_service_inference: MINIMAX_API_KEY not set — "
-            "fallback to keyword mapping",
-        )
-        return None
-    try:
-        _HIDDEN_LLM_CLIENT = MiniMaxClient(
-            api_key=settings.minimax_api_key,
-            base_url=settings.minimax_base_url,
-            model=settings.minimax_model,
-        )
-    except Exception as e:
-        logger.warning(
-            "hidden_service_inference: failed to init MiniMax client (%s) — "
-            "fallback to keyword mapping",
-            e,
-        )
-        _HIDDEN_LLM_CLIENT = None
+
+    # Preferowana ścieżka: OpenAI gpt-4o-mini (paid, reliable JSON output).
+    import os
+    openai_key = os.environ.get("OPENAI_API_KEY", "")
+    if openai_key:
+        try:
+            _HIDDEN_LLM_CLIENT = GeminiLLMClient(
+                api_key=openai_key, model="gpt-4o-mini", provider="openai",
+            )
+            logger.info(
+                "hidden_service_inference: using OpenAI gpt-4o-mini",
+            )
+            return _HIDDEN_LLM_CLIENT
+        except Exception as e:
+            logger.warning(
+                "hidden_service_inference: failed to init OpenAI client (%s)",
+                e,
+            )
+
+    # Fallback: Gemini Flash via OpenAI-compat endpoint (jeśli paid key
+    # będzie kiedyś dostępny — obecnie free tier ma limit 0).
+    if settings.gemini_api_key:
+        try:
+            _HIDDEN_LLM_CLIENT = GeminiLLMClient(
+                api_key=settings.gemini_api_key,
+                model="gemini-2.0-flash",
+                provider="gemini",
+            )
+            logger.info(
+                "hidden_service_inference: using Gemini Flash 2.0",
+            )
+            return _HIDDEN_LLM_CLIENT
+        except Exception as e:
+            logger.warning(
+                "hidden_service_inference: failed to init Gemini client (%s)",
+                e,
+            )
+
+    logger.info(
+        "hidden_service_inference: no LLM key configured — "
+        "fallback to keyword mapping",
+    )
+    _HIDDEN_LLM_CLIENT = None
     return _HIDDEN_LLM_CLIENT
 
 

@@ -21,8 +21,10 @@ from dotenv import load_dotenv
 load_dotenv()
 
 from config import settings
-from services.hidden_service_inference import infer_hidden_service_taxonomy
-from services.minimax import MiniMaxClient
+from services.hidden_service_inference import (
+    GeminiLLMClient,
+    infer_hidden_service_taxonomy,
+)
 from services.supabase import SupabaseService
 
 
@@ -42,16 +44,13 @@ async def main() -> int:
     if not settings.supabase_url or not settings.supabase_service_key:
         print("Missing SUPABASE_URL / SUPABASE_SERVICE_KEY", file=sys.stderr)
         return 1
-    if not settings.minimax_api_key:
-        print("Missing MINIMAX_API_KEY", file=sys.stderr)
+    openai_key = os.environ.get("OPENAI_API_KEY", "")
+    if not openai_key:
+        print("Missing OPENAI_API_KEY", file=sys.stderr)
         return 1
 
     supabase = SupabaseService()
-    llm = MiniMaxClient(
-        api_key=settings.minimax_api_key,
-        base_url=settings.minimax_base_url,
-        model=settings.minimax_model,
-    )
+    llm = GeminiLLMClient(api_key=openai_key, model="gpt-4o-mini", provider="openai")
 
     # Fetch the test services with their embeddings
     def _fetch() -> list[dict]:

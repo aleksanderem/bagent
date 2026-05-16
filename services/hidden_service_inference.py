@@ -36,10 +36,12 @@ Wyjście: dict z `inferred_tid`, `inferred_canonical_name`,
 from __future__ import annotations
 
 import asyncio
+import json
 import logging
+import re
 from typing import Any
 
-from services.minimax import MiniMaxClient, with_retry
+from services.minimax import with_retry  # exception-class-aware retry helper
 from services.supabase import SupabaseService
 
 logger = logging.getLogger(__name__)
@@ -60,6 +62,62 @@ EMBEDDING_FALLBACK_MAX_CONFIDENCE = 0.5
 #   (POC: Thunder → "Depilacja ciała" na pozycji 22)
 # - Więcej (np. 50) → token bloat dla LLM bez gain'u
 DEFAULT_TOP_K = 30
+
+
+class GeminiLLMClient:
+    """Thin async wrapper. Mimo nazwy: domyślnie używa OpenAI gpt-4o-mini
+    (a Gemini Flash via OpenAI-compat endpoint jako opcja gdy będziemy mieli
+    paid Gemini key). Oba używają OpenAI SDK + response_format=json_object
+    co eliminuje markdown wrapping + thinking blocks.
+
+    Koszt OpenAI gpt-4o-mini ($0.15/$0.60 per 1M tok in/out) ~ $0.0002 per
+    hidden service. Dla 79.90 PLN audytu z 7.4 avg hidden services = $0.0015
+    per audyt — trywialnie.
+    """
+
+    DEFAULT_PROVIDER = "openai"  # 'openai' | 'gemini'
+
+    def __init__(
+        self,
+        api_key: str,
+        model: str = "gpt-4o-mini",
+        provider: str | None = None,
+    ) -> None:
+        from openai import AsyncOpenAI
+        prov = (provider or self.DEFAULT_PROVIDER).lower()
+        if prov == "gemini":
+            base_url = "https://generativelanguage.googleapis.com/v1beta/openai/"
+        else:
+            base_url = None  # OpenAI default
+        self._client = AsyncOpenAI(api_key=api_key, base_url=base_url)
+        self.model = model
+        self.provider = prov
+
+    async def generate_json(self, prompt: str, system: str, max_tokens: int = 512) -> dict[str, Any]:
+        resp = await self._client.chat.completions.create(
+            model=self.model,
+            messages=[
+                {"role": "system", "content": system},
+                {"role": "user", "content": prompt},
+            ],
+            response_format={"type": "json_object"},
+            temperature=0.1,
+            max_tokens=max_tokens,
+        )
+        content = (resp.choices[0].message.content or "").strip()
+        if not content:
+            raise ValueError(f"{self.provider} returned empty content")
+        # Defensive: strip markdown fence if model adds it despite response_format.
+        if content.startswith("```"):
+            m = re.search(r"```(?:json)?\s*([\s\S]*?)```", content)
+            if m:
+                content = m.group(1).strip()
+        try:
+            return json.loads(content)
+        except json.JSONDecodeError as e:
+            raise ValueError(
+                f"Invalid JSON from {self.provider}: {content[:200]}"
+            ) from e
 
 
 _SYSTEM_PROMPT = """Jesteś ekspertem od taksonomii Booksy.pl. Kategoryzujesz usługi beauty/wellness.
@@ -167,7 +225,7 @@ def _embedding_fallback(
 async def infer_hidden_service_taxonomy(
     service: dict[str, Any],
     supabase: SupabaseService,
-    llm: MiniMaxClient | None,
+    llm: GeminiLLMClient | None,
     *,
     top_k: int = DEFAULT_TOP_K,
     min_confidence: float = DEFAULT_MIN_CONFIDENCE,
@@ -204,11 +262,8 @@ async def infer_hidden_service_taxonomy(
     user_prompt = _build_user_prompt(name, description, candidates)
     try:
         async def _llm_call() -> dict[str, Any]:
-            # MiniMax M2.7 jest thinking model — wewnętrzny "thinking block"
-            # zjada sporo tokenów zanim model wyemituje JSON. 4096 daje
-            # margines (empirycznie ~3-4k tokens thinking + krótki JSON).
             return await llm.generate_json(
-                user_prompt, system=_SYSTEM_PROMPT, max_tokens=4096
+                user_prompt, system=_SYSTEM_PROMPT, max_tokens=512
             )
         result = await with_retry(_llm_call, max_attempts=2, base_delay=1.0)
     except Exception as e:
@@ -267,7 +322,7 @@ async def infer_hidden_service_taxonomy(
 async def infer_hidden_services_batch(
     services: list[dict[str, Any]],
     supabase: SupabaseService,
-    llm: MiniMaxClient | None,
+    llm: GeminiLLMClient | None,
     *,
     concurrency: int = 4,
     top_k: int = DEFAULT_TOP_K,
