@@ -1073,6 +1073,19 @@ def _build_price_comparison(
             "verification_status": p.get("verification_status") or "verified",
             "verification_details": p.get("verification_details"),
             "competitor_samples": p.get("competitor_samples") or [],
+            # Mig 068/072 — comparison tier + PLN/min + sub-variant cluster.
+            # Adapter (mapPricingFromBagent) używa tych pól bezpośrednio
+            # gdy report_data.priceComparison jest source (snapshot path).
+            "comparison_tier": p.get("comparison_tier"),
+            "sub_variant_group_id": p.get("sub_variant_group_id"),
+            "sub_variant_label": p.get("sub_variant_label"),
+            "subject_price_per_min_grosze": p.get("subject_price_per_min_grosze"),
+            "market_price_per_min_grosze_min": p.get("market_price_per_min_grosze_min"),
+            "market_price_per_min_grosze_p25": p.get("market_price_per_min_grosze_p25"),
+            "market_price_per_min_grosze_median": p.get("market_price_per_min_grosze_median"),
+            "market_price_per_min_grosze_p75": p.get("market_price_per_min_grosze_p75"),
+            "market_price_per_min_grosze_max": p.get("market_price_per_min_grosze_max"),
+            "deviation_pct_per_min": p.get("deviation_pct_per_min"),
         })
     rows.sort(
         key=lambda r: abs(float(r.get("deviation_pct") or 0)),
