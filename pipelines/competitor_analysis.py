@@ -619,16 +619,28 @@ async def _compute_pricing_comparisons(
     for variant_key, subject_svc in subject_svcs.items():
         tid, variant_id = variant_key
         samples = competitor_samples_by_variant.get(variant_key, [])
-        # User feedback: \"tutaj powinno być maksymalnie dużo nakładających
-        # się + kreski jeśli nie ma\". Zostawiamy gate ≥ 1 (jest jakaś
-        # baza porównawcza), ale akceptujemy single-sample rows — mediana
-        # = ta jedna cena, deviation realny, UI pokazuje sample=1 jako
-        # podpowiedź że to mała próba. Sample=0 (brak overlap'u) trafia
-        # do osobnej sekcji \"Twoje unikalne USP\" niżej.
-        if len(samples) < 1:
-            continue
         subject_price = subject_svc.get("price_grosze")
         if subject_price is None:
+            continue
+        # User feedback (2026-05-16): "jeśli u klienta jest jakiś wariant a
+        # konkurencja go nie posiada to nie możemy wycinać całego bloku zabiegu —
+        # pokazujemy, że wariant istnieje tylko tu i elo, natomiast to nie
+        # powinno rzutować na wyświetlenie". Zatem sample=0 dostaje row
+        # z NULL market data + recommended_action='subject_only'. UI rysuje
+        # kreski w market columns i badge "tylko u Ciebie".
+        if len(samples) == 0:
+            prelim.append({
+                "variant_key": variant_key,
+                "tid": tid,
+                "variant_id": variant_id,
+                "subject_svc": subject_svc,
+                "subject_price": subject_price,
+                "samples": [],
+                "market_prices_f": [],
+                "percentiles": None,
+                "deviation_pct": None,
+                "subject_only": True,
+            })
             continue
         market_prices_f = [float(s["price_grosze"]) for s in samples]
         percentiles = compute_percentiles(market_prices_f)
@@ -646,6 +658,7 @@ async def _compute_pricing_comparisons(
             "market_prices_f": market_prices_f,
             "percentiles": percentiles,
             "deviation_pct": deviation_pct,
+            "subject_only": False,
         })
         if abs(deviation_pct) > VERIFICATION_THRESHOLD_PCT:
             variant_ids_needing_verify.add(int(variant_id))
@@ -676,6 +689,37 @@ async def _compute_pricing_comparisons(
         market_prices_f = item["market_prices_f"]
         tid = item["tid"]
         variant_id = item["variant_id"]
+        subject_only = item.get("subject_only", False)
+
+        # Subject-only path: usługa istnieje TYLKO u subject, no market median.
+        # Emit row z NULL market values, deviation=None, action='subject_only'.
+        # UI renderuje kreski + badge "tylko u Ciebie".
+        if subject_only:
+            rows.append({
+                "report_id": report_id,
+                "booksy_treatment_id": tid,
+                "variant_id": variant_id,
+                "treatment_name": (
+                    subject_svc.get("treatment_name") or subject_svc.get("name") or "Unknown"
+                ),
+                "treatment_parent_id": subject_svc.get("treatment_parent_id"),
+                "subject_price_grosze": int(subject_price),
+                "subject_is_from_price": bool(subject_svc.get("is_from_price") or False),
+                "subject_duration_minutes": subject_svc.get("duration_minutes"),
+                "market_min_grosze": None,
+                "market_p25_grosze": None,
+                "market_median_grosze": None,
+                "market_p75_grosze": None,
+                "market_max_grosze": None,
+                "subject_percentile": None,
+                "deviation_pct": None,
+                "sample_size": 0,
+                "recommended_action": "subject_only",
+                "verification_status": "subject_only",
+                "verification_details": None,
+                "competitor_samples": [],
+            })
+            continue
 
         recommended_action = _classify_pricing_action(deviation_pct)
         subject_pct = compute_subject_percentile(
