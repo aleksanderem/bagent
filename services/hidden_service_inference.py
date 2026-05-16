@@ -319,6 +319,142 @@ async def infer_hidden_service_taxonomy(
     }
 
 
+_OAI_EMBED_CLIENT = None
+
+
+def _get_openai_embed_client():
+    """Lazy-cached OpenAI client for embedding generation in the synthetic-
+    category path. Distinct from `taxonomy_inference._OAI_CLIENT` so we can
+    raise on failure (taxonomy_inference's helper swallows errors to fall
+    back to trigram).
+    """
+    global _OAI_EMBED_CLIENT
+    if _OAI_EMBED_CLIENT is None:
+        from openai import OpenAI
+        _OAI_EMBED_CLIENT = OpenAI()
+    return _OAI_EMBED_CLIENT
+
+
+async def embed_short_text(text: str) -> list[float]:
+    """Generate a single OpenAI text-embedding-3-small vector for `text`.
+
+    Used by Rules 2/1 of `_resolve_service_taxonomy` when we need an
+    embedding for a freshly created synthetic category (the salon's
+    cennik category name or the LLM short-generated phrase).
+
+    Raises on OpenAI failure — directive 2026-05-16: no graceful
+    fallback in the synthetic-category path. Bugsink captures.
+    """
+    if not text or not text.strip():
+        raise ValueError("embed_short_text: empty text")
+    snippet = text.strip()[:512]
+    oai = _get_openai_embed_client()
+
+    def _do_call():
+        return oai.embeddings.create(
+            model="text-embedding-3-small",
+            input=[snippet],
+        )
+
+    resp = await asyncio.to_thread(_do_call)
+    data = list(resp.data or [])
+    if not data:
+        raise RuntimeError(
+            f"embed_short_text: OpenAI returned no data for {text!r}"
+        )
+    emb = list(data[0].embedding or [])
+    if not emb:
+        raise RuntimeError(
+            f"embed_short_text: OpenAI returned empty vector for {text!r}"
+        )
+    logger.debug(
+        "embed_short_text: embedded %r (len=%d, dim=%d)",
+        snippet[:40], len(snippet), len(emb),
+    )
+    return emb
+
+
+_SHORT_CATEGORY_SYSTEM_PROMPT = """Jesteś ekspertem od taksonomii beauty/wellness.
+
+Dostajesz nazwę usługi salonu kosmetycznego i tworzysz dla niej krótką (1-2 słowa)
+kategorię, pod którą inny salon szukałby w cenniku „takich samych usług".
+
+Reguły:
+- Wynik 1-2 słowa po polsku, jak gotowy nagłówek kategorii cennika
+- Pierwsze słowo wielka litera, reszta jak naturalna nazwa kategorii
+- Skup się na PROCEDURZE, nie na brand-name (Thunder → Depilacja, EMBODY → Modelowanie)
+- Jeśli usługa to konsultacja / pakiet / voucher: użyj „Konsultacja" / „Pakiet" / „Voucher"
+- Pole `longer_description` to 1-2 zdania opisu używanego do embedding match (po polsku)
+
+WAŻNE: odpowiadaj WYŁĄCZNIE pojedynczym JSON-em, bez markdown, bez ```, bez komentarzy:
+{"category":"<1-2 słowa>","longer_description":"<1-2 zdania>"}"""
+
+
+async def generate_short_category(
+    service_name: str,
+    price_pln: float | None,
+    duration_min: int | None,
+    category_name: str | None,
+    llm: GeminiLLMClient,
+) -> dict[str, Any]:
+    """Generate a synthetic 1-2 word category name for an unmatched service
+    via LLM short prompt. Used by Rule 1 of `_resolve_service_taxonomy`
+    when neither salon-defined category nor Booksy LLM disambiguation
+    nor embedding inheritance produced a hit.
+
+    Returns `{"category": "<1-2 słowa>", "longer_description": "<1-2 zdania>"}`.
+
+    Raises on LLM failure or invalid JSON. Directive 2026-05-16: no
+    graceful fallback to "Inne" — caller must handle the exception
+    (Bugsink captures it) so we surface root causes instead of
+    silently poisoning the synthetic catalog with garbage entries.
+    """
+    if not service_name or len(service_name.strip()) < 2:
+        raise ValueError(
+            f"generate_short_category: service_name too short ({service_name!r})"
+        )
+    if llm is None:
+        raise RuntimeError(
+            "generate_short_category: no LLM client provided"
+        )
+
+    parts: list[str] = [f"Nazwa usługi: {service_name.strip()}"]
+    if category_name:
+        parts.append(f"Kategoria w cenniku salonu: {category_name.strip()}")
+    if price_pln is not None:
+        parts.append(f"Cena: {price_pln:.2f} zł")
+    if duration_min is not None:
+        parts.append(f"Czas trwania: {duration_min} min")
+    user_prompt = (
+        "\n".join(parts)
+        + "\n\nWygeneruj JSON z polami `category` (1-2 słowa) "
+        "i `longer_description` (1-2 zdania)."
+    )
+
+    result = await llm.generate_json(
+        user_prompt,
+        system=_SHORT_CATEGORY_SYSTEM_PROMPT,
+        max_tokens=200,
+    )
+    category = (result.get("category") or "").strip()
+    longer = (result.get("longer_description") or "").strip()
+    if not category:
+        raise ValueError(
+            f"generate_short_category: LLM returned empty `category` for "
+            f"{service_name!r} (raw={result!r})"
+        )
+    # Defensive: collapse to 1-3 words max (LLM occasionally returns 4-5
+    # words despite the prompt — we accept up to 3 to avoid spurious
+    # failures, but trim longer outputs).
+    words = category.split()
+    if len(words) > 3:
+        category = " ".join(words[:3])
+    return {
+        "category": category,
+        "longer_description": longer or category,
+    }
+
+
 async def infer_hidden_services_batch(
     services: list[dict[str, Any]],
     supabase: SupabaseService,

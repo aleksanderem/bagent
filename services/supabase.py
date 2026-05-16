@@ -1640,7 +1640,8 @@ class SupabaseService:
                     "treatment_name,treatment_parent_id,price_grosze,is_from_price,"
                     "duration_minutes,is_active,is_promo,omnibus_price_grosze,"
                     "description,description_type,photos,combo_type,variants,"
-                    "embedding_applied_at,inferred_treatment_id,variant_id"
+                    "embedding_applied_at,inferred_treatment_id,variant_id,"
+                    "synthetic_treatment_id,taxonomy_source"
                 )
                 .eq("scrape_id", scrape_id)
                 .execute()
@@ -2236,3 +2237,192 @@ class SupabaseService:
             )
             raise
         return len(result.data or [])
+
+    # ------------------------------------------------------------------
+    # Synthetic treatment categories (migracja 073/074) — Faza 2+3+4 of
+    # the read-only-cennik refactor. When a service has NULL
+    # booksy_treatment_id we no longer overwrite it (in-memory mutation
+    # was masking root cause for the Beauty4ever Tlenoterapia phantom
+    # row bug, 2026-05-16). Instead we attach a synthetic_treatment_id
+    # that points at a row in synthetic_treatment_categories. Two
+    # sources: 'salon_defined' (salon's own cennik category name) and
+    # 'llm_generated' (LLM short-prompt over service name/desc).
+    # Both share embedding-based dedup so competitors inherit existing
+    # synthetic categories before any new row is created.
+    # ------------------------------------------------------------------
+
+    async def find_synthetic_category_by_embedding(
+        self,
+        embedding: list[float],
+        min_similarity: float = 0.85,
+    ) -> dict | None:
+        """ANN lookup w `synthetic_treatment_categories`. Returns the top
+        match (across ALL sources, not filtered) as
+        `{id, canonical_name, normalized_name, source, similarity}` when
+        cosine similarity >= `min_similarity`, else None.
+
+        pgvector cosine distance: `1 - (embedding <=> input::vector)`.
+        We delegate to a SQL RPC `fn_synthetic_category_top_match` (mig
+        074) so the vector cast + LIMIT 1 stay server-side. Raises on
+        DB error — directive 2026-05-16: no graceful try/except in the
+        synthetic-category path.
+        """
+        if not embedding:
+            return None
+
+        def _do_call() -> Any:
+            return self.client.rpc(
+                "fn_synthetic_category_top_match",
+                {"p_embedding": embedding, "p_min_similarity": min_similarity},
+            ).execute()
+
+        import asyncio as _asyncio
+        res = await _asyncio.to_thread(_do_call)
+        rows = list(res.data or [])
+        if not rows:
+            return None
+        row = rows[0]
+        sim = float(row.get("similarity") or 0.0)
+        if sim < min_similarity:
+            return None
+        return {
+            "id": int(row["id"]),
+            "canonical_name": row.get("canonical_name"),
+            "normalized_name": row.get("normalized_name"),
+            "source": row.get("source"),
+            "similarity": sim,
+        }
+
+    async def upsert_synthetic_category_salon_defined(
+        self,
+        normalized_name: str,
+        canonical_name: str,
+        embedding: list[float],
+        audit_id: str | None = None,
+    ) -> int:
+        """Lookup-or-insert dla salon-defined synthetic category. Returns
+        the row id. Two salons defining the same category name share a
+        single row thanks to the partial UNIQUE index on
+        `normalized_name WHERE source='salon_defined'` (mig 073).
+
+        Raises on DB error. Uses a SQL RPC
+        `fn_upsert_synthetic_salon_defined` (mig 074) so the
+        ON CONFLICT branch increments `merged_count` server-side.
+        """
+        if not normalized_name or not canonical_name:
+            raise ValueError(
+                "upsert_synthetic_category_salon_defined: empty name "
+                f"(normalized={normalized_name!r}, canonical={canonical_name!r})"
+            )
+        if not embedding:
+            raise ValueError(
+                "upsert_synthetic_category_salon_defined: embedding required"
+            )
+
+        def _do_call() -> Any:
+            return self.client.rpc(
+                "fn_upsert_synthetic_salon_defined",
+                {
+                    "p_normalized_name": normalized_name,
+                    "p_canonical_name": canonical_name,
+                    "p_embedding": embedding,
+                    "p_audit_id": audit_id,
+                },
+            ).execute()
+
+        import asyncio as _asyncio
+        res = await _asyncio.to_thread(_do_call)
+        rows = list(res.data or [])
+        if not rows:
+            raise RuntimeError(
+                "fn_upsert_synthetic_salon_defined returned no rows for "
+                f"normalized_name={normalized_name!r}"
+            )
+        return int(rows[0]["id"])
+
+    async def upsert_synthetic_category_llm_generated(
+        self,
+        canonical_name: str,
+        embedding: list[float],
+        audit_id: str | None = None,
+    ) -> int:
+        """INSERT a new `llm_generated` synthetic category. Returns the
+        row id. No SQL-level dedup — dedup is the caller's job via
+        `find_synthetic_category_by_embedding` BEFORE invoking this.
+
+        Raises on DB error.
+        """
+        if not canonical_name:
+            raise ValueError(
+                "upsert_synthetic_category_llm_generated: empty canonical_name"
+            )
+        if not embedding:
+            raise ValueError(
+                "upsert_synthetic_category_llm_generated: embedding required"
+            )
+
+        normalized = " ".join(canonical_name.lower().split())
+        row = {
+            "canonical_name": canonical_name,
+            "normalized_name": normalized,
+            "source": "llm_generated",
+            "embedding": embedding,
+            "created_by_audit_id": audit_id,
+            "merged_count": 0,
+        }
+
+        def _do_call() -> Any:
+            return (
+                self.client.table("synthetic_treatment_categories")
+                .insert(row)
+                .execute()
+            )
+
+        import asyncio as _asyncio
+        res = await _asyncio.to_thread(_do_call)
+        rows = list(res.data or [])
+        if not rows:
+            raise RuntimeError(
+                "INSERT synthetic_treatment_categories (llm_generated) "
+                f"returned no rows for canonical_name={canonical_name!r}"
+            )
+        return int(rows[0]["id"])
+
+    async def increment_synthetic_merged_count(
+        self, synthetic_id: int,
+    ) -> None:
+        """Bump `merged_count` on an existing synthetic category. Called
+        when Rule 4 reuses a row via embedding inheritance. Raises on
+        DB error.
+        """
+        def _do_call() -> Any:
+            return self.client.rpc(
+                "fn_increment_synthetic_merged_count",
+                {"p_id": int(synthetic_id)},
+            ).execute()
+
+        import asyncio as _asyncio
+        await _asyncio.to_thread(_do_call)
+
+    async def list_synthetic_categories(
+        self, limit: int = 500,
+    ) -> list[dict[str, Any]]:
+        """Read-only listing for the dev endpoint. Returns the latest
+        `limit` rows (DESC by created_at). No embedding column (1536
+        floats per row would blow up payload size).
+        """
+        def _do_call() -> Any:
+            return (
+                self.client.table("synthetic_treatment_categories")
+                .select(
+                    "id,canonical_name,normalized_name,source,"
+                    "merged_count,created_by_audit_id,created_at"
+                )
+                .order("created_at", desc=True)
+                .limit(int(limit))
+                .execute()
+            )
+
+        import asyncio as _asyncio
+        res = await _asyncio.to_thread(_do_call)
+        return list(res.data or [])

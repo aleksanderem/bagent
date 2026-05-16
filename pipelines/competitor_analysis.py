@@ -194,23 +194,30 @@ async def compute_competitor_analysis(
     # scores. UI oznacza je badgem "kategoria z AI" przez inferred_treatment_id
     # field (downstream consumer może to forwardować).
     await progress(38, "AI kategoryzacja usług bez taxonomy match...")
+    # Outer try/except is deliberate: pipeline-wide robustness — one salon
+    # with bad data shouldn't kill the whole audit. The INNER routing logic
+    # (_resolve_service_taxonomy) raises hard on every step per directive
+    # 2026-05-16 (Bugsink captures), so root causes still surface — only
+    # the orchestration boundary swallows.
     try:
         total_overridden = await _apply_llm_taxonomy_to_null_tid_services(
             service, subject_data.get("services") or [], label="subject",
+            audit_id=audit_id,
         )
         for _, cdata in aligned_competitors:
             total_overridden += await _apply_llm_taxonomy_to_null_tid_services(
                 service, cdata.get("services") or [],
                 label=f"competitor booksy_id={cdata.get('booksy_id')}",
+                audit_id=audit_id,
             )
         logger.info(
-            "Etap 4: LLM taxonomy inference applied to %d NULL-tid services "
+            "Etap 4: taxonomy routing applied to %d NULL-tid services "
             "(subject + %d competitors)",
             total_overridden, len(aligned_competitors),
         )
     except Exception as e:
         logger.warning(
-            "LLM taxonomy inference for matrix expansion failed (%s) — "
+            "Taxonomy routing for matrix expansion failed (%s) — "
             "continuing with raw tids",
             e,
         )
@@ -1054,6 +1061,36 @@ def _filter_comp_samples_by_subj_method(
 _CENTROID_LOOKUP_RUNTIME: dict[int, Any] = {}
 
 
+def _tid_key(svc: dict[str, Any]) -> tuple[str, int] | None:
+    """Return the routing key for a service: either a Booksy treatment_id
+    (tuple `('booksy', tid)`) OR a synthetic_treatment_id (tuple
+    `('synthetic', stid)`) — never both. None when neither exists.
+
+    Priority order:
+      1. `booksy_treatment_id_raw` — preserved original Booksy tid even
+         when later code mutated `booksy_treatment_id` (e.g. legacy
+         taxonomy_inference). Always wins when present.
+      2. `booksy_treatment_id` — native or Rule-3 inferred Booksy tid.
+      3. `synthetic_treatment_id` — Rules 1/2/4 synthetic anchor.
+
+    This is the canonical aggregation key shared between subject and
+    competitor sides of the pricing matrix. Phantom-row bug from
+    2026-05-16 was caused by mismatched keys (subject's overwritten
+    booksy_treatment_id 7770 vs competitor's NULL); routing via this
+    helper makes the key derivation explicit and consistent.
+    """
+    raw = svc.get("booksy_treatment_id_raw")
+    if raw is not None:
+        return ("booksy", int(raw))
+    btid = svc.get("booksy_treatment_id")
+    if btid is not None:
+        return ("booksy", int(btid))
+    stid = svc.get("synthetic_treatment_id")
+    if stid is not None:
+        return ("synthetic", int(stid))
+    return None
+
+
 def _compute_treatment_tier_rows(
     report_id: int,
     subject_data: dict[str, Any],
@@ -1100,24 +1137,32 @@ def _compute_treatment_tier_rows(
             return False
         return True
 
-    # 1. Group subject services by tid (post-LLM-inference tids included).
-    subject_by_tid: dict[int, list[dict[str, Any]]] = {}
+    # 1. Group subject services by tid_key (Booksy OR synthetic).
+    # tid_key = ('booksy', int) | ('synthetic', int). See _tid_key() docstring.
+    # Synthetic-keyed groups now flow into tier-1 alongside Booksy-native
+    # ones (Faza 2+3+4 refactor 2026-05-16) — display layer uses each row's
+    # `booksy_treatment_id` (nullable) or `synthetic_treatment_id` (nullable)
+    # to know which catalog the comparison belongs to.
+    subject_by_tid: dict[tuple[str, int], list[dict[str, Any]]] = {}
     for svc in subject_data.get("services") or []:
         if not _eligible(svc):
             continue
-        tid = svc.get("booksy_treatment_id_raw") or svc.get("booksy_treatment_id")
-        if tid is None:
+        key = _tid_key(svc)
+        if key is None:
             continue
-        subject_by_tid.setdefault(int(tid), []).append(svc)
+        subject_by_tid.setdefault(key, []).append(svc)
 
     if not subject_by_tid:
         return rows
 
-    # 2. Group competitor services by tid (z counts_in_aggregates filter).
+    # 2. Group competitor services by tid_key (z counts_in_aggregates filter).
     # Hold tuples (sample_dict, fallback_embedding, variant_id) — variant_id
     # drives the centroid-based filter, fallback service name embedding
     # catches services that didn't match any variant during Phase 4 backfill.
-    competitor_by_tid_raw: dict[int, list[tuple[dict[str, Any], Any, int | None]]] = {}
+    competitor_by_tid_raw: dict[
+        tuple[str, int],
+        list[tuple[dict[str, Any], Any, int | None]],
+    ] = {}
     for cand, cdata in aligned_competitors:
         if not cand.counts_in_aggregates:
             continue
@@ -1125,8 +1170,8 @@ def _compute_treatment_tier_rows(
         for svc in cdata.get("services") or []:
             if not _eligible(svc):
                 continue
-            tid = svc.get("booksy_treatment_id_raw") or svc.get("booksy_treatment_id")
-            if tid is None:
+            key = _tid_key(svc)
+            if key is None:
                 continue
             sample = {
                 "salon_id": cdata.get("salon_id"),
@@ -1141,7 +1186,7 @@ def _compute_treatment_tier_rows(
                 svc.get("name_embedding") or svc.get("name_embedding_dense")
             )
             v_id = svc.get("variant_id")
-            competitor_by_tid_raw.setdefault(int(tid), []).append(
+            competitor_by_tid_raw.setdefault(key, []).append(
                 (sample, fb_emb, int(v_id) if v_id is not None else None)
             )
 
@@ -1165,15 +1210,15 @@ def _compute_treatment_tier_rows(
             if emb is not None:
                 _CENTROID_LOOKUP_RUNTIME[int(vid)] = emb
 
-    competitor_by_tid: dict[int, list[dict[str, Any]]] = {}
+    competitor_by_tid: dict[tuple[str, int], list[dict[str, Any]]] = {}
     total_dropped = 0
-    for tid, raw_samples in competitor_by_tid_raw.items():
+    for key, raw_samples in competitor_by_tid_raw.items():
         subj_refs = [
             (
                 s.get("name_embedding") or s.get("name_embedding_dense"),
                 int(s["variant_id"]) if s.get("variant_id") is not None else None,
             )
-            for s in subject_by_tid.get(tid, [])
+            for s in subject_by_tid.get(key, [])
         ]
         # Filter out empty references (no embedding AND no variant_id) —
         # they don't contribute to similarity computation.
@@ -1181,7 +1226,7 @@ def _compute_treatment_tier_rows(
         kept, dropped = _filter_comp_samples_by_subj_method(
             raw_samples, subj_refs,
         )
-        competitor_by_tid[tid] = kept
+        competitor_by_tid[key] = kept
         total_dropped += dropped
     if total_dropped:
         logger.info(
@@ -1190,9 +1235,10 @@ def _compute_treatment_tier_rows(
             total_dropped, _TREATMENT_TIER_MIN_NAME_SIM,
         )
 
-    # 3. Per tid, build aggregate row.
-    for tid, subj_svcs in subject_by_tid.items():
-        comp_samples = competitor_by_tid.get(tid, [])
+    # 3. Per tid_key, build aggregate row.
+    for key, subj_svcs in subject_by_tid.items():
+        tid_kind, tid_value = key
+        comp_samples = competitor_by_tid.get(key, [])
         # Min-sample gate. After the method-similarity filter we may end up
         # with 0-2 competitor samples — too few for a credible deviation%
         # ("Thunder vs jedna pasta cukrowa = +167%" is the false-alarm
@@ -1201,22 +1247,32 @@ def _compute_treatment_tier_rows(
         # demote them without losing the "this service exists" signal.
         if 0 < len(comp_samples) < _TREATMENT_TIER_MIN_SAMPLES:
             logger.info(
-                "Etap 4 tier-1: tid=%d only %d competitor samples after "
+                "Etap 4 tier-1: key=%s:%d only %d competitor samples after "
                 "method filter — demoting to low_confidence subject_only",
-                tid, len(comp_samples),
+                tid_kind, tid_value, len(comp_samples),
             )
             comp_samples = []
 
-        # Treatment name — pick most common from subject side (already
-        # inferred via LLM if NULL).
-        treatment_names = [
-            (s.get("treatment_name") or s.get("name") or "")
-            for s in subj_svcs
-        ]
-        canonical_name = (
-            max(set(treatment_names), key=treatment_names.count)
-            if treatment_names else f"Treatment {tid}"
-        )
+        # Display label — use ORIGINAL service name from cennik (svc["name"]).
+        # Faza 2+3+4 refactor (2026-05-16): we stopped overwriting
+        # `treatment_name` in `_resolve_service_taxonomy`, so for
+        # synthetic-keyed rows there is no Booksy canonical to fall back on.
+        # `svc["name"]` is the salon's actual display label and matches what
+        # the user sees in their cennik — pricing matrix labels must agree
+        # with that, otherwise we get phantom rows like "Tlenoterapia"
+        # appearing where the salon has zero services named that.
+        service_names = [(s.get("name") or "") for s in subj_svcs]
+        if service_names:
+            canonical_name = max(set(service_names), key=service_names.count)
+        elif tid_kind == "synthetic":
+            # Fall back to the synthetic catalog's canonical_name (set by
+            # _resolve_service_taxonomy) when subject_svcs is somehow empty.
+            canonical_name = (
+                subj_svcs[0].get("synthetic_canonical_name")
+                if subj_svcs else f"Treatment {tid_value}"
+            )
+        else:
+            canonical_name = f"Treatment {tid_value}"
 
         subj_prices = [float(s["price_grosze"]) for s in subj_svcs]
         subj_ppms = [
@@ -1230,12 +1286,28 @@ def _compute_treatment_tier_rows(
             if subj_ppms else None
         )
 
+        # Anchor columns — one is non-null per row depending on tid_kind.
+        # The other stays NULL so the DB CHECK constraint (mig 074) is
+        # satisfied and the frontend can branch on `taxonomy_source` to
+        # show the right badge.
+        emit_booksy_tid = tid_value if tid_kind == "booksy" else None
+        emit_synthetic_tid = tid_value if tid_kind == "synthetic" else None
+        # taxonomy_source — propagated from any service in the group
+        # (they should all share the same source by construction; pick
+        # the first non-null for safety).
+        emit_taxonomy_source = next(
+            (s.get("taxonomy_source") for s in subj_svcs if s.get("taxonomy_source")),
+            None,
+        )
+
         # Subject-only at tier-1 = no competitor offers anything in this tid.
         if not comp_samples:
             rows.append({
                 "report_id": report_id,
                 "comparison_tier": "treatment",
-                "booksy_treatment_id": tid,
+                "booksy_treatment_id": emit_booksy_tid,
+                "synthetic_treatment_id": emit_synthetic_tid,
+                "taxonomy_source": emit_taxonomy_source,
                 "variant_id": None,
                 "treatment_name": canonical_name,
                 "treatment_parent_id": subj_svcs[0].get("treatment_parent_id"),
@@ -1313,7 +1385,9 @@ def _compute_treatment_tier_rows(
         rows.append({
             "report_id": report_id,
             "comparison_tier": "treatment",
-            "booksy_treatment_id": tid,
+            "booksy_treatment_id": emit_booksy_tid,
+            "synthetic_treatment_id": emit_synthetic_tid,
+            "taxonomy_source": emit_taxonomy_source,
             "variant_id": None,
             "treatment_name": canonical_name,
             "treatment_parent_id": subj_svcs[0].get("treatment_parent_id"),
@@ -1361,9 +1435,12 @@ def _compute_treatment_tier_rows(
         })
 
     if rows:
+        n_booksy = sum(1 for r in rows if r.get("booksy_treatment_id") is not None)
+        n_synthetic = sum(1 for r in rows if r.get("synthetic_treatment_id") is not None)
         logger.info(
-            "Etap 4 tier-1: emitted %d treatment-level rows (per booksy_treatment_id)",
-            len(rows),
+            "Etap 4 tier-1: emitted %d treatment-level rows "
+            "(%d booksy-keyed, %d synthetic-keyed)",
+            len(rows), n_booksy, n_synthetic,
         )
     return rows
 
@@ -2346,29 +2423,84 @@ async def _enhance_hidden_services_with_inference(
     return hidden_services
 
 
-async def _apply_llm_taxonomy_to_null_tid_services(
+def _normalize_synthetic(name: str) -> str:
+    """Mirror of `fn_synthetic_normalize(TEXT)` (mig 073): lowercase +
+    collapse whitespace. Kept in-process for the local dedup check that
+    avoids round-tripping every input string through Postgres.
+    """
+    if not name:
+        return ""
+    return " ".join(name.lower().split())
+
+
+async def _resolve_service_taxonomy(
     supabase: SupabaseService,
     services: list[dict[str, Any]],
     label: str = "salon",
     min_confidence: float = HIDDEN_MIN_CONFIDENCE,
-) -> int:
-    """Dla usług z NULL `booksy_treatment_id` (po Versum mapping) — uruchom
-    LLM taxonomy inference (centroidy + OpenAI gpt-4o-mini) i jeśli
-    confidence ≥ threshold, ustaw `booksy_treatment_id = inferred_tid`
-    w-memory. Mutuje `services` in-place.
+    audit_id: str | None = None,
+    trace_collector: list[dict[str, Any]] | None = None,
+    dry_run: bool = False,
+) -> dict[str, int]:
+    """Route services with `booksy_treatment_id IS NULL` (post-Versum) through
+    a 4-rule decision tree. NEVER overwrites `treatment_name` or
+    `booksy_treatment_id` for Rules 1/2/4 — those services keep NULL Booksy
+    tid and pick up a `synthetic_treatment_id` instead.
 
-    Po tym kroku pricing pipeline (`_active_services_with_variant`,
-    `_compute_pricing_comparisons`) widzi je jako "skategoryzowane" i
-    dorzuca do matrixa. Oryginalne NULL tid jest zachowane w
-    `booksy_treatment_id_original`, plus dodawany jest flag
-    `taxonomy_inference_source = 'llm'` żeby UI mógł oznaczyć badgem.
+    Rules (checked in order):
 
-    Returns: liczba usług których tid zostało nadpisane.
+    Reguła 2 — salon-defined category. If the service has `category_name`
+        (e.g. "Kroplówki" w cenniku Beauty4ever), we treat that as the
+        salon's own category label. Normalize, look up / insert in
+        `synthetic_treatment_categories` with source='salon_defined'.
+        DB partial unique index dedupes across audits.
+
+    Reguła 3 — LLM disambiguation hits an existing Booksy tid. Existing
+        `infer_hidden_services_batch` returns inferred_tid + confidence.
+        If confidence >= min_confidence: set `booksy_treatment_id` (with
+        `_raw` preserving the original NULL) and trigger inline variant
+        matching. `treatment_name` is NOT overwritten — display layer
+        uses original `svc["name"]`.
+
+    Reguła 4 — embedding inheritance from existing synthetic. Use the
+        service's name_embedding to find the top match in
+        `synthetic_treatment_categories` (cosine >= 0.85, any source).
+        Reuse + bump merged_count.
+
+    Reguła 1 — LLM short generation creates a new synthetic. Last resort.
+        Generates a 1-2 word category via OpenAI gpt-4o-mini, embeds it,
+        inserts a fresh `llm_generated` row.
+
+    Returns a stats dict: `{rule_2, rule_3, rule_4, rule_1, skipped,
+    rule_3_with_variant}`.
+
+    All branches mutate `services` in place (the post-routing state is the
+    source of truth for the rest of the pipeline). If `trace_collector` is
+    provided, each candidate appends one structured trace entry describing
+    the path taken, embedding top-K, LLM responses, and final assignment.
+    `dry_run=True` skips DB INSERTs (Rules 1/2) and merged_count bumps
+    (Rule 4) — used by the dev `/api/dev/trace-taxonomy` endpoint to debug
+    routing without polluting the synthetic catalog.
+
+    Raises on DB / embedding / LLM failures — directive 2026-05-16: no
+    graceful try/except in this path; Bugsink captures root causes.
     """
-    from services.hidden_service_inference import infer_hidden_services_batch
+    from services.hidden_service_inference import (
+        embed_short_text,
+        generate_short_category,
+        infer_hidden_services_batch,
+    )
 
-    # 1. Identyfikuj kandydatów: NULL tid + jest description (LLM go potrzebuje
-    #    żeby wybrać top-30) + serwis aktywny.
+    stats = {
+        "rule_2": 0,
+        "rule_3": 0,
+        "rule_4": 0,
+        "rule_1": 0,
+        "skipped": 0,
+        "rule_3_with_variant": 0,
+    }
+
+    # ── 0. Identify candidates: NULL booksy_treatment_id + active. ──
     candidates: list[tuple[int, dict[str, Any]]] = []
     for idx, svc in enumerate(services):
         if not svc.get("is_active", True):
@@ -2376,11 +2508,7 @@ async def _apply_llm_taxonomy_to_null_tid_services(
         if svc.get("booksy_treatment_id") is not None:
             continue
         name = (svc.get("name") or "").strip()
-        desc = (svc.get("description") or "").strip()
         if not name or len(name) < 3:
-            continue
-        if len(desc) < 30:
-            # Bez opisu LLM ma za mało kontekstu — pomijamy (gracefully).
             continue
         sid = svc.get("id")
         if sid is None:
@@ -2388,156 +2516,490 @@ async def _apply_llm_taxonomy_to_null_tid_services(
         candidates.append((idx, svc))
 
     if not candidates:
-        logger.debug("LLM taxonomy inference [%s]: no NULL-tid candidates", label)
-        return 0
-
-    llm = _get_hidden_inference_llm()
-    if llm is None:
-        logger.info(
-            "LLM taxonomy inference [%s]: %d candidates ale brak LLM key — skip",
-            label, len(candidates),
+        logger.debug(
+            "_resolve_service_taxonomy [%s]: no NULL-tid candidates", label,
         )
-        return 0
+        return stats
 
-    # 2. Batch-load embeddings.
-    service_ids = [int(svc["id"]) for _, svc in candidates]
-    try:
-        emb_map = await supabase.get_service_embeddings(service_ids)
-    except Exception as e:
-        logger.warning(
-            "LLM taxonomy inference [%s]: get_service_embeddings failed: %s",
-            label, e,
-        )
-        return 0
-
-    # 3. Build inference inputs (only those z embedding).
-    inference_inputs: list[tuple[int, dict[str, Any]]] = []
-    for idx, svc in candidates:
-        emb = emb_map.get(int(svc["id"]))
-        if not emb:
-            continue
-        inference_inputs.append((idx, {
-            "name": svc.get("name") or "",
-            "description": svc.get("description") or "",
-            "name_embedding": emb,
-        }))
-
-    if not inference_inputs:
-        return 0
-
-    # 4. Run LLM inference w batch (semaphore=4).
-    results = await infer_hidden_services_batch(
-        [pair[1] for pair in inference_inputs],
-        supabase,
-        llm,
-        min_confidence=min_confidence,
+    logger.info(
+        "_resolve_service_taxonomy [%s]: %d NULL-tid candidates entering "
+        "4-rule routing (audit_id=%s, dry_run=%s)",
+        label, len(candidates), audit_id, dry_run,
     )
 
-    # 5. Apply tid override dla services z method='llm' lub 'embedding'
-    #    AND confidence ≥ threshold. Plus: spróbuj inline variant matching
-    #    używając zaczynalnie zwróconego embedding'u, żeby usługa weszła do
-    #    `_active_services_with_variant` (hard gate Phase 5).
-    overridden = 0
-    overridden_with_variant = 0
-    variant_match_tasks: list[tuple[int, dict[str, Any], list[float], int]] = []
-    for (idx, inp), res in zip(inference_inputs, results):
-        if res.get("method") not in ("llm", "embedding"):
-            continue
-        inferred_tid = res.get("inferred_tid")
-        confidence = res.get("confidence") or 0.0
-        if inferred_tid is None or confidence < min_confidence:
-            continue
-        svc = services[idx]
-        # Preserve original BEFORE override using the `_raw` convention
-        # established by services/taxonomy_inference.py:303. Downstream
-        # readers in this file (lines 488, 1108, 1128, 1419, 1434) use
-        # `svc.get("booksy_treatment_id_raw") or svc.get("booksy_treatment_id")`
-        # so writing the original here ensures the ORIGINAL tid wins for
-        # services that already had a native tid (currently this function
-        # targets NULL-tid services so original is None — but the contract
-        # has to be consistent across both inference paths to stop the
-        # quiet drift that produced phantom-row bugs like the
-        # Beauty4ever / Tlenoterapia incident, 2026-05-16).
-        if "booksy_treatment_id_raw" not in svc:
-            svc["booksy_treatment_id_raw"] = svc.get("booksy_treatment_id")
-        # Legacy `_original` fields — set but never read anywhere in the
-        # repo (audit grep 2026-05-16). Keep them populated as a
-        # defensive null-op so any future consumer that picked the old
-        # name still gets the value; new code MUST use `_raw`.
-        svc["booksy_treatment_id_original"] = svc.get("booksy_treatment_id")
-        svc["treatment_name_original"] = svc.get("treatment_name")
-        # Override tid + canonical name (po to żeby downstream pipeline
-        # widział spójną etykietę zamiast NULL).
-        svc["booksy_treatment_id"] = int(inferred_tid)
-        if res.get("inferred_canonical_name"):
-            svc["treatment_name"] = res["inferred_canonical_name"]
-        # Audit/UI marker.
-        svc["taxonomy_inference_source"] = res.get("method", "llm")
-        svc["taxonomy_inference_confidence"] = confidence
-        svc["taxonomy_inference_parent"] = res.get("inferred_parent_name")
-        overridden += 1
-        # Kolejka dla inline variant matching (Phase 5 gate).
-        emb = inp.get("name_embedding")
-        if emb:
-            variant_match_tasks.append((idx, svc, emb, int(inferred_tid)))
+    # ── 1. Preload name_embedding for ALL candidates (Rules 3/4 need it,
+    #       Rule 1's category embed is generated inline). ──
+    service_ids = [int(svc["id"]) for _, svc in candidates]
+    emb_map = await supabase.get_service_embeddings(service_ids)
+    logger.info(
+        "_resolve_service_taxonomy [%s]: loaded %d/%d service embeddings",
+        label, len(emb_map), len(service_ids),
+    )
 
-    # 6. Inline variant matching dla services które dostały inferred tid.
-    #    `_active_services_with_variant` wymaga variant_id NOT NULL — bez tego
-    #    services są droppowane mimo override'u tid'a. Wywołujemy
-    #    `match_service_to_variant` RPC (mig 058) per service z bounded
-    #    concurrency.
-    import asyncio as _asyncio
-    sem_vm = _asyncio.Semaphore(8)
+    # ── 2. Rule 2 (salon-defined): services with non-empty category_name. ──
+    #     Group by normalized name so we only embed/upsert once per unique
+    #     category, then point every service in that bucket at the same id.
+    rule2_groups: dict[str, list[tuple[int, dict[str, Any]]]] = {}
+    rule_3_4_1_candidates: list[tuple[int, dict[str, Any]]] = []
+    for idx, svc in candidates:
+        cat = (svc.get("category_name") or "").strip()
+        if cat and cat.lower() != "bez kategorii":
+            norm = _normalize_synthetic(cat)
+            rule2_groups.setdefault(norm, []).append((idx, svc))
+        else:
+            rule_3_4_1_candidates.append((idx, svc))
 
-    async def _match_variant(idx: int, svc: dict[str, Any], emb: list[float], tid: int) -> None:
-        nonlocal overridden_with_variant
-
-        def _do_call() -> Any:
-            return supabase.client.rpc(
-                "match_service_to_variant",
-                {
-                    "p_embedding": emb,
-                    "p_parent_treatment_id": tid,
-                    "p_min_similarity": 0.55,
-                },
-            ).execute()
-
-        try:
-            async with sem_vm:
-                res = await _asyncio.to_thread(_do_call)
-        except Exception as e:
-            logger.debug(
-                "match_service_to_variant failed for service_id=%s tid=%s: %s",
-                svc.get("id"), tid, e,
-            )
-            return
-        rows = list(res.data or [])
-        if not rows:
-            return
-        row = rows[0]
-        vid = row.get("variant_id")
-        if vid is None:
-            return
-        svc["variant_id"] = int(vid)
-        # variant canonical name pomocny dla pricing comparison label'i
-        if row.get("canonical_variant_name"):
-            svc["variant_canonical_name"] = row["canonical_variant_name"]
-        overridden_with_variant += 1
-
-    if variant_match_tasks:
-        await _asyncio.gather(*(
-            _match_variant(i, s, e, t) for (i, s, e, t) in variant_match_tasks
-        ))
-
-    if overridden:
+    for norm_name, group in rule2_groups.items():
+        # Canonical name = the most common original-casing in the group.
+        canon_choices = [
+            (s.get("category_name") or "").strip() for _, s in group
+        ]
+        canonical = max(set(canon_choices), key=canon_choices.count)
         logger.info(
-            "LLM taxonomy inference [%s]: %d/%d NULL-tid services dostały "
-            "inferred_tid (confidence ≥ %.2f), z których %d dostało też variant_id "
-            "(similarity ≥ 0.55)",
-            label, overridden, len(candidates), min_confidence,
-            overridden_with_variant,
+            "_resolve_service_taxonomy [%s] rule_2: canonical=%r normalized=%r "
+            "group_size=%d dry_run=%s",
+            label, canonical, norm_name, len(group), dry_run,
         )
-    return overridden
+        if dry_run:
+            syn_id = -1  # sentinel for trace
+        else:
+            embedding = await embed_short_text(canonical)
+            syn_id = await supabase.upsert_synthetic_category_salon_defined(
+                normalized_name=norm_name,
+                canonical_name=canonical,
+                embedding=embedding,
+                audit_id=audit_id,
+            )
+            logger.info(
+                "_resolve_service_taxonomy [%s] rule_2: upserted "
+                "synthetic_id=%d canonical=%r (audit_id=%s)",
+                label, syn_id, canonical, audit_id,
+            )
+
+        for idx, svc in group:
+            svc["synthetic_treatment_id"] = syn_id
+            svc["taxonomy_source"] = "salon_defined"
+            svc["synthetic_canonical_name"] = canonical
+            stats["rule_2"] += 1
+            if trace_collector is not None:
+                trace_collector.append({
+                    "svc_id": svc.get("id"),
+                    "svc_name": svc.get("name"),
+                    "original_tid": None,
+                    "original_category": svc.get("category_name"),
+                    "rule": "2",
+                    "decision": "matched",
+                    "details": {
+                        "normalized_name": norm_name,
+                        "canonical_name": canonical,
+                        "group_size_in_audit": len(group),
+                    },
+                    "embedding_top_k": [],
+                    "llm_response": None,
+                    "final": {
+                        "booksy_tid": None,
+                        "synthetic_tid": syn_id,
+                        "taxonomy_source": "salon_defined",
+                        "treatment_name": svc.get("name"),
+                    },
+                })
+
+    if stats["rule_2"]:
+        logger.info(
+            "_resolve_service_taxonomy [%s] rule_2 summary: %d services "
+            "across %d unique synthetic categories",
+            label, stats["rule_2"], len(rule2_groups),
+        )
+
+    # ── 3. Rule 3 (LLM disambiguation against Booksy tids). ──
+    #     Only services that ALSO have a description >= 30 chars qualify
+    #     for the heavy LLM path (matches existing infer_hidden_services_batch
+    #     contract). Services without description fall through to Rule 4.
+    rule3_eligible: list[tuple[int, dict[str, Any]]] = []
+    rule4_only: list[tuple[int, dict[str, Any]]] = []
+    for idx, svc in rule_3_4_1_candidates:
+        emb = emb_map.get(int(svc["id"]))
+        if not emb:
+            # No embedding → can't run Rule 3 (which uses centroid match)
+            # NOR Rule 4 (which uses synthetic ANN). Push straight to Rule 1.
+            rule4_only.append((idx, svc))  # actually rule_1, handled below
+            continue
+        desc = (svc.get("description") or "").strip()
+        if len(desc) >= 30:
+            rule3_eligible.append((idx, svc))
+        else:
+            rule4_only.append((idx, svc))
+
+    llm_client = _get_hidden_inference_llm()
+    if rule3_eligible:
+        if llm_client is None:
+            logger.warning(
+                "_resolve_service_taxonomy [%s] rule_3: %d eligible but no "
+                "LLM key — pushing all to Rule 4",
+                label, len(rule3_eligible),
+            )
+            rule4_only.extend(rule3_eligible)
+            rule3_eligible = []
+
+    rule3_to_rule4_fallback: list[tuple[int, dict[str, Any]]] = []
+    if rule3_eligible:
+        logger.info(
+            "_resolve_service_taxonomy [%s] rule_3: invoking LLM disambiguation "
+            "for %d services",
+            label, len(rule3_eligible),
+        )
+        inference_inputs = [
+            {
+                "name": svc.get("name") or "",
+                "description": svc.get("description") or "",
+                "name_embedding": emb_map[int(svc["id"])],
+            }
+            for _, svc in rule3_eligible
+        ]
+        results = await infer_hidden_services_batch(
+            inference_inputs, supabase, llm_client,
+            min_confidence=min_confidence,
+        )
+
+        variant_match_tasks: list[
+            tuple[int, dict[str, Any], list[float], int]
+        ] = []
+        for (idx, svc), res in zip(rule3_eligible, results):
+            method = res.get("method")
+            inferred_tid = res.get("inferred_tid")
+            confidence = float(res.get("confidence") or 0.0)
+            logger.info(
+                "_resolve_service_taxonomy [%s] rule_3: svc_id=%s name=%r "
+                "method=%s tid=%s confidence=%.3f",
+                label, svc.get("id"), (svc.get("name") or "")[:60],
+                method, inferred_tid, confidence,
+            )
+            if (
+                method in ("llm", "embedding")
+                and inferred_tid is not None
+                and confidence >= min_confidence
+            ):
+                # Preserve original NULL under `_raw` so downstream readers
+                # that do `_raw or booksy_treatment_id` see NULL (matches
+                # existing semantic where _raw wins when present).
+                if "booksy_treatment_id_raw" not in svc:
+                    svc["booksy_treatment_id_raw"] = svc.get("booksy_treatment_id")
+                svc["booksy_treatment_id"] = int(inferred_tid)
+                # Do NOT touch svc["treatment_name"] — display uses original
+                # svc["name"] so the matrix matches the salon's actual cennik.
+                svc["taxonomy_source"] = "booksy_inferred"
+                svc["taxonomy_inference_source"] = method
+                svc["taxonomy_inference_confidence"] = confidence
+                svc["taxonomy_inference_parent"] = res.get("inferred_parent_name")
+                stats["rule_3"] += 1
+                emb = emb_map.get(int(svc["id"]))
+                if emb:
+                    variant_match_tasks.append(
+                        (idx, svc, emb, int(inferred_tid))
+                    )
+                if trace_collector is not None:
+                    trace_collector.append({
+                        "svc_id": svc.get("id"),
+                        "svc_name": svc.get("name"),
+                        "original_tid": None,
+                        "original_category": svc.get("category_name"),
+                        "rule": "3",
+                        "decision": "matched",
+                        "details": {
+                            "method": method,
+                            "confidence": confidence,
+                            "inferred_canonical_name": res.get(
+                                "inferred_canonical_name"
+                            ),
+                            "inferred_parent_name": res.get(
+                                "inferred_parent_name"
+                            ),
+                            "reasoning": res.get("reasoning"),
+                            "candidate_count": res.get("candidate_count"),
+                        },
+                        "embedding_top_k": [],
+                        "llm_response": {
+                            "tid": inferred_tid,
+                            "confidence": confidence,
+                            "reasoning": res.get("reasoning"),
+                        },
+                        "final": {
+                            "booksy_tid": int(inferred_tid),
+                            "synthetic_tid": None,
+                            "taxonomy_source": "booksy_inferred",
+                            "treatment_name": svc.get("name"),
+                        },
+                    })
+            else:
+                # Rule 3 failed → fall through to Rule 4 for this service.
+                logger.info(
+                    "_resolve_service_taxonomy [%s] rule_3 → rule_4: svc_id=%s "
+                    "name=%r (reason=%s, conf=%.3f)",
+                    label, svc.get("id"),
+                    (svc.get("name") or "")[:60],
+                    method, confidence,
+                )
+                rule3_to_rule4_fallback.append((idx, svc))
+                if trace_collector is not None:
+                    trace_collector.append({
+                        "svc_id": svc.get("id"),
+                        "svc_name": svc.get("name"),
+                        "original_tid": None,
+                        "original_category": svc.get("category_name"),
+                        "rule": "3",
+                        "decision": "skipped",
+                        "details": {
+                            "method": method,
+                            "confidence": confidence,
+                            "reasoning": res.get("reasoning"),
+                            "falls_through_to": "4",
+                        },
+                        "embedding_top_k": [],
+                        "llm_response": {
+                            "tid": inferred_tid,
+                            "confidence": confidence,
+                            "reasoning": res.get("reasoning"),
+                        },
+                        "final": None,
+                    })
+
+        # Inline variant matching for Rule 3 hits (Phase 5 hard gate).
+        if variant_match_tasks:
+            import asyncio as _asyncio
+            sem_vm = _asyncio.Semaphore(8)
+
+            async def _match_variant(
+                svc: dict[str, Any], emb: list[float], tid: int,
+            ) -> None:
+                def _do_call() -> Any:
+                    return supabase.client.rpc(
+                        "match_service_to_variant",
+                        {
+                            "p_embedding": emb,
+                            "p_parent_treatment_id": tid,
+                            "p_min_similarity": 0.55,
+                        },
+                    ).execute()
+
+                async with sem_vm:
+                    res2 = await _asyncio.to_thread(_do_call)
+                rows = list(res2.data or [])
+                if not rows:
+                    return
+                row = rows[0]
+                vid = row.get("variant_id")
+                if vid is None:
+                    return
+                svc["variant_id"] = int(vid)
+                if row.get("canonical_variant_name"):
+                    svc["variant_canonical_name"] = row["canonical_variant_name"]
+
+            await _asyncio.gather(*(
+                _match_variant(s, e, t)
+                for (_, s, e, t) in variant_match_tasks
+            ))
+            stats["rule_3_with_variant"] = sum(
+                1 for (_, s, _, _) in variant_match_tasks
+                if s.get("variant_id") is not None
+            )
+
+    # ── 4. Rule 4 (embedding inheritance from existing synthetic). ──
+    #     Combined queue: services that bypassed Rule 3 (no description /
+    #     no LLM) + Rule 3 fall-throughs.
+    rule4_queue = rule4_only + rule3_to_rule4_fallback
+    rule4_unmatched: list[tuple[int, dict[str, Any]]] = []
+    for idx, svc in rule4_queue:
+        emb = emb_map.get(int(svc["id"]))
+        if not emb:
+            # No embedding at all → can only go to Rule 1 if we have a
+            # service name (which we do, gated above).
+            rule4_unmatched.append((idx, svc))
+            continue
+        match = await supabase.find_synthetic_category_by_embedding(
+            embedding=emb, min_similarity=0.85,
+        )
+        logger.info(
+            "_resolve_service_taxonomy [%s] rule_4: svc_id=%s name=%r "
+            "match=%s",
+            label, svc.get("id"), (svc.get("name") or "")[:60],
+            f"id={match['id']} sim={match['similarity']:.3f} "
+            f"canonical={match.get('canonical_name')!r}" if match else "none",
+        )
+        if match is not None:
+            syn_id = int(match["id"])
+            svc["synthetic_treatment_id"] = syn_id
+            svc["taxonomy_source"] = "inherited"
+            svc["synthetic_canonical_name"] = match.get("canonical_name")
+            stats["rule_4"] += 1
+            if not dry_run:
+                await supabase.increment_synthetic_merged_count(syn_id)
+            if trace_collector is not None:
+                trace_collector.append({
+                    "svc_id": svc.get("id"),
+                    "svc_name": svc.get("name"),
+                    "original_tid": None,
+                    "original_category": svc.get("category_name"),
+                    "rule": "4",
+                    "decision": "inherited",
+                    "details": {
+                        "synthetic_id": syn_id,
+                        "canonical_name": match.get("canonical_name"),
+                        "similarity": match["similarity"],
+                        "source": match.get("source"),
+                    },
+                    "embedding_top_k": [{
+                        "synthetic_id": syn_id,
+                        "canonical_name": match.get("canonical_name"),
+                        "similarity": match["similarity"],
+                    }],
+                    "llm_response": None,
+                    "final": {
+                        "booksy_tid": None,
+                        "synthetic_tid": syn_id,
+                        "taxonomy_source": "inherited",
+                        "treatment_name": svc.get("name"),
+                    },
+                })
+        else:
+            rule4_unmatched.append((idx, svc))
+
+    # ── 5. Rule 1 (LLM short generation creates new synthetic). ──
+    if rule4_unmatched and llm_client is None:
+        logger.warning(
+            "_resolve_service_taxonomy [%s] rule_1: %d services left but no "
+            "LLM key — marking as skipped",
+            label, len(rule4_unmatched),
+        )
+        for idx, svc in rule4_unmatched:
+            stats["skipped"] += 1
+            if trace_collector is not None:
+                trace_collector.append({
+                    "svc_id": svc.get("id"),
+                    "svc_name": svc.get("name"),
+                    "original_tid": None,
+                    "original_category": svc.get("category_name"),
+                    "rule": "1",
+                    "decision": "skipped",
+                    "details": {"reason": "no LLM client available"},
+                    "embedding_top_k": [],
+                    "llm_response": None,
+                    "final": None,
+                })
+    else:
+        for idx, svc in rule4_unmatched:
+            name = (svc.get("name") or "").strip()
+            price_pln: float | None = None
+            pg = svc.get("price_grosze")
+            if pg is not None:
+                price_pln = float(pg) / 100.0
+            short = await generate_short_category(
+                service_name=name,
+                price_pln=price_pln,
+                duration_min=svc.get("duration_minutes"),
+                category_name=svc.get("category_name"),
+                llm=llm_client,
+            )
+            canonical = short["category"]
+            longer = short.get("longer_description") or canonical
+            logger.info(
+                "_resolve_service_taxonomy [%s] rule_1: svc_id=%s name=%r "
+                "generated canonical=%r (dry_run=%s)",
+                label, svc.get("id"), name[:60], canonical, dry_run,
+            )
+            if dry_run:
+                syn_id = -1
+            else:
+                # Embed the LONGER description for better ANN inheritance
+                # in future Rule 4 lookups (canonical alone is too sparse).
+                embedding = await embed_short_text(longer)
+                # Dedup ONE more time against existing synthetic catalog
+                # using the new embedding — covers the case where LLM
+                # generated a phrase that semantically matches an existing
+                # row even though Rule 4 (using service-name embedding)
+                # missed it.
+                existing = await supabase.find_synthetic_category_by_embedding(
+                    embedding=embedding, min_similarity=0.85,
+                )
+                if existing is not None:
+                    syn_id = int(existing["id"])
+                    await supabase.increment_synthetic_merged_count(syn_id)
+                    logger.info(
+                        "_resolve_service_taxonomy [%s] rule_1 → inherit: "
+                        "svc_id=%s matched existing synthetic_id=%d "
+                        "sim=%.3f",
+                        label, svc.get("id"), syn_id,
+                        existing["similarity"],
+                    )
+                    canonical = existing.get("canonical_name") or canonical
+                else:
+                    syn_id = await supabase.upsert_synthetic_category_llm_generated(
+                        canonical_name=canonical,
+                        embedding=embedding,
+                        audit_id=audit_id,
+                    )
+                    logger.info(
+                        "_resolve_service_taxonomy [%s] rule_1: inserted "
+                        "synthetic_id=%d canonical=%r",
+                        label, syn_id, canonical,
+                    )
+            svc["synthetic_treatment_id"] = syn_id
+            svc["taxonomy_source"] = "llm_generated"
+            svc["synthetic_canonical_name"] = canonical
+            stats["rule_1"] += 1
+            if trace_collector is not None:
+                trace_collector.append({
+                    "svc_id": svc.get("id"),
+                    "svc_name": svc.get("name"),
+                    "original_tid": None,
+                    "original_category": svc.get("category_name"),
+                    "rule": "1",
+                    "decision": "generated",
+                    "details": {
+                        "canonical_name": canonical,
+                        "longer_description": longer,
+                    },
+                    "embedding_top_k": [],
+                    "llm_response": short,
+                    "final": {
+                        "booksy_tid": None,
+                        "synthetic_tid": syn_id,
+                        "taxonomy_source": "llm_generated",
+                        "treatment_name": svc.get("name"),
+                    },
+                })
+
+    logger.info(
+        "_resolve_service_taxonomy [%s] summary: rule_2=%d rule_3=%d "
+        "(with_variant=%d) rule_4=%d rule_1=%d skipped=%d total=%d "
+        "(dry_run=%s)",
+        label, stats["rule_2"], stats["rule_3"], stats["rule_3_with_variant"],
+        stats["rule_4"], stats["rule_1"], stats["skipped"], len(candidates),
+        dry_run,
+    )
+    return stats
+
+
+async def _apply_llm_taxonomy_to_null_tid_services(
+    supabase: SupabaseService,
+    services: list[dict[str, Any]],
+    label: str = "salon",
+    min_confidence: float = HIDDEN_MIN_CONFIDENCE,
+    audit_id: str | None = None,
+) -> int:
+    """Backward-compatible shim around `_resolve_service_taxonomy`.
+
+    Old callers used the int return value as a counter of "tid overrides".
+    The new router can override booksy_treatment_id (Rule 3) OR attach a
+    synthetic_treatment_id (Rules 1/2/4). For continuity we return the sum
+    of rule_2 + rule_3 + rule_4 + rule_1 (i.e. every service that exited
+    the router with a routing decision attached). Pipelines that need the
+    finer breakdown should call `_resolve_service_taxonomy` directly.
+    """
+    stats = await _resolve_service_taxonomy(
+        supabase, services, label=label,
+        min_confidence=min_confidence, audit_id=audit_id,
+    )
+    return stats["rule_2"] + stats["rule_3"] + stats["rule_4"] + stats["rule_1"]
 
 
 def _compose_suggested_name(prefix: str, current_name: str) -> str:

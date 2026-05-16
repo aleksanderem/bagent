@@ -1199,6 +1199,14 @@ def _build_price_comparison(
             "market_price_per_min_grosze_p75": p.get("market_price_per_min_grosze_p75"),
             "market_price_per_min_grosze_max": p.get("market_price_per_min_grosze_max"),
             "deviation_pct_per_min": p.get("deviation_pct_per_min"),
+            # Mig 074 — Faza 2+3+4 read-only-cennik refactor (2026-05-16).
+            # Each pricing row carries EITHER booksy_treatment_id OR
+            # synthetic_treatment_id (one is null). taxonomy_source tells the
+            # frontend which catalog: 'booksy_native', 'booksy_inferred',
+            # 'salon_defined', 'llm_generated', 'inherited'.
+            "booksy_treatment_id": p.get("booksy_treatment_id"),
+            "synthetic_treatment_id": p.get("synthetic_treatment_id"),
+            "taxonomy_source": p.get("taxonomy_source"),
         })
     rows.sort(
         key=lambda r: abs(float(r.get("deviation_pct") or 0)),

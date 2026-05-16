@@ -761,6 +761,126 @@ async def staff_migrations(
     }
 
 
+# --- Dev/debug endpoints (taxonomy routing trace, synthetic catalog) ---
+# Disabled in production unless BAGENT_DEV_ENDPOINTS env flag is set —
+# bagent.booksyaudit.pl is a public PM2 surface so we hard-gate the route
+# bodies. No auth header is required so local debugging is friction-free
+# (set BAGENT_DEV_ENDPOINTS=1 in dev shell only).
+
+
+class TraceTaxonomyRequest(BaseModel):
+    """Either pass `services` inline (list of salon_scrape_services-shaped
+    dicts) or `audit_id` to load subject services from Supabase.
+    `dry_run` (default True) skips writes to synthetic_treatment_categories
+    so debugging doesn't pollute the catalog.
+    """
+    services: list[dict] | None = None
+    audit_id: str | None = None
+    dry_run: bool = True
+    verbose: bool = True
+
+
+def _ensure_dev_endpoints_enabled() -> None:
+    import os
+    if not os.environ.get("BAGENT_DEV_ENDPOINTS"):
+        raise HTTPException(
+            status_code=404,
+            detail=(
+                "Dev endpoints disabled. Set BAGENT_DEV_ENDPOINTS=1 in env "
+                "to enable."
+            ),
+        )
+
+
+@app.post("/api/dev/trace-taxonomy")
+async def dev_trace_taxonomy(request: TraceTaxonomyRequest) -> dict:
+    """Run `_resolve_service_taxonomy` over a list of services and return a
+    structured trace of every routing decision. Used by the rich frontend's
+    debug modal to inspect why a given service ended up where it did.
+
+    Returns:
+      {
+        "stats": {rule_2, rule_3, rule_4, rule_1, skipped, rule_3_with_variant},
+        "trace": [...],  # one entry per candidate, see _resolve_service_taxonomy
+        "services_input": int,
+        "candidates": int,
+        "dry_run": bool,
+      }
+    """
+    _ensure_dev_endpoints_enabled()
+
+    from pipelines.competitor_analysis import _resolve_service_taxonomy
+    from services.supabase import SupabaseService
+
+    if request.services is None and request.audit_id is None:
+        raise HTTPException(
+            status_code=400,
+            detail="Provide either `services` (inline list) or `audit_id`.",
+        )
+
+    sb = SupabaseService()
+    services_list: list[dict]
+    label = "dev-trace"
+
+    if request.services is not None:
+        services_list = list(request.services)
+    else:
+        # Load subject services from Supabase. We grab scrape + services
+        # via the existing helper that the pipeline uses.
+        subject = await sb.get_subject_full_data(request.audit_id)
+        services_list = list(subject.get("services") or [])
+        label = f"audit={request.audit_id}"
+
+    services_input = len(services_list)
+    trace: list[dict] = []
+    stats = await _resolve_service_taxonomy(
+        supabase=sb,
+        services=services_list,
+        label=label,
+        audit_id=request.audit_id,
+        trace_collector=trace,
+        dry_run=request.dry_run,
+    )
+
+    # Count candidates the way _resolve_service_taxonomy does (NULL tid +
+    # active + non-empty name) so the UI can show "n of N services routed".
+    candidates = sum(
+        1 for s in services_list
+        if s.get("is_active", True)
+        and s.get("booksy_treatment_id") is None
+        and (s.get("name") or "").strip()
+        and len((s.get("name") or "").strip()) >= 3
+        and s.get("id") is not None
+    )
+
+    return {
+        "stats": stats,
+        "trace": trace,
+        "services_input": services_input,
+        "candidates": candidates,
+        "dry_run": request.dry_run,
+        "audit_id": request.audit_id,
+    }
+
+
+@app.get("/api/dev/synthetic-categories")
+async def dev_list_synthetic_categories(limit: int = 500) -> dict:
+    """Read-only listing of `synthetic_treatment_categories` for the dev
+    modal. Returns latest `limit` rows (DESC by created_at).
+    """
+    _ensure_dev_endpoints_enabled()
+
+    from services.supabase import SupabaseService
+
+    sb = SupabaseService()
+    rows = await sb.list_synthetic_categories(limit=max(1, min(2000, limit)))
+    return {
+        "total": len(rows),
+        "limit": limit,
+        "rows": rows,
+    }
+
+
 # --- Synchronous AI endpoints (no background job, direct response) ---
 
 
