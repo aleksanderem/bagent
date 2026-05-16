@@ -418,9 +418,31 @@ def _has_promo_marker(name: str) -> bool:
     return bool(_PROMO_MARKERS.search(name))
 
 
+def _duration_bucket(duration_minutes: int | None) -> str:
+    """Categoryzuje czas trwania usługi do kompatybilnych bucketów dla
+    pricing comparison. Empirycznie (Beauty4ever vs Skin&Body Care 2026-05-16):
+    SBC "1 Fokus" 15min za 99 zł porównywane do Beauty4ever single session
+    60min za 200 zł powodowało false +100% deviation → drop przez verification.
+    Z bucketów porównujemy tylko same-bucket services.
+
+    Buckets:
+      short   ≤30min   — trial / single-zone / mini session
+      medium  31-90min — standard pojedyncza sesja
+      long    >90min   — extended / multi-step zabieg
+      unknown NULL     — własny bucket bo NIE wiemy czy to apples vs oranges
+    """
+    if duration_minutes is None:
+        return "unknown"
+    if duration_minutes <= 30:
+        return "short"
+    if duration_minutes <= 90:
+        return "medium"
+    return "long"
+
+
 def _active_services_with_variant(
     services: list[dict[str, Any]],
-) -> dict[tuple[int, int], dict[str, Any]]:
+) -> dict[tuple[int, int, str], dict[str, Any]]:
     """Return {(treatment_id, variant_id): service_row} for active services
     that have BOTH a treatment_id AND a variant_id assigned.
 
@@ -438,7 +460,7 @@ def _active_services_with_variant(
     (e.g. two different price points of "Botoks 1 okolica"), we take the
     one with the LOWEST price_grosze.
     """
-    out: dict[tuple[int, int], dict[str, Any]] = {}
+    out: dict[tuple[int, int, str], dict[str, Any]] = {}
     skipped_no_variant = 0
     skipped_promo_pakiet = 0
     for svc in services:
@@ -467,7 +489,13 @@ def _active_services_with_variant(
         if tid is None or vid is None:
             skipped_no_variant += 1
             continue
-        key = (int(tid), int(vid))
+        # 3rd key element: duration bucket (short/medium/long/unknown).
+        # User feedback (2026-05-16): SBC "1 Fokus" 15min 99zł porównany do
+        # Beauty4ever 60min 300zł = false +200% deviation → drop. Same-duration
+        # grouping naprawia: trial pricing matchuje się tylko z trialem,
+        # standard session z standard.
+        dur_bucket = _duration_bucket(svc.get("duration_minutes"))
+        key = (int(tid), int(vid), dur_bucket)
         existing = out.get(key)
         if existing is None:
             out[key] = svc
@@ -587,8 +615,11 @@ async def _compute_pricing_comparisons(
     # Build per-(tid, variant_id) competitor sample lists with full metadata.
     # Each sample preserves salon identity + the offered service so UI can
     # render a per-row drill-down.
+    # Key: (tid, variant_id, duration_bucket) — patrz _duration_bucket().
+    # Bucket dodany 2026-05-16 żeby trial 15min nie zafałszowywał deviation
+    # wobec standard 60min single session.
     competitor_samples_by_variant: dict[
-        tuple[int, int], list[dict[str, Any]]
+        tuple[int, int, str], list[dict[str, Any]]
     ] = {}
     for cand, cdata in aligned_competitors:
         if not cand.counts_in_aggregates:
@@ -617,7 +648,7 @@ async def _compute_pricing_comparisons(
     subject_service_ids_needing_verify: set[int] = set()
     prelim: list[dict[str, Any]] = []
     for variant_key, subject_svc in subject_svcs.items():
-        tid, variant_id = variant_key
+        tid, variant_id, _dur_bucket = variant_key
         samples = competitor_samples_by_variant.get(variant_key, [])
         subject_price = subject_svc.get("price_grosze")
         if subject_price is None:
