@@ -726,8 +726,14 @@ async def _compute_pricing_comparisons(
         # Emit row z NULL market values, deviation=None, action='subject_only'.
         # UI renderuje kreski + badge "tylko u Ciebie".
         if subject_only:
+            subject_dur = subject_svc.get("duration_minutes") or 0
+            subject_ppm = (
+                round(float(subject_price) / subject_dur, 2)
+                if subject_dur > 0 else None
+            )
             rows.append({
                 "report_id": report_id,
+                "comparison_tier": "variant",
                 "booksy_treatment_id": tid,
                 "variant_id": variant_id,
                 "treatment_name": (
@@ -737,13 +743,20 @@ async def _compute_pricing_comparisons(
                 "subject_price_grosze": int(subject_price),
                 "subject_is_from_price": bool(subject_svc.get("is_from_price") or False),
                 "subject_duration_minutes": subject_svc.get("duration_minutes"),
+                "subject_price_per_min_grosze": subject_ppm,
                 "market_min_grosze": None,
                 "market_p25_grosze": None,
                 "market_median_grosze": None,
                 "market_p75_grosze": None,
                 "market_max_grosze": None,
+                "market_price_per_min_grosze_min": None,
+                "market_price_per_min_grosze_p25": None,
+                "market_price_per_min_grosze_median": None,
+                "market_price_per_min_grosze_p75": None,
+                "market_price_per_min_grosze_max": None,
                 "subject_percentile": None,
                 "deviation_pct": None,
+                "deviation_pct_per_min": None,
                 "sample_size": 0,
                 "recommended_action": "subject_only",
                 "verification_status": "subject_only",
@@ -800,8 +813,41 @@ async def _compute_pricing_comparisons(
                 )
                 continue
 
+        # Compute PLN/min metrics (mig 068). Subject + market percentiles
+        # liczone z prices ÷ durations gdzie duration > 0.
+        subject_dur = subject_svc.get("duration_minutes") or 0
+        subject_ppm = (
+            round(float(subject_price) / subject_dur, 2)
+            if subject_dur > 0 else None
+        )
+        sample_ppms = [
+            float(s["price_grosze"]) / float(s["duration_minutes"])
+            for s in samples
+            if s.get("price_grosze") is not None
+            and s.get("duration_minutes") is not None
+            and s.get("duration_minutes") > 0
+        ]
+        market_ppm_pctiles = (
+            compute_percentiles(sample_ppms) if sample_ppms else None
+        )
+        market_ppm_median = (
+            round(market_ppm_pctiles["market_p50"], 2)
+            if market_ppm_pctiles else None
+        )
+        deviation_pct_per_min = (
+            round(
+                (subject_ppm - market_ppm_median) / market_ppm_median * 100.0,
+                2,
+            )
+            if subject_ppm is not None
+            and market_ppm_median is not None
+            and market_ppm_median > 0
+            else None
+        )
+
         rows.append({
             "report_id": report_id,
+            "comparison_tier": "variant",
             "booksy_treatment_id": tid,
             "variant_id": variant_id,
             "treatment_name": (
@@ -811,19 +857,43 @@ async def _compute_pricing_comparisons(
             "subject_price_grosze": int(subject_price),
             "subject_is_from_price": bool(subject_svc.get("is_from_price") or False),
             "subject_duration_minutes": subject_svc.get("duration_minutes"),
+            "subject_price_per_min_grosze": subject_ppm,
             "market_min_grosze": int(percentiles["market_min"]),
             "market_p25_grosze": int(percentiles["market_p25"]),
             "market_median_grosze": int(percentiles["market_p50"]),
             "market_p75_grosze": int(percentiles["market_p75"]),
             "market_max_grosze": int(percentiles["market_max"]),
+            "market_price_per_min_grosze_min": (
+                round(market_ppm_pctiles["market_min"], 2) if market_ppm_pctiles else None
+            ),
+            "market_price_per_min_grosze_p25": (
+                round(market_ppm_pctiles["market_p25"], 2) if market_ppm_pctiles else None
+            ),
+            "market_price_per_min_grosze_median": market_ppm_median,
+            "market_price_per_min_grosze_p75": (
+                round(market_ppm_pctiles["market_p75"], 2) if market_ppm_pctiles else None
+            ),
+            "market_price_per_min_grosze_max": (
+                round(market_ppm_pctiles["market_max"], 2) if market_ppm_pctiles else None
+            ),
             "subject_percentile": round(subject_pct, 2),
             "deviation_pct": round(deviation_pct, 2),
+            "deviation_pct_per_min": deviation_pct_per_min,
             "sample_size": len(samples),
             "recommended_action": recommended_action,
             "verification_status": verification_status,
             "verification_details": verification_details or None,
             "competitor_samples": samples,
         })
+
+    # ── Tier-1: per booksy_treatment_id family-level rows ──
+    # Opcja C: gwarantowany overlap dla każdej kategorii w cenniku subject.
+    # Aggregate ACROSS variants w jednym tid. UI top-level pokazuje to,
+    # drill-down → tier-2 variant rows.
+    tier1_rows = _compute_treatment_tier_rows(
+        report_id, subject_data, aligned_competitors,
+    )
+    rows.extend(tier1_rows)
 
     total_dropped = sum(dropped_counts.values())
     if total_dropped > 0:
@@ -837,6 +907,251 @@ async def _compute_pricing_comparisons(
             report_id,
         )
 
+    return rows
+
+
+def _compute_treatment_tier_rows(
+    report_id: int,
+    subject_data: dict[str, Any],
+    aligned_competitors: list[tuple[CompetitorCandidate, dict[str, Any]]],
+) -> list[dict[str, Any]]:
+    """Tier-1 pricing comparison rows aggregated per booksy_treatment_id.
+
+    Każda kategoria w cenniku subject (po LLM inference) dostaje JEDEN row
+    z agregowanymi statystykami ACROSS wszystkie warianty:
+      - subject prices: min/median/max + median PLN/min
+      - market prices: percentiles across competitor services w tym tid
+      - sample_size: ilość competitor services (NIE unique salons) w tid
+      - deviation_pct + deviation_pct_per_min — PLN/min preferowane bo
+        gracefully obsługuje duration variance między variantami
+
+    Filter (consistent z mig 067 stats):
+      - active = TRUE
+      - duration 5-240 min (no rezerwacje, no kosmetyczne pakiety całodniowe)
+      - non-package name (regex pakiet/abonament/karnet/zabiegów)
+      - subject_price_grosze IS NOT NULL
+
+    Emituje rows z comparison_tier='treatment', variant_id=NULL,
+    recommended_action ∈ {raise, lower, hold, subject_only}.
+    """
+    rows: list[dict[str, Any]] = []
+
+    def _eligible(svc: dict[str, Any]) -> bool:
+        if not svc.get("is_active", True):
+            return False
+        if svc.get("price_grosze") is None or svc.get("price_grosze", 0) <= 0:
+            return False
+        dur = svc.get("duration_minutes")
+        if dur is None or dur < 5 or dur > 240:
+            return False
+        name = (svc.get("name") or "").lower()
+        if any(kw in name for kw in (
+            "pakiet", "abonament", "karnet", "voucher", "bon ",
+            "x zabieg", "zabiegów",
+        )):
+            return False
+        if detect_package_keyword(svc.get("name") or ""):
+            return False
+        return True
+
+    # 1. Group subject services by tid (post-LLM-inference tids included).
+    subject_by_tid: dict[int, list[dict[str, Any]]] = {}
+    for svc in subject_data.get("services") or []:
+        if not _eligible(svc):
+            continue
+        tid = svc.get("booksy_treatment_id_raw") or svc.get("booksy_treatment_id")
+        if tid is None:
+            continue
+        subject_by_tid.setdefault(int(tid), []).append(svc)
+
+    if not subject_by_tid:
+        return rows
+
+    # 2. Group competitor services by tid (z counts_in_aggregates filter).
+    competitor_by_tid: dict[int, list[dict[str, Any]]] = {}
+    for cand, cdata in aligned_competitors:
+        if not cand.counts_in_aggregates:
+            continue
+        salon_name = (cdata.get("scrape") or {}).get("salon_name") or ""
+        for svc in cdata.get("services") or []:
+            if not _eligible(svc):
+                continue
+            tid = svc.get("booksy_treatment_id_raw") or svc.get("booksy_treatment_id")
+            if tid is None:
+                continue
+            sample = {
+                "salon_id": cdata.get("salon_id"),
+                "salon_name": salon_name,
+                "booksy_id": cand.booksy_id,
+                "service_id": svc.get("id"),
+                "service_name": svc.get("name"),
+                "price_grosze": int(svc["price_grosze"]),
+                "duration_minutes": int(svc["duration_minutes"]),
+            }
+            competitor_by_tid.setdefault(int(tid), []).append(sample)
+
+    # 3. Per tid, build aggregate row.
+    for tid, subj_svcs in subject_by_tid.items():
+        comp_samples = competitor_by_tid.get(tid, [])
+
+        # Treatment name — pick most common from subject side (already
+        # inferred via LLM if NULL).
+        treatment_names = [
+            (s.get("treatment_name") or s.get("name") or "")
+            for s in subj_svcs
+        ]
+        canonical_name = (
+            max(set(treatment_names), key=treatment_names.count)
+            if treatment_names else f"Treatment {tid}"
+        )
+
+        subj_prices = [float(s["price_grosze"]) for s in subj_svcs]
+        subj_ppms = [
+            float(s["price_grosze"]) / float(s["duration_minutes"])
+            for s in subj_svcs
+            if s.get("duration_minutes") and s["duration_minutes"] > 0
+        ]
+        subj_median_price = sorted(subj_prices)[len(subj_prices) // 2]
+        subj_median_ppm = (
+            round(sorted(subj_ppms)[len(subj_ppms) // 2], 2)
+            if subj_ppms else None
+        )
+
+        # Subject-only at tier-1 = no competitor offers anything in this tid.
+        if not comp_samples:
+            rows.append({
+                "report_id": report_id,
+                "comparison_tier": "treatment",
+                "booksy_treatment_id": tid,
+                "variant_id": None,
+                "treatment_name": canonical_name,
+                "treatment_parent_id": subj_svcs[0].get("treatment_parent_id"),
+                "subject_price_grosze": int(subj_median_price),
+                "subject_is_from_price": False,
+                "subject_duration_minutes": int(
+                    subj_svcs[0].get("duration_minutes") or 0
+                ) or None,
+                "subject_price_per_min_grosze": subj_median_ppm,
+                "market_min_grosze": None,
+                "market_p25_grosze": None,
+                "market_median_grosze": None,
+                "market_p75_grosze": None,
+                "market_max_grosze": None,
+                "market_price_per_min_grosze_min": None,
+                "market_price_per_min_grosze_p25": None,
+                "market_price_per_min_grosze_median": None,
+                "market_price_per_min_grosze_p75": None,
+                "market_price_per_min_grosze_max": None,
+                "subject_percentile": None,
+                "deviation_pct": None,
+                "deviation_pct_per_min": None,
+                "sample_size": 0,
+                "recommended_action": "subject_only",
+                "verification_status": "subject_only",
+                "verification_details": None,
+                "competitor_samples": [],
+            })
+            continue
+
+        # Compute market percentiles for both price and PLN/min.
+        market_prices = [float(s["price_grosze"]) for s in comp_samples]
+        market_ppms = [
+            float(s["price_grosze"]) / float(s["duration_minutes"])
+            for s in comp_samples
+            if s["duration_minutes"] > 0
+        ]
+        price_pcts = compute_percentiles(market_prices)
+        ppm_pcts = compute_percentiles(market_ppms) if market_ppms else None
+
+        # Deviation: prefer PLN/min for tier-1 since variants within tid
+        # have different durations — raw price deviation za noisy.
+        # Fallback to raw price deviation gdy nie mamy ppm samples.
+        dev_per_min = None
+        dev_raw = None
+        recommended_action = "hold"
+        if (
+            subj_median_ppm is not None
+            and ppm_pcts is not None
+            and ppm_pcts["market_p50"] > 0
+        ):
+            dev_per_min = round(
+                (subj_median_ppm - ppm_pcts["market_p50"]) / ppm_pcts["market_p50"]
+                * 100.0,
+                2,
+            )
+            recommended_action = _classify_pricing_action(dev_per_min)
+        elif price_pcts["market_p50"] > 0:
+            dev_raw = round(
+                (subj_median_price - price_pcts["market_p50"])
+                / price_pcts["market_p50"] * 100.0,
+                2,
+            )
+            recommended_action = _classify_pricing_action(dev_raw)
+
+        if dev_raw is None and price_pcts["market_p50"] > 0:
+            dev_raw = round(
+                (subj_median_price - price_pcts["market_p50"])
+                / price_pcts["market_p50"] * 100.0,
+                2,
+            )
+
+        subj_pct = compute_subject_percentile(subj_median_price, market_prices)
+
+        rows.append({
+            "report_id": report_id,
+            "comparison_tier": "treatment",
+            "booksy_treatment_id": tid,
+            "variant_id": None,
+            "treatment_name": canonical_name,
+            "treatment_parent_id": subj_svcs[0].get("treatment_parent_id"),
+            "subject_price_grosze": int(subj_median_price),
+            "subject_is_from_price": False,
+            "subject_duration_minutes": int(
+                subj_svcs[0].get("duration_minutes") or 0
+            ) or None,
+            "subject_price_per_min_grosze": subj_median_ppm,
+            "market_min_grosze": int(price_pcts["market_min"]),
+            "market_p25_grosze": int(price_pcts["market_p25"]),
+            "market_median_grosze": int(price_pcts["market_p50"]),
+            "market_p75_grosze": int(price_pcts["market_p75"]),
+            "market_max_grosze": int(price_pcts["market_max"]),
+            "market_price_per_min_grosze_min": (
+                round(ppm_pcts["market_min"], 2) if ppm_pcts else None
+            ),
+            "market_price_per_min_grosze_p25": (
+                round(ppm_pcts["market_p25"], 2) if ppm_pcts else None
+            ),
+            "market_price_per_min_grosze_median": (
+                round(ppm_pcts["market_p50"], 2) if ppm_pcts else None
+            ),
+            "market_price_per_min_grosze_p75": (
+                round(ppm_pcts["market_p75"], 2) if ppm_pcts else None
+            ),
+            "market_price_per_min_grosze_max": (
+                round(ppm_pcts["market_max"], 2) if ppm_pcts else None
+            ),
+            "subject_percentile": round(subj_pct, 2),
+            "deviation_pct": dev_raw,
+            "deviation_pct_per_min": dev_per_min,
+            "sample_size": len(comp_samples),
+            "recommended_action": recommended_action,
+            "verification_status": "verified",  # tier-1 nie używa verification
+            "verification_details": {
+                "tier": "treatment",
+                "subject_variants_in_tid": len(subj_svcs),
+                "competitor_services_in_tid": len(comp_samples),
+                "unique_competitor_salons": len(
+                    set(s["booksy_id"] for s in comp_samples if s.get("booksy_id"))
+                ),
+            },
+            "competitor_samples": comp_samples[:30],  # cap dla payload size
+        })
+
+    if rows:
+        logger.info(
+            "Etap 4 tier-1: emitted %d treatment-level rows (per booksy_treatment_id)",
+            len(rows),
+        )
     return rows
 
 
