@@ -540,7 +540,13 @@ async def _compute_pricing_comparisons(
     for variant_key, subject_svc in subject_svcs.items():
         tid, variant_id = variant_key
         samples = competitor_samples_by_variant.get(variant_key, [])
-        if len(samples) < 2:
+        # User feedback: \"tutaj powinno być maksymalnie dużo nakładających
+        # się + kreski jeśli nie ma\". Zostawiamy gate ≥ 1 (jest jakaś
+        # baza porównawcza), ale akceptujemy single-sample rows — mediana
+        # = ta jedna cena, deviation realny, UI pokazuje sample=1 jako
+        # podpowiedź że to mała próba. Sample=0 (brak overlap'u) trafia
+        # do osobnej sekcji \"Twoje unikalne USP\" niżej.
+        if len(samples) < 1:
             continue
         subject_price = subject_svc.get("price_grosze")
         if subject_price is None:

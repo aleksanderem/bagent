@@ -287,16 +287,30 @@ def compute_digital_maturity_scores(
     has_online_services: bool | None,
     has_online_vouchers: bool | None,
     pos_pay_by_app: bool | None,
+    partner_system: str | None = None,
 ) -> dict[str, float]:
     """Compute digital maturity flags + composite score.
 
     Dimensions:
-    - has_online_services: boolean
-    - has_online_vouchers: boolean
-    - pos_pay_by_app: boolean
+    - has_online_services: boolean. Booksy API zwraca false dla salonów
+      Versum (rezerwacja idzie przez stronę Versum, nie aplikację Booksy).
+      Z punktu widzenia klienta i właściciela "rezerwacja online" jednak
+      JEST — Versum/Booksy/inny — wszystkie partner systems oferują
+      online booking. Force TRUE dla każdego non-native partner_system,
+      bo każdy aktywny salon z synchronizacją do Booksy ma własny booking.
+    - has_online_vouchers: boolean (Booksy-specific feature, nie skalujemy)
+    - pos_pay_by_app: boolean (Booksy POS, nie skalujemy)
     - digital_maturity_score: sum of the three booleans above (0-3 integer)
     """
-    o_serv = _bool_to_float(has_online_services)
+    # Dla partner_system != native (np. "versum", "fresha", "treatwell")
+    # zakładamy że salon ma online booking — to jest core feature każdego
+    # SaaS-a do salonów. Booksy zwraca false tylko dlatego że booking
+    # idzie przez ich własny system, nie Booksy aplikację.
+    effective_online = has_online_services
+    if effective_online is not True and partner_system and partner_system.lower() != "native":
+        effective_online = True
+
+    o_serv = _bool_to_float(effective_online)
     o_vouch = _bool_to_float(has_online_vouchers)
     pos_pay = _bool_to_float(pos_pay_by_app)
     return {
@@ -488,6 +502,7 @@ def compute_all_dimensions_for_salon(salon_data: dict[str, Any]) -> dict[str, fl
             has_online_services=scrape.get("has_online_services"),
             has_online_vouchers=scrape.get("has_online_vouchers"),
             pos_pay_by_app=scrape.get("pos_pay_by_app"),
+            partner_system=scrape.get("partner_system"),
         )
     )
     result.update(
