@@ -661,11 +661,26 @@ async def select_competitors(
             portfolio_emb_sim = cosine_similarity_dense(
                 subject_bundle.portfolio_embedding, cand_bundle.portfolio_embedding,
             )
+            # Asymmetric tid set overlap — answers the intuitive UX question
+            # "what fraction of MY treatment categories does this competitor
+            # also offer?". Independent of cosine which is focus-weighted.
+            # focus_tid_sim says "nasze rozkłady focus są podobne" (e.g. both
+            # heavily on tid 503 = Endermologia), this says "ile z moich
+            # kategorii w ogóle ma ten konkurent w swoim cenniku". A user
+            # parsing competitor cenniks by hand expects to count the
+            # latter — see UI label "Nakładanie ofertowe".
+            subj_tids = set(subject_bundle.focus_distribution.keys())
+            cand_tids = set(cand_bundle.focus_distribution.keys())
+            if subj_tids:
+                tid_set_overlap_asym = len(subj_tids & cand_tids) / len(subj_tids)
+            else:
+                tid_set_overlap_asym = 0.0
         else:
             # Subject bez focus — neutral (wszystkim 0; effectively v1 lite)
             focus_tid_sim = 0.0
             focus_var_sim = 0.0
             portfolio_emb_sim = 0.0
+            tid_set_overlap_asym = 0.0
 
         composite = compute_composite_score_v2(
             focus_tid_sim=focus_tid_sim,
@@ -706,6 +721,7 @@ async def select_competitors(
                     "portfolio_embedding_sim": round(portfolio_emb_sim, 4),
                     "reviews_count_similarity": round(rc_sim, 4),
                     "distance_penalty": round(compute_distance_penalty(distance_km), 2),
+                    "tid_set_overlap_asym": round(tid_set_overlap_asym, 4),
                 },
                 partner_system=partner,
             )

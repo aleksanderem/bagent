@@ -1100,6 +1100,25 @@ def _build_competitor_profiles(
         # should already be bounded but guard against weighted-variant
         # edge cases producing 1.0+ values.
         overlap_val = max(0.0, min(1.0, overlap_val))
+        # Second metric — asymmetric tid set overlap. Answers the
+        # intuitive question "what % of MY treatment categories does this
+        # competitor also offer?". Independent axis from cosine focus
+        # similarity: a competitor with broad menu (many tids) can have
+        # low focus cosine but high asymmetric coverage, and vice versa.
+        # Both are forwarded so the rich UI can show them side by side
+        # ("Nakładanie ofertowe" vs "Podobieństwo profilu") and the user
+        # can cross-reference with a hand-parsed cennik.
+        tid_set_overlap = (
+            sims.get("tid_set_overlap_asym") if isinstance(sims, dict) else None
+        )
+        try:
+            overlap_asym_val = (
+                float(tid_set_overlap) if tid_set_overlap is not None else None
+            )
+        except (TypeError, ValueError):
+            overlap_asym_val = None
+        if overlap_asym_val is not None:
+            overlap_asym_val = max(0.0, min(1.0, overlap_asym_val))
         profiles.append({
             "id": int(salon_id) if salon_id is not None else int(booksy_id or 0),
             "salon_id": int(salon_id) if salon_id is not None else None,
@@ -1112,6 +1131,7 @@ def _build_competitor_profiles(
             "reviews_rank": float(m.get("reviews_rank") or 0.0),
             "reviews_count": int(m.get("reviews_count") or 0),
             "overlap": overlap_val,
+            "overlap_asym": overlap_asym_val,
             "lat": lat_val,
             "lng": lng_val,
             "thumbnailPhoto": thumbnail if isinstance(thumbnail, str) and thumbnail else None,
