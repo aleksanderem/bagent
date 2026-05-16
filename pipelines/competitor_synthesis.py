@@ -1183,27 +1183,60 @@ def _build_opportunities(
         deviation = float(p.get("deviation_pct") or 0)
         if deviation > -15:  # only interesting when underpriced by >15%
             continue
+        sample_size = int(p.get("sample_size") or 0)
+        # Sample <3 — mediana z 2 cen jest zbyt wrażliwa na outliery żeby
+        # dawać konkretne rekomendacje cenowe. Empirycznie (report 34):
+        # "Leczenie nadpotliwości stóp" 1300 zł vs mediana 1645 zł, sample=2
+        # — dawało rekomendację +6210 zł/m-c która opiera się o 2 punkty
+        # cenowe od 2 konkurentów. Wymagamy ≥3.
+        if sample_size < 3:
+            continue
         median = int(p.get("market_median_grosze") or 0)
         subject = int(p.get("subject_price_grosze") or 0)
         if median <= 0 or subject <= 0:
             continue
-        # Conservative impact: 60% of the gap × 30 sessions/month assumption
-        per_session_gain = (median - subject)
-        if per_session_gain <= 0:
+        per_session_gain_grosze = (median - subject)
+        if per_session_gain_grosze <= 0:
             continue
-        estimated_impact = int(per_session_gain * 0.6 * 30)
+
+        # Volume assumption skalowana per cena. Wcześniej flat 30 wizyt/m-c
+        # dla każdego zabiegu — kompletnie nierealistyczne dla zabiegów
+        # medycznych premium (np. \"Leczenie nadpotliwości stóp\" 1645 zł
+        # to 2-4/m-c, nie 30). Rough industry benchmarks:
+        #   ≤ 100 zł (mass market: paznokcie, lashes)      → 25 wizyt/m-c
+        #   100-300 zł (kosmetyka klasyczna, masaż)        → 12
+        #   300-800 zł (medyczna entry, średni laser)      → 6
+        #   800-1500 zł (medyczna premium, lasery dedyk.)  → 3
+        #   > 1500 zł (high-end medical, premium)          → 2
+        median_zl = median / 100
+        if median_zl <= 100:
+            sessions_per_month = 25
+        elif median_zl <= 300:
+            sessions_per_month = 12
+        elif median_zl <= 800:
+            sessions_per_month = 6
+        elif median_zl <= 1500:
+            sessions_per_month = 3
+        else:
+            sessions_per_month = 2
+
+        # Capture rate 60% — większość salonów nie podniesie się do pełnej
+        # mediany, część klientów może odejść do tańszych konkurentów.
+        estimated_impact = int(per_session_gain_grosze * 0.6 * sessions_per_month)
         items.append({
             "kind": "underpriced",
             "area": "Cennik",
             "title": f"Podnieś cenę: {p.get('treatment_name') or 'Usługa'}",
             "detail": (
                 f"Twoja cena {subject / 100:.0f} zł jest {abs(deviation):.0f}% poniżej "
-                f"mediany rynku ({median / 100:.0f} zł, próba {p.get('sample_size') or 0} konkurentów)."
+                f"mediany rynku ({median / 100:.0f} zł, próba {sample_size} konkurentów). "
+                f"Modelowane założenie: {sessions_per_month} wizyt/m-c × 60% retencji klientów."
             ),
             "impactGrosze": estimated_impact,
-            "evidenceCount": int(p.get("sample_size") or 0),
+            "evidenceCount": sample_size,
             "deviationPct": deviation,
             "sourcePricingId": p.get("id"),
+            "_volumeAssumption": sessions_per_month,
         })
 
     items.sort(key=lambda x: x.get("impactGrosze") or 0, reverse=True)
