@@ -1058,6 +1058,23 @@ def _build_competitor_profiles(
         if salon_id is None and booksy_id is None:
             continue
         thumbnail = m.get("thumbnail_photo")
+        # Forward geocoords from the salons table (now joined by
+        # SupabaseService.get_competitor_matches). Without these the rich
+        # UI Leaflet map (components/results/competitor/rich/primitives.tsx
+        # `MiniMap`) falls back to WARSZAWA_DEFAULT_LAT/LNG for every
+        # competitor, stacking every pin on the same point. Coerce to float
+        # so PostgREST string-encoded NUMERIC values still satisfy the
+        # adapter's `typeof obj.lat === 'number'` guard.
+        raw_lat = m.get("lat")
+        raw_lng = m.get("lng")
+        try:
+            lat_val: float | None = float(raw_lat) if raw_lat is not None else None
+        except (TypeError, ValueError):
+            lat_val = None
+        try:
+            lng_val: float | None = float(raw_lng) if raw_lng is not None else None
+        except (TypeError, ValueError):
+            lng_val = None
         profiles.append({
             "id": int(salon_id) if salon_id is not None else int(booksy_id or 0),
             "salon_id": int(salon_id) if salon_id is not None else None,
@@ -1070,6 +1087,8 @@ def _build_competitor_profiles(
             "reviews_rank": float(m.get("reviews_rank") or 0.0),
             "reviews_count": int(m.get("reviews_count") or 0),
             "overlap": _DEFAULT_OVERLAP,
+            "lat": lat_val,
+            "lng": lng_val,
             "thumbnailPhoto": thumbnail if isinstance(thumbnail, str) and thumbnail else None,
             "thumbnail_photo": thumbnail if isinstance(thumbnail, str) and thumbnail else None,
         })

@@ -1974,7 +1974,10 @@ class SupabaseService:
         try:
             salon_res = (
                 self.client.table("salons")
-                .select("id,booksy_id,name,reviews_rank,reviews_count,city,thumbnail_photo")
+                .select(
+                    "id,booksy_id,name,reviews_rank,reviews_count,city,"
+                    "thumbnail_photo,latitude,longitude"
+                )
                 .in_("id", salon_ids)
                 .execute()
             )
@@ -1995,6 +1998,14 @@ class SupabaseService:
                 m["reviews_count"] = s.get("reviews_count")
                 m["city"] = s.get("city")
                 m["thumbnail_photo"] = s.get("thumbnail_photo")
+                # Coords go straight into the synthesis JSON snapshot so the
+                # rich UI Leaflet map can render each competitor pin at its
+                # real location instead of falling back to a single Warsaw
+                # default. PostgREST returns NUMERIC as Python float; null
+                # latitude/longitude rows are forwarded as-is so the
+                # adapter's fallback kicks in for those individual salons.
+                m["lat"] = s.get("latitude")
+                m["lng"] = s.get("longitude")
         return matches
 
     async def get_competitor_pricing_comparisons(
