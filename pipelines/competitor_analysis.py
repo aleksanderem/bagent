@@ -3434,6 +3434,17 @@ async def _aggregate_verified_match_counts(
 # Heuristic patterns to surface subject packages BEFORE involving LLM.
 # Each regex catches a different package marker — pakiety, multiplier
 # notation ("3x", "5 +1"), monthly abonament, body-area bundles.
+# Cosine similarity floor for matching a package to its single-session
+# equivalent at the SAME salon. Below this the candidate is rejected,
+# even when same booksy_treatment_id — defends against cases like
+# "Dermapen 4 - pakiet 3 zabiegów" vs "EstGen do zabiegu Dermapen na
+# 1 obszar" where the cheapest tid-mate is actually a preparation mask
+# add-on, not a genuine single-session version of the package. Same
+# threshold as Faza 7's _TREATMENT_TIER_MIN_NAME_SIM (0.55) by design —
+# both filters share the OpenAI text-embedding-3-small space and the
+# same "genuine variant vs cousin service" semantic.
+_SINGLE_MATCH_MIN_SIM = 0.55
+
 _PACKAGE_HEURISTIC_PATTERNS = [
     re.compile(r"\bpakiet\b", re.IGNORECASE),
     re.compile(r"\babonament\b", re.IGNORECASE),
@@ -3583,30 +3594,69 @@ async def _analyze_subject_packages(
         units = max(sessions * areas, 1)
         per_session_grosze = price_grosze // units
 
-        # Find best single at same salon: same tid_key, closest price.
+        # Find best single at same salon: same tid_key + name embedding
+        # cosine to package ≥ _SINGLE_MATCH_MIN_SIM. The embedding gate is
+        # essential — without it the deterministic match picks the
+        # cheapest service under the same tid (e.g. "EstGen do zabiegu
+        # Dermapen na 1 obszar" 150zł as the "single" for "Dermapen 4 -
+        # pakiet 3 zabiegów" 1500zł — EstGen is just the mask preparation
+        # add-on, not a full Dermapen single). Empirically 0.55 separates
+        # genuine variants from add-ons / different-procedure services.
         key = _tid_key(svc)
         single_match: dict[str, Any] | None = None
+        pkg_emb = svc.get("name_embedding") or svc.get("name_embedding_dense")
         if key is not None:
-            candidates = singles_by_key.get(key) or []
-            # Pick the single with the closest duration if the package
-            # has a per-session duration hint; fall back to median price.
-            target_duration = svc.get("duration_minutes")
-            if target_duration:
-                candidates_sorted = sorted(
-                    candidates,
-                    key=lambda c: abs(
-                        (c.get("duration_minutes") or 0) - target_duration
-                    ),
+            raw_candidates = singles_by_key.get(key) or []
+            # Filter by embedding similarity FIRST so we only ever rank
+            # genuine variants. Services without embedding fall through
+            # (rare — name_embedding is populated at ingest for chain
+            # heads). Score each kept candidate so we can use similarity
+            # as a tiebreaker against duration / price.
+            filtered_candidates: list[tuple[dict[str, Any], float]] = []
+            for cand in raw_candidates:
+                cand_emb = (
+                    cand.get("name_embedding")
+                    or cand.get("name_embedding_dense")
                 )
+                if pkg_emb is None or cand_emb is None:
+                    # Conservative: include but with neutral score.
+                    filtered_candidates.append((cand, 0.5))
+                    continue
+                sim = compute_name_embedding_similarity(pkg_emb, cand_emb)
+                if sim is None:
+                    continue
+                if sim < _SINGLE_MATCH_MIN_SIM:
+                    continue
+                filtered_candidates.append((cand, float(sim)))
+            if not filtered_candidates:
+                single_match = None
             else:
-                # Closest price to per_session estimate.
-                candidates_sorted = sorted(
-                    candidates,
-                    key=lambda c: abs(
-                        (c.get("price_grosze") or 0) - per_session_grosze
-                    ),
-                )
-            single_match = candidates_sorted[0] if candidates_sorted else None
+                # Highest similarity first; break ties by closest
+                # duration to the package's per-session duration when
+                # provided, else closest price to the per-session
+                # estimate.
+                target_duration = svc.get("duration_minutes")
+                if target_duration:
+                    filtered_candidates.sort(
+                        key=lambda pair: (
+                            -pair[1],
+                            abs(
+                                (pair[0].get("duration_minutes") or 0)
+                                - target_duration
+                            ),
+                        ),
+                    )
+                else:
+                    filtered_candidates.sort(
+                        key=lambda pair: (
+                            -pair[1],
+                            abs(
+                                (pair[0].get("price_grosze") or 0)
+                                - per_session_grosze
+                            ),
+                        ),
+                    )
+                single_match = filtered_candidates[0][0]
 
         if single_match is None:
             verdict = "no_single_match"
