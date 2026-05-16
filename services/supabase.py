@@ -1304,6 +1304,49 @@ class SupabaseService:
                     out[int(sid)] = emb
         return out
 
+    async def get_sub_variants_for_services(
+        self, service_ids: list[int],
+    ) -> dict[int, list[dict[str, Any]]]:
+        """Return {service_id: [sub_variant_row, ...]} dla podanych services.
+
+        Source: salon_scrape_service_variants (mig 069). Każda usługa może
+        mieć multiple sub-variants (natywne Booksy sub-options). Sub-variants
+        z sub_variant_group_id set (mig 071 normalization) są ready do
+        cross-salon matchingu w pricing tier-3.
+
+        Returns sub-variants regardless of group_id assignment (pipeline może
+        filtrować). Chunkuje po 500 service_ids dla REST API limits.
+        """
+        if not service_ids:
+            return {}
+        out: dict[int, list[dict[str, Any]]] = {}
+        CHUNK = 500
+        for i in range(0, len(service_ids), CHUNK):
+            chunk = service_ids[i : i + CHUNK]
+            try:
+                res = (
+                    self.client.table("salon_scrape_service_variants")
+                    .select(
+                        "id,service_id,booksy_variant_id,label,price_grosze,"
+                        "duration_minutes,type,omnibus_price_grosze,"
+                        "sub_variant_group_id,sub_variant_match_confidence,sort_order"
+                    )
+                    .in_("service_id", chunk)
+                    .execute()
+                )
+            except Exception as e:
+                logger.warning(
+                    "Failed to load sub-variants for service ids %s..%s: %s",
+                    chunk[0], chunk[-1], e,
+                )
+                continue
+            for row in res.data or []:
+                sid = row.get("service_id")
+                if sid is None:
+                    continue
+                out.setdefault(int(sid), []).append(row)
+        return out
+
     async def insert_competitor_dimensional_scores(self, rows: list[dict]) -> int:
         """Batch-insert competitor_dimensional_scores rows. Returns count."""
         if not rows:

@@ -895,6 +895,28 @@ async def _compute_pricing_comparisons(
     )
     rows.extend(tier1_rows)
 
+    # ── Tier-3: per (tid + sub_variant_group_id + duration_bucket) ──
+    # Najprecyzyjniejszy match cross-salon. "Botoks Twarz" subject vs
+    # "Botoks Twarz" competitor — apples-to-apples. Sub_variant_group_id
+    # to deterministic cross-salon cluster z mig 071. Wymaga aby salonowy
+    # cennik używał natywnej Booksy multi-variant feature; salony z flat
+    # listingiem dostają NULL group_id na sub-variantach i pomijamy je
+    # w tier-3 (zostają w tier-1/tier-2).
+    try:
+        tier3_rows = await _compute_sub_variant_tier_rows(
+            service, report_id, subject_data, aligned_competitors,
+        )
+        rows.extend(tier3_rows)
+        logger.info(
+            "Etap 4 tier-3: emitted %d sub_variant-level rows",
+            len(tier3_rows),
+        )
+    except Exception as e:
+        logger.warning(
+            "Tier-3 sub-variant pricing failed (%s) — continuing without tier-3",
+            e,
+        )
+
     total_dropped = sum(dropped_counts.values())
     if total_dropped > 0:
         logger.info(
@@ -1152,6 +1174,315 @@ def _compute_treatment_tier_rows(
             "Etap 4 tier-1: emitted %d treatment-level rows (per booksy_treatment_id)",
             len(rows),
         )
+    return rows
+
+
+async def _compute_sub_variant_tier_rows(
+    service: SupabaseService,
+    report_id: int,
+    subject_data: dict[str, Any],
+    aligned_competitors: list[tuple[CompetitorCandidate, dict[str, Any]]],
+) -> list[dict[str, Any]]:
+    """Tier-3 pricing comparison rows per (tid, sub_variant_group_id, duration_bucket).
+
+    Najprecyzyjniejszy match cross-salon. Wykorzystuje natywne Booksy
+    multi-variants (mig 069) zlinkowane do cross-salon clusters (mig 071).
+    Salons które używają tej feature dostają granular comparison ("Botoks
+    Twarz" subject vs "Botoks Twarz" konkurenta), salons z flat listing
+    pozostają w tier-1/tier-2.
+
+    Algorytm:
+      1. Load sub-variants dla wszystkich subject + competitor services
+      2. Group subject sub-variants po (tid, group_id, duration_bucket)
+      3. Group competitor sub-variants similarly
+      4. Per subject group: znajdź matching competitor samples
+      5. Emit row z deviation w cenach + PLN/min
+      6. Subject-only path gdy brak overlap
+    """
+    rows: list[dict[str, Any]] = []
+
+    # 1. Zbierz service IDs z subject + competitors (counts_in_aggregates).
+    subject_service_ids: list[int] = []
+    for svc in subject_data.get("services") or []:
+        sid = svc.get("id")
+        if sid is not None:
+            subject_service_ids.append(int(sid))
+
+    competitor_service_ids: list[int] = []
+    competitor_service_meta: dict[int, dict[str, Any]] = {}
+    for cand, cdata in aligned_competitors:
+        if not cand.counts_in_aggregates:
+            continue
+        salon_name = (cdata.get("scrape") or {}).get("salon_name") or ""
+        for svc in cdata.get("services") or []:
+            sid = svc.get("id")
+            if sid is None:
+                continue
+            competitor_service_ids.append(int(sid))
+            competitor_service_meta[int(sid)] = {
+                "salon_id": cdata.get("salon_id"),
+                "salon_name": salon_name,
+                "booksy_id": cand.booksy_id,
+                "service_name": svc.get("name"),
+                "service_tid": (
+                    svc.get("booksy_treatment_id_raw")
+                    or svc.get("booksy_treatment_id")
+                ),
+                "is_promo": bool(svc.get("is_promo")),
+                "is_active": bool(svc.get("is_active", True)),
+            }
+
+    subject_service_meta: dict[int, dict[str, Any]] = {}
+    for svc in subject_data.get("services") or []:
+        sid = svc.get("id")
+        if sid is None:
+            continue
+        subject_service_meta[int(sid)] = {
+            "service_name": svc.get("name"),
+            "service_tid": (
+                svc.get("booksy_treatment_id_raw")
+                or svc.get("booksy_treatment_id")
+            ),
+            "treatment_name": svc.get("treatment_name"),
+            "treatment_parent_id": svc.get("treatment_parent_id"),
+            "is_promo": bool(svc.get("is_promo")),
+            "is_active": bool(svc.get("is_active", True)),
+        }
+
+    if not subject_service_ids:
+        return rows
+
+    # 2. Load sub-variants.
+    all_service_ids = subject_service_ids + competitor_service_ids
+    sub_variants_map = await service.get_sub_variants_for_services(all_service_ids)
+    if not sub_variants_map:
+        return rows
+
+    # 3. Group subject sub-variants po (tid, group_id, duration_bucket).
+    # Key: (tid, sub_variant_group_id, duration_bucket).
+    # Value: best (cheapest) sub-variant w bukcie.
+    SubKey = tuple[int, int, str]
+    subject_subs: dict[SubKey, dict[str, Any]] = {}
+    for sid in subject_service_ids:
+        svc_meta = subject_service_meta.get(sid) or {}
+        if not svc_meta.get("is_active", True):
+            continue
+        if svc_meta.get("is_promo"):
+            continue
+        if detect_package_keyword(svc_meta.get("service_name") or ""):
+            continue
+        tid = svc_meta.get("service_tid")
+        if tid is None:
+            continue
+        for sv in sub_variants_map.get(sid, []):
+            gid = sv.get("sub_variant_group_id")
+            label = sv.get("label")
+            if gid is None or not label:
+                continue
+            price = sv.get("price_grosze")
+            duration = sv.get("duration_minutes")
+            if price is None or duration is None or duration < 5 or duration > 240:
+                continue
+            if price <= 0:
+                continue
+            bucket = _duration_bucket(duration)
+            key = (int(tid), int(gid), bucket)
+            existing = subject_subs.get(key)
+            if existing is None or price < existing["price_grosze"]:
+                subject_subs[key] = {
+                    "service_id": sid,
+                    "sub_variant_id": sv.get("id"),
+                    "sub_variant_label": label,
+                    "price_grosze": int(price),
+                    "duration_minutes": int(duration),
+                    "treatment_name": svc_meta.get("treatment_name"),
+                    "treatment_parent_id": svc_meta.get("treatment_parent_id"),
+                    "service_name": svc_meta.get("service_name"),
+                }
+
+    if not subject_subs:
+        return rows
+
+    # 4. Group competitor sub-variants similarly.
+    competitor_subs: dict[SubKey, list[dict[str, Any]]] = {}
+    for sid in competitor_service_ids:
+        meta = competitor_service_meta.get(sid) or {}
+        if not meta.get("is_active", True) or meta.get("is_promo"):
+            continue
+        if detect_package_keyword(meta.get("service_name") or ""):
+            continue
+        tid = meta.get("service_tid")
+        if tid is None:
+            continue
+        for sv in sub_variants_map.get(sid, []):
+            gid = sv.get("sub_variant_group_id")
+            label = sv.get("label")
+            if gid is None or not label:
+                continue
+            price = sv.get("price_grosze")
+            duration = sv.get("duration_minutes")
+            if price is None or duration is None or duration < 5 or duration > 240:
+                continue
+            if price <= 0:
+                continue
+            bucket = _duration_bucket(duration)
+            key = (int(tid), int(gid), bucket)
+            competitor_subs.setdefault(key, []).append({
+                "service_id": sid,
+                "sub_variant_id": sv.get("id"),
+                "sub_variant_label": label,
+                "salon_id": meta.get("salon_id"),
+                "salon_name": meta.get("salon_name"),
+                "booksy_id": meta.get("booksy_id"),
+                "service_name": meta.get("service_name"),
+                "price_grosze": int(price),
+                "duration_minutes": int(duration),
+            })
+
+    # 5. Per subject sub-variant key: emit comparison row.
+    for key, subj in subject_subs.items():
+        tid, gid, bucket = key
+        samples = competitor_subs.get(key, [])
+        subj_price = subj["price_grosze"]
+        subj_dur = subj["duration_minutes"]
+        subj_ppm = round(float(subj_price) / float(subj_dur), 2) if subj_dur > 0 else None
+
+        if not samples:
+            # Subject-only sub-variant.
+            rows.append({
+                "report_id": report_id,
+                "comparison_tier": "sub_variant",
+                "booksy_treatment_id": tid,
+                "variant_id": None,
+                "sub_variant_group_id": gid,
+                "sub_variant_label": subj["sub_variant_label"],
+                "treatment_name": (
+                    subj.get("treatment_name")
+                    or subj.get("service_name") or f"Treatment {tid}"
+                ),
+                "treatment_parent_id": subj.get("treatment_parent_id"),
+                "subject_price_grosze": int(subj_price),
+                "subject_is_from_price": False,
+                "subject_duration_minutes": int(subj_dur),
+                "subject_price_per_min_grosze": subj_ppm,
+                "market_min_grosze": None,
+                "market_p25_grosze": None,
+                "market_median_grosze": None,
+                "market_p75_grosze": None,
+                "market_max_grosze": None,
+                "market_price_per_min_grosze_min": None,
+                "market_price_per_min_grosze_p25": None,
+                "market_price_per_min_grosze_median": None,
+                "market_price_per_min_grosze_p75": None,
+                "market_price_per_min_grosze_max": None,
+                "subject_percentile": None,
+                "deviation_pct": None,
+                "deviation_pct_per_min": None,
+                "sample_size": 0,
+                "recommended_action": "subject_only",
+                "verification_status": "subject_only",
+                "verification_details": {"tier": "sub_variant"},
+                "competitor_samples": [],
+            })
+            continue
+
+        market_prices = [float(s["price_grosze"]) for s in samples]
+        market_ppms = [
+            float(s["price_grosze"]) / float(s["duration_minutes"])
+            for s in samples
+            if s["duration_minutes"] > 0
+        ]
+        price_pcts = compute_percentiles(market_prices)
+        ppm_pcts = compute_percentiles(market_ppms) if market_ppms else None
+
+        dev_per_min = None
+        dev_raw = None
+        recommended_action = "hold"
+        if (
+            subj_ppm is not None
+            and ppm_pcts is not None
+            and ppm_pcts["market_p50"] > 0
+        ):
+            dev_per_min = round(
+                (subj_ppm - ppm_pcts["market_p50"]) / ppm_pcts["market_p50"] * 100.0,
+                2,
+            )
+            recommended_action = _classify_pricing_action(dev_per_min)
+        if price_pcts["market_p50"] > 0:
+            dev_raw = round(
+                (float(subj_price) - price_pcts["market_p50"])
+                / price_pcts["market_p50"] * 100.0,
+                2,
+            )
+            if dev_per_min is None:
+                recommended_action = _classify_pricing_action(dev_raw)
+
+        subj_pct = compute_subject_percentile(float(subj_price), market_prices)
+
+        rows.append({
+            "report_id": report_id,
+            "comparison_tier": "sub_variant",
+            "booksy_treatment_id": tid,
+            "variant_id": None,
+            "sub_variant_group_id": gid,
+            "sub_variant_label": subj["sub_variant_label"],
+            "treatment_name": (
+                subj.get("treatment_name")
+                or subj.get("service_name") or f"Treatment {tid}"
+            ),
+            "treatment_parent_id": subj.get("treatment_parent_id"),
+            "subject_price_grosze": int(subj_price),
+            "subject_is_from_price": False,
+            "subject_duration_minutes": int(subj_dur),
+            "subject_price_per_min_grosze": subj_ppm,
+            "market_min_grosze": int(price_pcts["market_min"]),
+            "market_p25_grosze": int(price_pcts["market_p25"]),
+            "market_median_grosze": int(price_pcts["market_p50"]),
+            "market_p75_grosze": int(price_pcts["market_p75"]),
+            "market_max_grosze": int(price_pcts["market_max"]),
+            "market_price_per_min_grosze_min": (
+                round(ppm_pcts["market_min"], 2) if ppm_pcts else None
+            ),
+            "market_price_per_min_grosze_p25": (
+                round(ppm_pcts["market_p25"], 2) if ppm_pcts else None
+            ),
+            "market_price_per_min_grosze_median": (
+                round(ppm_pcts["market_p50"], 2) if ppm_pcts else None
+            ),
+            "market_price_per_min_grosze_p75": (
+                round(ppm_pcts["market_p75"], 2) if ppm_pcts else None
+            ),
+            "market_price_per_min_grosze_max": (
+                round(ppm_pcts["market_max"], 2) if ppm_pcts else None
+            ),
+            "subject_percentile": round(subj_pct, 2),
+            "deviation_pct": dev_raw,
+            "deviation_pct_per_min": dev_per_min,
+            "sample_size": len(samples),
+            "recommended_action": recommended_action,
+            "verification_status": "verified",
+            "verification_details": {
+                "tier": "sub_variant",
+                "duration_bucket": bucket,
+                "unique_competitor_salons": len(
+                    set(s["booksy_id"] for s in samples if s.get("booksy_id"))
+                ),
+            },
+            "competitor_samples": [
+                {
+                    "salon_id": s["salon_id"],
+                    "salon_name": s["salon_name"],
+                    "booksy_id": s["booksy_id"],
+                    "service_id": s["service_id"],
+                    "service_name": s["service_name"],
+                    "sub_variant_label": s["sub_variant_label"],
+                    "price_grosze": s["price_grosze"],
+                    "duration_minutes": s["duration_minutes"],
+                }
+                for s in samples[:30]
+            ],
+        })
+
     return rows
 
 
