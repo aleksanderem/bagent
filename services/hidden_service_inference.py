@@ -122,14 +122,18 @@ class GeminiLLMClient:
 
 _SYSTEM_PROMPT = """Jesteś ekspertem od taksonomii Booksy.pl. Kategoryzujesz usługi beauty/wellness.
 
-Dostaniesz nazwę + opis usługi i listę kandydujących kategorii Booksy. Wybierz JEDNĄ.
+Dostaniesz nazwę + opis usługi (i opcjonalnie kategorię nadaną przez salon w swoim cenniku) oraz listę kandydujących kategorii Booksy. Wybierz JEDNĄ z listy LUB zwróć tid=null gdy żadna nie pasuje rzeczywiście do procedury.
 
 Reguły:
 - depilacja laserowa (Thunder/Soprano/Diode/Alex/laser do włosów) → parent="Depilacja"
 - IPL/fotoodmładzanie laserem → "Fotoodmładzanie" lub "Zabieg laserowy"
 - modelowanie sylwetki/cellulit/kawitacja/EMS → "Zabiegi na ciało i modelowanie sylwetki"
-- żadna kategoria nie pasuje → tid=null
+- KROPLÓWKI / IV drips / wlewy dożylne / mezoterapia IV / NAD+ infuzje → tid=null (NIE Tlenoterapia, NIE Medycyna sportowa, NIE Fizjoterapia — to są CAŁKIEM RÓŻNE procedury, nawet jeśli embedding je do siebie zbliża)
+- iniekcje pojedynczych substancji domięśniowo / dożylnie / podskórnie (witaminy, glutation, NAD+, kwas) bez wyraźnego kontekstu zabiegowego → tid=null
+- żadna kategoria z listy NAPRAWDĘ nie pasuje (nie tylko "blisko") → tid=null
 - NIE wymyślaj tid spoza listy
+- KIEDY salon przypisał własną kategorię (np. "Kroplówki", "Stymulatory tkankowe") a ŻADNA z kategorii Booksy z listy nie jest tym samym co salonowa kategoria → tid=null. Zaufaj kategoryzacji salonu jako mocnemu sygnałowi że Booksy nie ma odpowiednika.
+- Confidence: 0.9+ tylko gdy procedura JEDNOZNACZNIE pasuje. 0.7-0.85 dla rozsądnego matcha. Poniżej 0.7 lepiej zwrócić tid=null niż zgadywać.
 
 WAŻNE: odpowiadaj WYŁĄCZNIE pojedynczym JSON-em, bez markdown, bez ```, bez komentarzy, bez tekstu przed/po. Format dokładnie:
 {"tid":<int|null>,"confidence":<float 0-1>,"reasoning":"<1 krótkie zdanie po polsku>"}"""
@@ -139,24 +143,35 @@ def _build_user_prompt(
     service_name: str,
     service_description: str | None,
     candidates: list[dict[str, Any]],
+    salon_category: str | None = None,
 ) -> str:
     desc = (service_description or "").strip()[:500]
     cand_lines: list[str] = []
     for c in candidates:
         parent = c.get("parent_canonical_name")
         parent_str = f" — parent: {parent}" if parent else ""
+        sim = c.get("similarity")
+        sim_str = f" (similarity: {sim:.3f})" if isinstance(sim, (int, float)) else ""
         cand_lines.append(
-            f"  tid={c['tid']}: {c['canonical_name']}{parent_str}"
+            f"  tid={c['tid']}: {c['canonical_name']}{parent_str}{sim_str}"
         )
     cand_block = "\n".join(cand_lines)
+    salon_cat_line = ""
+    if salon_category:
+        salon_cat_line = (
+            f"\n- Kategoria nadana przez salon w cenniku: "
+            f"{salon_category} (mocna wskazówka — jeśli żadna kategoria "
+            f"Booksy z listy nie odpowiada DOKŁADNIE temu co salon "
+            f"nazwał, zwróć tid=null)"
+        )
     return f"""Usługa do skategoryzowania:
 - Nazwa: {service_name}
-- Opis: {desc or "(brak opisu)"}
+- Opis: {desc or "(brak opisu)"}{salon_cat_line}
 
-Lista kategorii Booksy (top dopasowania embedding):
+Lista kategorii Booksy (top dopasowania embedding, posortowane malejąco po podobieństwie):
 {cand_block}
 
-Wybierz JEDNĄ kategorię która najlepiej oddaje rzeczywistą procedurę."""
+Wybierz JEDNĄ kategorię która naprawdę oddaje procedurę. Jeśli wszystkie kandydatury są "blisko ale nie to" — np. salon ma Kroplówki a lista ma tylko Tlenoterapię i Medycynę sportową — zwróć tid=null. Lepsze null niż błędne dopasowanie."""
 
 
 async def match_taxonomy_candidates(
@@ -246,6 +261,26 @@ async def infer_hidden_service_taxonomy(
     if not candidates:
         return _unfixable_result("Brak embedding albo RPC failure")
 
+    # Hard embedding similarity floor — gdy NAJBLIŻSZY kandydat z Booksy
+    # taxonomy ma cosine < 0.55 to service po prostu nie ma odpowiednika
+    # w taksonomii. LLM disambiguation tutaj produkuje zaufanie 0.8-0.9
+    # dla bzdurnych mapowań ("Kroplówka NAD VIP" → "Tlenoterapia") bo
+    # wybiera top-1 z listy bez warunku faktycznego dopasowania.
+    # Próg 0.55 zwalidowany empirycznie 2026-05-16 (Beauty4ever Kroplówki
+    # mają similarity ~0.40-0.50 do najbliższego Booksy tid'a).
+    top_sim = float(candidates[0].get("similarity") or 0.0)
+    if top_sim < 0.55:
+        logger.info(
+            "infer_hidden_service_taxonomy: name=%r top embedding sim=%.3f "
+            "< 0.55 floor — bypassing LLM, returning tid=null",
+            name[:60], top_sim,
+        )
+        return _unfixable_result(
+            f"Top embedding sim {top_sim:.3f} poniżej 0.55 floor — "
+            f"brak realistycznego matcha w Booksy taxonomy",
+            candidate_count=len(candidates),
+        )
+
     # Bez opisu LLM nie da rady — fall back to top-1 embedding.
     if not description or len(description.strip()) < 30:
         return _embedding_fallback(
@@ -258,8 +293,13 @@ async def infer_hidden_service_taxonomy(
             candidates, min_confidence, "LLM client unavailable"
         )
 
-    # Główna ścieżka: LLM disambiguation.
-    user_prompt = _build_user_prompt(name, description, candidates)
+    # Główna ścieżka: LLM disambiguation. Przekazujemy salon's category_name
+    # jeśli jest — silna wskazówka dla LLM żeby zwrócić tid=null gdy
+    # salon ma własną kategorię która nie odpowiada żadnemu kandydatowi.
+    salon_category = (service.get("category_name") or "").strip() or None
+    user_prompt = _build_user_prompt(
+        name, description, candidates, salon_category=salon_category,
+    )
     try:
         async def _llm_call() -> dict[str, Any]:
             return await llm.generate_json(

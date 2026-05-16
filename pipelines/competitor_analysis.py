@@ -2585,6 +2585,10 @@ async def _resolve_service_taxonomy(
                 "name": svc.get("name") or "",
                 "description": svc.get("description") or "",
                 "name_embedding": emb_map[int(svc["id"])],
+                # Pass salon category as a hint to the LLM so it can return
+                # tid=null when salon's category doesn't match any Booksy
+                # candidate (e.g. "Kroplówki" vs candidates like Tlenoterapia).
+                "category_name": svc.get("category_name"),
             }
             for _, svc in rule3_eligible
         ]
