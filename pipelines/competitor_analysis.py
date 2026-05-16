@@ -261,6 +261,15 @@ async def compute_competitor_analysis(
     n_pricing = await service.insert_competitor_pricing_comparisons(pricing_rows)
     logger.info("Etap 4: inserted %d pricing_comparisons", n_pricing)
 
+    # ── Step 4.5 (Faza 8a 2026-05-17): aggregate LLM-verified matches
+    # per competitor + re-bucket. Replaces the composite_score_v2 signal
+    # ("they look similar") with ground truth ("they actually offer the
+    # same services in the same scope"). Low-verified competitors are
+    # marked as 'aspirational' or 'excluded' so the rich UI surfaces a
+    # cleaner final list of true competition. ──
+    await progress(56, "Re-bucketing konkurentów wg verified matches...")
+    await _aggregate_verified_match_counts(service, report_id, pricing_rows)
+
     # ── Step 5: Service gaps ──
     await progress(60, "Service gap analysis (missing + unique USP)...")
     gap_rows = await _compute_service_gaps(
@@ -276,6 +285,16 @@ async def compute_competitor_analysis(
     )
     n_dims = await service.insert_competitor_dimensional_scores(dim_rows)
     logger.info("Etap 4: inserted %d dimensional_scores", n_dims)
+
+    # ── Step 6.7 (Faza 8b 2026-05-17): package economics analysis. For
+    # every subject service that's a package or area-bundle, find the
+    # single-session same-area equivalent at the SAME salon and compute
+    # discount %. Surfaces as "Uczciwość pakietów" section in the rich
+    # UI — flags fake-promo packages where Beauty4ever charges identical
+    # per-session price to singles, plus genuine discounts and the
+    # rare overpriced bundle. ──
+    await progress(78, "Analiza uczciwości pakietów i bundle'i...")
+    await _analyze_subject_packages(service, report_id, subject_data)
 
     # ── Step 6.5: Hidden services detection ──
     # Subject services których nazwa NIE zawiera generycznej nazwy
@@ -3269,3 +3288,404 @@ def _compute_dimensional_scores(
             "sort_order": idx,
         })
     return rows
+
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Faza 8a — verified-match-count aggregation (2026-05-17)
+# ─────────────────────────────────────────────────────────────────────────────
+
+# Re-bucketing thresholds. Counts are over DISTINCT subject-tids where the
+# competitor offered at least one LLM-verified comparable service. We do
+# not double-count multiple samples from the same competitor under one tid.
+_VERIFIED_BUCKET_DIRECT_MIN = 10
+_VERIFIED_BUCKET_CLUSTER_MIN = 5
+_VERIFIED_BUCKET_ASPIRATIONAL_MIN = 3
+
+
+async def _aggregate_verified_match_counts(
+    service: "SupabaseService",
+    report_id: int,
+    pricing_rows: list[dict[str, Any]],
+) -> dict[int, int]:
+    """Aggregate Faza 7 LLM verdicts per competitor for this report and
+    re-bucket competitor_matches. Returns {competitor_salon_id:
+    verified_match_count} for downstream logging.
+
+    Counts DISTINCT (competitor_salon_id, booksy_treatment_id OR
+    synthetic_treatment_id) tuples where any sample for that competitor
+    in that tid had llm_verified=true. We don't reward a competitor for
+    having three matches under one tid — what matters is how many of
+    MY treatment categories they actually offer comparable services in.
+    """
+    if not pricing_rows:
+        return {}
+
+    counts: dict[int, set[tuple[str, int]]] = {}
+    for row in pricing_rows:
+        tid_kind = "synthetic" if row.get("synthetic_treatment_id") else "booksy"
+        tid_value = (
+            row.get("synthetic_treatment_id")
+            or row.get("booksy_treatment_id")
+        )
+        if tid_value is None:
+            continue
+        samples = row.get("competitor_samples") or []
+        for sample in samples:
+            if not isinstance(sample, dict):
+                continue
+            # Treat missing llm_verified as True (legacy / tier=variant
+            # samples auto-pass). False is only set explicitly by the
+            # Faza 7 verifier when LLM rejected.
+            verified = sample.get("llm_verified", True)
+            if verified is False:
+                continue
+            comp_salon_id = sample.get("salon_id")
+            if comp_salon_id is None:
+                continue
+            try:
+                comp_salon_id = int(comp_salon_id)
+            except (TypeError, ValueError):
+                continue
+            counts.setdefault(comp_salon_id, set()).add(
+                (tid_kind, int(tid_value))
+            )
+
+    # Convert sets → scalar counts for persistence.
+    verified_counts: dict[int, int] = {
+        sid: len(tids) for sid, tids in counts.items()
+    }
+
+    if not verified_counts:
+        logger.warning(
+            "Faza 8a: zero verified matches across %d pricing rows — "
+            "either LLM verify produced no keepers or competitor_samples "
+            "were stripped. Skipping re-bucket.",
+            len(pricing_rows),
+        )
+        return {}
+
+    # Load current bucket assignments so we can persist bucket_pre_verify
+    # for audit. Fetch as a single batched call.
+    existing_matches = await service.get_competitor_matches(report_id)
+    bucket_pre_verify: dict[int, str] = {}
+    for m in existing_matches:
+        sid = m.get("competitor_salon_id")
+        if sid is None:
+            continue
+        try:
+            bucket_pre_verify[int(sid)] = m.get("bucket") or "unknown"
+        except (TypeError, ValueError):
+            continue
+
+    # Compute new bucket per competitor + collect update batch.
+    updates: list[dict[str, Any]] = []
+    dropped_low_verified = 0
+    for m in existing_matches:
+        sid_raw = m.get("competitor_salon_id")
+        if sid_raw is None:
+            continue
+        try:
+            sid = int(sid_raw)
+        except (TypeError, ValueError):
+            continue
+        vcount = verified_counts.get(sid, 0)
+        if vcount >= _VERIFIED_BUCKET_DIRECT_MIN:
+            new_bucket = "direct"
+        elif vcount >= _VERIFIED_BUCKET_CLUSTER_MIN:
+            new_bucket = "cluster"
+        elif vcount >= _VERIFIED_BUCKET_ASPIRATIONAL_MIN:
+            new_bucket = "aspirational"
+        else:
+            new_bucket = "excluded"
+            dropped_low_verified += 1
+        updates.append({
+            "id": m.get("id"),
+            "verified_match_count": vcount,
+            "bucket_pre_verify": bucket_pre_verify.get(sid),
+            "bucket": new_bucket,
+            # counts_in_aggregates collapses to True only when the
+            # competitor is real enough to feed the pricing matrix.
+            # 'excluded' competitors are kept in DB but flagged out of
+            # all aggregate stats and out of competitorProfiles.
+            "counts_in_aggregates": new_bucket != "excluded",
+        })
+
+    # Persist via dedicated method on SupabaseService (PATCH per row).
+    await service.update_competitor_matches_verify_buckets(report_id, updates)
+
+    logger.info(
+        "Faza 8a: re-bucketed %d competitors (direct=%d, cluster=%d, "
+        "aspirational=%d, excluded=%d) using verified_match_count from "
+        "%d pricing rows",
+        len(updates),
+        sum(1 for u in updates if u["bucket"] == "direct"),
+        sum(1 for u in updates if u["bucket"] == "cluster"),
+        sum(1 for u in updates if u["bucket"] == "aspirational"),
+        dropped_low_verified,
+        len(pricing_rows),
+    )
+    return verified_counts
+
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Faza 8b — package economics analysis (2026-05-17)
+# ─────────────────────────────────────────────────────────────────────────────
+
+# Heuristic patterns to surface subject packages BEFORE involving LLM.
+# Each regex catches a different package marker — pakiety, multiplier
+# notation ("3x", "5 +1"), monthly abonament, body-area bundles.
+_PACKAGE_HEURISTIC_PATTERNS = [
+    re.compile(r"\bpakiet\b", re.IGNORECASE),
+    re.compile(r"\babonament\b", re.IGNORECASE),
+    re.compile(r"\bkarnet\b", re.IGNORECASE),
+    re.compile(r"\bvoucher\b", re.IGNORECASE),
+    re.compile(r"\bbon\b\s*\d+", re.IGNORECASE),
+    re.compile(r"^\s*\d+\s*x\b", re.IGNORECASE),       # "3x Red Touch"
+    re.compile(r"\s\d+\s*x\b", re.IGNORECASE),         # "Red Touch 3x"
+    re.compile(r"\b\d+\s*zabieg(?:ów|i|y)?\b", re.IGNORECASE),
+    re.compile(r"\b\d+\s*\+\s*\d+\s*zabieg", re.IGNORECASE),  # "5 + 1 zabieg"
+    re.compile(r"\b\d+\s*sesj", re.IGNORECASE),
+    re.compile(r"\b\d+\s*wizyt", re.IGNORECASE),
+]
+
+
+def _detect_session_count_from_name(name: str) -> int:
+    """Best-effort session count extractor. Returns 1 for unrecognised
+    patterns so downstream economics math is conservative (assumes one
+    session when in doubt, so discount % is computed honestly).
+    """
+    if not name:
+        return 1
+    # 5 + 1 zabieg → 6 sessions
+    m = re.search(r"\b(\d+)\s*\+\s*(\d+)\s*zabieg", name, re.IGNORECASE)
+    if m:
+        try:
+            return int(m.group(1)) + int(m.group(2))
+        except (ValueError, TypeError):
+            pass
+    # 3x | 5x | 10x | "pakiet 5x" | "Red Touch 3x"
+    m = re.search(r"\b(\d+)\s*x\b", name, re.IGNORECASE)
+    if m:
+        try:
+            n = int(m.group(1))
+            if 2 <= n <= 30:
+                return n
+        except (ValueError, TypeError):
+            pass
+    # "3 zabiegi", "5 zabiegów"
+    m = re.search(r"\b(\d+)\s*zabieg(?:ów|i|y)?\b", name, re.IGNORECASE)
+    if m:
+        try:
+            n = int(m.group(1))
+            if 2 <= n <= 30:
+                return n
+        except (ValueError, TypeError):
+            pass
+    # "5 sesji"
+    m = re.search(r"\b(\d+)\s*sesj", name, re.IGNORECASE)
+    if m:
+        try:
+            n = int(m.group(1))
+            if 2 <= n <= 30:
+                return n
+        except (ValueError, TypeError):
+            pass
+    return 1
+
+
+def _detect_area_count_from_name(name: str) -> int:
+    """Count distinct body-area mentions joined by " + " or "/" — used
+    when the package is a bundle (e.g. "twarz + szyja + dekolt" = 3
+    areas). Returns 1 when no obvious bundle pattern.
+    """
+    if not name:
+        return 1
+    # "twarz + szyja + dekolt"  → 3 segments
+    # Conservative: count " + " separators, cap at 5.
+    n_plus = name.count(" + ")
+    if n_plus >= 1:
+        return min(n_plus + 1, 5)
+    return 1
+
+
+def _is_subject_package(svc: dict[str, Any]) -> bool:
+    name = svc.get("name") or ""
+    for pat in _PACKAGE_HEURISTIC_PATTERNS:
+        if pat.search(name):
+            return True
+    # Bundle of >=2 body areas joined by " + " counts as package for
+    # economic analysis (one-shot multi-area discount question).
+    if _detect_area_count_from_name(name) >= 2:
+        return True
+    return False
+
+
+async def _analyze_subject_packages(
+    service: "SupabaseService",
+    report_id: int,
+    subject_data: dict[str, Any],
+) -> list[dict[str, Any]]:
+    """Faza 8b: for each subject package, find a matching single at the
+    SAME salon and compute discount economics. Persists to
+    competitor_reports.package_analysis. Returns the list for logging.
+
+    Matching strategy (no extra LLM calls in this pass — relies on
+    existing tid mapping + heuristic):
+      1. Identify packages via name heuristics (_is_subject_package).
+      2. For each package: search subject_data.services for a single
+         with same booksy_treatment_id (or synthetic_tid) AND session
+         count = 1 AND area count = 1.
+      3. Compute per_session_in_package = package_price / (sessions × areas).
+      4. discount_pct = (single - per_session) / single × 100.
+      5. Classify verdict per migration 082 enum.
+
+    LLM-judged subject classification can be added later — for now the
+    deterministic heuristic catches most of Beauty4ever's 25+ packages.
+    """
+    services = subject_data.get("services") or []
+    if not services:
+        return []
+
+    # Index singles by tid_key so we can look up O(1) per package.
+    singles_by_key: dict[tuple[str, int], list[dict[str, Any]]] = {}
+    for svc in services:
+        if not svc.get("is_active", True):
+            continue
+        if svc.get("price_grosze") in (None, 0):
+            continue
+        if _is_subject_package(svc):
+            continue  # singles are everything NOT a package
+        if _detect_session_count_from_name(svc.get("name") or "") != 1:
+            continue
+        if _detect_area_count_from_name(svc.get("name") or "") != 1:
+            continue
+        key = _tid_key(svc)
+        if key is None:
+            continue
+        singles_by_key.setdefault(key, []).append(svc)
+
+    analyses: list[dict[str, Any]] = []
+    for svc in services:
+        if not svc.get("is_active", True):
+            continue
+        if not _is_subject_package(svc):
+            continue
+        price = svc.get("price_grosze")
+        if price in (None, 0):
+            continue
+        try:
+            price_grosze = int(price)
+        except (TypeError, ValueError):
+            continue
+        name = svc.get("name") or ""
+        sessions = _detect_session_count_from_name(name)
+        areas = _detect_area_count_from_name(name)
+        units = max(sessions * areas, 1)
+        per_session_grosze = price_grosze // units
+
+        # Find best single at same salon: same tid_key, closest price.
+        key = _tid_key(svc)
+        single_match: dict[str, Any] | None = None
+        if key is not None:
+            candidates = singles_by_key.get(key) or []
+            # Pick the single with the closest duration if the package
+            # has a per-session duration hint; fall back to median price.
+            target_duration = svc.get("duration_minutes")
+            if target_duration:
+                candidates_sorted = sorted(
+                    candidates,
+                    key=lambda c: abs(
+                        (c.get("duration_minutes") or 0) - target_duration
+                    ),
+                )
+            else:
+                # Closest price to per_session estimate.
+                candidates_sorted = sorted(
+                    candidates,
+                    key=lambda c: abs(
+                        (c.get("price_grosze") or 0) - per_session_grosze
+                    ),
+                )
+            single_match = candidates_sorted[0] if candidates_sorted else None
+
+        if single_match is None:
+            verdict = "no_single_match"
+            discount_pct: float | None = None
+            reasoning = (
+                f"Brak pojedynczego odpowiednika u tego samego salonu "
+                f"dla tid={key}. Nie da się obliczyć rzeczywistego rabatu."
+            )
+            single_price = None
+            single_name = None
+            single_id = None
+        else:
+            single_price_g = int(single_match.get("price_grosze") or 0)
+            single_id = single_match.get("id")
+            single_name = single_match.get("name")
+            single_price = single_price_g
+            if single_price_g > 0:
+                discount_pct = round(
+                    (single_price_g - per_session_grosze)
+                    / single_price_g * 100.0,
+                    1,
+                )
+            else:
+                discount_pct = None
+            if discount_pct is None:
+                verdict = "no_single_match"
+                reasoning = (
+                    f"Pojedyncza usługa {single_name!r} ma cenę 0 zł — "
+                    f"nie da się obliczyć rabatu."
+                )
+            elif discount_pct >= 5.0:
+                verdict = "fair_discount"
+                reasoning = (
+                    f"Pakiet daje realny rabat {discount_pct:.1f}% per "
+                    f"zabieg/obszar ({per_session_grosze/100:.0f} zł vs "
+                    f"{single_price_g/100:.0f} zł single)."
+                )
+            elif discount_pct <= -5.0:
+                verdict = "overpriced"
+                reasoning = (
+                    f"Pakiet kosztuje WIĘCEJ niż kupowanie pojedynczych "
+                    f"({per_session_grosze/100:.0f} zł per unit vs "
+                    f"{single_price_g/100:.0f} zł single). Klient straci "
+                    f"{-discount_pct:.1f}% kupując pakiet."
+                )
+            else:
+                verdict = "fake_promo"
+                reasoning = (
+                    f"Brak realnego rabatu w pakiecie — różnica "
+                    f"{discount_pct:.1f}% per unit. Klient płaci tę samą "
+                    f"cenę co single, bez korzyści."
+                )
+
+        analyses.append({
+            "package_service_id": svc.get("id"),
+            "package_name": name,
+            "package_price_grosze": price_grosze,
+            "session_count": sessions,
+            "area_count": areas,
+            "single_service_id": single_id,
+            "single_name": single_name,
+            "single_price_grosze": single_price,
+            "per_session_in_package_grosze": per_session_grosze,
+            "discount_pct": discount_pct,
+            "verdict": verdict,
+            "reasoning": reasoning,
+        })
+
+    if analyses:
+        await service.persist_competitor_report_package_analysis(
+            report_id, analyses,
+        )
+        logger.info(
+            "Faza 8b: analyzed %d subject packages (fair=%d, fake=%d, "
+            "overpriced=%d, no_single=%d)",
+            len(analyses),
+            sum(1 for a in analyses if a["verdict"] == "fair_discount"),
+            sum(1 for a in analyses if a["verdict"] == "fake_promo"),
+            sum(1 for a in analyses if a["verdict"] == "overpriced"),
+            sum(1 for a in analyses if a["verdict"] == "no_single_match"),
+        )
+    return analyses

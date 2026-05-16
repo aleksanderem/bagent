@@ -2007,7 +2007,64 @@ class SupabaseService:
                 # adapter's fallback kicks in for those individual salons.
                 m["lat"] = s.get("latitude")
                 m["lng"] = s.get("longitude")
+        # Forward Faza 8a fields when present so re-runs can read existing
+        # verified counts without recomputing.
+        # (No-op if column NULL from a pre-Faza-8a row.)
         return matches
+
+    async def update_competitor_matches_verify_buckets(
+        self, report_id: int, updates: list[dict[str, Any]],
+    ) -> None:
+        """Faza 8a: persist re-bucketing + verified_match_count to
+        competitor_matches. `updates` items: {id, verified_match_count,
+        bucket_pre_verify, bucket, counts_in_aggregates}. Each row PATCH'ed
+        via PostgREST. Raises on first failure — no partial updates.
+        """
+        if not updates:
+            return
+
+        def _do_call(payload: dict[str, Any]) -> Any:
+            row_id = payload["id"]
+            body = {
+                "verified_match_count": payload.get("verified_match_count"),
+                "bucket_pre_verify": payload.get("bucket_pre_verify"),
+                "bucket": payload.get("bucket"),
+                "counts_in_aggregates": payload.get("counts_in_aggregates"),
+            }
+            return (
+                self.client.table("competitor_matches")
+                .update(body)
+                .eq("id", row_id)
+                .eq("report_id", report_id)
+                .execute()
+            )
+
+        import asyncio as _asyncio
+        for payload in updates:
+            if payload.get("id") is None:
+                continue
+            await _asyncio.to_thread(_do_call, payload)
+
+    async def persist_competitor_report_package_analysis(
+        self, report_id: int, analyses: list[dict[str, Any]],
+    ) -> None:
+        """Faza 8b: write package_analysis JSONB column on competitor_reports.
+        Idempotent — re-running overwrites the prior analysis snapshot.
+        Raises on DB failure.
+        """
+        if not analyses:
+            return
+
+        def _do_call() -> Any:
+            return (
+                self.client.table("competitor_reports")
+                .update({"package_analysis": analyses})
+                .eq("id", report_id)
+                .execute()
+            )
+
+        import asyncio as _asyncio
+        await _asyncio.to_thread(_do_call)
 
     async def get_competitor_pricing_comparisons(
         self, report_id: int,
@@ -2170,6 +2227,27 @@ class SupabaseService:
         except Exception as e:
             logger.debug("Failed to resolve total_services for salon %s: %s", salon_id, e)
         return context
+
+    async def get_competitor_report_row(
+        self, report_id: int,
+    ) -> dict[str, Any] | None:
+        """Faza 8b helper: full competitor_reports row including the
+        package_analysis JSONB column written during Etap 4. Returns None
+        when the row is missing.
+        """
+        def _do_call() -> Any:
+            return (
+                self.client.table("competitor_reports")
+                .select("*")
+                .eq("id", report_id)
+                .limit(1)
+                .execute()
+            )
+
+        import asyncio as _asyncio
+        res = await _asyncio.to_thread(_do_call)
+        rows = list(res.data or [])
+        return rows[0] if rows else None
 
     async def update_competitor_report_data(
         self, report_id: int, data: dict[str, Any],

@@ -344,6 +344,23 @@ async def synthesize_competitor_insights(
         len(action_plan),
     )
 
+    # Faza 8b: fetch package_analysis already persisted by
+    # _analyze_subject_packages during Etap 4. Forward into report_data
+    # so the rich UI's new "Uczciwość pakietów" section can render
+    # without an extra Convex query.
+    package_analysis: list[dict[str, Any]] = []
+    try:
+        report_row = await service.get_competitor_report_row(report_id)
+        if report_row:
+            pa = report_row.get("package_analysis")
+            if isinstance(pa, list):
+                package_analysis = pa
+    except Exception as e:  # noqa: BLE001
+        logger.warning(
+            "Etap 5: could not load package_analysis for report %s — %s",
+            report_id, e,
+        )
+
     await progress(80, "Persystencja narratywu + SWOT + rekomendacji...")
     persistence_payload: dict[str, Any] = {
         "positioning_narrative": insights["positioning_narrative"],
@@ -359,6 +376,10 @@ async def synthesize_competitor_insights(
         "funnel": funnel,
         "actionPlan": action_plan,
         "summary": summary,
+        # Faza 8b: list of {package_service_id, package_name, ...,
+        # discount_pct, verdict, reasoning}. Empty array when no
+        # packages detected. UI renders "Uczciwość pakietów" section.
+        "packageAnalysis": package_analysis,
     }
     if calendar_comparison is not None:
         persistence_payload["calendarComparison"] = calendar_comparison
@@ -1119,6 +1140,15 @@ def _build_competitor_profiles(
             overlap_asym_val = None
         if overlap_asym_val is not None:
             overlap_asym_val = max(0.0, min(1.0, overlap_asym_val))
+        # Faza 8a fields — verified_match_count + bucket_pre_verify.
+        # Drop competitors marked 'excluded' (verified_match_count < 3)
+        # from competitorProfiles so the rich UI only surfaces true
+        # competition. They remain in competitor_matches table for
+        # analytics + future re-evaluation if cache evolves.
+        verified_count = m.get("verified_match_count")
+        bucket_value = m.get("bucket") or _BUCKET_FALLBACK
+        if bucket_value == "excluded":
+            continue
         profiles.append({
             "id": int(salon_id) if salon_id is not None else int(booksy_id or 0),
             "salon_id": int(salon_id) if salon_id is not None else None,
@@ -1126,12 +1156,16 @@ def _build_competitor_profiles(
             "name": m.get("salon_name") or f"Konkurent {idx + 1}",
             "city": m.get("city") or "—",
             "distance_km": float(m.get("distance_km") or 0.0),
-            "bucket": m.get("bucket") or _BUCKET_FALLBACK,
+            "bucket": bucket_value,
+            "bucket_pre_verify": m.get("bucket_pre_verify"),
             "composite_score": float(m.get("composite_score") or 0.0),
             "reviews_rank": float(m.get("reviews_rank") or 0.0),
             "reviews_count": int(m.get("reviews_count") or 0),
             "overlap": overlap_val,
             "overlap_asym": overlap_asym_val,
+            "verified_match_count": (
+                int(verified_count) if verified_count is not None else None
+            ),
             "lat": lat_val,
             "lng": lng_val,
             "thumbnailPhoto": thumbnail if isinstance(thumbnail, str) and thumbnail else None,
