@@ -1075,6 +1075,31 @@ def _build_competitor_profiles(
             lng_val: float | None = float(raw_lng) if raw_lng is not None else None
         except (TypeError, ValueError):
             lng_val = None
+        # "Procent nakładania się" on the rich competitor card
+        # (primitives.tsx:421-425, label "nakładania") was hardcoded to
+        # _DEFAULT_OVERLAP for every competitor, so every card showed 50%
+        # regardless of real similarity. Pull focus_tid_sim out of
+        # similarity_scores — it's the most direct measure of "how much
+        # of my treatment focus is shared with this competitor" and is
+        # already computed by the v2 selection scorer. Falls back to the
+        # default only when similarity_scores is missing entirely (legacy
+        # rows pre-2026-05-15).
+        sims = m.get("similarity_scores")
+        focus_tid_sim = (
+            sims.get("focus_tid_sim") if isinstance(sims, dict) else None
+        )
+        try:
+            overlap_val = (
+                float(focus_tid_sim)
+                if focus_tid_sim is not None
+                else _DEFAULT_OVERLAP
+            )
+        except (TypeError, ValueError):
+            overlap_val = _DEFAULT_OVERLAP
+        # Clamp to [0, 1] — focus_tid_sim is a cosine-like measure that
+        # should already be bounded but guard against weighted-variant
+        # edge cases producing 1.0+ values.
+        overlap_val = max(0.0, min(1.0, overlap_val))
         profiles.append({
             "id": int(salon_id) if salon_id is not None else int(booksy_id or 0),
             "salon_id": int(salon_id) if salon_id is not None else None,
@@ -1086,7 +1111,7 @@ def _build_competitor_profiles(
             "composite_score": float(m.get("composite_score") or 0.0),
             "reviews_rank": float(m.get("reviews_rank") or 0.0),
             "reviews_count": int(m.get("reviews_count") or 0),
-            "overlap": _DEFAULT_OVERLAP,
+            "overlap": overlap_val,
             "lat": lat_val,
             "lng": lng_val,
             "thumbnailPhoto": thumbnail if isinstance(thumbnail, str) and thumbnail else None,
