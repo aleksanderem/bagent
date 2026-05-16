@@ -891,8 +891,38 @@ async def _compute_pricing_comparisons(
     # Opcja C: gwarantowany overlap dla każdej kategorii w cenniku subject.
     # Aggregate ACROSS variants w jednym tid. UI top-level pokazuje to,
     # drill-down → tier-2 variant rows.
+    #
+    # Pre-load variant centroids for every variant_id referenced on subject
+    # + competitor side. Used as stable reference embeddings in the method-
+    # similarity filter inside _compute_treatment_tier_rows.
+    variant_ids_to_fetch: set[int] = set()
+    for svc in (subject_data.get("services") or []):
+        vid = svc.get("variant_id")
+        if vid is not None:
+            variant_ids_to_fetch.add(int(vid))
+    for _cand, _cdata in aligned_competitors:
+        for svc in (_cdata.get("services") or []):
+            vid = svc.get("variant_id")
+            if vid is not None:
+                variant_ids_to_fetch.add(int(vid))
+    variant_centroids: dict[int, Any] = {}
+    if variant_ids_to_fetch:
+        try:
+            variant_centroids = await service.get_variant_centroids(
+                list(variant_ids_to_fetch),
+            )
+            logger.info(
+                "Etap 4 tier-1: loaded %d variant centroids for method filter",
+                len(variant_centroids),
+            )
+        except Exception as e:
+            logger.warning(
+                "Failed to pre-load variant centroids (%s) — falling back "
+                "to service-name embeddings only", e,
+            )
     tier1_rows = _compute_treatment_tier_rows(
         report_id, subject_data, aligned_competitors,
+        variant_centroids=variant_centroids,
     )
     rows.extend(tier1_rows)
 
@@ -949,32 +979,65 @@ _TREATMENT_TIER_MIN_SAMPLES = 3
 
 
 def _filter_comp_samples_by_subj_method(
-    comp_svc_with_emb: list[tuple[dict[str, Any], Any]],
-    subj_embeddings: list[Any],
+    comp_svc_with_meta: list[tuple[dict[str, Any], Any, int | None]],
+    subj_refs: list[tuple[Any, int | None]],
     *,
     min_sim: float = _TREATMENT_TIER_MIN_NAME_SIM,
 ) -> tuple[list[dict[str, Any]], int]:
-    """Keep only competitor services whose name_embedding is similar to at
-    least one subject service in the same tid. Defends against same-tid
-    cross-method false pairs (e.g. Thunder IPL vs depilacja pastą cukrową
-    both under tid=236 Depilacja).
+    """Keep only competitor services whose reference embedding is similar to
+    at least one subject reference within the same tid. Defends against
+    same-tid cross-method false pairs (Thunder IPL vs pasta cukrowa under
+    tid=236 Depilacja).
 
-    Returns (kept_samples, n_filtered_out).
+    Reference embedding priority per side: variant_centroid (stable cross-
+    salon HDBSCAN centroid) when variant_id is known and a centroid exists
+    in the lookup table, else the individual service name_embedding. This
+    matches the intuition that within the same parent tid the variant
+    clustering ALREADY encodes method/scope, and the centroid is less
+    noisy than any single branded service name like
+    "✦ Thunder - pachy + bikini pełne".
+
+    Fast path: if subject and competitor share the same variant_id, the
+    pair auto-passes (centroid-to-itself cosine = 1.0).
+
+    Args:
+      comp_svc_with_meta: list of (sample_dict, fallback_embedding, variant_id).
+      subj_refs: list of (fallback_embedding, variant_id) for subject
+        services in the same tid.
+
+    Returns (kept_samples, n_dropped).
     """
-    if not subj_embeddings:
-        # Subject has no embeddings — fall through, accept everything
-        # (better than dropping the whole row).
-        return [s for s, _ in comp_svc_with_emb], 0
+    if not subj_refs:
+        # Subject has no references — fall through, accept everything.
+        return [s for s, _, _ in comp_svc_with_meta], 0
+    subj_vids = {vid for _, vid in subj_refs if vid is not None}
     kept: list[dict[str, Any]] = []
     dropped = 0
-    for sample, emb in comp_svc_with_emb:
-        if emb is None:
-            # Conservative: keep when embedding missing.
+    for sample, fallback_emb, comp_vid in comp_svc_with_meta:
+        # Fast path 1: identical variant_id → guaranteed same cluster.
+        if comp_vid is not None and comp_vid in subj_vids:
+            kept.append(sample)
+            continue
+        # Pick reference embedding for competitor side.
+        comp_ref = (
+            _CENTROID_LOOKUP_RUNTIME.get(comp_vid)
+            if comp_vid is not None and _CENTROID_LOOKUP_RUNTIME
+            else None
+        ) or fallback_emb
+        if comp_ref is None:
+            # No embedding at all — keep conservatively.
             kept.append(sample)
             continue
         max_sim = 0.0
-        for se in subj_embeddings:
-            sim = compute_name_embedding_similarity(emb, se)
+        for fb_emb, subj_vid in subj_refs:
+            subj_ref = (
+                _CENTROID_LOOKUP_RUNTIME.get(subj_vid)
+                if subj_vid is not None and _CENTROID_LOOKUP_RUNTIME
+                else None
+            ) or fb_emb
+            if subj_ref is None:
+                continue
+            sim = compute_name_embedding_similarity(comp_ref, subj_ref)
             if sim is not None and sim > max_sim:
                 max_sim = sim
         if max_sim >= min_sim:
@@ -984,10 +1047,19 @@ def _filter_comp_samples_by_subj_method(
     return kept, dropped
 
 
+# Module-level lookup populated by _compute_treatment_tier_rows before the
+# filter runs. Holds {variant_id: centroid_embedding_pgvector_string} so the
+# filter helper can resolve centroids without async DB calls in its inner
+# loop. Reset on each tier-1 invocation.
+_CENTROID_LOOKUP_RUNTIME: dict[int, Any] = {}
+
+
 def _compute_treatment_tier_rows(
     report_id: int,
     subject_data: dict[str, Any],
     aligned_competitors: list[tuple[CompetitorCandidate, dict[str, Any]]],
+    *,
+    variant_centroids: dict[int, Any] | None = None,
 ) -> list[dict[str, Any]]:
     """Tier-1 pricing comparison rows aggregated per booksy_treatment_id.
 
@@ -1042,9 +1114,10 @@ def _compute_treatment_tier_rows(
         return rows
 
     # 2. Group competitor services by tid (z counts_in_aggregates filter).
-    # Hold tuples (sample_dict, name_embedding) — embedding needed for
-    # downstream method-similarity filter, then stripped before persistence.
-    competitor_by_tid_raw: dict[int, list[tuple[dict[str, Any], Any]]] = {}
+    # Hold tuples (sample_dict, fallback_embedding, variant_id) — variant_id
+    # drives the centroid-based filter, fallback service name embedding
+    # catches services that didn't match any variant during Phase 4 backfill.
+    competitor_by_tid_raw: dict[int, list[tuple[dict[str, Any], Any, int | None]]] = {}
     for cand, cdata in aligned_competitors:
         if not cand.counts_in_aggregates:
             continue
@@ -1064,37 +1137,56 @@ def _compute_treatment_tier_rows(
                 "price_grosze": int(svc["price_grosze"]),
                 "duration_minutes": int(svc["duration_minutes"]),
             }
+            fb_emb = (
+                svc.get("name_embedding") or svc.get("name_embedding_dense")
+            )
+            v_id = svc.get("variant_id")
             competitor_by_tid_raw.setdefault(int(tid), []).append(
-                (sample, svc.get("name_embedding") or svc.get("name_embedding_dense"))
+                (sample, fb_emb, int(v_id) if v_id is not None else None)
             )
 
-    # 2a. Method-similarity filter. Booksy's tid is method-agnostic
-    # (tid=236 "Depilacja" covers laser, IPL, wax, sugar paste — all
-    # different price points). Without this filter Thunder pachy+bikini
-    # at Beauty4ever ended up compared to "Depilacja pastą cukrową" with
-    # +167% deviation — false alarm. We compute name-embedding cosine
-    # between each competitor service and any subject service in the same
-    # tid; keep only those with at least one match above
-    # _TREATMENT_TIER_MIN_NAME_SIM. Same-method variants ("Botoks 1
-    # okolica" vs "Botoks 2 okolice") stay together (~0.7+ cosine),
-    # cross-method noise (Thunder IPL vs pasta cukrowa, ~0.3) gets cut.
+    # 2a. Method-similarity filter — backed by variant centroids when
+    # available. Booksy's tid is method-agnostic (tid=236 "Depilacja"
+    # spans laser, IPL, wax, pasta cukrowa with very different price
+    # points). The variant clustering layer (HDBSCAN over name embeddings
+    # in scripts/cluster_treatment_variants.py) ALREADY separates these
+    # into clusters with stable centroids; we use those centroids as the
+    # reference vector instead of any single noisy service name embedding
+    # like "✦ Thunder - pachy + bikini pełne". Fall back to the raw
+    # service name embedding only when variant_id is missing.
+    #
+    # Setup _CENTROID_LOOKUP_RUNTIME so the filter helper can reach the
+    # centroid map without threading it through every call.
+    global _CENTROID_LOOKUP_RUNTIME
+    _CENTROID_LOOKUP_RUNTIME = {}
+    if variant_centroids:
+        for vid, info in variant_centroids.items():
+            emb = info.get("centroid_embedding") if isinstance(info, dict) else None
+            if emb is not None:
+                _CENTROID_LOOKUP_RUNTIME[int(vid)] = emb
+
     competitor_by_tid: dict[int, list[dict[str, Any]]] = {}
     total_dropped = 0
     for tid, raw_samples in competitor_by_tid_raw.items():
-        subj_embeds = [
-            s.get("name_embedding") or s.get("name_embedding_dense")
+        subj_refs = [
+            (
+                s.get("name_embedding") or s.get("name_embedding_dense"),
+                int(s["variant_id"]) if s.get("variant_id") is not None else None,
+            )
             for s in subject_by_tid.get(tid, [])
         ]
-        subj_embeds = [e for e in subj_embeds if e is not None]
+        # Filter out empty references (no embedding AND no variant_id) —
+        # they don't contribute to similarity computation.
+        subj_refs = [r for r in subj_refs if r[0] is not None or r[1] is not None]
         kept, dropped = _filter_comp_samples_by_subj_method(
-            raw_samples, subj_embeds,
+            raw_samples, subj_refs,
         )
         competitor_by_tid[tid] = kept
         total_dropped += dropped
     if total_dropped:
         logger.info(
             "Etap 4 tier-1: method-similarity filter dropped %d competitor "
-            "services as cross-method noise (subject_name_emb sim < %.2f)",
+            "services as cross-method noise (variant-centroid cosine < %.2f)",
             total_dropped, _TREATMENT_TIER_MIN_NAME_SIM,
         )
 
