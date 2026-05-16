@@ -2500,12 +2500,16 @@ class SupabaseService:
         if not rows:
             return
 
+        # PostgREST .upsert(on_conflict=...) needs column names but our
+        # uniqueness target is a partial unique index over COALESCE
+        # expressions (mig 078). Delegate to fn_upsert_pair_verifications
+        # (mig 080) so the conflict target stays server-side where it can
+        # reference the index correctly.
         def _do_call() -> Any:
-            return (
-                self.client.table("service_pair_verifications")
-                .upsert(rows, on_conflict="spv_pair_unique_idx")
-                .execute()
-            )
+            return self.client.rpc(
+                "fn_upsert_pair_verifications",
+                {"p_rows": rows},
+            ).execute()
 
         import asyncio as _asyncio
         await _asyncio.to_thread(_do_call)
