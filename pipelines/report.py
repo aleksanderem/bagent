@@ -282,6 +282,48 @@ async def run_audit_pipeline(
     )
     cap_msg = f" (capped from {original_score})" if total_score != original_score else ""
     transformations = naming_result["transformations"] + desc_result["transformations"]
+
+    # ── Phase 2.5: Hidden services detection (Booksy search visibility) ──
+    # Salonowo "Thunder całe ciało" jest niewidoczny w wyszukiwarce Booksy
+    # bo Booksy ranks po nazwie usługi, nie po opisie ani kategorii.
+    # Empirycznie potwierdzone (Beauty4ever, report 34) + 28% populacji
+    # dotknięte (15 634 salonów). Z _enhance_hidden_services_with_inference
+    # dostajemy LLM-anchored sugestię prefiksu z taksonomii Booksy.
+    try:
+        # Dedupe po nazwie — jeśli naming agent już zaproponował rename dla
+        # tej usługi, pomijamy ją w hidden services (żeby UI nie pokazywało
+        # dwóch sprzecznych transformacji dla jednej usługi). Naming agent
+        # emituje transformacje bez scrape_service_id więc match po `before`.
+        existing_transformed_names = {
+            (t.get("before") or t.get("serviceName") or "").strip().lower()
+            for t in transformations
+            if t.get("type") == "name"
+        }
+        hidden_transformations, hidden_issue = await _detect_hidden_services_for_audit(
+            scraped_data,
+            supabase,
+            skip_service_names=existing_transformed_names,
+        )
+        if hidden_transformations:
+            # Append as a new global issue + linked transformations.
+            issue_global_index = len(all_issues)
+            all_issues.append(hidden_issue)
+            for t in hidden_transformations:
+                t["causedByIssueGlobalIndex"] = issue_global_index
+            transformations.extend(hidden_transformations)
+            llm_count = sum(
+                1 for t in hidden_transformations if t.get("inferenceMethod") == "llm"
+            )
+            logger.info(
+                "[%s] Hidden services: %d services flagged for renaming (%d via LLM)",
+                audit_id, len(hidden_transformations), llm_count,
+            )
+    except Exception as exc:
+        logger.warning(
+            "[%s] hidden services detection failed (%s) — skipping section",
+            audit_id, exc,
+        )
+
     await progress(78, f"Score: {total_score}/100{cap_msg} | {critical_count} critical, {major_count} major | {len(transformations)} transformacji")
 
     # ── Step 6.5: Category restructuring (moved from BAGENT #2) ──
@@ -416,6 +458,139 @@ async def run_audit_pipeline(
 
 
 # ── Private step functions ──
+# ── Hidden services detection (BAGENT #1 — Booksy search visibility) ──
+
+
+async def _detect_hidden_services_for_audit(
+    scraped_data: Any,
+    supabase: Any,
+    skip_service_names: set[str] | None = None,
+) -> tuple[list[dict[str, Any]], dict[str, Any]]:
+    """Wykryj usługi w cenniku które są niewidoczne w wyszukiwarce Booksy
+    (brand-only names typu "Thunder całe ciało" bez prefiksu typu "Depilacja").
+
+    Reusuje detekcję + LLM inference z `pipelines.competitor_analysis`
+    (centroidy `mv_booksy_treatment_centroids` + OpenAI gpt-4o-mini). Z każdej
+    wykrytej usługi tworzy:
+      - transformation entry: rename do nazwy z prefiksem kategorii Booksy
+      - jedno zbiorcze issue (severity major gdy ≥5, inaczej minor)
+
+    Returns (transformations_list, summary_issue).
+    `skip_service_ids` pozwala pominąć usługi które już mają transformację
+    z naming agent (dedupe — naming agent + hidden services nie powinny
+    proponować dwóch przeciwstawnych renamów dla tej samej usługi).
+    """
+    from pipelines.competitor_analysis import (
+        _detect_hidden_services,
+        _enhance_hidden_services_with_inference,
+    )
+
+    # 1. Flatten scraped_data.categories[].services[] → dict format
+    #    kompatybilny z _detect_hidden_services. Skip usługi które naming
+    #    agent już renamował (dedup po lowercase name).
+    flat: list[dict[str, Any]] = []
+    skip_names = skip_service_names or set()
+    for cat in scraped_data.categories:
+        for svc in cat.services:
+            sid = getattr(svc, "scrape_service_id", None)
+            if sid is None:
+                continue
+            if (svc.name or "").strip().lower() in skip_names:
+                continue
+            flat.append({
+                "id": sid,
+                "name": svc.name,
+                "description": svc.description or "",
+                "price_grosze": getattr(svc, "price_grosze", None),
+                "booksy_treatment_id": getattr(svc, "booksy_treatment_id", None),
+                "is_active": True,
+            })
+
+    if not flat:
+        return [], {}
+
+    # 2. Detect hidden candidates (brand-only names z generic keyword w opisie).
+    hidden = _detect_hidden_services(flat)
+    if not hidden:
+        return [], {}
+
+    # 3. Enrich z LLM inference (centroidy + OpenAI gpt-4o-mini).
+    hidden = await _enhance_hidden_services_with_inference(hidden, supabase)
+
+    # 4. Build transformations — jedna per hidden service.
+    transformations: list[dict[str, Any]] = []
+    for h in hidden:
+        prefix = h.get("suggested_prefix") or ""
+        suggested = h.get("suggested_name") or h.get("name", "")
+        method = h.get("inference_method") or "rule"
+        confidence = h.get("inference_confidence")
+        parent = h.get("parent_category")
+        reasoning = h.get("inference_reasoning") or ""
+        category_note = (
+            f"Kategoria Booksy: {prefix}"
+            + (f" → {parent}" if parent else "")
+            + (f" (pewność {round((confidence or 0) * 100)}%)" if confidence is not None else "")
+        )
+        city = scraped_data.salonCity or "Warszawa"
+        if prefix:
+            reason = (
+                f"Usługa jest niewidoczna w wyszukiwarce Booksy — klient szukający "
+                f"„{prefix.lower()} {city}\" Twojej usługi nie zobaczy. {category_note}."
+            )
+        else:
+            reason = (
+                "Usługa nie ma w nazwie generycznej procedury — dodaj prefix kategorii Booksy."
+            )
+        transformations.append({
+            "type": "name",
+            "serviceName": h.get("name", ""),
+            "before": h.get("name", ""),
+            "after": suggested,
+            "reason": reason,
+            "impactScore": 9,  # High — directly impacts Booksy search visibility
+            "scrape_service_id": h.get("service_id"),
+            # Extra metadata (consumed by frontend audit results view if available)
+            "inferenceMethod": method,
+            "inferenceConfidence": confidence,
+            "inferredTid": h.get("inferred_tid"),
+            "parentCategory": parent,
+            "inferenceReasoning": reasoning,
+            "booksySearchVisibility": True,  # flag for UI segmentation
+        })
+
+    if not transformations:
+        return [], {}
+
+    # 5. Summary issue
+    total = len(transformations)
+    total_value_grosze = sum(
+        (h.get("price_grosze") or 0) for h in hidden
+    )
+    total_value_pln = round(total_value_grosze / 100) if total_value_grosze else 0
+    severity = "major" if total >= 5 else "minor"
+    issue = {
+        "severity": severity,
+        "dimension": "naming",
+        "issue": (
+            f"{total} usług w Twoim cenniku jest niewidocznych w wyszukiwarce Booksy"
+        ),
+        "impact": (
+            "Klient Booksy szuka po nazwie usługi — nazwy typu „Thunder całe ciało” "
+            "czy „Modelka - ONDA” są zignorowane przez ranking. "
+            f"Wartość ukrytych usług: ~{total_value_pln} zł."
+        ),
+        "affectedCount": total,
+        "example": transformations[0].get("before", ""),
+        "fix": (
+            "Dla każdej z tych usług dopisz w nazwie prefix z kategorii Booksy "
+            "(np. „Depilacja laserowa Thunder całe ciało”). Naprawa zajmuje "
+            "1-2 min/usługę w panelu Booksy."
+        ),
+    }
+
+    return transformations, issue
+
+
 # ── Traceability helpers ──
 
 
