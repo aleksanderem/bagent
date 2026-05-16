@@ -185,6 +185,35 @@ async def compute_competitor_analysis(
     for _, cdata in aligned_competitors:
         _apply_versum_mappings(cdata, versum_map)
 
+    # LLM-assisted taxonomy inference for services z NULL booksy_treatment_id
+    # (po Versum mapping) — Booksy nie skategoryzował tych usług, więc
+    # standardowy pipeline by je dropnął. Z LLM-inferred tid (centroidy
+    # mv_booksy_treatment_centroids + OpenAI gpt-4o-mini disambiguation)
+    # wprowadzamy je do pricing matrix, pricing comparisons i dimensional
+    # scores. UI oznacza je badgem "kategoria z AI" przez inferred_treatment_id
+    # field (downstream consumer może to forwardować).
+    await progress(38, "AI kategoryzacja usług bez taxonomy match...")
+    try:
+        total_overridden = await _apply_llm_taxonomy_to_null_tid_services(
+            service, subject_data.get("services") or [], label="subject",
+        )
+        for _, cdata in aligned_competitors:
+            total_overridden += await _apply_llm_taxonomy_to_null_tid_services(
+                service, cdata.get("services") or [],
+                label=f"competitor booksy_id={cdata.get('booksy_id')}",
+            )
+        logger.info(
+            "Etap 4: LLM taxonomy inference applied to %d NULL-tid services "
+            "(subject + %d competitors)",
+            total_overridden, len(aligned_competitors),
+        )
+    except Exception as e:
+        logger.warning(
+            "LLM taxonomy inference for matrix expansion failed (%s) — "
+            "continuing with raw tids",
+            e,
+        )
+
     # Taxonomy inference: correct mis-tagged booksy_treatment_id values for
     # subject + each competitor using crowd lookup (migration 042 — RPC
     # infer_treatment_id pulled from mv_treatment_name_lookup). Many salon
@@ -1403,6 +1432,185 @@ async def _enhance_hidden_services_with_inference(
         h.setdefault("parent_category", None)
 
     return hidden_services
+
+
+async def _apply_llm_taxonomy_to_null_tid_services(
+    supabase: SupabaseService,
+    services: list[dict[str, Any]],
+    label: str = "salon",
+    min_confidence: float = HIDDEN_MIN_CONFIDENCE,
+) -> int:
+    """Dla usług z NULL `booksy_treatment_id` (po Versum mapping) — uruchom
+    LLM taxonomy inference (centroidy + OpenAI gpt-4o-mini) i jeśli
+    confidence ≥ threshold, ustaw `booksy_treatment_id = inferred_tid`
+    w-memory. Mutuje `services` in-place.
+
+    Po tym kroku pricing pipeline (`_active_services_with_variant`,
+    `_compute_pricing_comparisons`) widzi je jako "skategoryzowane" i
+    dorzuca do matrixa. Oryginalne NULL tid jest zachowane w
+    `booksy_treatment_id_original`, plus dodawany jest flag
+    `taxonomy_inference_source = 'llm'` żeby UI mógł oznaczyć badgem.
+
+    Returns: liczba usług których tid zostało nadpisane.
+    """
+    from services.hidden_service_inference import infer_hidden_services_batch
+
+    # 1. Identyfikuj kandydatów: NULL tid + jest description (LLM go potrzebuje
+    #    żeby wybrać top-30) + serwis aktywny.
+    candidates: list[tuple[int, dict[str, Any]]] = []
+    for idx, svc in enumerate(services):
+        if not svc.get("is_active", True):
+            continue
+        if svc.get("booksy_treatment_id") is not None:
+            continue
+        name = (svc.get("name") or "").strip()
+        desc = (svc.get("description") or "").strip()
+        if not name or len(name) < 3:
+            continue
+        if len(desc) < 30:
+            # Bez opisu LLM ma za mało kontekstu — pomijamy (gracefully).
+            continue
+        sid = svc.get("id")
+        if sid is None:
+            continue
+        candidates.append((idx, svc))
+
+    if not candidates:
+        logger.debug("LLM taxonomy inference [%s]: no NULL-tid candidates", label)
+        return 0
+
+    llm = _get_hidden_inference_llm()
+    if llm is None:
+        logger.info(
+            "LLM taxonomy inference [%s]: %d candidates ale brak LLM key — skip",
+            label, len(candidates),
+        )
+        return 0
+
+    # 2. Batch-load embeddings.
+    service_ids = [int(svc["id"]) for _, svc in candidates]
+    try:
+        emb_map = await supabase.get_service_embeddings(service_ids)
+    except Exception as e:
+        logger.warning(
+            "LLM taxonomy inference [%s]: get_service_embeddings failed: %s",
+            label, e,
+        )
+        return 0
+
+    # 3. Build inference inputs (only those z embedding).
+    inference_inputs: list[tuple[int, dict[str, Any]]] = []
+    for idx, svc in candidates:
+        emb = emb_map.get(int(svc["id"]))
+        if not emb:
+            continue
+        inference_inputs.append((idx, {
+            "name": svc.get("name") or "",
+            "description": svc.get("description") or "",
+            "name_embedding": emb,
+        }))
+
+    if not inference_inputs:
+        return 0
+
+    # 4. Run LLM inference w batch (semaphore=4).
+    results = await infer_hidden_services_batch(
+        [pair[1] for pair in inference_inputs],
+        supabase,
+        llm,
+        min_confidence=min_confidence,
+    )
+
+    # 5. Apply tid override dla services z method='llm' lub 'embedding'
+    #    AND confidence ≥ threshold. Plus: spróbuj inline variant matching
+    #    używając zaczynalnie zwróconego embedding'u, żeby usługa weszła do
+    #    `_active_services_with_variant` (hard gate Phase 5).
+    overridden = 0
+    overridden_with_variant = 0
+    variant_match_tasks: list[tuple[int, dict[str, Any], list[float], int]] = []
+    for (idx, inp), res in zip(inference_inputs, results):
+        if res.get("method") not in ("llm", "embedding"):
+            continue
+        inferred_tid = res.get("inferred_tid")
+        confidence = res.get("confidence") or 0.0
+        if inferred_tid is None or confidence < min_confidence:
+            continue
+        svc = services[idx]
+        # Zachowaj oryginalne wartości dla audytu.
+        svc["booksy_treatment_id_original"] = svc.get("booksy_treatment_id")
+        svc["treatment_name_original"] = svc.get("treatment_name")
+        # Override tid + canonical name (po to żeby downstream pipeline
+        # widział spójną etykietę zamiast NULL).
+        svc["booksy_treatment_id"] = int(inferred_tid)
+        if res.get("inferred_canonical_name"):
+            svc["treatment_name"] = res["inferred_canonical_name"]
+        # Audit/UI marker.
+        svc["taxonomy_inference_source"] = res.get("method", "llm")
+        svc["taxonomy_inference_confidence"] = confidence
+        svc["taxonomy_inference_parent"] = res.get("inferred_parent_name")
+        overridden += 1
+        # Kolejka dla inline variant matching (Phase 5 gate).
+        emb = inp.get("name_embedding")
+        if emb:
+            variant_match_tasks.append((idx, svc, emb, int(inferred_tid)))
+
+    # 6. Inline variant matching dla services które dostały inferred tid.
+    #    `_active_services_with_variant` wymaga variant_id NOT NULL — bez tego
+    #    services są droppowane mimo override'u tid'a. Wywołujemy
+    #    `match_service_to_variant` RPC (mig 058) per service z bounded
+    #    concurrency.
+    import asyncio as _asyncio
+    sem_vm = _asyncio.Semaphore(8)
+
+    async def _match_variant(idx: int, svc: dict[str, Any], emb: list[float], tid: int) -> None:
+        nonlocal overridden_with_variant
+
+        def _do_call() -> Any:
+            return supabase.client.rpc(
+                "match_service_to_variant",
+                {
+                    "p_embedding": emb,
+                    "p_parent_treatment_id": tid,
+                    "p_min_similarity": 0.55,
+                },
+            ).execute()
+
+        try:
+            async with sem_vm:
+                res = await _asyncio.to_thread(_do_call)
+        except Exception as e:
+            logger.debug(
+                "match_service_to_variant failed for service_id=%s tid=%s: %s",
+                svc.get("id"), tid, e,
+            )
+            return
+        rows = list(res.data or [])
+        if not rows:
+            return
+        row = rows[0]
+        vid = row.get("variant_id")
+        if vid is None:
+            return
+        svc["variant_id"] = int(vid)
+        # variant canonical name pomocny dla pricing comparison label'i
+        if row.get("canonical_variant_name"):
+            svc["variant_canonical_name"] = row["canonical_variant_name"]
+        overridden_with_variant += 1
+
+    if variant_match_tasks:
+        await _asyncio.gather(*(
+            _match_variant(i, s, e, t) for (i, s, e, t) in variant_match_tasks
+        ))
+
+    if overridden:
+        logger.info(
+            "LLM taxonomy inference [%s]: %d/%d NULL-tid services dostały "
+            "inferred_tid (confidence ≥ %.2f), z których %d dostało też variant_id "
+            "(similarity ≥ 0.55)",
+            label, overridden, len(candidates), min_confidence,
+            overridden_with_variant,
+        )
+    return overridden
 
 
 def _compose_suggested_name(prefix: str, current_name: str) -> str:
