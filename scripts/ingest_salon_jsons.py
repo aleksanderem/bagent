@@ -906,7 +906,86 @@ class SalonJsonIngester:
                 booksy_id, e,
             )
 
+        # Sub-variants: expand JSONB variants do salon_scrape_service_variants
+        # (mig 069). Każdy variant w `variants` JSONB staje się osobnym rowem
+        # linkowanym do parent service przez service_id. Booksy NATYWNIE
+        # pozwala usłudze mieć N sub-options (np. "Twarz", "Twarz + szyja +
+        # dekolt", "Brzuch + Boczki" — patrz Skin & Body Care 16-variant
+        # Radiofrekwencja). Tier-3 pricing matching cross-salon na sub-variant
+        # labelu wymaga tej tabeli.
+        try:
+            self._insert_service_variants(inserted_rows, rows)
+        except Exception as e:  # noqa: BLE001
+            logger.warning(
+                "sub-variants ingest step failed for booksy_id=%s: %s — backfill cron will catch up",
+                booksy_id, e,
+            )
+
         return len(inserted_rows)
+
+    # -- salon_scrape_service_variants (append, derived from variants JSONB) --
+
+    def _insert_service_variants(
+        self,
+        inserted_service_rows: list[dict[str, Any]],
+        source_rows: list[dict[str, Any]],
+    ) -> int:
+        """Expand variants JSONB do salon_scrape_service_variants rows.
+
+        `inserted_service_rows` = rows returned przez supabase insert (with ids).
+        `source_rows` = original payload (zachowuje variants list w "variants" key).
+        Order powinien być identyczny — supabase returns rows w order they were sent.
+        """
+        if not inserted_service_rows or len(inserted_service_rows) != len(source_rows):
+            return 0
+        variant_rows: list[dict[str, Any]] = []
+        for inserted, source in zip(inserted_service_rows, source_rows):
+            sid = inserted.get("id")
+            variants = source.get("variants") or []
+            if sid is None or not isinstance(variants, list):
+                continue
+            for idx, v in enumerate(variants):
+                if not isinstance(v, dict):
+                    continue
+                price_f = _as_float(v.get("price"))
+                omn_f = _as_float(v.get("omnibus_price"))
+                variant_rows.append({
+                    "service_id": int(sid),
+                    "booksy_variant_id": _as_int(v.get("id")),
+                    "label": (v.get("label") or "").strip() or None,
+                    "price_grosze": int(round(price_f * 100)) if price_f is not None else None,
+                    "duration_minutes": _as_int(v.get("duration")),
+                    "type": v.get("type") or None,
+                    "omnibus_price_grosze": int(round(omn_f * 100)) if omn_f is not None else None,
+                    "promotion_data": v.get("promotion") if isinstance(v.get("promotion"), dict) else None,
+                    "sort_order": idx,
+                })
+        if not variant_rows:
+            return 0
+        if self.dry_run:
+            return len(variant_rows)
+        # Bulk insert w chunkach 500. ON CONFLICT (service_id, booksy_variant_id)
+        # DO NOTHING jest na unique constraint w mig 069.
+        inserted = 0
+        for j in range(0, len(variant_rows), 500):
+            chunk = variant_rows[j : j + 500]
+            try:
+                res = _retry_http(
+                    lambda chunk=chunk: self.client.table(
+                        "salon_scrape_service_variants"
+                    ).insert(chunk).execute(),
+                    op_name="salon_scrape_service_variants.insert",
+                )
+                if res.data:
+                    inserted += len(res.data)
+            except Exception as e:  # noqa: BLE001
+                logger.warning(
+                    "salon_scrape_service_variants chunk insert failed "
+                    "(chunk_start=%d): %s",
+                    j, e,
+                )
+                continue
+        return inserted
 
     # -- salon_reviews (append with ON CONFLICT DO NOTHING) -----------------
 
