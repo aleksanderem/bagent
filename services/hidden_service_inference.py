@@ -62,21 +62,19 @@ EMBEDDING_FALLBACK_MAX_CONFIDENCE = 0.5
 DEFAULT_TOP_K = 30
 
 
-_SYSTEM_PROMPT = """Jesteś ekspertem od taksonomii Booksy.pl — platformy rezerwacji usług beauty/wellness w Polsce.
+_SYSTEM_PROMPT = """Jesteś ekspertem od taksonomii Booksy.pl. Kategoryzujesz usługi beauty/wellness.
 
-Dostaniesz usługę z salonu beauty (nazwa + opis) i listę candidate'ów z oficjalnej taksonomii Booksy (kategoria + parent category). Twoja praca: wybrać JEDNĄ kategorię która najlepiej opisuje rzeczywistą procedurę.
+Dostaniesz nazwę + opis usługi i listę kandydujących kategorii Booksy. Wybierz JEDNĄ.
 
 Reguły:
-- Jeśli usługa to depilacja laserowa (Thunder, Soprano, Diode, Alex, etc.) → wybierz kategorię z parent="Depilacja"
-- Jeśli to IPL/fotoodmładzanie → wybierz "Fotoodmładzanie" lub podobne z parent="Medycyna Estetyczna"
-- Jeśli to modelowanie sylwetki / cellulit / kawitacja → wybierz "Zabiegi na ciało i modelowanie sylwetki" lub podobne
-- Jeśli żadna z candidate'ów dobrze nie pasuje → zwróć tid=null
-- NIE wymyślaj tid'a spoza listy
+- depilacja laserowa (Thunder/Soprano/Diode/Alex/laser do włosów) → parent="Depilacja"
+- IPL/fotoodmładzanie laserem → "Fotoodmładzanie" lub "Zabieg laserowy"
+- modelowanie sylwetki/cellulit/kawitacja/EMS → "Zabiegi na ciało i modelowanie sylwetki"
+- żadna kategoria nie pasuje → tid=null
+- NIE wymyślaj tid spoza listy
 
-Zwracaj WYŁĄCZNIE JSON: {"tid": int|null, "confidence": float, "reasoning": "string"}
-- tid: id wybranej kategorii z listy (lub null)
-- confidence: 0.0-1.0, twoja pewność
-- reasoning: 1 krótkie zdanie po polsku co cię przekonało"""
+WAŻNE: odpowiadaj WYŁĄCZNIE pojedynczym JSON-em, bez markdown, bez ```, bez komentarzy, bez tekstu przed/po. Format dokładnie:
+{"tid":<int|null>,"confidence":<float 0-1>,"reasoning":"<1 krótkie zdanie po polsku>"}"""
 
 
 def _build_user_prompt(
@@ -206,8 +204,11 @@ async def infer_hidden_service_taxonomy(
     user_prompt = _build_user_prompt(name, description, candidates)
     try:
         async def _llm_call() -> dict[str, Any]:
+            # MiniMax M2.7 jest thinking model — wewnętrzny "thinking block"
+            # zjada sporo tokenów zanim model wyemituje JSON. 4096 daje
+            # margines (empirycznie ~3-4k tokens thinking + krótki JSON).
             return await llm.generate_json(
-                user_prompt, system=_SYSTEM_PROMPT, max_tokens=512
+                user_prompt, system=_SYSTEM_PROMPT, max_tokens=4096
             )
         result = await with_retry(_llm_call, max_attempts=2, base_delay=1.0)
     except Exception as e:
