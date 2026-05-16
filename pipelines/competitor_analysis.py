@@ -38,6 +38,7 @@ from pipelines.competitor_dimensional_scores import (
 from pipelines.competitor_selection import CompetitorCandidate, select_competitors
 from services.pricing_verification import (
     VERIFICATION_THRESHOLD_PCT,
+    compute_name_embedding_similarity,
     detect_package_keyword,
     should_drop_from_display,
     verify_pricing_comparison,
@@ -932,6 +933,57 @@ async def _compute_pricing_comparisons(
     return rows
 
 
+# Empirycznie zwalidowane dla report 34 — Thunder IPL (laser depilacja)
+# wcześniej dopasowywany do "Depilacja pastą cukrową" przez tid=236 fallback.
+# OpenAI text-embedding-3-small daje typowo:
+#   cosine ≥ 0.65 dla wariantów tej samej metody ("Botoks 1 okolica" vs "Botoks 2 okolice")
+#   cosine 0.45-0.60 dla różnych nazwy/metody w obrębie kategorii
+#   cosine < 0.40 dla wyraźnie różnych metod (Thunder IPL vs pasta cukrowa)
+# Próg 0.55 odsiewa najgorsze cross-method noise zachowując uczciwe matchy.
+_TREATMENT_TIER_MIN_NAME_SIM = 0.55
+
+# Niżej tego progu downgrade'ujemy tier=treatment row do verification_status
+# 'low_confidence' — nie pokazujemy bombastycznych deviation% z 1-2 cherry-picked
+# konkurentów. Beauty4ever Thunder vs jedna pasta cukrowa = +167% = bullshit.
+_TREATMENT_TIER_MIN_SAMPLES = 3
+
+
+def _filter_comp_samples_by_subj_method(
+    comp_svc_with_emb: list[tuple[dict[str, Any], Any]],
+    subj_embeddings: list[Any],
+    *,
+    min_sim: float = _TREATMENT_TIER_MIN_NAME_SIM,
+) -> tuple[list[dict[str, Any]], int]:
+    """Keep only competitor services whose name_embedding is similar to at
+    least one subject service in the same tid. Defends against same-tid
+    cross-method false pairs (e.g. Thunder IPL vs depilacja pastą cukrową
+    both under tid=236 Depilacja).
+
+    Returns (kept_samples, n_filtered_out).
+    """
+    if not subj_embeddings:
+        # Subject has no embeddings — fall through, accept everything
+        # (better than dropping the whole row).
+        return [s for s, _ in comp_svc_with_emb], 0
+    kept: list[dict[str, Any]] = []
+    dropped = 0
+    for sample, emb in comp_svc_with_emb:
+        if emb is None:
+            # Conservative: keep when embedding missing.
+            kept.append(sample)
+            continue
+        max_sim = 0.0
+        for se in subj_embeddings:
+            sim = compute_name_embedding_similarity(emb, se)
+            if sim is not None and sim > max_sim:
+                max_sim = sim
+        if max_sim >= min_sim:
+            kept.append(sample)
+        else:
+            dropped += 1
+    return kept, dropped
+
+
 def _compute_treatment_tier_rows(
     report_id: int,
     subject_data: dict[str, Any],
@@ -990,7 +1042,9 @@ def _compute_treatment_tier_rows(
         return rows
 
     # 2. Group competitor services by tid (z counts_in_aggregates filter).
-    competitor_by_tid: dict[int, list[dict[str, Any]]] = {}
+    # Hold tuples (sample_dict, name_embedding) — embedding needed for
+    # downstream method-similarity filter, then stripped before persistence.
+    competitor_by_tid_raw: dict[int, list[tuple[dict[str, Any], Any]]] = {}
     for cand, cdata in aligned_competitors:
         if not cand.counts_in_aggregates:
             continue
@@ -1010,11 +1064,56 @@ def _compute_treatment_tier_rows(
                 "price_grosze": int(svc["price_grosze"]),
                 "duration_minutes": int(svc["duration_minutes"]),
             }
-            competitor_by_tid.setdefault(int(tid), []).append(sample)
+            competitor_by_tid_raw.setdefault(int(tid), []).append(
+                (sample, svc.get("name_embedding") or svc.get("name_embedding_dense"))
+            )
+
+    # 2a. Method-similarity filter. Booksy's tid is method-agnostic
+    # (tid=236 "Depilacja" covers laser, IPL, wax, sugar paste — all
+    # different price points). Without this filter Thunder pachy+bikini
+    # at Beauty4ever ended up compared to "Depilacja pastą cukrową" with
+    # +167% deviation — false alarm. We compute name-embedding cosine
+    # between each competitor service and any subject service in the same
+    # tid; keep only those with at least one match above
+    # _TREATMENT_TIER_MIN_NAME_SIM. Same-method variants ("Botoks 1
+    # okolica" vs "Botoks 2 okolice") stay together (~0.7+ cosine),
+    # cross-method noise (Thunder IPL vs pasta cukrowa, ~0.3) gets cut.
+    competitor_by_tid: dict[int, list[dict[str, Any]]] = {}
+    total_dropped = 0
+    for tid, raw_samples in competitor_by_tid_raw.items():
+        subj_embeds = [
+            s.get("name_embedding") or s.get("name_embedding_dense")
+            for s in subject_by_tid.get(tid, [])
+        ]
+        subj_embeds = [e for e in subj_embeds if e is not None]
+        kept, dropped = _filter_comp_samples_by_subj_method(
+            raw_samples, subj_embeds,
+        )
+        competitor_by_tid[tid] = kept
+        total_dropped += dropped
+    if total_dropped:
+        logger.info(
+            "Etap 4 tier-1: method-similarity filter dropped %d competitor "
+            "services as cross-method noise (subject_name_emb sim < %.2f)",
+            total_dropped, _TREATMENT_TIER_MIN_NAME_SIM,
+        )
 
     # 3. Per tid, build aggregate row.
     for tid, subj_svcs in subject_by_tid.items():
         comp_samples = competitor_by_tid.get(tid, [])
+        # Min-sample gate. After the method-similarity filter we may end up
+        # with 0-2 competitor samples — too few for a credible deviation%
+        # ("Thunder vs jedna pasta cukrowa = +167%" is the false-alarm
+        # pattern we want to suppress). Treat those rows as subject_only
+        # with verification_status='low_confidence' so the UI can hide or
+        # demote them without losing the "this service exists" signal.
+        if 0 < len(comp_samples) < _TREATMENT_TIER_MIN_SAMPLES:
+            logger.info(
+                "Etap 4 tier-1: tid=%d only %d competitor samples after "
+                "method filter — demoting to low_confidence subject_only",
+                tid, len(comp_samples),
+            )
+            comp_samples = []
 
         # Treatment name — pick most common from subject side (already
         # inferred via LLM if NULL).
