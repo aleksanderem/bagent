@@ -961,38 +961,113 @@ async def _compute_service_gaps(
 # Booksy gdy szuka konkretnej usługi. Lista nie jest wyczerpująca — pokrywa
 # najpopularniejsze procedury. Każde zawiera "luźne dopasowanie" (substring,
 # case-insensitive) bo użytkownicy używają form podstawowych lub deklinacji.
-_GENERIC_PROCEDURE_KEYWORDS = [
-    # depilacja
-    "depilacj", "laser",
-    # twarz / pielęgnacja
-    "mezoterap", "peeling", "oczyszczan", "mikrodermabraz",
-    "kawitacj", "sonoforez", "dermomasaż", "dermomasaz",
-    "hifu", "fala radiowa", "rf ", "ipl",
-    "fotoodmłodz", "fotoodmlodz", "fototerap", "kriolipoliz",
-    # iniekcyjne / medycyna estetyczna
-    "botoks", "botoks", "wypełniacz", "wypelniacz",
-    "kwas hialuron", "kwas migdał", "kwas migda",
-    # makijaż / brwi / rzęsy
-    "makijaż", "makijaz", "brwi", "rzęs", "rzes",
-    "henna", "regulacja",
-    # paznokcie
-    "manicure", "pedicure", "paznok",
-    # masaż
-    "masaż", "masaz", "relaks",
-    # modelowanie sylwetki
-    "modelowani", "lipolu", "ujędrnia", "ujedrnia",
-    "endermolog", "vacuu",
-    # włosy
-    "fryzjer", "strzyż", "koloryzacj", "balayage",
-    "keratyn", "botox włos",
-    # podologia
-    "podolog", "stóp", "stop",
-    # inne
-    "lifting", "odmłodze", "odmlodze", "odmładz", "odmladz",
-    "rozświetl", "rozswietl", "rozjaśn", "rozjasn",
-    "regenerac", "stymulac", "rewitalizac",
-    "trening ems", "ems",
+# Mapping: substring keyword → human-readable Polish prefix.
+# Lewa kolumna = czego szukamy w nazwie/opisie (lowercase, substring).
+# Prawa = sugerowany prefix dla naprawionej nazwy usługi.
+# Pierwszy match wygrywa, dlatego specyficzne keywords idą PRZED ogólnymi
+# (np. "depilacja laserowa" przed samym "laser").
+_PROCEDURE_KEYWORD_MAPPING: list[tuple[str, str]] = [
+    # ── specyficzne wcześniej ──
+    ("depilacja laserowa", "Depilacja laserowa"),
+    ("depilacja pastą cukrową", "Depilacja pastą cukrową"),
+    ("depilacja woskiem", "Depilacja woskiem"),
+    ("depilacj", "Depilacja"),
+    ("mezoterapia mikroigłow", "Mezoterapia mikroigłowa"),
+    ("mezoterapia igłow", "Mezoterapia igłowa"),
+    ("mezoterap", "Mezoterapia"),
+    ("oczyszczanie wodorow", "Oczyszczanie wodorowe"),
+    ("oczyszczan", "Oczyszczanie twarzy"),
+    ("peeling chemiczny", "Peeling chemiczny"),
+    ("peeling kawitacyjn", "Peeling kawitacyjny"),
+    ("peeling", "Peeling"),
+    ("mikrodermabraz", "Mikrodermabrazja"),
+    ("kawitacj", "Kawitacja"),
+    ("sonoforez", "Sonoforeza"),
+    ("dermomasaż", "Dermomasaż"),
+    ("dermomasaz", "Dermomasaż"),
+    ("radiofrekwencja mikroigłow", "Radiofrekwencja mikroigłowa"),
+    ("radiofrekwencj", "Radiofrekwencja"),
+    ("fala radiow", "Fala radiowa"),
+    ("hifu", "HIFU"),
+    ("ipl", "IPL fotoodmładzanie"),
+    ("rf ", "Radiofrekwencja"),
+    ("fotoodmłodze", "Fotoodmładzanie"),
+    ("fotoodmlodze", "Fotoodmładzanie"),
+    ("fototerap", "Fototerapia"),
+    ("kriolipoliz", "Kriolipoliza"),
+    ("botoks", "Botoks"),
+    ("wypełniacz", "Wypełniacze"),
+    ("wypelniacz", "Wypełniacze"),
+    ("kwas hialuron", "Wypełniacze kwasem hialuronowym"),
+    ("kwas migdał", "Peeling kwasem migdałowym"),
+    ("kwas migda", "Peeling kwasem migdałowym"),
+    ("makijaż permanentny", "Makijaż permanentny"),
+    ("makijaż", "Makijaż"),
+    ("makijaz", "Makijaż"),
+    ("henna brwi", "Henna brwi"),
+    ("henna", "Henna"),
+    ("regulacja brwi", "Regulacja brwi"),
+    ("laminacja brwi", "Laminacja brwi"),
+    ("brwi", "Stylizacja brwi"),
+    ("przedłużanie rzęs", "Przedłużanie rzęs"),
+    ("rzęs", "Stylizacja rzęs"),
+    ("rzes", "Stylizacja rzęs"),
+    ("manicure hybrydow", "Manicure hybrydowy"),
+    ("manicure", "Manicure"),
+    ("pedicure", "Pedicure"),
+    ("paznok", "Paznokcie"),
+    ("masaż relaksacyjn", "Masaż relaksacyjny"),
+    ("masaż", "Masaż"),
+    ("masaz", "Masaż"),
+    ("modelowanie sylwetki", "Modelowanie sylwetki"),
+    ("modelowani", "Modelowanie sylwetki"),
+    ("endermolog", "Endermologia"),
+    ("ujędrnia", "Ujędrnianie skóry"),
+    ("ujedrnia", "Ujędrnianie skóry"),
+    ("vacuu", "Vacuum body"),
+    ("lipolu", "Lipoliza"),
+    ("trening ems", "Trening EMS"),
+    ("ems", "EMS"),
+    ("strzyż", "Strzyżenie"),
+    ("koloryzacj", "Koloryzacja"),
+    ("balayage", "Balayage"),
+    ("keratynow", "Keratynowe prostowanie"),
+    ("keratyn", "Keratyna"),
+    ("fryzjer", "Fryzjerstwo"),
+    ("podolog", "Podologia"),
+    ("stóp", "Pielęgnacja stóp"),
+    ("lifting", "Lifting"),
+    ("odmładz", "Odmładzanie skóry"),
+    ("odmladz", "Odmładzanie skóry"),
+    ("odmłodze", "Odmładzanie skóry"),
+    ("odmlodze", "Odmładzanie skóry"),
+    ("rozświetl", "Rozświetlenie skóry"),
+    ("rozswietl", "Rozświetlenie skóry"),
+    ("rozjaśn", "Rozjaśnianie"),
+    ("rozjasn", "Rozjaśnianie"),
+    ("regenerac", "Regeneracja"),
+    ("stymulac kolagen", "Stymulacja kolagenu"),
+    ("stymulac", "Stymulacja"),
+    ("rewitalizac", "Rewitalizacja"),
+    # baseline catch-all — "laser" zostaje na końcu żeby specyficzne
+    # "depilacja laserowa" / "fototerapia" złapały się pierwsze
+    ("laser", "Laser"),
 ]
+
+# Plaska lista samych substring keywords używana w nazwie/opisie scan
+_GENERIC_PROCEDURE_KEYWORDS = [k for k, _ in _PROCEDURE_KEYWORD_MAPPING]
+
+
+def _suggested_prefix_for_keyword(matched_kw: str) -> str:
+    """Map matched substring → human-readable prefix.
+
+    Pierwszy match wygrywa, idzie po _PROCEDURE_KEYWORD_MAPPING który jest
+    posortowany od najbardziej specyficznego do ogólnego.
+    """
+    for kw, prefix in _PROCEDURE_KEYWORD_MAPPING:
+        if kw == matched_kw:
+            return prefix
+    return matched_kw.capitalize()
 
 
 def _detect_hidden_services(
@@ -1038,25 +1113,12 @@ def _detect_hidden_services(
         if not matched_keyword:
             continue
 
-        # Próbujemy zaproponować lepszą nazwę — wyciągnij frazę z początku
-        # opisu (pierwsze 60 znaków po cleanup) jako sugerowany prefix.
-        # Większość opisów Booksy zaczyna się od typu "Depilacja laserowa
-        # Thunder — Kobieta — pachy + bikini" co jest idealnym prefiksem.
-        first_line = desc.split("\n", 1)[0].strip()
-        if "—" in first_line:
-            suggested_prefix = first_line.split("—", 1)[0].strip()
-        elif " - " in first_line:
-            suggested_prefix = first_line.split(" - ", 1)[0].strip()
-        elif "." in first_line and len(first_line.split(".", 1)[0]) <= 60:
-            suggested_prefix = first_line.split(".", 1)[0].strip()
-        else:
-            suggested_prefix = first_line[:50].strip()
-
-        # Sanity: prefix powinien zawierać matched_keyword (czyli być real
-        # procedure name, nie continuation of brand description).
-        if matched_keyword not in suggested_prefix.lower():
-            # Fallback — capitalize the matched keyword's natural form.
-            suggested_prefix = matched_keyword.capitalize().strip()
+        # Deterministyczny suggested_prefix z mappingu keyword → readable.
+        # Wcześniej próba ekstrakcji z opisu dawała poszarpane prefiksy
+        # ("Depilacj", "ONDA – precyzyjne modelowanie sylwetki za pomocą t",
+        # "Innowacyjny laser Red Touch firmy Deka to przełom") — heurystyka
+        # po split znakach była zawodna.
+        suggested_prefix = _suggested_prefix_for_keyword(matched_keyword)
 
         out.append({
             "service_id": svc.get("id"),
