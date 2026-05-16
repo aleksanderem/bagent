@@ -1137,26 +1137,37 @@ def _detect_hidden_services(
         if not matches_with_pos:
             continue
 
-        # FIX 1: Context-aware match selection. Jeśli pierwsze 300 znaków
-        # opisu zawierają hint na laser device (laser/fractional/diodowy/...)
-        # ale chosen keyword to "wypełniacz"/"botoks"/inny non-laser, to
-        # prefer match "laser" (catch-all) zamiast misleading procedure.
-        # Empirycznie Red Touch: pierwsze 100 chars to "Innowacyjny laser
-        # Red Touch firmy Deka to przełom w nieinwazyjnym odmładzaniu skóry"
-        # → "laser" wins, nie "wypełniacz" który występuje gdzieś dalej.
-        prefix_text = desc_lower[:300]
-        has_laser_hint = any(h in prefix_text for h in _LASER_DEVICE_HINTS)
+        # Najpierw: choose by position w opisie — pierwszy match = najbardziej
+        # salient signal. Specyficzne keywords ("depilacja laserowa",
+        # "mezoterapia mikroigłowa", "ipl") wygrywają z general ("laser")
+        # gdy oba pojawiają się — bo pierwszy w mappingu jest specific.
+        matches_with_pos.sort(key=lambda x: x[1])
+        chosen_keyword = matches_with_pos[0][0]
 
-        # Choose match: keyword z najwcześniejszym position w opisie wygrywa
-        # (najbardziej salient signal). Z laser hint w prefiksie i jeśli
-        # "laser" jest jednym z matches, wybierz "laser".
-        chosen_keyword: str
-        if has_laser_hint and any(kw == "laser" for kw, _ in matches_with_pos):
-            chosen_keyword = "laser"
-        else:
-            # Najwcześniejszy match w opisie
-            matches_with_pos.sort(key=lambda x: x[1])
-            chosen_keyword = matches_with_pos[0][0]
+        # FIX 1: Context-aware override TYLKO dla mylących non-laser
+        # keywords. Empirycznie Red Touch (laser fractional):
+        # "świetnie do poprawiania wypełniaczy" — slowo "wypełniacz"
+        # występuje w kontekście "różnice od wypełniaczy", nie jako
+        # właściwa procedura. Force "laser" tylko gdy chosen to
+        # demonstratywnie zły match dla laser device.
+        _MISLEADING_FOR_LASER = {
+            "wypełniacz", "wypelniacz", "botoks",
+            "kwas hialuron", "manicure", "pedicure",
+            "makijaż", "makijaz",
+        }
+        if chosen_keyword in _MISLEADING_FOR_LASER:
+            prefix_text = desc_lower[:300]
+            if any(h in prefix_text for h in _LASER_DEVICE_HINTS):
+                # Find a laser-family match jeśli istnieje
+                _LASER_FAMILY = {"laser", "ipl", "depilacja laserowa",
+                                 "depilacj", "fototerap", "hifu",
+                                 "fotoodmłodze", "fotoodmlodze", "rf "}
+                laser_match = next(
+                    (kw for kw, _ in matches_with_pos if kw in _LASER_FAMILY),
+                    None,
+                )
+                if laser_match:
+                    chosen_keyword = laser_match
 
         suggested_prefix = _suggested_prefix_for_keyword(chosen_keyword)
 
