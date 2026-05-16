@@ -109,7 +109,14 @@ def compute_content_quality_scores(
     """Compute content quality metrics from active services + salon description.
 
     Dimensions:
-    - description_coverage: % of active services with description_type='M' (manual)
+    - description_coverage: % of active services z opisem (≥ 30 znaków),
+      niezależnie od description_type. Booksy ma dwa typy źródła opisu:
+        - 'M' (manual): salon wpisał własny tekst
+        - 'P' (predefined): salon wybrał template z Booksy
+      Z punktu widzenia klienta (czytającego cennik) oba są pokryciem.
+      Salon Beauty4ever ma 277 services, wszystkie 'P', 252 z opisem ≥
+      30 znaków (avg 863 znaki) — wcześniej liczone jako 0% pokrycia
+      bo gate „=M" je dyskwalifikował.
     - photo_coverage: % of active services with at least one entry in photos jsonb
     - self_description_length: word count of salon.description
     - avg_description_length: avg word count per service.description (where set)
@@ -117,9 +124,16 @@ def compute_content_quality_scores(
     active = [s for s in services if s.get("is_active", True)]
     total = len(active)
 
-    with_desc_m = sum(
-        1 for s in active if (s.get("description_type") or "").upper() == "M"
-    )
+    # "Ma opis" = description string ≥ 30 znaków po strip. Próg odsiewa
+    # placeholder'y typu "—" / kilka znaków / spacja, ale przyjmuje
+    # zarówno manual jak i predefined templates.
+    def _has_real_description(svc: dict[str, Any]) -> bool:
+        desc = svc.get("description")
+        if not isinstance(desc, str):
+            return False
+        return len(desc.strip()) >= 30
+
+    with_desc = sum(1 for s in active if _has_real_description(s))
     with_photo = sum(
         1
         for s in active
@@ -129,11 +143,11 @@ def compute_content_quality_scores(
     svc_desc_lengths = [
         _word_count(s.get("description"))
         for s in active
-        if s.get("description")
+        if _has_real_description(s)
     ]
 
     return {
-        "description_coverage": _pct(with_desc_m, total),
+        "description_coverage": _pct(with_desc, total),
         "photo_coverage": _pct(with_photo, total),
         "self_description_length": float(_word_count(salon_description)),
         "avg_description_length": (
