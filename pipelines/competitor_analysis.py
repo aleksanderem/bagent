@@ -228,6 +228,23 @@ async def compute_competitor_analysis(
     n_dims = await service.insert_competitor_dimensional_scores(dim_rows)
     logger.info("Etap 4: inserted %d dimensional_scores", n_dims)
 
+    # ── Step 6.5: Hidden services detection ──
+    # Subject services których nazwa NIE zawiera generycznej nazwy
+    # procedury (klient szukający „depilacja laserowa" ich nie znajdzie
+    # w wyszukiwarce Booksy), ale opis mówi co to za zabieg. Beauty4ever
+    # robi to systematycznie z brand-name'ami (Thunder, Onda, Light&Bright,
+    # Plexr, X-Wave, EMBODY, DR CYJ, Red Touch) — usługi technicznie są
+    # w cenniku ale niewidoczne dla 95% wyszukiwań. To strzał w stopę
+    # właścicielowi salonu.
+    await progress(80, "Detekcja ukrytych przed wyszukiwarką usług...")
+    hidden_services = _detect_hidden_services(subject_data.get("services") or [])
+    if hidden_services:
+        logger.info(
+            "Etap 4: detected %d hidden services (brand-name only, missing "
+            "generic procedure in title — invisible to Booksy search)",
+            len(hidden_services),
+        )
+
     # ── Step 7: Extract active promotions ──
     await progress(85, "Ekstrakcja aktywnych promocji...")
     all_booksy_ids = [subject_data["booksy_id"]] + competitor_booksy_ids
@@ -260,7 +277,10 @@ async def compute_competitor_analysis(
                 "promos_competitors": n_promos_competitors,
             },
         },
-        report_data_extras={"activePromotions": active_promotions},
+        report_data_extras={
+            "activePromotions": active_promotions,
+            "hiddenServices": hidden_services,
+        },
     )
 
     await progress(
@@ -935,6 +955,122 @@ async def _compute_service_gaps(
 # ---------------------------------------------------------------------------
 # Active promotions
 # ---------------------------------------------------------------------------
+
+
+# Generic procedure keywords po polsku — words klient wpisuje w wyszukiwarkę
+# Booksy gdy szuka konkretnej usługi. Lista nie jest wyczerpująca — pokrywa
+# najpopularniejsze procedury. Każde zawiera "luźne dopasowanie" (substring,
+# case-insensitive) bo użytkownicy używają form podstawowych lub deklinacji.
+_GENERIC_PROCEDURE_KEYWORDS = [
+    # depilacja
+    "depilacj", "laser",
+    # twarz / pielęgnacja
+    "mezoterap", "peeling", "oczyszczan", "mikrodermabraz",
+    "kawitacj", "sonoforez", "dermomasaż", "dermomasaz",
+    "hifu", "fala radiowa", "rf ", "ipl",
+    "fotoodmłodz", "fotoodmlodz", "fototerap", "kriolipoliz",
+    # iniekcyjne / medycyna estetyczna
+    "botoks", "botoks", "wypełniacz", "wypelniacz",
+    "kwas hialuron", "kwas migdał", "kwas migda",
+    # makijaż / brwi / rzęsy
+    "makijaż", "makijaz", "brwi", "rzęs", "rzes",
+    "henna", "regulacja",
+    # paznokcie
+    "manicure", "pedicure", "paznok",
+    # masaż
+    "masaż", "masaz", "relaks",
+    # modelowanie sylwetki
+    "modelowani", "lipolu", "ujędrnia", "ujedrnia",
+    "endermolog", "vacuu",
+    # włosy
+    "fryzjer", "strzyż", "koloryzacj", "balayage",
+    "keratyn", "botox włos",
+    # podologia
+    "podolog", "stóp", "stop",
+    # inne
+    "lifting", "odmłodze", "odmlodze", "odmładz", "odmladz",
+    "rozświetl", "rozswietl", "rozjaśn", "rozjasn",
+    "regenerac", "stymulac", "rewitalizac",
+    "trening ems", "ems",
+]
+
+
+def _detect_hidden_services(
+    services: list[dict[str, Any]],
+) -> list[dict[str, Any]]:
+    """Zwraca services których name NIE ma generic procedure keyword,
+    ale description JĄ ma. To są usługi które klient Booksy nie znajdzie
+    w wyszukiwarce — bo wyszukiwarka filtruje po name, nie description.
+
+    Empirycznie (Beauty4ever, report 34): "Thunder - pachy + bikini pełne"
+    (brand-only name) z opisem 989 znaków otwierającym się "Depilacja
+    laserowa Thunder — Kobieta — pachy + bikini pełne — 1 zabieg ⭕Laser
+    Thunder…". Description ma "depilacja laserowa" → klient szukający
+    tej frazy by zobaczył tę usługę, gdyby była w nazwie. Sam "Thunder"
+    w nazwie = niewidoczna.
+
+    Returns list of {service_id, name, description, matched_keyword,
+    suggested_prefix, price_grosze} sorted by price desc.
+    """
+    out: list[dict[str, Any]] = []
+    for svc in services:
+        if not svc.get("is_active", True):
+            continue
+        name = (svc.get("name") or "").strip()
+        desc = (svc.get("description") or "").strip()
+        if not name or len(desc) < 60:
+            continue
+
+        name_lower = name.lower()
+        desc_lower = desc.lower()
+
+        # Sprawdź czy NAME nie ma żadnego generic keyword
+        name_has_keyword = any(kw in name_lower for kw in _GENERIC_PROCEDURE_KEYWORDS)
+        if name_has_keyword:
+            continue
+
+        # Sprawdź czy DESCRIPTION ma jakikolwiek generic keyword
+        matched_keyword = None
+        for kw in _GENERIC_PROCEDURE_KEYWORDS:
+            if kw in desc_lower:
+                matched_keyword = kw
+                break
+        if not matched_keyword:
+            continue
+
+        # Próbujemy zaproponować lepszą nazwę — wyciągnij frazę z początku
+        # opisu (pierwsze 60 znaków po cleanup) jako sugerowany prefix.
+        # Większość opisów Booksy zaczyna się od typu "Depilacja laserowa
+        # Thunder — Kobieta — pachy + bikini" co jest idealnym prefiksem.
+        first_line = desc.split("\n", 1)[0].strip()
+        if "—" in first_line:
+            suggested_prefix = first_line.split("—", 1)[0].strip()
+        elif " - " in first_line:
+            suggested_prefix = first_line.split(" - ", 1)[0].strip()
+        elif "." in first_line and len(first_line.split(".", 1)[0]) <= 60:
+            suggested_prefix = first_line.split(".", 1)[0].strip()
+        else:
+            suggested_prefix = first_line[:50].strip()
+
+        # Sanity: prefix powinien zawierać matched_keyword (czyli być real
+        # procedure name, nie continuation of brand description).
+        if matched_keyword not in suggested_prefix.lower():
+            # Fallback — capitalize the matched keyword's natural form.
+            suggested_prefix = matched_keyword.capitalize().strip()
+
+        out.append({
+            "service_id": svc.get("id"),
+            "name": name,
+            "matched_keyword": matched_keyword,
+            "suggested_prefix": suggested_prefix,
+            "suggested_name": f"{suggested_prefix} {name}".strip(),
+            "price_grosze": svc.get("price_grosze"),
+            "description_preview": desc[:200],
+        })
+
+    # Sort by price desc — drogie ukryte usługi to większa strata
+    out.sort(key=lambda x: -(x.get("price_grosze") or 0))
+    return out
 
 
 def _build_active_promotions(
