@@ -2426,3 +2426,100 @@ class SupabaseService:
         import asyncio as _asyncio
         res = await _asyncio.to_thread(_do_call)
         return list(res.data or [])
+
+    # ────────────────────────────────────────────────────────────────
+    # service_pair_verifications — LLM verdict cache (mig 078 + 079)
+    # ────────────────────────────────────────────────────────────────
+
+    async def lookup_pair_verifications(
+        self,
+        subject_name_normalized: str,
+        competitor_names_normalized: list[str],
+        booksy_treatment_id: int | None,
+        synthetic_treatment_id: int | None,
+        model: str = "gpt-4o-mini",
+    ) -> dict[str, dict[str, Any]]:
+        """Bulk cache fetch via fn_service_pair_verifications_lookup.
+
+        Returns dict keyed by `competitor_name_normalized`. Each value
+        carries the cached verdict + `cached_id` for the
+        `fn_service_pair_verifications_touch` follow-up. Empty dict
+        when no cache hits OR when the candidate list is empty.
+
+        Raises on RPC failure — caller decides whether to swallow.
+        Faza 7 spec: no graceful fallbacks.
+        """
+        if not competitor_names_normalized:
+            return {}
+
+        params: dict[str, Any] = {
+            "p_subject_name": subject_name_normalized,
+            "p_competitor_names": list(competitor_names_normalized),
+            "p_booksy_tid": booksy_treatment_id,
+            "p_synthetic_tid": synthetic_treatment_id,
+            "p_model": model,
+        }
+
+        def _do_call() -> Any:
+            return self.client.rpc(
+                "fn_service_pair_verifications_lookup", params,
+            ).execute()
+
+        import asyncio as _asyncio
+        res = await _asyncio.to_thread(_do_call)
+        rows = list(res.data or [])
+        out: dict[str, dict[str, Any]] = {}
+        for r in rows:
+            if not isinstance(r, dict):
+                continue
+            name = r.get("competitor_name")
+            if not isinstance(name, str) or not name:
+                continue
+            out[name] = {
+                "is_comparable": bool(r.get("is_comparable")),
+                "confidence": float(r.get("confidence") or 0.0),
+                "reasoning": r.get("reasoning") or "",
+                "rejection_reason": r.get("rejection_reason"),
+                "cached_id": r.get("cached_id"),
+            }
+        return out
+
+    async def insert_pair_verifications(
+        self,
+        rows: list[dict[str, Any]],
+    ) -> None:
+        """Bulk upsert into service_pair_verifications.
+
+        Uses on_conflict='spv_pair_unique_idx' so concurrent audits
+        racing on the same pair land on a single row (the second one
+        becomes a no-op update of model_used + reasoning, which keeps
+        the cache idempotent under retries).
+
+        Raises on DB failure. No graceful fallback per Faza 7 spec.
+        """
+        if not rows:
+            return
+
+        def _do_call() -> Any:
+            return (
+                self.client.table("service_pair_verifications")
+                .upsert(rows, on_conflict="spv_pair_unique_idx")
+                .execute()
+            )
+
+        import asyncio as _asyncio
+        await _asyncio.to_thread(_do_call)
+
+    async def touch_pair_verifications(self, ids: list[int]) -> None:
+        """Bump hit_count + last_seen_at for cache hits."""
+        if not ids:
+            return
+
+        def _do_call() -> Any:
+            return self.client.rpc(
+                "fn_service_pair_verifications_touch",
+                {"p_ids": list(ids)},
+            ).execute()
+
+        import asyncio as _asyncio
+        await _asyncio.to_thread(_do_call)

@@ -43,6 +43,10 @@ from services.pricing_verification import (
     should_drop_from_display,
     verify_pricing_comparison,
 )
+from services.pair_verification import (
+    _normalize_pair_name,
+    verify_service_pairs,
+)
 from services.hidden_service_inference import (
     DEFAULT_MIN_CONFIDENCE as HIDDEN_MIN_CONFIDENCE,
     GeminiLLMClient,
@@ -647,6 +651,9 @@ async def _compute_pricing_comparisons(
                 "service_name": svc.get("name"),
                 "price_grosze": int(price),
                 "duration_minutes": svc.get("duration_minutes"),
+                # Same variant cluster → similarity 1.0 for UI sort
+                # (modal sorts competitor rows by closest-to-subject first).
+                "name_similarity": 1.0,
             })
 
     # Pre-pass: figure out which subject service embeddings + which variant
@@ -927,9 +934,18 @@ async def _compute_pricing_comparisons(
                 "Failed to pre-load variant centroids (%s) — falling back "
                 "to service-name embeddings only", e,
             )
-    tier1_rows = _compute_treatment_tier_rows(
+    # Faza 7 (2026-05-16) — tier-1 gets an LLM pair-verification gate
+    # on top of the embedding method-similarity filter. The function is
+    # async so it can await the LLM batch calls + cache RPC roundtrips.
+    # `_get_hidden_inference_llm()` is lazy + cached; reuse it instead
+    # of spinning up a new client per call.
+    tier1_llm_client = _get_hidden_inference_llm()
+    tier1_rows = await _compute_treatment_tier_rows(
         report_id, subject_data, aligned_competitors,
         variant_centroids=variant_centroids,
+        supabase=service,
+        llm_client=tier1_llm_client,
+        audit_id=audit_id,
     )
     rows.extend(tier1_rows)
 
@@ -984,6 +1000,16 @@ _TREATMENT_TIER_MIN_NAME_SIM = 0.55
 # konkurentów. Beauty4ever Thunder vs jedna pasta cukrowa = +167% = bullshit.
 _TREATMENT_TIER_MIN_SAMPLES = 3
 
+# Faza 7 (2026-05-16) — LLM pair verification thresholds.
+# Skip the LLM gate entirely when there's nothing useful to filter; one
+# competitor sample either survives method-similarity or it doesn't and
+# we won't compute percentiles from <3 samples anyway.
+_LLM_VERIFY_MIN_SAMPLES = 2
+# If LLM verify rejects so many candidates that fewer than this number
+# survive, demote the row to subject_only — better than showing a
+# bombastic deviation% off 1-2 cherry-picked LLM-approved samples.
+_LLM_VERIFY_LOW_CONFIDENCE_THRESHOLD = 3
+
 
 def _filter_comp_samples_by_subj_method(
     comp_svc_with_meta: list[tuple[dict[str, Any], Any, int | None]],
@@ -1015,14 +1041,20 @@ def _filter_comp_samples_by_subj_method(
     Returns (kept_samples, n_dropped).
     """
     if not subj_refs:
-        # Subject has no references — fall through, accept everything.
-        return [s for s, _, _ in comp_svc_with_meta], 0
+        # Subject has no references — accept everything, no similarity score.
+        out: list[dict[str, Any]] = []
+        for s, _, _ in comp_svc_with_meta:
+            s["name_similarity"] = None
+            out.append(s)
+        return out, 0
     subj_vids = {vid for _, vid in subj_refs if vid is not None}
     kept: list[dict[str, Any]] = []
     dropped = 0
     for sample, fallback_emb, comp_vid in comp_svc_with_meta:
         # Fast path 1: identical variant_id → guaranteed same cluster.
+        # Similarity is 1.0 (centroid-to-itself) for ranking purposes.
         if comp_vid is not None and comp_vid in subj_vids:
+            sample["name_similarity"] = 1.0
             kept.append(sample)
             continue
         # Pick reference embedding for competitor side.
@@ -1032,7 +1064,8 @@ def _filter_comp_samples_by_subj_method(
             else None
         ) or fallback_emb
         if comp_ref is None:
-            # No embedding at all — keep conservatively.
+            # No embedding at all — keep conservatively, no similarity.
+            sample["name_similarity"] = None
             kept.append(sample)
             continue
         max_sim = 0.0
@@ -1048,6 +1081,9 @@ def _filter_comp_samples_by_subj_method(
             if sim is not None and sim > max_sim:
                 max_sim = sim
         if max_sim >= min_sim:
+            # Annotate so the rich UI modal can sort competitor rows by
+            # closest-to-subject first (default sort) instead of by price.
+            sample["name_similarity"] = round(max_sim, 4)
             kept.append(sample)
         else:
             dropped += 1
@@ -1091,12 +1127,15 @@ def _tid_key(svc: dict[str, Any]) -> tuple[str, int] | None:
     return None
 
 
-def _compute_treatment_tier_rows(
+async def _compute_treatment_tier_rows(
     report_id: int,
     subject_data: dict[str, Any],
     aligned_competitors: list[tuple[CompetitorCandidate, dict[str, Any]]],
     *,
     variant_centroids: dict[int, Any] | None = None,
+    supabase: SupabaseService | None = None,
+    llm_client: GeminiLLMClient | None = None,
+    audit_id: str | None = None,
 ) -> list[dict[str, Any]]:
     """Tier-1 pricing comparison rows aggregated per booksy_treatment_id.
 
@@ -1116,6 +1155,17 @@ def _compute_treatment_tier_rows(
 
     Emituje rows z comparison_tier='treatment', variant_id=NULL,
     recommended_action ∈ {raise, lower, hold, subject_only}.
+
+    Faza 7 (2026-05-16) — LLM pair verification gate. AFTER the
+    embedding-based method-similarity filter (`_filter_comp_samples_by_subj_method`)
+    each remaining competitor sample is checked by an LLM batch call
+    against the subject's canonical service name. Cached in
+    `service_pair_verifications` (mig 078 + 079). Same Booksy tid often
+    bundles different brands / body parts / intensities under one
+    umbrella (e.g. tid=630 mixes PRX, INFINI, peelings of plecy, twarz,
+    intymne); the LLM cuts those down to the actually-comparable
+    services. Tier=variant + tier=sub_variant skip this gate — their
+    cluster_id grouping already enforces method match.
     """
     rows: list[dict[str, Any]] = []
 
@@ -1273,6 +1323,72 @@ def _compute_treatment_tier_rows(
             )
         else:
             canonical_name = f"Treatment {tid_value}"
+
+        # Faza 7 (2026-05-16) — LLM pair verification gate. Embedding
+        # cosine accepts same-tid services with overlapping vocabulary
+        # but different procedure (Bloomea LIGHTENING peeling vs PRO XN
+        # II stopień twarz — both peelings, completely different
+        # chemistry/scope). Ask an LLM per-row whether each candidate
+        # is actually comparable to the subject for pricing purposes.
+        # Cached so future audits don't pay for re-asking the same
+        # (subject, competitor, tid) tuple.
+        if (
+            comp_samples
+            and len(comp_samples) >= _LLM_VERIFY_MIN_SAMPLES
+            and supabase is not None
+            and llm_client is not None
+        ):
+            booksy_tid_for_verify = (
+                tid_value if tid_kind == "booksy" else None
+            )
+            synthetic_tid_for_verify = (
+                tid_value if tid_kind == "synthetic" else None
+            )
+            candidate_names = [
+                (s.get("service_name") or "") for s in comp_samples
+            ]
+            verified_map = await verify_service_pairs(
+                subject_service_name=canonical_name,
+                candidate_competitor_names=candidate_names,
+                booksy_treatment_id=booksy_tid_for_verify,
+                synthetic_treatment_id=synthetic_tid_for_verify,
+                supabase=supabase,
+                llm_client=llm_client,
+                audit_id=audit_id,
+            )
+            verified_samples: list[dict[str, Any]] = []
+            rejected_count = 0
+            for sample in comp_samples:
+                norm = _normalize_pair_name(sample.get("service_name") or "")
+                verdict = verified_map.get(norm, {})
+                sample["llm_verified"] = bool(
+                    verdict.get("is_comparable", True)
+                )
+                sample["llm_reasoning"] = verdict.get("reasoning")
+                sample["llm_rejection_reason"] = verdict.get(
+                    "rejection_reason"
+                )
+                sample["from_cache"] = bool(verdict.get("from_cache", False))
+                if sample["llm_verified"]:
+                    verified_samples.append(sample)
+                else:
+                    rejected_count += 1
+            logger.info(
+                "Etap 4 tier-1 LLM verify: key=%s:%s kept %d/%d, dropped %d",
+                tid_kind, tid_value,
+                len(verified_samples), len(comp_samples), rejected_count,
+            )
+            comp_samples = verified_samples
+            # If LLM rejected enough samples that we drop below the
+            # statistical-confidence threshold, demote to subject_only —
+            # same policy as the embedding method-similarity filter.
+            if 0 < len(comp_samples) < _LLM_VERIFY_LOW_CONFIDENCE_THRESHOLD:
+                logger.info(
+                    "Etap 4 tier-1 LLM verify: key=%s:%s only %d verified "
+                    "samples — demoting to low_confidence subject_only",
+                    tid_kind, tid_value, len(comp_samples),
+                )
+                comp_samples = []
 
         subj_prices = [float(s["price_grosze"]) for s in subj_svcs]
         subj_ppms = [
@@ -1746,6 +1862,8 @@ async def _compute_sub_variant_tier_rows(
                     "sub_variant_label": s["sub_variant_label"],
                     "price_grosze": s["price_grosze"],
                     "duration_minutes": s["duration_minutes"],
+                    # Same sub_variant_group → similarity 1.0 for UI sort.
+                    "name_similarity": 1.0,
                 }
                 for s in samples[:30]
             ],
