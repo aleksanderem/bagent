@@ -256,6 +256,7 @@ async def compute_competitor_analysis(
     await progress(45, "Pricing comparisons per treatment_id...")
     pricing_rows = await _compute_pricing_comparisons(
         service, report_id, subject_data, aligned_competitors,
+        audit_id=audit_id,
     )
     n_pricing = await service.insert_competitor_pricing_comparisons(pricing_rows)
     logger.info("Etap 4: inserted %d pricing_comparisons", n_pricing)
@@ -598,6 +599,8 @@ async def _compute_pricing_comparisons(
     report_id: int,
     subject_data: dict[str, Any],
     aligned_competitors: list[tuple[CompetitorCandidate, dict[str, Any]]],
+    *,
+    audit_id: str | None = None,
 ) -> list[dict[str, Any]]:
     """Compute per-variant pricing comparison rows (Phase 5 + mig 064 verify).
 
