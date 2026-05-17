@@ -719,11 +719,44 @@ async def _compute_pricing_comparisons(
     competitor_samples_by_variant: dict[
         tuple[int, int, str], list[dict[str, Any]]
     ] = {}
+    # 2026-05-17 (Faza 2) — brand-indexed map of EVERY active competitor
+    # service (regardless of variant_id presence). Used to populate
+    # `related_samples` on subject_only rows where the subject has a
+    # brand_marker — surfaces "competitors offer Red Touch szyja-twarz
+    # at 1490 zł" even when Beauty4ever's specific "Red Touch dekolt"
+    # variant has zero direct matches.
+    competitor_services_by_brand: dict[str, list[dict[str, Any]]] = {}
     for cand, cdata in aligned_competitors:
         if not cand.counts_in_aggregates:
             continue
         comp_scrape = cdata.get("scrape") or {}
         salon_name = comp_scrape.get("salon_name") or ""
+        # First pass: brand-indexed catalog (includes services WITHOUT
+        # variant_id, since brand match is the only requirement here).
+        for svc in cdata.get("services") or []:
+            if not svc.get("is_active", True):
+                continue
+            price = svc.get("price_grosze")
+            if price is None:
+                continue
+            svc_name = (svc.get("name") or "").strip()
+            if not svc_name:
+                continue
+            brand = extract_brand_marker(svc_name)
+            if brand is None:
+                continue
+            competitor_services_by_brand.setdefault(brand, []).append({
+                "salon_id": cdata.get("salon_id"),
+                "salon_name": salon_name,
+                "booksy_id": cand.booksy_id,
+                "service_id": svc.get("id"),
+                "service_name": svc_name,
+                "price_grosze": int(price),
+                "duration_minutes": svc.get("duration_minutes"),
+                "brand_marker": brand,
+            })
+        # Second pass: variant-keyed samples (same as before) for direct
+        # match comparisons.
         comp_svcs = _active_services_with_variant(cdata.get("services") or [])
         for variant_key, svc in comp_svcs.items():
             price = svc.get("price_grosze")
@@ -789,6 +822,27 @@ async def _compute_pricing_comparisons(
         # z NULL market data + recommended_action='subject_only'. UI rysuje
         # kreski w market columns i badge "tylko u Ciebie".
         if len(samples) == 0:
+            # 2026-05-17 (Faza 2) — when this subject service has a
+            # brand_marker, surface OTHER same-brand competitor services
+            # (different variant / config / duration) so the UI can replace
+            # the misleading "Tylko u Ciebie" badge with concrete market
+            # alternatives. Dedup by (salon_id, service_id) and skip the
+            # subject's own salon if accidentally present.
+            related: list[dict[str, Any]] = []
+            if subject_brand is not None:
+                seen: set[tuple[Any, Any]] = set()
+                for s in competitor_services_by_brand.get(subject_brand, []):
+                    key = (s.get("salon_id"), s.get("service_id"))
+                    if key in seen:
+                        continue
+                    seen.add(key)
+                    related.append(s)
+                if related:
+                    logger.info(
+                        "Etap 4 pricing: subject_only %r brand=%s → %d "
+                        "related samples (different variant)",
+                        subj_name[:60], subject_brand, len(related),
+                    )
             prelim.append({
                 "variant_key": variant_key,
                 "tid": tid,
@@ -800,6 +854,7 @@ async def _compute_pricing_comparisons(
                 "percentiles": None,
                 "deviation_pct": None,
                 "subject_only": True,
+                "related_samples": related,
             })
             continue
         market_prices_f = [float(s["price_grosze"]) for s in samples]
@@ -891,6 +946,12 @@ async def _compute_pricing_comparisons(
                 "verification_status": "subject_only",
                 "verification_details": None,
                 "competitor_samples": [],
+                # 2026-05-17 Faza 2 — same-brand competitor services in
+                # other variants/configurations. Empty when subject has no
+                # brand_marker or no competitor offers the same brand.
+                # UI uses this to replace misleading "Tylko u Ciebie" with
+                # "Brak w tej konfiguracji — konkurenci oferują:".
+                "related_samples": item.get("related_samples") or [],
             })
             continue
 
