@@ -3014,6 +3014,44 @@ async def _resolve_service_taxonomy(
             f"id={match['id']} sim={match['similarity']:.3f} "
             f"canonical={match.get('canonical_name')!r}" if match else "none",
         )
+        # Area-gate Rule 4 too — top-1 embedding match can be wrong-area
+        # for multi-area services. Same gate as Rule 3 (pre/post LLM).
+        if match is not None:
+            from services.body_area_taxonomy import (
+                extract_body_areas, areas_compatible,
+            )
+            svc_areas = extract_body_areas(svc.get("name") or "")
+            cand_areas = extract_body_areas(match.get("canonical_name") or "")
+            if not areas_compatible(svc_areas, cand_areas):
+                logger.info(
+                    "_resolve_service_taxonomy [%s] rule_4: area-gate "
+                    "REJECTED svc_id=%s svc_areas=%s vs cand=%r areas=%s — "
+                    "falling through to Rule 1",
+                    label, svc.get("id"), sorted(svc_areas),
+                    match.get("canonical_name"), sorted(cand_areas),
+                )
+                if trace_collector is not None:
+                    trace_collector.append({
+                        "svc_id": svc.get("id"),
+                        "svc_name": svc.get("name"),
+                        "original_tid": None,
+                        "original_category": svc.get("category_name"),
+                        "rule": "4",
+                        "decision": "skipped",
+                        "details": {
+                            "synthetic_id": match["id"],
+                            "canonical_name": match.get("canonical_name"),
+                            "similarity": match["similarity"],
+                            "area_gate_rejection": True,
+                            "svc_areas": sorted(svc_areas),
+                            "cand_areas": sorted(cand_areas),
+                            "falls_through_to": "1",
+                        },
+                        "embedding_top_k": [],
+                        "llm_response": None,
+                        "final": None,
+                    })
+                match = None  # force fall-through to Rule 1
         if match is not None:
             syn_id = int(match["id"])
             svc["synthetic_treatment_id"] = syn_id

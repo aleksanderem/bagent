@@ -261,6 +261,36 @@ async def infer_hidden_service_taxonomy(
     if not candidates:
         return _unfixable_result("Brak embedding albo RPC failure")
 
+    # Deterministic body-area gate (Stage-5 commit 1, 2026-05-17).
+    # Filters ANN top-K candidates by area-set overlap with service name
+    # before the LLM ever sees them. Eliminates the "Thunder Całe ciało
+    # → Depilacja twarzy 0.9 confidence" failure mode at the source:
+    # LLM cannot pick what isn't in the candidate list. Candidates with
+    # NO area markers (generic "Depilacja laserowa") pass through.
+    from services.body_area_taxonomy import (
+        filter_candidates_by_area,
+        extract_body_areas,
+        areas_compatible,
+    )
+    kept, svc_areas, dropped_by_area = filter_candidates_by_area(name, candidates)
+    if dropped_by_area:
+        logger.info(
+            "infer_hidden_service_taxonomy: area-gate filtered name=%r "
+            "svc_areas=%s kept=%d dropped=%d (dropped_tids=%s)",
+            name[:60], sorted(svc_areas), len(kept), len(dropped_by_area),
+            [d.get("tid") for d in dropped_by_area[:5]],
+        )
+    if not kept:
+        # Every candidate had an incompatible area set. Service is a real
+        # mismatch with Booksy taxonomy — falls through to Rule 2/4.
+        return _unfixable_result(
+            f"Wszyscy kandydaci ANN top-{top_k} mają niezgodną okolicę "
+            f"ciała vs serwis (svc_areas={sorted(svc_areas)}). "
+            f"Service nie ma odpowiednika w Booksy — Rule 2 fires.",
+            candidate_count=len(candidates),
+        )
+    candidates = kept
+
     # Hard embedding similarity floor — gdy NAJBLIŻSZY kandydat z Booksy
     # taxonomy ma cosine < 0.55 to service po prostu nie ma odpowiednika
     # w taksonomii. LLM disambiguation tutaj produkuje zaufanie 0.8-0.9
@@ -347,6 +377,27 @@ async def infer_hidden_service_taxonomy(
         return _embedding_fallback(
             candidates, min_confidence,
             f"LLM zwrócił tid={tid} poza listą kandydatów",
+        )
+
+    # Post-LLM area gate. Even after pre-filtering candidates, the LLM
+    # can still pick a candidate whose canonical_name has narrower or
+    # disjoint area set if the service has multi-area mentions
+    # (e.g. "Mała partia (bikini, pachy, twarz)" picks "Depilacja
+    # twarzy" — half-right but not the holistic answer). Reject if
+    # canonical_name area is disjoint from service area.
+    cand_areas = extract_body_areas(match.get("canonical_name") or "")
+    if not areas_compatible(svc_areas, cand_areas):
+        logger.info(
+            "infer_hidden_service_taxonomy: POST-LLM area-gate rejected "
+            "name=%r → tid=%s canonical=%r (svc=%s vs cand=%s)",
+            name[:60], tid, match.get("canonical_name"),
+            sorted(svc_areas), sorted(cand_areas),
+        )
+        return _unfixable_result(
+            f"LLM wybrał tid={tid} '{match.get('canonical_name')}' z area "
+            f"{sorted(cand_areas)} ale serwis ma area {sorted(svc_areas)} "
+            f"— rozjazd okolicy ciała, Rule 2 fires.",
+            candidate_count=len(candidates),
         )
 
     return {
