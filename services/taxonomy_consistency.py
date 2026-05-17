@@ -238,7 +238,12 @@ _TAXONOMY_DECISIONS_TOOL: dict[str, Any] = {
     "name": "submit_taxonomy_decisions",
     "description": (
         "Submit ONE authoritative routing decision per provided cluster. "
-        "Every cluster_id from the input MUST appear in the decisions array."
+        "Every cluster_id from the input MUST appear in the decisions array. "
+        "For type='booksy_tid' you MUST provide `tid` (integer from candidates). "
+        "For type='salon_synthetic' you MUST provide `canonical_name` "
+        "(human-readable 2-6 word Polish category name, e.g. "
+        "'Modelowanie sylwetki Onda RF' or 'Thunder depilacja laserowa "
+        "całe ciało'). canonical_name MUST never be empty for synthetic."
     ),
     "input_schema": {
         "type": "object",
@@ -253,17 +258,44 @@ _TAXONOMY_DECISIONS_TOOL: dict[str, Any] = {
                             "type": "string",
                             "enum": ["booksy_tid", "salon_synthetic"],
                         },
+                        # Both keys are always present in the schema —
+                        # model fills the one matching `type`. We
+                        # enforce non-empty canonical_name for synthetic
+                        # at the validation layer.
                         "tid": {"type": "integer"},
-                        "canonical_name": {"type": "string"},
-                        "reasoning": {"type": "string"},
+                        "canonical_name": {"type": "string", "minLength": 1},
+                        "reasoning": {"type": "string", "minLength": 1},
                     },
-                    "required": ["cluster_id", "type", "reasoning"],
+                    "required": ["cluster_id", "type", "canonical_name", "reasoning"],
                 },
             },
         },
         "required": ["decisions"],
     },
 }
+
+
+def _synthesize_fallback_canonical(
+    key: tuple[str | None, str, tuple[str, ...]],
+) -> str:
+    """Generate a deterministic fallback canonical_name from cluster
+    key. Used when LLM returns synthetic decision without
+    canonical_name (schema violation) so the pipeline does NOT crash
+    on a recoverable bug — but logs it as a defect.
+
+    Format: "Brand method area1, area2, area3" or omit empty components.
+    """
+    brand, method, areas = key
+    parts: list[str] = []
+    if brand:
+        parts.append(brand.capitalize())
+    if method and method != "generic":
+        parts.append(method)
+    if areas:
+        parts.append(", ".join(areas))
+    if not parts:
+        parts.append("Usługa salonu")
+    return " ".join(parts)
 
 
 def _extract_tool_decisions(msg, expected_count: int) -> list[dict[str, Any]]:
@@ -315,13 +347,10 @@ def _validate_decisions(
                     f"Decision {i} type=booksy_tid but tid is not int: "
                     f"{d.get('tid')!r}"
                 )
-        else:
-            cn = d.get("canonical_name")
-            if not isinstance(cn, str) or not cn.strip():
-                raise RuntimeError(
-                    f"Decision {i} type=salon_synthetic but "
-                    f"canonical_name empty/invalid: {cn!r}"
-                )
+        # NOTE: salon_synthetic canonical_name validation is now done
+        # later in apply_intra_salon_consistency where a deterministic
+        # fallback can be substituted on LLM schema violation
+        # (logger.error so Bugsink still sees the regression).
     return decisions
 
 
@@ -451,7 +480,7 @@ async def apply_intra_salon_consistency(
         )
     decisions = _validate_decisions(raw_decisions, expected_count=len(cluster_payloads))
 
-    # MiniMax may return decisions out of order — index by cluster_id.
+    # MiniMax/OpenAI may return decisions out of order — index by cluster_id.
     decisions_by_cid: dict[int, dict[str, Any]] = {}
     for d in decisions:
         cid_raw = d.get("cluster_id")
@@ -465,9 +494,24 @@ async def apply_intra_salon_consistency(
         decision = decisions_by_cid.get(cid)
         if decision is None:
             raise RuntimeError(
-                f"MiniMax skipped cluster_id={cid} — every cluster MUST "
+                f"LLM skipped cluster_id={cid} — every cluster MUST "
                 f"have a decision"
             )
+        # If LLM returned salon_synthetic without canonical_name
+        # (schema violation), generate a deterministic fallback from
+        # the cluster key instead of crashing. Log so the regression
+        # is visible in Bugsink breadcrumbs.
+        if decision.get("type") == "salon_synthetic":
+            cn = decision.get("canonical_name")
+            if not isinstance(cn, str) or not cn.strip():
+                fallback = _synthesize_fallback_canonical(key)
+                logger.error(
+                    "LLM returned salon_synthetic for cluster_id=%d "
+                    "without canonical_name — using deterministic "
+                    "fallback %r (LLM schema violation, see Bugsink)",
+                    cid, fallback,
+                )
+                decision["canonical_name"] = fallback
         rerouted += await _apply_decision(
             cid=cid, key=key, members=members, decision=decision,
             supabase=supabase, audit_id=audit_id,
