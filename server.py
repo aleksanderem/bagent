@@ -875,9 +875,54 @@ async def dev_trace_taxonomy(request: TraceTaxonomyRequest) -> dict:
         and s.get("id") is not None
     )
 
+    # Normalize internal trace_collector emissions into the public
+    # ServiceTrace[] contract the modal was coded against. Internal
+    # `trace[]` is a flat list of (svc, rule_outcome) dicts; the public
+    # shape is one ServiceTrace per service with a `steps[]` array of
+    # rule attempts plus a derived `success` flag.
+    SUCCESS_DECISIONS = {"matched", "kept", "inherited", "generated"}
+    by_svc: dict[Any, dict[str, Any]] = {}
+    order: list[Any] = []
+    for entry in trace:
+        svc_id = entry.get("svc_id")
+        key = svc_id if svc_id is not None else id(entry)
+        if key not in by_svc:
+            order.append(key)
+            by_svc[key] = {
+                "svc_id": svc_id,
+                "svc_name": entry.get("svc_name"),
+                "original_tid": entry.get("original_tid"),
+                "original_category": entry.get("original_category"),
+                "steps": [],
+                "success": False,
+                "error": entry.get("error"),
+                "final": None,
+            }
+        st = by_svc[key]
+        try:
+            rule_num = int(entry.get("rule")) if entry.get("rule") is not None else 0
+        except (TypeError, ValueError):
+            rule_num = 0
+        step = {
+            "rule": rule_num,
+            "decision": entry.get("decision"),
+            "details": entry.get("details"),
+            "embedding_top_k": entry.get("embedding_top_k"),
+            "llm_response": entry.get("llm_response"),
+            "final": entry.get("final"),
+        }
+        st["steps"].append(step)
+        if entry.get("decision") in SUCCESS_DECISIONS:
+            st["success"] = True
+        if entry.get("final") is not None:
+            st["final"] = entry.get("final")
+        if entry.get("error"):
+            st["error"] = entry.get("error")
+    traces_normalized = [by_svc[k] for k in order]
+
     return {
         "stats": stats,
-        "trace": trace,
+        "traces": traces_normalized,
         "services_input": services_input,
         "candidates": candidates,
         "dry_run": request.dry_run,
