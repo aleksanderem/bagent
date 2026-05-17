@@ -946,15 +946,15 @@ async def dev_trace_taxonomy(request: TraceTaxonomyRequest) -> dict:
                 f"trace_collector entry svc_id={svc_id} missing required "
                 f"`rule` field: keys={sorted(entry.keys())!r}"
             )
-        # _resolve_service_taxonomy emits rule as "2"/"3"/"4"/"1" (string)
-        # or 1-4 (int). Pass 5 (MiniMax consistency, 2026-05-17) emits
-        # rule "5". Anything else is an emitter bug; do not coerce —
-        # let int() raise and Bugsink capture.
+        # _resolve_service_taxonomy emits rule as "0" (anchor replay,
+        # Stage-5 commit 2), "2"/"3"/"4"/"1" (4-rule), or "5" (Pass 5
+        # MiniMax consistency). Anything else is an emitter bug; let
+        # int() raise and Bugsink capture.
         rule_num = int(raw_rule)
-        if rule_num not in (1, 2, 3, 4, 5):
+        if rule_num not in (0, 1, 2, 3, 4, 5):
             raise RuntimeError(
                 f"trace_collector entry svc_id={svc_id} emitted invalid "
-                f"rule value {raw_rule!r} (expected 1/2/3/4/5)"
+                f"rule value {raw_rule!r} (expected 0/1/2/3/4/5)"
             )
         step = {
             "rule": rule_num,

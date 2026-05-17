@@ -2704,6 +2704,7 @@ async def _resolve_service_taxonomy(
     )
 
     stats = {
+        "rule_0": 0,
         "rule_2": 0,
         "rule_3": 0,
         "rule_4": 0,
@@ -2731,6 +2732,74 @@ async def _resolve_service_taxonomy(
         logger.debug(
             "_resolve_service_taxonomy [%s]: no NULL-tid candidates", label,
         )
+        return stats
+
+    # ── Rule 0 (Stage-5 commit 2, 2026-05-17): historical anchor replay. ──
+    # For each NULL-tid candidate, look up cross-audit anchors keyed by
+    # (brand_marker, method_marker, body_area_set). Hits skip Rules
+    # 2-4 entirely AND skip Pass 5 LLM cost. Read-only in this commit
+    # — empty table = zero hits, zero cost.
+    from services.taxonomy_anchors import (
+        extract_anchor_key,
+        lookup_anchors_bulk,
+        apply_anchor_to_service,
+    )
+    anchor_min_confidence = getattr(
+        settings, "taxonomy_anchor_min_confidence", 1,
+    )
+    candidate_services = [svc for _, svc in candidates]
+    anchors_by_key = await lookup_anchors_bulk(
+        supabase,
+        candidate_services,
+        min_confidence_count=anchor_min_confidence,
+    )
+    anchor_hits: list[tuple[int, dict[str, Any]]] = []
+    if anchors_by_key:
+        for idx, svc in list(candidates):
+            key = extract_anchor_key(svc)
+            anchor = anchors_by_key.get(key)
+            if anchor is None:
+                continue
+            if apply_anchor_to_service(svc, anchor):
+                stats["rule_0"] += 1
+                anchor_hits.append((idx, svc))
+                if trace_collector is not None:
+                    trace_collector.append({
+                        "svc_id": svc.get("id"),
+                        "svc_name": svc.get("name"),
+                        "original_tid": None,
+                        "original_category": svc.get("category_name"),
+                        "rule": "0",
+                        "decision": "anchor_replay",
+                        "details": {
+                            "brand_marker": key[0],
+                            "method_marker": key[1],
+                            "body_area_set": key[2],
+                            "tid_kind": anchor["tid_kind"],
+                            "booksy_tid": anchor.get("booksy_tid"),
+                            "synthetic_tid": anchor.get("synthetic_tid"),
+                            "confidence_count": anchor.get("confidence_count"),
+                            "status": anchor.get("status"),
+                            "reasoning": anchor.get("reasoning"),
+                        },
+                        "embedding_top_k": [],
+                        "llm_response": None,
+                        "final": {
+                            "booksy_tid": svc.get("booksy_treatment_id"),
+                            "synthetic_tid": svc.get("synthetic_treatment_id"),
+                            "taxonomy_source": "anchor_replay",
+                            "treatment_name": svc.get("name"),
+                        },
+                    })
+        # Remove anchor hits from the queue that goes to Rules 2-4.
+        hit_ids = {svc.get("id") for _, svc in anchor_hits}
+        candidates = [(i, s) for i, s in candidates if s.get("id") not in hit_ids]
+    logger.info(
+        "_resolve_service_taxonomy [%s] Rule 0: %d anchor replays "
+        "(min_confidence=%d), %d candidates continue to Rules 2-4",
+        label, stats["rule_0"], anchor_min_confidence, len(candidates),
+    )
+    if not candidates:
         return stats
 
     logger.info(

@@ -55,6 +55,15 @@ class Settings(BaseSettings):
     # Outreach worker id (mirrors scrape_worker_id pattern).
     outreach_worker_id: str = "outreach-worker-default"
 
+    # Stage-5 commit 2 — taxonomy consistency anchors. Rule 0 lookup
+    # in `_resolve_service_taxonomy` only applies an anchor when the
+    # confidence_count (= COUNT(DISTINCT audit_id) from
+    # taxonomy_anchor_audit_log) reaches this threshold. Default 1 =
+    # first cross-audit confirmation already forces the anchor.
+    # Increase later once production data shows the right balance
+    # between stability and over-locking.
+    taxonomy_anchor_min_confidence: int = 1
+
     # extra="ignore" lets us put arbitrary env vars in .env (e.g. BUGSINK_DSN_*,
     # HC_PING_*) without having to declare each one as a pydantic field.
     model_config = {"env_file": ".env", "env_file_encoding": "utf-8", "extra": "ignore"}
