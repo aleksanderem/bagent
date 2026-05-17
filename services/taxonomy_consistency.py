@@ -399,20 +399,56 @@ async def apply_intra_salon_consistency(
         label, len(user_prompt), len(cluster_payloads),
     )
 
-    # Use tool_use API — MiniMax M2.7 with interleaved thinking emits
-    # markdown reasoning before any JSON when called via plain text
-    # generation, breaking JSON parsing. Forcing a tool call produces
-    # structured output the SDK parses for us.
-    async def _call():
-        return await minimax.create_message(
-            system=_SYSTEM_PROMPT,
-            messages=[{"role": "user", "content": user_prompt}],
-            tools=[_TAXONOMY_DECISIONS_TOOL],
-            max_tokens=8192,
-            temperature=0.2,
+    # Pass 5 LLM provider switch (2026-05-17): MiniMax M2.7 with
+    # interleaved thinking exhausts max_tokens on thinking blocks
+    # before producing the tool call when the prompt has 25+ mixed
+    # clusters + method gate rules. OpenAI gpt-4o reliably produces
+    # function calls under the same prompt. Switch via env
+    # TAXONOMY_PASS5_PROVIDER (default 'openai').
+    import os
+    provider = os.environ.get("TAXONOMY_PASS5_PROVIDER", "openai").lower()
+    if provider == "openai":
+        from config import settings as _settings
+        from services.openai_taxonomy_client import OpenAITaxonomyClient
+        if not _settings.openai_api_key and not os.environ.get("OPENAI_API_KEY"):
+            raise RuntimeError(
+                "TAXONOMY_PASS5_PROVIDER=openai but OPENAI_API_KEY is "
+                "not set"
+            )
+        oai_key = _settings.openai_api_key or os.environ["OPENAI_API_KEY"]
+        oai_model = os.environ.get("TAXONOMY_PASS5_OPENAI_MODEL", "gpt-4o")
+        oai_client = OpenAITaxonomyClient(api_key=oai_key, model=oai_model)
+        logger.info(
+            "apply_intra_salon_consistency [%s]: provider=openai model=%s",
+            label, oai_model,
         )
-    msg = await with_retry(_call, max_attempts=2, base_delay=2.0)
-    raw_decisions = _extract_tool_decisions(msg, expected_count=len(cluster_payloads))
+        async def _call_oai() -> list[dict[str, Any]]:
+            return await oai_client.call_decisions_tool(
+                system_prompt=_SYSTEM_PROMPT,
+                user_prompt=user_prompt,
+                tool_schema=_TAXONOMY_DECISIONS_TOOL,
+                max_tokens=16384,
+            )
+        raw_decisions = await with_retry(_call_oai, max_attempts=2, base_delay=2.0)
+    else:
+        # Legacy MiniMax path (kept for A/B). Use tool_use API to
+        # force structured output.
+        logger.info(
+            "apply_intra_salon_consistency [%s]: provider=minimax model=%s",
+            label, minimax.model,
+        )
+        async def _call_mm():
+            return await minimax.create_message(
+                system=_SYSTEM_PROMPT,
+                messages=[{"role": "user", "content": user_prompt}],
+                tools=[_TAXONOMY_DECISIONS_TOOL],
+                max_tokens=32768,
+                temperature=0.2,
+            )
+        msg = await with_retry(_call_mm, max_attempts=2, base_delay=2.0)
+        raw_decisions = _extract_tool_decisions(
+            msg, expected_count=len(cluster_payloads),
+        )
     decisions = _validate_decisions(raw_decisions, expected_count=len(cluster_payloads))
 
     # MiniMax may return decisions out of order — index by cluster_id.

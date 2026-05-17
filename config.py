@@ -64,6 +64,13 @@ class Settings(BaseSettings):
     # between stability and over-locking.
     taxonomy_anchor_min_confidence: int = 1
 
+    # Pass 5 LLM provider (taxonomy consistency layer). 'openai' is
+    # default because MiniMax M2.7 empirically exhausts thinking-
+    # token budget on prompts with method gate + 25+ mixed clusters.
+    # 'minimax' kept as fallback for A/B testing or when OPENAI_API_KEY
+    # is unavailable.
+    openai_api_key: str = ""
+
     # extra="ignore" lets us put arbitrary env vars in .env (e.g. BUGSINK_DSN_*,
     # HC_PING_*) without having to declare each one as a pydantic field.
     model_config = {"env_file": ".env", "env_file_encoding": "utf-8", "extra": "ignore"}
