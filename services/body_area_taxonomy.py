@@ -93,6 +93,32 @@ _BODY_AREA_PATTERNS: list[tuple[str, list[str]]] = [
     ("okolice_intymne",     [r"intymn"]),
     # Pośladki
     ("posladki",            [r"\bposladk", r"\bposladki\b"]),
+    # 2026-05-17 — eye / brow / lash region. Beauty4ever cennik has
+    # "Laminacja brwi + regulacja", "Henna pudrowa + regulacja brwi",
+    # "Plexr lifting powiek" — without these tokens those services
+    # had empty area set → no same_area related_samples → UI rendered
+    # misleading "Tylko Ty na rynku" badges. brwi/rzesy/powieki are
+    # distinct enough to bucket separately (a salon offering brow
+    # lamination is not the same comparison as eyelash extensions).
+    ("brwi",                [r"\bbrwi\b", r"\bbrwiom\b", r"\bbrwiami\b"]),
+    ("rzesy",               [r"\brzes\w*", r"\bbinding\b"]),  # rzes/rzesy/rzesach/rzesami
+    ("powieki",             [r"\bpowiek\w*", r"\boczu\b", r"\bokolice\s+oczu\b",
+                             r"\bworki\s+pod\s+ocz\w*"]),
+    # 2026-05-17 — treatment-concern areas (states/conditions, not strictly
+    # anatomical). Without these, services like "Laser CO2 - usuwanie
+    # blizn i rozstępów", "X-Wave fala uderzeniowa na cellulit", "Plexr
+    # usuwanie zmian skórnych" all had empty area set even though the
+    # natural market comparison is "other salons treating blizny/rozstepy/
+    # cellulit/zmiany skórne". Treated as area-equivalents because they
+    # describe the body-zone scope of a treatment.
+    ("blizny",              [r"\bblizn\w*", r"\bbliznoa?w\w*"]),
+    ("rozstepy",            [r"\brozstep\w*", r"\bstretchmark\w*"]),
+    ("cellulit",            [r"\bcellulit\w*", r"\bcellulit\b",
+                             r"\bantycellulit\w*"]),
+    ("zmiany_skorne",       [r"zmiana\w*\s+skorn\w*", r"zmian\w*\s+skorn\w*",
+                             r"\bkurzajk\w*", r"\bbrodawk\w*\b",
+                             r"\bpieprzyk\w*", r"\bwlokniak\w*",
+                             r"\bplamk\w*\s+zolt\w*"]),
 ]
 
 
