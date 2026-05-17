@@ -44,17 +44,26 @@ logger = logging.getLogger(__name__)
 DEFAULT_MIN_SIMILARITY = 0.55
 DEFAULT_LIMIT = 20
 
-# 2026-05-17 (Faza 4b) — promote-to-comp-samples threshold. When subject_only
-# fallback returns ≥ STRONG_MIN_COUNT services with similarity ≥
-# STRONG_MIN_SIMILARITY, the pricing engine treats them as direct market
-# comparison samples (computes percentiles, deviation_pct, recommended_action)
-# instead of as soft "related" context. Empirical: "Red Touch twarz + szyja
-# - PROMOCJA" subject → top embedding matches "RedTouch PRO Twarz+szyja"
-# 0.90, "Laser Red Touch twarz-szyja" 0.86 — clearly the same treatment.
-# Without this promotion, user sees row as "Brak dokładnego matcha · 20
-# semantycznie podobnych" instead of "+75% vs mediana 1700 zł, raise".
-STRONG_MIN_SIMILARITY = 0.78
+# 2026-05-17 (Faza 4b) — promote-to-comp-samples thresholds.
+# When subject_only fallback returns ≥ STRONG_MIN_COUNT services with
+# similarity ≥ STRONG_MIN_SIMILARITY from ≥ STRONG_MIN_UNIQUE_SALONS
+# distinct salons, the pricing engine treats them as direct market
+# samples (computes percentiles, deviation_pct, recommended_action).
+#
+# Tuning (audit 34):
+#   - 0.78: missed "Red Touch twarz + szyja - PROMOCJA" because "PROMOCJA"
+#     suffix lowered cosine to 0.72 against "RedTouch PRO Twarz + szyja"
+#     2100 zł — clearly the same treatment but vocab differs.
+#   - 0.65: catches the Red Touch case (RC Clinic 4 variants + ESTHETIC +
+#     NTP at 0.65-0.72), still rejects Modelka - ONDA (top match 0.498).
+#
+# Unique-salons gate prevents over-promotion when a single salon has
+# many variants matching (e.g. RC Clinic offers 5 RedTouch PRO variants).
+# Without the gate, median would be dominated by one salon's pricing
+# strategy, not the broader market.
+STRONG_MIN_SIMILARITY = 0.65
 STRONG_MIN_COUNT = 3
+STRONG_MIN_UNIQUE_SALONS = 2
 
 
 async def gather_market_context_samples(

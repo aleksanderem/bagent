@@ -839,6 +839,7 @@ async def _compute_pricing_comparisons(
                 gather_market_context_samples,
                 STRONG_MIN_SIMILARITY,
                 STRONG_MIN_COUNT,
+                STRONG_MIN_UNIQUE_SALONS,
             )
             subj_service_id = subject_svc.get("id")
             competitor_booksy_ids = [
@@ -852,7 +853,13 @@ async def _compute_pricing_comparisons(
                 s for s in semantic_results
                 if (s.get("similarity") or 0) >= STRONG_MIN_SIMILARITY
             ]
-            if len(strong) >= STRONG_MIN_COUNT:
+            strong_unique_salons = {
+                s.get("salon_id") for s in strong if s.get("salon_id") is not None
+            }
+            if (
+                len(strong) >= STRONG_MIN_COUNT
+                and len(strong_unique_salons) >= STRONG_MIN_UNIQUE_SALONS
+            ):
                 # Promote to comp samples — engine computes real pricing
                 # comparison. Map embedding sample shape to comp sample shape
                 # (add name_similarity = similarity, brand_marker computed at
@@ -1663,6 +1670,7 @@ async def _compute_treatment_tier_rows(
                 gather_market_context_samples,
                 STRONG_MIN_SIMILARITY,
                 STRONG_MIN_COUNT,
+                STRONG_MIN_UNIQUE_SALONS,
             )
             related_t1: list[dict[str, Any]] = []
             semantic_t1: list[dict[str, Any]] = []
@@ -1680,7 +1688,14 @@ async def _compute_treatment_tier_rows(
                     s for s in semantic_t1
                     if (s.get("similarity") or 0) >= STRONG_MIN_SIMILARITY
                 ]
-                if len(strong_t1) >= STRONG_MIN_COUNT:
+                strong_t1_unique_salons = {
+                    s.get("salon_id") for s in strong_t1
+                    if s.get("salon_id") is not None
+                }
+                if (
+                    len(strong_t1) >= STRONG_MIN_COUNT
+                    and len(strong_t1_unique_salons) >= STRONG_MIN_UNIQUE_SALONS
+                ):
                     # Promote — convert to comp_samples shape and let
                     # tier-1 percentile path below compute the comparison.
                     comp_samples = [
