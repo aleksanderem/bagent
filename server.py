@@ -864,6 +864,39 @@ async def dev_trace_taxonomy(request: TraceTaxonomyRequest) -> dict:
         dry_run=request.dry_run,
     )
 
+    # Stage-5 Pass 5 (2026-05-17): MiniMax consistency layer. Forces
+    # services in the same (brand, area) cluster onto ONE tid_key. The
+    # dev modal needs to see Pass 5 emissions to verify the consistency
+    # fix is actually firing. We run this only for SUBJECT services
+    # here (dev endpoint doesn't load competitors); full cross-salon
+    # consistency happens in `_etap_4_competitor_analysis` during real
+    # audit runs.
+    from services.taxonomy_consistency import apply_intra_salon_consistency
+    from services.minimax import MiniMaxClient
+    from config import settings as _settings
+    if not _settings.minimax_api_key:
+        raise HTTPException(
+            status_code=500,
+            detail=(
+                "Pass 5 requires MINIMAX_API_KEY — not configured. Set "
+                "it before calling /api/dev/trace-taxonomy."
+            ),
+        )
+    minimax_for_consistency = MiniMaxClient(
+        _settings.minimax_api_key,
+        _settings.minimax_base_url,
+        _settings.minimax_model,
+    )
+    consistency_stats = await apply_intra_salon_consistency(
+        services_list,
+        supabase=sb,
+        minimax=minimax_for_consistency,
+        audit_id=request.audit_id,
+        label=f"dev-trace {label}",
+        trace_collector=trace,
+        dry_run=request.dry_run,
+    )
+
     # Count candidates the way _resolve_service_taxonomy does (NULL tid +
     # active + non-empty name) so the UI can show "n of N services routed".
     candidates = sum(
@@ -914,13 +947,14 @@ async def dev_trace_taxonomy(request: TraceTaxonomyRequest) -> dict:
                 f"`rule` field: keys={sorted(entry.keys())!r}"
             )
         # _resolve_service_taxonomy emits rule as "2"/"3"/"4"/"1" (string)
-        # or 1-4 (int). Anything else is an emitter bug; do not coerce
-        # to 0 — let int() raise and Bugsink capture.
+        # or 1-4 (int). Pass 5 (MiniMax consistency, 2026-05-17) emits
+        # rule "5". Anything else is an emitter bug; do not coerce —
+        # let int() raise and Bugsink capture.
         rule_num = int(raw_rule)
-        if rule_num not in (1, 2, 3, 4):
+        if rule_num not in (1, 2, 3, 4, 5):
             raise RuntimeError(
                 f"trace_collector entry svc_id={svc_id} emitted invalid "
-                f"rule value {raw_rule!r} (expected 1/2/3/4)"
+                f"rule value {raw_rule!r} (expected 1/2/3/4/5)"
             )
         step = {
             "rule": rule_num,
@@ -941,6 +975,7 @@ async def dev_trace_taxonomy(request: TraceTaxonomyRequest) -> dict:
 
     return {
         "stats": stats,
+        "consistency": consistency_stats,
         "traces": traces_normalized,
         "services_input": services_input,
         "candidates": candidates,

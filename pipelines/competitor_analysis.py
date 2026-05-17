@@ -219,6 +219,50 @@ async def compute_competitor_analysis(
             "(subject + %d competitors)",
             total_overridden, len(aligned_competitors),
         )
+
+        # Stage-5 Pass 5 (2026-05-17): MiniMax M2.7 cross-salon
+        # consistency. Groups all services (subject + competitors) by
+        # (brand_marker, body_areas) and forces every mixed cluster
+        # under ONE authoritative tid_key. Closes the "Thunder Całe
+        # ciało 1 zabieg → btid=637, 5+1 zabieg → salon-synthetic"
+        # inter-variant inconsistency that the area gate alone cannot
+        # resolve (LLM non-determinism between variants of the same
+        # treatment).
+        from services.taxonomy_consistency import apply_intra_salon_consistency
+        from services.minimax import MiniMaxClient
+        if not settings.minimax_api_key:
+            raise RuntimeError(
+                "Etap 4 Pass 5: MINIMAX_API_KEY missing — consistency "
+                "layer requires MiniMax M2.7. Do not run pipeline "
+                "without it (silently disabling would defeat the "
+                "user-requested architecture)."
+            )
+        minimax_client = MiniMaxClient(
+            settings.minimax_api_key,
+            settings.minimax_base_url,
+            settings.minimax_model,
+        )
+        all_services_cross_salon: list[dict[str, Any]] = list(
+            subject_data.get("services") or []
+        )
+        for _, cdata in aligned_competitors:
+            all_services_cross_salon.extend(cdata.get("services") or [])
+        consistency_stats = await apply_intra_salon_consistency(
+            all_services_cross_salon,
+            supabase=service,
+            minimax=minimax_client,
+            audit_id=audit_id,
+            label=f"cross-salon (subject+{len(aligned_competitors)}comp)",
+            trace_collector=None,  # consistency-layer trace not surfaced in dev modal yet
+            dry_run=False,
+        )
+        logger.info(
+            "Etap 4 Pass 5: MiniMax consistency — %d clusters total, "
+            "%d mixed, %d services rerouted",
+            consistency_stats["clusters_total"],
+            consistency_stats["clusters_mixed"],
+            consistency_stats["rerouted"],
+        )
     except Exception:
         # Taxonomy routing is the foundation for every downstream pricing/
         # competitor comparison — silently continuing with raw tids would

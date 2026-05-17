@@ -1,0 +1,476 @@
+"""Stage-5 Pass 5: intra-salon taxonomy consistency via MiniMax M2.7.
+
+After the 4-rule routing finishes, services from the SAME salon that
+share (brand_marker, body_area_set) MUST resolve to the same
+taxonomy decision. Otherwise:
+  - "Thunder Całe ciało 1 zabieg" → booksy_tid=637 Depilacja ciała
+  - "Thunder Całe ciało 5 + 1 zabieg" → salon-defined synthetic
+end up in DIFFERENT tid_key buckets, splitting one logical service
+into two rows of the pricing matrix and breaking Faza 8a/8b matching.
+
+This module:
+  1. Groups resolved services by (brand_marker, sorted_area_set).
+  2. Identifies "mixed" clusters where members hold different
+     final tid_keys, or any member is Rule-3-unfixable (per advisor
+     trigger expansion 2026-05-17).
+  3. Batches all mixed clusters into ONE MiniMax M2.7 prompt asking
+     for a single authoritative decision per cluster.
+  4. Re-routes every member of each cluster to the verdict.
+
+MiniMax is chosen over gpt-4o-mini (currently in Rule 3) for the
+heavier consistency reasoning — thinking blocks + larger context
+window pay off when the prompt holds 10-30 services and their
+current decisions side-by-side.
+
+NO graceful fallbacks. MiniMax error = raise (Bugsink alerts).
+"""
+
+from __future__ import annotations
+
+import logging
+from typing import Any
+
+from services.body_area_taxonomy import extract_body_areas
+from services.brand_marker import extract_brand_marker
+from services.minimax import MiniMaxClient, with_retry
+
+logger = logging.getLogger(__name__)
+
+
+# ---------------------------------------------------------------------------
+# Cluster building
+# ---------------------------------------------------------------------------
+
+def _resolved_tid_key(svc: dict[str, Any]) -> tuple[str, int | None]:
+    """Canonical decision key for cluster membership comparison.
+
+    Returns ('booksy', tid) for Rule 3 hits, ('synthetic', syn_id) for
+    Rule 1/2/4 hits, ('unresolved', None) for services that didn't get
+    routed (Rule 3 unfixable + no Rule 4 match + no Rule 1).
+    """
+    btid = svc.get("booksy_treatment_id")
+    stid = svc.get("synthetic_treatment_id")
+    if btid is not None:
+        return ("booksy", int(btid))
+    if stid is not None:
+        return ("synthetic", int(stid))
+    return ("unresolved", None)
+
+
+def build_clusters(
+    services: list[dict[str, Any]],
+) -> dict[tuple[str | None, tuple[str, ...]], list[dict[str, Any]]]:
+    """Group services by (brand_marker, sorted_area_set).
+
+    Services without a brand marker AND without area tokens (e.g.
+    generic "Manicure hybrydowy") cluster under the key
+    (None, ()) — typically these are the well-matched cases and we
+    skip them in mixed-cluster detection anyway.
+    """
+    clusters: dict[
+        tuple[str | None, tuple[str, ...]], list[dict[str, Any]]
+    ] = {}
+    for svc in services:
+        if not svc.get("is_active", True):
+            continue
+        name = svc.get("name") or ""
+        category = svc.get("category_name") or ""
+        brand = extract_brand_marker(name, category)
+        areas = extract_body_areas(name)
+        key = (brand, tuple(sorted(areas)))
+        clusters.setdefault(key, []).append(svc)
+    return clusters
+
+
+def find_mixed_clusters(
+    clusters: dict[tuple[str | None, tuple[str, ...]], list[dict[str, Any]]],
+) -> list[tuple[tuple[str | None, tuple[str, ...]], list[dict[str, Any]]]]:
+    """Pick out clusters that need MiniMax consistency resolution.
+
+    A cluster qualifies when ANY of:
+      (a) ≥2 distinct (rule + tid_key) outcomes among members
+      (b) any member is unresolved (Rule-3-unfixable, no Rule 4 match)
+      (c) cluster has ≥2 members AND brand_marker is not None
+          (per advisor trigger expansion 2026-05-17 — unanimous-wrong
+          path: if all 4 Thunder Całe ciało went to btid=637 but
+          should have been synthetic, the cluster is unanimous and
+          would otherwise be skipped; brand-marker presence forces
+          review).
+
+    Singletons (cluster size 1) are skipped — no consistency to
+    enforce.
+    """
+    out: list[tuple[tuple[str | None, tuple[str, ...]], list[dict[str, Any]]]] = []
+    for key, members in clusters.items():
+        brand, areas = key
+        if len(members) < 2:
+            continue
+        if brand is None and not areas:
+            # Generic services without brand + area — likely the
+            # well-matched bulk; skip to avoid noise.
+            continue
+        decisions = {_resolved_tid_key(s) for s in members}
+        has_unresolved = any(d[0] == "unresolved" for d in decisions)
+        mixed = len(decisions) >= 2
+        brand_present = brand is not None
+        if mixed or has_unresolved or brand_present:
+            out.append((key, members))
+    return out
+
+
+# ---------------------------------------------------------------------------
+# MiniMax prompt assembly + parsing
+# ---------------------------------------------------------------------------
+
+_SYSTEM_PROMPT = (
+    "Jesteś ekspertem taxonomii usług w polskich salonach beauty "
+    "(Booksy.com). Dostajesz LISTĘ klastrów usług — każdy klaster "
+    "zawiera usługi z TEGO SAMEGO salonu, dzielące tę samą markę/"
+    "urządzenie i zestaw okolic ciała. Twoim zadaniem jest WYBRAĆ "
+    "JEDNĄ autorytatywną decyzję dla całego klastra, niezależnie od "
+    "tego, jak system je dotąd posortował.\n\n"
+    "Każda decyzja MUSI być jedną z dwóch:\n"
+    "  1. `booksy_tid` — istniejący tid w taksonomii Booksy, którego "
+    "      kanoniczna nazwa pasuje JEDNOCZEŚNIE metodologią ORAZ "
+    "      okolicą ciała. Wybieraj tid TYLKO gdy oba pasują dokładnie.\n"
+    "  2. `salon_synthetic` — gdy żaden Booksy tid nie pasuje, klaster "
+    "      jest brand-specific i potrzebuje własnej kategorii.\n\n"
+    "ZASADY:\n"
+    "  - Brand-name urządzenia (Thunder, Onda, HiFEM, Dermapen) "
+    "    SAME w sobie nie wymuszają synthetic — patrz czy istnieje "
+    "    Booksy tid który pokrywa metodę + okolicę.\n"
+    "  - Konsekwencja > precyzja. Wszystkie usługi w klastrze TRAFIAJĄ "
+    "    POD JEDEN tid. Nie dziel klastra.\n"
+    "  - 'Depilacja laserowa' (tid generyczny, bez okolicy) NIE "
+    "    powinno być wybrane gdy istnieje bardziej specyficzny "
+    "    tid pasujący okolicą (np. 'Depilacja ciała' dla całego "
+    "    ciała, 'Depilacja pach' dla pach).\n"
+    "  - Odpowiadaj WYŁĄCZNIE poprawnym JSON-em zgodnym z podanym "
+    "    schematem, bez markdown, bez komentarzy."
+)
+
+
+def _format_cluster_for_prompt(
+    cluster_id: int,
+    key: tuple[str | None, tuple[str, ...]],
+    members: list[dict[str, Any]],
+    candidates: list[dict[str, Any]],
+) -> str:
+    brand, areas = key
+    lines: list[str] = [
+        f"### KLASTER #{cluster_id}",
+        f"brand_marker: {brand or '(brak)'}",
+        f"body_areas: {list(areas) or '(brak)'}",
+        f"members ({len(members)}):",
+    ]
+    for s in members:
+        decision = _resolved_tid_key(s)
+        decision_str = (
+            f"booksy_tid={decision[1]}" if decision[0] == "booksy"
+            else f"synthetic_tid={decision[1]}" if decision[0] == "synthetic"
+            else "unresolved"
+        )
+        lines.append(
+            f"  - svc_id={s.get('id')} name={s.get('name')!r} "
+            f"category={s.get('category_name')!r} "
+            f"current={decision_str}"
+        )
+    lines.append("kandydaci Booksy (area-compatible, top-15):")
+    for c in candidates[:15]:
+        lines.append(
+            f"  - tid={c['tid']} canonical={c['canonical_name']!r} "
+            f"parent={c.get('parent_canonical_name')!r}"
+        )
+    return "\n".join(lines)
+
+
+def _build_user_prompt(
+    cluster_payloads: list[tuple[
+        int,
+        tuple[str | None, tuple[str, ...]],
+        list[dict[str, Any]],
+        list[dict[str, Any]],
+    ]],
+) -> str:
+    parts: list[str] = [
+        "Przeanalizuj poniższe klastry i zwróć decyzję dla każdego.",
+        "",
+    ]
+    for cid, key, members, cands in cluster_payloads:
+        parts.append(_format_cluster_for_prompt(cid, key, members, cands))
+        parts.append("")
+    parts.append(
+        "Zwróć JSON w formacie:\n"
+        "{\n"
+        '  "decisions": [\n'
+        '    {"cluster_id": 1, "type": "booksy_tid", "tid": <int>, '
+        '"reasoning": "..."},\n'
+        '    {"cluster_id": 2, "type": "salon_synthetic", '
+        '"canonical_name": "<nazwa>", "reasoning": "..."}\n'
+        "  ]\n"
+        "}\n"
+        "Dla każdego klastra w JSON MUSI być jedna decyzja. "
+        "Cluster_id 1..N w kolejności podanej powyżej."
+    )
+    return "\n".join(parts)
+
+
+def _parse_minimax_response(
+    resp: dict[str, Any], expected_count: int,
+) -> list[dict[str, Any]]:
+    """Validate MiniMax JSON structure. Raise on any deviation —
+    no graceful fallbacks (Bugsink alert)."""
+    if not isinstance(resp, dict):
+        raise RuntimeError(
+            f"MiniMax taxonomy consistency: expected dict, got "
+            f"{type(resp).__name__}"
+        )
+    decisions = resp.get("decisions")
+    if not isinstance(decisions, list):
+        raise RuntimeError(
+            f"MiniMax response missing 'decisions' array: keys="
+            f"{sorted(resp.keys())}"
+        )
+    if len(decisions) != expected_count:
+        raise RuntimeError(
+            f"MiniMax returned {len(decisions)} decisions, expected "
+            f"{expected_count}"
+        )
+    for i, d in enumerate(decisions):
+        if not isinstance(d, dict):
+            raise RuntimeError(f"Decision {i} not a dict: {d!r}")
+        if d.get("type") not in ("booksy_tid", "salon_synthetic"):
+            raise RuntimeError(
+                f"Decision {i} has invalid type={d.get('type')!r}; "
+                "expected 'booksy_tid' or 'salon_synthetic'"
+            )
+        if d["type"] == "booksy_tid":
+            if not isinstance(d.get("tid"), int):
+                raise RuntimeError(
+                    f"Decision {i} type=booksy_tid but tid is not int: "
+                    f"{d.get('tid')!r}"
+                )
+        else:
+            cn = d.get("canonical_name")
+            if not isinstance(cn, str) or not cn.strip():
+                raise RuntimeError(
+                    f"Decision {i} type=salon_synthetic but "
+                    f"canonical_name empty/invalid: {cn!r}"
+                )
+    return decisions
+
+
+# ---------------------------------------------------------------------------
+# Main entry
+# ---------------------------------------------------------------------------
+
+async def apply_intra_salon_consistency(
+    services: list[dict[str, Any]],
+    *,
+    supabase,
+    minimax: MiniMaxClient,
+    audit_id: str | None,
+    label: str,
+    trace_collector: list[dict[str, Any]] | None = None,
+    dry_run: bool = False,
+) -> dict[str, int]:
+    """Run consistency pass over already-routed services. Mutates svc
+    dicts in place when re-routing happens. Returns stats dict.
+    """
+    clusters = build_clusters(services)
+    if not clusters:
+        return {"clusters_total": 0, "clusters_mixed": 0, "rerouted": 0}
+
+    mixed = find_mixed_clusters(clusters)
+    if not mixed:
+        logger.info(
+            "apply_intra_salon_consistency [%s]: %d clusters, none mixed",
+            label, len(clusters),
+        )
+        return {
+            "clusters_total": len(clusters),
+            "clusters_mixed": 0,
+            "rerouted": 0,
+        }
+
+    logger.info(
+        "apply_intra_salon_consistency [%s]: %d clusters total, %d "
+        "mixed/uncertain, sending to MiniMax",
+        label, len(clusters), len(mixed),
+    )
+
+    # Gather area-compatible candidates per cluster. We reuse the
+    # match_taxonomy_candidates RPC: take the FIRST member's embedding
+    # (all cluster members share brand+area so candidates overlap
+    # heavily) and apply the body-area filter again.
+    from services.body_area_taxonomy import filter_candidates_by_area
+    from services.hidden_service_inference import match_taxonomy_candidates
+
+    cluster_payloads: list[tuple[
+        int,
+        tuple[str | None, tuple[str, ...]],
+        list[dict[str, Any]],
+        list[dict[str, Any]],
+    ]] = []
+    for cid, (key, members) in enumerate(mixed, start=1):
+        ref_svc = members[0]
+        emb = ref_svc.get("name_embedding")
+        candidates: list[dict[str, Any]] = []
+        if emb:
+            raw_candidates = await match_taxonomy_candidates(
+                supabase, emb, top_k=30,
+            )
+            filtered, _, _ = filter_candidates_by_area(
+                ref_svc.get("name") or "", raw_candidates,
+            )
+            candidates = filtered
+        cluster_payloads.append((cid, key, members, candidates))
+
+    # Batch all clusters into ONE MiniMax call.
+    user_prompt = _build_user_prompt(cluster_payloads)
+    logger.info(
+        "apply_intra_salon_consistency [%s]: MiniMax prompt %d chars, "
+        "%d clusters",
+        label, len(user_prompt), len(cluster_payloads),
+    )
+
+    async def _call() -> dict[str, Any]:
+        return await minimax.generate_json(
+            user_prompt, system=_SYSTEM_PROMPT, max_tokens=4096,
+        )
+    resp = await with_retry(_call, max_attempts=2, base_delay=2.0)
+    decisions = _parse_minimax_response(resp, expected_count=len(cluster_payloads))
+
+    # Apply decisions
+    rerouted = 0
+    for (cid, key, members, _cands), decision in zip(cluster_payloads, decisions):
+        rerouted += _apply_decision(
+            cid=cid, key=key, members=members, decision=decision,
+            supabase=supabase, audit_id=audit_id,
+            trace_collector=trace_collector, dry_run=dry_run,
+            label=label,
+        )
+
+    return {
+        "clusters_total": len(clusters),
+        "clusters_mixed": len(mixed),
+        "rerouted": rerouted,
+    }
+
+
+async def _apply_decision(
+    *,
+    cid: int,
+    key: tuple[str | None, tuple[str, ...]],
+    members: list[dict[str, Any]],
+    decision: dict[str, Any],
+    supabase,
+    audit_id: str | None,
+    trace_collector: list[dict[str, Any]] | None,
+    dry_run: bool,
+    label: str,
+) -> int:
+    """Apply one cluster decision to every member. Returns number of
+    services rerouted (i.e. whose final tid_key changed)."""
+    brand, areas = key
+    rerouted_count = 0
+
+    if decision["type"] == "booksy_tid":
+        target_btid = int(decision["tid"])
+        for svc in members:
+            old_key = _resolved_tid_key(svc)
+            new_key = ("booksy", target_btid)
+            if old_key == new_key:
+                continue
+            if "booksy_treatment_id_raw" not in svc:
+                svc["booksy_treatment_id_raw"] = svc.get("booksy_treatment_id")
+            svc["booksy_treatment_id"] = target_btid
+            svc["synthetic_treatment_id"] = None
+            svc["taxonomy_source"] = "minimax_consistency"
+            svc["minimax_cluster_id"] = cid
+            svc["minimax_reasoning"] = decision.get("reasoning", "")
+            rerouted_count += 1
+            if trace_collector is not None:
+                trace_collector.append({
+                    "svc_id": svc.get("id"),
+                    "svc_name": svc.get("name"),
+                    "original_tid": None,
+                    "original_category": svc.get("category_name"),
+                    "rule": "5",
+                    "decision": "rerouted_by_minimax",
+                    "details": {
+                        "cluster_id": cid,
+                        "brand_marker": brand,
+                        "areas": list(areas),
+                        "old_decision": list(old_key),
+                        "new_decision": ["booksy", target_btid],
+                        "reasoning": decision.get("reasoning", ""),
+                    },
+                    "embedding_top_k": [],
+                    "llm_response": decision,
+                    "final": {
+                        "booksy_tid": target_btid,
+                        "synthetic_tid": None,
+                        "taxonomy_source": "minimax_consistency",
+                        "treatment_name": svc.get("name"),
+                    },
+                })
+    else:
+        # salon_synthetic: upsert ONE canonical for the whole cluster
+        canonical = decision["canonical_name"].strip()
+        if dry_run:
+            syn_id = -1
+        else:
+            from services.hidden_service_inference import embed_short_text
+            embedding = await embed_short_text(canonical)
+            syn_id = await supabase.upsert_synthetic_category_salon_defined(
+                normalized_name=canonical.lower(),
+                canonical_name=canonical,
+                embedding=embedding,
+                audit_id=audit_id,
+            )
+        for svc in members:
+            old_key = _resolved_tid_key(svc)
+            new_key = ("synthetic", syn_id)
+            if old_key == new_key:
+                continue
+            svc["booksy_treatment_id"] = svc.get("booksy_treatment_id_raw")
+            svc["synthetic_treatment_id"] = syn_id
+            svc["synthetic_canonical_name"] = canonical
+            svc["taxonomy_source"] = "minimax_consistency"
+            svc["minimax_cluster_id"] = cid
+            svc["minimax_reasoning"] = decision.get("reasoning", "")
+            rerouted_count += 1
+            if trace_collector is not None:
+                trace_collector.append({
+                    "svc_id": svc.get("id"),
+                    "svc_name": svc.get("name"),
+                    "original_tid": None,
+                    "original_category": svc.get("category_name"),
+                    "rule": "5",
+                    "decision": "rerouted_by_minimax",
+                    "details": {
+                        "cluster_id": cid,
+                        "brand_marker": brand,
+                        "areas": list(areas),
+                        "old_decision": list(old_key),
+                        "new_decision": ["synthetic", syn_id],
+                        "canonical_name": canonical,
+                        "reasoning": decision.get("reasoning", ""),
+                    },
+                    "embedding_top_k": [],
+                    "llm_response": decision,
+                    "final": {
+                        "booksy_tid": None,
+                        "synthetic_tid": syn_id,
+                        "taxonomy_source": "minimax_consistency",
+                        "treatment_name": svc.get("name"),
+                    },
+                })
+    logger.info(
+        "apply_intra_salon_consistency [%s] cluster #%d "
+        "(brand=%s areas=%s size=%d) decision=%s rerouted=%d",
+        label, cid, brand, areas, len(members), decision["type"],
+        rerouted_count,
+    )
+    return rerouted_count
