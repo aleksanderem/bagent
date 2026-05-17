@@ -3491,13 +3491,22 @@ _PACKAGE_HEURISTIC_PATTERNS = [
     re.compile(r"\bkarnet\b", re.IGNORECASE),
     re.compile(r"\bvoucher\b", re.IGNORECASE),
     re.compile(r"\bbon\b\s*\d+", re.IGNORECASE),
-    re.compile(r"^\s*\d+\s*x\b", re.IGNORECASE),       # "3x Red Touch"
-    re.compile(r"\s\d+\s*x\b", re.IGNORECASE),         # "Red Touch 3x"
-    re.compile(r"\b\d+\s*zabieg(?:ów|i|y)?\b", re.IGNORECASE),
-    re.compile(r"\b\d+\s*\+\s*\d+\s*zabieg", re.IGNORECASE),  # "5 + 1 zabieg"
-    re.compile(r"\b\d+\s*sesj", re.IGNORECASE),
-    re.compile(r"\b\d+\s*wizyt", re.IGNORECASE),
+    # Quantity-bearing patterns require ≥2 — "1x", "1 zabieg", "1 sesja"
+    # describe SINGLES (one body area, one session). Treating them as
+    # packages causes false "BRAK REFERENCJI" rows in PackageHonesty
+    # (e.g. "Onda 1 zabieg-1 obszar np. podbródek" was being flagged as
+    # a package needing a single-service baseline at the same salon).
+    re.compile(r"^\s*([2-9]|\d{2,})\s*x\b", re.IGNORECASE),       # "3x Red Touch"
+    re.compile(r"\s([2-9]|\d{2,})\s*x\b", re.IGNORECASE),         # "Red Touch 3x"
+    re.compile(r"\b([2-9]|\d{2,})\s*zabieg(?:ów|i|y)?\b", re.IGNORECASE),
+    re.compile(r"\b\d+\s*\+\s*\d+\s*zabieg", re.IGNORECASE),  # "5 + 1 zabieg" — always ≥2 total
+    re.compile(r"\b([2-9]|\d{2,})\s*sesj", re.IGNORECASE),
+    re.compile(r"\b([2-9]|\d{2,})\s*wizyt", re.IGNORECASE),
 ]
+
+_EXPLICIT_PACKAGE_KEYWORDS = re.compile(
+    r"\b(?:pakiet|abonament|karnet|voucher|bon)\b", re.IGNORECASE
+)
 
 
 def _detect_session_count_from_name(name: str) -> int:
@@ -3632,6 +3641,13 @@ async def _analyze_subject_packages(
         sessions = _detect_session_count_from_name(name)
         areas = _detect_area_count_from_name(name)
         units = max(sessions * areas, 1)
+        # Defense in depth: if the heuristic flagged this row as a package
+        # but the unit math says 1×1=1 AND there's no explicit
+        # pakiet/abonament/karnet/voucher/bon keyword, it's a single being
+        # misclassified (e.g. "Onda 1 zabieg-1 obszar"). Skip so it doesn't
+        # produce a "BRAK REFERENCJI" row in PackageHonesty.
+        if units == 1 and not _EXPLICIT_PACKAGE_KEYWORDS.search(name):
+            continue
         per_session_grosze = price_grosze // units
 
         # Find best single at same salon: same tid_key + name embedding
