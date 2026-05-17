@@ -27,17 +27,22 @@ logger = logging.getLogger(__name__)
 
 
 # Threshold tuning notes (empirical, audit 34):
-#   - 0.85+ → very strict (same words, same intent). Most subject services
-#     end up with 0 related, defeats the purpose.
-#   - 0.75 → ~10-30 matches per subject service. Top-of-list dominated by
-#     semantically real matches ("Usuwanie przebrawień" → "Usuwanie
-#     przebarwień" 0.82, "Usuwanie blizn" 0.76). Bottom may include
-#     noise ("Usuwanie rzęs" 0.75) — but sorted DESC by similarity, so
-#     the user sees real ones first.
-#   - 0.70 → noisy.
-# Threshold can be lowered/raised at call site for specific routes.
-DEFAULT_MIN_SIMILARITY = 0.75
-DEFAULT_LIMIT = 30
+#   - 0.85+ → too strict, most rows empty.
+#   - 0.75 → catches "Usuwanie przebrawień" → "Usuwanie przebarwień" 0.82
+#     etc., but services with marketing-only language like "Modelka - ONDA"
+#     (Beauty4ever's brand-specific name for RF body modeling) get 0
+#     because competitors call the same treatment "Modelowanie ciała"
+#     which embedding sees as semantically distant.
+#   - 0.55 → captures the marketing-named services too (Modelka ONDA →
+#     ESTETICAN's "Modelowanie owalu twarzy" 0.464 is borderline; tighter
+#     than that and we drop legitimate alternatives). False positives
+#     (e.g. Modelka → Modelowanie ust 0.498) get sorted to the bottom by
+#     similarity DESC, and UI surfaces the score per row so the user can
+#     judge match quality at a glance.
+#   - 0.50 → noisy, even unrelated services creep in.
+# Threshold can be tightened/loosened at call site for specific routes.
+DEFAULT_MIN_SIMILARITY = 0.55
+DEFAULT_LIMIT = 20
 
 
 async def gather_market_context_samples(
