@@ -287,10 +287,14 @@ async def infer_hidden_service_taxonomy(
             candidates, min_confidence, "Brak opisu wystarczającej długości"
         )
 
-    # Bez LLM client'u → embedding fallback.
+    # Bez LLM client'u → hard fail. Embedding fallback ukrywało brak klucza
+    # i potem cały etap LLM disambiguation produkował confidence z embedding
+    # similarity zamiast z LLM reasoning — niewidoczna degradacja jakości.
     if llm is None:
-        return _embedding_fallback(
-            candidates, min_confidence, "LLM client unavailable"
+        raise RuntimeError(
+            "infer_hidden_service_taxonomy: llm client is None — provider "
+            "init failed earlier (OPENAI/GEMINI). Fix the key config; do "
+            "not run inference with silent embedding fallback."
         )
 
     # Główna ścieżka: LLM disambiguation. Przekazujemy salon's category_name
@@ -300,17 +304,14 @@ async def infer_hidden_service_taxonomy(
     user_prompt = _build_user_prompt(
         name, description, candidates, salon_category=salon_category,
     )
-    try:
-        async def _llm_call() -> dict[str, Any]:
-            return await llm.generate_json(
-                user_prompt, system=_SYSTEM_PROMPT, max_tokens=512
-            )
-        result = await with_retry(_llm_call, max_attempts=2, base_delay=1.0)
-    except Exception as e:
-        logger.warning("LLM disambiguation failed for %r: %s", name, e)
-        return _embedding_fallback(
-            candidates, min_confidence, f"LLM padł ({type(e).__name__})"
+    # LLM call: hard-fail on persistent error after retry. Previous
+    # embedding fallback hid Gemini 403/quota errors as low-confidence
+    # embedding picks, polluting taxonomy without alerting anyone.
+    async def _llm_call() -> dict[str, Any]:
+        return await llm.generate_json(
+            user_prompt, system=_SYSTEM_PROMPT, max_tokens=512
         )
+    result = await with_retry(_llm_call, max_attempts=2, base_delay=1.0)
 
     tid_raw = result.get("tid")
     confidence_raw = result.get("confidence") or 0.0

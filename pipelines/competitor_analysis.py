@@ -219,12 +219,16 @@ async def compute_competitor_analysis(
             "(subject + %d competitors)",
             total_overridden, len(aligned_competitors),
         )
-    except Exception as e:
-        logger.warning(
-            "Taxonomy routing for matrix expansion failed (%s) — "
-            "continuing with raw tids",
-            e,
+    except Exception:
+        # Taxonomy routing is the foundation for every downstream pricing/
+        # competitor comparison — silently continuing with raw tids would
+        # produce a corrupt report. Surface the failure to Bugsink and
+        # abort the etap.
+        logger.exception(
+            "Taxonomy routing for matrix expansion FAILED — aborting etap "
+            "(continuing with raw tids would produce a corrupt report)"
         )
+        raise
 
     # Taxonomy inference: correct mis-tagged booksy_treatment_id values for
     # subject + each competitor using crowd lookup (migration 042 — RPC
@@ -244,13 +248,18 @@ async def compute_competitor_analysis(
                 service, cdata.get("services") or [],
                 label=f"competitor booksy_id={cdata.get('booksy_id')}",
             )
-    except Exception as e:
-        # Non-fatal: if RPC missing (migration 042 not yet applied), or any
-        # other failure, fall through to raw Booksy tids. Pipeline keeps
-        # running with degraded precision rather than blowing up.
-        logger.warning(
-            "Taxonomy inference failed (continuing with raw tids): %s", e,
+    except Exception:
+        # Migration 042 is required in production — if the RPC is missing
+        # in dev, fix the migration, don't silently degrade. Surface to
+        # Bugsink and abort so reports never ship with raw Booksy tids
+        # (which include the salon-owner-picked mistags Phase 8a/8b is
+        # supposed to clean up).
+        logger.exception(
+            "Taxonomy inference (crowd lookup via fn_infer_treatment_id) "
+            "FAILED — aborting etap. If RPC is missing, apply migration "
+            "042; do not bypass."
         )
+        raise
 
     # ── Step 4: Pricing comparisons ──
     await progress(45, "Pricing comparisons per treatment_id...")
@@ -329,12 +338,16 @@ async def compute_competitor_analysis(
                 "Etap 4: LLM inference applied to %d/%d hidden services",
                 llm_count, len(hidden_services),
             )
-        except Exception as exc:
-            logger.warning(
-                "Etap 4: hidden services LLM inference failed (%s) — "
-                "falling back to keyword mapping for all",
-                exc,
+        except Exception:
+            # Hidden-services LLM enrichment is the path that adds
+            # inference_method/confidence/inferred_tid fields downstream
+            # rendering relies on. Silent keyword fallback corrupts what
+            # the user sees in the "Ukryte usługi" section. Bugsink alert.
+            logger.exception(
+                "Etap 4: hidden services LLM inference FAILED — aborting "
+                "etap (silent keyword fallback would mislabel inference_method)"
             )
+            raise
 
     # ── Step 7: Extract active promotions ──
     await progress(85, "Ekstrakcja aktywnych promocji...")
@@ -951,11 +964,18 @@ async def _compute_pricing_comparisons(
                 "Etap 4 tier-1: loaded %d variant centroids for method filter",
                 len(variant_centroids),
             )
-        except Exception as e:
-            logger.warning(
-                "Failed to pre-load variant centroids (%s) — falling back "
-                "to service-name embeddings only", e,
+        except Exception:
+            # Variant centroids are the reference vectors for the
+            # method-similarity filter. Without them tier-1 matching
+            # degrades to raw service-name embeddings — the very failure
+            # mode Faza 7's pair verification was designed to catch.
+            # Bugsink alert and abort so we never ship that quality drop
+            # silently.
+            logger.exception(
+                "Failed to pre-load variant centroids — aborting tier-1 "
+                "(degraded fallback would defeat Faza 7 method filter)"
             )
+            raise
     # Faza 7 (2026-05-16) — tier-1 gets an LLM pair-verification gate
     # on top of the embedding method-similarity filter. The function is
     # async so it can await the LLM batch calls + cache RPC roundtrips.
@@ -987,11 +1007,18 @@ async def _compute_pricing_comparisons(
             "Etap 4 tier-3: emitted %d sub_variant-level rows",
             len(tier3_rows),
         )
-    except Exception as e:
-        logger.warning(
-            "Tier-3 sub-variant pricing failed (%s) — continuing without tier-3",
-            e,
+    except Exception:
+        # Tier-3 (sub_variant_group_id) is the most precise pricing tier
+        # for salons that use Booksy multi-variant feature natively.
+        # Silently dropping it means apples-to-apples comparisons (e.g.
+        # "Botoks Twarz" subject vs "Botoks Twarz" competitor) get
+        # replaced with the looser tier-1/tier-2 estimate without any
+        # signal in the UI. Bugsink alert and re-raise.
+        logger.exception(
+            "Tier-3 sub-variant pricing FAILED — aborting etap so the "
+            "loss of apples-to-apples rows is visible"
         )
+        raise
 
     total_dropped = sum(dropped_counts.values())
     if total_dropped > 0:
@@ -2416,10 +2443,13 @@ def _get_hidden_inference_llm() -> GeminiLLMClient | None:
                 "hidden_service_inference: using OpenAI gpt-4o-mini",
             )
             return _HIDDEN_LLM_CLIENT
-        except Exception as e:
-            logger.warning(
-                "hidden_service_inference: failed to init OpenAI client (%s)",
-                e,
+        except Exception:
+            # Init failure goes to Bugsink as ERROR (logger.exception);
+            # we still TRY Gemini next because that's the explicit fallback
+            # chain semantic — but the failure is now visible, not buried.
+            logger.exception(
+                "hidden_service_inference: OPENAI client init FAILED — "
+                "attempting Gemini fallback chain next"
             )
 
     # Fallback: Gemini Flash via OpenAI-compat endpoint (jeśli paid key
@@ -2435,10 +2465,12 @@ def _get_hidden_inference_llm() -> GeminiLLMClient | None:
                 "hidden_service_inference: using Gemini Flash 2.0",
             )
             return _HIDDEN_LLM_CLIENT
-        except Exception as e:
-            logger.warning(
-                "hidden_service_inference: failed to init Gemini client (%s)",
-                e,
+        except Exception:
+            logger.exception(
+                "hidden_service_inference: GEMINI client init FAILED — "
+                "no remaining LLM provider; downstream callers MUST treat "
+                "the resulting None client as a hard error, not a graceful "
+                "fallback"
             )
 
     logger.info(
@@ -2488,15 +2520,11 @@ async def _enhance_hidden_services_with_inference(
             h.setdefault("parent_category", None)
         return hidden_services
 
-    try:
-        emb_map = await supabase.get_service_embeddings(service_ids)
-    except Exception as e:
-        logger.warning(
-            "hidden_service_inference: get_service_embeddings failed (%s) — "
-            "marking all as rule fallback",
-            e,
-        )
-        emb_map = {}
+    # get_service_embeddings is the only data source for the ANN candidate
+    # lookup downstream. If it fails (RPC missing, network), the entire
+    # inference pass collapses to keyword rules without the user knowing.
+    # Let the exception propagate — caller already wraps in Bugsink alert.
+    emb_map = await supabase.get_service_embeddings(service_ids)
 
     # 2. Build candidate inputs for inference. Each needs name, description,
     #    name_embedding.
@@ -2703,15 +2731,17 @@ async def _resolve_service_taxonomy(
             rule4_only.append((idx, svc))
 
     llm_client = _get_hidden_inference_llm()
-    if rule3_eligible:
-        if llm_client is None:
-            logger.warning(
-                "_resolve_service_taxonomy [%s] rule_3: %d eligible but no "
-                "LLM key — pushing all to Rule 4",
-                label, len(rule3_eligible),
-            )
-            rule4_only.extend(rule3_eligible)
-            rule3_eligible = []
+    if rule3_eligible and llm_client is None:
+        # Rule 3 (Booksy LLM disambiguation) is REQUIRED when there are
+        # eligible services. Silently pushing them all to Rule 4 produces
+        # different taxonomy results without any signal in the report —
+        # exactly the invisible failure mode we're closing. Bugsink alert.
+        raise RuntimeError(
+            f"_resolve_service_taxonomy [{label}] rule_3: "
+            f"{len(rule3_eligible)} eligible services but no LLM client "
+            "(OPENAI_API_KEY + GEMINI_API_KEY both failed init). Fix the "
+            "key configuration; do not run pipeline in degraded mode."
+        )
 
     rule3_to_rule4_fallback: list[tuple[int, dict[str, Any]]] = []
     if rule3_eligible:
@@ -3024,26 +3054,16 @@ async def _resolve_service_taxonomy(
 
     # ── 5. Rule 1 (LLM short generation creates new synthetic). ──
     if rule4_unmatched and llm_client is None:
-        logger.warning(
-            "_resolve_service_taxonomy [%s] rule_1: %d services left but no "
-            "LLM key — marking as skipped",
-            label, len(rule4_unmatched),
+        # Rule 1 (synthetic category creation) needs the LLM; without it
+        # the services are silently dropped from the matrix entirely.
+        # Bugsink alert and abort.
+        raise RuntimeError(
+            f"_resolve_service_taxonomy [{label}] rule_1: "
+            f"{len(rule4_unmatched)} unmatched services but no LLM client. "
+            "Silently skipping them would shrink the comparison matrix "
+            "without any indication in the report — fix the key config "
+            "instead."
         )
-        for idx, svc in rule4_unmatched:
-            stats["skipped"] += 1
-            if trace_collector is not None:
-                trace_collector.append({
-                    "svc_id": svc.get("id"),
-                    "svc_name": svc.get("name"),
-                    "original_tid": None,
-                    "original_category": svc.get("category_name"),
-                    "rule": "1",
-                    "decision": "skipped",
-                    "details": {"reason": "no LLM client available"},
-                    "embedding_top_k": [],
-                    "llm_response": None,
-                    "final": None,
-                })
     else:
         for idx, svc in rule4_unmatched:
             name = (svc.get("name") or "").strip()
@@ -3513,43 +3533,35 @@ def _detect_session_count_from_name(name: str) -> int:
     """Best-effort session count extractor. Returns 1 for unrecognised
     patterns so downstream economics math is conservative (assumes one
     session when in doubt, so discount % is computed honestly).
+
+    All regex groups capture digits only (`\\d+`) so int() conversion
+    cannot fail — any exception in this function is a real bug, not
+    something to swallow. NO try/except.
     """
     if not name:
         return 1
     # 5 + 1 zabieg → 6 sessions
     m = re.search(r"\b(\d+)\s*\+\s*(\d+)\s*zabieg", name, re.IGNORECASE)
     if m:
-        try:
-            return int(m.group(1)) + int(m.group(2))
-        except (ValueError, TypeError):
-            pass
+        return int(m.group(1)) + int(m.group(2))
     # 3x | 5x | 10x | "pakiet 5x" | "Red Touch 3x"
     m = re.search(r"\b(\d+)\s*x\b", name, re.IGNORECASE)
     if m:
-        try:
-            n = int(m.group(1))
-            if 2 <= n <= 30:
-                return n
-        except (ValueError, TypeError):
-            pass
+        n = int(m.group(1))
+        if 2 <= n <= 30:
+            return n
     # "3 zabiegi", "5 zabiegów"
     m = re.search(r"\b(\d+)\s*zabieg(?:ów|i|y)?\b", name, re.IGNORECASE)
     if m:
-        try:
-            n = int(m.group(1))
-            if 2 <= n <= 30:
-                return n
-        except (ValueError, TypeError):
-            pass
+        n = int(m.group(1))
+        if 2 <= n <= 30:
+            return n
     # "5 sesji"
     m = re.search(r"\b(\d+)\s*sesj", name, re.IGNORECASE)
     if m:
-        try:
-            n = int(m.group(1))
-            if 2 <= n <= 30:
-                return n
-        except (ValueError, TypeError):
-            pass
+        n = int(m.group(1))
+        if 2 <= n <= 30:
+            return n
     return 1
 
 
@@ -3567,14 +3579,13 @@ def _detect_area_count_from_name(name: str) -> int:
     if n_plus >= 1:
         return min(n_plus + 1, 5)
     # "2 obszary", "3 obszarów", "1 obszar" — explicit count marker.
+    # Regex captures digits only, so int() cannot fail — any exception
+    # here is a real bug, NOT something to swallow.
     m = re.search(r"\b(\d+)\s*obszar(?:y|ów|u)?\b", name, re.IGNORECASE)
     if m:
-        try:
-            n = int(m.group(1))
-            if 1 <= n <= 10:
-                return n
-        except (ValueError, TypeError):
-            pass
+        n = int(m.group(1))
+        if 1 <= n <= 10:
+            return n
     return 1
 
 
@@ -3655,8 +3666,16 @@ async def _analyze_subject_packages(
         # but the unit math says 1×1=1 AND there's no explicit
         # pakiet/abonament/karnet/voucher/bon keyword, it's a single being
         # misclassified (e.g. "Onda 1 zabieg-1 obszar"). Skip so it doesn't
-        # produce a "BRAK REFERENCJI" row in PackageHonesty.
+        # produce a "BRAK REFERENCJI" row in PackageHonesty — but LOG the
+        # skip so silent drops show up in worker logs / Bugsink breadcrumbs.
         if units == 1 and not _EXPLICIT_PACKAGE_KEYWORDS.search(name):
+            logger.info(
+                "_analyze_subject_packages: skipping svc_id=%s name=%r — "
+                "heuristic flagged as package but units=1×1=1 and no "
+                "explicit pakiet/abonament/karnet/voucher/bon keyword "
+                "(treating as single, indexed in singles_by_key instead)",
+                svc.get("id"), name,
+            )
             continue
         per_session_grosze = price_grosze // units
 

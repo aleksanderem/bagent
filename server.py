@@ -883,9 +883,17 @@ async def dev_trace_taxonomy(request: TraceTaxonomyRequest) -> dict:
     SUCCESS_DECISIONS = {"matched", "kept", "inherited", "generated"}
     by_svc: dict[Any, dict[str, Any]] = {}
     order: list[Any] = []
-    for entry in trace:
+    for entry_idx, entry in enumerate(trace):
         svc_id = entry.get("svc_id")
-        key = svc_id if svc_id is not None else id(entry)
+        if svc_id is None:
+            # Internal _resolve_service_taxonomy.trace_collector MUST emit
+            # svc_id on every record. Missing svc_id is an emitter bug; do
+            # not fabricate a key — surface it so Bugsink catches it.
+            raise RuntimeError(
+                f"trace_collector emitted entry without svc_id at index "
+                f"{entry_idx}: keys={sorted(entry.keys())!r}"
+            )
+        key = svc_id
         if key not in by_svc:
             order.append(key)
             by_svc[key] = {
@@ -899,10 +907,21 @@ async def dev_trace_taxonomy(request: TraceTaxonomyRequest) -> dict:
                 "final": None,
             }
         st = by_svc[key]
-        try:
-            rule_num = int(entry.get("rule")) if entry.get("rule") is not None else 0
-        except (TypeError, ValueError):
-            rule_num = 0
+        raw_rule = entry.get("rule")
+        if raw_rule is None:
+            raise RuntimeError(
+                f"trace_collector entry svc_id={svc_id} missing required "
+                f"`rule` field: keys={sorted(entry.keys())!r}"
+            )
+        # _resolve_service_taxonomy emits rule as "2"/"3"/"4"/"1" (string)
+        # or 1-4 (int). Anything else is an emitter bug; do not coerce
+        # to 0 — let int() raise and Bugsink capture.
+        rule_num = int(raw_rule)
+        if rule_num not in (1, 2, 3, 4):
+            raise RuntimeError(
+                f"trace_collector entry svc_id={svc_id} emitted invalid "
+                f"rule value {raw_rule!r} (expected 1/2/3/4)"
+            )
         step = {
             "rule": rule_num,
             "decision": entry.get("decision"),
