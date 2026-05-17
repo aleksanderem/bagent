@@ -709,6 +709,13 @@ async def _compute_pricing_comparisons(
     # Key: (tid, variant_id, duration_bucket) — patrz _duration_bucket().
     # Bucket dodany 2026-05-16 żeby trial 15min nie zafałszowywał deviation
     # wobec standard 60min single session.
+    # 2026-05-17 — każdy sample dostaje brand_marker (z extract_brand_marker
+    # po nazwie usługi), żeby subject-side filtr mógł odrzucić wrong-brand
+    # samples przy build comparison row. Migracja 088 + backfill nadała
+    # treatment_variants.brand_marker, ale samples potrzebują wartość
+    # in-line bo variant_id nie zawsze odzwierciedla brand (np. nowe
+    # variants jeszcze nie sklastrowane brand-aware).
+    from services.brand_marker import extract_brand_marker
     competitor_samples_by_variant: dict[
         tuple[int, int, str], list[dict[str, Any]]
     ] = {}
@@ -722,17 +729,21 @@ async def _compute_pricing_comparisons(
             price = svc.get("price_grosze")
             if price is None:
                 continue
+            svc_name = svc.get("name") or ""
             competitor_samples_by_variant.setdefault(variant_key, []).append({
                 "salon_id": cdata.get("salon_id"),
                 "salon_name": salon_name,
                 "booksy_id": cand.booksy_id,
                 "service_id": svc.get("id"),
-                "service_name": svc.get("name"),
+                "service_name": svc_name,
                 "price_grosze": int(price),
                 "duration_minutes": svc.get("duration_minutes"),
                 # Same variant cluster → similarity 1.0 for UI sort
                 # (modal sorts competitor rows by closest-to-subject first).
                 "name_similarity": 1.0,
+                # Brand marker for downstream filtering (see _filter_samples_
+                # by_brand). NULL means generic service in this variant.
+                "brand_marker": extract_brand_marker(svc_name),
             })
 
     # Pre-pass: figure out which subject service embeddings + which variant
@@ -747,6 +758,30 @@ async def _compute_pricing_comparisons(
         subject_price = subject_svc.get("price_grosze")
         if subject_price is None:
             continue
+
+        # 2026-05-17 — brand-aware sample filtering. If the subject service
+        # carries a brand_marker (Red Touch, Thunder, PRX T33, AQUASHINE,
+        # Estgen, Dermapen, Onda, Endermolab, HIFU, ...), the market
+        # samples for THIS specific row must come from competitor services
+        # carrying the SAME brand_marker. Otherwise we'd compare e.g.
+        # "Red Touch dłonie" against "Laser diodowy dłonie" just because
+        # HDBSCAN clustered them into the same variant_id (brand-blind).
+        # When subject has no brand_marker, samples pass through unchanged.
+        subj_name = subject_svc.get("name") or ""
+        subject_brand = extract_brand_marker(subj_name)
+        if subject_brand is not None and samples:
+            samples_before = len(samples)
+            samples = [
+                s for s in samples
+                if s.get("brand_marker") == subject_brand
+            ]
+            if samples_before != len(samples):
+                logger.info(
+                    "Etap 4 pricing: brand filter dropped %d/%d samples for "
+                    "subject %r (brand=%s, tid=%s, variant_id=%s)",
+                    samples_before - len(samples), samples_before,
+                    subj_name[:60], subject_brand, tid, variant_id,
+                )
         # User feedback (2026-05-16): "jeśli u klienta jest jakiś wariant a
         # konkurencja go nie posiada to nie możemy wycinać całego bloku zabiegu —
         # pokazujemy, że wariant istnieje tylko tu i elo, natomiast to nie

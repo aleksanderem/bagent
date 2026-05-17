@@ -27,7 +27,7 @@ from services.body_area_taxonomy import _ascii_lower
 # ASCII-folded lowercase form so they don't need Polish character
 # variants.
 _BRAND_PATTERNS: list[tuple[str, str]] = [
-    # Laser depilacja devices
+    # Laser depilacja / resurfacing devices
     ("thunder",        r"\bthunder\b"),
     ("primex",         r"\bprimex\b"),
     ("pro_xn",         r"\bpro\s*xn\b"),
@@ -35,6 +35,17 @@ _BRAND_PATTERNS: list[tuple[str, str]] = [
     ("vectus",         r"\bvectus\b"),
     ("motus",          r"\bmotus\b"),
     ("clarity_ii",     r"\bclarity\s*ii?\b"),
+    # 2026-05-17 — brand markers found in Beauty4ever audit 34 cennik but
+    # missing from initial enum. Without these, brand-aware variant
+    # clustering can't separate e.g. Red Touch dłonie from Laser diodowy
+    # dłonie → false pricing comparisons.
+    ("red_touch",      r"\bred\s*touch\b"),
+    ("prx_t33",        r"\bprx\s*[-]?\s*t\s*33\b|\bprx\s*t33\b"),
+    ("x_wave",         r"\bx\s*[-]?\s*wave\b"),
+    ("estgen",         r"\bestgen\b|\best\s*gen\b"),
+    ("aquashine",      r"\baquashine\b"),
+    ("picosure",       r"\bpicosure\b"),
+    ("tixel",          r"\btixel\b"),
     # Modeling sylwetki / RF / HiFEM / HiFU
     ("onda",           r"\bonda\b"),
     ("hifem",          r"\bhifem\b"),
@@ -57,8 +68,6 @@ _BRAND_PATTERNS: list[tuple[str, str]] = [
     ("diodowa",        r"diodow\w*"),
     ("alma",           r"\balma\b"),
     ("fotona",         r"\bfotona\b"),
-    ("picosure",       r"\bpicosure\b"),
-    ("tixel",          r"\btixel\b"),
     # Infusion / IV drip
     ("kroplowka_nad",  r"kroplowk\w*\s+nad\b|\bnad\b\s+kroplowk"),
     ("kroplowka",      r"\bkroplowk\w*"),
