@@ -1140,6 +1140,25 @@ def _build_competitor_profiles(
             overlap_asym_val = None
         if overlap_asym_val is not None:
             overlap_asym_val = max(0.0, min(1.0, overlap_asym_val))
+        # 2026-05-17 — third metric: profile_overlap_sim. Weighted recall
+        # of subject's (method_marker, body_area) atoms covered by the
+        # candidate's portfolio. Deterministic regex, no LLM noise, no
+        # dependency on Rule 1-4 routing accuracy. Empirically the most
+        # honest "real overlap" signal we have today. UI renders this as
+        # "Pokrycie portfolio" — replaces focus_tid_sim which was shown as
+        # "Podobieństwo profilu" but was so noisy that ESTETICAN PREMIUM
+        # CLINIC showed 17% there while having 89% method+area overlap.
+        prof_overlap = (
+            sims.get("profile_overlap_sim") if isinstance(sims, dict) else None
+        )
+        try:
+            profile_overlap_val = (
+                float(prof_overlap) if prof_overlap is not None else None
+            )
+        except (TypeError, ValueError):
+            profile_overlap_val = None
+        if profile_overlap_val is not None:
+            profile_overlap_val = max(0.0, min(1.0, profile_overlap_val))
         # Faza 8a fields — verified_match_count + bucket_pre_verify.
         # 2026-05-17: previously we dropped 'excluded' (verified_match_count
         # < 3) entirely. Per UX feedback (audit 34 ended up with only 3
@@ -1170,6 +1189,7 @@ def _build_competitor_profiles(
             "reviews_count": int(m.get("reviews_count") or 0),
             "overlap": overlap_val,
             "overlap_asym": overlap_asym_val,
+            "profile_overlap": profile_overlap_val,
             "verified_match_count": (
                 int(verified_count) if verified_count is not None else None
             ),
