@@ -39,17 +39,20 @@ Edge cases are handled gracefully (log warning, continue):
 from __future__ import annotations
 
 import logging
+from collections import Counter
 from dataclasses import dataclass, field
 from typing import Any, Literal
 
 import numpy as np
 
+from services.body_area_taxonomy import extract_body_areas
 from services.focus_score import (
     SalonFocusBundle,
     cosine_similarity_dense,
     cosine_similarity_sparse,
     parse_focus_distribution_jsonb,
 )
+from services.method_marker import extract_method_marker
 from services.supabase import SupabaseService
 
 logger = logging.getLogger(__name__)
@@ -70,6 +73,24 @@ _W_FOCUS_TID = 30.0
 _W_FOCUS_VAR = 20.0
 _W_PORTFOLIO_EMB = 20.0
 _W_REVIEWS_SIM = 10.0
+
+# Added 2026-05-17 — profile_overlap_sim: weighted recall of subject's
+# (method_marker, body_area) atoms covered by candidate's portfolio.
+# Bypasses LLM-routed Booksy tid distribution (focus_tid_sim) entirely;
+# uses deterministic regex extractors so it stays consistent across
+# audits regardless of which Pass-5 anchors have settled.
+# Empirically validated on Beauty4ever (booksy_id=98814) where the
+# original composite_score_v2 was dominated by portfolio_embedding_sim
+# (0.86-0.93 across all selected candidates) — the embedding flattens
+# brand/method differences (Thunder vs Onda vs Soprano all read as
+# "med-est noise"), while profile_overlap_sim discriminates: 4 of 5
+# originally-picked competitors fell below the new top-15 floor.
+# Weight 25 sits between focus_tid_sim (30) and focus_var_sim (20)
+# — second-strongest signal, intentionally not the dominant one
+# because for low-atom-count subjects (nail-only salons, small
+# generalists) profile_overlap collapses to ties and the other axes
+# must still discriminate.
+_W_PROFILE_OVERLAP = 25.0
 
 
 # ---------------------------------------------------------------------------
@@ -240,29 +261,101 @@ def compute_composite_score_v2(
     portfolio_embedding_sim: float,
     reviews_count_similarity: float,
     distance_km: float,
+    profile_overlap_sim: float = 0.0,
 ) -> float:
-    """Focus-weighted composite scoring (4 semantic axes + distance penalty).
+    """Focus-weighted composite scoring (5 semantic axes + distance penalty).
 
-    Replaces v1 — empiryczna walidacja pokazała że v1 wybiera "fałszywych
-    konkurentów" (same portfolio composition, different focus). v2 priorytetyzuje
-    focus_tid_sim który mierzy CZY salon faktycznie skupia się na TYCH SAMYCH
-    kategoriach co subject.
+    v2 priorytetyzuje focus_tid_sim który mierzy CZY salon faktycznie skupia
+    się na TYCH SAMYCH kategoriach co subject. 2026-05-17: dodano
+    `profile_overlap_sim` jako piąta oś — deterministyczne (method, area)
+    pokrycie portfolio, bypass LLM-routowanego tid distribution.
 
-    Wagi (sum=80, ale typowy max realistic ~50-60 — zero salonów ma 1.0
+    Wagi (sum=105, ale typowy max realistic ~50-70 — zero salonów ma 1.0
     we wszystkich osiach jednocześnie):
       +30 × focus_tid_sim         (cornerstone — nacisk na te same tid'y)
+      +25 × profile_overlap_sim   (NEW: ważone recall atomów method+area)
       +20 × focus_var_sim         (finer — nacisk na konkretne varianty)
-      +20 × portfolio_emb_sim     (semantic backstop)
+      +20 × portfolio_emb_sim     (semantic backstop — DOMINANT na Beauty4ever
+                                   pre-refactor, teraz balansowany przez profile_overlap)
       +10 × reviews_count_sim     (skala biznesu)
       -2 × max(0, distance_km - 5)  (geo)
+
+    `profile_overlap_sim` jest dodawany jako default=0 dla backward
+    compatibility z testami i kodem który jeszcze nie zna tej osi.
     """
     score = 0.0
     score += _W_FOCUS_TID * focus_tid_sim
+    score += _W_PROFILE_OVERLAP * profile_overlap_sim
     score += _W_FOCUS_VAR * focus_var_sim
     score += _W_PORTFOLIO_EMB * portfolio_embedding_sim
     score += _W_REVIEWS_SIM * reviews_count_similarity
     score -= compute_distance_penalty(distance_km)
     return score
+
+
+# ---------------------------------------------------------------------------
+# Profile overlap (2026-05-17)
+# ---------------------------------------------------------------------------
+# Subject's profile is the multiset of (method_marker, body_area) atoms
+# extracted deterministically from active service names + category labels.
+# A service with multiple body_areas (e.g. "Depilacja laserowa - kark + szyja
+# + dekolt") is exploded into one atom per area, so a candidate that only
+# offers laser on one of those three areas gets credit proportional to the
+# subject's investment there.
+# Note: when a service has no body_area marker, we emit a single
+# `(method, "")` atom — this matches generic services like "Mezoterapia
+# igłowa" that don't specify the target area.
+
+
+def profile_atoms_from_services(services: list[dict]) -> Counter[tuple[str, str]]:
+    """Build atom multiset Counter[(method_marker, body_area)] from services.
+
+    services is a list of dicts with at least `name`. Optional `category_name`
+    is fed into method_marker for extra context. Empty/very-short names and
+    inactive services (caller's responsibility to pre-filter) are skipped.
+    """
+    atoms: Counter[tuple[str, str]] = Counter()
+    for svc in services:
+        name = (svc.get("name") or "").strip()
+        if not name or len(name) < 3:
+            continue
+        method = extract_method_marker(name, svc.get("category_name") or "")
+        areas = extract_body_areas(name)
+        if not areas:
+            atoms[(method, "")] += 1
+        else:
+            for area in areas:
+                atoms[(method, area)] += 1
+    return atoms
+
+
+def compute_profile_overlap_sim(
+    subject_atoms: Counter[tuple[str, str]],
+    candidate_atoms: Counter[tuple[str, str]],
+) -> float:
+    """Weighted recall of subject's atoms covered by candidate's portfolio.
+
+    Returns a value in [0, 1]:
+      - 0.0 if the subject has no atoms (empty profile — caller will normally
+        skip the axis by leaving the default 0 in compute_composite_score_v2)
+      - 1.0 if every (method, area) the subject offers is also offered by
+        the candidate (regardless of how many extra atoms the candidate has)
+      - In between: sum of subject weights for atoms present in candidate,
+        divided by total subject weight.
+
+    Weighting by subject count matters: laser/twarz with 34 services should
+    dominate over laser/lydki with 4 services. Recall (not precision) is the
+    right metric because a candidate offering MORE than subject is still
+    useful comparison — they cover the same ground plus more (aspirational).
+    """
+    total_weight = sum(subject_atoms.values())
+    if total_weight == 0:
+        return 0.0
+    covered_weight = 0
+    for atom, weight in subject_atoms.items():
+        if atom in candidate_atoms:
+            covered_weight += weight
+    return covered_weight / total_weight
 
 
 def assign_bucket(
@@ -576,6 +669,29 @@ async def select_competitors(
             subject_salon_id,
         )
 
+    # --- 1c. Build subject's deterministic (method, area) atom profile ------
+    # Used to compute profile_overlap_sim, a 5th axis on top of v2 focus
+    # scoring. Bypasses LLM-routed Booksy tid distribution so brand-marker
+    # noise (Thunder vs Onda) and Rule 1-4 mis-routings don't pollute ranking.
+    # Empty profile = no axis contribution (all candidates get 0).
+    subject_scrape_id = await service.get_chain_head_scrape_id(subject_booksy_id)
+    subject_atoms: Counter[tuple[str, str]] = Counter()
+    if subject_scrape_id is not None:
+        subj_services = await service.get_chain_head_services_for_scrape(subject_scrape_id)
+        subject_atoms = profile_atoms_from_services(subj_services)
+        logger.info(
+            "Subject atom profile: %d unique (method, area) atoms, "
+            "total weight=%d (salon_id=%s, scrape_id=%s)",
+            len(subject_atoms), sum(subject_atoms.values()),
+            subject_salon_id, subject_scrape_id,
+        )
+    else:
+        logger.warning(
+            "Subject salon has no chain_head scrape — profile_overlap_sim "
+            "will be 0 for all candidates (salon_id=%s, booksy_id=%s)",
+            subject_salon_id, subject_booksy_id,
+        )
+
     # --- 2. Query candidates via PostGIS RPC ----------------------------------
     raw_candidates = await service.get_candidate_salons(
         lat=subject_lat,
@@ -609,6 +725,32 @@ async def select_competitors(
         "Fetched focus bundles for %d/%d candidates (rest: cron will compute)",
         len(focus_bundles), len(candidate_salon_ids),
     )
+
+    # Candidate atom profiles — bulk-fetch chain head services via the new
+    # RPC (migration 087). Cheap deterministic regex (~5 µs/service) gives us
+    # profile_overlap_sim without any LLM normalization. We map booksy_id ->
+    # scrape_uuid first because the RPC works on scrape_ids, but candidate
+    # rows from find_nearby_salons only have salon_id/booksy_id.
+    candidate_atoms_by_booksy: dict[int, Counter[tuple[str, str]]] = {}
+    if subject_atoms:
+        chain_head_map = await service.get_chain_head_scrape_ids_for_booksy_ids(
+            candidate_booksy_ids,
+        )
+        scrape_ids_for_atoms = list(chain_head_map.values())
+        services_by_scrape = await service.get_candidate_services_for_atoms(
+            scrape_ids_for_atoms,
+        )
+        # Reverse map scrape_uuid -> booksy_id, then build atoms
+        booksy_by_scrape = {sid: bid for bid, sid in chain_head_map.items()}
+        for sid, svc_list in services_by_scrape.items():
+            bid = booksy_by_scrape.get(sid)
+            if bid is not None:
+                candidate_atoms_by_booksy[bid] = profile_atoms_from_services(svc_list)
+        logger.info(
+            "Built atom profiles for %d/%d candidates (chain_heads_found=%d)",
+            len(candidate_atoms_by_booksy), len(candidate_booksy_ids),
+            len(chain_head_map),
+        )
 
     # --- 4. Filter + Score + Bucket each candidate ---------------------------
     scored: list[CompetitorCandidate] = []
@@ -682,12 +824,19 @@ async def select_competitors(
             portfolio_emb_sim = 0.0
             tid_set_overlap_asym = 0.0
 
+        # 5th axis: deterministic (method, area) overlap. Falls back to 0
+        # when subject_atoms is empty (no chain head) or candidate has no
+        # active services — score gracefully degrades to 4-axis v2.
+        cand_atoms = candidate_atoms_by_booksy.get(booksy_id, Counter())
+        profile_overlap_sim = compute_profile_overlap_sim(subject_atoms, cand_atoms)
+
         composite = compute_composite_score_v2(
             focus_tid_sim=focus_tid_sim,
             focus_var_sim=focus_var_sim,
             portfolio_embedding_sim=portfolio_emb_sim,
             reviews_count_similarity=rc_sim,
             distance_km=distance_km,
+            profile_overlap_sim=profile_overlap_sim,
         )
 
         bucket = assign_bucket_v2(
@@ -722,6 +871,7 @@ async def select_competitors(
                     "reviews_count_similarity": round(rc_sim, 4),
                     "distance_penalty": round(compute_distance_penalty(distance_km), 2),
                     "tid_set_overlap_asym": round(tid_set_overlap_asym, 4),
+                    "profile_overlap_sim": round(profile_overlap_sim, 4),
                 },
                 partner_system=partner,
             )

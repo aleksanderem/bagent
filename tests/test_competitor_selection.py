@@ -12,15 +12,20 @@ from unittest.mock import AsyncMock
 
 import pytest
 
+from collections import Counter
+
 from pipelines.competitor_selection import (
     CompetitorCandidate,
     assign_bucket,
     compute_avg_female_weight,
     compute_business_category_jaccard,
     compute_composite_score,
+    compute_composite_score_v2,
     compute_distance_penalty,
+    compute_profile_overlap_sim,
     compute_reviews_count_similarity,
     compute_top_services_overlap,
+    profile_atoms_from_services,
     select_competitors,
     sort_key,
 )
@@ -191,6 +196,146 @@ class TestComputeCompositeScore:
             distance_km=0.0,
         )
         assert score == 45.0
+
+
+class TestProfileAtomsFromServices:
+    """Deterministic atom extraction from a service list."""
+
+    def test_empty_list_returns_empty_counter(self) -> None:
+        atoms = profile_atoms_from_services([])
+        assert atoms == Counter()
+
+    def test_short_or_empty_names_skipped(self) -> None:
+        atoms = profile_atoms_from_services([
+            {"name": ""},
+            {"name": "ab"},  # < 3 chars
+            {"name": None},
+            {"name": "   "},
+        ])
+        assert atoms == Counter()
+
+    def test_multi_area_service_explodes_into_unitary_atoms(self) -> None:
+        # "Depilacja laserowa - kark + szyja + dekolt" — extract_body_areas
+        # returns frozenset of 3 areas, one atom per area, method=laser.
+        atoms = profile_atoms_from_services([
+            {"name": "Depilacja laserowa - kark + szyja + dekolt"},
+        ])
+        # method_marker maps "laser" from "Depilacja laserowa"
+        assert atoms[("laser", "kark_szyja")] == 1
+        assert atoms[("laser", "dekolt")] == 1
+
+    def test_no_body_area_emits_generic_area_atom(self) -> None:
+        # Generic service ("Mezoterapia igłowa") has no body area marker —
+        # we emit a single (method, "") atom so the service still counts.
+        atoms = profile_atoms_from_services([
+            {"name": "Mezoterapia igłowa"},
+        ])
+        assert atoms[("mezoterapia", "")] == 1
+
+    def test_count_accumulates_across_services(self) -> None:
+        atoms = profile_atoms_from_services([
+            {"name": "Depilacja laserowa - twarz"},
+            {"name": "Laser - twarz pełna"},  # second laser+twarz service
+            {"name": "Depilacja laserowa - pachy"},
+        ])
+        assert atoms[("laser", "twarz")] >= 2
+        assert atoms[("laser", "pachy")] == 1
+
+
+class TestComputeProfileOverlapSim:
+    """Weighted recall of subject atoms in candidate portfolio."""
+
+    def test_empty_subject_returns_zero(self) -> None:
+        cand = Counter({("laser", "twarz"): 5})
+        assert compute_profile_overlap_sim(Counter(), cand) == 0.0
+
+    def test_empty_candidate_returns_zero(self) -> None:
+        subj = Counter({("laser", "twarz"): 5})
+        assert compute_profile_overlap_sim(subj, Counter()) == 0.0
+
+    def test_full_overlap_returns_one(self) -> None:
+        subj = Counter({("laser", "twarz"): 10, ("rf", "twarz"): 5})
+        cand = Counter({("laser", "twarz"): 1, ("rf", "twarz"): 1})
+        # Candidate has both atoms (counts don't matter for recall) → 1.0
+        assert compute_profile_overlap_sim(subj, cand) == 1.0
+
+    def test_partial_overlap_weighted_by_subject_count(self) -> None:
+        # Subject: laser/twarz=10, rf/twarz=5  (total=15)
+        # Candidate covers ONLY laser/twarz → covered=10/15 ≈ 0.667
+        subj = Counter({("laser", "twarz"): 10, ("rf", "twarz"): 5})
+        cand = Counter({("laser", "twarz"): 1})
+        result = compute_profile_overlap_sim(subj, cand)
+        assert abs(result - 10 / 15) < 1e-6
+
+    def test_no_overlap_returns_zero(self) -> None:
+        subj = Counter({("laser", "twarz"): 10})
+        cand = Counter({("manicure", ""): 5})
+        assert compute_profile_overlap_sim(subj, cand) == 0.0
+
+
+class TestComputeCompositeScoreV2:
+    """5-axis composite scoring (v2 + profile_overlap_sim)."""
+
+    def test_perfect_match_5_axes(self) -> None:
+        # All sims = 1.0, no distance penalty: 30+25+20+20+10 = 105
+        score = compute_composite_score_v2(
+            focus_tid_sim=1.0,
+            focus_var_sim=1.0,
+            portfolio_embedding_sim=1.0,
+            reviews_count_similarity=1.0,
+            distance_km=0.0,
+            profile_overlap_sim=1.0,
+        )
+        assert score == 105.0
+
+    def test_profile_overlap_default_zero_is_backward_compatible(self) -> None:
+        # Callers that don't pass profile_overlap_sim should get the
+        # previous 4-axis v2 score (sum = 80).
+        old_score = compute_composite_score_v2(
+            focus_tid_sim=1.0,
+            focus_var_sim=1.0,
+            portfolio_embedding_sim=1.0,
+            reviews_count_similarity=1.0,
+            distance_km=0.0,
+        )
+        assert old_score == 80.0
+
+    def test_profile_overlap_adds_25_at_max(self) -> None:
+        # Same inputs as default test, with profile_overlap=1.0 → +25
+        score = compute_composite_score_v2(
+            focus_tid_sim=1.0,
+            focus_var_sim=1.0,
+            portfolio_embedding_sim=1.0,
+            reviews_count_similarity=1.0,
+            distance_km=0.0,
+            profile_overlap_sim=1.0,
+        )
+        assert score == 105.0
+
+    def test_profile_overlap_lifts_noisy_embedding_match(self) -> None:
+        # Simulate Beauty4ever scenario: portfolio_embedding_sim is HIGH
+        # (noisy positive), but profile_overlap differs sharply between two
+        # candidates. The one with higher profile_overlap should rank ahead.
+        weak = compute_composite_score_v2(
+            focus_tid_sim=0.5,
+            focus_var_sim=0.25,
+            portfolio_embedding_sim=0.86,  # noise pulls this up
+            reviews_count_similarity=0.5,
+            distance_km=1.0,
+            profile_overlap_sim=0.43,  # real signal: weak overlap
+        )
+        strong = compute_composite_score_v2(
+            focus_tid_sim=0.5,
+            focus_var_sim=0.25,
+            portfolio_embedding_sim=0.86,  # same embedding noise
+            reviews_count_similarity=0.5,
+            distance_km=1.0,
+            profile_overlap_sim=0.87,  # strong overlap signal
+        )
+        # Strong overlap should produce notably higher composite — the 0.44
+        # gap × _W_PROFILE_OVERLAP (25) = ~11 raw points.
+        assert strong > weak
+        assert (strong - weak) >= 10.0  # at least the weight-times-delta
 
 
 class TestAssignBucket:

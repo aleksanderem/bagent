@@ -963,6 +963,136 @@ class SupabaseService:
             })
         return rows
 
+    async def get_chain_head_scrape_id(self, booksy_id: int) -> str | None:
+        """Return the chain_head scrape uuid for a booksy_id, or None.
+
+        Used by competitor_selection to resolve subject and candidate salons
+        to their canonical chain-head scrape (where deduplicated active
+        service list lives — see migration 047 dedup write path).
+        """
+        try:
+            res = (
+                self.client.table("salon_scrapes")
+                .select("id")
+                .eq("booksy_id", booksy_id)
+                .eq("is_chain_head", True)
+                .limit(1)
+                .execute()
+            )
+        except Exception as e:
+            logger.warning("get_chain_head_scrape_id booksy_id=%s failed: %s", booksy_id, e)
+            return None
+        if not res.data:
+            return None
+        return res.data[0]["id"]
+
+    async def get_chain_head_scrape_ids_for_booksy_ids(
+        self, booksy_ids: list[int],
+    ) -> dict[int, str]:
+        """Bulk-fetch chain_head scrape uuids for a list of booksy_ids.
+
+        Returns {booksy_id: scrape_uuid}; booksy_ids without a chain head are
+        absent from the map. Avoids N round-trips when select_competitors
+        needs scrape ids for ~199 candidates.
+        """
+        if not booksy_ids:
+            return {}
+        try:
+            res = (
+                self.client.table("salon_scrapes")
+                .select("id, booksy_id")
+                .in_("booksy_id", booksy_ids)
+                .eq("is_chain_head", True)
+                .execute()
+            )
+        except Exception as e:
+            logger.warning(
+                "Bulk chain_head scrape lookup failed (n=%d): %s",
+                len(booksy_ids), e,
+            )
+            return {}
+        out: dict[int, str] = {}
+        for row in (res.data or []):
+            bid = row.get("booksy_id")
+            sid = row.get("id")
+            if bid is not None and sid is not None:
+                out[bid] = sid
+        return out
+
+    async def get_chain_head_services_for_scrape(self, scrape_id: str) -> list[dict]:
+        """Return all active services for a given scrape_id.
+
+        Used by competitor_selection.select_competitors to build the subject
+        salon's (method_marker, body_area) atom profile. Returns
+        [{name, category_name}, ...]. Inactive services are filtered out.
+
+        Re-uses the bulk RPC `fn_get_candidate_services_for_atoms` for symmetry
+        with the candidate-side load (single RPC call to fetch one scrape).
+        Falls back to direct table read if the RPC is unavailable (older
+        deploys).
+        """
+        try:
+            res = self.client.rpc(
+                "fn_get_candidate_services_for_atoms",
+                {"p_scrape_ids": [scrape_id]},
+            ).execute()
+            rows = res.data or []
+            if rows:
+                return list(rows[0].get("services") or [])
+            return []
+        except Exception as e:
+            logger.warning(
+                "fn_get_candidate_services_for_atoms failed for scrape_id=%s "
+                "(falling back to direct read): %s", scrape_id, e,
+            )
+            try:
+                result = (
+                    self.client.table("salon_scrape_services")
+                    .select("name, category_name")
+                    .eq("scrape_id", scrape_id)
+                    .eq("is_active", True)
+                    .execute()
+                )
+                return list(result.data or [])
+            except Exception as e2:
+                logger.warning(
+                    "Fallback direct read failed for scrape_id=%s: %s", scrape_id, e2,
+                )
+                return []
+
+    async def get_candidate_services_for_atoms(
+        self, scrape_ids: list[str],
+    ) -> dict[str, list[dict]]:
+        """Bulk-fetch active services per chain-head scrape_id for atom extraction.
+
+        Returns {scrape_id: [{name, category_name}, ...]}. Scrapes with zero
+        active services are absent from the map (caller should `.get(sid, [])`).
+
+        Uses `fn_get_candidate_services_for_atoms` (migration 087) to avoid
+        the PostgREST 1000-row default truncation that silently dropped rows
+        when 199 candidates × ~50 services exceeded the page size.
+        """
+        if not scrape_ids:
+            return {}
+        try:
+            res = self.client.rpc(
+                "fn_get_candidate_services_for_atoms",
+                {"p_scrape_ids": scrape_ids},
+            ).execute()
+        except Exception as e:
+            logger.warning(
+                "fn_get_candidate_services_for_atoms bulk fetch failed "
+                "(scrape_ids=%d): %s", len(scrape_ids), e,
+            )
+            return {}
+        out: dict[str, list[dict]] = {}
+        for row in (res.data or []):
+            sid = row.get("scrape_id")
+            services = row.get("services") or []
+            if sid is not None:
+                out[sid] = list(services)
+        return out
+
     async def get_salon_top_services(self, salon_id: int) -> list[dict]:
         """Return the top_services rows for a given internal salon_id.
 
