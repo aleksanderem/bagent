@@ -1141,14 +1141,21 @@ def _build_competitor_profiles(
         if overlap_asym_val is not None:
             overlap_asym_val = max(0.0, min(1.0, overlap_asym_val))
         # Faza 8a fields — verified_match_count + bucket_pre_verify.
-        # Drop competitors marked 'excluded' (verified_match_count < 3)
-        # from competitorProfiles so the rich UI only surfaces true
-        # competition. They remain in competitor_matches table for
-        # analytics + future re-evaluation if cache evolves.
+        # 2026-05-17: previously we dropped 'excluded' (verified_match_count
+        # < 3) entirely. Per UX feedback (audit 34 ended up with only 3
+        # visible competitors), we now keep them but relabel bucket to
+        # 'alternative' so the rich UI renders them with dimmer styling +
+        # "Alternatywa" badge under the 4 primary zones. counts_in_aggregates
+        # still respects the original 'excluded' classification, so aggregate
+        # stats (medians, gaps) aren't polluted by the weaker matches.
         verified_count = m.get("verified_match_count")
         bucket_value = m.get("bucket") or _BUCKET_FALLBACK
-        if bucket_value == "excluded":
-            continue
+        is_alternative = bucket_value == "excluded"
+        if is_alternative:
+            # Surface the pre-verify intent (direct/cluster/aspirational) so
+            # the UI can communicate "would have been a strong match but
+            # didn't pass verification".
+            bucket_value = "alternative"
         profiles.append({
             "id": int(salon_id) if salon_id is not None else int(booksy_id or 0),
             "salon_id": int(salon_id) if salon_id is not None else None,
@@ -1166,6 +1173,7 @@ def _build_competitor_profiles(
             "verified_match_count": (
                 int(verified_count) if verified_count is not None else None
             ),
+            "is_alternative": is_alternative,
             "lat": lat_val,
             "lng": lng_val,
             "thumbnailPhoto": thumbnail if isinstance(thumbnail, str) and thumbnail else None,
