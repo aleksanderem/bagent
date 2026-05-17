@@ -780,6 +780,22 @@ async def _compute_pricing_comparisons(
                 "brand_marker": extract_brand_marker(svc_name),
             })
 
+    # Phase 2.5 (2026-05-18) — cross-variant fallback index.
+    # Variant_id is often over-segmented by upstream LLM Pass 5 (Mezoterapia
+    # igłowa → variant 209, Paznokcie żelowe → 11 variant_ids 55-68, Botox
+    # → 6+ variants 393/395-399). When subject's specific (tid, variant_id,
+    # dur_bucket) pool is empty, the same booksy_treatment_id often has
+    # plenty of competitor services under DIFFERENT variant_ids. Aggregating
+    # across variant_ids within the same (tid, dur_bucket) recovers ~42% of
+    # variant subject_only rows (empirical landscape 2026-05-18) when
+    # >=2 unique salons exist at tid level.
+    competitor_samples_by_tid_dur: dict[tuple, list[dict[str, Any]]] = {}
+    for vk, sample_list in competitor_samples_by_variant.items():
+        tid_k, _vid, dur_k = vk
+        if tid_k is None:
+            continue
+        competitor_samples_by_tid_dur.setdefault((tid_k, dur_k), []).extend(sample_list)
+
     # Pre-pass: figure out which subject service embeddings + which variant
     # centroids we need to fetch. Only rows with |deviation| > threshold
     # trigger verification, so we filter the fetch set accordingly.
@@ -789,6 +805,22 @@ async def _compute_pricing_comparisons(
     for variant_key, subject_svc in subject_svcs.items():
         tid, variant_id, _dur_bucket = variant_key
         samples = competitor_samples_by_variant.get(variant_key, [])
+        is_aggregated_cross_variant = False
+        if not samples and tid is not None:
+            tid_dur_pool = competitor_samples_by_tid_dur.get((tid, _dur_bucket), [])
+            tid_dur_unique_salons = {s.get("salon_id") for s in tid_dur_pool if s.get("salon_id") is not None}
+            if len(tid_dur_unique_salons) >= 2:
+                samples = tid_dur_pool
+                is_aggregated_cross_variant = True
+                logger.info(
+                    "Phase 2.5 cross-variant fallback: subject %r (tid=%s, "
+                    "variant_id=%s) had 0 samples in own variant; aggregated "
+                    "%d samples across %d variant_ids from %d unique salons",
+                    (subject_svc.get("name") or "")[:60], tid, variant_id,
+                    len(tid_dur_pool),
+                    len({s.get("variant_id") or s.get("service_id") for s in tid_dur_pool}),
+                    len(tid_dur_unique_salons),
+                )
         subject_price = subject_svc.get("price_grosze")
         if subject_price is None:
             continue
@@ -929,6 +961,7 @@ async def _compute_pricing_comparisons(
             "percentiles": percentiles,
             "deviation_pct": deviation_pct,
             "subject_only": False,
+            "is_aggregated_cross_variant": is_aggregated_cross_variant,
         })
         if abs(deviation_pct) > VERIFICATION_THRESHOLD_PCT:
             variant_ids_needing_verify.add(int(variant_id))
@@ -1129,6 +1162,7 @@ async def _compute_pricing_comparisons(
             "verification_status": verification_status,
             "verification_details": verification_details or None,
             "competitor_samples": samples,
+            "is_aggregated_cross_variant": bool(item.get("is_aggregated_cross_variant", False)),
         })
 
     # ── Tier-1: per booksy_treatment_id family-level rows ──
