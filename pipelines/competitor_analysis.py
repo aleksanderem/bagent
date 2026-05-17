@@ -1779,9 +1779,12 @@ async def _compute_treatment_tier_rows(
         price_pcts = compute_percentiles(market_prices)
         ppm_pcts = compute_percentiles(market_ppms) if market_ppms else None
 
-        # Deviation: prefer PLN/min for tier-1 since variants within tid
-        # have different durations — raw price deviation za noisy.
-        # Fallback to raw price deviation gdy nie mamy ppm samples.
+        # Deviation: total price (dev_raw) drives recommended_action to match
+        # user intuition. dev_per_min stays as informational context but NOT
+        # as the primary classifier input — when subject duration < market
+        # duration, dev_per_min may carry the opposite sign vs dev_raw
+        # (subject is cheaper total but pricier per minute), which previously
+        # produced 'lower' recommendations on negative-deviation rows.
         dev_per_min = None
         dev_raw = None
         recommended_action = "hold"
@@ -1795,21 +1798,16 @@ async def _compute_treatment_tier_rows(
                 * 100.0,
                 2,
             )
-            recommended_action = _classify_pricing_action(dev_per_min)
-        elif price_pcts["market_p50"] > 0:
+        if price_pcts["market_p50"] > 0:
             dev_raw = round(
                 (subj_median_price - price_pcts["market_p50"])
                 / price_pcts["market_p50"] * 100.0,
                 2,
             )
+        if dev_raw is not None:
             recommended_action = _classify_pricing_action(dev_raw)
-
-        if dev_raw is None and price_pcts["market_p50"] > 0:
-            dev_raw = round(
-                (subj_median_price - price_pcts["market_p50"])
-                / price_pcts["market_p50"] * 100.0,
-                2,
-            )
+        elif dev_per_min is not None:
+            recommended_action = _classify_pricing_action(dev_per_min)
 
         subj_pct = compute_subject_percentile(subj_median_price, market_prices)
 
@@ -2094,6 +2092,8 @@ async def _compute_sub_variant_tier_rows(
         price_pcts = compute_percentiles(market_prices)
         ppm_pcts = compute_percentiles(market_ppms) if market_ppms else None
 
+        # See tier-treatment block above: dev_raw is the action driver,
+        # dev_per_min is informational only (durations differ within tid).
         dev_per_min = None
         dev_raw = None
         recommended_action = "hold"
@@ -2106,15 +2106,16 @@ async def _compute_sub_variant_tier_rows(
                 (subj_ppm - ppm_pcts["market_p50"]) / ppm_pcts["market_p50"] * 100.0,
                 2,
             )
-            recommended_action = _classify_pricing_action(dev_per_min)
         if price_pcts["market_p50"] > 0:
             dev_raw = round(
                 (float(subj_price) - price_pcts["market_p50"])
                 / price_pcts["market_p50"] * 100.0,
                 2,
             )
-            if dev_per_min is None:
-                recommended_action = _classify_pricing_action(dev_raw)
+        if dev_raw is not None:
+            recommended_action = _classify_pricing_action(dev_raw)
+        elif dev_per_min is not None:
+            recommended_action = _classify_pricing_action(dev_per_min)
 
         subj_pct = compute_subject_percentile(float(subj_price), market_prices)
 
