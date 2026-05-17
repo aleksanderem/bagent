@@ -311,6 +311,7 @@ async def compute_competitor_analysis(
         service, report_id, subject_data, aligned_competitors,
         audit_id=audit_id,
     )
+    pricing_rows = _dedup_pricing_rows(pricing_rows)
     n_pricing = await service.insert_competitor_pricing_comparisons(pricing_rows)
     logger.info("Etap 4: inserted %d pricing_comparisons", n_pricing)
 
@@ -2201,6 +2202,64 @@ def _classify_pricing_action(deviation_pct: float) -> str:
     if deviation_pct > 20.0:
         return "lower"
     return "hold"
+
+
+def _dedup_pricing_rows(rows: list[dict[str, Any]]) -> list[dict[str, Any]]:
+    """Collapse duplicate pricing rows at the same logical key.
+
+    Phase 1b (2026-05-18): _compute_pricing_comparisons / _compute_treatment_tier_rows
+    / _compute_sub_variant_tier_rows occasionally emit multiple rows for the
+    same (report_id, comparison_tier, booksy_treatment_id, variant_id,
+    sub_variant_group_id) tuple. Root cause is that pricing functions iterate
+    over subject services without grouping first by (tid, variant_id), so two
+    subject services in the same logical bucket each produce their own row
+    with different competitor sample sets.
+
+    Tactical fix: deterministic dedup keeping the row with HIGHEST sample_size
+    per key (more competitor evidence wins). When sample_size ties, prefer
+    rows with non-NULL market_median_grosze (real data over subject_only).
+
+    Proper fix (deferred): refactor _compute_pricing_comparisons to group
+    subject services upfront before computing per-key market views.
+    """
+    if not rows:
+        return rows
+
+    def row_key(r: dict[str, Any]) -> tuple:
+        return (
+            r.get("report_id"),
+            r.get("comparison_tier"),
+            r.get("booksy_treatment_id"),
+            r.get("variant_id"),
+            r.get("sub_variant_group_id"),
+            r.get("sub_variant_label"),
+            # treatment_name fallback when tid is NULL (synthetic taxonomy paths)
+            r.get("treatment_name") if r.get("booksy_treatment_id") is None else None,
+        )
+
+    def row_quality(r: dict[str, Any]) -> tuple:
+        # Higher is better: real market data first, then more samples.
+        has_market = 1 if r.get("market_median_grosze") is not None else 0
+        sample_size = int(r.get("sample_size") or 0)
+        return (has_market, sample_size)
+
+    best: dict[tuple, dict[str, Any]] = {}
+    dropped = 0
+    for r in rows:
+        k = row_key(r)
+        if k not in best or row_quality(r) > row_quality(best[k]):
+            if k in best:
+                dropped += 1
+            best[k] = r
+        else:
+            dropped += 1
+
+    if dropped:
+        logger.info(
+            "Phase 1b dedup: dropped %d duplicate pricing rows "
+            "(kept best per key out of %d)", dropped, len(rows),
+        )
+    return list(best.values())
 
 
 # ---------------------------------------------------------------------------
