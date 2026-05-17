@@ -3435,15 +3435,55 @@ async def _aggregate_verified_match_counts(
 # Each regex catches a different package marker — pakiety, multiplier
 # notation ("3x", "5 +1"), monthly abonament, body-area bundles.
 # Cosine similarity floor for matching a package to its single-session
-# equivalent at the SAME salon. Below this the candidate is rejected,
-# even when same booksy_treatment_id — defends against cases like
-# "Dermapen 4 - pakiet 3 zabiegów" vs "EstGen do zabiegu Dermapen na
-# 1 obszar" where the cheapest tid-mate is actually a preparation mask
-# add-on, not a genuine single-session version of the package. Same
-# threshold as Faza 7's _TREATMENT_TIER_MIN_NAME_SIM (0.55) by design —
-# both filters share the OpenAI text-embedding-3-small space and the
-# same "genuine variant vs cousin service" semantic.
-_SINGLE_MATCH_MIN_SIM = 0.55
+# equivalent at the SAME salon. Higher than Faza 7's 0.55 because the
+# same-salon space is much narrower — most tid-mates share core
+# vocabulary ("Dermapen", "PRO XN", "Thunder"). At 0.55 we kept
+# "Dermapen pakiet" vs "EstGen do zabiegu Dermapen" pair (preparation
+# add-on) AND "PRO XN I stopień" vs "PRO XN III stopień" pair
+# (different intensity tier of the same product line). 0.70 separates
+# genuine variants of THE SAME service from cousins / different-tier
+# products that share branding tokens.
+_SINGLE_MATCH_MIN_SIM = 0.70
+
+# Token-level guard against intensity / stage / tier mismatch. When the
+# package name carries a Roman numeral level (I/II/III/IV) or arabic
+# "stopień <N>", the single MUST carry the same level OR none.
+# Catches "PRO XN I stopień" vs "PRO XN III stopień" pair that the
+# embedding cosine accepts because the shared "PRO XN" + "(twarz +
+# szyja)" tokens dominate the vector.
+_INTENSITY_MARKERS = [
+    (re.compile(r"\bstopień\s*([IVX]+|[1-9])\b", re.IGNORECASE), "stopień"),
+    (re.compile(r"\b(I{1,3}|IV|V)\b\s*stopień", re.IGNORECASE), "stopień"),
+    (re.compile(r"\bbasic\b", re.IGNORECASE), "tier"),
+    (re.compile(r"\badvanced\b", re.IGNORECASE), "tier"),
+    (re.compile(r"\bvip\b", re.IGNORECASE), "tier"),
+    (re.compile(r"\bpremium\b", re.IGNORECASE), "tier"),
+]
+
+
+def _extract_intensity_marker(name: str) -> str | None:
+    """Returns a stable string token representing the intensity tier
+    detected in `name`, or None when no marker found.
+    'stopień I' / 'I stopień' / 'stopień 1' → 'stopień_1'
+    'Basic' → 'tier_basic'
+    'VIP' → 'tier_vip'
+    """
+    if not name:
+        return None
+    nlow = name.lower()
+    # Roman/arabic stopień detection
+    m = re.search(r"\bstopień\s*([ivx]+|[1-9])\b", nlow)
+    if not m:
+        m = re.search(r"\b(i{1,3}|iv|v)\b\s*stopień", nlow)
+    if m:
+        raw = m.group(1)
+        # Normalize roman to arabic 1-5
+        roman_map = {"i": "1", "ii": "2", "iii": "3", "iv": "4", "v": "5"}
+        return "stopień_" + roman_map.get(raw, raw)
+    for marker in ("basic", "advanced", "vip", "premium"):
+        if re.search(rf"\b{marker}\b", nlow):
+            return f"tier_{marker}"
+    return None
 
 _PACKAGE_HEURISTIC_PATTERNS = [
     re.compile(r"\bpakiet\b", re.IGNORECASE),
@@ -3612,8 +3652,26 @@ async def _analyze_subject_packages(
             # (rare — name_embedding is populated at ingest for chain
             # heads). Score each kept candidate so we can use similarity
             # as a tiebreaker against duration / price.
+            #
+            # Also enforce an intensity-marker match: when the package
+            # name says "stopień I" / "Basic" / "VIP", the single must
+            # carry the same marker OR none. "PRO XN I stopień" vs
+            # "PRO XN III stopień" share too much vocabulary for the
+            # cosine to reject them — but they're DIFFERENT product
+            # tiers. Same applies to Basic/Advanced/VIP/Premium lines.
+            pkg_intensity = _extract_intensity_marker(name)
             filtered_candidates: list[tuple[dict[str, Any], float]] = []
             for cand in raw_candidates:
+                cand_intensity = _extract_intensity_marker(
+                    cand.get("name") or ""
+                )
+                if (
+                    pkg_intensity
+                    and cand_intensity
+                    and pkg_intensity != cand_intensity
+                ):
+                    # Different stopień / tier — definitely not same single.
+                    continue
                 cand_emb = (
                     cand.get("name_embedding")
                     or cand.get("name_embedding_dense")
