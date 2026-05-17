@@ -38,6 +38,7 @@ from typing import Any
 
 from services.body_area_taxonomy import extract_body_areas
 from services.brand_marker import extract_brand_marker
+from services.method_marker import extract_method_marker
 from services.minimax import MiniMaxClient, with_retry
 
 logger = logging.getLogger(__name__)
@@ -65,16 +66,16 @@ def _resolved_tid_key(svc: dict[str, Any]) -> tuple[str, int | None]:
 
 def build_clusters(
     services: list[dict[str, Any]],
-) -> dict[tuple[str | None, tuple[str, ...]], list[dict[str, Any]]]:
-    """Group services by (brand_marker, sorted_area_set).
+) -> dict[tuple[str | None, str, tuple[str, ...]], list[dict[str, Any]]]:
+    """Group services by (brand_marker, method_marker, sorted_area_set).
 
-    Services without a brand marker AND without area tokens (e.g.
-    generic "Manicure hybrydowy") cluster under the key
-    (None, ()) — typically these are the well-matched cases and we
-    skip them in mixed-cluster detection anyway.
+    Three-axis key: brand (device/marka), method (laser/wax/cukrowa/
+    rf/...), areas (body parts). This separates Thunder pachy (laser)
+    from Wax pachy (cukrowa) at clustering stage so MiniMax cannot
+    collapse them into one decision.
     """
     clusters: dict[
-        tuple[str | None, tuple[str, ...]], list[dict[str, Any]]
+        tuple[str | None, str, tuple[str, ...]], list[dict[str, Any]]
     ] = {}
     for svc in services:
         if not svc.get("is_active", True):
@@ -82,15 +83,16 @@ def build_clusters(
         name = svc.get("name") or ""
         category = svc.get("category_name") or ""
         brand = extract_brand_marker(name, category)
+        method = extract_method_marker(name, category)
         areas = extract_body_areas(name)
-        key = (brand, tuple(sorted(areas)))
+        key = (brand, method, tuple(sorted(areas)))
         clusters.setdefault(key, []).append(svc)
     return clusters
 
 
 def find_mixed_clusters(
-    clusters: dict[tuple[str | None, tuple[str, ...]], list[dict[str, Any]]],
-) -> list[tuple[tuple[str | None, tuple[str, ...]], list[dict[str, Any]]]]:
+    clusters: dict[tuple[str | None, str, tuple[str, ...]], list[dict[str, Any]]],
+) -> list[tuple[tuple[str | None, str, tuple[str, ...]], list[dict[str, Any]]]]:
     """Pick out clusters that need MiniMax consistency resolution.
 
     A cluster qualifies when ANY of:
@@ -106,9 +108,9 @@ def find_mixed_clusters(
     Singletons (cluster size 1) are skipped — no consistency to
     enforce.
     """
-    out: list[tuple[tuple[str | None, tuple[str, ...]], list[dict[str, Any]]]] = []
+    out: list[tuple[tuple[str | None, str, tuple[str, ...]], list[dict[str, Any]]]] = []
     for key, members in clusters.items():
-        brand, areas = key
+        brand, method, areas = key
         if len(members) < 2:
             continue
         if brand is None and not areas:
@@ -131,41 +133,52 @@ def find_mixed_clusters(
 _SYSTEM_PROMPT = (
     "Jesteś ekspertem taxonomii usług w polskich salonach beauty "
     "(Booksy.com). Dostajesz LISTĘ klastrów usług — każdy klaster "
-    "zawiera usługi z TEGO SAMEGO salonu, dzielące tę samą markę/"
-    "urządzenie i zestaw okolic ciała. Twoim zadaniem jest WYBRAĆ "
-    "JEDNĄ autorytatywną decyzję dla całego klastra, niezależnie od "
-    "tego, jak system je dotąd posortował.\n\n"
-    "Każda decyzja MUSI być jedną z dwóch:\n"
-    "  1. `booksy_tid` — istniejący tid w taksonomii Booksy, którego "
-    "      kanoniczna nazwa pasuje JEDNOCZEŚNIE metodologią ORAZ "
-    "      okolicą ciała. Wybieraj tid TYLKO gdy oba pasują dokładnie.\n"
-    "  2. `salon_synthetic` — gdy żaden Booksy tid nie pasuje, klaster "
-    "      jest brand-specific i potrzebuje własnej kategorii.\n\n"
-    "ZASADY:\n"
-    "  - Brand-name urządzenia (Thunder, Onda, HiFEM, Dermapen) "
-    "    SAME w sobie nie wymuszają synthetic — patrz czy istnieje "
-    "    Booksy tid który pokrywa metodę + okolicę.\n"
+    "ma TRZY deterministyczne atrybuty: `brand_marker` (Thunder/Onda/"
+    "Dermapen/None), `method_marker` (laser/wax/cukrowa/rf/hifu/hifem/"
+    "mezoterapia/microneedling/hydrafacial/kroplowka/manicure/generic) "
+    "oraz `body_areas` (zestaw okolic ciała). Wszystkie usługi w "
+    "klastrze pochodzą z TEGO SAMEGO salonu i mają TĘ SAMĄ trójkę "
+    "(brand, method, areas).\n\n"
+    "Twoim zadaniem jest WYBRAĆ JEDNĄ autorytatywną decyzję dla całego "
+    "klastra. Każda decyzja MUSI być jedną z dwóch:\n"
+    "  1. `booksy_tid` — istniejący tid w taksonomii Booksy z listy "
+    "      kandydatów. Booksy tid MUSI pasować JEDNOCZEŚNIE:\n"
+    "        (a) metoda — `method_marker` klastra musi być zgodny ze "
+    "            znaczeniem canonical_name kandydata (laser ≠ wosk ≠ "
+    "            pasta cukrowa ≠ RF ≠ HiFU ≠ mezoterapia). Jeśli "
+    "            method_marker='laser' a kandydat to 'Depilacja "
+    "            woskiem' lub 'Depilacja pastą cukrową' → REJECT.\n"
+    "        (b) okolica — body_areas klastra musi się pokrywać z "
+    "            okolicą sugerowaną przez canonical_name.\n"
+    "  2. `salon_synthetic` — gdy żaden Booksy tid nie spełnia OBU "
+    "      warunków (a) i (b), klaster jest brand- lub method-specific "
+    "      i potrzebuje własnej kategorii.\n\n"
+    "ZASADY DODATKOWE:\n"
     "  - Konsekwencja > precyzja. Wszystkie usługi w klastrze TRAFIAJĄ "
     "    POD JEDEN tid. Nie dziel klastra.\n"
-    "  - 'Depilacja laserowa' (tid generyczny, bez okolicy) NIE "
-    "    powinno być wybrane gdy istnieje bardziej specyficzny "
-    "    tid pasujący okolicą (np. 'Depilacja ciała' dla całego "
-    "    ciała, 'Depilacja pach' dla pach).\n"
-    "  - Odpowiadaj WYŁĄCZNIE poprawnym JSON-em zgodnym z podanym "
-    "    schematem, bez markdown, bez komentarzy."
+    "  - 'Depilacja laserowa' (tid generyczny method=laser, area=brak) "
+    "    JEST poprawny dla klastra `method=laser` gdy brak bardziej "
+    "    specyficznego area-matching tid. NIE jest poprawny dla "
+    "    method=wax/cukrowa/inne.\n"
+    "  - Bardziej specyficzny tid > generyczny: 'Depilacja ciała' tid=637 "
+    "    > 'Depilacja laserowa' tid=240 dla method=laser + area=cale_cialo.\n"
+    "  - Method mismatch JEST powodem do wyboru salon_synthetic NAWET "
+    "    gdy area się pokrywa. Lepszy synthetic niż wrong-method tid."
 )
 
 
 def _format_cluster_for_prompt(
     cluster_id: int,
-    key: tuple[str | None, tuple[str, ...]],
+    key: tuple[str | None, str, tuple[str, ...]],
     members: list[dict[str, Any]],
     candidates: list[dict[str, Any]],
 ) -> str:
-    brand, areas = key
+    brand, method, areas = key
     lines: list[str] = [
         f"### KLASTER #{cluster_id}",
         f"brand_marker: {brand or '(brak)'}",
+        f"method_marker: {method}  (laser/wax/cukrowa/rf/hifu/hifem/"
+        f"mezoterapia/microneedling/hydrafacial/kroplowka/manicure/generic)",
         f"body_areas: {list(areas) or '(brak)'}",
         f"members ({len(members)}):",
     ]
@@ -193,7 +206,7 @@ def _format_cluster_for_prompt(
 def _build_user_prompt(
     cluster_payloads: list[tuple[
         int,
-        tuple[str | None, tuple[str, ...]],
+        tuple[str | None, str, tuple[str, ...]],
         list[dict[str, Any]],
         list[dict[str, Any]],
     ]],
@@ -360,7 +373,7 @@ async def apply_intra_salon_consistency(
 
     cluster_payloads: list[tuple[
         int,
-        tuple[str | None, tuple[str, ...]],
+        tuple[str | None, str, tuple[str, ...]],
         list[dict[str, Any]],
         list[dict[str, Any]],
     ]] = []
@@ -436,7 +449,7 @@ async def apply_intra_salon_consistency(
 async def _apply_decision(
     *,
     cid: int,
-    key: tuple[str | None, tuple[str, ...]],
+    key: tuple[str | None, str, tuple[str, ...]],
     members: list[dict[str, Any]],
     decision: dict[str, Any],
     supabase,
@@ -447,7 +460,7 @@ async def _apply_decision(
 ) -> int:
     """Apply one cluster decision to every member. Returns number of
     services rerouted (i.e. whose final tid_key changed)."""
-    brand, areas = key
+    brand, method, areas = key
     rerouted_count = 0
 
     if decision["type"] == "booksy_tid":
@@ -476,6 +489,7 @@ async def _apply_decision(
                     "details": {
                         "cluster_id": cid,
                         "brand_marker": brand,
+                        "method_marker": method,
                         "areas": list(areas),
                         "old_decision": list(old_key),
                         "new_decision": ["booksy", target_btid],
@@ -527,6 +541,7 @@ async def _apply_decision(
                     "details": {
                         "cluster_id": cid,
                         "brand_marker": brand,
+                        "method_marker": method,
                         "areas": list(areas),
                         "old_decision": list(old_key),
                         "new_decision": ["synthetic", syn_id],
@@ -544,8 +559,8 @@ async def _apply_decision(
                 })
     logger.info(
         "apply_intra_salon_consistency [%s] cluster #%d "
-        "(brand=%s areas=%s size=%d) decision=%s rerouted=%d",
-        label, cid, brand, areas, len(members), decision["type"],
+        "(brand=%s method=%s areas=%s size=%d) decision=%s rerouted=%d",
+        label, cid, brand, method, areas, len(members), decision["type"],
         rerouted_count,
     )
     return rerouted_count
