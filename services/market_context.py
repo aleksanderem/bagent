@@ -44,6 +44,18 @@ logger = logging.getLogger(__name__)
 DEFAULT_MIN_SIMILARITY = 0.55
 DEFAULT_LIMIT = 20
 
+# 2026-05-17 (Faza 4b) — promote-to-comp-samples threshold. When subject_only
+# fallback returns ≥ STRONG_MIN_COUNT services with similarity ≥
+# STRONG_MIN_SIMILARITY, the pricing engine treats them as direct market
+# comparison samples (computes percentiles, deviation_pct, recommended_action)
+# instead of as soft "related" context. Empirical: "Red Touch twarz + szyja
+# - PROMOCJA" subject → top embedding matches "RedTouch PRO Twarz+szyja"
+# 0.90, "Laser Red Touch twarz-szyja" 0.86 — clearly the same treatment.
+# Without this promotion, user sees row as "Brak dokładnego matcha · 20
+# semantycznie podobnych" instead of "+75% vs mediana 1700 zł, raise".
+STRONG_MIN_SIMILARITY = 0.78
+STRONG_MIN_COUNT = 3
+
 
 async def gather_market_context_samples(
     supabase: SupabaseService,

@@ -824,44 +824,86 @@ async def _compute_pricing_comparisons(
         if len(samples) == 0:
             # 2026-05-17 (Faza 4) — pure embedding cosine via RPC
             # fn_find_related_competitor_services. Replaces the previous
-            # regex-based brand/method/area helper (commit 60dee05+782dd42+
-            # e730f82) which required maintaining hardcoded patterns for
-            # every brand and treatment-concern phrasing. Embedding works
-            # on any service name including typos (Beauty4ever wrote
-            # "Usuwanie przebrawień" instead of "przebarwień" — embedding
-            # still matches it to competitors' "Usuwanie przebarwień"
-            # at 82% similarity).
-            from services.market_context import gather_market_context_samples
+            # regex-based brand/method/area helper which required hardcoded
+            # patterns. Embedding works on any service name including typos.
+            #
+            # Faza 4b — when ≥STRONG_MIN_COUNT (3) embedding matches have
+            # similarity ≥ STRONG_MIN_SIMILARITY (0.78), promote them from
+            # soft `related_samples` to direct `samples` so the pricing
+            # engine computes actual market percentiles, deviation, and
+            # recommended_action. Without this, "Red Touch twarz + szyja
+            # - PROMOCJA" subject_only had top match "RedTouch PRO Twarz +
+            # szyja" 0.90 sitting in related_samples instead of driving a
+            # +75% vs market median verdict.
+            from services.market_context import (
+                gather_market_context_samples,
+                STRONG_MIN_SIMILARITY,
+                STRONG_MIN_COUNT,
+            )
             subj_service_id = subject_svc.get("id")
             competitor_booksy_ids = [
                 cand.booksy_id for cand, _ in aligned_competitors
                 if cand.counts_in_aggregates
             ]
-            related = await gather_market_context_samples(
+            semantic_results = await gather_market_context_samples(
                 service, subj_service_id, competitor_booksy_ids,
             )
-            if related:
-                top_sim = related[0].get("similarity")
+            strong = [
+                s for s in semantic_results
+                if (s.get("similarity") or 0) >= STRONG_MIN_SIMILARITY
+            ]
+            if len(strong) >= STRONG_MIN_COUNT:
+                # Promote to comp samples — engine computes real pricing
+                # comparison. Map embedding sample shape to comp sample shape
+                # (add name_similarity = similarity, brand_marker computed at
+                # extraction time isn't needed here).
+                samples = [
+                    {
+                        "salon_id": s["salon_id"],
+                        "salon_name": s["salon_name"],
+                        "booksy_id": s["booksy_id"],
+                        "service_id": s["service_id"],
+                        "service_name": s["service_name"],
+                        "price_grosze": int(s["price_grosze"]),
+                        "duration_minutes": s.get("duration_minutes"),
+                        "name_similarity": s.get("similarity"),
+                        "brand_marker": None,
+                    }
+                    for s in strong
+                ]
+                related = []  # no soft list — strong matches handled as direct
                 logger.info(
-                    "Etap 4 variant pricing: subject_only %r → %d semantic "
-                    "matches (top sim=%.3f)",
-                    subj_name[:60], len(related),
-                    top_sim if top_sim is not None else -1.0,
+                    "Etap 4 variant pricing: %r PROMOTED %d strong semantic "
+                    "matches (top sim=%.3f) to comp_samples",
+                    subj_name[:60], len(strong),
+                    strong[0].get("similarity") or 0,
                 )
-            prelim.append({
-                "variant_key": variant_key,
-                "tid": tid,
-                "variant_id": variant_id,
-                "subject_svc": subject_svc,
-                "subject_price": subject_price,
-                "samples": [],
-                "market_prices_f": [],
-                "percentiles": None,
-                "deviation_pct": None,
-                "subject_only": True,
-                "related_samples": related,
-            })
-            continue
+            else:
+                related = semantic_results
+                if related:
+                    top_sim = related[0].get("similarity")
+                    logger.info(
+                        "Etap 4 variant pricing: subject_only %r → %d "
+                        "semantic matches (top sim=%.3f, none promoted)",
+                        subj_name[:60], len(related),
+                        top_sim if top_sim is not None else -1.0,
+                    )
+                prelim.append({
+                    "variant_key": variant_key,
+                    "tid": tid,
+                    "variant_id": variant_id,
+                    "subject_svc": subject_svc,
+                    "subject_price": subject_price,
+                    "samples": [],
+                    "market_prices_f": [],
+                    "percentiles": None,
+                    "deviation_pct": None,
+                    "subject_only": True,
+                    "related_samples": related,
+                })
+                continue
+            # else: strong matches promoted to samples → fall through to
+            # the normal percentile/deviation computation below.
         market_prices_f = [float(s["price_grosze"]) for s in samples]
         percentiles = compute_percentiles(market_prices_f)
         median = percentiles["market_p50"]
@@ -1613,67 +1655,104 @@ async def _compute_treatment_tier_rows(
         # Subject-only at tier-1 = no competitor offers anything in this tid.
         if not comp_samples:
             # 2026-05-17 Faza 4 — embedding-cosine semantic match via RPC.
-            # See services/market_context.py for the algorithm. Replaces
-            # regex-based brand/method/area gating which was unscalable
-            # (Red Touch, Thunder, PRX T33, Plexr, X-Wave, every typo
-            # required a new pattern). Uses the FIRST subject service in
-            # the tid_key group as the embedding query — all services in
-            # the group share the same tid so this is a fair representative.
-            from services.market_context import gather_market_context_samples
+            # Faza 4b — promote strong matches (≥3 with sim ≥ 0.78) to
+            # direct comp_samples instead of soft related_samples, so the
+            # pricing engine computes percentiles+deviation+action against
+            # them. See services.market_context for thresholds.
+            from services.market_context import (
+                gather_market_context_samples,
+                STRONG_MIN_SIMILARITY,
+                STRONG_MIN_COUNT,
+            )
             related_t1: list[dict[str, Any]] = []
+            semantic_t1: list[dict[str, Any]] = []
+            promoted_t1 = False
             if subj_svcs and supabase is not None:
                 subj_id_for_rpc = subj_svcs[0].get("id")
                 competitor_booksy_ids = [
                     cand.booksy_id for cand, _ in aligned_competitors
                     if cand.counts_in_aggregates
                 ]
-                related_t1 = await gather_market_context_samples(
+                semantic_t1 = await gather_market_context_samples(
                     supabase, subj_id_for_rpc, competitor_booksy_ids,
                 )
-            if related_t1:
-                top_sim = related_t1[0].get("similarity")
-                logger.info(
-                    "Etap 4 tier-1 pricing: subject_only %r → %d semantic "
-                    "matches (top sim=%.3f)",
-                    canonical_name[:60], len(related_t1),
-                    top_sim if top_sim is not None else -1.0,
-                )
-            rows.append({
-                "report_id": report_id,
-                "comparison_tier": "treatment",
-                "booksy_treatment_id": emit_booksy_tid,
-                "synthetic_treatment_id": emit_synthetic_tid,
-                "taxonomy_source": emit_taxonomy_source,
-                "variant_id": None,
-                "treatment_name": canonical_name,
-                "treatment_parent_id": subj_svcs[0].get("treatment_parent_id"),
-                "subject_price_grosze": int(subj_median_price),
-                "subject_is_from_price": False,
-                "subject_duration_minutes": int(
-                    subj_svcs[0].get("duration_minutes") or 0
-                ) or None,
-                "subject_price_per_min_grosze": subj_median_ppm,
-                "market_min_grosze": None,
-                "market_p25_grosze": None,
-                "market_median_grosze": None,
-                "market_p75_grosze": None,
-                "market_max_grosze": None,
-                "market_price_per_min_grosze_min": None,
-                "market_price_per_min_grosze_p25": None,
-                "market_price_per_min_grosze_median": None,
-                "market_price_per_min_grosze_p75": None,
-                "market_price_per_min_grosze_max": None,
-                "subject_percentile": None,
-                "deviation_pct": None,
-                "deviation_pct_per_min": None,
-                "sample_size": 0,
-                "recommended_action": "subject_only",
-                "verification_status": "subject_only",
-                "verification_details": None,
-                "competitor_samples": [],
-                "related_samples": related_t1,
-            })
-            continue
+                strong_t1 = [
+                    s for s in semantic_t1
+                    if (s.get("similarity") or 0) >= STRONG_MIN_SIMILARITY
+                ]
+                if len(strong_t1) >= STRONG_MIN_COUNT:
+                    # Promote — convert to comp_samples shape and let
+                    # tier-1 percentile path below compute the comparison.
+                    comp_samples = [
+                        {
+                            "salon_id": s["salon_id"],
+                            "salon_name": s["salon_name"],
+                            "booksy_id": s["booksy_id"],
+                            "service_id": s["service_id"],
+                            "service_name": s["service_name"],
+                            "price_grosze": int(s["price_grosze"]),
+                            "duration_minutes": s.get("duration_minutes"),
+                        }
+                        for s in strong_t1
+                    ]
+                    promoted_t1 = True
+                    logger.info(
+                        "Etap 4 tier-1 pricing: %r PROMOTED %d strong "
+                        "semantic matches (top sim=%.3f) to comp_samples",
+                        canonical_name[:60], len(strong_t1),
+                        strong_t1[0].get("similarity") or 0,
+                    )
+                else:
+                    related_t1 = semantic_t1
+                    if related_t1:
+                        top_sim = related_t1[0].get("similarity")
+                        logger.info(
+                            "Etap 4 tier-1 pricing: subject_only %r → %d "
+                            "semantic matches (top sim=%.3f, none promoted)",
+                            canonical_name[:60], len(related_t1),
+                            top_sim if top_sim is not None else -1.0,
+                        )
+            if not promoted_t1:
+                # No strong semantic matches → emit subject_only row with
+                # related_samples for soft context. When promoted_t1 is True
+                # the comp_samples list has been populated above and we
+                # fall through to the normal percentile computation below.
+                rows.append({
+                    "report_id": report_id,
+                    "comparison_tier": "treatment",
+                    "booksy_treatment_id": emit_booksy_tid,
+                    "synthetic_treatment_id": emit_synthetic_tid,
+                    "taxonomy_source": emit_taxonomy_source,
+                    "variant_id": None,
+                    "treatment_name": canonical_name,
+                    "treatment_parent_id": subj_svcs[0].get("treatment_parent_id"),
+                    "subject_price_grosze": int(subj_median_price),
+                    "subject_is_from_price": False,
+                    "subject_duration_minutes": int(
+                        subj_svcs[0].get("duration_minutes") or 0
+                    ) or None,
+                    "subject_price_per_min_grosze": subj_median_ppm,
+                    "market_min_grosze": None,
+                    "market_p25_grosze": None,
+                    "market_median_grosze": None,
+                    "market_p75_grosze": None,
+                    "market_max_grosze": None,
+                    "market_price_per_min_grosze_min": None,
+                    "market_price_per_min_grosze_p25": None,
+                    "market_price_per_min_grosze_median": None,
+                    "market_price_per_min_grosze_p75": None,
+                    "market_price_per_min_grosze_max": None,
+                    "subject_percentile": None,
+                    "deviation_pct": None,
+                    "deviation_pct_per_min": None,
+                    "sample_size": 0,
+                    "recommended_action": "subject_only",
+                    "verification_status": "subject_only",
+                    "verification_details": None,
+                    "competitor_samples": [],
+                    "related_samples": related_t1,
+                })
+                continue
 
         # Compute market percentiles for both price and PLN/min.
         market_prices = [float(s["price_grosze"]) for s in comp_samples]
