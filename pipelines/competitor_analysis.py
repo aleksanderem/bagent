@@ -1607,6 +1607,58 @@ async def _compute_treatment_tier_rows(
 
         # Subject-only at tier-1 = no competitor offers anything in this tid.
         if not comp_samples:
+            # Mig 089 (2026-05-17): gather related_samples — services with
+            # same brand_marker as subject's offering but in any other tid /
+            # variant / config. Surfaces e.g. "Red Touch dekolt 2000 zł"
+            # subject_only with "ESTHETIC&MED has Red Touch twarz-szyja
+            # 1490 zł" as related context. Empty when subject has no
+            # brand_marker or competitors don't offer the same brand.
+            from services.brand_marker import extract_brand_marker
+            subject_name_for_brand = (
+                subj_svcs[0].get("name") if subj_svcs else None
+            )
+            subject_brand_t1 = (
+                extract_brand_marker(subject_name_for_brand or "")
+                if subject_name_for_brand else None
+            )
+            related_t1: list[dict[str, Any]] = []
+            if subject_brand_t1 is not None:
+                seen_t1: set[tuple[Any, Any]] = set()
+                for cand_r, cdata_r in aligned_competitors:
+                    if not cand_r.counts_in_aggregates:
+                        continue
+                    salon_name_r = (cdata_r.get("scrape") or {}).get("salon_name") or ""
+                    for svc_r in cdata_r.get("services") or []:
+                        if not svc_r.get("is_active", True):
+                            continue
+                        price_r = svc_r.get("price_grosze")
+                        if price_r is None:
+                            continue
+                        name_r = (svc_r.get("name") or "").strip()
+                        if not name_r:
+                            continue
+                        if extract_brand_marker(name_r) != subject_brand_t1:
+                            continue
+                        key_r = (cdata_r.get("salon_id"), svc_r.get("id"))
+                        if key_r in seen_t1:
+                            continue
+                        seen_t1.add(key_r)
+                        related_t1.append({
+                            "salon_id": cdata_r.get("salon_id"),
+                            "salon_name": salon_name_r,
+                            "booksy_id": cand_r.booksy_id,
+                            "service_id": svc_r.get("id"),
+                            "service_name": name_r,
+                            "price_grosze": int(price_r),
+                            "duration_minutes": svc_r.get("duration_minutes"),
+                            "brand_marker": subject_brand_t1,
+                        })
+                if related_t1:
+                    logger.info(
+                        "Etap 4 tier-1 pricing: subject_only %r brand=%s → "
+                        "%d related samples",
+                        canonical_name[:60], subject_brand_t1, len(related_t1),
+                    )
             rows.append({
                 "report_id": report_id,
                 "comparison_tier": "treatment",
@@ -1640,6 +1692,7 @@ async def _compute_treatment_tier_rows(
                 "verification_status": "subject_only",
                 "verification_details": None,
                 "competitor_samples": [],
+                "related_samples": related_t1,
             })
             continue
 
