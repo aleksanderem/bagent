@@ -21,6 +21,14 @@ group / label them:
                     avoid catch-all generic↔generic matches; requires
                     subject_areas to be non-empty so the row stays
                     targeted.
+  - 'same_area'   — non-empty body_area overlap, ANY method/brand. Last-
+                    resort fallback for services where the deterministic
+                    extractors couldn't pin down brand or method (e.g.
+                    "Laminacja brwi + regulacja", "Henna pudrowa +
+                    regulacja brwi", "Plexr lifting powiek"). Anchors the
+                    comparison on body part so the user gets at least
+                    "podobne zabiegi na tej okolicy" market context
+                    instead of "Tylko Ty na rynku".
 
 Capped at MAX_SAMPLES to keep the JSONB row reasonable. Brand matches
 are prioritized, then ascending by price.
@@ -104,6 +112,18 @@ def gather_market_context_samples(
                 and (not cand_areas or bool(subj_areas & cand_areas))
             ):
                 relation = "same_method"
+            elif (
+                # Last-resort fallback for services where extractors
+                # couldn't pin brand or method (Laminacja brwi, Henna,
+                # Plexr lifting powiek, etc.). Anchor on body-area overlap
+                # so the user at least sees "salony oferujące zabiegi na
+                # tej okolicy". Skip when EITHER side has no area markers
+                # — generic↔generic match would explode every service.
+                subj_areas
+                and cand_areas
+                and bool(subj_areas & cand_areas)
+            ):
+                relation = "same_area"
 
             if relation is None:
                 continue
@@ -121,7 +141,11 @@ def gather_market_context_samples(
                 "relation": relation,
             })
 
-    # Sort: same_brand first (most relevant), then ascending price.
-    out.sort(key=lambda s: (0 if s["relation"] == "same_brand" else 1,
-                            s["price_grosze"]))
+    # Sort: same_brand first (most relevant), then same_method, then
+    # same_area. Within each tier sort ascending by price.
+    relation_priority = {"same_brand": 0, "same_method": 1, "same_area": 2}
+    out.sort(key=lambda s: (
+        relation_priority.get(s["relation"], 9),
+        s["price_grosze"],
+    ))
     return out[:MAX_SAMPLES]
