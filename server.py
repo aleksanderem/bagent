@@ -190,7 +190,10 @@ class CompetitorReportRequest(BaseModel):
     userId: str
     tier: str = "base"  # "base" | "premium"
     selectionMode: str = "auto"  # "auto" | "manual"
-    targetCount: int = 5
+    # 2026-05-17 — bumped from 5 to 15. profile_overlap_sim OR-gate added
+    # 15 more salons to the qualifying pool; 5 was too aggressive a cap
+    # given Faza 8a verification trims another ~40-60% post-selection.
+    targetCount: int = 15
     selectedCompetitorBooksyIds: list[int] | None = None  # for manual mode
 
 

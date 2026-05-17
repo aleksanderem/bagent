@@ -17,6 +17,7 @@ from collections import Counter
 from pipelines.competitor_selection import (
     CompetitorCandidate,
     assign_bucket,
+    assign_bucket_v2,
     compute_avg_female_weight,
     compute_business_category_jaccard,
     compute_composite_score,
@@ -336,6 +337,82 @@ class TestComputeCompositeScoreV2:
         # gap × _W_PROFILE_OVERLAP (25) = ~11 raw points.
         assert strong > weak
         assert (strong - weak) >= 10.0  # at least the weight-times-delta
+
+
+class TestAssignBucketV2ProfileOverlapGate:
+    """profile_overlap_sim OR-gate added 2026-05-17 — rescues salons with
+    noisy focus_tid_sim (low Booksy tid cosine) but strong (method, area)
+    coverage of subject's portfolio."""
+
+    BASE_KWARGS = dict(
+        reviews_count=100,
+        candidate_reviews_rank=4.8,
+        subject_reviews_rank=4.9,
+    )
+
+    def test_direct_via_profile_overlap_high(self) -> None:
+        # focus_tid_sim below 0.25 but profile_overlap_sim ≥ 0.7 + strong
+        # portfolio embedding → still direct.
+        bucket = assign_bucket_v2(
+            focus_tid_sim=0.06,
+            portfolio_embedding_sim=0.92,
+            profile_overlap_sim=0.85,
+            **self.BASE_KWARGS,
+        )
+        assert bucket == "direct"
+
+    def test_direct_via_focus_tid_high(self) -> None:
+        # Legacy path: focus_tid_sim ≥ 0.25 + emb ≥ 0.85, profile_overlap low.
+        bucket = assign_bucket_v2(
+            focus_tid_sim=0.30,
+            portfolio_embedding_sim=0.90,
+            profile_overlap_sim=0.1,
+            **self.BASE_KWARGS,
+        )
+        assert bucket == "direct"
+
+    def test_cluster_via_profile_overlap_moderate(self) -> None:
+        # focus_tid_sim too low for cluster (< 0.12) but profile_overlap_sim
+        # ≥ 0.4 still rescues into cluster.
+        bucket = assign_bucket_v2(
+            focus_tid_sim=0.05,
+            portfolio_embedding_sim=0.80,
+            profile_overlap_sim=0.45,
+            **self.BASE_KWARGS,
+        )
+        assert bucket == "cluster"
+
+    def test_dropped_when_both_signals_weak(self) -> None:
+        # focus_tid below 0.12, profile_overlap below 0.4, no aspirational
+        # rescue → None (drop).
+        bucket = assign_bucket_v2(
+            focus_tid_sim=0.05,
+            portfolio_embedding_sim=0.60,
+            profile_overlap_sim=0.30,
+            **self.BASE_KWARGS,
+        )
+        assert bucket is None
+
+    def test_profile_overlap_default_zero_preserves_legacy_behavior(self) -> None:
+        # Caller without profile_overlap_sim — pre-2026-05-17 behavior.
+        legacy_bucket = assign_bucket_v2(
+            focus_tid_sim=0.15,
+            portfolio_embedding_sim=0.80,
+            **self.BASE_KWARGS,
+        )
+        assert legacy_bucket == "cluster"
+
+    def test_direct_still_requires_strong_embedding(self) -> None:
+        # profile_overlap_sim high but portfolio_emb_sim < 0.85 → not direct,
+        # falls through to cluster (OR-gate on cluster also triggers).
+        bucket = assign_bucket_v2(
+            focus_tid_sim=0.05,
+            portfolio_embedding_sim=0.70,
+            profile_overlap_sim=0.85,
+            **self.BASE_KWARGS,
+        )
+        # cluster because profile_overlap >= 0.4 even though direct rejected
+        assert bucket == "cluster"
 
 
 class TestAssignBucket:

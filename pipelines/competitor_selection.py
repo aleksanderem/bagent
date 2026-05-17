@@ -388,27 +388,43 @@ def assign_bucket_v2(
     reviews_count: int,
     candidate_reviews_rank: float | None,
     subject_reviews_rank: float | None,
+    profile_overlap_sim: float = 0.0,
 ) -> Bucket | None:
     """Focus-weighted bucket assignment.
 
-    Tresholdy z empirii Beauty4ever (focus_align test 2026-05-15):
-      direct        focus_tid_sim ≥ 0.25 AND portfolio_emb_sim ≥ 0.85
-                    (skupiają się na tych samych tids ORAZ portfolio podobne)
-      cluster       focus_tid_sim ≥ 0.12
-                    (umiarkowane podobieństwo nacisku — w tym samym klastrze
-                    rynkowym, ale różne nacisk lub mix)
+    Tresholdy z empirii Beauty4ever (focus_align test 2026-05-15) +
+    profile_overlap_sim OR-gate (2026-05-17):
+      direct        (focus_tid_sim ≥ 0.25 OR profile_overlap_sim ≥ 0.7)
+                    AND portfolio_emb_sim ≥ 0.85
+                    (skupiają się na tych samych tids LUB pokrywają mocno
+                    nasze (method, area) atomy — i mają podobne portfolio)
+      cluster       focus_tid_sim ≥ 0.12 OR profile_overlap_sim ≥ 0.4
+                    (umiarkowane podobieństwo nacisku LUB ≥40% pokrycia
+                    naszych atomów — w tym samym klastrze rynkowym)
       aspirational  reviews_rank ≥ subject + 0.3 AND portfolio_emb_sim ≥ 0.70
                     (wyżej oceniany salon ze zbliżoną semantyką oferty —
                     wzór do podpatrzenia, nawet jeśli różny focus)
       new           reviews_count < 20
 
     Returns None gdy żadna gałąź nie matchuje → kandydat odrzucony.
+
+    Background: focus_tid_sim opiera się o Booksy tid distribution (cosine
+    nad focus_distribution JSONB), które zależy od Rule 1-4 LLM routingu i
+    bywa zaszumione dla salonów z brand-marker-laden nazwami (Thunder,
+    Onda, Soprano). profile_overlap_sim jest deterministyczny — ekstrakcja
+    (method_marker, body_area) regexem, bez LLM. Beauty4ever diagnostic
+    pokazał 15 salonów z profile_overlap ≥ 0.5 dropowanych pre-2026-05-17,
+    w tym Pani Estetyczna Clinic z overlap 0.88 (najsilniejsze pokrycie w
+    całej puli) ale focus_tid_sim tylko 0.057.
     """
     if reviews_count < 20:
         return "new"
-    if focus_tid_sim >= 0.25 and portfolio_embedding_sim >= 0.85:
+    if (
+        (focus_tid_sim >= 0.25 or profile_overlap_sim >= 0.7)
+        and portfolio_embedding_sim >= 0.85
+    ):
         return "direct"
-    if focus_tid_sim >= 0.12:
+    if focus_tid_sim >= 0.12 or profile_overlap_sim >= 0.4:
         return "cluster"
     if (
         candidate_reviews_rank is not None
@@ -586,7 +602,7 @@ def _fetch_candidate_focus_bundles_batch(
 
 async def select_competitors(
     subject_audit_id: str,
-    target_count: int = 5,
+    target_count: int = 15,
     mode: Mode = "auto",
     max_distance_km: float = 15.0,
     female_weight_tolerance: float = 20.0,
@@ -596,6 +612,13 @@ async def select_competitors(
 
     Returns top `target_count` for auto mode, or top 15 for manual mode
     (frontend lets the user pick from the 15).
+
+    2026-05-17: domyślnie target_count=15 (poprzednio 5). Po dodaniu
+    profile_overlap_sim do bucketing OR-gate, pula kwalifikujących się
+    salonów wzrosła do 160+ — 5 cap nie pozwala użytkownikowi zobaczyć
+    pełnego kontekstu rynkowego (na Beauty4ever pokazał tylko 3 widoczne
+    po Fazie 8a weryfikacji). 15 daje zdrowy bufor żeby po weryfikacji
+    zostało ≥5-7 mocnych pasujących.
 
     Args:
         subject_audit_id: convex_audit_id of the subject salon's latest scrape.
@@ -845,6 +868,7 @@ async def select_competitors(
             reviews_count=c.get("reviews_count") or 0,
             candidate_reviews_rank=c.get("reviews_rank"),
             subject_reviews_rank=subject_reviews_rank,
+            profile_overlap_sim=profile_overlap_sim,
         )
         if bucket is None:
             dropped_bucket += 1
