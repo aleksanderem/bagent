@@ -12,6 +12,7 @@ from pathlib import Path
 
 from arq.connections import ArqRedis
 from fastapi import BackgroundTasks, Depends, FastAPI, HTTPException, Header
+from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import HTMLResponse
 from pydantic import BaseModel
 from sse_starlette.sse import EventSourceResponse
@@ -72,6 +73,27 @@ async def lifespan(fastapi_app: FastAPI):
 
 
 app = FastAPI(title="bagent — Beauty Audit AI Analyzer", lifespan=lifespan)
+
+# CORS — narrowly scoped to dev modal endpoints (/api/dev/*) so frontend
+# running on localhost:3000/3010 can call PipelineTraceModal endpoints
+# without hitting browser preflight failures. Production frontend
+# (booksyaudit.pl) calls the same endpoints from same-origin via Convex
+# action layer, so this middleware only affects browser-direct calls.
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=[
+        "http://localhost:3000",
+        "http://localhost:3010",
+        "https://localhost:3000",
+        "https://localhost:3010",
+        "https://booksyaudit.pl",
+        "https://www.booksyaudit.pl",
+    ],
+    allow_methods=["GET", "POST", "OPTIONS"],
+    allow_headers=["*"],
+    allow_credentials=False,
+    max_age=600,
+)
 
 store = JobStore()
 
