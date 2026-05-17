@@ -822,23 +822,31 @@ async def _compute_pricing_comparisons(
         # z NULL market data + recommended_action='subject_only'. UI rysuje
         # kreski w market columns i badge "tylko u Ciebie".
         if len(samples) == 0:
-            # 2026-05-17 (Faza 3) — gather market context: same-brand
-            # alternatives PLUS same-method+area_overlap alternatives.
-            # Previously only same-brand surfaced, which left Thunder
-            # pachy+bikini pełne as "Tylko Ty na rynku" even though every
-            # competitor offers laser depilacja for pachy/bikini under
-            # other brands (Soprano, Vectus, IPL, SHR, diodowa). Helper
-            # caps at 50 to keep JSONB row sane; brand matches sorted
-            # first, then ascending price.
+            # 2026-05-17 (Faza 4) — pure embedding cosine via RPC
+            # fn_find_related_competitor_services. Replaces the previous
+            # regex-based brand/method/area helper (commit 60dee05+782dd42+
+            # e730f82) which required maintaining hardcoded patterns for
+            # every brand and treatment-concern phrasing. Embedding works
+            # on any service name including typos (Beauty4ever wrote
+            # "Usuwanie przebrawień" instead of "przebarwień" — embedding
+            # still matches it to competitors' "Usuwanie przebarwień"
+            # at 82% similarity).
             from services.market_context import gather_market_context_samples
-            related = gather_market_context_samples(subject_svc, aligned_competitors)
+            subj_service_id = subject_svc.get("id")
+            competitor_booksy_ids = [
+                cand.booksy_id for cand, _ in aligned_competitors
+                if cand.counts_in_aggregates
+            ]
+            related = await gather_market_context_samples(
+                service, subj_service_id, competitor_booksy_ids,
+            )
             if related:
+                top_sim = related[0].get("similarity")
                 logger.info(
-                    "Etap 4 variant pricing: subject_only %r → %d related "
-                    "samples (%d same_brand + %d same_method)",
+                    "Etap 4 variant pricing: subject_only %r → %d semantic "
+                    "matches (top sim=%.3f)",
                     subj_name[:60], len(related),
-                    sum(1 for s in related if s["relation"] == "same_brand"),
-                    sum(1 for s in related if s["relation"] == "same_method"),
+                    top_sim if top_sim is not None else -1.0,
                 )
             prelim.append({
                 "variant_key": variant_key,
@@ -1604,23 +1612,31 @@ async def _compute_treatment_tier_rows(
 
         # Subject-only at tier-1 = no competitor offers anything in this tid.
         if not comp_samples:
-            # Mig 089 (2026-05-17) Faza 3 — gather both same-brand AND
-            # same-method+area alternatives via shared helper. See module
-            # services.market_context for full algorithm. Uses first
-            # subject service in the group as the canonical query (all
-            # services in a tid_key group share tid + general semantic).
+            # 2026-05-17 Faza 4 — embedding-cosine semantic match via RPC.
+            # See services/market_context.py for the algorithm. Replaces
+            # regex-based brand/method/area gating which was unscalable
+            # (Red Touch, Thunder, PRX T33, Plexr, X-Wave, every typo
+            # required a new pattern). Uses the FIRST subject service in
+            # the tid_key group as the embedding query — all services in
+            # the group share the same tid so this is a fair representative.
             from services.market_context import gather_market_context_samples
-            related_t1: list[dict[str, Any]] = (
-                gather_market_context_samples(subj_svcs[0], aligned_competitors)
-                if subj_svcs else []
-            )
+            related_t1: list[dict[str, Any]] = []
+            if subj_svcs and supabase is not None:
+                subj_id_for_rpc = subj_svcs[0].get("id")
+                competitor_booksy_ids = [
+                    cand.booksy_id for cand, _ in aligned_competitors
+                    if cand.counts_in_aggregates
+                ]
+                related_t1 = await gather_market_context_samples(
+                    supabase, subj_id_for_rpc, competitor_booksy_ids,
+                )
             if related_t1:
+                top_sim = related_t1[0].get("similarity")
                 logger.info(
-                    "Etap 4 tier-1 pricing: subject_only %r → %d related "
-                    "samples (%d same_brand + %d same_method)",
+                    "Etap 4 tier-1 pricing: subject_only %r → %d semantic "
+                    "matches (top sim=%.3f)",
                     canonical_name[:60], len(related_t1),
-                    sum(1 for s in related_t1 if s["relation"] == "same_brand"),
-                    sum(1 for s in related_t1 if s["relation"] == "same_method"),
+                    top_sim if top_sim is not None else -1.0,
                 )
             rows.append({
                 "report_id": report_id,

@@ -1,151 +1,119 @@
-"""Market context sample gathering for subject_only pricing rows.
+"""Semantic market-context gathering for subject_only pricing rows.
 
 When the subject service has no exact (variant_id, brand) match among
-the selected competitors, we still want to surface relevant market
-context — services from competitors that share either the brand marker
-OR the same method + body_area_set as the subject. The result feeds
-into competitor_pricing_comparisons.related_samples (mig 089) so the UI
-can render "Brak w tej konfiguracji — konkurenci oferują:" with concrete
-alternatives instead of a misleading "Tylko Ty na rynku" badge.
+the selected competitors, we surface semantically similar competitor
+services via embedding cosine similarity. The fact that
+salon_scrape_services already carries an OpenAI text-embedding-3-small
+vector per active service (Phase 1 backfill, 100% chain-head coverage)
+makes this a single SQL round-trip per subject_only row.
 
-Each emitted sample carries a `relation` discriminator so the UI can
-group / label them:
-
-  - 'same_brand'  — same brand_marker as subject, different config
-                    (e.g. subject "Red Touch dekolt", related "ESTHETIC&MED
-                    Laser Red Touch twarz-szyja 1490 zł").
-  - 'same_method' — same method_marker AND area overlap as subject,
-                    different brand or no brand (e.g. subject "Thunder
-                    pachy + bikini pełne", related "Soprano - pachy
-                    400 zł"). Requires subject_method != 'generic' to
-                    avoid catch-all generic↔generic matches; requires
-                    subject_areas to be non-empty so the row stays
-                    targeted.
-  - 'same_area'   — non-empty body_area overlap, ANY method/brand. Last-
-                    resort fallback for services where the deterministic
-                    extractors couldn't pin down brand or method (e.g.
-                    "Laminacja brwi + regulacja", "Henna pudrowa +
-                    regulacja brwi", "Plexr lifting powiek"). Anchors the
-                    comparison on body part so the user gets at least
-                    "podobne zabiegi na tej okolicy" market context
-                    instead of "Tylko Ty na rynku".
-
-Capped at MAX_SAMPLES to keep the JSONB row reasonable. Brand matches
-are prioritized, then ascending by price.
+This module REPLACES the previous regex-based brand/method/area
+matcher. That approach required maintaining hardcoded patterns for
+every possible brand (Red Touch, Thunder, PRIMEX, PRX T33, AQUASHINE,
+Estgen, Modelka ONDA, X-Wave) and every treatment-concern phrasing
+(usuwanie przebarwien, blizn, rozstepow, cellulitu, zmian skornych) —
+brittle, unscalable, and silent on typos like "przebrawień" instead of
+"przebarwień". The embedding approach works for any service name the
+salon might write, in any language form, with any typo.
 """
 from __future__ import annotations
 
-from typing import Any, Iterable
+import logging
+from typing import Any
 
-from services.body_area_taxonomy import extract_body_areas
-from services.brand_marker import extract_brand_marker
-from services.method_marker import extract_method_marker
+from services.supabase import SupabaseService
 
-
-MAX_SAMPLES = 50
+logger = logging.getLogger(__name__)
 
 
-def gather_market_context_samples(
-    subject_svc: dict[str, Any],
-    aligned_competitors: Iterable[tuple[Any, dict[str, Any]]],
+# Threshold tuning notes (empirical, audit 34):
+#   - 0.85+ → very strict (same words, same intent). Most subject services
+#     end up with 0 related, defeats the purpose.
+#   - 0.75 → ~10-30 matches per subject service. Top-of-list dominated by
+#     semantically real matches ("Usuwanie przebrawień" → "Usuwanie
+#     przebarwień" 0.82, "Usuwanie blizn" 0.76). Bottom may include
+#     noise ("Usuwanie rzęs" 0.75) — but sorted DESC by similarity, so
+#     the user sees real ones first.
+#   - 0.70 → noisy.
+# Threshold can be lowered/raised at call site for specific routes.
+DEFAULT_MIN_SIMILARITY = 0.75
+DEFAULT_LIMIT = 30
+
+
+async def gather_market_context_samples(
+    supabase: SupabaseService,
+    subject_service_id: int,
+    competitor_booksy_ids: list[int],
+    *,
+    limit: int = DEFAULT_LIMIT,
+    min_similarity: float = DEFAULT_MIN_SIMILARITY,
 ) -> list[dict[str, Any]]:
-    """Return a list of competitor samples relevant to the subject.
+    """Return semantically similar competitor services for a subject_only row.
 
     Args:
-      subject_svc: subject's service dict (name, category_name required).
-      aligned_competitors: iterable of (CompetitorCandidate, cdata_dict).
-        cdata_dict carries scrape.salon_name and services list.
+      supabase: shared SupabaseService.
+      subject_service_id: salon_scrape_services.id of the subject service.
+        Helper resolves its name_embedding internally — caller doesn't
+        need to ship the 1536-dim vector.
+      competitor_booksy_ids: scope to chain-head scrapes of these salons
+        (typically the 15 selected competitors for the report).
+      limit: cap on rows returned (default 30).
+      min_similarity: cosine similarity floor [0, 1] (default 0.75).
 
     Returns:
-      List of sample dicts (capped at MAX_SAMPLES). Each dict has the
-      same shape as competitor_pricing_comparisons.competitor_samples
-      entries plus a `relation` field ('same_brand' or 'same_method').
-      Brand matches first, then ascending by price.
+      List of sample dicts matching competitor_pricing_comparisons.
+      related_samples shape, sorted DESC by similarity. Empty when the
+      subject service has no name_embedding or no competitor service
+      crosses the threshold.
+
+    Sample shape:
+      {
+        salon_id, salon_name, booksy_id,
+        service_id, service_name,
+        price_grosze, duration_minutes,
+        relation: 'semantic_match',
+        similarity: float in [0, 1],
+      }
     """
-    name = (subject_svc.get("name") or "").strip()
-    if not name:
+    if subject_service_id is None or not competitor_booksy_ids:
         return []
-    subj_brand = extract_brand_marker(name)
-    subj_method = extract_method_marker(
-        name, subject_svc.get("category_name") or ""
-    )
-    subj_areas = extract_body_areas(name)
+
+    try:
+        res = supabase.client.rpc(
+            "fn_find_related_competitor_services",
+            {
+                "p_subject_service_id": int(subject_service_id),
+                "p_competitor_booksy_ids": list(competitor_booksy_ids),
+                "p_limit": int(limit),
+                "p_min_similarity": float(min_similarity),
+            },
+        ).execute()
+    except Exception as e:
+        logger.warning(
+            "gather_market_context_samples RPC failed (svc=%s): %s",
+            subject_service_id, e,
+        )
+        return []
 
     out: list[dict[str, Any]] = []
-    seen: set[tuple[Any, Any]] = set()
-
-    for cand, cdata in aligned_competitors:
-        if not getattr(cand, "counts_in_aggregates", True):
+    for row in res.data or []:
+        price = row.get("price_grosze")
+        if price is None:
             continue
-        salon_name = (cdata.get("scrape") or {}).get("salon_name") or ""
-        cand_booksy_id = getattr(cand, "booksy_id", None)
-        for svc in cdata.get("services") or []:
-            if not svc.get("is_active", True):
-                continue
-            price = svc.get("price_grosze")
-            if price is None:
-                continue
-            svc_name = (svc.get("name") or "").strip()
-            if not svc_name:
-                continue
-            sample_key = (cdata.get("salon_id"), svc.get("id"))
-            if sample_key in seen:
-                continue
-            cand_brand = extract_brand_marker(svc_name)
-            cand_method = extract_method_marker(
-                svc_name, svc.get("category_name") or ""
-            )
-            cand_areas = extract_body_areas(svc_name)
-
-            relation: str | None = None
-            if subj_brand is not None and cand_brand == subj_brand:
-                # Same brand, any config — most relevant context.
-                relation = "same_brand"
-            elif (
-                subj_method != "generic"
-                and cand_method == subj_method
-                and subj_areas
-                # If candidate has no area markers, fall back to method
-                # match (generic "Depilacja laserowa pachy" is a fair
-                # comparison to "Thunder pachy"). If candidate has areas
-                # we require overlap to avoid mixing dłonie ↔ stopy.
-                and (not cand_areas or bool(subj_areas & cand_areas))
-            ):
-                relation = "same_method"
-            elif (
-                # Last-resort fallback for services where extractors
-                # couldn't pin brand or method (Laminacja brwi, Henna,
-                # Plexr lifting powiek, etc.). Anchor on body-area overlap
-                # so the user at least sees "salony oferujące zabiegi na
-                # tej okolicy". Skip when EITHER side has no area markers
-                # — generic↔generic match would explode every service.
-                subj_areas
-                and cand_areas
-                and bool(subj_areas & cand_areas)
-            ):
-                relation = "same_area"
-
-            if relation is None:
-                continue
-            seen.add(sample_key)
-            out.append({
-                "salon_id": cdata.get("salon_id"),
-                "salon_name": salon_name,
-                "booksy_id": cand_booksy_id,
-                "service_id": svc.get("id"),
-                "service_name": svc_name,
-                "price_grosze": int(price),
-                "duration_minutes": svc.get("duration_minutes"),
-                "brand_marker": cand_brand,
-                "method_marker": cand_method,
-                "relation": relation,
-            })
-
-    # Sort: same_brand first (most relevant), then same_method, then
-    # same_area. Within each tier sort ascending by price.
-    relation_priority = {"same_brand": 0, "same_method": 1, "same_area": 2}
-    out.sort(key=lambda s: (
-        relation_priority.get(s["relation"], 9),
-        s["price_grosze"],
-    ))
-    return out[:MAX_SAMPLES]
+        sim = row.get("similarity")
+        try:
+            sim_val = float(sim) if sim is not None else None
+        except (TypeError, ValueError):
+            sim_val = None
+        out.append({
+            "salon_id": row.get("salon_id"),
+            "salon_name": row.get("salon_name") or "",
+            "booksy_id": row.get("booksy_id"),
+            "service_id": row.get("service_id"),
+            "service_name": row.get("service_name") or "",
+            "price_grosze": int(price),
+            "duration_minutes": row.get("duration_minutes"),
+            "relation": "semantic_match",
+            "similarity": round(sim_val, 4) if sim_val is not None else None,
+        })
+    return out

@@ -119,6 +119,14 @@ _BODY_AREA_PATTERNS: list[tuple[str, list[str]]] = [
                              r"\bkurzajk\w*", r"\bbrodawk\w*\b",
                              r"\bpieprzyk\w*", r"\bwlokniak\w*",
                              r"\bplamk\w*\s+zolt\w*"]),
+    # 2026-05-17 — przebarwienia jako treatment-concern. Obejmuje typowy
+    # spelling oraz częsty typo w cennikach ("przebrawi" zamiast "przebarwi").
+    # Beauty4ever ma "Usuwanie przebrawień" — bez tego markera helper
+    # matchował to do dowolnej depilacji laserowej zamiast do faktycznych
+    # zabiegów usuwania przebarwień.
+    ("przebarwienia",       [r"przebarwien\w*", r"przebrawi\w*",
+                             r"melasm\w*", r"\bostud\w*",
+                             r"plamy\s+(?:starcze|piegow|hormoln|posloneczn)"]),
 ]
 
 
