@@ -599,4 +599,55 @@ async def _apply_decision(
         label, cid, brand, method, areas, len(members), decision["type"],
         rerouted_count,
     )
+
+    # Stage-5 commit 3b (2026-05-17): write-back to anchors table.
+    # Persist every Pass 5 cluster decision so future audits read it
+    # via Rule 0. Skipped in dry_run (dev modal trace) — we don't
+    # pollute the anchor catalog with debug runs.
+    if not dry_run and audit_id:
+        try:
+            body_area_set = ",".join(areas) if areas else ""
+            if decision["type"] == "booksy_tid":
+                supabase.client.rpc("fn_taxonomy_anchor_upsert", {
+                    "p_brand_marker": brand,
+                    "p_method_marker": method,
+                    "p_body_area_set": body_area_set,
+                    "p_audit_id": audit_id,
+                    "p_tid_kind": "booksy",
+                    "p_booksy_tid": int(decision["tid"]),
+                    "p_synthetic_tid": None,
+                    "p_synthetic_canonical_name": None,
+                    "p_reasoning": decision.get("reasoning", ""),
+                    "p_cluster_size": len(members),
+                }).execute()
+            else:
+                # syn_id was assigned above in non-dry-run branch.
+                supabase.client.rpc("fn_taxonomy_anchor_upsert", {
+                    "p_brand_marker": brand,
+                    "p_method_marker": method,
+                    "p_body_area_set": body_area_set,
+                    "p_audit_id": audit_id,
+                    "p_tid_kind": "synthetic",
+                    "p_booksy_tid": None,
+                    "p_synthetic_tid": syn_id if syn_id and syn_id > 0 else None,
+                    "p_synthetic_canonical_name": canonical,
+                    "p_reasoning": decision.get("reasoning", ""),
+                    "p_cluster_size": len(members),
+                }).execute()
+            logger.info(
+                "apply_intra_salon_consistency [%s] cluster #%d: "
+                "anchor upserted (brand=%s method=%s area_set=%r)",
+                label, cid, brand, method, body_area_set,
+            )
+        except Exception:
+            # Anchor write-back failure must NOT silently swallow.
+            # Surface to Bugsink so we know if RPC drifted.
+            logger.exception(
+                "apply_intra_salon_consistency [%s] cluster #%d: "
+                "anchor write-back FAILED (continuing pipeline — anchor "
+                "is opportunistic cache, not authoritative)",
+                label, cid,
+            )
+            raise
+
     return rerouted_count
