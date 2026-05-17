@@ -822,27 +822,24 @@ async def _compute_pricing_comparisons(
         # z NULL market data + recommended_action='subject_only'. UI rysuje
         # kreski w market columns i badge "tylko u Ciebie".
         if len(samples) == 0:
-            # 2026-05-17 (Faza 2) — when this subject service has a
-            # brand_marker, surface OTHER same-brand competitor services
-            # (different variant / config / duration) so the UI can replace
-            # the misleading "Tylko u Ciebie" badge with concrete market
-            # alternatives. Dedup by (salon_id, service_id) and skip the
-            # subject's own salon if accidentally present.
-            related: list[dict[str, Any]] = []
-            if subject_brand is not None:
-                seen: set[tuple[Any, Any]] = set()
-                for s in competitor_services_by_brand.get(subject_brand, []):
-                    key = (s.get("salon_id"), s.get("service_id"))
-                    if key in seen:
-                        continue
-                    seen.add(key)
-                    related.append(s)
-                if related:
-                    logger.info(
-                        "Etap 4 pricing: subject_only %r brand=%s → %d "
-                        "related samples (different variant)",
-                        subj_name[:60], subject_brand, len(related),
-                    )
+            # 2026-05-17 (Faza 3) — gather market context: same-brand
+            # alternatives PLUS same-method+area_overlap alternatives.
+            # Previously only same-brand surfaced, which left Thunder
+            # pachy+bikini pełne as "Tylko Ty na rynku" even though every
+            # competitor offers laser depilacja for pachy/bikini under
+            # other brands (Soprano, Vectus, IPL, SHR, diodowa). Helper
+            # caps at 50 to keep JSONB row sane; brand matches sorted
+            # first, then ascending price.
+            from services.market_context import gather_market_context_samples
+            related = gather_market_context_samples(subject_svc, aligned_competitors)
+            if related:
+                logger.info(
+                    "Etap 4 variant pricing: subject_only %r → %d related "
+                    "samples (%d same_brand + %d same_method)",
+                    subj_name[:60], len(related),
+                    sum(1 for s in related if s["relation"] == "same_brand"),
+                    sum(1 for s in related if s["relation"] == "same_method"),
+                )
             prelim.append({
                 "variant_key": variant_key,
                 "tid": tid,
@@ -1607,58 +1604,24 @@ async def _compute_treatment_tier_rows(
 
         # Subject-only at tier-1 = no competitor offers anything in this tid.
         if not comp_samples:
-            # Mig 089 (2026-05-17): gather related_samples — services with
-            # same brand_marker as subject's offering but in any other tid /
-            # variant / config. Surfaces e.g. "Red Touch dekolt 2000 zł"
-            # subject_only with "ESTHETIC&MED has Red Touch twarz-szyja
-            # 1490 zł" as related context. Empty when subject has no
-            # brand_marker or competitors don't offer the same brand.
-            from services.brand_marker import extract_brand_marker
-            subject_name_for_brand = (
-                subj_svcs[0].get("name") if subj_svcs else None
+            # Mig 089 (2026-05-17) Faza 3 — gather both same-brand AND
+            # same-method+area alternatives via shared helper. See module
+            # services.market_context for full algorithm. Uses first
+            # subject service in the group as the canonical query (all
+            # services in a tid_key group share tid + general semantic).
+            from services.market_context import gather_market_context_samples
+            related_t1: list[dict[str, Any]] = (
+                gather_market_context_samples(subj_svcs[0], aligned_competitors)
+                if subj_svcs else []
             )
-            subject_brand_t1 = (
-                extract_brand_marker(subject_name_for_brand or "")
-                if subject_name_for_brand else None
-            )
-            related_t1: list[dict[str, Any]] = []
-            if subject_brand_t1 is not None:
-                seen_t1: set[tuple[Any, Any]] = set()
-                for cand_r, cdata_r in aligned_competitors:
-                    if not cand_r.counts_in_aggregates:
-                        continue
-                    salon_name_r = (cdata_r.get("scrape") or {}).get("salon_name") or ""
-                    for svc_r in cdata_r.get("services") or []:
-                        if not svc_r.get("is_active", True):
-                            continue
-                        price_r = svc_r.get("price_grosze")
-                        if price_r is None:
-                            continue
-                        name_r = (svc_r.get("name") or "").strip()
-                        if not name_r:
-                            continue
-                        if extract_brand_marker(name_r) != subject_brand_t1:
-                            continue
-                        key_r = (cdata_r.get("salon_id"), svc_r.get("id"))
-                        if key_r in seen_t1:
-                            continue
-                        seen_t1.add(key_r)
-                        related_t1.append({
-                            "salon_id": cdata_r.get("salon_id"),
-                            "salon_name": salon_name_r,
-                            "booksy_id": cand_r.booksy_id,
-                            "service_id": svc_r.get("id"),
-                            "service_name": name_r,
-                            "price_grosze": int(price_r),
-                            "duration_minutes": svc_r.get("duration_minutes"),
-                            "brand_marker": subject_brand_t1,
-                        })
-                if related_t1:
-                    logger.info(
-                        "Etap 4 tier-1 pricing: subject_only %r brand=%s → "
-                        "%d related samples",
-                        canonical_name[:60], subject_brand_t1, len(related_t1),
-                    )
+            if related_t1:
+                logger.info(
+                    "Etap 4 tier-1 pricing: subject_only %r → %d related "
+                    "samples (%d same_brand + %d same_method)",
+                    canonical_name[:60], len(related_t1),
+                    sum(1 for s in related_t1 if s["relation"] == "same_brand"),
+                    sum(1 for s in related_t1 if s["relation"] == "same_method"),
+                )
             rows.append({
                 "report_id": report_id,
                 "comparison_tier": "treatment",
