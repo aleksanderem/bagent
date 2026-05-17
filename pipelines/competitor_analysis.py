@@ -3752,6 +3752,29 @@ async def _analyze_subject_packages(
                     f"zabieg/obszar ({per_session_grosze/100:.0f} zł vs "
                     f"{single_price_g/100:.0f} zł single)."
                 )
+            elif discount_pct <= -50.0:
+                # Final sanity guard. A discount below -50% almost always
+                # signals a misclassified single match — genuine bundles
+                # rarely cost twice the single. e.g. "Dermapen pakiet 3
+                # zabiegów" 1500zł matched to "EstGen do zabiegu Dermapen"
+                # 150zł produces -233%, but EstGen is the mask preparation
+                # add-on, not the single-session Dermapen. Demote to
+                # no_single_match with diagnostic reasoning rather than
+                # surface the bogus -233% to the user.
+                verdict = "no_single_match"
+                discount_pct = None
+                reasoning = (
+                    f"Heurystyka znalazła {single_name!r} jako pojedynczy "
+                    f"odpowiednik, ale różnica cen jest zbyt skrajna "
+                    f"({single_price_g/100:.0f} zł vs {per_session_grosze/100:.0f} "
+                    f"zł per zabieg w pakiecie). Najprawdopodobniej to inna "
+                    f"usługa (np. preparat/maska/zabieg dodatkowy), nie "
+                    f"single-session wersja pakietu. Wymaga manualnej "
+                    f"weryfikacji lub LLM-confirm w v2."
+                )
+                single_id = None
+                single_name = None
+                single_price = None
             elif discount_pct <= -5.0:
                 verdict = "overpriced"
                 reasoning = (
