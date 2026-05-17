@@ -1,5 +1,11 @@
 """Stage-5 Pass 5: intra-salon taxonomy consistency via MiniMax M2.7.
 
+Uses tool_use API (not generate_json) because MiniMax M2.7 with
+interleaved thinking emits markdown reasoning before the JSON answer
+when called via plain text completion — `generate_json` then fails
+to parse "Let me analyze each cluster..." preamble. Tool_use forces
+structured output by definition.
+
 After the 4-rule routing finishes, services from the SAME salon that
 share (brand_marker, body_area_set) MUST resolve to the same
 taxonomy decision. Otherwise:
@@ -215,22 +221,68 @@ def _build_user_prompt(
     return "\n".join(parts)
 
 
-def _parse_minimax_response(
-    resp: dict[str, Any], expected_count: int,
+_TAXONOMY_DECISIONS_TOOL: dict[str, Any] = {
+    "name": "submit_taxonomy_decisions",
+    "description": (
+        "Submit ONE authoritative routing decision per provided cluster. "
+        "Every cluster_id from the input MUST appear in the decisions array."
+    ),
+    "input_schema": {
+        "type": "object",
+        "properties": {
+            "decisions": {
+                "type": "array",
+                "items": {
+                    "type": "object",
+                    "properties": {
+                        "cluster_id": {"type": "integer"},
+                        "type": {
+                            "type": "string",
+                            "enum": ["booksy_tid", "salon_synthetic"],
+                        },
+                        "tid": {"type": "integer"},
+                        "canonical_name": {"type": "string"},
+                        "reasoning": {"type": "string"},
+                    },
+                    "required": ["cluster_id", "type", "reasoning"],
+                },
+            },
+        },
+        "required": ["decisions"],
+    },
+}
+
+
+def _extract_tool_decisions(msg, expected_count: int) -> list[dict[str, Any]]:
+    """Pull `submit_taxonomy_decisions` tool_use input from a MiniMax
+    Message response. Raises on missing/malformed tool call — no
+    graceful fallback.
+    """
+    if msg is None:
+        raise RuntimeError("MiniMax returned None message")
+    decisions: list[dict[str, Any]] = []
+    for block in msg.content:
+        # anthropic.types.ToolUseBlock has .type == "tool_use"
+        if getattr(block, "type", None) == "tool_use" and block.name == "submit_taxonomy_decisions":
+            payload = block.input
+            if isinstance(payload, dict) and isinstance(payload.get("decisions"), list):
+                decisions.extend(payload["decisions"])
+    if not decisions:
+        raise RuntimeError(
+            f"MiniMax tool_use returned no submit_taxonomy_decisions calls "
+            f"(stop_reason={getattr(msg, 'stop_reason', '?')}, "
+            f"content_types=" + ", ".join(
+                getattr(b, "type", "?") for b in msg.content
+            ) + ")"
+        )
+    return decisions
+
+
+def _validate_decisions(
+    decisions: list[dict[str, Any]], expected_count: int,
 ) -> list[dict[str, Any]]:
-    """Validate MiniMax JSON structure. Raise on any deviation —
-    no graceful fallbacks (Bugsink alert)."""
-    if not isinstance(resp, dict):
-        raise RuntimeError(
-            f"MiniMax taxonomy consistency: expected dict, got "
-            f"{type(resp).__name__}"
-        )
-    decisions = resp.get("decisions")
-    if not isinstance(decisions, list):
-        raise RuntimeError(
-            f"MiniMax response missing 'decisions' array: keys="
-            f"{sorted(resp.keys())}"
-        )
+    """Validate parsed decisions against schema. Raise on any
+    deviation — no graceful fallbacks (Bugsink alert)."""
     if len(decisions) != expected_count:
         raise RuntimeError(
             f"MiniMax returned {len(decisions)} decisions, expected "
@@ -334,17 +386,40 @@ async def apply_intra_salon_consistency(
         label, len(user_prompt), len(cluster_payloads),
     )
 
-    async def _call() -> dict[str, Any]:
-        return await minimax.generate_json(
-            user_prompt, system=_SYSTEM_PROMPT, max_tokens=4096,
+    # Use tool_use API — MiniMax M2.7 with interleaved thinking emits
+    # markdown reasoning before any JSON when called via plain text
+    # generation, breaking JSON parsing. Forcing a tool call produces
+    # structured output the SDK parses for us.
+    async def _call():
+        return await minimax.create_message(
+            system=_SYSTEM_PROMPT,
+            messages=[{"role": "user", "content": user_prompt}],
+            tools=[_TAXONOMY_DECISIONS_TOOL],
+            max_tokens=8192,
+            temperature=0.2,
         )
-    resp = await with_retry(_call, max_attempts=2, base_delay=2.0)
-    decisions = _parse_minimax_response(resp, expected_count=len(cluster_payloads))
+    msg = await with_retry(_call, max_attempts=2, base_delay=2.0)
+    raw_decisions = _extract_tool_decisions(msg, expected_count=len(cluster_payloads))
+    decisions = _validate_decisions(raw_decisions, expected_count=len(cluster_payloads))
 
-    # Apply decisions
+    # MiniMax may return decisions out of order — index by cluster_id.
+    decisions_by_cid: dict[int, dict[str, Any]] = {}
+    for d in decisions:
+        cid_raw = d.get("cluster_id")
+        if not isinstance(cid_raw, int):
+            raise RuntimeError(
+                f"Decision missing cluster_id or non-int: {d!r}"
+            )
+        decisions_by_cid[cid_raw] = d
     rerouted = 0
-    for (cid, key, members, _cands), decision in zip(cluster_payloads, decisions):
-        rerouted += _apply_decision(
+    for cid, key, members, _cands in cluster_payloads:
+        decision = decisions_by_cid.get(cid)
+        if decision is None:
+            raise RuntimeError(
+                f"MiniMax skipped cluster_id={cid} — every cluster MUST "
+                f"have a decision"
+            )
+        rerouted += await _apply_decision(
             cid=cid, key=key, members=members, decision=decision,
             supabase=supabase, audit_id=audit_id,
             trace_collector=trace_collector, dry_run=dry_run,
