@@ -3556,15 +3556,25 @@ def _detect_session_count_from_name(name: str) -> int:
 def _detect_area_count_from_name(name: str) -> int:
     """Count distinct body-area mentions joined by " + " or "/" — used
     when the package is a bundle (e.g. "twarz + szyja + dekolt" = 3
-    areas). Returns 1 when no obvious bundle pattern.
+    areas). Also catches explicit "N obszar(y|ów)" markers used by some
+    salons instead of bundle notation (e.g. "Onda 1 zabieg- 2 obszary").
+    Returns 1 when no obvious bundle pattern.
     """
     if not name:
         return 1
     # "twarz + szyja + dekolt"  → 3 segments
-    # Conservative: count " + " separators, cap at 5.
     n_plus = name.count(" + ")
     if n_plus >= 1:
         return min(n_plus + 1, 5)
+    # "2 obszary", "3 obszarów", "1 obszar" — explicit count marker.
+    m = re.search(r"\b(\d+)\s*obszar(?:y|ów|u)?\b", name, re.IGNORECASE)
+    if m:
+        try:
+            n = int(m.group(1))
+            if 1 <= n <= 10:
+                return n
+        except (ValueError, TypeError):
+            pass
     return 1
 
 
