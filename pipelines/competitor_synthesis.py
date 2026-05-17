@@ -1269,6 +1269,16 @@ def _build_price_comparison(
             "booksy_treatment_id": p.get("booksy_treatment_id"),
             "synthetic_treatment_id": p.get("synthetic_treatment_id"),
             "taxonomy_source": p.get("taxonomy_source"),
+            # variant_id needed by frontend to drill into specific market
+            # segment (e.g. "Botoks 1 okolica" vs "Botoks 3 okolice").
+            # Was missing from the serializer until 2026-05-18.
+            "variant_id": p.get("variant_id"),
+            # Phase 2.5 (mig 092, 2026-05-18) — TRUE when this row was
+            # produced by cross-variant fallback (subject's specific variant
+            # had 0 pool samples, aggregated across same booksy_treatment_id).
+            # Frontend should render a "porównanie krzyżujące warianty"
+            # badge so the user knows the comparison mixes variant boundaries.
+            "is_aggregated_cross_variant": bool(p.get("is_aggregated_cross_variant") or False),
         })
     rows.sort(
         key=lambda r: abs(float(r.get("deviation_pct") or 0)),
