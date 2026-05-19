@@ -1,32 +1,47 @@
 """Method classifier — map salon_scrape_services rows to canonical
 treatment_methods (mig 095) via cascading alias → ANN → LLM strategy.
 
-Replaces the reactive regex whitelist in `services/brand_marker.py`
-with a queryable, scalable taxonomy that every pipeline stage can use.
+DICTIONARY-FIRST PRINCIPLE (2026-05-19 — user mandate):
 
-Cascade order (fastest + most precise first):
+Every method classification MUST resolve to a row in `treatment_methods`.
+The classifier NEVER attaches an ad-hoc tag to a service that isn't
+backed by a dictionary entry. When LLM cascade encounters a method
+unknown to the dictionary, it MUST first propose the new entry, INSERT
+it into `treatment_methods` (with `source='llm_inferred'`), and THEN
+return the now-canonical match for downstream code. The mapping in
+`service_method_classification` always points to an existing
+`treatment_methods.id`.
 
-  1. **Cache hit** — service_method_classification row already exists.
-     O(1) point lookup, no DB round-trip beyond that.
+This makes downstream scripts (pricing aggregation, competitor search,
+opportunity detection, narrative synthesis) operate exclusively on the
+dictionary — there is no second source of truth.
 
-  2. **Alias substring** — ASCII-folded lowercase service name searched
-     against each method's `aliases` JSONB. Longest alias wins to
-     prevent "prx" matching before "prx_t33". O(n_methods) in memory
-     after warmup() preloads the alias index. ~60-70% coverage.
+Cascade order:
 
-  3. **Embedding ANN** — service's `name_embedding` (1536-dim, OpenAI
-     text-embedding-3-small) compared against treatment_methods.embedding
-     via RPC `fn_classify_service_by_embedding`. Default min_similarity
-     0.70, accept ≥0.75 as confident. Single SQL round-trip. +20%
+  1. **In-process cache** — service_id → list[MethodMatch], O(1) lookup
+  2. **DB cache** — service_method_classification rows, point lookup
+  3. **Alias substring (MULTI-MATCH)** — finds ALL matching aliases in
+     the service name (each match = separate MethodMatch). Sorted
+     longest-alias-first so "PRO XN + Dermapen" produces both
+     {pro_xn} and {dermapen} matches. Aliases include orthography
+     variants (PRO XN / proxn / pro-xn) AND semantic synonyms
+     (RF / radiofrekwencja, botoks / toksyna botulinowa). ~60-80%
      coverage.
+  4. **Embedding ANN** — when alias matching returns 0 hits, fall
+     through to RPC fn_classify_service_by_embedding. +15-20% coverage.
+  5. **LLM fallback (DICTIONARY-EXTENDING)** — gpt-4o-mini structured
+     JSON. Given service name + top ANN candidates + the constraint
+     that output MUST reference dictionary entries, LLM either:
+       a) picks one or more existing canonical_names from candidates,
+       b) proposes new method(s) with full structure
+          (display_name, category, method_type, brand_family,
+          description, comprehensive aliases including synonyms in
+          Polish + English), which we INSERT into treatment_methods
+          before mapping the service to them.
 
-  4. **LLM fallback** — gpt-4o-mini in structured JSON mode, given
-     service name + top-N ANN candidates as context. Cached forever in
-     service_method_classification once decided (idempotent for re-runs).
-     +5-10% coverage. Last resort.
-
-Cache writes are batched via `flush_cache_writes()` to avoid one row
-per classification. Caller should flush at the end of a pipeline run.
+All proposed_new entries go straight to `treatment_methods` with
+`source='llm_inferred'`. Admin can later promote individual entries
+to `source='curated'` after review.
 """
 from __future__ import annotations
 
@@ -44,32 +59,28 @@ logger = logging.getLogger(__name__)
 
 
 # Confidence thresholds (tunable per category if needed via overrides)
-ALIAS_EXACT_CONFIDENCE = 1.0  # Hard match — alias literally present
-ANN_ACCEPT_THRESHOLD = 0.75   # Below this we escalate to LLM
-ANN_TOP_N = 5                 # Candidates passed to LLM for verification
-LLM_MIN_CONFIDENCE = 0.7      # LLM-claimed confidence floor
+ALIAS_EXACT_CONFIDENCE = 1.0
+ANN_ACCEPT_THRESHOLD = 0.75
+ANN_TOP_N = 5
+LLM_MIN_CONFIDENCE = 0.7
 
+# Method types allowed in treatment_methods (matches CHECK constraint
+# from mig 095). LLM must propose exactly one of these for any new entry.
+_ALLOWED_METHOD_TYPES = {"device", "substance", "technique", "protocol"}
 
-# Pattern fragments that don't carry method information (Polish + EN).
-# Stripped before alias matching to reduce false negatives like
-# "depilacja kobieta thunder" not matching "thunder" if it would have
-# (already works as substring, but stripping helps embedding too).
-_NOISE_WORDS = {
-    "zabieg", "zabiegu", "zabiegow", "zabiegow", "zabiegi",
-    "twarz", "twarzy", "szyja", "szyi", "dekolt", "dekoltu",
-    "rece", "dlonie", "stopy", "stop",
-    "kobieta", "mezczyzna", "pani", "pan",
-    "kompleksowy", "kompleksowa", "pakiet", "promocja", "promocyjny",
-    "pelny", "pelna", "i", "ii", "iii", "stopnia",
-    "small", "medium", "large", "xl", "xs",
-}
+# Categories we've seen so far — LLM may suggest new categories if a
+# truly novel one (we accept those, no enum constraint at DB layer).
+_KNOWN_CATEGORIES_HINT = (
+    "laser_depilacja, laser_skin, rf_hifu, mezoterapia, peeling, "
+    "substancja, brwi_rzesy, makijaz_permanentny, manicure, masaz, "
+    "fryzjer_zabieg, fryzjer_koloryzacja, chirurgia, transplantacja_wlosow, "
+    "trychologia, podologia, depilacja_klasyczna, oczyszczanie, inny"
+)
 
 
 @dataclass
 class MethodRow:
-    """In-memory representation of a treatment_methods row (cached after
-    warmup). Minimal columns — we don't need the embedding here because
-    ANN goes via RPC."""
+    """In-memory representation of a treatment_methods row."""
     id: int
     canonical_name: str
     display_name: str
@@ -77,12 +88,15 @@ class MethodRow:
     method_type: str
     brand_family: str | None
     aliases: list[str] = field(default_factory=list)
+    source: str = "curated"
 
 
 @dataclass
 class MethodMatch:
-    """Result of a classification call. `classifier` records which step
-    in the cascade produced this result, for cache provenance + debug."""
+    """One classified method for a service. `classifier` records which
+    cascade step produced this, for provenance + debug. A service may
+    have multiple MethodMatch results (e.g. 'PRO XN + Dermapen' →
+    [pro_xn, dermapen])."""
     method_id: int
     canonical_name: str
     display_name: str
@@ -90,7 +104,7 @@ class MethodMatch:
     method_type: str
     brand_family: str | None
     confidence: float
-    classifier: str  # 'cached' | 'alias_exact' | 'embedding_ann' | 'llm'
+    classifier: str  # 'cached' | 'alias_exact' | 'embedding_ann' | 'llm' | 'llm_new'
     matched_alias: str | None = None
 
 
@@ -102,68 +116,64 @@ def _ascii_fold(s: str) -> str:
 
 
 def _normalize_for_match(s: str) -> str:
-    """Squash whitespace + folded ASCII. Used on BOTH alias and target
-    side so substring search is symmetric."""
+    """Squash whitespace + folded ASCII for substring search."""
     folded = _ascii_fold(s)
-    # Collapse non-alphanumeric runs to single space
     folded = re.sub(r"[^a-z0-9]+", " ", folded)
     folded = re.sub(r"\s+", " ", folded).strip()
     return folded
 
 
+def _slug(name: str) -> str:
+    """Snake_case ASCII identifier — used when LLM proposes new
+    treatment_methods rows. Stable + deterministic."""
+    s = _ascii_fold(name)
+    s = re.sub(r"[^a-z0-9]+", "_", s).strip("_")
+    return s or "unknown"
+
+
 class MethodClassifier:
-    """Cached cascading classifier. Instantiate once per pipeline run
-    (NOT per service) — warmup loads all 689 methods into memory.
+    """Cached cascading classifier. Instantiate once per pipeline run;
+    warmup() loads all treatment_methods + alias index into memory.
 
-    Usage:
-
-        clf = MethodClassifier(supabase, llm_client=openai_client)
-        await clf.warmup()
-
-        match = await clf.classify_service(
-            service_id=12345,
-            service_name="PRO XN - Acne Rescue Treatment (twarz + szyja)",
-            name_embedding=svc.get("name_embedding"),
-            category_hint="peeling",   # optional
-            use_llm=True,              # set False to skip LLM and accept ANN ≥0.70
-        )
-        if match:
-            print(match.canonical_name, match.confidence, match.classifier)
-
-        await clf.flush_cache_writes()  # at end of pipeline
+    NEW in dictionary-first refactor:
+      - classify_service returns list[MethodMatch] (multi-match)
+      - LLM proposes_new entries are INSERT'ed into treatment_methods
+        before the classifier returns the resulting MethodMatch
     """
 
     def __init__(
         self,
         supabase: SupabaseService,
         llm_client: Any | None = None,
+        openai_client_for_embeddings: Any | None = None,
     ):
         self.supabase = supabase
         self.llm_client = llm_client
+        # Separate handle for embedding generation when inserting new
+        # dictionary entries. Default to the llm_client (OpenAI) which
+        # has the embeddings endpoint. Can be overridden if the calling
+        # pipeline uses a different LLM provider for chat.
+        self.openai_client = openai_client_for_embeddings or llm_client
 
-        # Loaded after warmup
         self._methods: dict[int, MethodRow] = {}
+        self._canonical_to_id: dict[str, int] = {}
         # Sorted longest-first to bias toward more specific matches
-        self._alias_index: list[tuple[str, int]] = []  # (normalized_alias, method_id)
+        self._alias_index: list[tuple[str, int]] = []
 
-        # Cache write buffer (flushed in bulk)
         self._pending_writes: list[dict[str, Any]] = []
-
-        # In-process cache: service_id → MethodMatch (so multiple calls
-        # within one run for the same service don't re-query)
-        self._inprocess_cache: dict[int, MethodMatch] = {}
+        # In-process cache: service_id → list[MethodMatch]
+        self._inprocess_cache: dict[int, list[MethodMatch]] = {}
 
     # ── Loading / warmup ─────────────────────────────────────────────
 
     async def warmup(self) -> None:
-        """Load all treatment_methods from DB + build alias substring
-        index. Call once per pipeline run before classify_service."""
+        """Load all treatment_methods + build alias substring index."""
         try:
             res = (
                 self.supabase.client.table("treatment_methods")
                 .select(
                     "id, canonical_name, display_name, category, method_type, "
-                    "brand_family, aliases"
+                    "brand_family, aliases, source"
                 )
                 .execute()
             )
@@ -172,40 +182,47 @@ class MethodClassifier:
             raise
 
         rows = res.data or []
+        self._methods = {}
+        self._canonical_to_id = {}
+        self._alias_index = []
         for r in rows:
-            mid = int(r["id"])
-            row = MethodRow(
-                id=mid,
-                canonical_name=r["canonical_name"],
-                display_name=r["display_name"],
-                category=r["category"],
-                method_type=r["method_type"],
-                brand_family=r.get("brand_family"),
-                aliases=r.get("aliases") or [],
-            )
-            self._methods[mid] = row
-            for alias in row.aliases:
-                normalized = _normalize_for_match(alias)
-                if len(normalized) >= 2:
-                    self._alias_index.append((normalized, mid))
+            self._register_method_row(r)
 
-        # Sort aliases longest-first for greedy match. Same alias may map
-        # to multiple methods (rare but possible — e.g. "prx" in PRX-T33
-        # and "PRX..." substring); we resolve ties by which method has
-        # the LONGEST alias overall (more specific).
         self._alias_index.sort(key=lambda t: -len(t[0]))
-
         logger.info(
             "MethodClassifier warmup: %d methods, %d alias entries",
             len(self._methods),
             len(self._alias_index),
         )
 
+    def _register_method_row(self, r: dict) -> int:
+        """Add a row to the in-memory index. Used both during warmup and
+        after a fresh LLM-proposed INSERT lands in treatment_methods."""
+        mid = int(r["id"])
+        row = MethodRow(
+            id=mid,
+            canonical_name=r["canonical_name"],
+            display_name=r["display_name"],
+            category=r["category"],
+            method_type=r["method_type"],
+            brand_family=r.get("brand_family"),
+            aliases=r.get("aliases") or [],
+            source=r.get("source") or "curated",
+        )
+        self._methods[mid] = row
+        self._canonical_to_id[row.canonical_name] = mid
+        for alias in row.aliases:
+            normalized = _normalize_for_match(alias)
+            if len(normalized) >= 2:
+                self._alias_index.append((normalized, mid))
+        return mid
+
     # ── Cache (DB-backed + in-process) ───────────────────────────────
 
-    async def _load_cache(self, service_id: int) -> MethodMatch | None:
-        """Check in-process cache first; fall back to DB
-        service_method_classification row if not seen this run."""
+    async def _load_cache(self, service_id: int) -> list[MethodMatch] | None:
+        """Return cached classifications for a service (list, possibly
+        empty meaning 'classified but found no matches'). Returns None
+        when there's no cache entry yet."""
         cached = self._inprocess_cache.get(service_id)
         if cached is not None:
             return cached
@@ -216,7 +233,6 @@ class MethodClassifier:
                 .select("method_id, confidence, classifier, matched_alias")
                 .eq("service_id", service_id)
                 .order("confidence", desc=True)
-                .limit(1)
                 .execute()
             )
         except Exception as e:
@@ -228,59 +244,48 @@ class MethodClassifier:
         rows = res.data or []
         if not rows:
             return None
-        row = rows[0]
-        method_id = int(row["method_id"])
-        method = self._methods.get(method_id)
-        if method is None:
-            # DB has classification pointing at a method we don't have
-            # loaded — schema inconsistency. Treat as cache miss.
-            logger.warning(
-                "cache row for service_id=%s points to unknown method_id=%s",
-                service_id, method_id,
-            )
-            return None
-
-        match = MethodMatch(
-            method_id=method_id,
-            canonical_name=method.canonical_name,
-            display_name=method.display_name,
-            category=method.category,
-            method_type=method.method_type,
-            brand_family=method.brand_family,
-            confidence=float(row["confidence"]),
-            classifier="cached",
-            matched_alias=row.get("matched_alias"),
-        )
-        self._inprocess_cache[service_id] = match
-        return match
+        out: list[MethodMatch] = []
+        for row in rows:
+            method_id = int(row["method_id"])
+            method = self._methods.get(method_id)
+            if method is None:
+                continue  # stale cache pointing at deleted method
+            out.append(MethodMatch(
+                method_id=method_id,
+                canonical_name=method.canonical_name,
+                display_name=method.display_name,
+                category=method.category,
+                method_type=method.method_type,
+                brand_family=method.brand_family,
+                confidence=float(row["confidence"]),
+                classifier="cached",
+                matched_alias=row.get("matched_alias"),
+            ))
+        self._inprocess_cache[service_id] = out
+        return out
 
     def _queue_cache_write(
         self,
         service_id: int,
-        match: MethodMatch,
+        matches: list[MethodMatch],
         llm_response: dict | None = None,
     ) -> None:
-        """Buffer a row for batch UPSERT. Use flush_cache_writes() at end
-        of pipeline run to commit."""
-        self._pending_writes.append({
-            "service_id": service_id,
-            "method_id": match.method_id,
-            "confidence": float(match.confidence),
-            "classifier": match.classifier,
-            "matched_alias": match.matched_alias,
-            "llm_response": llm_response,
-        })
-        # Update in-process cache so subsequent same-run calls hit
-        self._inprocess_cache[service_id] = match
+        """Buffer rows for batch UPSERT. Empty matches list also writes
+        a sentinel? No — we skip empty so subsequent runs can retry."""
+        self._inprocess_cache[service_id] = matches
+        for m in matches:
+            self._pending_writes.append({
+                "service_id": service_id,
+                "method_id": m.method_id,
+                "confidence": float(m.confidence),
+                "classifier": m.classifier,
+                "matched_alias": m.matched_alias,
+                "llm_response": llm_response if m.classifier in ("llm", "llm_new") else None,
+            })
 
     async def flush_cache_writes(self) -> int:
-        """Commit buffered classifications to service_method_classification.
-        Returns count of rows written. Idempotent — UPSERT on
-        (service_id, method_id) primary key."""
         if not self._pending_writes:
             return 0
-
-        # Chunk to ~500 rows per HTTP call (Supabase REST limit guideline)
         chunk_size = 500
         total = 0
         for i in range(0, len(self._pending_writes), chunk_size):
@@ -295,30 +300,33 @@ class MethodClassifier:
                     "cache flush batch %d-%d failed: %s",
                     i, i + len(chunk), e,
                 )
-
         logger.info("MethodClassifier flushed %d cache rows", total)
         self._pending_writes.clear()
         return total
 
-    # ── Alias-exact classifier ───────────────────────────────────────
+    # ── Alias-exact MULTI-match ──────────────────────────────────────
 
-    def _classify_by_alias(
+    def _classify_by_alias_multi(
         self, service_name: str
-    ) -> MethodMatch | None:
-        """Substring search. Aliases are pre-normalized + sorted longest
-        first so the first match wins. Returns None if no alias is a
-        substring of the normalized service name."""
+    ) -> list[MethodMatch]:
+        """Find ALL alias matches in the service name. Each match is a
+        separate MethodMatch. Handles combo services like
+        'PRO XN + Dermapen' → [pro_xn, dermapen]."""
         normalized_target = _normalize_for_match(service_name)
         if not normalized_target:
-            return None
+            return []
 
+        out: list[MethodMatch] = []
+        # Track which method ids we've already added — same method may
+        # match via multiple aliases (e.g. 'rf' and 'radiofrekwencja'),
+        # but per-service we only want one MethodMatch per method.
+        seen_method_ids: set[int] = set()
         for alias, method_id in self._alias_index:
-            # Word-boundary match — require the alias to appear as a
-            # token (or token sequence), not embedded within a longer
-            # word. "ipl" alias shouldn't match "siprilon" by accident.
+            if method_id in seen_method_ids:
+                continue
             if self._is_token_substring(alias, normalized_target):
                 method = self._methods[method_id]
-                return MethodMatch(
+                out.append(MethodMatch(
                     method_id=method_id,
                     canonical_name=method.canonical_name,
                     display_name=method.display_name,
@@ -328,20 +336,16 @@ class MethodClassifier:
                     confidence=ALIAS_EXACT_CONFIDENCE,
                     classifier="alias_exact",
                     matched_alias=alias,
-                )
-        return None
+                ))
+                seen_method_ids.add(method_id)
+        return out
 
     @staticmethod
     def _is_token_substring(needle: str, haystack: str) -> bool:
-        """Both strings are pre-normalized (lowercase ASCII tokens
-        separated by single spaces). Match needle on word boundaries."""
         if not needle:
             return False
-        # Multi-word needle: check exact substring within haystack
-        # (already token-normalized so embedded false-positives are rare).
         if " " in needle:
             return f" {needle} " in f" {haystack} "
-        # Single token: require word-boundary
         return f" {needle} " in f" {haystack} "
 
     # ── Embedding ANN classifier ─────────────────────────────────────
@@ -351,12 +355,6 @@ class MethodClassifier:
         name_embedding: Any,
         category_hint: str | None = None,
     ) -> tuple[MethodMatch, list[dict]] | None:
-        """RPC call to fn_classify_service_by_embedding. Returns the top
-        match (plus the full top-N candidates for the LLM fallback layer)
-        when similarity ≥ ANN_ACCEPT_THRESHOLD, else None.
-
-        Returns (match, top_n_candidates) tuple; the caller can pass
-        top_n_candidates to LLM when the top alone isn't confident enough."""
         if name_embedding is None:
             return None
         try:
@@ -366,7 +364,7 @@ class MethodClassifier:
                     "p_service_embedding": name_embedding,
                     "p_category_hint": category_hint,
                     "p_top_n": ANN_TOP_N,
-                    "p_min_similarity": 0.55,  # surface candidates for LLM
+                    "p_min_similarity": 0.55,
                 },
             ).execute()
         except Exception as e:
@@ -396,43 +394,93 @@ class MethodClassifier:
         )
         return (match, candidates)
 
-    # ── LLM fallback classifier ──────────────────────────────────────
+    # ── LLM fallback with DICTIONARY-EXTEND ──────────────────────────
 
     async def _classify_by_llm(
         self,
         service_name: str,
         category_hint: str | None,
         candidates: list[dict],
-    ) -> MethodMatch | None:
-        """Ask gpt-4o-mini structured-output to pick the best canonical
-        from the ANN top-N. Refuses with `{canonical_name: null}` if
-        none fit. Returns None on LLM failure or rejection."""
+    ) -> list[MethodMatch]:
+        """Ask gpt-4o-mini structured-output to identify ALL canonical
+        methods present in the service name. LLM either picks existing
+        canonical_names from the candidates list OR proposes NEW entries
+        which we INSERT into treatment_methods before returning matches.
+
+        Returns list of MethodMatch (may be empty if LLM rejected all
+        candidates and proposed nothing — service is genuinely unmatched)."""
         if not self.llm_client:
-            return None
-        if not candidates:
-            return None
+            return []
 
         candidate_lines = [
-            f"- {c['canonical_name']} ({c['display_name']}) — "
-            f"category={c['category']} brand_family={c.get('brand_family') or 'n/a'} "
+            f"- canonical_name='{c['canonical_name']}' "
+            f"display='{c['display_name']}' "
+            f"category={c['category']} "
+            f"brand_family={c.get('brand_family') or 'n/a'} "
             f"cos_sim={float(c['similarity']):.2f}"
             for c in candidates
         ]
+        candidates_block = "\n".join(candidate_lines) if candidates else "(none — embedding match returned nothing)"
 
         system = (
-            "You are a Polish beauty/medical-aesthetics taxonomy expert. "
-            "Given a salon's raw service name, choose the single canonical "
-            "treatment method from the provided candidate list that best "
-            "describes the actual treatment. Return strict JSON. "
-            "If no candidate is a sensible match, return canonical_name=null."
+            "Jesteś ekspertem od taksonomii zabiegów beauty / medycyny "
+            "estetycznej / fryzjerstwa / kosmetologii w Polsce. Twoim "
+            "zadaniem jest zidentyfikować WSZYSTKIE rozpoznawalne metody / "
+            "urządzenia / substancje / techniki / protokoły obecne w nazwie "
+            "konkretnej usługi salonu. Jedna usługa może odnosić się do "
+            "wielu metod jednocześnie (np. 'PRO XN + Dermapen' to peeling "
+            "PRO XN ORAZ urządzenie Dermapen).\n\n"
+            "BARDZO WAŻNE — KONSERWATYZM:\n"
+            "1. ZAWSZE preferuj match do `existing` candidates jeśli concept jest "
+            "tym samym co istniejący wpis. Np. 'Toksyna botulinowa' = `botox` "
+            "(istnieje); NIE proponuj 'toksyna_botulinowa' jako nowy entry. "
+            "'RF' = pasujący RF device z candidates (Virtue RF, Infini etc.) "
+            "ALBO generic technique już istniejący; NIE twórz duplikatu.\n"
+            "2. NIE proponuj wpisów które są: lokalizacjami ciała (twarz/szyja/"
+            "plecy), objawami (przebarwienia, trądzik, naczynka, zmarszczki), "
+            "rezultatami (nawilżenie, rozjaśnienie, wygładzenie), generic "
+            "wordami (zabieg, pakiet, promocja, konsultacja), modyfikatorami "
+            "ceny ('jedna okolica', 'I stopień', 'small/medium').\n"
+            "3. NOWY wpis tylko gdy: KONKRETNA marka/produkt (np. 'Geneo' "
+            "urządzenie, 'Hyalual' wypełniacz) LUB konkretna technika "
+            "(np. 'mikropigmentacja', 'kawitacja') która faktycznie ma "
+            "specyficzne właściwości metodyczne, NIE jest pokryta przez "
+            "candidates, i NIE jest abstract'em.\n"
+            "4. Jeśli usługa to zwykły akt obsługi (konsultacja, "
+            "voucher, instruktaż, demonstracja) — zwróć puste listy.\n\n"
+            "Kategorie używane w słowniku: " + _KNOWN_CATEGORIES_HINT + ".\n"
+            "method_type ∈ {device, substance, technique, protocol}.\n\n"
+            "Dla proposed_new generuj WYCZERPUJĄCĄ listę aliases — wszystkie "
+            "warianty pisowni + synonimy PL+EN + skróty. Aliasy powinny "
+            "być UNIKALNE dla tej metody (nie współdzielone z innymi "
+            "wpisami w słowniku).\n\n"
+            "Zwracaj striczny JSON."
         )
         user = (
-            f"Service name: {service_name!r}\n"
-            f"Category hint: {category_hint or 'unknown'}\n\n"
-            f"Candidates (top-{len(candidates)} by embedding similarity):\n"
-            + "\n".join(candidate_lines)
-            + "\n\nReturn JSON: {\"canonical_name\": <one of the above OR null>, "
-            "\"confidence\": <0.0-1.0>, \"reasoning\": <short PL/EN>}."
+            f"Nazwa usługi: {service_name!r}\n"
+            f"Wskazówka kategorii: {category_hint or 'unknown'}\n\n"
+            f"Top kandydaci ze słownika (po embedding similarity):\n{candidates_block}\n\n"
+            "Zwróć JSON:\n"
+            "{\n"
+            "  \"matches\": [\n"
+            "    {\"canonical_name\": \"<istniejące canonical>\", \"confidence\": 0.0-1.0, \"reasoning\": \"<krótkie\"}\n"
+            "  ],\n"
+            "  \"proposed_new\": [\n"
+            "    {\n"
+            "      \"display_name\": \"<UI label, np. 'Lonotin'>\",\n"
+            "      \"category\": \"<jedna z istniejących lub nowa>\",\n"
+            "      \"method_type\": \"device|substance|technique|protocol\",\n"
+            "      \"brand_family\": \"<lowercase slug producenta lub null>\",\n"
+            "      \"description\": \"<jedno-zdaniowy opis PL>\",\n"
+            "      \"aliases\": [\"alias1\", \"alias2\", ...],\n"
+            "      \"confidence\": 0.0-1.0\n"
+            "    }\n"
+            "  ]\n"
+            "}\n"
+            "Jeśli usługa to combo (np. 'PRO XN + Dermapen + laktoferyna') i niektóre części są w słowniku "
+            "a inne nie — zwróć JEDEN match per część w słowniku, JEDEN proposed_new per część nowa.\n"
+            "Jeśli usługa NIE ma sensownej metody (np. 'konsultacja kosmetologa', 'voucher prezentowy') "
+            "zwróć puste obie listy."
         )
 
         try:
@@ -446,48 +494,240 @@ class MethodClassifier:
                 response_format={"type": "json_object"},
                 temperature=0,
             )
-        except Exception as e:
-            logger.warning("LLM classify call failed: %s", e)
-            return None
-
-        try:
             content = resp.choices[0].message.content or "{}"
             payload = json.loads(content)
-        except (json.JSONDecodeError, AttributeError, IndexError) as e:
-            logger.warning("LLM returned unparseable JSON: %s", e)
+        except Exception as e:
+            logger.warning("LLM classify call failed: %s", e)
+            return []
+
+        out: list[MethodMatch] = []
+
+        # Existing matches
+        for m in (payload.get("matches") or []):
+            canonical = (m.get("canonical_name") or "").strip()
+            if not canonical:
+                continue
+            method_id = self._canonical_to_id.get(canonical)
+            if method_id is None:
+                logger.warning(
+                    "LLM returned canonical=%r not in dictionary — skipping",
+                    canonical,
+                )
+                continue
+            confidence = float(m.get("confidence", 0.0))
+            if confidence < LLM_MIN_CONFIDENCE:
+                continue
+            row = self._methods[method_id]
+            out.append(MethodMatch(
+                method_id=method_id,
+                canonical_name=row.canonical_name,
+                display_name=row.display_name,
+                category=row.category,
+                method_type=row.method_type,
+                brand_family=row.brand_family,
+                confidence=confidence,
+                classifier="llm",
+            ))
+
+        # Proposed new entries — INSERT into treatment_methods FIRST,
+        # then add MethodMatch pointing at the fresh row.
+        for p in (payload.get("proposed_new") or []):
+            try:
+                new_id = await self._insert_proposed_method(p)
+                if new_id is None:
+                    continue
+                row = self._methods[new_id]
+                confidence = float(p.get("confidence", 0.7))
+                out.append(MethodMatch(
+                    method_id=new_id,
+                    canonical_name=row.canonical_name,
+                    display_name=row.display_name,
+                    category=row.category,
+                    method_type=row.method_type,
+                    brand_family=row.brand_family,
+                    confidence=confidence,
+                    classifier="llm_new",
+                ))
+            except Exception as ie:
+                logger.warning(
+                    "Failed to INSERT proposed_new method %r: %s",
+                    p.get("display_name"), ie,
+                )
+
+        return out
+
+    async def _insert_proposed_method(self, p: dict) -> int | None:
+        """Validate LLM-proposed method + INSERT into treatment_methods
+        with source='llm_inferred'. Generates embedding via OpenAI before
+        insert.
+
+        DEDUP GUARD (2026-05-19): If ANY proposed alias overlaps with
+        aliases of an existing dictionary entry, we MERGE — extend the
+        existing entry's aliases with new (non-overlapping) variants
+        and return existing id. Prevents LLM from creating duplicate
+        canonicals for the same concept (e.g. botox + botoks +
+        toksyna_botulinowa as 3 separate entries instead of 1 with
+        merged aliases). This guarantees one-method-one-canonical
+        invariant for downstream pricing aggregation."""
+        display = (p.get("display_name") or "").strip()
+        if not display:
             return None
 
-        canonical = payload.get("canonical_name")
-        if not canonical:
-            return None
-        confidence = float(payload.get("confidence", 0.0))
-        if confidence < LLM_MIN_CONFIDENCE:
-            return None
-
-        # Find the matching method row by canonical_name
-        target = next(
-            (m for m in self._methods.values() if m.canonical_name == canonical),
-            None,
-        )
-        if target is None:
+        method_type = (p.get("method_type") or "").strip().lower()
+        if method_type not in _ALLOWED_METHOD_TYPES:
             logger.warning(
-                "LLM returned canonical_name=%r not in our loaded methods",
-                canonical,
+                "proposed_new rejected — invalid method_type=%r", method_type,
             )
             return None
 
-        return MethodMatch(
-            method_id=target.id,
-            canonical_name=target.canonical_name,
-            display_name=target.display_name,
-            category=target.category,
-            method_type=target.method_type,
-            brand_family=target.brand_family,
-            confidence=confidence,
-            classifier="llm",
-        )
+        canonical = _slug(display)
+        if canonical in self._canonical_to_id:
+            # Already in dictionary by canonical name
+            return self._canonical_to_id[canonical]
 
-    # ── Public entry point ───────────────────────────────────────────
+        category = (p.get("category") or "inny").strip().lower()
+        brand_family = (p.get("brand_family") or "").strip().lower() or None
+        description = (p.get("description") or "").strip() or None
+        raw_aliases = p.get("aliases") or []
+        if not isinstance(raw_aliases, list):
+            raw_aliases = []
+        # Normalize aliases — lowercase, dedupe, ensure at minimum the
+        # display name itself + folded variant are present.
+        alias_set: set[str] = set()
+        for a in raw_aliases:
+            if isinstance(a, str):
+                a_norm = a.strip().lower()
+                if a_norm and len(a_norm) >= 2:
+                    alias_set.add(a_norm)
+        alias_set.add(display.lower())
+        alias_set.add(_ascii_fold(display))
+        aliases = sorted(alias_set)
+
+        # ── DEDUP GUARD — check alias overlap with existing entries ──
+        # Build set of normalized aliases for substring match.
+        proposed_normalized = {_normalize_for_match(a) for a in aliases}
+        proposed_normalized.discard("")
+        # Find any existing methods whose aliases overlap with proposed.
+        for existing_id, existing in self._methods.items():
+            existing_norm = {_normalize_for_match(a) for a in existing.aliases}
+            existing_norm.discard("")
+            overlap = proposed_normalized & existing_norm
+            if overlap:
+                # Merge: extend existing aliases with new (non-overlapping) ones
+                new_aliases = sorted(set(existing.aliases) | set(aliases))
+                if set(new_aliases) != set(existing.aliases):
+                    try:
+                        self.supabase.client.table("treatment_methods") \
+                            .update({"aliases": new_aliases}) \
+                            .eq("id", existing_id) \
+                            .execute()
+                        # Update in-memory representation
+                        existing.aliases = new_aliases
+                        # Rebuild relevant alias_index entries for this method
+                        self._alias_index = [
+                            t for t in self._alias_index if t[1] != existing_id
+                        ]
+                        for a in new_aliases:
+                            n = _normalize_for_match(a)
+                            if len(n) >= 2:
+                                self._alias_index.append((n, existing_id))
+                        self._alias_index.sort(key=lambda t: -len(t[0]))
+                        logger.info(
+                            "Dictionary MERGED: extended %r (id=%d) with %d new "
+                            "aliases from proposed %r (overlap on %r)",
+                            existing.canonical_name, existing_id,
+                            len(new_aliases) - len(set(existing.aliases) - set(aliases)),
+                            display, list(overlap)[:3],
+                        )
+                    except Exception as me:
+                        logger.warning(
+                            "alias merge failed for existing id=%d: %s",
+                            existing_id, me,
+                        )
+                else:
+                    logger.info(
+                        "Dictionary dedup: proposed %r already covered by "
+                        "existing %r (id=%d) via overlap on %r",
+                        display, existing.canonical_name, existing_id,
+                        list(overlap)[:3],
+                    )
+                return existing_id
+
+        # Build embedding input
+        emb_input = "\n".join([
+            canonical,
+            display,
+            "Aliases: " + ", ".join(aliases) if aliases else "",
+            description or "",
+        ]).strip()
+
+        # Generate embedding
+        emb_str: str | None = None
+        if self.openai_client is not None:
+            try:
+                emb_resp = await asyncio.to_thread(
+                    self.openai_client.embeddings.create,
+                    model="text-embedding-3-small",
+                    input=emb_input,
+                )
+                vec = emb_resp.data[0].embedding
+                emb_str = "[" + ",".join(f"{v:.6f}" for v in vec) + "]"
+            except Exception as e:
+                logger.warning("embedding gen for %r failed: %s", canonical, e)
+
+        row_payload = {
+            "canonical_name": canonical,
+            "display_name": display,
+            "category": category,
+            "method_type": method_type,
+            "brand_family": brand_family,
+            "aliases": aliases,
+            "body_areas": None,
+            "description": description,
+            "competitor_methods": [],
+            "source": "llm_inferred",
+        }
+        if emb_str:
+            row_payload["embedding"] = emb_str
+
+        try:
+            res = self.supabase.client.table("treatment_methods") \
+                .upsert(row_payload, on_conflict="canonical_name") \
+                .execute()
+        except Exception as e:
+            logger.error(
+                "INSERT proposed_new failed for canonical=%r: %s",
+                canonical, e,
+            )
+            return None
+
+        if not res.data:
+            return None
+        new_id = int(res.data[0]["id"])
+
+        # Refresh in-memory index. Use the row we just inserted (DB has
+        # the canonical form including generated id).
+        self._register_method_row({
+            "id": new_id,
+            "canonical_name": canonical,
+            "display_name": display,
+            "category": category,
+            "method_type": method_type,
+            "brand_family": brand_family,
+            "aliases": aliases,
+            "source": "llm_inferred",
+        })
+        # Re-sort alias index now that we added entries
+        self._alias_index.sort(key=lambda t: -len(t[0]))
+
+        logger.info(
+            "Dictionary extended: canonical=%r display=%r category=%s "
+            "method_type=%s aliases_count=%d",
+            canonical, display, category, method_type, len(aliases),
+        )
+        return new_id
+
+    # ── Public entry point (MULTI-MATCH) ─────────────────────────────
 
     async def classify_service(
         self,
@@ -497,45 +737,51 @@ class MethodClassifier:
         name_embedding: Any = None,
         category_hint: str | None = None,
         use_llm: bool = True,
-    ) -> MethodMatch | None:
-        """Run the full cascade. Returns None when no path produces a
-        confident match (caller decides whether to keep service in
-        aggregation pool with `method=None` semantics)."""
-        # 0. Cache (in-process + DB)
+    ) -> list[MethodMatch]:
+        """Run the full cascade. Returns list of MethodMatch — may be:
+        - empty (no method recognized, e.g. "konsultacja" / "voucher")
+        - single element (most branded services like "Botoks 1 okolica")
+        - multiple elements (combo services like "PRO XN + Dermapen")"""
         cached = await self._load_cache(service_id)
         if cached is not None:
             return cached
 
-        # 1. Alias substring (fast path)
-        match = self._classify_by_alias(service_name)
-        if match is not None:
-            self._queue_cache_write(service_id, match)
-            return match
+        # 1. Alias substring MULTI-match
+        alias_matches = self._classify_by_alias_multi(service_name)
+        if alias_matches:
+            self._queue_cache_write(service_id, alias_matches)
+            return alias_matches
 
-        # 2. Embedding ANN
+        # 2. Embedding ANN (single best match path — when alias missed,
+        # service likely refers to ONE method via paraphrase)
         candidates: list[dict] = []
         ann_result = await self._classify_by_embedding(name_embedding, category_hint)
         if ann_result is not None:
-            match, candidates = ann_result
-            if match.confidence >= ANN_ACCEPT_THRESHOLD:
-                self._queue_cache_write(service_id, match)
-                return match
+            ann_match, candidates = ann_result
+            if ann_match.confidence >= ANN_ACCEPT_THRESHOLD:
+                self._queue_cache_write(service_id, [ann_match])
+                return [ann_match]
 
-        # 3. LLM fallback (uses ANN top-N as anchor)
-        if use_llm and candidates:
-            llm_match = await self._classify_by_llm(
+        # 3. LLM — picks from candidates AND/OR proposes new entries
+        if use_llm and self.llm_client is not None:
+            llm_matches = await self._classify_by_llm(
                 service_name, category_hint, candidates
             )
-            if llm_match is not None:
+            if llm_matches:
                 self._queue_cache_write(
-                    service_id, llm_match,
+                    service_id, llm_matches,
                     llm_response={"candidates": candidates},
                 )
-                return llm_match
+                return llm_matches
 
-        return None
+        # Genuinely unclassified — cache empty list so we don't re-try
+        # this service every audit. Caller can decide if empty means
+        # "service has no method" (consultation, voucher) or "needs more
+        # dictionary entries" (long-tail unknown brand).
+        self._queue_cache_write(service_id, [])
+        return []
 
-    # ── Bulk helper ──────────────────────────────────────────────────
+    # ── Bulk helper (multi-match) ────────────────────────────────────
 
     async def classify_services(
         self,
@@ -543,23 +789,20 @@ class MethodClassifier:
         *,
         use_llm: bool = True,
         max_concurrent: int = 5,
-    ) -> dict[int, MethodMatch]:
-        """Classify a list of services. Returns {service_id: MethodMatch}
-        for those that succeeded. Service dicts must include `id` and
-        `name`; `name_embedding` and `category_name` are optional and
-        improve cascade hit-rate."""
+    ) -> dict[int, list[MethodMatch]]:
+        """Classify a batch of services. Returns {service_id: list[MethodMatch]}."""
         sem = asyncio.Semaphore(max_concurrent)
 
-        async def _one(svc: dict) -> tuple[int, MethodMatch | None]:
+        async def _one(svc: dict) -> tuple[int, list[MethodMatch]]:
             async with sem:
-                m = await self.classify_service(
+                ms = await self.classify_service(
                     service_id=int(svc["id"]),
                     service_name=svc.get("name") or "",
                     name_embedding=svc.get("name_embedding"),
                     category_hint=svc.get("category_name"),
                     use_llm=use_llm,
                 )
-                return int(svc["id"]), m
+                return int(svc["id"]), ms
 
         results = await asyncio.gather(*[_one(s) for s in services])
-        return {sid: m for sid, m in results if m is not None}
+        return dict(results)

@@ -1778,17 +1778,27 @@ async def _compute_treatment_tier_rows(
                     _ce,
                 )
 
-    def _get_method_canonical(svc: dict[str, Any]) -> str | None:
-        """Return canonical method for a service. Prefer cached classifier
-        result; fall back to regex extract_brand_marker only when classifier
-        didn't recognise the service."""
+    def _get_method_canonicals(svc: dict[str, Any]) -> set[str]:
+        """Return set of canonical methods for a service (multi-match,
+        e.g. 'PRO XN + Dermapen' → {pro_xn, dermapen}). Prefer cached
+        classifier result; fall back to regex extract_brand_marker only
+        when classifier didn't recognise the service. Returns empty set
+        when neither finds anything."""
         _sid = svc.get("id")
         if _sid is not None:
-            _m = _classified_methods.get(int(_sid))
-            if _m is not None:
-                return _m.canonical_name
-        # Fallback regex (long-tail / unclassified services)
-        return extract_brand_marker(svc.get("name") or svc.get("service_name") or "")
+            _ms = _classified_methods.get(int(_sid))
+            if _ms:
+                return {m.canonical_name for m in _ms}
+        # Fallback regex
+        _bm = extract_brand_marker(svc.get("name") or svc.get("service_name") or "")
+        return {_bm} if _bm else set()
+
+    def _get_method_canonical(svc: dict[str, Any]) -> str | None:
+        """Return PRIMARY (first/highest-confidence) canonical method.
+        Convenience wrapper around _get_method_canonicals for code paths
+        that need a single string."""
+        _cs = _get_method_canonicals(svc)
+        return next(iter(_cs), None)
 
     # 2. Group competitor services by tid_key (z counts_in_aggregates filter).
     # Hold tuples (sample_dict, fallback_embedding, variant_id) — variant_id
@@ -1882,12 +1892,21 @@ async def _compute_treatment_tier_rows(
         # tid_key (subj_svcs[0] heuristic — w praktyce wszystkie subjects
         # pod jednym tid_key mają zwykle ten sam method bo Pass 5 cross-
         # salon consistency grupuje brand_marker-aware).
-        subj_method_canonical: str | None = None
+        # T3b multi-match — subject może mieć wiele methods (combo
+        # service jak "PRO XN + Dermapen"). Gate akceptuje competitor
+        # services które dzielą CHOĆ JEDNĄ method z subject (set
+        # intersection). Service który jest tylko Dermapen jest legit
+        # data point dla subject "PRO XN + Dermapen" combo.
+        subj_method_canonicals: set[str] = set()
         if subj_svcs:
-            subj_method_canonical = _get_method_canonical(subj_svcs[0])
+            subj_method_canonicals = _get_method_canonicals(subj_svcs[0])
+        subj_method_canonical = (
+            next(iter(subj_method_canonicals), None)
+            if subj_method_canonicals else None
+        )
 
         if (
-            subj_method_canonical is not None
+            subj_method_canonicals
             and comp_samples
             and method_classifier is not None
         ):
@@ -1895,24 +1914,30 @@ async def _compute_treatment_tier_rows(
             _kept: list[dict[str, Any]] = []
             for _s in comp_samples:
                 _sid = _s.get("service_id")
-                _comp_method: str | None = None
+                _comp_methods: set[str] = set()
                 if _sid is not None:
-                    _cm = _classified_methods.get(int(_sid))
-                    if _cm is not None:
-                        _comp_method = _cm.canonical_name
-                if _comp_method is None:
-                    _comp_method = extract_brand_marker(
+                    _cm_list = _classified_methods.get(int(_sid))
+                    if _cm_list:
+                        _comp_methods = {m.canonical_name for m in _cm_list}
+                if not _comp_methods:
+                    _bm = extract_brand_marker(
                         _s.get("service_name") or ""
                     )
-                if _comp_method == subj_method_canonical:
-                    _s["_canonical_method"] = _comp_method
+                    if _bm:
+                        _comp_methods = {_bm}
+                # Set intersection — keep if any method matches
+                if _comp_methods & subj_method_canonicals:
+                    # Annotate which method matched (for traces)
+                    _s["_canonical_method"] = next(
+                        iter(_comp_methods & subj_method_canonicals)
+                    )
                     _kept.append(_s)
             comp_samples = _kept
             if _pre_method_count != len(comp_samples):
                 logger.info(
-                    "Etap 4 tier-1 traditional: method=%r dropped %d/%d "
+                    "Etap 4 tier-1 traditional: methods=%s dropped %d/%d "
                     "cross-method samples (key=%s:%s)",
-                    subj_method_canonical,
+                    sorted(subj_method_canonicals),
                     _pre_method_count - len(comp_samples),
                     _pre_method_count,
                     tid_kind, tid_value,
@@ -2102,40 +2127,48 @@ async def _compute_treatment_tier_rows(
                 # noise (audit 34 PRO XN III stopień: 14/14 sampli było z
                 # RESUR FX / DermaClear / Mesoestetic / Dermalogica —
                 # wszystkie ≥0.78 cosine, wszystkie inny brand).
-                # T3b — Subject method already resolved above for traditional
-                # path. Re-use here for promote-path filter on strong_t1.
-                # NOTE: gather_market_context_samples may return services
-                # NOT in `aligned_competitors` (RPC scopes by booksy_id) —
-                # those weren't in our pre-classify set, so we fallback
-                # to extract_brand_marker for them.
-                subject_brand_marker = subj_method_canonical or (
-                    extract_brand_marker(subj_svcs[0].get("name") or "")
-                    if subj_svcs else None
+                # T3b multi-match — set intersection same as traditional
+                # path. `gather_market_context_samples` zwraca services
+                # spoza aligned_competitors (RPC scopes by booksy_id) —
+                # mogą one nie być w pre-classify cache, więc fallback do
+                # extract_brand_marker dla nich.
+                _subj_methods_promote: set[str] = (
+                    set(subj_method_canonicals)
+                    if subj_method_canonicals
+                    else (
+                        {extract_brand_marker(subj_svcs[0].get("name") or "")}
+                        if subj_svcs and extract_brand_marker(subj_svcs[0].get("name") or "")
+                        else set()
+                    )
                 )
-                if subject_brand_marker:
+                if _subj_methods_promote:
                     pre_brand_count = len(strong_t1)
                     _filtered: list[dict[str, Any]] = []
                     for _s in strong_t1:
                         _sid = _s.get("service_id")
-                        _comp_method: str | None = None
+                        _comp_methods: set[str] = set()
                         if _sid is not None:
-                            _cm = _classified_methods.get(int(_sid))
-                            if _cm is not None:
-                                _comp_method = _cm.canonical_name
-                        if _comp_method is None:
-                            _comp_method = extract_brand_marker(
+                            _cm_list = _classified_methods.get(int(_sid))
+                            if _cm_list:
+                                _comp_methods = {m.canonical_name for m in _cm_list}
+                        if not _comp_methods:
+                            _bm = extract_brand_marker(
                                 _s.get("service_name") or ""
                             )
-                        if _comp_method == subject_brand_marker:
-                            _s["_canonical_method"] = _comp_method
+                            if _bm:
+                                _comp_methods = {_bm}
+                        if _comp_methods & _subj_methods_promote:
+                            _s["_canonical_method"] = next(
+                                iter(_comp_methods & _subj_methods_promote)
+                            )
                             _filtered.append(_s)
                     strong_t1 = _filtered
 
                     if pre_brand_count != len(strong_t1):
                         logger.info(
-                            "Etap 4 tier-1 promote: method=%r dropped "
+                            "Etap 4 tier-1 promote: methods=%s dropped "
                             "%d/%d cross-method samples for %r",
-                            subject_brand_marker,
+                            sorted(_subj_methods_promote),
                             pre_brand_count - len(strong_t1),
                             pre_brand_count,
                             canonical_name[:60],
