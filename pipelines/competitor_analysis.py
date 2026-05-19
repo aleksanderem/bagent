@@ -1331,6 +1331,38 @@ async def _compute_pricing_comparisons(
     )
     rows.extend(tier1_rows)
 
+    # ── Tier-4 (NEW 2026-05-19): method-targeted pricing rows ──
+    # Pivot vs tier-1/-2/-3 (which aggregate within aligned competitors):
+    # tier=method aggregates ACROSS the entire geo radius (16km default)
+    # for every canonical method present in subject's classified pricelist.
+    # A salon offering only Red Touch — not selected as profile-overlap
+    # competitor — still contributes its Red Touch prices to the median.
+    # User mandate 2026-05-19: "cross-reference między urządzeniami w
+    # zabiegach, a nie między salonami które są podobne do naszego".
+    try:
+        tier4_rows = await _compute_method_targeted_pricing(
+            service,
+            report_id,
+            subject_data,
+            audit_id=audit_id,
+            tracer=tracer,
+        )
+        rows.extend(tier4_rows)
+        logger.info(
+            "Etap 4 tier-4 method-targeted: emitted %d method-level rows",
+            len(tier4_rows),
+        )
+    except Exception as e:
+        # FAIL-LOUD per user mandate — but log full context so we can
+        # debug if the new method-targeted layer breaks the report.
+        # Caller (compute_competitor_analysis) will surface this.
+        logger.error(
+            "Etap 4 tier-4 method-targeted FAILED: %s\n"
+            "subject_salon_id=%s audit_id=%s",
+            e, subject_data.get("salon_id"), audit_id,
+        )
+        raise
+
     # ── Tier-3: per (tid + sub_variant_group_id + duration_bucket) ──
     # Najprecyzyjniejszy match cross-salon. "Botoks Twarz" subject vs
     # "Botoks Twarz" competitor — apples-to-apples. Sub_variant_group_id
@@ -2376,6 +2408,333 @@ async def _compute_treatment_tier_rows(
     # T3b — flush is done in compute_competitor_analysis (caller owns
     # the classifier instance to share it across tier-1 + tier-2 paths).
     return rows
+
+
+async def _compute_method_targeted_pricing(
+    service: SupabaseService,
+    report_id: int,
+    subject_data: dict[str, Any],
+    *,
+    audit_id: str | None = None,
+    tracer: TraceWriter | None = None,
+    radius_km: float = 16.0,
+    min_sample_size: int = 3,
+    min_unique_salons: int = 2,
+) -> list[dict[str, Any]]:
+    """Method-targeted pricing comparison (tier='method').
+
+    For every canonical method that the subject's classified services
+    map to (via service_method_classification, mig 095 + backfill),
+    compute market pricing percentiles across ALL salons within
+    radius_km of subject offering that method — regardless of whether
+    those salons were selected as profile-overlap competitors.
+
+    Implementation:
+      1. fn_subject_methods(subject_salon_id) — list classified methods
+         in subject's cennik
+      2. Per method: fn_compute_method_pricing(subject, method, radius)
+      3. Emit comparison_tier='method' row with treatment_method_id +
+         per-method sample distribution + recommended_action computed
+         from subject's median price vs market median
+
+    Gate: skip methods with sample_size < min_sample_size (3) or
+    unique_salons < min_unique_salons (2) — too few data points for a
+    credible median (one salon's pricing strategy shouldn't dominate).
+
+    FAIL-LOUD: RPC errors propagate to caller. Per-method failures are
+    not allowed to silently drop the method from the report.
+    """
+    subject_salon_id = subject_data.get("salon_id")
+    if not subject_salon_id:
+        logger.warning(
+            "Etap 4 tier-4: subject_data missing salon_id — skipping "
+            "method-targeted pricing (audit_id=%s)",
+            audit_id,
+        )
+        return []
+
+    # 1. List subject's classified methods. RPC returns each canonical
+    # method once, with services_count showing how many subject services
+    # map to it. Sorted services_count DESC inside the RPC.
+    methods_res = service.client.rpc(
+        "fn_subject_methods",
+        {"p_subject_salon_id": int(subject_salon_id)},
+    ).execute()
+    subject_methods = methods_res.data or []
+    if not subject_methods:
+        logger.info(
+            "Etap 4 tier-4: subject_salon_id=%s has no classified methods "
+            "— skipping method-targeted pricing (backfill may be pending)",
+            subject_salon_id,
+        )
+        return []
+
+    logger.info(
+        "Etap 4 tier-4: subject %s has %d classified methods",
+        subject_salon_id, len(subject_methods),
+    )
+
+    # 2. Build subject service index per method_id from chain head.
+    # Pipeline already loaded subject_data["services"] but classifier
+    # cache lives in service_method_classification. Query joint lookup.
+    subj_svcs_by_method = await _load_subject_services_by_method(
+        service, int(subject_salon_id)
+    )
+
+    rows: list[dict[str, Any]] = []
+    promoted = 0
+    dropped_low_sample = 0
+    for m in subject_methods:
+        method_id = int(m["method_id"])
+        canonical = m["canonical_name"]
+        display = m["display_name"]
+        category = m["category"]
+        method_type = m["method_type"]
+        subject_services_for_method = subj_svcs_by_method.get(method_id, [])
+
+        # Call market pricing RPC
+        pricing_res = service.client.rpc(
+            "fn_compute_method_pricing",
+            {
+                "p_subject_salon_id": int(subject_salon_id),
+                "p_method_id": method_id,
+                "p_radius_km": radius_km,
+                "p_duration_min": None,
+                "p_duration_max": None,
+                "p_sample_limit": 30,
+            },
+        ).execute()
+        pricing_data = pricing_res.data or []
+        if not pricing_data:
+            # No competitors in radius offering this method — emit
+            # subject_only row with empty samples so UI shows the gap.
+            if subject_services_for_method:
+                rows.append(_method_row_subject_only(
+                    report_id, method_id, canonical, display, category,
+                    method_type, subject_services_for_method, radius_km,
+                ))
+            continue
+
+        stats = pricing_data[0]
+        sample_size = int(stats.get("sample_size") or 0)
+        unique_salons = int(stats.get("unique_salons") or 0)
+
+        if tracer is not None:
+            tracer.add(
+                step="method_targeted.method_pricing",
+                data={
+                    "method_id": method_id,
+                    "canonical_name": canonical,
+                    "sample_size": sample_size,
+                    "unique_salons": unique_salons,
+                    "market_median_grosze": stats.get("market_median_grosze"),
+                    "subject_services_count": len(subject_services_for_method),
+                },
+            )
+
+        # Sample gate
+        if sample_size < min_sample_size or unique_salons < min_unique_salons:
+            dropped_low_sample += 1
+            if subject_services_for_method:
+                rows.append(_method_row_subject_only(
+                    report_id, method_id, canonical, display, category,
+                    method_type, subject_services_for_method, radius_km,
+                    reason="low_sample",
+                ))
+            continue
+
+        # Compute subject's median price for this method
+        subject_prices = sorted([
+            int(s["price_grosze"])
+            for s in subject_services_for_method
+            if s.get("price_grosze")
+        ])
+        if not subject_prices:
+            continue
+        subject_median = subject_prices[len(subject_prices) // 2]
+        market_median = int(stats["market_median_grosze"])
+
+        deviation_pct = round(
+            100.0 * (subject_median - market_median) / market_median, 1
+        ) if market_median > 0 else 0.0
+
+        # Recommended action thresholds — same convention as tier=treatment
+        if abs(deviation_pct) < 10:
+            action = "hold"
+        elif deviation_pct < 0:
+            action = "raise"
+        else:
+            action = "lower"
+
+        rows.append({
+            "report_id": report_id,
+            "comparison_tier": "method",
+            "treatment_method_id": method_id,
+            "booksy_treatment_id": None,
+            "synthetic_treatment_id": None,
+            "variant_id": None,
+            "treatment_name": display,
+            "subject_price_grosze": subject_median,
+            "subject_is_from_price": False,
+            "subject_duration_minutes": _median([
+                s.get("duration_minutes") for s in subject_services_for_method
+                if s.get("duration_minutes")
+            ]),
+            "subject_price_per_min_grosze": None,
+            "market_min_grosze":    int(stats["market_min_grosze"]),
+            "market_p25_grosze":    int(stats["market_p25_grosze"]),
+            "market_median_grosze": market_median,
+            "market_p75_grosze":    int(stats["market_p75_grosze"]),
+            "market_max_grosze":    int(stats["market_max_grosze"]),
+            "market_price_per_min_grosze_min":    None,
+            "market_price_per_min_grosze_p25":    None,
+            "market_price_per_min_grosze_median": None,
+            "market_price_per_min_grosze_p75":    None,
+            "market_price_per_min_grosze_max":    None,
+            "deviation_pct": deviation_pct,
+            "deviation_pct_per_min": None,
+            "sample_size": sample_size,
+            "recommended_action": action,
+            "verification_status": "method_targeted",
+            "verification_details": {
+                "radius_km": radius_km,
+                "unique_salons": unique_salons,
+                "subject_services_count": len(subject_services_for_method),
+                "method_category": category,
+                "method_type": method_type,
+                "avg_duration_minutes": stats.get("avg_duration_minutes"),
+            },
+            "competitor_samples": stats.get("sample_services") or [],
+        })
+        promoted += 1
+
+    logger.info(
+        "Etap 4 tier-4: emitted %d method-level rows (promoted=%d, "
+        "dropped_low_sample=%d, total_subject_methods=%d)",
+        len(rows), promoted, dropped_low_sample, len(subject_methods),
+    )
+    return rows
+
+
+def _method_row_subject_only(
+    report_id: int,
+    method_id: int,
+    canonical: str,
+    display: str,
+    category: str,
+    method_type: str,
+    subject_services: list[dict[str, Any]],
+    radius_km: float,
+    *,
+    reason: str = "no_competitors",
+) -> dict[str, Any]:
+    """Emit a method-tier row in subject_only mode when no
+    cross-salon market data is available (no salons in radius offering
+    this method, or sample too small for credible median)."""
+    prices = sorted([
+        int(s["price_grosze"])
+        for s in subject_services
+        if s.get("price_grosze")
+    ])
+    subject_median = prices[len(prices) // 2] if prices else 0
+    return {
+        "report_id": report_id,
+        "comparison_tier": "method",
+        "treatment_method_id": method_id,
+        "booksy_treatment_id": None,
+        "synthetic_treatment_id": None,
+        "variant_id": None,
+        "treatment_name": display,
+        "subject_price_grosze": subject_median,
+        "subject_is_from_price": False,
+        "subject_duration_minutes": _median([
+            s.get("duration_minutes") for s in subject_services
+            if s.get("duration_minutes")
+        ]),
+        "subject_price_per_min_grosze": None,
+        "market_min_grosze":    None,
+        "market_p25_grosze":    None,
+        "market_median_grosze": None,
+        "market_p75_grosze":    None,
+        "market_max_grosze":    None,
+        "market_price_per_min_grosze_min":    None,
+        "market_price_per_min_grosze_p25":    None,
+        "market_price_per_min_grosze_median": None,
+        "market_price_per_min_grosze_p75":    None,
+        "market_price_per_min_grosze_max":    None,
+        "deviation_pct": None,
+        "deviation_pct_per_min": None,
+        "sample_size": 0,
+        "recommended_action": "subject_only",
+        "verification_status": "method_targeted_subject_only",
+        "verification_details": {
+            "radius_km": radius_km,
+            "reason": reason,
+            "subject_services_count": len(subject_services),
+            "method_category": category,
+            "method_type": method_type,
+        },
+        "competitor_samples": [],
+    }
+
+
+async def _load_subject_services_by_method(
+    service: SupabaseService,
+    subject_salon_id: int,
+) -> dict[int, list[dict[str, Any]]]:
+    """Returns {method_id: [services_dict]} for the subject's active
+    chain-head services, joined through service_method_classification.
+    A service mapped to multiple methods appears under each method_id."""
+    # Resolve chain head
+    sc_res = (
+        service.client.table("salon_scrapes")
+        .select("id")
+        .eq("salon_ref_id", subject_salon_id)
+        .eq("is_chain_head", True)
+        .order("scraped_at", desc=True)
+        .limit(1)
+        .execute()
+    )
+    if not sc_res.data:
+        return {}
+    scrape_id = sc_res.data[0]["id"]
+
+    # Load services + classifications. Two queries: services first,
+    # then cache rows for those IDs.
+    svc_res = (
+        service.client.table("salon_scrape_services")
+        .select("id, name, price_grosze, duration_minutes")
+        .eq("scrape_id", scrape_id)
+        .eq("is_active", True)
+        .not_.is_("price_grosze", "null")
+        .execute()
+    )
+    services_by_id = {int(s["id"]): s for s in (svc_res.data or [])}
+    if not services_by_id:
+        return {}
+
+    cache_res = (
+        service.client.table("service_method_classification")
+        .select("service_id, method_id")
+        .in_("service_id", list(services_by_id.keys()))
+        .execute()
+    )
+    out: dict[int, list[dict[str, Any]]] = {}
+    for row in (cache_res.data or []):
+        sid = int(row["service_id"])
+        mid = int(row["method_id"])
+        svc = services_by_id.get(sid)
+        if svc:
+            out.setdefault(mid, []).append(svc)
+    return out
+
+
+def _median(values: list) -> int | None:
+    """Median of non-null integer-castable values, or None if empty."""
+    nums = sorted([int(v) for v in values if v is not None])
+    if not nums:
+        return None
+    return nums[len(nums) // 2]
 
 
 async def _compute_sub_variant_tier_rows(

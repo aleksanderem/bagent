@@ -222,24 +222,21 @@ class MethodClassifier:
     async def _load_cache(self, service_id: int) -> list[MethodMatch] | None:
         """Return cached classifications for a service (list, possibly
         empty meaning 'classified but found no matches'). Returns None
-        when there's no cache entry yet."""
+        when there's no cache entry yet.
+
+        FAIL-LOUD: DB errors are NOT swallowed — they bubble up to the
+        caller. Cache miss (no rows) is a legitimate None return."""
         cached = self._inprocess_cache.get(service_id)
         if cached is not None:
             return cached
 
-        try:
-            res = (
-                self.supabase.client.table("service_method_classification")
-                .select("method_id, confidence, classifier, matched_alias")
-                .eq("service_id", service_id)
-                .order("confidence", desc=True)
-                .execute()
-            )
-        except Exception as e:
-            logger.warning(
-                "cache lookup failed for service_id=%s: %s", service_id, e
-            )
-            return None
+        res = (
+            self.supabase.client.table("service_method_classification")
+            .select("method_id, confidence, classifier, matched_alias")
+            .eq("service_id", service_id)
+            .order("confidence", desc=True)
+            .execute()
+        )
 
         rows = res.data or []
         if not rows:
@@ -270,10 +267,22 @@ class MethodClassifier:
         matches: list[MethodMatch],
         llm_response: dict | None = None,
     ) -> None:
-        """Buffer rows for batch UPSERT. Empty matches list also writes
-        a sentinel? No — we skip empty so subsequent runs can retry."""
-        self._inprocess_cache[service_id] = matches
+        """Buffer rows for batch UPSERT.
+
+        Dedup by method_id (multi-match may return same method via two
+        paths e.g. alias_exact + llm_new — keep highest confidence). The
+        cache primary key is (service_id, method_id) so duplicates would
+        crash bulk upsert with 'ON CONFLICT DO UPDATE cannot affect row
+        a second time'."""
+        # Per-service method dedup, keep highest-confidence MethodMatch
+        by_method: dict[int, MethodMatch] = {}
         for m in matches:
+            existing = by_method.get(m.method_id)
+            if existing is None or m.confidence > existing.confidence:
+                by_method[m.method_id] = m
+        deduped = list(by_method.values())
+        self._inprocess_cache[service_id] = deduped
+        for m in deduped:
             self._pending_writes.append({
                 "service_id": service_id,
                 "method_id": m.method_id,
@@ -284,22 +293,50 @@ class MethodClassifier:
             })
 
     async def flush_cache_writes(self) -> int:
+        """Flush buffered classifications. Final dedup pass over the
+        buffer (in case two batches independently classified the same
+        service before the previous flush). Chunks 500 rows per UPSERT.
+
+        FAIL-LOUD: any chunk failure re-raises with full context."""
         if not self._pending_writes:
             return 0
+        # Final dedup — collapse duplicate (service_id, method_id)
+        # keys keeping highest-confidence row.
+        by_key: dict[tuple[int, int], dict] = {}
+        for row in self._pending_writes:
+            key = (int(row["service_id"]), int(row["method_id"]))
+            existing = by_key.get(key)
+            if existing is None or float(row["confidence"]) > float(existing["confidence"]):
+                by_key[key] = row
+        deduped = list(by_key.values())
+        if len(deduped) != len(self._pending_writes):
+            logger.info(
+                "flush_cache_writes: deduped %d → %d rows",
+                len(self._pending_writes), len(deduped),
+            )
+
         chunk_size = 500
         total = 0
-        for i in range(0, len(self._pending_writes), chunk_size):
-            chunk = self._pending_writes[i : i + chunk_size]
+        for i in range(0, len(deduped), chunk_size):
+            chunk = deduped[i : i + chunk_size]
             try:
                 self.supabase.client.table("service_method_classification") \
                     .upsert(chunk, on_conflict="service_id,method_id") \
                     .execute()
                 total += len(chunk)
             except Exception as e:
+                # Log first 3 conflict candidates for debugging
+                key_counts: dict[tuple, int] = {}
+                for r in chunk:
+                    k = (int(r["service_id"]), int(r["method_id"]))
+                    key_counts[k] = key_counts.get(k, 0) + 1
+                conflict_keys = [k for k, c in key_counts.items() if c > 1][:3]
                 logger.error(
-                    "cache flush batch %d-%d failed: %s",
-                    i, i + len(chunk), e,
+                    "cache flush batch %d-%d failed (chunk size=%d, "
+                    "duplicate keys in chunk: %s): %s",
+                    i, i + len(chunk), len(chunk), conflict_keys, e,
                 )
+                raise
         logger.info("MethodClassifier flushed %d cache rows", total)
         self._pending_writes.clear()
         return total
@@ -355,21 +392,22 @@ class MethodClassifier:
         name_embedding: Any,
         category_hint: str | None = None,
     ) -> tuple[MethodMatch, list[dict]] | None:
+        """ANN match via RPC. Returns (top_match, all_candidates) tuple,
+        or None when service has no embedding / RPC returns empty.
+
+        FAIL-LOUD: RPC errors are re-raised. Missing embedding is the
+        only None-return path."""
         if name_embedding is None:
             return None
-        try:
-            res = self.supabase.client.rpc(
-                "fn_classify_service_by_embedding",
-                {
-                    "p_service_embedding": name_embedding,
-                    "p_category_hint": category_hint,
-                    "p_top_n": ANN_TOP_N,
-                    "p_min_similarity": 0.55,
-                },
-            ).execute()
-        except Exception as e:
-            logger.warning("ANN RPC failed: %s", e)
-            return None
+        res = self.supabase.client.rpc(
+            "fn_classify_service_by_embedding",
+            {
+                "p_service_embedding": name_embedding,
+                "p_category_hint": category_hint,
+                "p_top_n": ANN_TOP_N,
+                "p_min_similarity": 0.55,
+            },
+        ).execute()
 
         candidates = res.data or []
         if not candidates:
@@ -483,22 +521,20 @@ class MethodClassifier:
             "zwróć puste obie listy."
         )
 
-        try:
-            resp = await asyncio.to_thread(
-                self.llm_client.chat.completions.create,
-                model="gpt-4o-mini",
-                messages=[
-                    {"role": "system", "content": system},
-                    {"role": "user", "content": user},
-                ],
-                response_format={"type": "json_object"},
-                temperature=0,
-            )
-            content = resp.choices[0].message.content or "{}"
-            payload = json.loads(content)
-        except Exception as e:
-            logger.warning("LLM classify call failed: %s", e)
-            return []
+        # FAIL-LOUD: LLM API errors + JSON parse errors propagate to caller.
+        # Caller (backfill, pipeline) decides retry vs abort.
+        resp = await asyncio.to_thread(
+            self.llm_client.chat.completions.create,
+            model="gpt-4o-mini",
+            messages=[
+                {"role": "system", "content": system},
+                {"role": "user", "content": user},
+            ],
+            response_format={"type": "json_object"},
+            temperature=0,
+        )
+        content = resp.choices[0].message.content or "{}"
+        payload = json.loads(content)
 
         out: list[MethodMatch] = []
 
@@ -549,10 +585,19 @@ class MethodClassifier:
                     classifier="llm_new",
                 ))
             except Exception as ie:
-                logger.warning(
-                    "Failed to INSERT proposed_new method %r: %s",
-                    p.get("display_name"), ie,
+                # Per-proposal failure: log full context + RE-RAISE.
+                # Caller (backfill batch) decides whether to abort the
+                # batch or continue with remaining services after fix.
+                logger.error(
+                    "Failed to INSERT proposed_new method display=%r "
+                    "category=%r method_type=%r aliases=%s: %s",
+                    p.get("display_name"),
+                    p.get("category"),
+                    p.get("method_type"),
+                    p.get("aliases"),
+                    ie,
                 )
+                raise
 
         return out
 
@@ -640,10 +685,12 @@ class MethodClassifier:
                             display, list(overlap)[:3],
                         )
                     except Exception as me:
-                        logger.warning(
-                            "alias merge failed for existing id=%d: %s",
-                            existing_id, me,
+                        logger.error(
+                            "alias merge failed for existing id=%d "
+                            "(was extending %r with proposed %r): %s",
+                            existing_id, existing.canonical_name, display, me,
                         )
+                        raise
                 else:
                     logger.info(
                         "Dictionary dedup: proposed %r already covered by "
@@ -661,19 +708,20 @@ class MethodClassifier:
             description or "",
         ]).strip()
 
-        # Generate embedding
+        # Generate embedding. FAIL-LOUD: OpenAI errors propagate to caller.
+        # Embedding is REQUIRED for new dictionary entries — without it
+        # ANN classifier can't find this method in future runs, defeating
+        # the dictionary-first principle. Better to abort the proposal
+        # than insert a broken row.
         emb_str: str | None = None
         if self.openai_client is not None:
-            try:
-                emb_resp = await asyncio.to_thread(
-                    self.openai_client.embeddings.create,
-                    model="text-embedding-3-small",
-                    input=emb_input,
-                )
-                vec = emb_resp.data[0].embedding
-                emb_str = "[" + ",".join(f"{v:.6f}" for v in vec) + "]"
-            except Exception as e:
-                logger.warning("embedding gen for %r failed: %s", canonical, e)
+            emb_resp = await asyncio.to_thread(
+                self.openai_client.embeddings.create,
+                model="text-embedding-3-small",
+                input=emb_input,
+            )
+            vec = emb_resp.data[0].embedding
+            emb_str = "[" + ",".join(f"{v:.6f}" for v in vec) + "]"
 
         row_payload = {
             "canonical_name": canonical,
@@ -696,13 +744,16 @@ class MethodClassifier:
                 .execute()
         except Exception as e:
             logger.error(
-                "INSERT proposed_new failed for canonical=%r: %s",
-                canonical, e,
+                "INSERT proposed_new failed for canonical=%r aliases=%s: %s",
+                canonical, aliases, e,
             )
-            return None
+            raise
 
         if not res.data:
-            return None
+            # No rows returned (rare — Supabase issue). Treat as failure.
+            raise RuntimeError(
+                f"UPSERT returned no rows for canonical={canonical!r}"
+            )
         new_id = int(res.data[0]["id"])
 
         # Refresh in-memory index. Use the row we just inserted (DB has

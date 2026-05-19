@@ -801,6 +801,149 @@ async def competitor_profile(salon_id: int) -> dict:
 
 
 @app.get(
+    "/api/competitor/methods_for_audit/{audit_id}",
+    dependencies=[Depends(verify_api_key)],
+)
+async def competitor_methods_for_audit(audit_id: str) -> dict:
+    """Returns methods present in subject's classified pricelist for
+    UI dropdown in method-targeted competitor search mode (mig 097
+    fn_subject_methods). Each entry: canonical method + display name +
+    category + services_count (how many of subject's services map to
+    this method) + sample service names for context.
+
+    FAIL-LOUD: missing audit / missing subject raises HTTPException."""
+    from services.sb_client import make_supabase_client
+
+    sb = make_supabase_client(
+        settings.supabase_url, settings.supabase_service_key,
+    )
+    # Resolve subject salon
+    rep = sb.table("competitor_reports") \
+        .select("subject_salon_id") \
+        .eq("convex_audit_id", audit_id).limit(1).execute()
+    if not rep.data:
+        raise HTTPException(status_code=404, detail=f"No competitor_report for audit_id={audit_id}")
+    subject_salon_id = int(rep.data[0]["subject_salon_id"])
+
+    methods_res = sb.rpc(
+        "fn_subject_methods", {"p_subject_salon_id": subject_salon_id},
+    ).execute()
+    methods = methods_res.data or []
+
+    return {
+        "audit_id": audit_id,
+        "subject_salon_id": subject_salon_id,
+        "methods_count": len(methods),
+        "methods": methods,
+    }
+
+
+class MethodTargetedRequest(BaseModel):
+    """Args for method-targeted competitor search endpoint."""
+    auditId: str
+    methodIds: list[int]
+    radiusKm: float = 16.0
+    limit: int = 30
+
+
+@app.post(
+    "/api/competitor/salons_offering_methods",
+    dependencies=[Depends(verify_api_key)],
+)
+async def competitor_salons_offering_methods(req: MethodTargetedRequest) -> dict:
+    """Lists salons within radius offering specified canonical methods
+    (mig 097 fn_find_salons_offering_method). Powers the map + table
+    in method-targeted UI tab — user picks "Red Touch" + "Thunder" from
+    dropdown, this returns all salons in 16km offering either, sorted
+    by methods matched DESC then services count DESC then distance.
+
+    FAIL-LOUD: bad audit_id raises 404, RPC errors propagate as 500."""
+    from services.sb_client import make_supabase_client
+
+    sb = make_supabase_client(
+        settings.supabase_url, settings.supabase_service_key,
+    )
+    rep = sb.table("competitor_reports") \
+        .select("subject_salon_id") \
+        .eq("convex_audit_id", req.auditId).limit(1).execute()
+    if not rep.data:
+        raise HTTPException(status_code=404, detail=f"No competitor_report for audit_id={req.auditId}")
+    subject_salon_id = int(rep.data[0]["subject_salon_id"])
+
+    salons_res = sb.rpc(
+        "fn_find_salons_offering_method",
+        {
+            "p_subject_salon_id": subject_salon_id,
+            "p_method_ids": req.methodIds,
+            "p_radius_km": req.radiusKm,
+            "p_limit": req.limit,
+        },
+    ).execute()
+    salons = salons_res.data or []
+
+    return {
+        "audit_id": req.auditId,
+        "subject_salon_id": subject_salon_id,
+        "method_ids": req.methodIds,
+        "radius_km": req.radiusKm,
+        "salons_count": len(salons),
+        "salons": salons,
+    }
+
+
+class MethodPricingRequest(BaseModel):
+    """Args for method-level market pricing endpoint."""
+    auditId: str
+    methodId: int
+    radiusKm: float = 16.0
+    durationMin: int | None = None
+    durationMax: int | None = None
+
+
+@app.post(
+    "/api/competitor/method_pricing",
+    dependencies=[Depends(verify_api_key)],
+)
+async def competitor_method_pricing(req: MethodPricingRequest) -> dict:
+    """Computes market price distribution for ONE canonical method
+    across all salons within radius (mig 097 fn_compute_method_pricing).
+    Used by UI when user clicks a method in their cennik — get the
+    market percentile/median + a sample of competing services.
+
+    FAIL-LOUD: bad audit_id raises 404."""
+    from services.sb_client import make_supabase_client
+
+    sb = make_supabase_client(
+        settings.supabase_url, settings.supabase_service_key,
+    )
+    rep = sb.table("competitor_reports") \
+        .select("subject_salon_id") \
+        .eq("convex_audit_id", req.auditId).limit(1).execute()
+    if not rep.data:
+        raise HTTPException(status_code=404, detail=f"No competitor_report for audit_id={req.auditId}")
+    subject_salon_id = int(rep.data[0]["subject_salon_id"])
+
+    pricing_res = sb.rpc(
+        "fn_compute_method_pricing",
+        {
+            "p_subject_salon_id": subject_salon_id,
+            "p_method_id": req.methodId,
+            "p_radius_km": req.radiusKm,
+            "p_duration_min": req.durationMin,
+            "p_duration_max": req.durationMax,
+            "p_sample_limit": 30,
+        },
+    ).execute()
+    pricing = pricing_res.data or []
+    return {
+        "audit_id": req.auditId,
+        "method_id": req.methodId,
+        "radius_km": req.radiusKm,
+        "pricing": pricing[0] if pricing else None,
+    }
+
+
+@app.get(
     "/api/staff/competitor-changes/{booksy_id}",
     dependencies=[Depends(verify_api_key)],
 )
