@@ -36,6 +36,7 @@ from pipelines.competitor_dimensional_scores import (
     compute_subject_percentile,
 )
 from pipelines.competitor_selection import CompetitorCandidate, select_competitors
+from services.brand_marker import extract_brand_marker
 from services.pipeline_trace import TraceWriter
 from services.pricing_verification import (
     VERIFICATION_THRESHOLD_PCT,
@@ -334,15 +335,53 @@ async def compute_competitor_analysis(
         raise
 
     # ── Step 4: Pricing comparisons ──
+    # T3b 2026-05-19 — single-instance MethodClassifier shared across
+    # both tier-1 (treatment) and tier-2 (variant) paths. Warmup loads
+    # 689 canonical methods + 1808 alias entries to in-memory index;
+    # one round-trip to DB per pipeline instead of per service.
+    method_classifier = None
+    try:
+        from services.method_classifier import MethodClassifier as _MC
+        method_classifier = _MC(
+            supabase=service,
+            llm_client=_get_hidden_inference_llm(),
+        )
+        await method_classifier.warmup()
+        logger.info(
+            "Etap 4: MethodClassifier ready (%d methods, %d aliases)",
+            len(method_classifier._methods),
+            len(method_classifier._alias_index),
+        )
+    except Exception as _mc_e:
+        logger.warning(
+            "Etap 4: MethodClassifier warmup failed (%s) — pricing pipeline "
+            "will fall back to extract_brand_marker regex on all method gates",
+            _mc_e,
+        )
+        method_classifier = None
+
     await progress(45, "Pricing comparisons per treatment_id...")
     pricing_rows = await _compute_pricing_comparisons(
         service, report_id, subject_data, aligned_competitors,
         audit_id=audit_id,
         tracer=tracer,
+        method_classifier=method_classifier,
     )
     pricing_rows = _dedup_pricing_rows(pricing_rows)
     n_pricing = await service.insert_competitor_pricing_comparisons(pricing_rows)
     logger.info("Etap 4: inserted %d pricing_comparisons", n_pricing)
+
+    # Flush all method classifications buffered during tier-1/tier-2 runs.
+    if method_classifier is not None:
+        try:
+            _n_classified = await method_classifier.flush_cache_writes()
+            logger.info(
+                "Etap 4: MethodClassifier flushed %d cache rows "
+                "(in-process cache=%d)",
+                _n_classified, len(method_classifier._inprocess_cache),
+            )
+        except Exception as _fe:
+            logger.warning("Etap 4: classifier cache flush failed: %s", _fe)
 
     # ── Step 4.5 (Faza 8a 2026-05-17): aggregate LLM-verified matches
     # per competitor + re-bucket. Replaces the composite_score_v2 signal
@@ -716,6 +755,7 @@ async def _compute_pricing_comparisons(
     *,
     audit_id: str | None = None,
     tracer: TraceWriter | None = None,
+    method_classifier: "MethodClassifier | None" = None,
 ) -> list[dict[str, Any]]:
     """Compute per-variant pricing comparison rows (Phase 5 + mig 064 verify).
 
@@ -754,7 +794,9 @@ async def _compute_pricing_comparisons(
     # treatment_variants.brand_marker, ale samples potrzebują wartość
     # in-line bo variant_id nie zawsze odzwierciedla brand (np. nowe
     # variants jeszcze nie sklastrowane brand-aware).
-    from services.brand_marker import extract_brand_marker
+    # NOTE: extract_brand_marker is now imported at module top-level
+    # (T3b refactor) so Python doesn't treat it as local in the
+    # _compute_treatment_tier_rows closure scope.
     competitor_samples_by_variant: dict[
         tuple[int, int, str], list[dict[str, Any]]
     ] = {}
@@ -1285,6 +1327,7 @@ async def _compute_pricing_comparisons(
         llm_client=tier1_llm_client,
         audit_id=audit_id,
         tracer=tracer,
+        method_classifier=method_classifier,
     )
     rows.extend(tier1_rows)
 
@@ -1547,6 +1590,7 @@ async def _compute_treatment_tier_rows(
     llm_client: GeminiLLMClient | None = None,
     audit_id: str | None = None,
     tracer: TraceWriter | None = None,
+    method_classifier: "MethodClassifier | None" = None,
 ) -> list[dict[str, Any]]:
     """Tier-1 pricing comparison rows aggregated per booksy_treatment_id.
 
@@ -1669,6 +1713,83 @@ async def _compute_treatment_tier_rows(
                     len(_emb_map), len(svc_ids_to_fetch),
                 )
 
+    # T3 fix 2026-05-19 — method classifier (mig 095 treatment_methods).
+    # Lazy-instantiate per pipeline run; warmup loads 689 canonical methods
+    # + ~5k aliases into in-memory index. Used below to replace the
+    # regex-based extract_brand_marker() in promote-path subject+sample
+    # gating. Method classifier is whitelist-aware (689 canonical entries,
+    # 19 categories, 381 brand families) whereas extract_brand_marker is
+    # a reactive 60-entry regex that misses long tail (RESUR FX,
+    # DermaClear, Mesoestetic, etc. — added 2026-05-19 incrementally).
+    # T3b 2026-05-19 — pre-classify ALL subject + competitor services
+    # eligible for tier-1 BEFORE any per-row decisions. This moves the
+    # cascade (alias_exact → ANN → LLM) outside the inner aggregation
+    # loop, so method-aware filtering can be applied in BOTH paths:
+    # promote-path (semantic_t1) AND traditional path (competitor_by_tid).
+    # Cached results live on the classifier instance and avoid per-call
+    # round-trips. Owner of the classifier (caller) is responsible for
+    # flush_cache_writes() — we do not flush here.
+    _classified_methods: dict[int, Any] = {}  # service_id → MethodMatch
+    if method_classifier is not None:
+        _classify_targets: list[dict[str, Any]] = []
+        _seen_ids: set[int] = set()
+        for _svcs in subject_by_tid.values():
+            for _svc in _svcs:
+                _sid = _svc.get("id")
+                if _sid is None:
+                    continue
+                _sid_int = int(_sid)
+                if _sid_int in _seen_ids:
+                    continue
+                _seen_ids.add(_sid_int)
+                _classify_targets.append(_svc)
+        for _, _cdata in aligned_competitors:
+            for _svc in _cdata.get("services") or []:
+                if not _eligible(_svc):
+                    continue
+                _sid = _svc.get("id")
+                if _sid is None:
+                    continue
+                _sid_int = int(_sid)
+                if _sid_int in _seen_ids:
+                    continue
+                _seen_ids.add(_sid_int)
+                _classify_targets.append(_svc)
+
+        if _classify_targets:
+            try:
+                _classified_methods = await method_classifier.classify_services(
+                    _classify_targets,
+                    use_llm=False,  # alias+ANN is fast & precise enough
+                    max_concurrent=8,
+                )
+                logger.info(
+                    "Etap 4 tier-1: pre-classified %d/%d services "
+                    "(%d hit alias/ANN, %d unclassified)",
+                    len(_classified_methods),
+                    len(_classify_targets),
+                    len(_classified_methods),
+                    len(_classify_targets) - len(_classified_methods),
+                )
+            except Exception as _ce:
+                logger.warning(
+                    "Etap 4 tier-1: bulk classify failed (%s) — falling "
+                    "back to per-row extract_brand_marker",
+                    _ce,
+                )
+
+    def _get_method_canonical(svc: dict[str, Any]) -> str | None:
+        """Return canonical method for a service. Prefer cached classifier
+        result; fall back to regex extract_brand_marker only when classifier
+        didn't recognise the service."""
+        _sid = svc.get("id")
+        if _sid is not None:
+            _m = _classified_methods.get(int(_sid))
+            if _m is not None:
+                return _m.canonical_name
+        # Fallback regex (long-tail / unclassified services)
+        return extract_brand_marker(svc.get("name") or svc.get("service_name") or "")
+
     # 2. Group competitor services by tid_key (z counts_in_aggregates filter).
     # Hold tuples (sample_dict, fallback_embedding, variant_id) — variant_id
     # drives the centroid-based filter, fallback service name embedding
@@ -1753,6 +1874,62 @@ async def _compute_treatment_tier_rows(
     for key, subj_svcs in subject_by_tid.items():
         tid_kind, tid_value = key
         comp_samples = competitor_by_tid.get(key, [])
+
+        # T3b — method-aware gate w TRADITIONAL PATH. Pre-classify hook
+        # set `_classified_methods` powyżej; teraz filtruj `comp_samples`
+        # zachowując tylko te z tym samym canonical method co subject.
+        # Subject method = pierwszy classified subject service pod tym
+        # tid_key (subj_svcs[0] heuristic — w praktyce wszystkie subjects
+        # pod jednym tid_key mają zwykle ten sam method bo Pass 5 cross-
+        # salon consistency grupuje brand_marker-aware).
+        subj_method_canonical: str | None = None
+        if subj_svcs:
+            subj_method_canonical = _get_method_canonical(subj_svcs[0])
+
+        if (
+            subj_method_canonical is not None
+            and comp_samples
+            and method_classifier is not None
+        ):
+            _pre_method_count = len(comp_samples)
+            _kept: list[dict[str, Any]] = []
+            for _s in comp_samples:
+                _sid = _s.get("service_id")
+                _comp_method: str | None = None
+                if _sid is not None:
+                    _cm = _classified_methods.get(int(_sid))
+                    if _cm is not None:
+                        _comp_method = _cm.canonical_name
+                if _comp_method is None:
+                    _comp_method = extract_brand_marker(
+                        _s.get("service_name") or ""
+                    )
+                if _comp_method == subj_method_canonical:
+                    _s["_canonical_method"] = _comp_method
+                    _kept.append(_s)
+            comp_samples = _kept
+            if _pre_method_count != len(comp_samples):
+                logger.info(
+                    "Etap 4 tier-1 traditional: method=%r dropped %d/%d "
+                    "cross-method samples (key=%s:%s)",
+                    subj_method_canonical,
+                    _pre_method_count - len(comp_samples),
+                    _pre_method_count,
+                    tid_kind, tid_value,
+                )
+
+        # Enrich samples z brand_marker (canonical method jeśli classifier
+        # rozpoznał lub regex fallback) — żeby downstream UI + traces miały
+        # tę informację w competitor_samples JSONB array. Idempotent —
+        # promote-path też później może rebuilduje samples z explicit
+        # brand_marker key.
+        for _s in comp_samples:
+            if "brand_marker" not in _s:
+                _s["brand_marker"] = (
+                    _s.get("_canonical_method")
+                    or extract_brand_marker(_s.get("service_name") or "")
+                )
+
         # Min-sample gate. After the method-similarity filter we may end up
         # with 0-2 competitor samples — too few for a credible deviation%
         # ("Thunder vs jedna pasta cukrowa = +167%" is the false-alarm
@@ -1893,7 +2070,6 @@ async def _compute_treatment_tier_rows(
                 STRONG_MIN_COUNT,
                 STRONG_MIN_UNIQUE_SALONS,
             )
-            from services.brand_marker import extract_brand_marker
             related_t1: list[dict[str, Any]] = []
             semantic_t1: list[dict[str, Any]] = []
             promoted_t1 = False
@@ -1926,34 +2102,39 @@ async def _compute_treatment_tier_rows(
                 # noise (audit 34 PRO XN III stopień: 14/14 sampli było z
                 # RESUR FX / DermaClear / Mesoestetic / Dermalogica —
                 # wszystkie ≥0.78 cosine, wszystkie inny brand).
-                subject_brand_marker = (
+                # T3b — Subject method already resolved above for traditional
+                # path. Re-use here for promote-path filter on strong_t1.
+                # NOTE: gather_market_context_samples may return services
+                # NOT in `aligned_competitors` (RPC scopes by booksy_id) —
+                # those weren't in our pre-classify set, so we fallback
+                # to extract_brand_marker for them.
+                subject_brand_marker = subj_method_canonical or (
                     extract_brand_marker(subj_svcs[0].get("name") or "")
                     if subj_svcs else None
                 )
                 if subject_brand_marker:
                     pre_brand_count = len(strong_t1)
-                    # Strict mode: gdy subject ma rozpoznawalny brand,
-                    # competitor MUSI mieć dokładnie ten sam. None (extractor
-                    # nie zna brandu w nazwie competitora) traktujemy jako
-                    # different-brand — bo nazwy typu "DermaClear z PRX",
-                    # "Leczenie RESUR FX", "Eksfoliacja Mesoestetic" mają
-                    # własne marki ale jeszcze nie są w whitelist regex.
-                    # Lepiej false-negative (odrzucić legitnego PRO XN match
-                    # z nietypowym wording'iem) niż false-positive (mieszać
-                    # RESUR FX laser z PRO XN peeling w obliczeniu mediany).
-                    # Brakujące brand_markery dodajemy do regex w
-                    # services/brand_marker.py incrementally jako pojawiają
-                    # się w prod traces.
-                    strong_t1 = [
-                        s for s in strong_t1
-                        if extract_brand_marker(
-                            s.get("service_name") or ""
-                        ) == subject_brand_marker
-                    ]
+                    _filtered: list[dict[str, Any]] = []
+                    for _s in strong_t1:
+                        _sid = _s.get("service_id")
+                        _comp_method: str | None = None
+                        if _sid is not None:
+                            _cm = _classified_methods.get(int(_sid))
+                            if _cm is not None:
+                                _comp_method = _cm.canonical_name
+                        if _comp_method is None:
+                            _comp_method = extract_brand_marker(
+                                _s.get("service_name") or ""
+                            )
+                        if _comp_method == subject_brand_marker:
+                            _s["_canonical_method"] = _comp_method
+                            _filtered.append(_s)
+                    strong_t1 = _filtered
+
                     if pre_brand_count != len(strong_t1):
                         logger.info(
-                            "Etap 4 tier-1 promote: brand_marker=%r dropped "
-                            "%d/%d cross-brand samples for %r",
+                            "Etap 4 tier-1 promote: method=%r dropped "
+                            "%d/%d cross-method samples for %r",
                             subject_brand_marker,
                             pre_brand_count - len(strong_t1),
                             pre_brand_count,
@@ -1983,8 +2164,15 @@ async def _compute_treatment_tier_rows(
                             "price_grosze": int(s["price_grosze"]),
                             "duration_minutes": s.get("duration_minutes"),
                             "name_similarity": s.get("similarity"),
-                            "brand_marker": extract_brand_marker(
-                                s.get("service_name") or ""
+                            # brand_marker = classifier canonical method
+                            # (taxonomy-aware) gdy istnieje, fallback do
+                            # regex extract_brand_marker dla services
+                            # nieobecnych w treatment_methods bazie.
+                            "brand_marker": (
+                                s.get("_canonical_method")
+                                or extract_brand_marker(
+                                    s.get("service_name") or ""
+                                )
                             ),
                             "relation": s.get("relation"),
                         }
@@ -2151,6 +2339,9 @@ async def _compute_treatment_tier_rows(
             "(%d booksy-keyed, %d synthetic-keyed)",
             len(rows), n_booksy, n_synthetic,
         )
+
+    # T3b — flush is done in compute_competitor_analysis (caller owns
+    # the classifier instance to share it across tier-1 + tier-2 paths).
     return rows
 
 
