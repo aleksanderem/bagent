@@ -53,6 +53,7 @@ from services.focus_score import (
     parse_focus_distribution_jsonb,
 )
 from services.method_marker import extract_method_marker
+from services.pipeline_trace import TraceWriter
 from services.supabase import SupabaseService
 
 logger = logging.getLogger(__name__)
@@ -607,6 +608,7 @@ async def select_competitors(
     max_distance_km: float = 15.0,
     female_weight_tolerance: float = 20.0,
     supabase: SupabaseService | None = None,
+    tracer: "TraceWriter | None" = None,
 ) -> list[CompetitorCandidate]:
     """Deterministic candidate selection for a competitor report.
 
@@ -729,6 +731,37 @@ async def select_competitors(
         len(raw_candidates), subject_booksy_id, subject_primary_cat, max_distance_km,
     )
 
+    # Trace: candidate pool snapshot. This is the input to selection — if a
+    # salon doesn't appear here at all, RPC `get_candidate_salons` filtered
+    # it out (wrong category, outside radius, deleted, etc.).
+    if tracer is not None:
+        tracer.add(
+            step="selection.candidate_pool",
+            data={
+                "subject_audit_id": subject_audit_id,
+                "subject_booksy_id": subject_booksy_id,
+                "subject_salon_id": subject_salon_id,
+                "subject_primary_cat": subject_primary_cat,
+                "subject_female_weight": subject_female_weight,
+                "subject_reviews_count": subject_reviews_count,
+                "subject_reviews_rank": subject_reviews_rank,
+                "max_distance_km": max_distance_km,
+                "female_weight_tolerance": female_weight_tolerance,
+                "raw_candidates_count": len(raw_candidates),
+                "raw_candidate_booksy_ids": [
+                    c.get("booksy_id") for c in raw_candidates
+                ],
+                "subject_has_focus_bundle": (
+                    subject_bundle is not None
+                    and subject_bundle.portfolio_embedding is not None
+                ),
+                "subject_atom_count": len(subject_atoms),
+                "target_count": target_count,
+                "mode": mode,
+            },
+            salon_ref_id=subject_salon_id,
+        )
+
     if not raw_candidates:
         return []
 
@@ -795,6 +828,22 @@ async def select_competitors(
             and abs(cand_female_weight - subject_female_weight) > female_weight_tolerance
         ):
             dropped_fw += 1
+            if tracer is not None:
+                tracer.add(
+                    step="selection.candidate_evaluated",
+                    data={
+                        "decision": "reject",
+                        "reject_reason": "female_weight_mismatch",
+                        "salon_id": salon_id,
+                        "booksy_id": booksy_id,
+                        "name": c.get("name"),
+                        "subject_female_weight": subject_female_weight,
+                        "candidate_female_weight": cand_female_weight,
+                        "diff": abs(cand_female_weight - subject_female_weight),
+                        "tolerance": female_weight_tolerance,
+                    },
+                    salon_ref_id=salon_id,
+                )
             continue
 
         female_weight_diff = (
@@ -812,6 +861,23 @@ async def select_competitors(
         cand_bundle = focus_bundles.get(salon_id)
         if cand_bundle is None or cand_bundle.portfolio_embedding is None:
             dropped_no_focus += 1
+            if tracer is not None:
+                tracer.add(
+                    step="selection.candidate_evaluated",
+                    data={
+                        "decision": "reject",
+                        "reject_reason": "no_focus_bundle",
+                        "salon_id": salon_id,
+                        "booksy_id": booksy_id,
+                        "name": c.get("name"),
+                        "distance_km": distance_km,
+                        "note": (
+                            "Candidate has no precomputed focus bundle yet — "
+                            "nightly cron computes these. Reappears in next run."
+                        ),
+                    },
+                    salon_ref_id=salon_id,
+                )
             continue
 
         # 4 semantic axes similarity (v2)
@@ -872,6 +938,37 @@ async def select_competitors(
         )
         if bucket is None:
             dropped_bucket += 1
+            if tracer is not None:
+                tracer.add(
+                    step="selection.candidate_evaluated",
+                    data={
+                        "decision": "reject",
+                        "reject_reason": "bucket_or_gate_failed",
+                        "salon_id": salon_id,
+                        "booksy_id": booksy_id,
+                        "name": c.get("name"),
+                        "composite_score": round(composite, 2),
+                        "components": {
+                            "focus_tid_sim": round(focus_tid_sim, 4),
+                            "focus_var_sim": round(focus_var_sim, 4),
+                            "portfolio_embedding_sim": round(portfolio_emb_sim, 4),
+                            "reviews_count_similarity": round(rc_sim, 4),
+                            "tid_set_overlap_asym": round(tid_set_overlap_asym, 4),
+                            "profile_overlap_sim": round(profile_overlap_sim, 4),
+                            "distance_km": distance_km,
+                        },
+                        "reviews_count": c.get("reviews_count") or 0,
+                        "candidate_reviews_rank": c.get("reviews_rank"),
+                        "subject_reviews_rank": subject_reviews_rank,
+                        "note": (
+                            "assign_bucket_v2 returned None — none of the "
+                            "OR-gate thresholds (focus_tid_sim>=0.18 OR "
+                            "portfolio_emb_sim>=0.55 OR profile_overlap_sim "
+                            ">=0.15) were met."
+                        ),
+                    },
+                    salon_ref_id=salon_id,
+                )
             continue
 
         scored.append(
@@ -900,6 +997,36 @@ async def select_competitors(
                 partner_system=partner,
             )
         )
+        if tracer is not None:
+            tracer.add(
+                step="selection.candidate_evaluated",
+                data={
+                    "decision": "accept",
+                    "salon_id": salon_id,
+                    "booksy_id": booksy_id,
+                    "name": c.get("name"),
+                    "city": c.get("city"),
+                    "bucket": bucket,
+                    "counts_in_aggregates": bucket != "new",
+                    "composite_score": round(composite, 2),
+                    "components": {
+                        "focus_tid_sim": round(focus_tid_sim, 4),
+                        "focus_var_sim": round(focus_var_sim, 4),
+                        "portfolio_embedding_sim": round(portfolio_emb_sim, 4),
+                        "reviews_count_similarity": round(rc_sim, 4),
+                        "tid_set_overlap_asym": round(tid_set_overlap_asym, 4),
+                        "profile_overlap_sim": round(profile_overlap_sim, 4),
+                        "distance_penalty": round(
+                            compute_distance_penalty(distance_km), 2
+                        ),
+                        "distance_km": distance_km,
+                    },
+                    "reviews_count": c.get("reviews_count") or 0,
+                    "reviews_rank": c.get("reviews_rank"),
+                    "partner_system": partner,
+                },
+                salon_ref_id=salon_id,
+            )
 
     logger.info(
         "Scored %d/%d candidates (dropped %d by female_weight, %d by bucket, "
@@ -912,4 +1039,37 @@ async def select_competitors(
 
     # --- 6. Return top N ------------------------------------------------------
     cap = target_count if mode == "auto" else 15
-    return scored[:cap]
+    final = scored[:cap]
+
+    # Final trace: summary + which candidates made the cut. Lets us answer
+    # "which were dropped at the target_count cap vs which actually failed
+    # scoring/bucketing".
+    if tracer is not None:
+        tracer.add(
+            step="selection.summary",
+            data={
+                "raw_count": len(raw_candidates),
+                "scored_count": len(scored),
+                "returned_count": len(final),
+                "cap": cap,
+                "dropped_female_weight": dropped_fw,
+                "dropped_bucket": dropped_bucket,
+                "dropped_no_focus": dropped_no_focus,
+                "dropped_by_cap": max(0, len(scored) - cap),
+                "returned_booksy_ids": [c.booksy_id for c in final],
+                "buckets": {
+                    "direct": sum(1 for c in final if c.bucket == "direct"),
+                    "cluster": sum(1 for c in final if c.bucket == "cluster"),
+                    "aspirational": sum(
+                        1 for c in final if c.bucket == "aspirational"
+                    ),
+                    "new": sum(1 for c in final if c.bucket == "new"),
+                    "alternative": sum(
+                        1 for c in final if c.bucket == "alternative"
+                    ),
+                },
+            },
+            salon_ref_id=subject_salon_id,
+        )
+
+    return final

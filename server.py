@@ -707,6 +707,100 @@ async def staff_team_summary(booksy_id: int) -> dict:
 
 
 @app.get(
+    "/api/competitor/profile/{salon_id}",
+    dependencies=[Depends(verify_api_key)],
+)
+async def competitor_profile(salon_id: int) -> dict:
+    """Full profile snapshot for ONE competitor salon — header photos
+    (cover/logo/thumbnail), salon meta, and the COMPLETE active services
+    pricelist. Drives the modal that opens from the competitor table row.
+
+    `salon_id` is the internal `salons.id` (= `salon_scrapes.salon_ref_id`)
+    which is what the rich-report data emits as `competitor.id`.
+    """
+    from services.sb_client import make_supabase_client
+
+    sb = make_supabase_client(
+        settings.supabase_url, settings.supabase_service_key,
+    )
+    # Latest chain-head scrape for this salon. Chain head = canonical
+    # current-state row; delta rows are skipped (would mix in old data).
+    scrape_res = (
+        sb.table("salon_scrapes")
+        .select(
+            "id, booksy_id, salon_name, salon_city, salon_address, "
+            "salon_lat, salon_lng, salon_logo_url, cover_photo_url, "
+            "thumbnail_photo_url, reviews_rank, reviews_count, "
+            "business_categories, booksy_url, total_services, "
+            "active_services_count, scraped_at"
+        )
+        .eq("salon_ref_id", salon_id)
+        .eq("is_chain_head", True)
+        .order("scraped_at", desc=True)
+        .limit(1)
+        .execute()
+    )
+    if not scrape_res.data:
+        raise HTTPException(
+            status_code=404,
+            detail=f"No chain-head scrape for salon_ref_id={salon_id}",
+        )
+    s = scrape_res.data[0]
+
+    # Full active pricelist for this scrape. is_active = TRUE filters out
+    # legacy duplicate rows (pre-dedup-trigger residue) and soft-deleted
+    # services. Order by category then name for predictable group rendering.
+    services_res = (
+        sb.table("salon_scrape_services")
+        .select(
+            "name, category, price_grosze, duration_minutes, "
+            "booksy_service_id, currency"
+        )
+        .eq("scrape_id", s["id"])
+        .eq("is_active", True)
+        .order("category", desc=False)
+        .order("name", desc=False)
+        .limit(500)
+        .execute()
+    )
+    services = services_res.data or []
+
+    return {
+        "salon": {
+            "id": salon_id,
+            "booksyId": s.get("booksy_id"),
+            "name": s.get("salon_name"),
+            "city": s.get("salon_city"),
+            "address": s.get("salon_address"),
+            "lat": s.get("salon_lat"),
+            "lng": s.get("salon_lng"),
+            "coverPhotoUrl": s.get("cover_photo_url"),
+            "logoPhotoUrl": s.get("salon_logo_url"),
+            "thumbnailPhotoUrl": s.get("thumbnail_photo_url"),
+            "reviewsRank": s.get("reviews_rank"),
+            "reviewsCount": s.get("reviews_count"),
+            "businessCategories": s.get("business_categories") or [],
+            "booksyUrl": s.get("booksy_url"),
+            "totalServices": s.get("total_services"),
+            "activeServicesCount": s.get("active_services_count"),
+            "scrapedAt": s.get("scraped_at"),
+        },
+        "services": [
+            {
+                "name": svc.get("name"),
+                "category": svc.get("category"),
+                "priceGrosze": svc.get("price_grosze"),
+                "durationMinutes": svc.get("duration_minutes"),
+                "booksyServiceId": svc.get("booksy_service_id"),
+                "currency": svc.get("currency") or "PLN",
+            }
+            for svc in services
+        ],
+        "serviceCount": len(services),
+    }
+
+
+@app.get(
     "/api/staff/competitor-changes/{booksy_id}",
     dependencies=[Depends(verify_api_key)],
 )

@@ -36,6 +36,7 @@ from pipelines.competitor_dimensional_scores import (
     compute_subject_percentile,
 )
 from pipelines.competitor_selection import CompetitorCandidate, select_competitors
+from services.pipeline_trace import TraceWriter
 from services.pricing_verification import (
     VERIFICATION_THRESHOLD_PCT,
     compute_name_embedding_similarity,
@@ -102,10 +103,28 @@ async def compute_competitor_analysis(
     progress = on_progress or _noop_progress
     service = supabase or SupabaseService()
 
+    # ── Pipeline trace writer (mig 094) ──
+    # Accumulates intermediate decisions for replay / customer-support /
+    # regression detection. Flushed once at the end on the happy path —
+    # if the pipeline crashes mid-run, the buffered traces are lost by
+    # design (a partial trace would be misleading). Critical traces that
+    # must survive a crash should be flushed earlier (see post-selection
+    # flush below).
+    tracer = TraceWriter(
+        client=service.client,
+        audit_id=audit_id,
+        report_id=None,  # set after create_competitor_report
+        pipeline="competitor_analysis",
+    )
+
     # ── Step 1: Select competitors (Comp Etap 1) ──
     await progress(5, "Selekcja konkurentów...")
     candidates = await select_competitors(
-        audit_id, target_count=target_count, mode=selection_mode, supabase=service,
+        audit_id,
+        target_count=target_count,
+        mode=selection_mode,
+        supabase=service,
+        tracer=tracer,
     )
     if not candidates:
         raise RuntimeError(
@@ -140,6 +159,15 @@ async def compute_competitor_analysis(
         },
     )
     logger.info("Etap 4: created competitor_reports id=%s", report_id)
+
+    # Now that the report row exists, backfill report_id on every buffered
+    # selection trace + future traces. Flush immediately so selection traces
+    # are durable even if downstream steps crash (without this, a 5-min
+    # pipeline failure loses the entire selection-decision audit trail).
+    for row in tracer._buffer:
+        row["report_id"] = report_id
+    tracer.report_id = report_id
+    await tracer.flush()
 
     # Wipe any stale children from a prior re-run before inserting new rows
     await service.delete_competitor_report_children(report_id)
@@ -310,6 +338,7 @@ async def compute_competitor_analysis(
     pricing_rows = await _compute_pricing_comparisons(
         service, report_id, subject_data, aligned_competitors,
         audit_id=audit_id,
+        tracer=tracer,
     )
     pricing_rows = _dedup_pricing_rows(pricing_rows)
     n_pricing = await service.insert_competitor_pricing_comparisons(pricing_rows)
@@ -336,6 +365,7 @@ async def compute_competitor_analysis(
     await progress(70, "Dimensional scores (28 wymiarów)...")
     dim_rows = _compute_dimensional_scores(
         report_id, subject_data, aligned_competitors,
+        tracer=tracer,
     )
     n_dims = await service.insert_competitor_dimensional_scores(dim_rows)
     logger.info("Etap 4: inserted %d dimensional_scores", n_dims)
@@ -437,6 +467,13 @@ async def compute_competitor_analysis(
         f"Gotowe: {n_matches} matches, {n_pricing} pricing, "
         f"{n_gaps} gaps, {n_dims} dimensions",
     )
+
+    # Final flush — captures any traces added during pricing / scoring /
+    # market_context phases past the initial selection flush. NO graceful
+    # fail: if this flush errors, the pipeline crashes loudly so the
+    # operator sees the missing observability.
+    await tracer.flush()
+
     return report_id
 
 
@@ -678,6 +715,7 @@ async def _compute_pricing_comparisons(
     aligned_competitors: list[tuple[CompetitorCandidate, dict[str, Any]]],
     *,
     audit_id: str | None = None,
+    tracer: TraceWriter | None = None,
 ) -> list[dict[str, Any]]:
     """Compute per-variant pricing comparison rows (Phase 5 + mig 064 verify).
 
@@ -881,6 +919,8 @@ async def _compute_pricing_comparisons(
             ]
             semantic_results = await gather_market_context_samples(
                 service, subj_service_id, competitor_booksy_ids,
+                tracer=tracer,
+                subject_service_name=subject_svc.get("name"),
             )
             strong = [
                 s for s in semantic_results
@@ -1089,6 +1129,33 @@ async def _compute_pricing_comparisons(
                     (subject_svc.get("name") or "")[:80],
                     deviation_pct, verification_details,
                 )
+                # Trace: variant dropped at verification. Lets us replay
+                # "why did Subject service X have no pricing comparison".
+                if tracer is not None:
+                    tracer.add(
+                        step="pricing.variant_dropped",
+                        data={
+                            "tid": tid,
+                            "variant_id": variant_id,
+                            "subject_service_id": subject_svc.get("id"),
+                            "subject_name": (subject_svc.get("name") or "")[:200],
+                            "verification_status": verification_status,
+                            "verification_details": verification_details,
+                            "deviation_pct": round(deviation_pct, 2),
+                            "subject_price_grosze": int(subject_price),
+                            "samples_count": len(samples),
+                            "samples_brief": [
+                                {
+                                    "salon_ref_id": s.get("salon_id"),
+                                    "salon_name": (s.get("salon_name") or "")[:120],
+                                    "service_name": (s.get("service_name") or s.get("name") or "")[:120],
+                                    "price_grosze": s.get("price_grosze"),
+                                    "duration_minutes": s.get("duration_minutes"),
+                                }
+                                for s in samples[:20]
+                            ],
+                        },
+                    )
                 continue
 
         # Compute PLN/min metrics (mig 068). Subject + market percentiles
@@ -1217,6 +1284,7 @@ async def _compute_pricing_comparisons(
         supabase=service,
         llm_client=tier1_llm_client,
         audit_id=audit_id,
+        tracer=tracer,
     )
     rows.extend(tier1_rows)
 
@@ -1260,6 +1328,70 @@ async def _compute_pricing_comparisons(
             dropped_counts["duration_mismatch"],
             report_id,
         )
+
+    # Final aggregation trace per accepted row — captures the FULL decision:
+    # which competitor_samples contributed, what percentiles came out, why
+    # this median and not another. The row already contains competitor_samples
+    # JSONB (also persisted to competitor_pricing_comparisons child table),
+    # but here we ALSO record the (subject_service_id, variant_id) input
+    # decision so a reader of the trace can answer "for this subject service,
+    # what considered set produced the median".
+    if tracer is not None:
+        for r in rows:
+            tracer.add(
+                step="pricing.variant_aggregation",
+                data={
+                    "tier": r.get("comparison_tier"),
+                    "tid": r.get("booksy_treatment_id"),
+                    "variant_id": r.get("variant_id"),
+                    "treatment_name": r.get("treatment_name"),
+                    "subject_price_grosze": r.get("subject_price_grosze"),
+                    "subject_duration_minutes": r.get("subject_duration_minutes"),
+                    "subject_ppm_grosze": r.get("subject_price_per_min_grosze"),
+                    "market_min_grosze": r.get("market_min_grosze"),
+                    "market_p25_grosze": r.get("market_p25_grosze"),
+                    "market_median_grosze": r.get("market_median_grosze"),
+                    "market_p75_grosze": r.get("market_p75_grosze"),
+                    "market_max_grosze": r.get("market_max_grosze"),
+                    "subject_percentile": r.get("subject_percentile"),
+                    "deviation_pct": r.get("deviation_pct"),
+                    "deviation_pct_per_min": r.get("deviation_pct_per_min"),
+                    "sample_size": r.get("sample_size"),
+                    "verification_status": r.get("verification_status"),
+                    "recommended_action": r.get("recommended_action"),
+                    "is_aggregated_cross_variant": bool(
+                        r.get("is_aggregated_cross_variant", False)
+                    ),
+                    "subject_only": bool(
+                        r.get("market_median_grosze") is None
+                    ),
+                    # Per-competitor contributions. Limit to 20 to stay
+                    # under the 256 KB row limit even on wild outliers.
+                    "samples": [
+                        {
+                            "salon_ref_id": s.get("salon_id"),
+                            "salon_name": (s.get("salon_name") or "")[:120],
+                            "service_name": (s.get("service_name") or s.get("name") or "")[:120],
+                            "price_grosze": s.get("price_grosze"),
+                            "duration_minutes": s.get("duration_minutes"),
+                            "brand_marker": s.get("brand_marker"),
+                            "relation": s.get("relation"),
+                            "similarity": s.get("similarity"),
+                        }
+                        for s in (r.get("competitor_samples") or [])[:20]
+                    ],
+                    "samples_truncated_from": (
+                        len(r.get("competitor_samples") or [])
+                        if (r.get("competitor_samples") or []) and len(r["competitor_samples"]) > 20
+                        else None
+                    ),
+                    # Semantic-related samples (Phase 1b) — populated on
+                    # subject_only rows where competitors offer the same
+                    # method+area but not the exact variant. Surface them
+                    # in trace so we can replay "what was almost-matched".
+                    "related_samples_count": len(r.get("related_samples") or []),
+                },
+            )
 
     return rows
 
@@ -1414,6 +1546,7 @@ async def _compute_treatment_tier_rows(
     supabase: SupabaseService | None = None,
     llm_client: GeminiLLMClient | None = None,
     audit_id: str | None = None,
+    tracer: TraceWriter | None = None,
 ) -> list[dict[str, Any]]:
     """Tier-1 pricing comparison rows aggregated per booksy_treatment_id.
 
@@ -1482,6 +1615,59 @@ async def _compute_treatment_tier_rows(
 
     if not subject_by_tid:
         return rows
+
+    # T1 fix 2026-05-19 — hydrate name_embedding for subject + competitor
+    # services before the method-similarity filter. `_load_services_for_scrape`
+    # in services/supabase.py intentionally skips `name_embedding` on the
+    # initial wire (1536 floats per row × thousands of services is heavy),
+    # surfacing only `embedding_applied_at` as a presence gate. The tier-1
+    # similarity filter (`_filter_comp_samples_by_subj_method`) hard-needs
+    # actual embeddings — without them `subj_refs` collapses to [] and the
+    # filter accepts every cross-method noise row (audit 34 PRO XN Acne
+    # Rescue had 14/14 samples with `name_similarity=NULL` because of this).
+    # Point-in-time batch fetch here is cheap: typically <500 IDs per audit.
+    if supabase is not None:
+        svc_ids_to_fetch: set[int] = set()
+        for _svcs in subject_by_tid.values():
+            for _svc in _svcs:
+                _sid = _svc.get("id")
+                if _sid is not None and not _svc.get("name_embedding"):
+                    svc_ids_to_fetch.add(int(_sid))
+        for _, _cdata in aligned_competitors:
+            for _svc in _cdata.get("services") or []:
+                if not _eligible(_svc):
+                    continue
+                _sid = _svc.get("id")
+                if _sid is not None and not _svc.get("name_embedding"):
+                    svc_ids_to_fetch.add(int(_sid))
+        if svc_ids_to_fetch:
+            try:
+                _emb_map = await supabase.get_service_embeddings(
+                    list(svc_ids_to_fetch)
+                )
+            except Exception as _err:
+                logger.warning(
+                    "Etap 4 tier-1: embedding hydration failed (n=%d): %s — "
+                    "filter will accept all samples as before",
+                    len(svc_ids_to_fetch), _err,
+                )
+                _emb_map = {}
+            if _emb_map:
+                for _svcs in subject_by_tid.values():
+                    for _svc in _svcs:
+                        _sid = _svc.get("id")
+                        if _sid is not None and int(_sid) in _emb_map:
+                            _svc["name_embedding"] = _emb_map[int(_sid)]
+                for _, _cdata in aligned_competitors:
+                    for _svc in _cdata.get("services") or []:
+                        _sid = _svc.get("id")
+                        if _sid is not None and int(_sid) in _emb_map:
+                            _svc["name_embedding"] = _emb_map[int(_sid)]
+                logger.info(
+                    "Etap 4 tier-1: hydrated %d service embeddings for "
+                    "similarity filter (requested=%d)",
+                    len(_emb_map), len(svc_ids_to_fetch),
+                )
 
     # 2. Group competitor services by tid_key (z counts_in_aggregates filter).
     # Hold tuples (sample_dict, fallback_embedding, variant_id) — variant_id
@@ -1707,6 +1893,7 @@ async def _compute_treatment_tier_rows(
                 STRONG_MIN_COUNT,
                 STRONG_MIN_UNIQUE_SALONS,
             )
+            from services.brand_marker import extract_brand_marker
             related_t1: list[dict[str, Any]] = []
             semantic_t1: list[dict[str, Any]] = []
             promoted_t1 = False
@@ -1718,11 +1905,60 @@ async def _compute_treatment_tier_rows(
                 ]
                 semantic_t1 = await gather_market_context_samples(
                     supabase, subj_id_for_rpc, competitor_booksy_ids,
+                    tracer=tracer,
+                    subject_service_name=subj_svcs[0].get("name") if subj_svcs else None,
                 )
                 strong_t1 = [
                     s for s in semantic_t1
                     if (s.get("similarity") or 0) >= STRONG_MIN_SIMILARITY
                 ]
+                # Systemowy fix 2026-05-19 — brand-marker hard gate na
+                # promote path. RPC `fn_find_related_competitor_services`
+                # zwraca strong matches po pure embedding cosine, ALE
+                # OpenAI text-embedding-3-small jest method-agnostic dla
+                # blisko-medycznie powiązanych zabiegów (RESUR FX laser,
+                # DermaClear PRX, Mesoestetic peel — wszystkie "treatment
+                # for acne on face" → sim 0.78-0.86). Jeśli subject ma
+                # rozpoznawalny brand_marker (PRO XN, Thunder, Onda,
+                # PRX T33, ...) zostawiamy tylko competitor services z TYM
+                # SAMYM brand_marker albo bez markeru (generic). Bez tej
+                # bramki tier=treatment promoted_t1 wciąga cross-brand
+                # noise (audit 34 PRO XN III stopień: 14/14 sampli było z
+                # RESUR FX / DermaClear / Mesoestetic / Dermalogica —
+                # wszystkie ≥0.78 cosine, wszystkie inny brand).
+                subject_brand_marker = (
+                    extract_brand_marker(subj_svcs[0].get("name") or "")
+                    if subj_svcs else None
+                )
+                if subject_brand_marker:
+                    pre_brand_count = len(strong_t1)
+                    # Strict mode: gdy subject ma rozpoznawalny brand,
+                    # competitor MUSI mieć dokładnie ten sam. None (extractor
+                    # nie zna brandu w nazwie competitora) traktujemy jako
+                    # different-brand — bo nazwy typu "DermaClear z PRX",
+                    # "Leczenie RESUR FX", "Eksfoliacja Mesoestetic" mają
+                    # własne marki ale jeszcze nie są w whitelist regex.
+                    # Lepiej false-negative (odrzucić legitnego PRO XN match
+                    # z nietypowym wording'iem) niż false-positive (mieszać
+                    # RESUR FX laser z PRO XN peeling w obliczeniu mediany).
+                    # Brakujące brand_markery dodajemy do regex w
+                    # services/brand_marker.py incrementally jako pojawiają
+                    # się w prod traces.
+                    strong_t1 = [
+                        s for s in strong_t1
+                        if extract_brand_marker(
+                            s.get("service_name") or ""
+                        ) == subject_brand_marker
+                    ]
+                    if pre_brand_count != len(strong_t1):
+                        logger.info(
+                            "Etap 4 tier-1 promote: brand_marker=%r dropped "
+                            "%d/%d cross-brand samples for %r",
+                            subject_brand_marker,
+                            pre_brand_count - len(strong_t1),
+                            pre_brand_count,
+                            canonical_name[:60],
+                        )
                 strong_t1_unique_salons = {
                     s.get("salon_id") for s in strong_t1
                     if s.get("salon_id") is not None
@@ -1733,6 +1969,10 @@ async def _compute_treatment_tier_rows(
                 ):
                     # Promote — convert to comp_samples shape and let
                     # tier-1 percentile path below compute the comparison.
+                    # Forward similarity + brand_marker do każdego sample
+                    # (downstream serializer i UI sort'ują po name_similarity
+                    # — wcześniej gubione bo dict comprehension nie kopiował
+                    # tych pól).
                     comp_samples = [
                         {
                             "salon_id": s["salon_id"],
@@ -1742,6 +1982,11 @@ async def _compute_treatment_tier_rows(
                             "service_name": s["service_name"],
                             "price_grosze": int(s["price_grosze"]),
                             "duration_minutes": s.get("duration_minutes"),
+                            "name_similarity": s.get("similarity"),
+                            "brand_marker": extract_brand_marker(
+                                s.get("service_name") or ""
+                            ),
+                            "relation": s.get("relation"),
                         }
                         for s in strong_t1
                     ]
@@ -2783,61 +3028,41 @@ _HIDDEN_LLM_TRIED = False
 
 
 def _get_hidden_inference_llm() -> GeminiLLMClient | None:
-    """Lazy-init LLM client dla taxonomy disambiguation. Preferuje OpenAI
-    (paid, reliable, JSON output), fallback do Gemini (jeśli paid key
-    będzie dostępny w przyszłości). None jeśli żaden klucz."""
+    """Lazy-init LLM client dla taxonomy disambiguation. OpenAI-only —
+    Gemini fallback path REMOVED (Google API key was suspended in May
+    2026 and user has been on OpenAI exclusively since then; the legacy
+    fallback would crash audits silently when Gemini quota errored).
+
+    Returns None ONLY when OPENAI_API_KEY isn't configured, which is
+    an environment misconfiguration — downstream callers must treat
+    None as a hard error, not a graceful fallback to keyword mapping.
+    """
     global _HIDDEN_LLM_CLIENT, _HIDDEN_LLM_TRIED
     if _HIDDEN_LLM_TRIED:
         return _HIDDEN_LLM_CLIENT
     _HIDDEN_LLM_TRIED = True
 
-    # Preferowana ścieżka: OpenAI gpt-4o-mini (paid, reliable JSON output).
     import os
     openai_key = os.environ.get("OPENAI_API_KEY", "")
-    if openai_key:
-        try:
-            _HIDDEN_LLM_CLIENT = GeminiLLMClient(
-                api_key=openai_key, model="gpt-4o-mini", provider="openai",
-            )
-            logger.info(
-                "hidden_service_inference: using OpenAI gpt-4o-mini",
-            )
-            return _HIDDEN_LLM_CLIENT
-        except Exception:
-            # Init failure goes to Bugsink as ERROR (logger.exception);
-            # we still TRY Gemini next because that's the explicit fallback
-            # chain semantic — but the failure is now visible, not buried.
-            logger.exception(
-                "hidden_service_inference: OPENAI client init FAILED — "
-                "attempting Gemini fallback chain next"
-            )
+    if not openai_key:
+        logger.error(
+            "hidden_service_inference: OPENAI_API_KEY not configured. "
+            "Pipeline will crash at the first call site that requires "
+            "LLM disambiguation — this is an env misconfiguration, NOT a "
+            "graceful-fallback condition."
+        )
+        _HIDDEN_LLM_CLIENT = None
+        return _HIDDEN_LLM_CLIENT
 
-    # Fallback: Gemini Flash via OpenAI-compat endpoint (jeśli paid key
-    # będzie kiedyś dostępny — obecnie free tier ma limit 0).
-    if settings.gemini_api_key:
-        try:
-            _HIDDEN_LLM_CLIENT = GeminiLLMClient(
-                api_key=settings.gemini_api_key,
-                model="gemini-2.0-flash",
-                provider="gemini",
-            )
-            logger.info(
-                "hidden_service_inference: using Gemini Flash 2.0",
-            )
-            return _HIDDEN_LLM_CLIENT
-        except Exception:
-            logger.exception(
-                "hidden_service_inference: GEMINI client init FAILED — "
-                "no remaining LLM provider; downstream callers MUST treat "
-                "the resulting None client as a hard error, not a graceful "
-                "fallback"
-            )
-
-    logger.info(
-        "hidden_service_inference: no LLM key configured — "
-        "fallback to keyword mapping",
+    # OpenAI gpt-4o-mini — paid, reliable JSON output, ~$0.0002/call.
+    # No try/except wrapper: an init failure is an environment problem
+    # that must surface, not be swallowed.
+    _HIDDEN_LLM_CLIENT = GeminiLLMClient(
+        api_key=openai_key, model="gpt-4o-mini", provider="openai",
     )
-    _HIDDEN_LLM_CLIENT = None
+    logger.info(
+        "hidden_service_inference: using OpenAI gpt-4o-mini",
+    )
     return _HIDDEN_LLM_CLIENT
 
 
@@ -3729,6 +3954,8 @@ def _compute_dimensional_scores(
     report_id: int,
     subject_data: dict[str, Any],
     aligned_competitors: list[tuple[CompetitorCandidate, dict[str, Any]]],
+    *,
+    tracer: TraceWriter | None = None,
 ) -> list[dict[str, Any]]:
     """Compute dimensional score rows for every dimension in DIMENSION_METADATA.
 
@@ -3741,17 +3968,40 @@ def _compute_dimensional_scores(
     """
     subject_values = compute_all_dimensions_for_salon(subject_data)
 
-    # Per-competitor dimension values, only for counts_in_aggregates
+    # Per-competitor dimension values, only for counts_in_aggregates.
+    # When `tracer` is set, also keep per-competitor breakdown so the trace
+    # can answer "which competitors drove this market median".
     competitor_values_per_dim: dict[str, list[float]] = {
         dim: [] for _, dim, _, _ in DIMENSION_METADATA
     }
+    competitor_breakdown_per_dim: dict[str, list[dict[str, Any]]] = {
+        dim: [] for _, dim, _, _ in DIMENSION_METADATA
+    }
+    excluded_competitors: list[dict[str, Any]] = []
     for cand, cdata in aligned_competitors:
         if not cand.counts_in_aggregates:
+            excluded_competitors.append(
+                {
+                    "salon_ref_id": cand.salon_id,
+                    "name": cand.name,
+                    "bucket": cand.bucket,
+                    "reason": "counts_in_aggregates=False",
+                }
+            )
             continue
         cvals = compute_all_dimensions_for_salon(cdata)
         for dim_name, val in cvals.items():
             if dim_name in competitor_values_per_dim:
                 competitor_values_per_dim[dim_name].append(val)
+                if tracer is not None:
+                    competitor_breakdown_per_dim[dim_name].append(
+                        {
+                            "salon_ref_id": cand.salon_id,
+                            "name": cand.name,
+                            "bucket": cand.bucket,
+                            "value": round(float(val), 2),
+                        }
+                    )
 
     rows: list[dict[str, Any]] = []
     for idx, (category, dim, unit, better_is_higher) in enumerate(DIMENSION_METADATA):
@@ -3774,6 +4024,64 @@ def _compute_dimensional_scores(
             "category": category,
             "sort_order": idx,
         })
+        if tracer is not None:
+            # Each dimension trace captures the FULL inputs: subject value,
+            # each competitor's contribution, the resulting market percentiles,
+            # the subject's percentile rank, plus context (category, unit,
+            # better_is_higher) so a reader can interpret without DIMENSION_METADATA.
+            breakdown = competitor_breakdown_per_dim.get(dim, [])
+            tracer.add(
+                step="scoring.dimension_score",
+                data={
+                    "dimension": dim,
+                    "category": category,
+                    "unit": unit,
+                    "better_is_higher": better_is_higher,
+                    "sort_order": idx,
+                    "subject_value": round(subject_val, 2),
+                    "market_min": round(percentiles["market_min"], 2),
+                    "market_p25": round(percentiles["market_p25"], 2),
+                    "market_p50": round(percentiles["market_p50"], 2),
+                    "market_p75": round(percentiles["market_p75"], 2),
+                    "market_max": round(percentiles["market_max"], 2),
+                    "subject_percentile": round(subject_pct, 2),
+                    "competitor_count": len(market_vals),
+                    "competitor_values": [round(v, 2) for v in market_vals],
+                    # Per-competitor breakdown (cap 20 for size guard).
+                    "competitor_breakdown": breakdown[:20],
+                    "excluded_competitors_count": len(excluded_competitors),
+                },
+            )
+
+    if tracer is not None:
+        # Final summary trace: dimensions covered, excluded competitors,
+        # subject percentile distribution. Useful for "did anything go
+        # weird in scoring" smell-test.
+        avg_subject_pct = (
+            sum(r["subject_percentile"] for r in rows) / len(rows)
+            if rows
+            else 0.0
+        )
+        tracer.add(
+            step="scoring.summary",
+            data={
+                "dimensions_count": len(rows),
+                "report_id": report_id,
+                "aligned_competitors_count": len(aligned_competitors),
+                "competitors_counted_in_aggregates": sum(
+                    1 for cand, _ in aligned_competitors if cand.counts_in_aggregates
+                ),
+                "excluded_competitors": excluded_competitors[:20],
+                "subject_percentile_avg": round(avg_subject_pct, 2),
+                "subject_percentile_above_75_count": sum(
+                    1 for r in rows if r["subject_percentile"] > 75
+                ),
+                "subject_percentile_below_25_count": sum(
+                    1 for r in rows if r["subject_percentile"] < 25
+                ),
+            },
+        )
+
     return rows
 
 

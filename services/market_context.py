@@ -21,6 +21,7 @@ from __future__ import annotations
 import logging
 from typing import Any
 
+from services.pipeline_trace import TraceWriter
 from services.supabase import SupabaseService
 
 logger = logging.getLogger(__name__)
@@ -73,6 +74,8 @@ async def gather_market_context_samples(
     *,
     limit: int = DEFAULT_LIMIT,
     min_similarity: float = DEFAULT_MIN_SIMILARITY,
+    tracer: TraceWriter | None = None,
+    subject_service_name: str | None = None,
 ) -> list[dict[str, Any]]:
     """Return semantically similar competitor services for a subject_only row.
 
@@ -102,6 +105,24 @@ async def gather_market_context_samples(
       }
     """
     if subject_service_id is None or not competitor_booksy_ids:
+        if tracer is not None:
+            tracer.add(
+                step="market_context.per_service_samples",
+                data={
+                    "subject_service_id": subject_service_id,
+                    "subject_service_name": subject_service_name,
+                    "competitor_booksy_ids_count": len(competitor_booksy_ids or []),
+                    "limit": limit,
+                    "min_similarity": min_similarity,
+                    "outcome": "skipped",
+                    "skip_reason": (
+                        "subject_service_id is None"
+                        if subject_service_id is None
+                        else "no competitor_booksy_ids"
+                    ),
+                },
+                salon_ref_id=None,
+            )
         return []
 
     try:
@@ -119,12 +140,29 @@ async def gather_market_context_samples(
             "gather_market_context_samples RPC failed (svc=%s): %s",
             subject_service_id, e,
         )
+        if tracer is not None:
+            tracer.add(
+                step="market_context.per_service_samples",
+                data={
+                    "subject_service_id": subject_service_id,
+                    "subject_service_name": subject_service_name,
+                    "competitor_booksy_ids_count": len(competitor_booksy_ids),
+                    "limit": limit,
+                    "min_similarity": min_similarity,
+                    "outcome": "rpc_error",
+                    "error": str(e)[:500],
+                },
+                salon_ref_id=None,
+            )
         return []
 
     out: list[dict[str, Any]] = []
-    for row in res.data or []:
+    raw_rows = res.data or []
+    skipped_no_price = 0
+    for row in raw_rows:
         price = row.get("price_grosze")
         if price is None:
+            skipped_no_price += 1
             continue
         sim = row.get("similarity")
         try:
@@ -142,4 +180,57 @@ async def gather_market_context_samples(
             "relation": "semantic_match",
             "similarity": round(sim_val, 4) if sim_val is not None else None,
         })
+
+    # Trace: full picture of the semantic-match decision for this subject
+    # service. Captures the RPC input (limit, min_similarity, competitor
+    # scope), the raw RPC output count, the no-price drops, and the final
+    # accepted samples with their similarity scores. Replays "why does this
+    # service have no related samples" or "which competitors got promoted
+    # to comp_samples via STRONG threshold".
+    if tracer is not None:
+        # Compute promote-to-samples breakdown using the same gates the
+        # caller will apply (STRONG_MIN_SIMILARITY / COUNT / UNIQUE_SALONS).
+        strong = [s for s in out if (s.get("similarity") or 0) >= STRONG_MIN_SIMILARITY]
+        strong_unique_salons = len({s.get("salon_id") for s in strong if s.get("salon_id") is not None})
+        meets_strong_gate = (
+            len(strong) >= STRONG_MIN_COUNT
+            and strong_unique_salons >= STRONG_MIN_UNIQUE_SALONS
+        )
+        tracer.add(
+            step="market_context.per_service_samples",
+            data={
+                "subject_service_id": subject_service_id,
+                "subject_service_name": subject_service_name,
+                "competitor_booksy_ids_count": len(competitor_booksy_ids),
+                "limit": limit,
+                "min_similarity": min_similarity,
+                "strong_min_similarity": STRONG_MIN_SIMILARITY,
+                "strong_min_count": STRONG_MIN_COUNT,
+                "strong_min_unique_salons": STRONG_MIN_UNIQUE_SALONS,
+                "outcome": "ok",
+                "raw_rows_count": len(raw_rows),
+                "skipped_no_price": skipped_no_price,
+                "accepted_count": len(out),
+                "strong_count": len(strong),
+                "strong_unique_salons": strong_unique_salons,
+                "meets_strong_promote_gate": meets_strong_gate,
+                # Trim to 25 samples for size — even at 0.5 KB/sample this
+                # stays well under the 256 KB row cap.
+                "samples": [
+                    {
+                        "salon_ref_id": s.get("salon_id"),
+                        "salon_name": s.get("salon_name", "")[:120],
+                        "service_id": s.get("service_id"),
+                        "service_name": s.get("service_name", "")[:120],
+                        "price_grosze": s.get("price_grosze"),
+                        "duration_minutes": s.get("duration_minutes"),
+                        "similarity": s.get("similarity"),
+                    }
+                    for s in out[:25]
+                ],
+                "samples_truncated_from": len(out) if len(out) > 25 else None,
+            },
+            salon_ref_id=None,
+        )
+
     return out

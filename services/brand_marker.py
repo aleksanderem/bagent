@@ -46,6 +46,22 @@ _BRAND_PATTERNS: list[tuple[str, str]] = [
     ("aquashine",      r"\baquashine\b"),
     ("picosure",       r"\bpicosure\b"),
     ("tixel",          r"\btixel\b"),
+    # 2026-05-19 — brand markers found in audit 34 strict brand-gate
+    # cross-method noise (PRO XN subject + RESUR FX / DermaClear /
+    # Mesoestetic / Dermalogica competitors with embedding cosine 0.65-0.70
+    # but completely different methods). Without these in the enum,
+    # extract_brand_marker returned None and the strict gate ((subject_brand
+    # != None and competitor_brand == subject_brand)) couldn't reject them.
+    ("dermaclear",     r"\bderma\s*clear\b"),
+    ("dermalogica",    r"\bdermalogic\w*"),
+    ("mesoestetic",    r"\bmesoestetic\b|\bmesoestetic\w*"),
+    ("resur_fx",       r"\bresur\s*fx\b|\brefur\s*fx\b"),
+    ("virtue_rf",      r"\bvirtue\s*rf\b"),
+    ("plexr",          r"\bplexr\b"),
+    ("infini",         r"\binfini\b"),
+    ("nucleofil",      r"\bnucleofil\b"),
+    ("jalupro",        r"\bjalupro\b|\bjalupro\w*"),
+    ("xela_rederm",    r"\bxela\s*rederm\b"),
     # Modeling sylwetki / RF / HiFEM / HiFU
     ("onda",           r"\bonda\b"),
     ("hifem",          r"\bhifem\b"),
