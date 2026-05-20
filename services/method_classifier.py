@@ -48,14 +48,81 @@ from __future__ import annotations
 import asyncio
 import json
 import logging
+import random
 import re
 import unicodedata
 from dataclasses import dataclass, field
-from typing import Any
+from typing import Any, Callable, TypeVar
+
+try:
+    from openai import APIConnectionError, APITimeoutError, RateLimitError, InternalServerError
+except Exception:  # pragma: no cover — older openai SDK shape
+    class APIConnectionError(Exception): ...  # type: ignore[no-redef]
+    class APITimeoutError(Exception): ...  # type: ignore[no-redef]
+    class RateLimitError(Exception): ...  # type: ignore[no-redef]
+    class InternalServerError(Exception): ...  # type: ignore[no-redef]
 
 from services.supabase import SupabaseService
 
 logger = logging.getLogger(__name__)
+
+
+T = TypeVar("T")
+
+
+# OpenAI transient-error retry policy (Faza F-r8, 2026-05-20). Workery
+# Fazy G padły w nocy na nieobsłużonym APIConnectionError; teraz wrap'ujemy
+# każdy LLM/embedding call w `_openai_call_with_retry` z exponential
+# backoff + jitter. Failure modes obsłużone: connection drop, timeout,
+# 429 rate limit, 5xx server error. Inne błędy (auth, invalid request)
+# propagują natychmiast bo retry nic nie zmieni.
+_OPENAI_RETRY_EXCEPTIONS: tuple[type[BaseException], ...] = (
+    APIConnectionError,
+    APITimeoutError,
+    RateLimitError,
+    InternalServerError,
+)
+_OPENAI_RETRY_MAX_ATTEMPTS = 5
+_OPENAI_RETRY_BASE_DELAY = 2.0  # seconds; multiplied by 2^attempt + jitter
+
+
+async def _openai_call_with_retry(
+    fn: Callable[..., T],
+    *args: Any,
+    _retry_label: str = "openai",
+    **kwargs: Any,
+) -> T:
+    """Run `fn(*args, **kwargs)` w `asyncio.to_thread` z exponential
+    backoff retry dla transient OpenAI errors. Każda próba loguje WARN,
+    final failure rzuca ostatni exception nadbieraj.
+
+    Use case: chat.completions.create + embeddings.create w klasyfikatorze.
+    Bez tego pojedynczy network blip kładzie cały worker (workery Fazy G
+    2026-05-19 padły tak właśnie).
+    """
+    last_exc: BaseException | None = None
+    for attempt in range(_OPENAI_RETRY_MAX_ATTEMPTS):
+        try:
+            return await asyncio.to_thread(fn, *args, **kwargs)
+        except _OPENAI_RETRY_EXCEPTIONS as e:
+            last_exc = e
+            if attempt == _OPENAI_RETRY_MAX_ATTEMPTS - 1:
+                logger.error(
+                    "[%s] OpenAI transient error after %d attempts — giving up: %s",
+                    _retry_label, _OPENAI_RETRY_MAX_ATTEMPTS, e,
+                )
+                raise
+            delay = _OPENAI_RETRY_BASE_DELAY * (2 ** attempt) + random.uniform(0, 1.5)
+            logger.warning(
+                "[%s] OpenAI transient %s on attempt %d/%d — retrying in %.1fs: %s",
+                _retry_label, type(e).__name__, attempt + 1,
+                _OPENAI_RETRY_MAX_ATTEMPTS, delay, e,
+            )
+            await asyncio.sleep(delay)
+    # Unreachable — final iteration above re-raises, but mypy needs explicit
+    if last_exc is not None:
+        raise last_exc
+    raise RuntimeError(f"[{_retry_label}] retry loop exited without result")
 
 
 # Confidence thresholds (tunable per category if needed via overrides)
@@ -521,9 +588,11 @@ class MethodClassifier:
             "zwróć puste obie listy."
         )
 
-        # FAIL-LOUD: LLM API errors + JSON parse errors propagate to caller.
-        # Caller (backfill, pipeline) decides retry vs abort.
-        resp = await asyncio.to_thread(
+        # Transient OpenAI errors (connection drop, timeout, 429, 5xx)
+        # retried z exponential backoff w `_openai_call_with_retry`.
+        # Inne błędy (auth, invalid request, JSON parse) propagują —
+        # caller (backfill, pipeline) decyduje skip vs abort.
+        resp = await _openai_call_with_retry(
             self.llm_client.chat.completions.create,
             model="gpt-4o-mini",
             messages=[
@@ -532,6 +601,7 @@ class MethodClassifier:
             ],
             response_format={"type": "json_object"},
             temperature=0,
+            _retry_label="classify_by_llm",
         )
         content = resp.choices[0].message.content or "{}"
         payload = json.loads(content)
@@ -715,10 +785,11 @@ class MethodClassifier:
         # than insert a broken row.
         emb_str: str | None = None
         if self.openai_client is not None:
-            emb_resp = await asyncio.to_thread(
+            emb_resp = await _openai_call_with_retry(
                 self.openai_client.embeddings.create,
                 model="text-embedding-3-small",
                 input=emb_input,
+                _retry_label="insert_proposed_method.embed",
             )
             vec = emb_resp.data[0].embedding
             emb_str = "[" + ",".join(f"{v:.6f}" for v in vec) + "]"
