@@ -859,14 +859,22 @@ class MethodClassifier:
         name_embedding: Any = None,
         category_hint: str | None = None,
         use_llm: bool = True,
+        skip_db_cache: bool = False,
     ) -> list[MethodMatch]:
         """Run the full cascade. Returns list of MethodMatch — may be:
         - empty (no method recognized, e.g. "konsultacja" / "voucher")
         - single element (most branded services like "Botoks 1 okolica")
-        - multiple elements (combo services like "PRO XN + Dermapen")"""
-        cached = await self._load_cache(service_id)
-        if cached is not None:
-            return cached
+        - multiple elements (combo services like "PRO XN + Dermapen")
+
+        `skip_db_cache=True` skip'uje per-service GET na
+        service_method_classification — caller (backfill z --skip-classified)
+        gwarantuje że service NIE jest jeszcze classified, więc cache
+        lookup byłby redundantnym roundtripem. Daje 3-5x speedup w
+        Fazie G bo eliminuje ~60% HTTP traffic do Supabase."""
+        if not skip_db_cache:
+            cached = await self._load_cache(service_id)
+            if cached is not None:
+                return cached
 
         # 1. Alias substring MULTI-match
         alias_matches = self._classify_by_alias_multi(service_name)

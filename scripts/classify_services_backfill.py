@@ -202,10 +202,15 @@ async def _process_batch(
     *,
     use_llm: bool,
     concurrent: int,
+    skip_db_cache: bool = False,
 ) -> tuple[int, int, Counter]:
     """Classify a batch concurrently. Per-service errors are re-raised
     (no graceful skip — caller decides how to recover). Returns
-    (n_with_methods, n_multi_method, classifier_path_counter)."""
+    (n_with_methods, n_multi_method, classifier_path_counter).
+
+    `skip_db_cache=True` propaguje do MethodClassifier — Faza F-r8.
+    Caller (z --skip-classified) gwarantuje że żaden service w batch
+    nie jest classified, więc cache lookup byłby redundantny."""
     sem = asyncio.Semaphore(concurrent)
     classifier_stats: Counter = Counter()
     with_methods = 0
@@ -221,6 +226,7 @@ async def _process_batch(
                     name_embedding=svc.get("name_embedding"),
                     category_hint=svc.get("category_name"),
                     use_llm=use_llm,
+                    skip_db_cache=skip_db_cache,
                 )
             except Exception as e:
                 logger.error(
@@ -311,6 +317,7 @@ async def main() -> int:
                 classifier, batch,
                 use_llm=not args.no_llm,
                 concurrent=args.concurrent,
+                skip_db_cache=args.skip_classified,
             )
             overall_with += with_m
             overall_multi += multi_m
@@ -342,6 +349,7 @@ async def main() -> int:
                 classifier, batch,
                 use_llm=not args.no_llm,
                 concurrent=args.concurrent,
+                skip_db_cache=args.skip_classified,
             )
             overall_with += with_m
             overall_multi += multi_m
