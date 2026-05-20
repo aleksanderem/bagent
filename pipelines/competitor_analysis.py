@@ -1363,6 +1363,33 @@ async def _compute_pricing_comparisons(
         )
         raise
 
+    # ── Tier-5 (NEW 2026-05-20): per-service brand-structured pricing ──
+    # Replaces the cross-brand pollution in tier='treatment' rows. Uses
+    # fn_pricing_samples_structured (mig 101) to JOIN samples through
+    # service_method_classification + treatment_methods.brand_family /
+    # category — the columns the dictionary curates specifically for
+    # apples-to-apples competitor matching. Frontend dedup
+    # (mapPricingFromBagent) prefers comparison_tier='structured' over
+    # 'treatment' for the same (booksy_treatment_id, subject_price,
+    # duration) grouping key, so this becomes the visible per-service row.
+    try:
+        tier5_rows = await _compute_brand_structured_pricing(
+            service, report_id, subject_data, aligned_competitors,
+            audit_id=audit_id, tracer=tracer,
+        )
+        rows.extend(tier5_rows)
+        logger.info(
+            "Etap 4 tier-5 brand-structured: emitted %d per-service rows",
+            len(tier5_rows),
+        )
+    except Exception as e:
+        logger.error(
+            "Etap 4 tier-5 brand-structured FAILED: %s\n"
+            "subject_salon_id=%s audit_id=%s",
+            e, subject_data.get("salon_id"), audit_id,
+        )
+        raise
+
     # ── Tier-3: per (tid + sub_variant_group_id + duration_bucket) ──
     # Najprecyzyjniejszy match cross-salon. "Botoks Twarz" subject vs
     # "Botoks Twarz" competitor — apples-to-apples. Sub_variant_group_id
@@ -2676,6 +2703,239 @@ def _method_row_subject_only(
         },
         "competitor_samples": [],
     }
+
+
+async def _compute_brand_structured_pricing(
+    service: SupabaseService,
+    report_id: int,
+    subject_data: dict[str, Any],
+    aligned_competitors: list[Any],
+    *,
+    audit_id: str | None = None,
+    tracer: TraceWriter | None = None,
+    min_direct_sample: int = 3,
+) -> list[dict[str, Any]]:
+    """Per-subject-service pricing rows using fn_pricing_samples_structured
+    (mig 101). The structural query joins service_method_classification +
+    treatment_methods.brand_family/category — exactly the columns the user
+    asked us to use as PRIMARY filter so that "wpisz Red Touch w wyszukiwarce"
+    semantics hold for the comparison engine.
+
+    Per service emits comparison_tier='structured' row. Sample selection:
+      - tier 1+2 (same method OR same brand+category) used as direct samples
+      - tier 3 (same category, different brand) used as related_samples
+        fallback to give user broader market context when direct is thin
+
+    Replaces the cross-brand pollution from tier='treatment' (which filtered
+    only by booksy_treatment_id, mixing e.g. Cytocare with Tropokolagen +
+    NEAUVIA + mezo dłoni under one umbrella). Frontend dedup
+    (adaptToReportData.mapPricingFromBagent) prefers tier='structured' over
+    tier='treatment' for the same (booksy_treatment_id, subject_price,
+    duration) grouping key.
+    """
+    if not aligned_competitors:
+        return []
+    competitor_booksy_ids = [
+        cand.booksy_id for cand, _ in aligned_competitors
+        if cand.counts_in_aggregates
+    ]
+    if not competitor_booksy_ids:
+        return []
+
+    rows: list[dict[str, Any]] = []
+    services = subject_data.get("services") or []
+    skipped_no_id = 0
+    skipped_ineligible = 0
+    direct_emitted = 0
+    related_only_emitted = 0
+
+    def _service_eligible(svc: dict[str, Any]) -> bool:
+        if not svc.get("is_active", True):
+            return False
+        if svc.get("price_grosze") is None or svc.get("price_grosze", 0) <= 0:
+            return False
+        dur = svc.get("duration_minutes")
+        if dur is None or dur < 5 or dur > 240:
+            return False
+        name = (svc.get("name") or "").lower()
+        # Drop package/abonament names — they bias median upward
+        if any(kw in name for kw in (
+            "pakiet", "abonament", "karnet", "voucher", "bon ",
+            "x zabieg", "zabiegów",
+        )):
+            return False
+        if detect_package_keyword(svc.get("name") or ""):
+            return False
+        return True
+
+    for svc in services:
+        sid = svc.get("id")
+        if sid is None:
+            skipped_no_id += 1
+            continue
+        if not _service_eligible(svc):
+            skipped_ineligible += 1
+            continue
+
+        # Call structural RPC
+        try:
+            res = service.client.rpc(
+                "fn_pricing_samples_structured",
+                {
+                    "p_subject_service_id": int(sid),
+                    "p_competitor_booksy_ids": competitor_booksy_ids,
+                    "p_limit": 500,
+                },
+            ).execute()
+            samples = res.data or []
+        except Exception as e:
+            logger.error(
+                "structured tier: fn_pricing_samples_structured FAILED "
+                "for service_id=%s: %s — skipping service",
+                sid, e,
+            )
+            continue
+
+        tier1_2 = [s for s in samples if s.get("tier") in (1, 2)]
+        tier3 = [s for s in samples if s.get("tier") == 3]
+
+        # Use tier 1+2 as direct samples when present. Tier 3 always goes
+        # to related_samples for broader-context fallback.
+        # Even a single tier-1 row is useful (Red Touch in Beauty4ever audit
+        # has only 1 direct competitor — ESTHETIC&MED 1490 zł — that's still
+        # information vs no-data UI). Min_direct_sample gates the percentile
+        # computation, not the row emission.
+
+        subj_price = int(svc["price_grosze"])
+        subj_dur = svc.get("duration_minutes")
+        booksy_tid = svc.get("booksy_treatment_id")
+        treatment_name = svc.get("name") or ""
+
+        def _to_sample(s: dict[str, Any]) -> dict[str, Any]:
+            return {
+                "salon_id": s.get("salon_id"),
+                "salon_name": s.get("salon_name"),
+                "booksy_id": s.get("booksy_id"),
+                "service_id": s.get("service_id"),
+                "service_name": s.get("service_name"),
+                "price_grosze": int(s["price_grosze"]),
+                "duration_minutes": s.get("duration_minutes"),
+                "name_similarity": float(s.get("similarity") or 0.0),
+                "brand_marker": s.get("brand_family"),
+                "method_marker": s.get("method_canonical"),
+                "structured_tier": int(s.get("tier") or 0),
+            }
+
+        direct_samples = [_to_sample(s) for s in tier1_2]
+        related_samples = [
+            {**_to_sample(s), "relation": "same_category"} for s in tier3
+        ]
+
+        if len(direct_samples) >= min_direct_sample:
+            # Compute market stats from direct samples
+            prices = sorted([s["price_grosze"] for s in direct_samples])
+            n = len(prices)
+            market_min = prices[0]
+            market_max = prices[-1]
+            market_p25 = prices[int(0.25 * (n - 1))]
+            market_median = prices[int(0.50 * (n - 1))]
+            market_p75 = prices[int(0.75 * (n - 1))]
+            cheaper = sum(1 for p in prices if p < subj_price)
+            percentile = round(100.0 * cheaper / n, 2)
+            deviation = round(
+                100.0 * (subj_price - market_median) / market_median, 2
+            ) if market_median > 0 else 0.0
+            if abs(deviation) < 10:
+                action = "hold"
+            elif deviation < 0:
+                action = "raise"
+            else:
+                action = "lower"
+            row = {
+                "report_id": report_id,
+                "comparison_tier": "structured",
+                "booksy_treatment_id": booksy_tid,
+                "synthetic_treatment_id": None,
+                "variant_id": None,
+                "treatment_method_id": None,
+                "treatment_name": treatment_name,
+                "subject_price_grosze": subj_price,
+                "subject_is_from_price": False,
+                "subject_duration_minutes": subj_dur,
+                "subject_price_per_min_grosze": (
+                    round(subj_price / subj_dur, 2)
+                    if subj_dur and subj_dur > 0 else None
+                ),
+                "market_min_grosze": market_min,
+                "market_p25_grosze": market_p25,
+                "market_median_grosze": market_median,
+                "market_p75_grosze": market_p75,
+                "market_max_grosze": market_max,
+                "deviation_pct": deviation,
+                "subject_percentile": percentile,
+                "sample_size": n,
+                "recommended_action": action,
+                "verification_status": "structured_direct",
+                "verification_details": {
+                    "direct_tier1_2_count": len(direct_samples),
+                    "related_tier3_count": len(related_samples),
+                },
+                "competitor_samples": direct_samples,
+                "related_samples": related_samples,
+            }
+            rows.append(row)
+            direct_emitted += 1
+        else:
+            # Insufficient direct → emit subject_only with tier 3 as fallback
+            row = {
+                "report_id": report_id,
+                "comparison_tier": "structured",
+                "booksy_treatment_id": booksy_tid,
+                "synthetic_treatment_id": None,
+                "variant_id": None,
+                "treatment_method_id": None,
+                "treatment_name": treatment_name,
+                "subject_price_grosze": subj_price,
+                "subject_is_from_price": False,
+                "subject_duration_minutes": subj_dur,
+                "subject_price_per_min_grosze": (
+                    round(subj_price / subj_dur, 2)
+                    if subj_dur and subj_dur > 0 else None
+                ),
+                "market_min_grosze": None,
+                "market_p25_grosze": None,
+                "market_median_grosze": None,
+                "market_p75_grosze": None,
+                "market_max_grosze": None,
+                "deviation_pct": None,
+                "subject_percentile": None,
+                "sample_size": len(direct_samples),
+                "recommended_action": "subject_only",
+                "verification_status": "structured_subject_only",
+                "verification_details": {
+                    "direct_tier1_2_count": len(direct_samples),
+                    "related_tier3_count": len(related_samples),
+                    "reason": "insufficient_direct_samples",
+                },
+                "competitor_samples": direct_samples,  # may have 1-2 tier-1 rows
+                "related_samples": related_samples,
+            }
+            rows.append(row)
+            related_only_emitted += 1
+
+    logger.info(
+        "Etap 4 structured: emitted %d rows for audit %s (direct=%d, "
+        "related_only=%d, skipped_no_id=%d, ineligible=%d)",
+        len(rows), audit_id, direct_emitted, related_only_emitted,
+        skipped_no_id, skipped_ineligible,
+    )
+    if tracer is not None:
+        tracer.add(step="structured_tier.summary", data={
+            "rows_emitted": len(rows),
+            "direct_emitted": direct_emitted,
+            "related_only_emitted": related_only_emitted,
+        })
+    return rows
 
 
 async def _load_subject_services_by_method(
