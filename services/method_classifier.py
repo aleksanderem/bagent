@@ -198,6 +198,26 @@ def _slug(name: str) -> str:
     return s or "unknown"
 
 
+def _levenshtein(a: str, b: str) -> int:
+    """Standard Levenshtein distance. Used dla fuzzy-canonical lookup w
+    _insert_proposed_method — wykrywa literówki LLM (np. `neauvia_hydro_delux`
+    vs `neauvia_hydro_deluxe`) i zamiast tworzyć duplikat dodaje proposed
+    canonical jako alias istniejącego wpisu."""
+    if a == b:
+        return 0
+    if len(a) < len(b):
+        a, b = b, a
+    if not b:
+        return len(a)
+    prev = list(range(len(b) + 1))
+    for i, ca in enumerate(a):
+        curr = [i + 1]
+        for j, cb in enumerate(b):
+            curr.append(min(curr[j] + 1, prev[j + 1] + 1, prev[j] + (ca != cb)))
+        prev = curr
+    return prev[-1]
+
+
 class MethodClassifier:
     """Cached cascading classifier. Instantiate once per pipeline run;
     warmup() loads all treatment_methods + alias index into memory.
@@ -702,6 +722,60 @@ class MethodClassifier:
 
         category = (p.get("category") or "inny").strip().lower()
         brand_family = (p.get("brand_family") or "").strip().lower() or None
+
+        # ── FUZZY-CANONICAL LOOKUP (2026-05-20) ──
+        # Przed INSERT sprawdź czy istnieje canonical w tej samej brand_family
+        # z Levenshtein ≤ 2 — wtedy proposed to literówka istniejącego wpisu,
+        # nie nowy produkt. Dodaj proposed canonical jako alias istniejącego.
+        # Guard'y: tylko dla długich nazw (≥8 znaków po normalizacji) żeby
+        # uniknąć FP na krótkich (np. "henna" vs "henne"). Sprawdzamy TYLKO
+        # wpisy z tym samym brand_family — różne brandy nigdy nie matchują.
+        canonical_norm = _normalize_for_match(canonical).replace(" ", "")
+        if len(canonical_norm) >= 8:
+            best_match_id: int | None = None
+            best_match_dist = 99
+            for existing_id, existing in self._methods.items():
+                if (existing.brand_family or None) != brand_family:
+                    continue  # cross-brand fuzzy = bez sensu
+                ex_norm = _normalize_for_match(existing.canonical_name).replace(" ", "")
+                if abs(len(ex_norm) - len(canonical_norm)) > 2:
+                    continue  # length diff > 2 nie może być Lev≤2
+                if len(ex_norm) < 8:
+                    continue  # symmetric guard
+                d = _levenshtein(canonical_norm, ex_norm)
+                if d <= 2 and d < best_match_dist:
+                    best_match_dist = d
+                    best_match_id = existing_id
+            if best_match_id is not None:
+                # Treat proposed as alias of existing
+                existing = self._methods[best_match_id]
+                new_aliases = sorted(set(existing.aliases) | {display.lower(), canonical, _ascii_fold(display)})
+                if set(new_aliases) != set(existing.aliases):
+                    try:
+                        self.supabase.client.table("treatment_methods") \
+                            .update({"aliases": new_aliases}) \
+                            .eq("id", best_match_id) \
+                            .execute()
+                        existing.aliases = new_aliases
+                        self._alias_index = [
+                            t for t in self._alias_index if t[1] != best_match_id
+                        ]
+                        for a in new_aliases:
+                            n = _normalize_for_match(a)
+                            if len(n) >= 2:
+                                self._alias_index.append((n, best_match_id))
+                        self._alias_index.sort(key=lambda t: -len(t[0]))
+                    except Exception as fe:
+                        logger.error(
+                            "fuzzy-canonical alias merge failed for id=%d (was extending %r with proposed %r): %s",
+                            best_match_id, existing.canonical_name, canonical, fe,
+                        )
+                        raise
+                logger.info(
+                    "Dictionary FUZZY-MATCH: proposed %r (canonical=%r) → existing %r (id=%d, lev=%d) — added as alias",
+                    display, canonical, existing.canonical_name, best_match_id, best_match_dist,
+                )
+                return best_match_id
         description = (p.get("description") or "").strip() or None
         raw_aliases = p.get("aliases") or []
         if not isinstance(raw_aliases, list):
