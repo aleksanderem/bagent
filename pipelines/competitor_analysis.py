@@ -2777,7 +2777,7 @@ async def _compute_brand_structured_pricing(
             skipped_ineligible += 1
             continue
 
-        # Call structural RPC
+        # Call structural RPC (mig 102 — geo radius scope for tier 1+2)
         try:
             res = service.client.rpc(
                 "fn_pricing_samples_structured",
@@ -2785,6 +2785,7 @@ async def _compute_brand_structured_pricing(
                     "p_subject_service_id": int(sid),
                     "p_competitor_booksy_ids": competitor_booksy_ids,
                     "p_limit": 500,
+                    "p_radius_km": 16.0,
                 },
             ).execute()
             samples = res.data or []
