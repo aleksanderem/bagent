@@ -55,7 +55,7 @@ async def push_approved_campaigns(ctx: dict[str, Any]) -> dict[str, int]:
     Cron: every 5 min. Convex has SELECT FOR UPDATE-like semantics via
     the metaCampaignId guard in the internal query, so concurrent
     workers won't double-push (last-writer-wins is fine here)."""
-    convex = ConvexClient(settings.convex_url, settings.convex_api_key)
+    convex = ConvexClient()
     drafts = await convex.run_query("campaigns:listApprovedCampaignsForPush", {})
     if not drafts:
         return {"pushed": 0, "errors": 0}
@@ -229,7 +229,7 @@ def _strip_utm(url: str) -> str:
 async def fetch_daily_metrics(ctx: dict[str, Any]) -> dict[str, int]:
     """Daily cron at 02:00 UTC — pull yesterday's insights from Meta
     for every active campaign. Idempotent upsert in Convex."""
-    convex = ConvexClient(settings.convex_url, settings.convex_api_key)
+    convex = ConvexClient()
     active = await convex.run_query("campaigns:listActiveCampaigns", {})
     if not active:
         return {"campaigns": 0, "rows_inserted": 0}
@@ -334,7 +334,7 @@ async def attribute_bookings(ctx: dict[str, Any]) -> dict[str, int]:
     if not candidate_pairs:
         return {"pairs_examined": 0, "attributions": 0}
 
-    convex = ConvexClient(settings.convex_url, settings.convex_api_key)
+    convex = ConvexClient()
     attributions = 0
 
     for pair in candidate_pairs:

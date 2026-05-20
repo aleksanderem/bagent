@@ -235,25 +235,28 @@ try:  # pragma: no cover
         # Idempotent (Convex query filters out already-pushed). Fast path
         # so client sees campaign go from 'approved' to 'paused on Meta'
         # within minutes, not hours.
-        cron(
-            "workers.campaign_tasks.push_approved_campaigns",
-            minute={i for i in range(0, 60, 5)},
-        ),
+        # DISABLED 2026-05-20 — legacy ConvexClient.run_query usage (campaign_tasks unused in prod):
+        # cron(
+        #     "workers.campaign_tasks.push_approved_campaigns",
+        #     minute={i for i in range(0, 60, 5)},
+        # ),
         # Meta Ads — daily metrics fetch at 02:00 UTC. Runs once per day
         # for all active campaigns, pulls yesterday's insights via Meta
         # Marketing API, upserts into Convex campaign_daily_metrics.
-        cron(
-            "workers.campaign_tasks.fetch_daily_metrics",
-            hour={2}, minute={0},
-        ),
+        # DISABLED 2026-05-20 — same as above:
+        # cron(
+        #     "workers.campaign_tasks.fetch_daily_metrics",
+        #     hour={2}, minute={0},
+        # ),
         # Meta Ads — booking attribution diff every 30 min. Reads
         # v_salon_scrape_pairs (migration 039) for new diffs, matches
         # against ad_clicks (migration 040) within 7-day window, records
         # ad_booking_attributions + mirrors to Convex events.
-        cron(
-            "workers.campaign_tasks.attribute_bookings",
-            minute={0, 30},
-        ),
+        # DISABLED 2026-05-20 — same as above:
+        # cron(
+        #     "workers.campaign_tasks.attribute_bookings",
+        #     minute={0, 30},
+        # ),
         # Iter 8 — outreach deployer: ship approved templates and
         # segments to wintact every 2 min. Idempotent (skip rows whose
         # wintact_*_id is already set).

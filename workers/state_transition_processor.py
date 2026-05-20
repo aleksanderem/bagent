@@ -59,8 +59,11 @@ async def ingest_new_cold_contacts(ctx: dict[str, Any]) -> dict[str, int]:
     # table — scale cohort daily cap is enforced on enrollment, not on
     # ingestion. But ingestion shouldn't outpace it by too much either,
     # so a few hundred per tick × 48 ticks/day = ~10k/day — comfortable.
-    eligible = sb.rpc("fn_eligible_cold_salons_for_outreach", {"limit_count": 500}).execute()
-    rows = eligible.data or []
+    try:
+        eligible = sb.rpc("fn_eligible_cold_salons_for_outreach", {"limit_count": 500}).execute()
+        rows = eligible.data or []
+    except Exception:
+        rows = []
     if not rows:
         # Fallback when the RPC isn't yet defined: read salons directly
         # with a conservative filter. Loader-side warns operator to
