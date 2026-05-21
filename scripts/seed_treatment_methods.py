@@ -6,10 +6,13 @@ embedding for each row via OpenAI text-embedding-3-small, and UPSERTs
 into the treatment_methods table (mig 095).
 
 The embedding is computed over a concatenation of canonical_name +
-display_name + aliases + description joined with newlines. This is the
-text the ANN classifier sees as the "canonical method description" when
-matching service names to methods. Adding new aliases later requires
-re-embedding — re-run this script with --rebuild-embeddings to force.
+display_name + description joined with newlines. Aliases are
+DELIBERATELY EXCLUDED from the embedding input (2026-05-21 refactor):
+they were causing cascading poisoning — vectors for methods like
+kroplowka_iv learned the semantics of generic aliases like 'infuzja',
+producing false high-cosine matches to unrelated services like
+"Infuzja tlenowa". Aliases belong in the hard-match cascade
+(regex_exact / alias_exact tiers), not in the semantic embedding tier.
 
 Usage:
     # From bagent/ root (loads .env automatically):
@@ -84,14 +87,16 @@ def _normalize_jsonb(raw: str) -> list:
 def _embedding_input(record: dict) -> str:
     """Build the text we embed. Lines joined with newline so the model
     sees them as distinct facets but in one document. Operates on the
-    already-normalized record (aliases as list, description as str|None)."""
+    already-normalized record (description as str|None).
+
+    NOTE: aliases are DELIBERATELY NOT included here (2026-05-21).
+    See module docstring. Aliases drove cascading poisoning into the
+    semantic vector space; they belong only in the hard-match cascade.
+    """
     parts = [
         record["canonical_name"],
         record["display_name"],
     ]
-    aliases = record.get("aliases") or []
-    if aliases:
-        parts.append("Aliases: " + ", ".join(aliases))
     desc = record.get("description") or ""
     if desc.strip():
         parts.append(desc.strip())
