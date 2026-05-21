@@ -1206,6 +1206,32 @@ def _build_competitor_profiles(
     return profiles
 
 
+def _extract_subject_aggregates(verification_details: Any) -> dict[str, Any]:
+    """Issue #88 helper — pull subject_min/max/count/median from verification_details
+    into top-level keys for easier frontend consumption.
+
+    For method-tier rows (one canonical method aggregating N subject services)
+    the bagent pipeline writes subject_{min,max,median}_grosze + subject_services_count
+    into verification_details. The frontend's mapPricingFromBagent adapter
+    prefers top-level keys, so we surface them here. For non-method tiers
+    (structured / variant / sub_variant — one row per concrete subject service)
+    these are missing from verification_details and we emit nulls.
+    """
+    if not isinstance(verification_details, dict):
+        return {
+            "subject_min_grosze": None,
+            "subject_max_grosze": None,
+            "subject_median_grosze": None,
+            "subject_services_count": None,
+        }
+    return {
+        "subject_min_grosze": verification_details.get("subject_min_grosze"),
+        "subject_max_grosze": verification_details.get("subject_max_grosze"),
+        "subject_median_grosze": verification_details.get("subject_median_grosze"),
+        "subject_services_count": verification_details.get("subject_services_count"),
+    }
+
+
 def _build_price_comparison(
     pricing: list[dict[str, Any]],
 ) -> list[dict[str, Any]]:
@@ -1279,6 +1305,13 @@ def _build_price_comparison(
             # Frontend should render a "porównanie krzyżujące warianty"
             # badge so the user knows the comparison mixes variant boundaries.
             "is_aggregated_cross_variant": bool(p.get("is_aggregated_cross_variant") or False),
+            # Issue #88 (2026-05-21) — method-tier aggregates surfaced as
+            # top-level keys so the frontend adapter doesn't need to dig
+            # into verification_details. Present when comparison_tier='method'
+            # (i.e. the row represents N subject services grouped to one
+            # canonical method). Null for structured/variant/sub_variant
+            # tiers which are inherently per-subject-service.
+            **_extract_subject_aggregates(p.get("verification_details")),
         })
     rows.sort(
         key=lambda r: abs(float(r.get("deviation_pct") or 0)),

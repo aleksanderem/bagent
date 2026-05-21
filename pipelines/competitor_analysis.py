@@ -2570,7 +2570,11 @@ async def _compute_method_targeted_pricing(
                 ))
             continue
 
-        # Compute subject's median price for this method
+        # Compute subject's median + range for this method.
+        # 2026-05-21 (issue #88): also emit min/max/count so UI can show
+        # full price spectrum instead of single representative median.
+        # B4E example: 9 Dermapen services 100-2700 zł → showing only
+        # the median (1100) misled users into thinking we lost their cennik.
         subject_prices = sorted([
             int(s["price_grosze"])
             for s in subject_services_for_method
@@ -2579,6 +2583,9 @@ async def _compute_method_targeted_pricing(
         if not subject_prices:
             continue
         subject_median = subject_prices[len(subject_prices) // 2]
+        subject_min = subject_prices[0]
+        subject_max = subject_prices[-1]
+        subject_services_count = len(subject_prices)
         market_median = int(stats["market_median_grosze"])
 
         deviation_pct = round(
@@ -2626,7 +2633,10 @@ async def _compute_method_targeted_pricing(
             "verification_details": {
                 "radius_km": radius_km,
                 "unique_salons": unique_salons,
-                "subject_services_count": len(subject_services_for_method),
+                "subject_services_count": subject_services_count,
+                "subject_min_grosze": subject_min,
+                "subject_max_grosze": subject_max,
+                "subject_median_grosze": subject_median,
                 "method_category": category,
                 "method_type": method_type,
                 "avg_duration_minutes": stats.get("avg_duration_minutes"),
@@ -2664,6 +2674,8 @@ def _method_row_subject_only(
         if s.get("price_grosze")
     ])
     subject_median = prices[len(prices) // 2] if prices else 0
+    subject_min = prices[0] if prices else None
+    subject_max = prices[-1] if prices else None
     return {
         "report_id": report_id,
         "comparison_tier": "method",
@@ -2698,6 +2710,12 @@ def _method_row_subject_only(
             "radius_km": radius_km,
             "reason": reason,
             "subject_services_count": len(subject_services),
+            # 2026-05-21 (issue #88): aggregate spectrum for UI even
+            # without market comparison — user still needs to see the
+            # range of their own cennik in this method.
+            "subject_min_grosze": subject_min,
+            "subject_max_grosze": subject_max,
+            "subject_median_grosze": subject_median if prices else None,
             "method_category": category,
             "method_type": method_type,
         },
