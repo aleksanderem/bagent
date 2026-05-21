@@ -48,6 +48,7 @@ from __future__ import annotations
 import asyncio
 import json
 import logging
+import os
 import random
 import re
 import unicodedata
@@ -130,6 +131,14 @@ ALIAS_EXACT_CONFIDENCE = 1.0
 ANN_ACCEPT_THRESHOLD = 0.75
 ANN_TOP_N = 5
 LLM_MIN_CONFIDENCE = 0.7
+
+# Embedding ANN gate — minimum cosine similarity for an embedding candidate
+# to be considered. Below this, ANN matches are rejected as "semantic absurdity"
+# even if they're the top hit. Env-driven so we can tune without redeploy.
+# Set to 0.55 (legacy default) until empirical dry-run on freshly-rebuilt
+# method embeddings (2026-05-21 — aliases removed from embedding input) tells
+# us the right "absurd cutoff" threshold (likely 0.40-0.50).
+EMBED_GATE_MIN_COSINE = float(os.environ.get("EMBED_GATE_MIN_COSINE", "0.55"))
 
 # Method types allowed in treatment_methods (matches CHECK constraint
 # from mig 095). LLM must propose exactly one of these for any new entry.
@@ -492,7 +501,7 @@ class MethodClassifier:
                 "p_service_embedding": name_embedding,
                 "p_category_hint": category_hint,
                 "p_top_n": ANN_TOP_N,
-                "p_min_similarity": 0.55,
+                "p_min_similarity": EMBED_GATE_MIN_COSINE,
             },
         ).execute()
 
