@@ -92,15 +92,26 @@ async def startup(ctx: dict[str, Any]) -> None:
         logger.warning("Sentry init for worker failed: %s", e)
 
     # Observability — arq's CLI does NOT accept --log-level (verified
-    # 2026-05-24, crashloops with "No such option"), so we lift the
-    # subloggers programmatically here at worker startup. This makes
-    # `logger.info(...)` from pipelines/competitor_analysis.py +
+    # 2026-05-24, crashloops with "No such option"), so we set up
+    # Python logging programmatically here at worker startup. This
+    # makes `logger.info(...)` from pipelines/competitor_analysis.py +
     # services/* (where the per-phase markers + Etap 4 progress live)
     # reach PM2 logs. See 2026-05-24-pipeline-profile.md for why this
     # is needed: 649s of pipeline silence at WARNING-default.
-    # Also lift root so basic Python logging from arq + dependencies
-    # stays visible alongside our pipeline markers.
-    logging.getLogger().setLevel(logging.INFO)
+    #
+    # CRITICAL: setLevel alone is not enough — Python's root logger
+    # ships with zero handlers, so any record below WARNING gets
+    # silently dropped even if the logger level is INFO. We must
+    # install a handler via basicConfig (idempotent if already set,
+    # force=True overrides arq's own initialization which sets the
+    # arq.worker logger to INFO but leaves root at WARNING).
+    # PM2 prepends its own timestamp on every log line — keep our
+    # format short to avoid double timestamps making PM2 logs unreadable.
+    logging.basicConfig(
+        level=logging.INFO,
+        format="%(name)s %(levelname)s %(message)s",
+        force=True,
+    )
     logging.getLogger("pipelines").setLevel(logging.INFO)
     logging.getLogger("services").setLevel(logging.INFO)
     logging.getLogger("agent").setLevel(logging.INFO)
