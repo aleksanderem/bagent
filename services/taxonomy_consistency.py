@@ -420,14 +420,6 @@ async def apply_intra_salon_consistency(
             candidates = filtered
         cluster_payloads.append((cid, key, members, candidates))
 
-    # Batch all clusters into ONE MiniMax call.
-    user_prompt = _build_user_prompt(cluster_payloads)
-    logger.info(
-        "apply_intra_salon_consistency [%s]: MiniMax prompt %d chars, "
-        "%d clusters",
-        label, len(user_prompt), len(cluster_payloads),
-    )
-
     # Pass 5 LLM provider switch (2026-05-17): MiniMax M2.7 with
     # interleaved thinking exhausts max_tokens on thinking blocks
     # before producing the tool call when the prompt has 25+ mixed
@@ -436,6 +428,37 @@ async def apply_intra_salon_consistency(
     # TAXONOMY_PASS5_PROVIDER (default 'openai').
     import os
     provider = os.environ.get("TAXONOMY_PASS5_PROVIDER", "openai").lower()
+
+    # Chunked LLM dispatch (2026-05-24): Beauty4ever competitor regen
+    # failed 2026-05-24 19:29 UTC with 192 clusters in single prompt →
+    # OpenAI gpt-4o returned 10 decisions (response truncation) →
+    # _validate_decisions RuntimeError. Clusters are independent (each
+    # carries its own members + candidates, decisions keyed by
+    # cluster_id), so we can chunk safely without correctness loss.
+    # Default chunk size 30 — far below any provider truncation limit
+    # while keeping prompt overhead reasonable. Override via env
+    # TAXONOMY_CONSISTENCY_CHUNK_SIZE for tuning.
+    try:
+        chunk_size = int(os.environ.get("TAXONOMY_CONSISTENCY_CHUNK_SIZE", "30"))
+    except ValueError:
+        chunk_size = 30
+    if chunk_size < 1:
+        chunk_size = 30
+    chunks: list[list[tuple[
+        int,
+        tuple[str | None, str, tuple[str, ...]],
+        list[dict[str, Any]],
+        list[dict[str, Any]],
+    ]]] = [
+        cluster_payloads[i : i + chunk_size]
+        for i in range(0, len(cluster_payloads), chunk_size)
+    ]
+    logger.info(
+        "apply_intra_salon_consistency [%s]: chunking %d clusters into "
+        "%d chunks of %d",
+        label, len(cluster_payloads), len(chunks), chunk_size,
+    )
+
     if provider == "openai":
         from config import settings as _settings
         from services.openai_taxonomy_client import OpenAITaxonomyClient
@@ -451,34 +474,69 @@ async def apply_intra_salon_consistency(
             "apply_intra_salon_consistency [%s]: provider=openai model=%s",
             label, oai_model,
         )
-        async def _call_oai() -> list[dict[str, Any]]:
-            return await oai_client.call_decisions_tool(
-                system_prompt=_SYSTEM_PROMPT,
-                user_prompt=user_prompt,
-                tool_schema=_TAXONOMY_DECISIONS_TOOL,
-                max_tokens=16384,
-            )
-        raw_decisions = await with_retry(_call_oai, max_attempts=2, base_delay=2.0)
     else:
-        # Legacy MiniMax path (kept for A/B). Use tool_use API to
-        # force structured output.
         logger.info(
             "apply_intra_salon_consistency [%s]: provider=minimax model=%s",
             label, minimax.model,
         )
-        async def _call_mm():
-            return await minimax.create_message(
-                system=_SYSTEM_PROMPT,
-                messages=[{"role": "user", "content": user_prompt}],
-                tools=[_TAXONOMY_DECISIONS_TOOL],
-                max_tokens=32768,
-                temperature=0.2,
-            )
-        msg = await with_retry(_call_mm, max_attempts=2, base_delay=2.0)
-        raw_decisions = _extract_tool_decisions(
-            msg, expected_count=len(cluster_payloads),
+
+    decisions: list[dict[str, Any]] = []
+    for chunk_idx, chunk in enumerate(chunks, start=1):
+        if not chunk:
+            continue
+        chunk_prompt = _build_user_prompt(chunk)
+        logger.info(
+            "apply_intra_salon_consistency [%s]: chunk %d/%d (%d clusters) "
+            "— provider=%s, prompt %d chars",
+            label, chunk_idx, len(chunks), len(chunk), provider,
+            len(chunk_prompt),
         )
-    decisions = _validate_decisions(raw_decisions, expected_count=len(cluster_payloads))
+        if provider == "openai":
+            async def _call_oai(
+                _prompt: str = chunk_prompt,
+            ) -> list[dict[str, Any]]:
+                return await oai_client.call_decisions_tool(
+                    system_prompt=_SYSTEM_PROMPT,
+                    user_prompt=_prompt,
+                    tool_schema=_TAXONOMY_DECISIONS_TOOL,
+                    max_tokens=16384,
+                )
+            chunk_raw = await with_retry(
+                _call_oai, max_attempts=2, base_delay=2.0,
+            )
+        else:
+            # Legacy MiniMax path (kept for A/B). Use tool_use API to
+            # force structured output.
+            async def _call_mm(_prompt: str = chunk_prompt):
+                return await minimax.create_message(
+                    system=_SYSTEM_PROMPT,
+                    messages=[{"role": "user", "content": _prompt}],
+                    tools=[_TAXONOMY_DECISIONS_TOOL],
+                    max_tokens=32768,
+                    temperature=0.2,
+                )
+            msg = await with_retry(_call_mm, max_attempts=2, base_delay=2.0)
+            chunk_raw = _extract_tool_decisions(
+                msg, expected_count=len(chunk),
+            )
+        # Per-chunk validation — any failure bubbles up immediately, no
+        # partial-result accumulation downstream.
+        chunk_validated = _validate_decisions(
+            chunk_raw, expected_count=len(chunk),
+        )
+        decisions.extend(chunk_validated)
+
+    logger.info(
+        "apply_intra_salon_consistency [%s]: all %d chunks processed, "
+        "%d total decisions",
+        label, len(chunks), len(decisions),
+    )
+    # Final sanity check — accumulated decisions must equal total
+    # clusters (each chunk already validated count, this is defence in
+    # depth in case of accumulation bug).
+    decisions = _validate_decisions(
+        decisions, expected_count=len(cluster_payloads),
+    )
 
     # MiniMax/OpenAI may return decisions out of order — index by cluster_id.
     decisions_by_cid: dict[int, dict[str, Any]] = {}
