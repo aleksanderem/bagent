@@ -33,6 +33,7 @@ NO graceful fallbacks. MiniMax error = raise (Bugsink alerts).
 
 from __future__ import annotations
 
+import asyncio
 import logging
 from typing import Any
 
@@ -481,82 +482,125 @@ async def apply_intra_salon_consistency(
             label, minimax.model,
         )
 
+    # Parallel chunk dispatch (Task 2 of 2026-05-24-pipeline-optimization.md).
+    # Pass 5 chunks are by-design independent — each carries its own
+    # members + candidates, decisions keyed by cluster_id. Parallel
+    # dispatch cuts wall-clock from ~183s (serial, 6-8 chunks × ~25-30s
+    # each) to ~30-60s (semaphore=4, 4-wide pipe). Quality unchanged —
+    # zero shared state between chunks, zero ordering dependency since
+    # _apply_decision loop below indexes decisions by cluster_id.
+    #
+    # Semaphore cap (default 4) keeps us well under OpenAI tier-3+ rate
+    # limits even with 6-8 simultaneous gpt-4o calls. Override via env
+    # TAXONOMY_CONSISTENCY_CONCURRENCY for ops tuning.
+    try:
+        concurrency = int(os.environ.get("TAXONOMY_CONSISTENCY_CONCURRENCY", "4"))
+    except ValueError:
+        concurrency = 4
+    if concurrency < 1:
+        concurrency = 4
+    sem = asyncio.Semaphore(concurrency)
+    logger.info(
+        "apply_intra_salon_consistency [%s]: dispatching %d chunks in "
+        "parallel (concurrency=%d, provider=%s)",
+        label, len(chunks), concurrency, provider,
+    )
+
+    async def _process_chunk(
+        chunk_idx: int,
+        chunk: list[tuple[
+            int,
+            tuple[str | None, str, tuple[str, ...]],
+            list[dict[str, Any]],
+            list[dict[str, Any]],
+        ]],
+    ) -> list[dict[str, Any]]:
+        async with sem:
+            chunk_prompt = _build_user_prompt(chunk)
+            logger.info(
+                "apply_intra_salon_consistency [%s]: chunk %d/%d "
+                "(%d clusters) — provider=%s, prompt %d chars",
+                label, chunk_idx, len(chunks), len(chunk), provider,
+                len(chunk_prompt),
+            )
+            chunk_usage: dict[str, Any] | None = None
+            if provider == "openai":
+                async def _call_oai(
+                    _prompt: str = chunk_prompt,
+                ) -> tuple[list[dict[str, Any]], dict[str, Any]]:
+                    return await oai_client.call_decisions_tool(
+                        system_prompt=_SYSTEM_PROMPT,
+                        user_prompt=_prompt,
+                        tool_schema=_TAXONOMY_DECISIONS_TOOL,
+                        max_tokens=16384,
+                    )
+                chunk_raw, chunk_usage = await with_retry(
+                    _call_oai, max_attempts=2, base_delay=2.0,
+                )
+            else:
+                # Legacy MiniMax path (kept for A/B). Use tool_use API to
+                # force structured output.
+                async def _call_mm(_prompt: str = chunk_prompt):
+                    return await minimax.create_message(
+                        system=_SYSTEM_PROMPT,
+                        messages=[{"role": "user", "content": _prompt}],
+                        tools=[_TAXONOMY_DECISIONS_TOOL],
+                        max_tokens=32768,
+                        temperature=0.2,
+                    )
+                msg = await with_retry(
+                    _call_mm, max_attempts=2, base_delay=2.0,
+                )
+                chunk_raw = _extract_tool_decisions(
+                    msg, expected_count=len(chunk),
+                )
+                # MiniMax (Anthropic-compatible) returns usage on response.
+                usage_obj = getattr(msg, "usage", None)
+                if usage_obj is not None:
+                    chunk_usage = {
+                        "input": int(getattr(usage_obj, "input_tokens", 0) or 0),
+                        "output": int(getattr(usage_obj, "output_tokens", 0) or 0),
+                        "model": minimax.model,
+                    }
+            # Persist token usage to pipeline_traces (mig 121). Best-effort
+            # — observability MUST NOT crash the pipeline.
+            if tracer is not None and chunk_usage is not None:
+                try:
+                    tracer.add(
+                        "agent.tokens",
+                        {
+                            "step_name": "taxonomy.pass5_consistency",
+                            "chunk_idx": chunk_idx,
+                            "chunk_total": len(chunks),
+                            "cluster_count": len(chunk),
+                            "provider": provider,
+                            "model": chunk_usage.get("model"),
+                            "input_tokens": chunk_usage.get("input"),
+                            "output_tokens": chunk_usage.get("output"),
+                        },
+                        tokens_used=chunk_usage,
+                    )
+                except Exception:
+                    logger.exception(
+                        "agent.tokens trace add failed for Pass 5 chunk %d/%d",
+                        chunk_idx, len(chunks),
+                    )
+            # Per-chunk validation — any failure bubbles up immediately
+            # via gather, no partial-result accumulation downstream.
+            return _validate_decisions(
+                chunk_raw, expected_count=len(chunk),
+            )
+
+    non_empty_chunks = [
+        (idx, chunk)
+        for idx, chunk in enumerate(chunks, start=1)
+        if chunk
+    ]
+    chunk_results = await asyncio.gather(
+        *[_process_chunk(idx, chunk) for idx, chunk in non_empty_chunks],
+    )
     decisions: list[dict[str, Any]] = []
-    for chunk_idx, chunk in enumerate(chunks, start=1):
-        if not chunk:
-            continue
-        chunk_prompt = _build_user_prompt(chunk)
-        logger.info(
-            "apply_intra_salon_consistency [%s]: chunk %d/%d (%d clusters) "
-            "— provider=%s, prompt %d chars",
-            label, chunk_idx, len(chunks), len(chunk), provider,
-            len(chunk_prompt),
-        )
-        chunk_usage: dict[str, Any] | None = None
-        if provider == "openai":
-            async def _call_oai(
-                _prompt: str = chunk_prompt,
-            ) -> tuple[list[dict[str, Any]], dict[str, Any]]:
-                return await oai_client.call_decisions_tool(
-                    system_prompt=_SYSTEM_PROMPT,
-                    user_prompt=_prompt,
-                    tool_schema=_TAXONOMY_DECISIONS_TOOL,
-                    max_tokens=16384,
-                )
-            chunk_raw, chunk_usage = await with_retry(
-                _call_oai, max_attempts=2, base_delay=2.0,
-            )
-        else:
-            # Legacy MiniMax path (kept for A/B). Use tool_use API to
-            # force structured output.
-            async def _call_mm(_prompt: str = chunk_prompt):
-                return await minimax.create_message(
-                    system=_SYSTEM_PROMPT,
-                    messages=[{"role": "user", "content": _prompt}],
-                    tools=[_TAXONOMY_DECISIONS_TOOL],
-                    max_tokens=32768,
-                    temperature=0.2,
-                )
-            msg = await with_retry(_call_mm, max_attempts=2, base_delay=2.0)
-            chunk_raw = _extract_tool_decisions(
-                msg, expected_count=len(chunk),
-            )
-            # MiniMax (Anthropic-compatible) returns usage on the response.
-            usage_obj = getattr(msg, "usage", None)
-            if usage_obj is not None:
-                chunk_usage = {
-                    "input": int(getattr(usage_obj, "input_tokens", 0) or 0),
-                    "output": int(getattr(usage_obj, "output_tokens", 0) or 0),
-                    "model": minimax.model,
-                }
-        # Persist token usage to pipeline_traces (mig 121). Best-effort —
-        # observability MUST NOT crash the pipeline.
-        if tracer is not None and chunk_usage is not None:
-            try:
-                tracer.add(
-                    "agent.tokens",
-                    {
-                        "step_name": "taxonomy.pass5_consistency",
-                        "chunk_idx": chunk_idx,
-                        "chunk_total": len(chunks),
-                        "cluster_count": len(chunk),
-                        "provider": provider,
-                        "model": chunk_usage.get("model"),
-                        "input_tokens": chunk_usage.get("input"),
-                        "output_tokens": chunk_usage.get("output"),
-                    },
-                    tokens_used=chunk_usage,
-                )
-            except Exception:
-                logger.exception(
-                    "agent.tokens trace add failed for Pass 5 chunk %d/%d",
-                    chunk_idx, len(chunks),
-                )
-        # Per-chunk validation — any failure bubbles up immediately, no
-        # partial-result accumulation downstream.
-        chunk_validated = _validate_decisions(
-            chunk_raw, expected_count=len(chunk),
-        )
+    for chunk_validated in chunk_results:
         decisions.extend(chunk_validated)
 
     logger.info(
