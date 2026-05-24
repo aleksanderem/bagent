@@ -3408,6 +3408,212 @@ def _dedup_pricing_rows(rows: list[dict[str, Any]]) -> list[dict[str, Any]]:
 # ---------------------------------------------------------------------------
 
 
+# Categories which are too generic / catch-all to use as walk-up evidence.
+# `inny` is a literal "miscellaneous" bucket with 12k+ method rows — saying
+# subject has "an inny service" tells us nothing about overlap with a
+# specific gap candidate. If we walked up on `inny`, virtually every
+# legitimate missing gap would be hidden because any salon with a single
+# misc service blocks every misc-categorized gap candidate.
+#
+# Add other catch-all categories here ONLY if downstream debugging shows
+# they over-filter. Keep this small — being too permissive defeats the
+# walk-up; being too restrictive brings back the false positives the
+# walk-up was designed to fix.
+_NON_DISCRIMINATIVE_METHOD_CATEGORIES: frozenset[str] = frozenset({"inny"})
+
+
+async def _resolve_method_categories_for_services(
+    service: SupabaseService,
+    service_ids: list[int],
+) -> dict[int, set[str]]:
+    """Return {service_id: {treatment_methods.category}} for given service ids.
+
+    Joins `service_method_classification` with `treatment_methods` and
+    returns the set of method categories per service. A service can have
+    multiple method classifications (multi-procedure rooms — e.g.
+    "PRO XN + Dermapen" → [dermapen, pro_xn]), so the value is a set, not
+    a single string.
+
+    Categories listed in `_NON_DISCRIMINATIVE_METHOD_CATEGORIES` are
+    filtered out — they're catch-all buckets ('inny') that would over-
+    filter the gap walk-up logic.
+
+    Returns {} when service_ids is empty or no classifications exist.
+    Failures (Supabase down, etc.) log a warning and return {} so the
+    caller fails open — preserving the legacy tid-only behavior is safer
+    than crashing the whole gap computation.
+    """
+    if not service_ids:
+        return {}
+    # Two-step lookup: first method_ids per service, then categories per
+    # method_id. We can't single-query because Supabase Python client
+    # doesn't expose joins on service_method_classification ↔
+    # treatment_methods directly.
+    try:
+        cls_res = (
+            service.client.table("service_method_classification")
+            .select("service_id, method_id")
+            .in_("service_id", service_ids)
+            .execute()
+        )
+    except Exception as e:
+        logger.warning(
+            "Failed to load service_method_classification for %d service ids: %s",
+            len(service_ids), e,
+        )
+        return {}
+    rows = cls_res.data or []
+    if not rows:
+        return {}
+    method_ids = list({int(r["method_id"]) for r in rows if r.get("method_id") is not None})
+    if not method_ids:
+        return {}
+    try:
+        tm_res = (
+            service.client.table("treatment_methods")
+            .select("id, category")
+            .in_("id", method_ids)
+            .execute()
+        )
+    except Exception as e:
+        logger.warning(
+            "Failed to load treatment_methods categories for %d method ids: %s",
+            len(method_ids), e,
+        )
+        return {}
+    method_to_category: dict[int, str] = {
+        int(r["id"]): r["category"]
+        for r in (tm_res.data or [])
+        if r.get("id") is not None and r.get("category")
+    }
+    out: dict[int, set[str]] = {}
+    for r in rows:
+        sid = r.get("service_id")
+        mid = r.get("method_id")
+        if sid is None or mid is None:
+            continue
+        category = method_to_category.get(int(mid))
+        if not category:
+            continue
+        if category in _NON_DISCRIMINATIVE_METHOD_CATEGORIES:
+            continue
+        out.setdefault(int(sid), set()).add(category)
+    return out
+
+
+async def _filter_missing_by_method_category(
+    service: SupabaseService,
+    missing: list[dict[str, Any]],
+    subject_svcs: dict[int, dict[str, Any]],
+    competitor_service_ids_by_tid: dict[int, list[int]],
+) -> list[dict[str, Any]]:
+    """Drop missing-gap rows whose method category is already covered by
+    the subject.
+
+    Approach:
+      1. Resolve `treatment_methods.category` for every subject service
+         via `service_method_classification`. Build subject_categories set.
+      2. Resolve same categories for the competitor services that carry
+         each candidate-missing tid. Build {tid: {category}} map.
+      3. Filter: drop rows where tid's categories intersect with
+         subject_categories.
+
+    Fail-open contract: if either lookup returns nothing (cold cache,
+    Supabase blip, or services with no classification yet), keep the
+    row. The legacy tid-only behaviour is the safe fallback — better
+    to surface one false positive than to silently hide a real gap.
+    """
+    if not missing:
+        return missing
+
+    subject_service_ids: list[int] = []
+    for svc in subject_svcs.values():
+        sid = svc.get("id")
+        if sid is not None:
+            try:
+                subject_service_ids.append(int(sid))
+            except (TypeError, ValueError):
+                continue
+
+    # No subject services with ids → nothing to walk up against, keep
+    # the legacy behaviour (return list unchanged).
+    if not subject_service_ids:
+        return missing
+
+    subject_categories_by_svc = await _resolve_method_categories_for_services(
+        service, subject_service_ids,
+    )
+    subject_categories: set[str] = set()
+    for cats in subject_categories_by_svc.values():
+        subject_categories.update(cats)
+
+    if not subject_categories:
+        # Subject is unclassified — can't safely walk up. Keep legacy
+        # behaviour.
+        logger.info(
+            "service_gaps walk-up: subject has no classified services "
+            "with non-catch-all categories, skipping walk-up (kept %d "
+            "candidate missing rows as-is)", len(missing),
+        )
+        return missing
+
+    # Collect all competitor service ids across all candidate missing
+    # tids in one batch — single Supabase round-trip beats N round-trips.
+    candidate_tids = [int(row["booksy_treatment_id"]) for row in missing]
+    all_comp_svc_ids: list[int] = []
+    for tid in candidate_tids:
+        all_comp_svc_ids.extend(competitor_service_ids_by_tid.get(tid, []))
+    # Dedup to reduce query payload — same competitor service can appear
+    # under one tid only, but defensive against future code paths.
+    all_comp_svc_ids = list({int(x) for x in all_comp_svc_ids})
+
+    comp_categories_by_svc = await _resolve_method_categories_for_services(
+        service, all_comp_svc_ids,
+    )
+
+    # Build tid → set[category] by aggregating across the tid's
+    # competitor services. Multiple competitor salons may classify the
+    # same tid differently (e.g. "Lifting falą radiową" may map to
+    # `rf_hifu` in one salon's row and `laser_skin` in another's). Take
+    # union — if ANY classification overlaps subject, the subject has
+    # equivalent coverage.
+    tid_to_categories: dict[int, set[str]] = {}
+    for tid in candidate_tids:
+        svc_ids = competitor_service_ids_by_tid.get(tid, [])
+        cats: set[str] = set()
+        for sid in svc_ids:
+            cats.update(comp_categories_by_svc.get(int(sid), set()))
+        if cats:
+            tid_to_categories[tid] = cats
+
+    kept: list[dict[str, Any]] = []
+    suppressed: list[tuple[int, str, set[str]]] = []
+    for row in missing:
+        tid = int(row["booksy_treatment_id"])
+        cats = tid_to_categories.get(tid)
+        if not cats:
+            # Competitor side unclassified for this tid → fail-open,
+            # keep the row.
+            kept.append(row)
+            continue
+        overlap = cats & subject_categories
+        if overlap:
+            suppressed.append((tid, row.get("treatment_name", "Unknown"), overlap))
+            continue
+        kept.append(row)
+
+    if suppressed:
+        logger.info(
+            "service_gaps walk-up: suppressed %d missing rows whose "
+            "method category is already covered by subject "
+            "(subject_categories=%s); examples: %s",
+            len(suppressed),
+            sorted(subject_categories),
+            [(tid, name, sorted(cats)) for tid, name, cats in suppressed[:5]],
+        )
+    return kept
+
+
 async def _compute_service_gaps(
     service: SupabaseService,
     report_id: int,
@@ -3419,6 +3625,9 @@ async def _compute_service_gaps(
     - 'missing': top 10 treatments that ≥1 counts_in_aggregates competitor
       offers but the subject does not. Popularity score = competitor_count
       weighted by review mentions (limited due to 3-sample review cap).
+      Candidates whose method category (`treatment_methods.category` via
+      `service_method_classification`) already has equivalent subject
+      coverage are filtered out — see "Method-category walk-up" below.
     - 'unique_usp': up to 5 treatments only the subject offers, WERYFIKOWANE
       przez embedding similarity vs wszystkie services konkurentów. Subject
       może mieć brand-specific name (Thunder, Onda, Light&Bright) który
@@ -3426,6 +3635,24 @@ async def _compute_service_gaps(
       User insight: \"jeśli to jest nic innego jak depilacja laserowa
       tylko innym urządzeniem, to są kretynami\" — fałszywe USP rujnują
       pozycjonowanie i marketing.
+
+    Method-category walk-up (2026-05-24, fixes false-positive missing rows):
+      Booksy `treatment_id` is a flat taxonomy — "Lifting falą radiową"
+      (tid=511) and "Onda" (different tid) are sibling treatments inside
+      the same method category `rf_hifu`. A subject with 9 Onda + 4
+      fala_radiowa services has FULL coverage of rf_hifu but the legacy
+      tid set-difference reports "Lifting falą radiową" as missing. The
+      walk-up reads `treatment_methods.category` for every candidate gap
+      tid (via the services that carry it in the loaded competitor data)
+      and filters out gaps whose category is already covered by ANY
+      subject service classified into the same category. Catch-all
+      categories like `inny` are excluded from the walk-up — they would
+      mass-suppress legitimate gaps.
+
+      Walk-up is fail-open: if the classification cache returns nothing
+      (cold cache, Supabase blip, brand-new services), the gap survives.
+      Better to surface a real false positive than to silently hide a
+      real gap.
     """
     subject_svcs = _active_services_with_treatment(subject_data.get("services") or [])
     subject_tids = set(subject_svcs.keys())
@@ -3435,6 +3662,10 @@ async def _compute_service_gaps(
     competitor_prices: dict[int, list[int]] = {}
     treatment_names: dict[int, str] = {}
     treatment_parents: dict[int, int | None] = {}
+    # Service ids per tid — used by the method-category walk-up below to
+    # resolve `treatment_methods.category` for each candidate-missing tid
+    # through service_method_classification.
+    competitor_service_ids_by_tid: dict[int, list[int]] = {}
 
     for cand, cdata in aligned_competitors:
         if not cand.counts_in_aggregates:
@@ -3451,6 +3682,9 @@ async def _compute_service_gaps(
             price = svc.get("price_grosze")
             if price is not None:
                 competitor_prices.setdefault(tid, []).append(int(price))
+            svc_id = svc.get("id")
+            if svc_id is not None:
+                competitor_service_ids_by_tid.setdefault(tid, []).append(int(svc_id))
 
     # Count review mentions per treatment across competitors (review.services
     # is a jsonb array like [{id, name, treatment_id}])
@@ -3495,6 +3729,26 @@ async def _compute_service_gaps(
             "popularity_score": round(min(popularity, 999.99), 2),
             "sort_order": 0,  # fixed after sorting
         })
+
+    # ── Method-category walk-up (2026-05-24) ─────────────────────────
+    # Drop gap rows whose method category is already covered by the
+    # subject. Booksy `treatment_id` is brand-flavoured (Lifting falą
+    # radiową, Onda, Virtue RF — three sibling tids, same rf_hifu
+    # category). The legacy set-difference reported every sibling tid
+    # the subject didn't carry as "missing", regardless of whether the
+    # subject already had equivalent coverage under a different brand
+    # name. The walk-up reuses the existing classification cache —
+    # `service_method_classification` → `treatment_methods.category` —
+    # to detect this overlap.
+    #
+    # Done BEFORE the top-10 truncation so legitimate gaps surface into
+    # the top 10 instead of being held behind a queue of suppressed
+    # false positives.
+    if missing:
+        missing = await _filter_missing_by_method_category(
+            service, missing, subject_svcs, competitor_service_ids_by_tid,
+        )
+
     missing.sort(key=lambda r: (-(r["popularity_score"] or 0), -(r["competitor_count"] or 0)))
     missing = missing[:10]
     for idx, row in enumerate(missing):

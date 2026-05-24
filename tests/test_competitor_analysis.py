@@ -767,20 +767,73 @@ class TestComputePricingComparisons:
 # ---------------------------------------------------------------------------
 
 
+def _svc_embedded(**kwargs) -> dict:
+    """Like _svc but marks the row as embedded (passes the hard-gate in
+    _active_services_with_treatment which would otherwise drop it)."""
+    row = _svc(**kwargs)
+    row["has_embedding"] = True
+    return row
+
+
+def _mock_supabase_for_gaps(
+    *,
+    subject_categories_by_svc: dict[int, set[str]] | None = None,
+    competitor_categories_by_svc: dict[int, set[str]] | None = None,
+) -> AsyncMock:
+    """Stub SupabaseService driving the method-category walk-up + USP
+    embedding verification used by _compute_service_gaps.
+
+    Tests that exercise the walk-up pass `subject_categories_by_svc`
+    and `competitor_categories_by_svc` keyed by service id. Tests that
+    don't care can pass empty dicts to get fail-open behaviour (walk-
+    up no-ops; legacy gap output preserved).
+    """
+    s_cats = subject_categories_by_svc or {}
+    c_cats = competitor_categories_by_svc or {}
+
+    # `_resolve_method_categories_for_services` is the function we need to
+    # stub. It takes (service, service_ids) and returns
+    # {service_id: set[category]}. We patch it directly on the module so
+    # the SupabaseService stub doesn't need to mimic the table chain.
+    service = AsyncMock()
+    # USP embedding lookup — empty so no pseudo-USP suppression.
+    service.get_service_embeddings.return_value = {}
+
+    return service, s_cats, c_cats
+
+
 class TestComputeServiceGaps:
-    def test_missing_type_ranked_by_competitor_count(self) -> None:
-        subject_data = {"services": []}  # Subject has nothing
+    @pytest.mark.asyncio
+    async def test_missing_type_ranked_by_competitor_count(
+        self, monkeypatch: pytest.MonkeyPatch,
+    ) -> None:
+        # Subject has nothing → walk-up trivially no-ops, legacy ranking
+        # should hold.
+        subject_data = {"services": []}
         aligned = [
             (_cand(salon_id=1), {
-                "services": [_svc(treatment_id=1), _svc(treatment_id=2)],
+                "services": [_svc_embedded(treatment_id=1), _svc_embedded(treatment_id=2)],
                 "reviews": [],
             }),
             (_cand(salon_id=2), {
-                "services": [_svc(treatment_id=1)],
+                "services": [_svc_embedded(treatment_id=1)],
                 "reviews": [],
             }),
         ]
-        result = _compute_service_gaps(report_id=1, subject_data=subject_data, aligned_competitors=aligned)
+        service = AsyncMock()
+        service.get_service_embeddings.return_value = {}
+        # Walk-up no-ops with empty subject service list, but stub the
+        # resolver anyway so any incidental call returns {}.
+        async def _resolve_stub(svc, sids):
+            return {}
+        monkeypatch.setattr(
+            "pipelines.competitor_analysis._resolve_method_categories_for_services",
+            _resolve_stub,
+        )
+        result = await _compute_service_gaps(
+            service, report_id=1, subject_data=subject_data,
+            aligned_competitors=aligned,
+        )
         missing = [r for r in result if r["gap_type"] == "missing"]
         # tid=1 has 2 competitors, tid=2 has 1 — tid=1 should be first
         assert missing[0]["booksy_treatment_id"] == 1
@@ -788,36 +841,213 @@ class TestComputeServiceGaps:
         assert missing[1]["booksy_treatment_id"] == 2
         assert missing[1]["competitor_count"] == 1
 
-    def test_unique_usp_extraction(self) -> None:
+    @pytest.mark.asyncio
+    async def test_unique_usp_extraction(
+        self, monkeypatch: pytest.MonkeyPatch,
+    ) -> None:
         subject_data = {
             "services": [
-                _svc(treatment_id=100, price_grosze=5000, name="Unique1"),
-                _svc(treatment_id=200, price_grosze=3000, name="SharedWithCompetitor"),
+                _svc_embedded(treatment_id=100, price_grosze=5000, name="Unique1"),
+                _svc_embedded(treatment_id=200, price_grosze=3000, name="SharedWithCompetitor"),
             ],
         }
         aligned = [
             (_cand(salon_id=1), {
-                "services": [_svc(treatment_id=200, price_grosze=2500)],
+                "services": [_svc_embedded(treatment_id=200, price_grosze=2500)],
+                "scrape": {"salon_name": "Cand1"},
                 "reviews": [],
             }),
         ]
-        result = _compute_service_gaps(report_id=1, subject_data=subject_data, aligned_competitors=aligned)
+        service = AsyncMock()
+        service.get_service_embeddings.return_value = {}
+        async def _resolve_stub(svc, sids):
+            return {}
+        monkeypatch.setattr(
+            "pipelines.competitor_analysis._resolve_method_categories_for_services",
+            _resolve_stub,
+        )
+        result = await _compute_service_gaps(
+            service, report_id=1, subject_data=subject_data,
+            aligned_competitors=aligned,
+        )
         uniques = [r for r in result if r["gap_type"] == "unique_usp"]
         assert len(uniques) == 1
         assert uniques[0]["booksy_treatment_id"] == 100
         assert uniques[0]["competitor_count"] == 0
 
-    def test_missing_capped_at_10(self) -> None:
+    @pytest.mark.asyncio
+    async def test_missing_capped_at_10(
+        self, monkeypatch: pytest.MonkeyPatch,
+    ) -> None:
         subject_data = {"services": []}
         aligned = [
             (_cand(salon_id=1), {
-                "services": [_svc(treatment_id=i) for i in range(1, 16)],
+                "services": [_svc_embedded(treatment_id=i) for i in range(1, 16)],
                 "reviews": [],
             }),
         ]
-        result = _compute_service_gaps(report_id=1, subject_data=subject_data, aligned_competitors=aligned)
+        service = AsyncMock()
+        service.get_service_embeddings.return_value = {}
+        async def _resolve_stub(svc, sids):
+            return {}
+        monkeypatch.setattr(
+            "pipelines.competitor_analysis._resolve_method_categories_for_services",
+            _resolve_stub,
+        )
+        result = await _compute_service_gaps(
+            service, report_id=1, subject_data=subject_data,
+            aligned_competitors=aligned,
+        )
         missing = [r for r in result if r["gap_type"] == "missing"]
         assert len(missing) == 10
+
+    @pytest.mark.asyncio
+    async def test_walk_up_filters_missing_when_subject_covers_same_category(
+        self, monkeypatch: pytest.MonkeyPatch,
+    ) -> None:
+        """Regression test for the false-positive "Lifting falą radiową"
+        gap (2026-05-24): subject has Onda + fala_radiowa under tid 100
+        (classified `rf_hifu`); competitor has "Lifting falą radiową"
+        under tid 200 (also `rf_hifu`). Set difference {200} − {100} =
+        {200} would report tid 200 as missing, but subject already has
+        equivalent rf_hifu coverage — walk-up must suppress this row.
+        """
+        subject_svc = _svc_embedded(
+            treatment_id=100, price_grosze=15000, name="Onda 1 zabieg",
+            service_id=9001,
+        )
+        comp_svc = _svc_embedded(
+            treatment_id=200, price_grosze=20000,
+            name="Lifting falą radiową", service_id=9101,
+        )
+        subject_data = {"services": [subject_svc]}
+        aligned = [
+            (_cand(salon_id=1), {
+                "services": [comp_svc],
+                "scrape": {"salon_name": "Cand1"},
+                "reviews": [],
+            }),
+        ]
+
+        service = AsyncMock()
+        service.get_service_embeddings.return_value = {}
+
+        async def _resolve_stub(svc, sids):
+            # Same category for both subject (svc id 9001) and competitor
+            # (svc id 9101). Walk-up should suppress the gap row.
+            out: dict[int, set[str]] = {}
+            for sid in sids:
+                if int(sid) == 9001:
+                    out[9001] = {"rf_hifu"}
+                elif int(sid) == 9101:
+                    out[9101] = {"rf_hifu"}
+            return out
+
+        monkeypatch.setattr(
+            "pipelines.competitor_analysis._resolve_method_categories_for_services",
+            _resolve_stub,
+        )
+
+        result = await _compute_service_gaps(
+            service, report_id=1, subject_data=subject_data,
+            aligned_competitors=aligned,
+        )
+        missing = [r for r in result if r["gap_type"] == "missing"]
+        # Walk-up must have suppressed tid 200 (rf_hifu already covered
+        # by subject's tid 100 under a different brand name).
+        assert missing == [], (
+            f"Expected walk-up to suppress rf_hifu sibling gap, got: {missing}"
+        )
+
+    @pytest.mark.asyncio
+    async def test_walk_up_keeps_gap_when_category_differs(
+        self, monkeypatch: pytest.MonkeyPatch,
+    ) -> None:
+        """Walk-up must not over-filter: subject in rf_hifu does NOT
+        cover a real laser_skin gap from the competitor.
+        """
+        subject_svc = _svc_embedded(
+            treatment_id=100, price_grosze=15000, name="Onda",
+            service_id=8001,
+        )
+        comp_svc = _svc_embedded(
+            treatment_id=200, price_grosze=20000,
+            name="Laser frakcyjny", service_id=8101,
+        )
+        subject_data = {"services": [subject_svc]}
+        aligned = [
+            (_cand(salon_id=1), {
+                "services": [comp_svc],
+                "scrape": {"salon_name": "Cand1"},
+                "reviews": [],
+            }),
+        ]
+        service = AsyncMock()
+        service.get_service_embeddings.return_value = {}
+
+        async def _resolve_stub(svc, sids):
+            out: dict[int, set[str]] = {}
+            for sid in sids:
+                if int(sid) == 8001:
+                    out[8001] = {"rf_hifu"}
+                elif int(sid) == 8101:
+                    out[8101] = {"laser_skin"}
+            return out
+
+        monkeypatch.setattr(
+            "pipelines.competitor_analysis._resolve_method_categories_for_services",
+            _resolve_stub,
+        )
+
+        result = await _compute_service_gaps(
+            service, report_id=1, subject_data=subject_data,
+            aligned_competitors=aligned,
+        )
+        missing = [r for r in result if r["gap_type"] == "missing"]
+        assert len(missing) == 1
+        assert missing[0]["booksy_treatment_id"] == 200
+
+    @pytest.mark.asyncio
+    async def test_walk_up_fails_open_when_classifications_empty(
+        self, monkeypatch: pytest.MonkeyPatch,
+    ) -> None:
+        """If the classification cache is cold for either side, walk-up
+        must keep the gap row (legacy behaviour — fail-open contract).
+        """
+        subject_svc = _svc_embedded(
+            treatment_id=100, name="Onda", service_id=7001,
+        )
+        comp_svc = _svc_embedded(
+            treatment_id=200, name="Lifting falą radiową", service_id=7101,
+        )
+        subject_data = {"services": [subject_svc]}
+        aligned = [
+            (_cand(salon_id=1), {
+                "services": [comp_svc],
+                "scrape": {"salon_name": "Cand1"},
+                "reviews": [],
+            }),
+        ]
+        service = AsyncMock()
+        service.get_service_embeddings.return_value = {}
+
+        async def _resolve_stub(svc, sids):
+            # Empty — simulate cold classification cache.
+            return {}
+
+        monkeypatch.setattr(
+            "pipelines.competitor_analysis._resolve_method_categories_for_services",
+            _resolve_stub,
+        )
+
+        result = await _compute_service_gaps(
+            service, report_id=1, subject_data=subject_data,
+            aligned_competitors=aligned,
+        )
+        missing = [r for r in result if r["gap_type"] == "missing"]
+        # Legacy behaviour: row survives because we can't prove overlap.
+        assert len(missing) == 1
+        assert missing[0]["booksy_treatment_id"] == 200
 
 
 # ---------------------------------------------------------------------------
