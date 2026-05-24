@@ -279,20 +279,55 @@ async def compute_competitor_analysis(
             _pre_router_out = _router_llm.total_output_tokens if _router_llm else 0
             _pre_router_calls = _router_llm.total_calls if _router_llm else 0
 
-            total_overridden = await _apply_llm_taxonomy_to_null_tid_services(
-                service, subject_data.get("services") or [], label="subject",
-                audit_id=audit_id,
+            # Parallelize per-salon taxonomy routing (subject + 15 competitors).
+            # Each salon's _resolve_service_taxonomy is independent:
+            # - svc-dict mutations are local (different list per salon)
+            # - DB writes are race-safe: Rule 2 via fn_upsert_synthetic_salon_defined
+            #   RPC (DB unique index `WHERE source='salon_defined'`), Rule 4 via
+            #   atomic increment_synthetic_merged_count, Rule 3 mutates dict only
+            #   (no synthetic INSERT). Rule 1 (`upsert_synthetic_category_llm_generated`)
+            #   has theoretical race for same-meaning-different-salon canonical names
+            #   but rule_1 hits are rare (<7 across 16 salons typically) and the
+            #   embedding-dedup catches semantic dupes — acceptable risk.
+            # - LLM client is a singleton (_get_hidden_inference_llm) so token
+            #   counters aggregate correctly.
+            # Inner infer_hidden_services_batch creates its own Semaphore(15)
+            # per-call. With outer Semaphore(8) max concurrent gpt-4o-mini calls
+            # = 8 × 15 = 120; gpt-4o-mini Tier 2+ allows ~10K RPM so safe.
+            import asyncio as _router_asyncio
+            import os as _router_os
+            _outer_concurrency = int(
+                _router_os.environ.get("TAXONOMY_ROUTER_CONCURRENCY", "8")
             )
+            _router_sem = _router_asyncio.Semaphore(_outer_concurrency)
+
+            async def _route_salon(
+                services_list: list[dict[str, Any]], label: str,
+            ) -> int:
+                async with _router_sem:
+                    return await _apply_llm_taxonomy_to_null_tid_services(
+                        service, services_list, label=label,
+                        audit_id=audit_id,
+                    )
+
+            _salon_tasks: list[Awaitable[int]] = [
+                _route_salon(
+                    subject_data.get("services") or [], label="subject",
+                ),
+            ]
             for _, cdata in aligned_competitors:
-                total_overridden += await _apply_llm_taxonomy_to_null_tid_services(
-                    service, cdata.get("services") or [],
-                    label=f"competitor booksy_id={cdata.get('booksy_id')}",
-                    audit_id=audit_id,
+                _salon_tasks.append(
+                    _route_salon(
+                        cdata.get("services") or [],
+                        label=f"competitor booksy_id={cdata.get('booksy_id')}",
+                    )
                 )
+            _salon_counts = await _router_asyncio.gather(*_salon_tasks)
+            total_overridden = sum(_salon_counts)
             logger.info(
                 "Etap 4: taxonomy routing applied to %d NULL-tid services "
-                "(subject + %d competitors)",
-                total_overridden, len(aligned_competitors),
+                "(subject + %d competitors, outer_concurrency=%d)",
+                total_overridden, len(aligned_competitors), _outer_concurrency,
             )
 
             if tracer is not None and _router_llm is not None:
