@@ -485,20 +485,26 @@ async def apply_intra_salon_consistency(
     # Parallel chunk dispatch (Task 2 of 2026-05-24-pipeline-optimization.md).
     # Pass 5 chunks are by-design independent — each carries its own
     # members + candidates, decisions keyed by cluster_id. Parallel
-    # dispatch cuts wall-clock from ~183s (serial, 6-8 chunks × ~25-30s
-    # each) to ~30-60s (semaphore=4, 4-wide pipe). Quality unchanged —
-    # zero shared state between chunks, zero ordering dependency since
-    # _apply_decision loop below indexes decisions by cluster_id.
+    # dispatch cuts wall-clock empirically measured on Beauty4ever audit
+    # 34 (192 clusters, 7 chunks of 30): 183s serial → 78s parallel at
+    # concurrency=7 (-57%) → 108s parallel at concurrency=4 (-41%).
+    # Quality unchanged — zero shared state between chunks, zero ordering
+    # dependency since _apply_decision loop below indexes decisions by
+    # cluster_id.
     #
-    # Semaphore cap (default 4) keeps us well under OpenAI tier-3+ rate
-    # limits even with 6-8 simultaneous gpt-4o calls. Override via env
-    # TAXONOMY_CONSISTENCY_CONCURRENCY for ops tuning.
+    # Default concurrency=7 covers the typical 6-8 chunk shape with one
+    # task per chunk; semaphore still gates if cluster count balloons.
+    # OpenAI tier-3+ rate limits comfortably accommodate 7 simultaneous
+    # gpt-4o calls (typical chunk = ~20k input tokens, total 7×20k = 140k
+    # tokens in flight, well below TPM budget). Override via env
+    # TAXONOMY_CONSISTENCY_CONCURRENCY for ops tuning (lower for
+    # rate-limited keys, higher if chunk count grows).
     try:
-        concurrency = int(os.environ.get("TAXONOMY_CONSISTENCY_CONCURRENCY", "4"))
+        concurrency = int(os.environ.get("TAXONOMY_CONSISTENCY_CONCURRENCY", "7"))
     except ValueError:
-        concurrency = 4
+        concurrency = 7
     if concurrency < 1:
-        concurrency = 4
+        concurrency = 7
     sem = asyncio.Semaphore(concurrency)
     logger.info(
         "apply_intra_salon_consistency [%s]: dispatching %d chunks in "
