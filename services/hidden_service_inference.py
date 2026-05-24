@@ -38,6 +38,7 @@ from __future__ import annotations
 import asyncio
 import json
 import logging
+import os
 import re
 from typing import Any
 
@@ -51,6 +52,20 @@ logger = logging.getLogger(__name__)
 # Empirycznie dobrane: LLM zwraca 0.7-0.95 dla pewnych dopasowań, 0.4-0.6
 # dla "może to ale nie jestem pewien". 0.65 to próg "trust it".
 DEFAULT_MIN_CONFIDENCE = 0.65
+
+# Default semaphore size dla `infer_hidden_services_batch`. Override przez
+# HIDDEN_SERVICES_CONCURRENCY env var. Podniesione z 4 → 15 na podstawie
+# diagnozy 2026-05-25 (Beauty4ever audit 34, Task 3 plan 2026-05-24):
+# - 137 LLM calls/run, identyczny prompt → bit-identyczne token counts
+#   między runami, ZERO retries
+# - wall-clock varies 47s → 192s (4× spread) — pure OpenAI gpt-4o-mini
+#   API latency variance (avg call latency 1.4s → 5.6s w extremum)
+# - 137 calls / Semaphore(4) ≈ 34 batches × per-call latency = wall-clock
+# - gpt-4o-mini ma rate limit 10K+ RPM (Tier 2+), Semaphore(15) bezpieczne
+# Cel: cut hidden_services.enrich z 86s baseline → ≤45s na bad API day.
+DEFAULT_HIDDEN_SERVICES_CONCURRENCY = int(
+    os.environ.get("HIDDEN_SERVICES_CONCURRENCY", "15")
+)
 
 # Embedding-only fallback (gdy brak opisu albo LLM padł) ma celowo
 # capped confidence — pure embedding pokazał się słaby w POC (top-1 często
@@ -565,7 +580,7 @@ async def infer_hidden_services_batch(
     supabase: SupabaseService,
     llm: GeminiLLMClient | None,
     *,
-    concurrency: int = 4,
+    concurrency: int | None = None,
     top_k: int = DEFAULT_TOP_K,
     min_confidence: float = DEFAULT_MIN_CONFIDENCE,
 ) -> list[dict[str, Any]]:
@@ -573,10 +588,19 @@ async def infer_hidden_services_batch(
 
     Returns list of results (same order as input). Each service in `services`
     must have `name`, `description`, `name_embedding` keys.
+
+    `concurrency=None` (default) uses `DEFAULT_HIDDEN_SERVICES_CONCURRENCY`
+    (env var `HIDDEN_SERVICES_CONCURRENCY`, default 15). Caller może
+    nadpisać explicit int dla testów (np. test_hidden_service_inference.py
+    chce concurrency=1 dla deterministycznych testów).
     """
     if not services:
         return []
-    sem = asyncio.Semaphore(concurrency)
+    effective_concurrency = (
+        concurrency if concurrency is not None
+        else DEFAULT_HIDDEN_SERVICES_CONCURRENCY
+    )
+    sem = asyncio.Semaphore(effective_concurrency)
 
     async def _one(svc: dict[str, Any]) -> dict[str, Any]:
         async with sem:
