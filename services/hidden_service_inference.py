@@ -92,6 +92,13 @@ class GeminiLLMClient:
         self._client = AsyncOpenAI(api_key=api_key, base_url=base_url)
         self.model = model
         self.provider = prov
+        # Cumulative usage counters for observability (mig 121). Updated
+        # after every successful generate_json call. Read by upstream
+        # callers that hold a TraceWriter so per-pipeline LLM cost is
+        # queryable without piping a tracer through every function call.
+        self.total_input_tokens: int = 0
+        self.total_output_tokens: int = 0
+        self.total_calls: int = 0
 
     async def generate_json(self, prompt: str, system: str, max_tokens: int = 512) -> dict[str, Any]:
         resp = await self._client.chat.completions.create(
@@ -104,6 +111,12 @@ class GeminiLLMClient:
             temperature=0.1,
             max_tokens=max_tokens,
         )
+        # Accumulate token usage for trace persistence (mig 121).
+        usage_obj = getattr(resp, "usage", None)
+        if usage_obj is not None:
+            self.total_input_tokens += int(getattr(usage_obj, "prompt_tokens", 0) or 0)
+            self.total_output_tokens += int(getattr(usage_obj, "completion_tokens", 0) or 0)
+        self.total_calls += 1
         content = (resp.choices[0].message.content or "").strip()
         if not content:
             raise ValueError(f"{self.provider} returned empty content")

@@ -7,7 +7,11 @@ module.exports = {
     {
       name: "bagent-worker",
       script: "/home/booksy/webapps/bagent-booksyauditor/scripts/run_with_env.sh",
-      args: "/home/booksy/.local/bin/uv run arq workers.WorkerSettings",
+      // --log-level info exposes the per-phase logger.info markers from
+      // pipelines/competitor_analysis.py + services/* in PM2 logs. Without
+      // it arq defaults to WARNING which swallowed the entire 649s opaque
+      // middle block in profile 2026-05-24-pipeline-profile.md.
+      args: "/home/booksy/.local/bin/uv run arq workers.WorkerSettings --log-level info",
       cwd: "/home/booksy/webapps/bagent-booksyauditor",
       autorestart: true,
       max_restarts: 50,

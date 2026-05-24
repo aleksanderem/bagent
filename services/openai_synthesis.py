@@ -157,7 +157,11 @@ _SYSTEM_PROMPT = (
 )
 
 
-async def synthesize_via_openai(context: str) -> dict[str, Any]:
+async def synthesize_via_openai(
+    context: str,
+    *,
+    tracer: Any = None,
+) -> dict[str, Any]:
     """Call OpenAI gpt-4o-mini with Structured Outputs to produce insights
     in the same shape as MiniMax.
 
@@ -165,6 +169,8 @@ async def synthesize_via_openai(context: str) -> dict[str, Any]:
     Adds empty `sourceDataPoints` to SWOT bullets and empty `sourceCompetitorIds`
     / `sourceDataPoints` to recommendations so the downstream sanitizer doesn't
     complain about missing keys.
+
+    `tracer` (optional TraceWriter): persists agent.tokens via mig 121.
     """
     client = _get_openai_client()
     if client is None:
@@ -207,4 +213,28 @@ async def synthesize_via_openai(context: str) -> dict[str, Any]:
             ("strengths", "weaknesses", "opportunities", "threats")),
         len(parsed.get("recommendations", [])),
     )
+
+    # Persist token usage (mig 121). Best-effort.
+    if tracer is not None:
+        try:
+            usage_obj = getattr(response, "usage", None)
+            in_toks = int(getattr(usage_obj, "prompt_tokens", 0) or 0) if usage_obj else 0
+            out_toks = int(getattr(usage_obj, "completion_tokens", 0) or 0) if usage_obj else 0
+            tracer.add(
+                "agent.tokens",
+                {
+                    "step_name": "synthesis.openai_fallback",
+                    "model": "gpt-4o-mini",
+                    "input_tokens": in_toks,
+                    "output_tokens": out_toks,
+                },
+                tokens_used={
+                    "input": in_toks,
+                    "output": out_toks,
+                    "model": "gpt-4o-mini",
+                },
+            )
+        except Exception:
+            logger.exception("agent.tokens trace add failed for synthesis.openai_fallback")
+
     return parsed

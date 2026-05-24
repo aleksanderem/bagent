@@ -367,6 +367,7 @@ async def apply_intra_salon_consistency(
     label: str,
     trace_collector: list[dict[str, Any]] | None = None,
     dry_run: bool = False,
+    tracer: Any = None,
 ) -> dict[str, int]:
     """Run consistency pass over already-routed services. Mutates svc
     dicts in place when re-routing happens. Returns stats dict.
@@ -491,17 +492,18 @@ async def apply_intra_salon_consistency(
             label, chunk_idx, len(chunks), len(chunk), provider,
             len(chunk_prompt),
         )
+        chunk_usage: dict[str, Any] | None = None
         if provider == "openai":
             async def _call_oai(
                 _prompt: str = chunk_prompt,
-            ) -> list[dict[str, Any]]:
+            ) -> tuple[list[dict[str, Any]], dict[str, Any]]:
                 return await oai_client.call_decisions_tool(
                     system_prompt=_SYSTEM_PROMPT,
                     user_prompt=_prompt,
                     tool_schema=_TAXONOMY_DECISIONS_TOOL,
                     max_tokens=16384,
                 )
-            chunk_raw = await with_retry(
+            chunk_raw, chunk_usage = await with_retry(
                 _call_oai, max_attempts=2, base_delay=2.0,
             )
         else:
@@ -519,6 +521,37 @@ async def apply_intra_salon_consistency(
             chunk_raw = _extract_tool_decisions(
                 msg, expected_count=len(chunk),
             )
+            # MiniMax (Anthropic-compatible) returns usage on the response.
+            usage_obj = getattr(msg, "usage", None)
+            if usage_obj is not None:
+                chunk_usage = {
+                    "input": int(getattr(usage_obj, "input_tokens", 0) or 0),
+                    "output": int(getattr(usage_obj, "output_tokens", 0) or 0),
+                    "model": minimax.model,
+                }
+        # Persist token usage to pipeline_traces (mig 121). Best-effort —
+        # observability MUST NOT crash the pipeline.
+        if tracer is not None and chunk_usage is not None:
+            try:
+                tracer.add(
+                    "agent.tokens",
+                    {
+                        "step_name": "taxonomy.pass5_consistency",
+                        "chunk_idx": chunk_idx,
+                        "chunk_total": len(chunks),
+                        "cluster_count": len(chunk),
+                        "provider": provider,
+                        "model": chunk_usage.get("model"),
+                        "input_tokens": chunk_usage.get("input"),
+                        "output_tokens": chunk_usage.get("output"),
+                    },
+                    tokens_used=chunk_usage,
+                )
+            except Exception:
+                logger.exception(
+                    "agent.tokens trace add failed for Pass 5 chunk %d/%d",
+                    chunk_idx, len(chunks),
+                )
         # Per-chunk validation — any failure bubbles up immediately, no
         # partial-result accumulation downstream.
         chunk_validated = _validate_decisions(

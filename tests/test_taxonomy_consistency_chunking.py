@@ -77,12 +77,14 @@ class _FakeOAIClient:
         user_prompt: str,
         tool_schema: dict[str, Any],
         max_tokens: int = 16384,
-    ) -> list[dict[str, Any]]:
+    ) -> tuple[list[dict[str, Any]], dict[str, Any]]:
         import re
         ids = [int(m) for m in re.findall(r"### KLASTER #(\d+)", user_prompt)]
         self.calls.append(len(ids))
         self.cluster_ids_per_call.append(ids)
-        return [_decision_for(cid) for cid in ids]
+        # Mig 121 — return tuple of (decisions, usage_dict)
+        usage = {"input": len(user_prompt) // 4, "output": 100 * len(ids), "model": "fake-oai"}
+        return [_decision_for(cid) for cid in ids], usage
 
 
 @pytest.fixture
@@ -203,16 +205,19 @@ async def test_chunk_failure_aborts_pipeline(
         def __init__(self) -> None:
             self.call_idx = 0
 
-        async def call_decisions_tool(self, **kwargs) -> list[dict[str, Any]]:
+        async def call_decisions_tool(
+            self, **kwargs
+        ) -> tuple[list[dict[str, Any]], dict[str, Any]]:
             import re
             ids = [int(m) for m in re.findall(
                 r"### KLASTER #(\d+)", kwargs["user_prompt"])]
             self.call_idx += 1
+            usage = {"input": 0, "output": 0, "model": "fake-oai-trunc"}
             if self.call_idx > truncate_after:
                 # Simulate provider truncation: return only 2 decisions
                 # for a chunk that asked for 10.
-                return [_decision_for(ids[0]), _decision_for(ids[1])]
-            return [_decision_for(cid) for cid in ids]
+                return [_decision_for(ids[0]), _decision_for(ids[1])], usage
+            return [_decision_for(cid) for cid in ids], usage
 
     bad_client = _TruncatingClient()
 

@@ -199,6 +199,28 @@ async def synthesize_competitor_insights(
     if report is None:
         raise ValueError(f"competitor_reports id={report_id} not found")
 
+    # Pipeline trace writer for synthesis observability (mig 121 — Task 1
+    # of 2026-05-24-pipeline-optimization plan). Captures `agent.tokens`
+    # for MiniMax + OpenAI fallback so per-report LLM cost is queryable.
+    # Flushed on happy path; on synthesis crash the buffered rows are lost
+    # by design (same contract as competitor_analysis tracer).
+    from services.pipeline_trace import TraceWriter
+    _synthesis_audit_id = report.get("convex_audit_id")
+    synth_tracer: TraceWriter | None = None
+    try:
+        synth_tracer = TraceWriter(
+            client=service.client,
+            audit_id=_synthesis_audit_id,
+            report_id=report_id,
+            pipeline="competitor_synthesis",
+        )
+    except Exception:
+        logger.exception(
+            "competitor_synthesis: TraceWriter init failed — continuing "
+            "without tracer (observability lost but pipeline OK)",
+        )
+        synth_tracer = None
+
     matches = await service.get_competitor_matches(report_id)
     pricing = await service.get_competitor_pricing_comparisons(report_id)
     gaps = await service.get_competitor_service_gaps(report_id)
@@ -246,7 +268,7 @@ async def synthesize_competitor_insights(
     used_fallback = False
     fallback_source = None
     try:
-        insights = await _run_minimax_synthesis(context)
+        insights = await _run_minimax_synthesis(context, tracer=synth_tracer)
         insights = _sanitize_insights(
             insights,
             valid_ids=valid_ids,
@@ -260,7 +282,7 @@ async def synthesize_competitor_insights(
         await progress(50, "MiniMax failed — OpenAI fallback synthesis...")
         try:
             from services.openai_synthesis import synthesize_via_openai
-            insights = await synthesize_via_openai(context)
+            insights = await synthesize_via_openai(context, tracer=synth_tracer)
             insights = _sanitize_insights(
                 insights,
                 valid_ids=valid_ids,
@@ -421,6 +443,18 @@ async def synthesize_competitor_insights(
         report_id, len(insights["positioning_narrative"]),
         swot_item_count, n_recs, used_fallback,
     )
+
+    # Flush synthesis trace rows (mig 121). Failures are silenced here
+    # because the report is already persisted — losing observability is
+    # better than re-raising and triggering a retry that overwrites a
+    # valid report. (Same contract as the catch in synth_tracer init.)
+    if synth_tracer is not None:
+        try:
+            await synth_tracer.flush()
+        except Exception:
+            logger.exception(
+                "competitor_synthesis: trace flush failed (best-effort)"
+            )
 
     return {
         "narrative": insights["positioning_narrative"],
@@ -624,7 +658,11 @@ def _build_synthesis_prompt_context(
 # ---------------------------------------------------------------------------
 
 
-async def _run_minimax_synthesis(context: str) -> dict[str, Any]:
+async def _run_minimax_synthesis(
+    context: str,
+    *,
+    tracer: Any = None,
+) -> dict[str, Any]:
     """Call MiniMax agent loop once with the synthesis prompt.
 
     Returns the parsed insights dict. Raises on failure (caller handles fallback).
@@ -633,6 +671,9 @@ async def _run_minimax_synthesis(context: str) -> dict[str, Any]:
     instead of 120s) because synthesis prompts are larger and the model's
     interleaved-thinking + tool_use loop can take significantly longer than
     a typical naming/description batch call.
+
+    `tracer` (optional TraceWriter): persists agent.tokens to pipeline_traces
+    via mig 121. Best-effort — never crashes the synthesis.
     """
     import anthropic
     import httpx
@@ -669,6 +710,28 @@ async def _run_minimax_synthesis(context: str) -> dict[str, Any]:
         tools=[COMPETITOR_INSIGHTS_TOOL],
         max_steps=3,
     )
+
+    # Persist token usage (mig 121). AgentResult already aggregates totals
+    # across the multi-turn tool_use loop.
+    if tracer is not None:
+        try:
+            tracer.add(
+                "agent.tokens",
+                {
+                    "step_name": "synthesis.minimax",
+                    "model": client.model,
+                    "total_steps": agent_result.total_steps,
+                    "input_tokens": agent_result.total_input_tokens,
+                    "output_tokens": agent_result.total_output_tokens,
+                },
+                tokens_used={
+                    "input": agent_result.total_input_tokens,
+                    "output": agent_result.total_output_tokens,
+                    "model": client.model,
+                },
+            )
+        except Exception:
+            logger.exception("agent.tokens trace add failed for synthesis.minimax")
 
     return _extract_insights_from_agent_result(agent_result)
 

@@ -91,6 +91,17 @@ async def startup(ctx: dict[str, Any]) -> None:
     except Exception as e:  # noqa: BLE001
         logger.warning("Sentry init for worker failed: %s", e)
 
+    # Belt-and-suspenders observability — the `--log-level info` CLI flag in
+    # ecosystem.config.cjs sets arq's own logger but pipelines/services emit
+    # via `logging.getLogger("pipelines.*")` / `logging.getLogger("services.*")`
+    # which inherit from root. Without this, `--log-level info` to arq alone
+    # would not lift WARNING-defaults on those subloggers in every Python
+    # logging setup. See 2026-05-24-pipeline-profile.md: 649s of pipeline
+    # silence even after setting arq log level alone.
+    logging.getLogger("pipelines").setLevel(logging.INFO)
+    logging.getLogger("services").setLevel(logging.INFO)
+    logging.getLogger("agent").setLevel(logging.INFO)
+
     logger.info("arq worker starting up")
     logger.info(
         "redis target host=%s port=%s database=%s password=%s",

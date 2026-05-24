@@ -26,6 +26,8 @@ from __future__ import annotations
 
 import logging
 import re
+import time
+from contextlib import asynccontextmanager
 from datetime import datetime, timezone
 from typing import Any, Awaitable, Callable
 
@@ -67,6 +69,41 @@ ProgressCallback = Callable[[int, str], Awaitable[None]]
 
 async def _noop_progress(progress: int, message: str) -> None:
     pass
+
+
+@asynccontextmanager
+async def _phase_timer(tracer: "TraceWriter | None", phase: str):
+    """Async context manager recording wall-clock for one pipeline phase.
+
+    Writes a `phase.timer` trace row with `{phase, elapsed_ms}` plus a
+    `logger.info("[phase=<name>] <ms>ms")` line so PM2 logs and
+    `pipeline_traces` both surface per-phase breakdown.
+
+    Mig 121 / Task 1 of 2026-05-24-pipeline-optimization plan — the 649s
+    middle block in profile 2026-05-24-pipeline-profile.md had zero per-
+    phase telemetry; this fixes that without touching pipeline semantics.
+
+    Safe when tracer is None (e.g. unit tests) — still emits the log line.
+    """
+    start = time.monotonic()
+    try:
+        yield
+    finally:
+        elapsed_ms = int((time.monotonic() - start) * 1000)
+        logger.info("[phase=%s] %dms", phase, elapsed_ms)
+        if tracer is not None:
+            try:
+                tracer.add(
+                    "phase.timer",
+                    {"phase": phase, "elapsed_ms": elapsed_ms},
+                )
+            except Exception:
+                # Phase-timer observability MUST NOT crash the pipeline.
+                # Log + swallow so the underlying work still ships.
+                logger.exception(
+                    "phase.timer trace add failed for phase=%s elapsed_ms=%d",
+                    phase, elapsed_ms,
+                )
 
 
 # ---------------------------------------------------------------------------
@@ -233,21 +270,56 @@ async def compute_competitor_analysis(
     # 2026-05-16 (Bugsink captures), so root causes still surface — only
     # the orchestration boundary swallows.
     try:
-        total_overridden = await _apply_llm_taxonomy_to_null_tid_services(
-            service, subject_data.get("services") or [], label="subject",
-            audit_id=audit_id,
-        )
-        for _, cdata in aligned_competitors:
-            total_overridden += await _apply_llm_taxonomy_to_null_tid_services(
-                service, cdata.get("services") or [],
-                label=f"competitor booksy_id={cdata.get('booksy_id')}",
+        async with _phase_timer(tracer, "taxonomy.router"):
+            # Snapshot LLM token counters so we can persist delta after the
+            # full router pass (subject + all competitors). Router shares
+            # one GeminiLLMClient via _get_hidden_inference_llm() singleton.
+            _router_llm = _get_hidden_inference_llm()
+            _pre_router_in = _router_llm.total_input_tokens if _router_llm else 0
+            _pre_router_out = _router_llm.total_output_tokens if _router_llm else 0
+            _pre_router_calls = _router_llm.total_calls if _router_llm else 0
+
+            total_overridden = await _apply_llm_taxonomy_to_null_tid_services(
+                service, subject_data.get("services") or [], label="subject",
                 audit_id=audit_id,
             )
-        logger.info(
-            "Etap 4: taxonomy routing applied to %d NULL-tid services "
-            "(subject + %d competitors)",
-            total_overridden, len(aligned_competitors),
-        )
+            for _, cdata in aligned_competitors:
+                total_overridden += await _apply_llm_taxonomy_to_null_tid_services(
+                    service, cdata.get("services") or [],
+                    label=f"competitor booksy_id={cdata.get('booksy_id')}",
+                    audit_id=audit_id,
+                )
+            logger.info(
+                "Etap 4: taxonomy routing applied to %d NULL-tid services "
+                "(subject + %d competitors)",
+                total_overridden, len(aligned_competitors),
+            )
+
+            if tracer is not None and _router_llm is not None:
+                try:
+                    delta_in = _router_llm.total_input_tokens - _pre_router_in
+                    delta_out = _router_llm.total_output_tokens - _pre_router_out
+                    delta_calls = _router_llm.total_calls - _pre_router_calls
+                    tracer.add(
+                        "agent.tokens",
+                        {
+                            "step_name": "taxonomy.router",
+                            "calls": delta_calls,
+                            "model": _router_llm.model,
+                            "provider": _router_llm.provider,
+                            "input_tokens": delta_in,
+                            "output_tokens": delta_out,
+                            "services_overridden": total_overridden,
+                            "salon_count": 1 + len(aligned_competitors),
+                        },
+                        tokens_used={
+                            "input": delta_in,
+                            "output": delta_out,
+                            "model": _router_llm.model,
+                        },
+                    )
+                except Exception:
+                    logger.exception("agent.tokens trace add failed for taxonomy.router")
 
         # Stage-5 Pass 5 (2026-05-17): MiniMax M2.7 cross-salon
         # consistency. Groups all services (subject + competitors) by
@@ -257,41 +329,43 @@ async def compute_competitor_analysis(
         # inter-variant inconsistency that the area gate alone cannot
         # resolve (LLM non-determinism between variants of the same
         # treatment).
-        from services.taxonomy_consistency import apply_intra_salon_consistency
-        from services.minimax import MiniMaxClient
-        if not settings.minimax_api_key:
-            raise RuntimeError(
-                "Etap 4 Pass 5: MINIMAX_API_KEY missing — consistency "
-                "layer requires MiniMax M2.7. Do not run pipeline "
-                "without it (silently disabling would defeat the "
-                "user-requested architecture)."
+        async with _phase_timer(tracer, "taxonomy.pass5_consistency"):
+            from services.taxonomy_consistency import apply_intra_salon_consistency
+            from services.minimax import MiniMaxClient
+            if not settings.minimax_api_key:
+                raise RuntimeError(
+                    "Etap 4 Pass 5: MINIMAX_API_KEY missing — consistency "
+                    "layer requires MiniMax M2.7. Do not run pipeline "
+                    "without it (silently disabling would defeat the "
+                    "user-requested architecture)."
+                )
+            minimax_client = MiniMaxClient(
+                settings.minimax_api_key,
+                settings.minimax_base_url,
+                settings.minimax_model,
             )
-        minimax_client = MiniMaxClient(
-            settings.minimax_api_key,
-            settings.minimax_base_url,
-            settings.minimax_model,
-        )
-        all_services_cross_salon: list[dict[str, Any]] = list(
-            subject_data.get("services") or []
-        )
-        for _, cdata in aligned_competitors:
-            all_services_cross_salon.extend(cdata.get("services") or [])
-        consistency_stats = await apply_intra_salon_consistency(
-            all_services_cross_salon,
-            supabase=service,
-            minimax=minimax_client,
-            audit_id=audit_id,
-            label=f"cross-salon (subject+{len(aligned_competitors)}comp)",
-            trace_collector=None,  # consistency-layer trace not surfaced in dev modal yet
-            dry_run=False,
-        )
-        logger.info(
-            "Etap 4 Pass 5: MiniMax consistency — %d clusters total, "
-            "%d mixed, %d services rerouted",
-            consistency_stats["clusters_total"],
-            consistency_stats["clusters_mixed"],
-            consistency_stats["rerouted"],
-        )
+            all_services_cross_salon: list[dict[str, Any]] = list(
+                subject_data.get("services") or []
+            )
+            for _, cdata in aligned_competitors:
+                all_services_cross_salon.extend(cdata.get("services") or [])
+            consistency_stats = await apply_intra_salon_consistency(
+                all_services_cross_salon,
+                supabase=service,
+                minimax=minimax_client,
+                audit_id=audit_id,
+                label=f"cross-salon (subject+{len(aligned_competitors)}comp)",
+                trace_collector=None,  # consistency-layer trace not surfaced in dev modal yet
+                dry_run=False,
+                tracer=tracer,
+            )
+            logger.info(
+                "Etap 4 Pass 5: MiniMax consistency — %d clusters total, "
+                "%d mixed, %d services rerouted",
+                consistency_stats["clusters_total"],
+                consistency_stats["clusters_mixed"],
+                consistency_stats["rerouted"],
+            )
     except Exception:
         # Taxonomy routing is the foundation for every downstream pricing/
         # competitor comparison — silently continuing with raw tids would
@@ -361,15 +435,16 @@ async def compute_competitor_analysis(
         method_classifier = None
 
     await progress(45, "Pricing comparisons per treatment_id...")
-    pricing_rows = await _compute_pricing_comparisons(
-        service, report_id, subject_data, aligned_competitors,
-        audit_id=audit_id,
-        tracer=tracer,
-        method_classifier=method_classifier,
-    )
-    pricing_rows = _dedup_pricing_rows(pricing_rows)
-    n_pricing = await service.insert_competitor_pricing_comparisons(pricing_rows)
-    logger.info("Etap 4: inserted %d pricing_comparisons", n_pricing)
+    async with _phase_timer(tracer, "pricing.comparisons"):
+        pricing_rows = await _compute_pricing_comparisons(
+            service, report_id, subject_data, aligned_competitors,
+            audit_id=audit_id,
+            tracer=tracer,
+            method_classifier=method_classifier,
+        )
+        pricing_rows = _dedup_pricing_rows(pricing_rows)
+        n_pricing = await service.insert_competitor_pricing_comparisons(pricing_rows)
+        logger.info("Etap 4: inserted %d pricing_comparisons", n_pricing)
 
     # Flush all method classifications buffered during tier-1/tier-2 runs.
     if method_classifier is not None:
@@ -394,20 +469,22 @@ async def compute_competitor_analysis(
 
     # ── Step 5: Service gaps ──
     await progress(60, "Service gap analysis (missing + unique USP)...")
-    gap_rows = await _compute_service_gaps(
-        service, report_id, subject_data, aligned_competitors,
-    )
-    n_gaps = await service.insert_competitor_service_gaps(gap_rows)
-    logger.info("Etap 4: inserted %d service_gaps", n_gaps)
+    async with _phase_timer(tracer, "gaps.compute"):
+        gap_rows = await _compute_service_gaps(
+            service, report_id, subject_data, aligned_competitors,
+        )
+        n_gaps = await service.insert_competitor_service_gaps(gap_rows)
+        logger.info("Etap 4: inserted %d service_gaps", n_gaps)
 
     # ── Step 6: Dimensional scores ──
     await progress(70, "Dimensional scores (28 wymiarów)...")
-    dim_rows = _compute_dimensional_scores(
-        report_id, subject_data, aligned_competitors,
-        tracer=tracer,
-    )
-    n_dims = await service.insert_competitor_dimensional_scores(dim_rows)
-    logger.info("Etap 4: inserted %d dimensional_scores", n_dims)
+    async with _phase_timer(tracer, "scoring.dimensional"):
+        dim_rows = _compute_dimensional_scores(
+            report_id, subject_data, aligned_competitors,
+            tracer=tracer,
+        )
+        n_dims = await service.insert_competitor_dimensional_scores(dim_rows)
+        logger.info("Etap 4: inserted %d dimensional_scores", n_dims)
 
     # ── Step 6.7 (Faza 8b 2026-05-17): package economics analysis. For
     # every subject service that's a package or area-bundle, find the
@@ -417,7 +494,8 @@ async def compute_competitor_analysis(
     # per-session price to singles, plus genuine discounts and the
     # rare overpriced bundle. ──
     await progress(78, "Analiza uczciwości pakietów i bundle'i...")
-    await _analyze_subject_packages(service, report_id, subject_data)
+    async with _phase_timer(tracer, "packages.analyze"):
+        await _analyze_subject_packages(service, report_id, subject_data)
 
     # ── Step 6.5: Hidden services detection ──
     # Subject services których nazwa NIE zawiera generycznej nazwy
@@ -428,56 +506,58 @@ async def compute_competitor_analysis(
     # w cenniku ale niewidoczne dla 95% wyszukiwań. To strzał w stopę
     # właścicielowi salonu.
     await progress(80, "Detekcja ukrytych przed wyszukiwarką usług...")
-    hidden_services = _detect_hidden_services(subject_data.get("services") or [])
-    if hidden_services:
-        logger.info(
-            "Etap 4: detected %d hidden services (brand-name only, missing "
-            "generic procedure in title — invisible to Booksy search)",
-            len(hidden_services),
-        )
-        # Enrich z taxonomy LLM inference — sugerujemy realną kategorię
-        # Booksy zamiast wyniku keyword mapping. POC pokazał: Thunder →
-        # "Depilacja ciała" (LLM 0.95), Light&Bright → "Fotoodmładzanie"
-        # (LLM 0.88), Modelka-ONDA → "Zabiegi na ciało i modelowanie
-        # sylwetki" (LLM 0.95). Keyword mapping nadal jest fallback'iem
-        # gdy LLM zwróci unfixable.
-        try:
-            hidden_services = await _enhance_hidden_services_with_inference(
-                hidden_services, service,
-            )
-            llm_count = sum(
-                1 for h in hidden_services if h.get("inference_method") == "llm"
-            )
+    async with _phase_timer(tracer, "hidden_services.enrich"):
+        hidden_services = _detect_hidden_services(subject_data.get("services") or [])
+        if hidden_services:
             logger.info(
-                "Etap 4: LLM inference applied to %d/%d hidden services",
-                llm_count, len(hidden_services),
+                "Etap 4: detected %d hidden services (brand-name only, missing "
+                "generic procedure in title — invisible to Booksy search)",
+                len(hidden_services),
             )
-        except Exception:
-            # Hidden-services LLM enrichment is the path that adds
-            # inference_method/confidence/inferred_tid fields downstream
-            # rendering relies on. Silent keyword fallback corrupts what
-            # the user sees in the "Ukryte usługi" section. Bugsink alert.
-            logger.exception(
-                "Etap 4: hidden services LLM inference FAILED — aborting "
-                "etap (silent keyword fallback would mislabel inference_method)"
-            )
-            raise
+            # Enrich z taxonomy LLM inference — sugerujemy realną kategorię
+            # Booksy zamiast wyniku keyword mapping. POC pokazał: Thunder →
+            # "Depilacja ciała" (LLM 0.95), Light&Bright → "Fotoodmładzanie"
+            # (LLM 0.88), Modelka-ONDA → "Zabiegi na ciało i modelowanie
+            # sylwetki" (LLM 0.95). Keyword mapping nadal jest fallback'iem
+            # gdy LLM zwróci unfixable.
+            try:
+                hidden_services = await _enhance_hidden_services_with_inference(
+                    hidden_services, service, tracer=tracer,
+                )
+                llm_count = sum(
+                    1 for h in hidden_services if h.get("inference_method") == "llm"
+                )
+                logger.info(
+                    "Etap 4: LLM inference applied to %d/%d hidden services",
+                    llm_count, len(hidden_services),
+                )
+            except Exception:
+                # Hidden-services LLM enrichment is the path that adds
+                # inference_method/confidence/inferred_tid fields downstream
+                # rendering relies on. Silent keyword fallback corrupts what
+                # the user sees in the "Ukryte usługi" section. Bugsink alert.
+                logger.exception(
+                    "Etap 4: hidden services LLM inference FAILED — aborting "
+                    "etap (silent keyword fallback would mislabel inference_method)"
+                )
+                raise
 
     # ── Step 7: Extract active promotions ──
     await progress(85, "Ekstrakcja aktywnych promocji...")
-    all_booksy_ids = [subject_data["booksy_id"]] + competitor_booksy_ids
-    promo_map = await service.get_active_promotions(all_booksy_ids)
-    active_promotions = _build_active_promotions(
-        subject_data["booksy_id"], promo_map, candidates,
-    )
-    n_promos_subject = len(active_promotions.get("subject", []))
-    n_promos_competitors = sum(
-        len(v) for v in active_promotions.get("competitors", {}).values()
-    )
-    logger.info(
-        "Etap 4: found %d subject promos, %d competitor promos",
-        n_promos_subject, n_promos_competitors,
-    )
+    async with _phase_timer(tracer, "promotions.fetch"):
+        all_booksy_ids = [subject_data["booksy_id"]] + competitor_booksy_ids
+        promo_map = await service.get_active_promotions(all_booksy_ids)
+        active_promotions = _build_active_promotions(
+            subject_data["booksy_id"], promo_map, candidates,
+        )
+        n_promos_subject = len(active_promotions.get("subject", []))
+        n_promos_competitors = sum(
+            len(v) for v in active_promotions.get("competitors", {}).values()
+        )
+        logger.info(
+            "Etap 4: found %d subject promos, %d competitor promos",
+            n_promos_subject, n_promos_competitors,
+        )
 
     # ── Step 8: Mark completed ──
     await progress(95, "Finalizacja raportu...")
@@ -4185,6 +4265,8 @@ def _get_hidden_inference_llm() -> GeminiLLMClient | None:
 async def _enhance_hidden_services_with_inference(
     hidden_services: list[dict[str, Any]],
     supabase: SupabaseService,
+    *,
+    tracer: "TraceWriter | None" = None,
 ) -> list[dict[str, Any]]:
     """For each detected hidden service, run embedding+LLM taxonomy
     inference and override the keyword-derived suggested prefix/name
@@ -4244,6 +4326,11 @@ async def _enhance_hidden_services_with_inference(
         }))
 
     # 3. Run inference in parallel (semaphore=4 in batch util — gentle on LLM).
+    # Snapshot pre-call token counters so we can compute delta after the
+    # batch and persist it as one `agent.tokens` trace row (mig 121).
+    pre_input = llm.total_input_tokens if llm is not None else 0
+    pre_output = llm.total_output_tokens if llm is not None else 0
+    pre_calls = llm.total_calls if llm is not None else 0
     results: list[dict[str, Any]] = []
     if candidates_for_inference and llm is not None:
         results = await infer_hidden_services_batch(
@@ -4252,6 +4339,30 @@ async def _enhance_hidden_services_with_inference(
             llm,
             min_confidence=HIDDEN_MIN_CONFIDENCE,
         )
+    if tracer is not None and llm is not None:
+        try:
+            delta_in = llm.total_input_tokens - pre_input
+            delta_out = llm.total_output_tokens - pre_output
+            delta_calls = llm.total_calls - pre_calls
+            tracer.add(
+                "agent.tokens",
+                {
+                    "step_name": "hidden_services.enrich",
+                    "calls": delta_calls,
+                    "model": llm.model,
+                    "provider": llm.provider,
+                    "input_tokens": delta_in,
+                    "output_tokens": delta_out,
+                    "candidate_count": len(candidates_for_inference),
+                },
+                tokens_used={
+                    "input": delta_in,
+                    "output": delta_out,
+                    "model": llm.model,
+                },
+            )
+        except Exception:
+            logger.exception("agent.tokens trace add failed for hidden_services.enrich")
 
     # 4. Apply results — override suggested_prefix / suggested_name where
     #    inference succeeded; otherwise keep keyword fallback that already

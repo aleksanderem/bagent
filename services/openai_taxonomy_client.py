@@ -34,9 +34,11 @@ class OpenAITaxonomyClient:
         user_prompt: str,
         tool_schema: dict[str, Any],
         max_tokens: int = 16384,
-    ) -> list[dict[str, Any]]:
+    ) -> tuple[list[dict[str, Any]], dict[str, Any]]:
         """Forced function-call to `submit_taxonomy_decisions`. Returns
-        parsed `decisions` array. Raises on any deviation."""
+        a tuple of (parsed `decisions` array, usage dict). Usage dict
+        has shape {"input": int, "output": int, "model": str} for
+        persistence via TraceWriter. Raises on any deviation."""
         # OpenAI uses function-calling schema slightly different from
         # Anthropic's tool_use — function under `function` key.
         openai_tool = {
@@ -94,4 +96,11 @@ class OpenAITaxonomyClient:
             "OpenAITaxonomyClient: model=%s usage=%s decisions=%d",
             self.model, getattr(resp, "usage", None), len(decisions),
         )
-        return decisions
+        # Extract usage for trace persistence (mig 121). OpenAI SDK exposes
+        # usage on the response with prompt_tokens / completion_tokens.
+        usage_obj = getattr(resp, "usage", None)
+        usage_dict: dict[str, Any] = {"model": self.model}
+        if usage_obj is not None:
+            usage_dict["input"] = int(getattr(usage_obj, "prompt_tokens", 0) or 0)
+            usage_dict["output"] = int(getattr(usage_obj, "completion_tokens", 0) or 0)
+        return decisions, usage_dict
