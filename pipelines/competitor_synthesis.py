@@ -174,6 +174,7 @@ async def synthesize_competitor_insights(
     report_id: int,
     on_progress: ProgressCallback | None = None,
     supabase: SupabaseService | None = None,
+    user_selected_salon_ids: list[int] | None = None,
 ) -> dict[str, Any]:
     """Etap 5 main entry — reads the populated competitor_reports row + children,
     calls MiniMax with the synthesis prompt, and persists narrative + SWOT +
@@ -254,6 +255,18 @@ async def synthesize_competitor_insights(
     valid_competitor_ids = {
         int(m["booksy_id"]) for m in matches if m.get("booksy_id") is not None
     }
+    # Salon-id space (competitor_matches.competitor_salon_id) — used to
+    # intersect the user's picks so report_data.userSelectedCompetitorIds only
+    # surfaces picks that actually made it into the report's candidate set.
+    # NOTE: distinct from valid_competitor_ids above, which is booksy_id space.
+    report_salon_ids = {
+        int(m["competitor_salon_id"])
+        for m in matches
+        if m.get("competitor_salon_id") is not None
+    }
+    user_selected_in_report = [
+        int(x) for x in (user_selected_salon_ids or []) if int(x) in report_salon_ids
+    ]
 
     # ── Step 3: Synthesis with provider chain ──
     #
@@ -402,6 +415,13 @@ async def synthesize_competitor_insights(
         # discount_pct, verdict, reasoning}. Empty array when no
         # packages detected. UI renders "Uczciwość pakietów" section.
         "packageAnalysis": package_analysis,
+        # 2026-05-29 cross-service contract: salon_ids the user picked in the
+        # frontend competitor picker that actually made it into this report's
+        # candidate set (intersected with report_salon_ids). The frontend
+        # shows per-competitor DETAIL only for these, while analytics stay
+        # computed from the full deterministic sample. Empty list (never
+        # omitted) in auto mode / when no picks survived.
+        "userSelectedCompetitorIds": user_selected_in_report,
     }
     if calendar_comparison is not None:
         persistence_payload["calendarComparison"] = calendar_comparison

@@ -119,6 +119,7 @@ async def compute_competitor_analysis(
     on_progress: ProgressCallback | None = None,
     supabase: SupabaseService | None = None,
     convex_user_id: str = "unknown",
+    must_include_salon_ids: list[int] | None = None,
 ) -> int:
     """Compute a full competitor analysis for an audit and persist to Supabase.
 
@@ -133,6 +134,10 @@ async def compute_competitor_analysis(
         supabase: optional SupabaseService instance (for tests). Defaults new.
         convex_user_id: Convex user id to store on the report row. Pipeline
             callers should pass the real user id from the webhook payload.
+        must_include_salon_ids: salon_ids the user picked in the frontend
+            competitor picker. UNION'd into selection (never a filter) so the
+            picks always end up in the candidate set. Also echoed into the
+            report metadata as userSelectedSalonIds (durable before synthesis).
 
     Raises:
         RuntimeError: if no competitor candidates could be selected
@@ -163,6 +168,7 @@ async def compute_competitor_analysis(
         mode=selection_mode,
         supabase=service,
         tracer=tracer,
+        must_include_salon_ids=must_include_salon_ids,
     )
     if not candidates:
         raise RuntimeError(
@@ -194,6 +200,15 @@ async def compute_competitor_analysis(
             "generated_at": datetime.now(timezone.utc).isoformat(),
             "pipeline": "competitor_analysis",
             "pipeline_version": "etap4",
+            # User-picked salon_ids that actually ended up in the candidate
+            # set (is_user_selected flag set during the UNION in
+            # select_competitors). Durable here even before synthesis runs so
+            # the picks survive a synthesis crash. report_data carries the
+            # canonical copy as userSelectedCompetitorIds (intersected with
+            # the report's competitor set) — see competitor_synthesis.
+            "userSelectedSalonIds": [
+                c.salon_id for c in candidates if getattr(c, "is_user_selected", False)
+            ],
         },
     )
     logger.info("Etap 4: created competitor_reports id=%s", report_id)

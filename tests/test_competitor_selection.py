@@ -10,10 +10,12 @@ from __future__ import annotations
 
 from unittest.mock import AsyncMock
 
+import numpy as np
 import pytest
 
 from collections import Counter
 
+import pipelines.competitor_selection as selection_mod
 from pipelines.competitor_selection import (
     CompetitorCandidate,
     assign_bucket,
@@ -30,6 +32,7 @@ from pipelines.competitor_selection import (
     select_competitors,
     sort_key,
 )
+from services.focus_score import SalonFocusBundle
 
 
 # ---------------------------------------------------------------------------
@@ -539,6 +542,7 @@ def _make_mock_supabase(
     candidate_top_services: dict[int, list[dict]] | None = None,
     candidate_business_categories: dict[int, list[dict]] | None = None,
     candidate_partners: dict[int, str] | None = None,
+    salons_by_id: dict[int, dict] | None = None,
 ) -> AsyncMock:
     mock = AsyncMock()
     mock.get_subject_salon_for_audit = AsyncMock(return_value=subject)
@@ -553,6 +557,24 @@ def _make_mock_supabase(
     mock.get_latest_partner_system_for_booksy_ids = AsyncMock(
         return_value=candidate_partners or {}
     )
+
+    # get_salons_by_ids backs the UNION's "force-add a pick not in scored"
+    # path. Return only the requested ids that exist in salons_by_id.
+    _salons_by_id = salons_by_id or {}
+
+    async def _get_salons_by_ids(salon_ids: list[int]) -> list[dict]:
+        return [_salons_by_id[sid] for sid in salon_ids if sid in _salons_by_id]
+
+    mock.get_salons_by_ids = AsyncMock(side_effect=_get_salons_by_ids)
+
+    # Atom-profile path (profile_overlap_sim, mig 087) — return None for the
+    # subject chain head so `subject_atoms` stays empty and the whole atom
+    # block is skipped. Without these stubs the AsyncMock returns truthy
+    # MagicMocks that crash profile_atoms_from_services.
+    mock.get_chain_head_scrape_id = AsyncMock(return_value=None)
+    mock.get_chain_head_services_for_scrape = AsyncMock(return_value=[])
+    mock.get_chain_head_scrape_ids_for_booksy_ids = AsyncMock(return_value={})
+    mock.get_candidate_services_for_atoms = AsyncMock(return_value={})
     return mock
 
 
@@ -872,6 +894,192 @@ class TestSelectCompetitors:
         assert buckets[0] == "direct"
         assert buckets.index("direct") < buckets.index("cluster")
         assert buckets.index("cluster") < buckets.index("new")
+
+
+class TestSelectCompetitorsUserPickUnion:
+    """UNION of user-picked salons into the deterministic selection.
+
+    The frontend competitor picker force-includes specific salons. This must
+    be a UNION (never a filter): picks always end up in the result marked
+    is_user_selected=True. Force-added picks (not in the deterministic scored
+    set) must carry counts_in_aggregates=False so they don't distort market
+    aggregates.
+    """
+
+    @pytest.fixture(autouse=True)
+    def _stub_focus_bundles(self, monkeypatch: pytest.MonkeyPatch) -> None:
+        """Patch the v2 focus-bundle loaders so candidates actually score.
+
+        select_competitors reaches into service.client for embeddings, which
+        the AsyncMock can't provide. We give the subject and every candidate
+        an identical unit embedding + focus distribution → portfolio_emb_sim
+        and focus_tid_sim both 1.0 → every reviews>=20 candidate buckets as
+        'direct' (counts_in_aggregates=True). This isolates the UNION logic
+        from the embedding plumbing.
+        """
+        emb = np.ones(1536, dtype=np.float64)
+        focus = {503: 1.0}
+
+        def _subject_bundle(service, salon_id, booksy_id):  # noqa: ANN001
+            return SalonFocusBundle(
+                salon_id=salon_id, booksy_id=booksy_id,
+                portfolio_embedding=emb, focus_distribution=dict(focus),
+                focus_variant_distribution=dict(focus),
+                service_count=10, embedded_count=10,
+            )
+
+        def _candidate_bundles(service, salon_ids):  # noqa: ANN001
+            return {
+                sid: SalonFocusBundle(
+                    salon_id=sid, booksy_id=None,
+                    portfolio_embedding=emb, focus_distribution=dict(focus),
+                    focus_variant_distribution=dict(focus),
+                    service_count=10, embedded_count=10,
+                )
+                for sid in salon_ids
+            }
+
+        monkeypatch.setattr(
+            selection_mod, "_fetch_subject_focus_bundle", _subject_bundle,
+        )
+        monkeypatch.setattr(
+            selection_mod, "_fetch_candidate_focus_bundles_batch", _candidate_bundles,
+        )
+
+    async def test_union_includes_cap_dropped_and_force_added_picks(self) -> None:
+        # 5 strong candidates (salon_ids 1..5) all score into the same bucket.
+        # target_count=1 => only the top one survives the cap; ids 2..5 are
+        # cap-dropped. The user picks:
+        #   - salon_id 3  -> in `scored` but cap-dropped (case b)
+        #   - salon_id 99 -> NOT a raw candidate at all (case c, force-added)
+        subject = _make_subject()
+        candidates = []
+        bc_map = {}
+        for i in range(1, 6):
+            candidates.append(_make_candidate(
+                booksy_id=i, salon_id=i, name=f"Salon {i}",
+                reviews_count=500, reviews_rank=4.8, distance_km=1.0,
+            ))
+            bc_map[i] = [
+                {"id": 100, "female_weight": 90},
+                {"id": 101, "female_weight": 90},
+            ]
+        # salon_id 99 is the force-add target: a real salons row, but it never
+        # appears in the candidate pool (e.g. wrong category / outside radius).
+        salons_by_id = {
+            99: {
+                "id": 99,
+                "booksy_id": 9099,
+                "name": "User Pick Outsider",
+                "city": "Kraków",
+                "primary_category_id": None,  # exercises subject-cat fallback
+                "reviews_count": 321,
+                "reviews_rank": 4.7,
+                "partner_system": "versum",
+            },
+        }
+        mock = _make_mock_supabase(
+            subject=subject,
+            candidates=candidates,
+            candidate_business_categories=bc_map,
+            salons_by_id=salons_by_id,
+        )
+        result = await select_competitors(
+            "audit_x",
+            supabase=mock,
+            target_count=1,
+            mode="auto",
+            must_include_salon_ids=[3, 99],
+        )
+
+        by_id = {c.salon_id: c for c in result}
+        # Deterministic top-1 must still be present (union only ADDS).
+        assert len(result) == 3, [c.salon_id for c in result]
+        # Both picks are in the result.
+        assert 3 in by_id
+        assert 99 in by_id
+        # Both picks are flagged.
+        assert by_id[3].is_user_selected is True
+        assert by_id[99].is_user_selected is True
+
+        # Case (b): cap-dropped pick was a real scored candidate, so it keeps
+        # its deterministic bucket/score and counts_in_aggregates stays True.
+        assert by_id[3].counts_in_aggregates is True
+        assert by_id[3].composite_score > 0
+
+        # Case (c): force-added pick must NOT count in aggregates and gets the
+        # minimal-candidate shape (lowest bucket, zero score, sentinel fw).
+        forced = by_id[99]
+        assert forced.counts_in_aggregates is False
+        assert forced.bucket == "new"
+        assert forced.composite_score == 0.0
+        assert forced.female_weight_diff == -1.0
+        assert forced.booksy_id == 9099
+        assert forced.name == "User Pick Outsider"
+        # primary_category_id falls back to the subject's category (11) when
+        # the salons row has none.
+        assert forced.primary_category_id == 11
+
+        # Determinism: ordering puts the deterministic survivor first, the
+        # force-added pick last (appended after the cap-dropped re-add).
+        assert result[0].salon_id == 1
+        assert result[-1].salon_id == 99
+
+    async def test_no_must_include_leaves_selection_unchanged(self) -> None:
+        # Sanity: passing no picks behaves exactly like before — no flags set.
+        subject = _make_subject()
+        cand = _make_candidate(
+            booksy_id=1, salon_id=1, name="A",
+            reviews_count=500, reviews_rank=4.8, distance_km=1.0,
+        )
+        mock = _make_mock_supabase(
+            subject=subject,
+            candidates=[cand],
+            candidate_business_categories={
+                1: [{"id": 100, "female_weight": 90}, {"id": 101, "female_weight": 90}],
+            },
+        )
+        result = await select_competitors("audit_x", supabase=mock)
+        assert len(result) == 1
+        assert result[0].is_user_selected is False
+        mock.get_salons_by_ids.assert_not_called()
+
+    async def test_pick_already_in_cap_is_only_flagged_not_duplicated(self) -> None:
+        # A pick that is also the top deterministic candidate must be flagged
+        # in-place, not appended a second time (dedup by salon_id).
+        subject = _make_subject()
+        candidates = []
+        bc_map = {}
+        for i in range(1, 4):
+            candidates.append(_make_candidate(
+                booksy_id=i, salon_id=i, name=f"Salon {i}",
+                reviews_count=500, reviews_rank=4.8, distance_km=1.0,
+            ))
+            bc_map[i] = [
+                {"id": 100, "female_weight": 90},
+                {"id": 101, "female_weight": 90},
+            ]
+        mock = _make_mock_supabase(
+            subject=subject,
+            candidates=candidates,
+            candidate_business_categories=bc_map,
+        )
+        # target_count=3 => all three are in the cap; pick one of them.
+        result = await select_competitors(
+            "audit_x",
+            supabase=mock,
+            target_count=3,
+            mode="auto",
+            must_include_salon_ids=[2],
+        )
+        salon_ids = [c.salon_id for c in result]
+        assert salon_ids.count(2) == 1  # not duplicated
+        assert len(result) == 3
+        by_id = {c.salon_id: c for c in result}
+        assert by_id[2].is_user_selected is True
+        assert by_id[1].is_user_selected is False
+        # No force-add needed since the pick was already a candidate.
+        mock.get_salons_by_ids.assert_not_called()
 
 
 # ---------------------------------------------------------------------------

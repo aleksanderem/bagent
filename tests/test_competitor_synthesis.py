@@ -699,6 +699,8 @@ async def test_synthesize_with_mocked_minimax(
     assert args[0] == 27
     assert "positioning_narrative" in args[1]
     assert "swot" in args[1]
+    # Cross-service contract: key is always present (empty list when no picks).
+    assert args[1]["userSelectedCompetitorIds"] == []
 
     mock_supabase.delete_competitor_recommendations.assert_called_once_with(27)
     mock_supabase.insert_competitor_recommendations.assert_called_once()
@@ -707,6 +709,42 @@ async def test_synthesize_with_mocked_minimax(
     assert inserted_rows[0]["action_title"] == "Obniż cenę endermologii z 200 do 130 zł"
     assert inserted_rows[0]["source_competitor_ids"] == [9411, 9471]
     assert inserted_rows[0]["source_data_points"] == [{"type": "pricing_comparison", "id": 456}]
+
+
+@pytest.mark.asyncio
+async def test_synthesize_persists_user_selected_competitor_ids_intersected(
+    sample_report, sample_subject_context, sample_matches,
+    sample_pricing, sample_gaps, sample_dimensions,
+) -> None:
+    """userSelectedCompetitorIds in report_data must be the user's picks
+    intersected with the report's competitor salon_ids — picks that didn't
+    make it into the report (e.g. 99999) are dropped, surviving picks kept."""
+    mock_supabase = _mk_mock_supabase(
+        sample_report, sample_subject_context, sample_matches,
+        sample_pricing, sample_gaps, sample_dimensions,
+    )
+
+    canned_insights = {
+        "positioning_narrative": "x" * 50,
+        "swot": {"strengths": [], "weaknesses": [], "opportunities": [], "threats": []},
+        "recommendations": [],
+    }
+
+    with patch(
+        "pipelines.competitor_synthesis._run_minimax_synthesis",
+        new=AsyncMock(return_value=canned_insights),
+    ):
+        await synthesize_competitor_insights(
+            report_id=27,
+            supabase=mock_supabase,
+            # 9411 + 9500 are in the report (sample_matches); 99999 is not.
+            user_selected_salon_ids=[9411, 9500, 99999],
+        )
+
+    args, _ = mock_supabase.update_competitor_report_data.call_args
+    persisted = args[1]["userSelectedCompetitorIds"]
+    assert sorted(persisted) == [9411, 9500]  # 99999 dropped
+    assert 99999 not in persisted
 
 
 @pytest.mark.asyncio

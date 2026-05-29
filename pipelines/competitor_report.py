@@ -38,6 +38,7 @@ async def run_competitor_report_pipeline(
     convex_user_id: str = "unknown",
     on_progress: ProgressCallback | None = None,
     supabase: SupabaseService | None = None,
+    must_include_salon_ids: list[int] | None = None,
 ) -> dict[str, Any]:
     """Top-level competitor report pipeline.
 
@@ -53,6 +54,11 @@ async def run_competitor_report_pipeline(
         convex_user_id: Convex user id for the report row
         on_progress: async progress callback (0-100, message)
         supabase: optional SupabaseService instance (for tests)
+        must_include_salon_ids: salon_ids the user picked in the frontend
+            competitor picker. UNION'd into the deterministic selection
+            (never a filter). Forwarded to analysis (selection + metadata)
+            and synthesis (so report_data.userSelectedCompetitorIds surfaces
+            which picks made it into the report).
 
     Returns:
         {
@@ -87,6 +93,7 @@ async def run_competitor_report_pipeline(
         on_progress=compute_progress,
         supabase=service,
         convex_user_id=convex_user_id,
+        must_include_salon_ids=must_include_salon_ids,
     )
     logger.info("Etap 4 complete — report_id=%s, starting Etap 5", report_id)
 
@@ -98,6 +105,7 @@ async def run_competitor_report_pipeline(
         report_id=report_id,
         on_progress=synth_progress,
         supabase=service,
+        user_selected_salon_ids=must_include_salon_ids,
     )
 
     return {

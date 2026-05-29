@@ -126,6 +126,11 @@ class CompetitorCandidate:
     counts_in_aggregates: bool
     similarity_scores: dict[str, float] = field(default_factory=dict)
     partner_system: str = "native"  # 'native' or 'versum'
+    # True when this salon was picked by the user in the frontend competitor
+    # picker and force-included via the UNION in select_competitors. Lets the
+    # frontend surface per-competitor DETAIL for picks while analytics stay
+    # computed from the full deterministic sample.
+    is_user_selected: bool = False
 
 
 # ---------------------------------------------------------------------------
@@ -609,6 +614,7 @@ async def select_competitors(
     female_weight_tolerance: float = 20.0,
     supabase: SupabaseService | None = None,
     tracer: "TraceWriter | None" = None,
+    must_include_salon_ids: list[int] | None = None,
 ) -> list[CompetitorCandidate]:
     """Deterministic candidate selection for a competitor report.
 
@@ -629,6 +635,15 @@ async def select_competitors(
         max_distance_km: maximum distance cap in kilometers (default 15).
         female_weight_tolerance: maximum |subject_fw - candidate_fw| (default 20).
         supabase: optional SupabaseService (for tests). Defaults to a new one.
+        must_include_salon_ids: salon_ids the user picked in the frontend
+            competitor picker. UNION'd into the result — these salons are
+            GUARANTEED to appear in the returned list (marked
+            is_user_selected=True), even if they were cap-dropped or filtered
+            out earlier (distance / female_weight / bucket) or never raw
+            candidates at all. Force-added picks (those not in the
+            deterministic `scored` set) get counts_in_aggregates=False so they
+            never distort market aggregates. The union only ADDS — it never
+            reduces the candidate set below what auto mode would produce.
 
     Raises:
         ValueError: if the subject salon is not found.
@@ -1041,6 +1056,106 @@ async def select_competitors(
     cap = target_count if mode == "auto" else 15
     final = scored[:cap]
 
+    # --- 6b. UNION user-picked salons (must-include) -------------------------
+    # The frontend competitor picker lets users force specific salons into the
+    # report. This is a UNION (never a filter): market analytics stay computed
+    # from the full deterministic `final` set; we only ADD picks that the
+    # deterministic selection would otherwise drop. Three cases:
+    #   (a) pick already in `final`            → just mark is_user_selected
+    #   (b) pick in `scored` but cap-dropped   → mark + append to `final`
+    #   (c) pick not in `scored` at all        → fetch salon row, construct a
+    #       minimal force-added candidate (counts_in_aggregates=False so it
+    #       never distorts aggregates), append to `final`
+    must = {int(x) for x in (must_include_salon_ids or [])}
+    if must:
+        # (a)/(b): mark every scored candidate that is a must-include pick.
+        # `final` is a slice of `scored`, so flags set on `scored` items are
+        # visible in `final` for the picks already present (case a).
+        scored_by_salon: dict[int, CompetitorCandidate] = {}
+        for c in scored:
+            if c.salon_id in must:
+                c.is_user_selected = True
+            scored_by_salon[c.salon_id] = c
+
+        # Snapshot which picks were already in the deterministic cap before we
+        # mutate `final` (for the trace/log breakdown below).
+        in_final_before = {c.salon_id for c in final}
+        n_already_in_final = len(must & in_final_before)
+
+        seen_salon_ids = set(in_final_before)
+
+        # (b): cap-dropped picks present in `scored` but not in `final`.
+        n_cap_readded = 0
+        for sid in must:
+            if sid in scored_by_salon and sid not in seen_salon_ids:
+                final.append(scored_by_salon[sid])
+                seen_salon_ids.add(sid)
+                n_cap_readded += 1
+
+        # (c): picks that never reached `scored` (filtered earlier or not raw
+        # candidates). Fetch their salon rows and build minimal candidates.
+        missing_ids = [
+            sid for sid in must
+            if sid not in scored_by_salon and sid not in seen_salon_ids
+        ]
+        if missing_ids:
+            try:
+                salon_rows = await service.get_salons_by_ids(missing_ids)
+            except Exception:
+                logger.exception(
+                    "get_salons_by_ids failed for must-include picks %s — "
+                    "those picks will be absent from the report",
+                    missing_ids,
+                )
+                salon_rows = []
+            rows_by_id = {
+                r["id"]: r for r in salon_rows if r.get("id") is not None
+            }
+            for sid in missing_ids:
+                row = rows_by_id.get(sid)
+                if row is None:
+                    logger.warning(
+                        "Must-include pick salon_id=%s not found in salons "
+                        "table — skipping (audit_id=%s)",
+                        sid, subject_audit_id,
+                    )
+                    continue
+                final.append(
+                    CompetitorCandidate(
+                        salon_id=sid,
+                        booksy_id=int(row.get("booksy_id") or 0),
+                        name=row.get("name") or "",
+                        city=row.get("city"),
+                        # salons table has no primary_category_id of its own;
+                        # picks are same-category competitors, so fall back to
+                        # the subject's category.
+                        primary_category_id=(
+                            row.get("primary_category_id")
+                            if row.get("primary_category_id") is not None
+                            else subject_primary_cat
+                        ),
+                        reviews_count=int(row.get("reviews_count") or 0),
+                        reviews_rank=row.get("reviews_rank"),
+                        # distance not load-bearing for force-added picks
+                        # (counts_in_aggregates=False); 0.0 per spec.
+                        distance_km=0.0,
+                        female_weight_diff=-1.0,  # sentinel (see line ~852)
+                        composite_score=0.0,
+                        bucket="new",  # lowest-priority real bucket
+                        counts_in_aggregates=False,  # MUST NOT distort aggregates
+                        similarity_scores={},
+                        partner_system=row.get("partner_system") or "native",
+                        is_user_selected=True,
+                    )
+                )
+                seen_salon_ids.add(sid)
+
+        logger.info(
+            "Union: %d user-picked salon_ids — %d already in final, "
+            "%d cap-dropped re-added, %d force-added (not in scored)",
+            len(must), n_already_in_final, n_cap_readded, len(missing_ids),
+        )
+
     # Final trace: summary + which candidates made the cut. Lets us answer
     # "which were dropped at the target_count cap vs which actually failed
     # scoring/bucketing".
@@ -1057,6 +1172,9 @@ async def select_competitors(
                 "dropped_no_focus": dropped_no_focus,
                 "dropped_by_cap": max(0, len(scored) - cap),
                 "returned_booksy_ids": [c.booksy_id for c in final],
+                "user_selected_salon_ids": [
+                    c.salon_id for c in final if c.is_user_selected
+                ],
                 "buckets": {
                     "direct": sum(1 for c in final if c.bucket == "direct"),
                     "cluster": sum(1 for c in final if c.bucket == "cluster"),

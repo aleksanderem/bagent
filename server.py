@@ -195,6 +195,13 @@ class CompetitorReportRequest(BaseModel):
     # given Faza 8a verification trims another ~40-60% post-selection.
     targetCount: int = 15
     selectedCompetitorBooksyIds: list[int] | None = None  # for manual mode
+    # 2026-05-29 — user picks from the frontend competitor picker. These are
+    # Supabase salons.id (internal salon_id PK), NOT booksy_id — same id-space
+    # as SummaryRequest.selectedCompetitorIds. Forwarded as a UNION into the
+    # deterministic selection (must-include, never a filter) so per-competitor
+    # detail can be surfaced for these while analytics stay computed from the
+    # full deterministic sample.
+    selectedCompetitorIds: list[int] | None = None  # salon_id space
 
 
 class VersumSuggestRequest(BaseModel):
@@ -1822,6 +1829,7 @@ async def run_competitor_report_job(
             target_count=request.targetCount,
             convex_user_id=request.userId,
             on_progress=on_progress,
+            must_include_salon_ids=request.selectedCompetitorIds,
         )
 
         job.mark_completed()

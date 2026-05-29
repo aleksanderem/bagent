@@ -649,6 +649,33 @@ class SupabaseService:
             logger.warning("Failed to load salon basic %d: %s", salon_id, e)
             return None
 
+    async def get_salons_by_ids(self, salon_ids: list[int]) -> list[dict]:
+        """Load salon rows by internal salons.id (PK), batched via .in_().
+
+        Used by the competitor-selection UNION (must-include user picks) to
+        construct minimal CompetitorCandidate rows for picks that never
+        reached the deterministic `scored` set. Mirrors the inline salon
+        fetch in get_competitor_matches. Selects primary_category_id so the
+        caller can use it when present (salons rows may not carry it — caller
+        falls back to the subject's category). Returns [] on error.
+        """
+        if not salon_ids:
+            return []
+        try:
+            res = (
+                self.client.table("salons")
+                .select(
+                    "id,booksy_id,name,city,primary_category_id,"
+                    "reviews_count,reviews_rank,partner_system"
+                )
+                .in_("id", salon_ids)
+                .execute()
+            )
+            return list(res.data or [])
+        except Exception as e:
+            logger.warning("Failed to load salons by ids %s: %s", salon_ids, e)
+            return []
+
     async def call_rpc(self, rpc_name: str, params: dict) -> list[dict]:
         """Generic RPC caller. Returns list of dicts or empty list on error."""
         try:
@@ -1333,6 +1360,11 @@ class SupabaseService:
                 "similarity_scores": c.similarity_scores or {},
                 "distance_km": round(float(c.distance_km), 3),
                 "sort_order": idx,
+                # TODO(2b): add is_user_selected once migration 122 lands.
+                # The display path reads picks from
+                # report_data.userSelectedCompetitorIds, NOT from this column,
+                # so writing it now would break inserts before the column
+                # exists. Deferred to avoid a prod insert failure.
             })
         result = self.client.table("competitor_matches").insert(rows).execute()
         return len(result.data or [])
