@@ -14,8 +14,10 @@ competitor_recommendations rows (each with full traceability to specific
 competitors + data point rows).
 
 Non-fatal on AI failure: _deterministic_fallback() builds basic text from
-dimensional scores and persists empty SWOT + recommendations. The pipeline
-never breaks the report row on MiniMax flakiness.
+dimensional scores, persists empty SWOT, and emits up to 3 deterministic
+pricing-based recommendations (top deviations ≥5%) so the user still gets
+actionable items. The pipeline never breaks the report row on MiniMax
+flakiness.
 """
 
 from __future__ import annotations
@@ -181,7 +183,8 @@ async def synthesize_competitor_insights(
     recommendations.
 
     Non-fatal on AI failure: falls back to basic positioning text derived from
-    dimensional scores, skips SWOT, skips recommendations (logs warning).
+    dimensional scores, skips SWOT, and emits up to 3 deterministic
+    pricing-based recommendations (logs warning).
 
     Returns:
         dict: {

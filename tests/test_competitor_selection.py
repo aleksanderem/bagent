@@ -624,6 +624,49 @@ def _make_candidate(
     }
 
 
+@pytest.fixture(autouse=True)
+def _stub_focus_bundles(monkeypatch: pytest.MonkeyPatch) -> None:
+    """Stub the v2 focus-bundle loaders for the whole module.
+
+    select_competitors() reaches into service.client for portfolio embeddings
+    (mig 087), which the AsyncMock-based _make_mock_supabase can't provide
+    offline — without this it raised AttributeError before any selection
+    logic ran. We give the subject and every candidate an identical unit
+    embedding + focus distribution → portfolio_emb_sim and focus_tid_sim both
+    1.0, so every reviews>=20 candidate buckets as 'direct'. This isolates the
+    selection logic (FW filter, cap, sort, union) from the embedding plumbing.
+    Tests that assert a NON-direct bucket override these loaders themselves.
+    """
+    emb = np.ones(1536, dtype=np.float64)
+    focus = {503: 1.0}
+
+    def _subject_bundle(service, salon_id, booksy_id):  # noqa: ANN001
+        return SalonFocusBundle(
+            salon_id=salon_id, booksy_id=booksy_id,
+            portfolio_embedding=emb, focus_distribution=dict(focus),
+            focus_variant_distribution=dict(focus),
+            service_count=10, embedded_count=10,
+        )
+
+    def _candidate_bundles(service, salon_ids):  # noqa: ANN001
+        return {
+            sid: SalonFocusBundle(
+                salon_id=sid, booksy_id=None,
+                portfolio_embedding=emb, focus_distribution=dict(focus),
+                focus_variant_distribution=dict(focus),
+                service_count=10, embedded_count=10,
+            )
+            for sid in salon_ids
+        }
+
+    monkeypatch.setattr(
+        selection_mod, "_fetch_subject_focus_bundle", _subject_bundle,
+    )
+    monkeypatch.setattr(
+        selection_mod, "_fetch_candidate_focus_bundles_batch", _candidate_bundles,
+    )
+
+
 class TestSelectCompetitors:
     async def test_no_subject_raises(self) -> None:
         mock = _make_mock_supabase(subject=None)
@@ -712,10 +755,16 @@ class TestSelectCompetitors:
         result = await select_competitors("audit_x", supabase=mock)
         assert len(result) == 1
         cand = result[0]
-        # primary 30 + jaccard 1.0*20 + ts 1.0*25 + rc_sim 1.0*10 - 0 = 85 -> direct
-        assert cand.composite_score == 85.0
+        # v2 scoring (mig 087/088) is embedding/focus-driven — the composite
+        # score is no longer the old fixed additive value (was 85.0). The
+        # meaningful contract here: a reviews>=20 candidate with full
+        # portfolio/focus overlap (forced by the focus-bundle stub) buckets
+        # 'direct' and counts in market aggregates. The numeric score formula
+        # is pinned by the compute_composite_score_v2 / assign_bucket_v2 unit
+        # tests, not by this integration test.
         assert cand.bucket == "direct"
         assert cand.counts_in_aggregates is True
+        assert cand.composite_score > 0
 
     async def test_new_bucket_counts_in_aggregates_false(self) -> None:
         subject = _make_subject()
@@ -735,28 +784,36 @@ class TestSelectCompetitors:
         assert result[0].bucket == "new"
         assert result[0].counts_in_aggregates is False
 
-    async def test_aspirational_bucket(self) -> None:
-        # Low score but rank >> subject rank -> aspirational
-        subject = _make_subject()
-        subject["reviews_rank"] = 4.5
-        # Put candidate far away so distance penalty sinks the score below 40
-        cand = _make_candidate(
-            booksy_id=1, salon_id=1, name="Aspirational",
-            reviews_count=100, reviews_rank=5.0, distance_km=14.0,
+    def test_assign_bucket_v2_aspirational_branch(self) -> None:
+        # Pre-mig-087 this asserted a v1 additive score path. v2 bucketing is
+        # focus/embedding-driven, so we pin the documented 'aspirational'
+        # contract directly on the pure function instead of echoing a runtime
+        # composite score: reviews>=20, NOT direct (focus<0.25 & overlap<0.7),
+        # NOT cluster (focus<0.12 & overlap<0.4), candidate rank >= subject
+        # +0.3, AND portfolio_embedding_sim >= 0.70.
+        assert (
+            assign_bucket_v2(
+                focus_tid_sim=0.0,
+                portfolio_embedding_sim=0.75,
+                reviews_count=100,
+                candidate_reviews_rank=5.0,
+                subject_reviews_rank=4.5,
+                profile_overlap_sim=0.0,
+            )
+            == "aspirational"
         )
-        mock = _make_mock_supabase(
-            subject=subject,
-            candidates=[cand],
-            # No overlap — jaccard 0, no top_services
-            candidate_business_categories={
-                1: [{"id": 999, "female_weight": 90}],
-            },
+        # Below the emb_sim gate (0.70) the aspirational branch must NOT fire.
+        assert (
+            assign_bucket_v2(
+                focus_tid_sim=0.0,
+                portfolio_embedding_sim=0.5,
+                reviews_count=100,
+                candidate_reviews_rank=5.0,
+                subject_reviews_rank=4.5,
+                profile_overlap_sim=0.0,
+            )
+            is None
         )
-        result = await select_competitors("audit_x", supabase=mock)
-        assert len(result) == 1
-        # primary 30 + 0 + 0 + rc_sim(min(100,500)/max)=0.2*10=2 - 18(penalty) = 14
-        # 14 < 40, rank 5.0 >= 4.5 + 0.3 = 4.8 -> aspirational
-        assert result[0].bucket == "aspirational"
 
     async def test_returns_target_count_in_auto_mode(self) -> None:
         subject = _make_subject()
@@ -816,12 +873,15 @@ class TestSelectCompetitors:
             },
         )
         result = await select_competitors("audit_x", supabase=mock)
+        # Graceful: an empty subject top_services list must not crash selection.
+        # v2 (mig 087) dropped the standalone top_services_overlap signal
+        # (focus_tid_sim subsumes it), so the old composite_score==60.0 /
+        # bucket=="cluster" / similarity_scores["top_services_overlap"]
+        # assertions are gone — we assert the candidate survives with a valid
+        # score bundle.
         assert len(result) == 1
-        # ts_overlap component should be 0
-        assert result[0].similarity_scores["top_services_overlap"] == 0.0
-        # Total: 30 + 1.0*20 + 0 + 1.0*10 - 0 = 60 -> cluster
-        assert result[0].composite_score == 60.0
-        assert result[0].bucket == "cluster"
+        assert isinstance(result[0].similarity_scores, dict)
+        assert result[0].composite_score > 0
 
     async def test_missing_subject_business_categories_skips_fw_filter(self) -> None:
         # Subject has no business_categories -> fw filter disabled entirely
@@ -844,56 +904,37 @@ class TestSelectCompetitors:
         assert len(result) == 1
         assert result[0].female_weight_diff == -1.0  # sentinel
 
-    async def test_sort_order_puts_direct_first(self) -> None:
-        # Build 3 candidates that score into different buckets.
-        # 1. high score direct (85)
-        # 2. mid score cluster (55)
-        # 3. new bucket (10 reviews, any score)
-        subject = _make_subject()
+    def test_sort_key_orders_by_bucket_then_score(self) -> None:
+        # Pure-function contract of sort_key / _BUCKET_PRIORITY: bucket
+        # priority (direct < cluster < aspirational < new) first, then
+        # descending composite_score within a bucket. Driving this through
+        # select_competitors is no longer viable because the focus-bundle
+        # stub forces uniform sim → all candidates bucket 'direct'; producing
+        # mixed buckets here from real candidates would require hand-derived
+        # v2 embeddings, so we test the ordering contract directly.
+        def _cand(name: str, bucket: str, score: float) -> CompetitorCandidate:
+            return CompetitorCandidate(
+                salon_id=1, booksy_id=1, name=name, city="Warszawa",
+                primary_category_id=11, reviews_count=100, reviews_rank=4.8,
+                distance_km=1.0, female_weight_diff=0.0, composite_score=score,
+                bucket=bucket, counts_in_aggregates=(bucket != "new"),
+            )
 
-        # Direct: full jaccard + ts overlap
-        cand_direct = _make_candidate(
-            booksy_id=1, salon_id=1, name="Direct",
-            reviews_count=500, reviews_rank=4.9, distance_km=1.0,
-        )
-        # Cluster: partial overlap
-        cand_cluster = _make_candidate(
-            booksy_id=2, salon_id=2, name="Cluster",
-            reviews_count=500, reviews_rank=4.5, distance_km=3.0,
-        )
-        # New: few reviews
-        cand_new = _make_candidate(
-            booksy_id=3, salon_id=3, name="New",
-            reviews_count=5, reviews_rank=5.0, distance_km=1.0,
-        )
-
-        mock = _make_mock_supabase(
-            subject=subject,
-            subject_top_services=[
-                {"booksy_treatment_id": 200, "name": "a"},
-                {"booksy_treatment_id": 201, "name": "b"},
-            ],
-            candidates=[cand_new, cand_cluster, cand_direct],  # unsorted input
-            candidate_top_services={
-                1: [
-                    {"booksy_treatment_id": 200, "name": "a"},
-                    {"booksy_treatment_id": 201, "name": "b"},
-                ],
-                2: [],
-                3: [],
-            },
-            candidate_business_categories={
-                1: [{"id": 100, "female_weight": 90}, {"id": 101, "female_weight": 90}],
-                2: [{"id": 100, "female_weight": 90}],
-                3: [{"id": 100, "female_weight": 90}, {"id": 101, "female_weight": 90}],
-            },
-        )
-        result = await select_competitors("audit_x", supabase=mock)
-        buckets = [c.bucket for c in result]
-        # direct comes before cluster comes before new
-        assert buckets[0] == "direct"
-        assert buckets.index("direct") < buckets.index("cluster")
-        assert buckets.index("cluster") < buckets.index("new")
+        unsorted = [
+            _cand("new", "new", 99.0),
+            _cand("cluster-lo", "cluster", 10.0),
+            _cand("aspirational", "aspirational", 50.0),
+            _cand("direct-hi", "direct", 80.0),
+            _cand("direct-lo", "direct", 70.0),
+            _cand("cluster-hi", "cluster", 40.0),
+        ]
+        ordered = [c.name for c in sorted(unsorted, key=selection_mod.sort_key)]
+        assert ordered == [
+            "direct-hi", "direct-lo",    # direct bucket, score desc
+            "cluster-hi", "cluster-lo",  # cluster bucket, score desc
+            "aspirational",
+            "new",
+        ]
 
 
 class TestSelectCompetitorsUserPickUnion:
@@ -906,45 +947,10 @@ class TestSelectCompetitorsUserPickUnion:
     aggregates.
     """
 
-    @pytest.fixture(autouse=True)
-    def _stub_focus_bundles(self, monkeypatch: pytest.MonkeyPatch) -> None:
-        """Patch the v2 focus-bundle loaders so candidates actually score.
-
-        select_competitors reaches into service.client for embeddings, which
-        the AsyncMock can't provide. We give the subject and every candidate
-        an identical unit embedding + focus distribution → portfolio_emb_sim
-        and focus_tid_sim both 1.0 → every reviews>=20 candidate buckets as
-        'direct' (counts_in_aggregates=True). This isolates the UNION logic
-        from the embedding plumbing.
-        """
-        emb = np.ones(1536, dtype=np.float64)
-        focus = {503: 1.0}
-
-        def _subject_bundle(service, salon_id, booksy_id):  # noqa: ANN001
-            return SalonFocusBundle(
-                salon_id=salon_id, booksy_id=booksy_id,
-                portfolio_embedding=emb, focus_distribution=dict(focus),
-                focus_variant_distribution=dict(focus),
-                service_count=10, embedded_count=10,
-            )
-
-        def _candidate_bundles(service, salon_ids):  # noqa: ANN001
-            return {
-                sid: SalonFocusBundle(
-                    salon_id=sid, booksy_id=None,
-                    portfolio_embedding=emb, focus_distribution=dict(focus),
-                    focus_variant_distribution=dict(focus),
-                    service_count=10, embedded_count=10,
-                )
-                for sid in salon_ids
-            }
-
-        monkeypatch.setattr(
-            selection_mod, "_fetch_subject_focus_bundle", _subject_bundle,
-        )
-        monkeypatch.setattr(
-            selection_mod, "_fetch_candidate_focus_bundles_batch", _candidate_bundles,
-        )
+    # Focus-bundle loaders are stubbed module-wide by the autouse
+    # `_stub_focus_bundles` fixture (identical unit embedding → every
+    # reviews>=20 candidate buckets 'direct'), so the UNION logic is tested
+    # in isolation from the embedding plumbing.
 
     async def test_union_includes_cap_dropped_and_force_added_picks(self) -> None:
         # 5 strong candidates (salon_ids 1..5) all score into the same bucket.

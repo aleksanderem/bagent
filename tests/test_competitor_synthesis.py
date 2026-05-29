@@ -569,7 +569,21 @@ class TestDeterministicFallback:
         assert len(result["positioning_narrative"]) <= 800
         assert "swot" in result
         assert set(result["swot"].keys()) == {"strengths", "weaknesses", "opportunities", "threats"}
-        assert result["recommendations"] == []
+        # SWOT bullets can't be hand-crafted deterministically → stays empty.
+        assert all(result["swot"][k] == [] for k in result["swot"])
+        # Recommendations ARE emitted deterministically: _deterministic_fallback
+        # builds up to 3 from the top pricing deviations (≥5%), so the user
+        # always gets actionable items even on total AI failure (see the
+        # function docstring). sample_pricing has 2 rows ≥5% → expect 1..3
+        # pricing-category recs, each structured + traced to a pricing row.
+        recs = result["recommendations"]
+        assert isinstance(recs, list)
+        assert 1 <= len(recs) <= 3
+        for r in recs:
+            assert r["category"] == "pricing"
+            assert r["actionTitle"]
+            assert r["actionDescription"]
+            assert r["sourceDataPoints"]
         # narrative mentions subject name
         assert "Beauty4ever" in result["positioning_narrative"]
 
