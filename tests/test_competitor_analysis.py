@@ -17,10 +17,13 @@ development — see the commit message).
 from __future__ import annotations
 
 from datetime import datetime, timezone
-from unittest.mock import AsyncMock
+from unittest.mock import AsyncMock, MagicMock
 
+import numpy as np
 import pytest
 
+import pipelines.competitor_selection as selection_mod
+from services.focus_score import SalonFocusBundle
 from pipelines.competitor_analysis import (
     _active_services_with_treatment,
     _apply_versum_mappings,
@@ -43,6 +46,7 @@ from pipelines.competitor_dimensional_scores import (
     compute_subject_percentile,
 )
 from pipelines.competitor_selection import CompetitorCandidate
+from services.supabase import SupabaseService
 
 
 # ---------------------------------------------------------------------------
@@ -59,12 +63,16 @@ class TestContentQualityScores:
         assert result["avg_description_length"] == 0.0
 
     def test_description_coverage_percent(self) -> None:
-        # 4 services, 3 have description_type='M' → 75%
+        # 4 active services, 3 have a real description (≥30 chars) → 75%.
+        # Contract (2026-05-15): coverage counts any service whose
+        # `description` string is ≥30 chars, regardless of description_type
+        # (manual 'M' / predefined 'P' both count). See helper docstring.
+        long_desc = "Szczegolowy opis uslugi kosmetycznej dla klientow"
         services = [
-            {"description_type": "M", "is_active": True},
-            {"description_type": "M", "is_active": True},
-            {"description_type": "M", "is_active": True},
-            {"description_type": "S", "is_active": True},
+            {"description": long_desc, "is_active": True},
+            {"description": long_desc, "is_active": True},
+            {"description": long_desc, "is_active": True},
+            {"description": "—", "is_active": True},  # placeholder < 30 chars
         ]
         result = compute_content_quality_scores(services, salon_description=None)
         assert result["description_coverage"] == 75.0
@@ -86,24 +94,30 @@ class TestContentQualityScores:
         assert result["self_description_length"] == 8.0
 
     def test_inactive_services_excluded(self) -> None:
+        long_desc = "Szczegolowy opis uslugi kosmetycznej dla klientow"
         services = [
-            {"description_type": "M", "is_active": True},
-            {"description_type": "M", "is_active": False},  # excluded
-            {"description_type": "S", "is_active": True},
+            {"description": long_desc, "is_active": True},
+            {"description": long_desc, "is_active": False},  # excluded (inactive)
+            {"description": "—", "is_active": True},  # active, no real desc
         ]
         result = compute_content_quality_scores(services, salon_description=None)
-        # 1 of 2 active → 50%
+        # 1 of 2 active services has a real description → 50%
         assert result["description_coverage"] == 50.0
 
     def test_avg_description_length(self) -> None:
+        # Only descriptions ≥30 chars are counted (real-description gate,
+        # 2026-05-15). Both strings below clear the gate with known word
+        # counts; the None row is excluded.
         services = [
-            {"description": "krótki opis", "is_active": True},  # 2 words
-            {"description": "to jest dłuższy opis usługi", "is_active": True},  # 5 words
+            # 7 words, 63 chars
+            {"description": "Profesjonalny zabieg pielegnacyjny dla wymagajacej cery klienta", "is_active": True},
+            # 8 words, 69 chars
+            {"description": "Kompleksowa terapia odmladzajaca z konsultacja kosmetyczna w pakiecie", "is_active": True},
             {"description": None, "is_active": True},  # no description → excluded
         ]
         result = compute_content_quality_scores(services, salon_description=None)
-        # avg of [2, 5] = 3.5
-        assert result["avg_description_length"] == 3.5
+        # avg of [7, 8] = 7.5
+        assert result["avg_description_length"] == 7.5
 
 
 # ---------------------------------------------------------------------------
@@ -542,9 +556,11 @@ class TestClassifyPricingAction:
 
 class TestActiveServicesWithTreatment:
     def test_drops_inactive(self) -> None:
+        # has_embedding required by the 2026-05-15 hard gate (services
+        # without a name embedding are dropped from pricing comparisons).
         services = [
-            {"booksy_treatment_id": 1, "is_active": True, "price_grosze": 1000},
-            {"booksy_treatment_id": 2, "is_active": False, "price_grosze": 2000},
+            {"booksy_treatment_id": 1, "is_active": True, "price_grosze": 1000, "has_embedding": True},
+            {"booksy_treatment_id": 2, "is_active": False, "price_grosze": 2000, "has_embedding": True},
         ]
         result = _active_services_with_treatment(services)
         assert 1 in result
@@ -558,9 +574,9 @@ class TestActiveServicesWithTreatment:
 
     def test_duplicate_treatment_picks_lowest_price(self) -> None:
         services = [
-            {"booksy_treatment_id": 1, "is_active": True, "price_grosze": 2000, "name": "variant2"},
-            {"booksy_treatment_id": 1, "is_active": True, "price_grosze": 1500, "name": "variant1"},
-            {"booksy_treatment_id": 1, "is_active": True, "price_grosze": 3000, "name": "variant3"},
+            {"booksy_treatment_id": 1, "is_active": True, "price_grosze": 2000, "name": "variant2", "has_embedding": True},
+            {"booksy_treatment_id": 1, "is_active": True, "price_grosze": 1500, "name": "variant1", "has_embedding": True},
+            {"booksy_treatment_id": 1, "is_active": True, "price_grosze": 3000, "name": "variant3", "has_embedding": True},
         ]
         result = _active_services_with_treatment(services)
         assert result[1]["name"] == "variant1"
@@ -667,6 +683,12 @@ def _mock_supabase_no_verify() -> AsyncMock:
     service = AsyncMock()
     service.get_variant_centroids.return_value = {}
     service.get_service_embeddings.return_value = {}
+    # Tier-3 (sub_variant) pricing loads sub-variants via this async method.
+    # Synthetic fixtures have no native Booksy multi-variants, so prod would
+    # return {} here too → zero tier-3 rows. Without the explicit stub the
+    # bare AsyncMock returns a MagicMock that isn't iterable at the
+    # `for sv in sub_variants_map.get(sid, [])` loop.
+    service.get_sub_variants_for_services.return_value = {}
     return service
 
 
@@ -681,18 +703,31 @@ class TestComputePricingComparisons:
         assert result == []
 
     @pytest.mark.asyncio
-    async def test_skips_treatments_with_less_than_two_competitor_prices(self) -> None:
+    async def test_single_competitor_price_still_emits_variant_row(self) -> None:
+        # Contract change (commit a72440a, 2026-05-16 user feedback "nie
+        # możemy wycinać całego bloku zabiegu"): the variant tier no longer
+        # requires a minimum of 2 competitor prices. A single matched
+        # competitor still emits a comparison_tier='variant' row, carrying
+        # sample_size=1 so the UI can flag the thin sample. The OLD
+        # `if len(samples) < 2: continue` gate was deliberately removed.
         subject_data = {
             "services": [_svc(treatment_id=1, price_grosze=1000, name="A")],
         }
         aligned = [
-            (_cand(salon_id=1), {"services": [_svc(treatment_id=1, price_grosze=900)], "scrape": {"salon_name": "Cand1"}}),
+            (_cand(salon_id=1), {"services": [_svc(treatment_id=1, price_grosze=900)], "scrape": {"salon_name": "Cand1"}, "salon_id": 1}),
         ]
         result = await _compute_pricing_comparisons(
             _mock_supabase_no_verify(), report_id=1,
             subject_data=subject_data, aligned_competitors=aligned,
         )
-        assert result == []  # Only 1 competitor price → skip
+        assert len(result) == 1
+        row = result[0]
+        assert row["comparison_tier"] == "variant"
+        assert row["booksy_treatment_id"] == 1
+        # Single competitor → market median == that competitor's price.
+        assert row["sample_size"] == 1
+        assert row["market_median_grosze"] == 900
+        assert len(row["competitor_samples"]) == 1
 
     @pytest.mark.asyncio
     async def test_computes_deviation_and_action(self) -> None:
@@ -717,26 +752,43 @@ class TestComputePricingComparisons:
         assert row["sample_size"] == 3
         assert abs(row["deviation_pct"] - 66.67) < 0.01
         assert row["recommended_action"] == "lower"
-        # Mig 064 fields surface on every row.
-        assert row["verification_status"] == "verified"  # 66% ≤ 80% threshold
+        # Mig 064 fields surface on every row. VERIFICATION_THRESHOLD_PCT was
+        # lowered to 0.0 (2026-05-15 — "apply checks ALWAYS"), so any non-zero
+        # deviation runs verify_pricing_comparison. With no package keyword,
+        # no centroid (mock returns {}), and no duration, the row passes every
+        # check but still has deviation > 0 → verification_status is
+        # 'extreme_outlier' (kept for display, not dropped). See
+        # services/pricing_verification.py verify_pricing_comparison.
+        assert row["verification_status"] == "extreme_outlier"
         assert isinstance(row["competitor_samples"], list)
         assert len(row["competitor_samples"]) == 3
 
     @pytest.mark.asyncio
-    async def test_skips_non_counting_competitors(self) -> None:
+    async def test_non_counting_competitors_excluded_from_samples(self) -> None:
+        # counts_in_aggregates=False competitors must NOT contribute price
+        # samples (still a real contract). Cand1 (price 500) is excluded;
+        # only Cand2 (counting, price 1000) drives the market. Post-2026-05-16
+        # the single remaining counting price still emits a variant row
+        # (min-2 gate removed — see test_single_competitor_price_*).
         subject_data = {
             "services": [_svc(treatment_id=5, price_grosze=1000)],
         }
         aligned = [
-            (_cand(salon_id=1, counts_in_aggregates=False), {"services": [_svc(treatment_id=5, price_grosze=500)], "scrape": {"salon_name": "Cand1"}}),
-            (_cand(salon_id=2), {"services": [_svc(treatment_id=5, price_grosze=1000)], "scrape": {"salon_name": "Cand2"}}),
+            (_cand(salon_id=1, counts_in_aggregates=False), {"services": [_svc(treatment_id=5, price_grosze=500)], "scrape": {"salon_name": "Cand1"}, "salon_id": 1}),
+            (_cand(salon_id=2), {"services": [_svc(treatment_id=5, price_grosze=1000)], "scrape": {"salon_name": "Cand2"}, "salon_id": 2}),
         ]
         result = await _compute_pricing_comparisons(
             _mock_supabase_no_verify(), report_id=1,
             subject_data=subject_data, aligned_competitors=aligned,
         )
-        # Only 1 counting competitor → skip
-        assert result == []
+        assert len(result) == 1
+        row = result[0]
+        # Only the counting competitor (salon_id=2, price 1000) contributes —
+        # the non-counting 500 zł price is excluded, so median stays 1000.
+        assert row["sample_size"] == 1
+        assert row["market_median_grosze"] == 1000
+        sample_salon_ids = [s.get("salon_id") for s in row["competitor_samples"]]
+        assert sample_salon_ids == [2]
 
     @pytest.mark.asyncio
     async def test_extreme_deviation_with_package_keyword_is_dropped(self) -> None:
@@ -1114,6 +1166,12 @@ class TestComputeDimensionalScores:
 def _mock_supabase_for_e2e() -> AsyncMock:
     mock = AsyncMock()
 
+    # service.client is the SYNCHRONOUS supabase builder in prod
+    # (.table().insert().execute()). TraceWriter.flush() writes through it.
+    # Use a plain MagicMock so the chain returns regular mocks instead of
+    # coroutines (a bare AsyncMock child would make .table() awaitable).
+    mock.client = MagicMock()
+
     # select_competitors calls these — minimal viable subject + 2 candidates
     mock.get_subject_salon_for_audit = AsyncMock(return_value={
         "salon_id": 100,
@@ -1170,6 +1228,9 @@ def _mock_supabase_for_e2e() -> AsyncMock:
     # row enters the verify path (smoke tests above cover the verify branch).
     mock.get_variant_centroids = AsyncMock(return_value={})
     mock.get_service_embeddings = AsyncMock(return_value={})
+    # Tier-3 sub_variant pricing — synthetic fixtures have no native Booksy
+    # multi-variants, so prod returns {} here too → zero tier-3 rows.
+    mock.get_sub_variants_for_services = AsyncMock(return_value={})
 
     # Etap 4 readers
     def _mk_salon_data(salon_id: int, reviews_count: int) -> dict:
@@ -1228,8 +1289,46 @@ def _mock_supabase_for_e2e() -> AsyncMock:
 
 
 @pytest.mark.asyncio
-async def test_compute_competitor_analysis_end_to_end_with_mocks() -> None:
+async def test_compute_competitor_analysis_end_to_end_with_mocks(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
     """Integration test — verify orchestration calls every expected write."""
+    # select_competitors reaches into service.client for portfolio embeddings
+    # (mig 087) via _fetch_subject_focus_bundle / _fetch_candidate_focus_
+    # bundles_batch, which the AsyncMock-based supabase can't provide offline.
+    # Stub the v2 focus-bundle loaders (same pattern as
+    # test_competitor_selection.py::_stub_focus_bundles): identical unit
+    # embedding + focus distribution → every candidate buckets as 'direct',
+    # isolating the orchestration path from the embedding plumbing.
+    _emb = np.ones(1536, dtype=np.float64)
+    _focus = {503: 1.0}
+
+    def _subject_bundle(service, salon_id, booksy_id):  # noqa: ANN001
+        return SalonFocusBundle(
+            salon_id=salon_id, booksy_id=booksy_id,
+            portfolio_embedding=_emb, focus_distribution=dict(_focus),
+            focus_variant_distribution=dict(_focus),
+            service_count=10, embedded_count=10,
+        )
+
+    def _candidate_bundles(service, salon_ids):  # noqa: ANN001
+        return {
+            sid: SalonFocusBundle(
+                salon_id=sid, booksy_id=None,
+                portfolio_embedding=_emb, focus_distribution=dict(_focus),
+                focus_variant_distribution=dict(_focus),
+                service_count=10, embedded_count=10,
+            )
+            for sid in salon_ids
+        }
+
+    monkeypatch.setattr(
+        selection_mod, "_fetch_subject_focus_bundle", _subject_bundle,
+    )
+    monkeypatch.setattr(
+        selection_mod, "_fetch_candidate_focus_bundles_batch", _candidate_bundles,
+    )
+
     mock = _mock_supabase_for_e2e()
     progress_calls = []
 
@@ -1258,3 +1357,51 @@ async def test_compute_competitor_analysis_end_to_end_with_mocks() -> None:
     assert status_args[0][1] == "completed"
     # Progress should reach 100
     assert progress_calls[-1][0] == 100
+
+
+# ---------------------------------------------------------------------------
+# insert_competitor_matches — is_user_selected wiring (migration 122)
+# ---------------------------------------------------------------------------
+
+
+class TestInsertCompetitorMatchesUserSelected:
+    @pytest.mark.asyncio
+    async def test_rows_carry_is_user_selected_from_candidate(self) -> None:
+        """Each inserted row's is_user_selected reflects the candidate flag,
+        and a candidate lacking the attribute falls back to False (defensive
+        getattr — see insert_competitor_matches)."""
+        from types import SimpleNamespace
+
+        # Bypass __init__ (which builds a live Supabase client) and inject a
+        # MagicMock client that captures the insert payload.
+        service = object.__new__(SupabaseService)
+        insert_mock = MagicMock()
+        insert_mock.execute.return_value = MagicMock(data=[{}, {}, {}])
+        table_mock = MagicMock()
+        table_mock.insert.return_value = insert_mock
+        client = MagicMock()
+        client.table.return_value = table_mock
+        service.client = client
+
+        picked = _cand(salon_id=1)
+        picked.is_user_selected = True
+        not_picked = _cand(salon_id=2)  # is_user_selected defaults to False
+        # A candidate-like object WITHOUT the attribute at all — proves the
+        # getattr(..., False) default can't crash the insert.
+        attrless = SimpleNamespace(
+            salon_id=3, composite_score=50.0, bucket="cluster",
+            counts_in_aggregates=True, similarity_scores={}, distance_km=1.0,
+        )
+
+        count = await service.insert_competitor_matches(
+            report_id=999, candidates=[picked, not_picked, attrless],
+        )
+        assert count == 3
+
+        # Inspect the rows passed to client.table("competitor_matches").insert.
+        client.table.assert_called_with("competitor_matches")
+        rows = table_mock.insert.call_args[0][0]
+        assert [r["competitor_salon_id"] for r in rows] == [1, 2, 3]
+        assert rows[0]["is_user_selected"] is True
+        assert rows[1]["is_user_selected"] is False
+        assert rows[2]["is_user_selected"] is False  # missing attr → default

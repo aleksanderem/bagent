@@ -45,10 +45,14 @@ class TestWorkerSettingsShape:
     def test_job_timeout_long_enough_for_competitor_report(self):
         from workers.main import WorkerSettings
 
-        # Competitor report ~5 min, audit pipeline up to ~15 min,
-        # optimization ~10 min. 30 min ceiling leaves room.
+        # job_timeout is the GLOBAL arq envelope (no per-job override in arq),
+        # raised to 4h to cover worst-case discovery_pump_step (dense category
+        # quad-tree over mazowieckie). Competitor (~5min), audit (~15min), and
+        # optimization (~10min) pipelines stay well under this and enforce
+        # their own shorter timeouts via wait_for / httpx. Lower bound keeps
+        # the slowest report pipeline safe; ceiling pins the intentional 4h.
         assert WorkerSettings.job_timeout >= 15 * 60
-        assert WorkerSettings.job_timeout <= 60 * 60
+        assert WorkerSettings.job_timeout == 4 * 60 * 60
 
     def test_keep_result_24h(self):
         from workers.main import WorkerSettings

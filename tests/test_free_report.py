@@ -107,10 +107,15 @@ def test_free_report_requires_api_key():
     assert response.status_code in (401, 422)
 
 
+@pytest.mark.integration
 def test_free_report_accepts_valid_request(noop_background_job: None):
     """POST /api/audit/free_report with valid api key returns 202 + jobId.
     The background job is patched to no-op via the fixture so Supabase /
     MiniMax are never touched — the test only checks dispatch.
+
+    Marked integration: the enqueue route fails HARD with 503 unless a live
+    arq Redis pool is connected at startup (server.py:282). Without Redis the
+    request returns 503, so this can only run with the queue available.
     """
     response = client.post(
         "/api/audit/free_report",
@@ -127,10 +132,14 @@ def test_free_report_accepts_valid_request(noop_background_job: None):
     assert data["status"] == "accepted"
 
 
+@pytest.mark.integration
 def test_free_report_job_type_in_store(noop_background_job: None):
     """The job created by /api/audit/free_report is tagged type='free_report'
     in the in-memory job store so dashboards / logs can distinguish it from
     regular report jobs.
+
+    Marked integration: depends on a live arq Redis pool to enqueue (otherwise
+    the route returns 503 before a job is ever created). See server.py:282.
     """
     response = client.post(
         "/api/audit/free_report",

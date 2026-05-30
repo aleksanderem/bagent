@@ -1,11 +1,23 @@
-"""Local test: convert booksy JSON to ScrapedData and run a quick MiniMax call."""
+"""Local test: convert booksy JSON to ScrapedData and run a quick MiniMax call.
+
+This is a manual smoke script (run via ``python test_local.py <booksy.json>``),
+not part of the automated suite. ``test_minimax_call`` makes a real MiniMax API
+call and takes a plain ``scraped_data`` argument (not a pytest fixture), so when
+pytest collects it from the repo root it errors with "fixture not found". The
+module-level ``integration`` marker keeps it out of the offline run
+(``-m "not integration"``) while leaving the file runnable as a script.
+"""
 
 import asyncio
 import json
 import sys
 
+import pytest
+
 from config import settings
 from services.minimax import MiniMaxClient
+
+pytestmark = pytest.mark.integration
 
 
 def convert_booksy_json(path: str) -> dict:

@@ -1360,11 +1360,11 @@ class SupabaseService:
                 "similarity_scores": c.similarity_scores or {},
                 "distance_km": round(float(c.distance_km), 3),
                 "sort_order": idx,
-                # TODO(2b): add is_user_selected once migration 122 lands.
-                # The display path reads picks from
-                # report_data.userSelectedCompetitorIds, NOT from this column,
-                # so writing it now would break inserts before the column
-                # exists. Deferred to avoid a prod insert failure.
+                # Persist the picker flag (migration 122 added
+                # competitor_matches.is_user_selected boolean NOT NULL DEFAULT
+                # false). Defensive getattr so a candidate lacking the attr
+                # can't crash the insert — falls back to False.
+                "is_user_selected": bool(getattr(c, "is_user_selected", False)),
             })
         result = self.client.table("competitor_matches").insert(rows).execute()
         return len(result.data or [])

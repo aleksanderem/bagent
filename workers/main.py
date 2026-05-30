@@ -183,8 +183,12 @@ async def smoke_test(ctx: dict[str, Any], message: str = "hello") -> dict[str, A
 # max_jobs: concurrent tasks per worker process. IO-bound (most of our load
 # is HTTP to MiniMax), so 20 is a reasonable starting value. Adjust based on
 # memory pressure observed in production.
-# job_timeout: 30 minutes — competitor reports take ~5min, audit ~15min,
-# leaving ample headroom. Anything taking >30min is stuck and should fail.
+# job_timeout: 4 hours — the GLOBAL arq envelope (arq has no per-job
+# override). Sized for worst-case discovery_pump_step (dense category
+# quad-tree over mazowieckie); competitor (~5min) / audit (~15min) /
+# optimization (~10min) pipelines stay far under it and enforce their own
+# shorter timeouts via wait_for / httpx. See the job_timeout assignment
+# below for the full rationale.
 # keep_result: 24h — long enough that frontend polling for status after a
 # slow job still works, short enough that result store doesn't bloat.
 
