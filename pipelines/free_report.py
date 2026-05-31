@@ -193,46 +193,42 @@ async def run_free_report_pipeline(
     dt = int((time.time() - t0) * 1000)
     await progress(85, f"Podsumowanie wygenerowane ({len(summary)} znaków, {dt}ms)")
 
-    # ── Step 8: Industry benchmarks (WITHOUT competitor context) ──
-    # Competitor context moved to BAGENT #3 (summary.py) which runs AFTER the user
-    # explicitly picks competitors. BAGENT #1 only pulls city-level benchmarks for
-    # industry comparison, nothing salon-specific.
-    logger.info("[%s] Step 8: Industry benchmarks...", audit_id)
-    await progress(88, "Pobieranie benchmarków branżowych...")
-    industry_comparison: dict[str, Any] = {
-        "yourScore": total_score, "industryAverage": 52, "topPerformers": 78,
-        "percentile": 50, "sampleSize": 500,
-    }
+    # ── Step 8: Market position (WITHOUT competitor context) ──
+    # Honest market position: score the audited salon on the SAME deterministic
+    # 28-dim axis as the universe pool + competitor analysis, upsert it (so every
+    # audit feeds the shared pool), then read fn_market_position — the mean of
+    # direction-corrected per-dim percentiles vs the local market. No fabricated
+    # avg+20 / score/top. Insufficient pool → marketPosition stays None (honest
+    # absence, never a fake number). Independent of the pricing matrix.
+    logger.info("[%s] Step 8: Market position...", audit_id)
+    await progress(88, "Pozycja na tle rynku...")
+    from pipelines.competitor_dimensional_scores import compute_all_dimensions_for_salon
+    market_position: dict[str, Any] | None = None
     try:
-        # Prefer the structured salon_city field from salon_scrapes
-        # (populated by the Booksy parser). Fall back to address parsing
-        # for pre-migration audits that only have audit_scraped_data.
-        city = scraped_data.salonCity
-        if not city and scraped_data.salonAddress:
-            # Address format: "street, zip, city, [district]" — second-from-zip
-            # is usually city. Simpler heuristic: split on comma, strip, and
-            # pick the first segment that looks like a city (no digits).
-            parts = [p.strip() for p in scraped_data.salonAddress.split(",")]
-            for part in parts:
-                if part and not any(ch.isdigit() for ch in part):
-                    city = part
-                    break
-        benchmarks = await supabase.get_benchmarks(
-            city=city,
-            primary_category_id=scraped_data.primaryCategoryId,
-        )
-        avg = benchmarks.get("industry_average", 52)
-        top = benchmarks.get("top_performers", 78)
-        sample = benchmarks.get("sample_size", 500)
-        percentile = min(99, max(1, round((total_score / max(top, 1)) * 100)))
-        industry_comparison = {
-            "yourScore": total_score, "industryAverage": avg, "topPerformers": top,
-            "percentile": percentile, "sampleSize": sample,
-        }
-        await progress(90, f"Benchmarki: avg {avg}, top {top}, percentyl {percentile}")
+        subject_full = await supabase.get_subject_full_data(audit_id)
+        booksy_id = subject_full.get("booksy_id")
+        dims = compute_all_dimensions_for_salon(subject_full)
+        if booksy_id and dims:
+            await supabase.upsert_salon_dimensional_score(
+                booksy_id, dims,
+                salon_ref_id=(subject_full.get("scrape") or {}).get("salon_ref_id"),
+                city=scraped_data.salonCity,
+                primary_category_id=scraped_data.primaryCategoryId,
+                source="audit",
+                scraped_at=(subject_full.get("scrape") or {}).get("scraped_at"),
+            )
+            market_position = await supabase.get_market_position(booksy_id)
+        if market_position and market_position.get("status") == "ok":
+            await progress(
+                90,
+                f"Pozycja rynkowa: {market_position.get('composite')} "
+                f"(scope {market_position.get('scope')}, n={market_position.get('sampleSize')})",
+            )
+        else:
+            await progress(90, "Za mało danych rynkowych dla tej okolicy")
     except Exception as e:
-        logger.warning("[%s] Benchmark fetch failed: %s", audit_id, e)
-        await progress(90, f"Błąd pobierania benchmarków: {e}")
+        logger.warning("[%s] Market position failed: %s", audit_id, e)
+        await progress(90, "Pozycja rynkowa chwilowo niedostępna")
 
     # ── Step 9: Assemble report ──
     # No salonLocation, competitorContext, or competitors fields — those belong
@@ -243,7 +239,7 @@ async def run_free_report_pipeline(
         "stats": stats, "topIssues": all_issues, "transformations": transformations,
         "missingSeoKeywords": structure_result.get("missingSeoKeywords", []),
         "quickWins": structure_result.get("quickWins", []),
-        "industryComparison": industry_comparison,
+        "marketPosition": market_position,
         "summary": summary.strip(),
     }
 

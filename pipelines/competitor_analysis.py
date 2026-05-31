@@ -536,6 +536,41 @@ async def compute_competitor_analysis(
         n_dims = await service.insert_competitor_dimensional_scores(dim_rows)
         logger.info("Etap 4: inserted %d dimensional_scores", n_dims)
 
+        # Feed the shared deterministic benchmark pool (salon_dimensional_scores,
+        # mig 123): every competitor we just scored on the 28-dim axis becomes a
+        # data point for fn_market_position. Best-effort + additive — the upsert
+        # never raises and this loop must not break the competitor report.
+        # Source booksy_id/city/category from the CompetitorCandidate (cand) which
+        # carries them directly; scraped_at from cdata's scrape. We include ALL
+        # aligned competitors with a booksy_id (not just counts_in_aggregates),
+        # since the pool is meant to be a universal market sample.
+        _pool_fed = 0
+        for cand, cdata in aligned_competitors:
+            comp_booksy_id = getattr(cand, "booksy_id", None)
+            if not comp_booksy_id:
+                continue
+            try:
+                comp_dims = compute_all_dimensions_for_salon(cdata)
+                if not comp_dims:
+                    continue
+                await service.upsert_salon_dimensional_score(
+                    comp_booksy_id, comp_dims,
+                    salon_ref_id=getattr(cand, "salon_id", None),
+                    city=getattr(cand, "city", None),
+                    primary_category_id=getattr(cand, "primary_category_id", None),
+                    source="competitor",
+                    scraped_at=(cdata.get("scrape") or {}).get("scraped_at"),
+                )
+                _pool_fed += 1
+            except Exception as _pe:  # noqa: BLE001
+                logger.warning(
+                    "Pool upsert for competitor booksy_id=%s failed: %s",
+                    comp_booksy_id, _pe,
+                )
+        logger.info(
+            "Etap 4: fed %d competitor vectors into shared dimensional pool", _pool_fed,
+        )
+
     # ── Step 6.7 (Faza 8b 2026-05-17): package economics analysis. For
     # every subject service that's a package or area-bundle, find the
     # single-session same-area equivalent at the SAME salon and compute

@@ -279,6 +279,7 @@ class SupabaseService:
             "score_breakdown": report.get("scoreBreakdown", {}),
             "stats": report.get("stats", {}),
             "industry_comparison": report.get("industryComparison", {}),
+            "market_position": report.get("marketPosition"),
             "competitor_context": report.get("competitorContext"),
             "salon_lat": location.get("lat"),
             "salon_lng": location.get("lng"),
@@ -1517,6 +1518,61 @@ class SupabaseService:
             self.client.table("competitor_dimensional_scores").insert(rows).execute()
         )
         return len(result.data or [])
+
+    # ---- Shared deterministic benchmark pool (migration 123) ------------
+    # salon_dimensional_scores is ONE pool on ONE axis (the 28-dim deterministic
+    # scorer) fed by THREE writers: the universe batch, the audit pipeline, and
+    # competitor analysis. fn_market_position reads it for an honest percentile.
+    # This is independent of the pricing matrix (no embeddings/taxonomy/RPC 090).
+
+    async def upsert_salon_dimensional_score(
+        self,
+        booksy_id: int,
+        dims: dict[str, float],
+        *,
+        salon_ref_id: int | None = None,
+        city: str | None = None,
+        primary_category_id: int | None = None,
+        source: str = "batch",
+        scraped_at: str | None = None,
+    ) -> None:
+        """Upsert one salon's raw 28-dim vector into salon_dimensional_scores,
+        keyed by canonical booksy_id. Best-effort — never raises (a pool-write
+        failure must not break an audit or competitor report)."""
+        if not booksy_id or not dims:
+            return
+        row = {
+            "booksy_id": booksy_id,
+            "salon_ref_id": salon_ref_id,
+            "city": (city or "").strip().lower() or None,
+            "primary_category_id": primary_category_id,
+            "dims": dims,
+            "source": source,
+            "scraped_at": scraped_at,
+        }
+        try:
+            self.client.table("salon_dimensional_scores").upsert(
+                row, on_conflict="booksy_id",
+            ).execute()
+        except Exception as e:  # noqa: BLE001
+            logger.warning(
+                "upsert_salon_dimensional_score booksy_id=%s failed: %s", booksy_id, e,
+            )
+
+    async def get_market_position(self, booksy_id: int) -> dict | None:
+        """Honest market position from fn_market_position (mean of
+        direction-corrected per-dim percentiles vs the local pool). Returns the
+        RPC dict (status='ok' | 'insufficient') or None on error. Never raises."""
+        if not booksy_id:
+            return None
+        try:
+            result = self.client.rpc(
+                "fn_market_position", {"p_booksy_id": booksy_id},
+            ).execute()
+            return result.data if isinstance(result.data, dict) else None
+        except Exception as e:  # noqa: BLE001
+            logger.warning("get_market_position booksy_id=%s failed: %s", booksy_id, e)
+            return None
 
     async def update_competitor_report_status(
         self,
