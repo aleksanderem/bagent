@@ -30,7 +30,9 @@ Two arq entrypoints are registered:
 from __future__ import annotations
 
 import asyncio
+import json
 import logging
+import os
 from typing import Any
 
 import httpx
@@ -136,6 +138,364 @@ async def _maybe_trigger_competitor_refresh(booksy_id: int) -> None:
 
 
 # ---------------------------------------------------------------------------
+# S0055 — monitoring watchlist post-scan diff hook
+# ---------------------------------------------------------------------------
+
+
+def _format_price_display(price_text: str | None, price_grosze: int | None) -> str:
+    """Prefer Booksy's raw text ("od 50 zł", "100 zł"); fallback to grosze."""
+    if price_text:
+        return str(price_text)
+    if price_grosze is not None:
+        return f"{price_grosze / 100:.0f} zł"
+    return "—"
+
+
+def _severity_for_price_change(prev_grosze: int | None, cur_grosze: int | None) -> str:
+    """Returns 'critical' (>20% rise), 'warning' (5-20% rise/drop), else 'info'.
+
+    Strict thresholds: 20.0% → warning, 20.01% → critical.
+    """
+    if prev_grosze is None or prev_grosze == 0 or cur_grosze is None:
+        return "info"
+    pct = abs(cur_grosze - prev_grosze) / prev_grosze * 100.0
+    if cur_grosze > prev_grosze and pct > 20.0:
+        return "critical"
+    if pct >= 5.0:
+        return "warning"
+    return "info"
+
+
+def _build_monitoring_alerts(
+    *,
+    schedule_rows: list[dict],
+    pair_row: dict | None,
+    service_diffs: list[dict],
+    promoted_current: bool | None,
+    salon_name_fallback: str,
+) -> list[dict]:
+    """Map scrape diffs → list of alert payload dicts (one per (watchlist_id, user_id) x diff).
+
+    Per advisor: drive service-level alerts from fn_salon_service_diffs rows
+    (they carry names + grosze); use services_count_delta only as a corroboration
+    signal, never as a separate emission path (else we'd double-fire).
+
+    Returns alerts in the shape Convex /api/competitor/alert/ingest expects:
+    {userId, watchlistId, salonId (= salon_ref_id), salonName, type, severity,
+     title, body, metadataJson?}.
+    """
+    if not schedule_rows:
+        return []
+
+    alerts: list[dict] = []
+
+    # Helper: pick the per-watchlist alert base (one alert fans out across watchers)
+    def _emit(alert_type: str, severity: str, title: str, body: str, meta: dict | None = None) -> None:
+        for row in schedule_rows:
+            alert = {
+                "userId": str(row["user_id"]),
+                "watchlistId": str(row["watchlist_id"]),
+                # CRITICAL: salonId expects Supabase salons.id (NOT booksy_id).
+                # The Convex schema stores salonId as number = salons.id. The
+                # monitoring_refresh_schedule.salon_ref_id is that value.
+                "salonId": row["salon_ref_id"],
+                "salonName": row.get("salon_name") or salon_name_fallback,
+                "type": alert_type,
+                "severity": severity,
+                "title": title,
+                "body": body,
+            }
+            if meta is not None:
+                # Convex expects metadataJson as a JSON string (per spec).
+                alert["metadataJson"] = json.dumps(meta, ensure_ascii=False)
+            alerts.append(alert)
+
+    salon_display = (schedule_rows[0].get("salon_name") or salon_name_fallback or "Salon")
+
+    # 1. Per-service diffs (added / removed / price_changed) — authoritative source
+    for sd in service_diffs:
+        status = sd.get("status")
+        service_name = (sd.get("service_name") or "").strip()
+        if not service_name or status in (None, "unchanged"):
+            continue
+
+        if status == "added":
+            price_display = _format_price_display(
+                sd.get("current_price"), sd.get("current_price_grosze")
+            )
+            _emit(
+                "service_added",
+                "info",
+                f"{salon_display}: nowa usługa",
+                f"Dodano: {service_name} ({price_display}). "
+                "Rynek się rusza — może warto przemyśleć ofertę.",
+                meta={"service_name": service_name, "price": price_display},
+            )
+        elif status == "removed":
+            price_display = _format_price_display(
+                sd.get("prev_price"), sd.get("prev_price_grosze")
+            )
+            _emit(
+                "service_removed",
+                # Loss of a service from a competitor = warning per spec
+                "warning",
+                f"{salon_display}: usunięto usługę",
+                f"Konkurent zrezygnował z: {service_name} ({price_display}). "
+                "Może warto rozważyć dodanie tej usługi w swojej ofercie.",
+                meta={"service_name": service_name, "price": price_display},
+            )
+        elif status == "price_changed":
+            prev_g = sd.get("prev_price_grosze")
+            cur_g = sd.get("current_price_grosze")
+            prev_disp = _format_price_display(sd.get("prev_price"), prev_g)
+            cur_disp = _format_price_display(sd.get("current_price"), cur_g)
+            if prev_g is not None and cur_g is not None and cur_g > prev_g:
+                sev = _severity_for_price_change(prev_g, cur_g)
+                _emit(
+                    "price_increase",
+                    sev,
+                    f"{salon_display}: cena podniesiona — {service_name}",
+                    f"{service_name}: {prev_disp} → {cur_disp}. "
+                    "Sprawdź czy warto utrzymać swój cennik.",
+                    meta={
+                        "service_name": service_name,
+                        "prev_price": prev_disp,
+                        "current_price": cur_disp,
+                    },
+                )
+            elif prev_g is not None and cur_g is not None and cur_g < prev_g:
+                sev = _severity_for_price_change(prev_g, cur_g)
+                _emit(
+                    "price_decrease",
+                    sev,
+                    f"{salon_display}: cena obniżona — {service_name}",
+                    f"{service_name}: {prev_disp} → {cur_disp}. "
+                    "Konkurent stawia na ostrzejsze ceny — sprawdź swoją strategię.",
+                    meta={
+                        "service_name": service_name,
+                        "prev_price": prev_disp,
+                        "current_price": cur_disp,
+                    },
+                )
+        # duration_changed nie generuje alertu — niska istotność dla właściciela
+
+    # 2. Salon-wide signals — review spike/drop and promotion toggle
+    if pair_row is not None:
+        reviews_count_delta = pair_row.get("reviews_count_delta") or 0
+        reviews_rank_delta = float(pair_row.get("reviews_rank_delta") or 0.0)
+        promoted_changed = bool(pair_row.get("promoted_changed"))
+
+        if reviews_count_delta > 5:
+            _emit(
+                "review_spike",
+                "info",
+                f"{salon_display}: dużo nowych opinii",
+                f"Konkurent zgarnął {reviews_count_delta} nowych opinii. "
+                "Zobacz co takiego robią — i czy da się to powielić.",
+                meta={"reviews_count_delta": reviews_count_delta},
+            )
+
+        if reviews_rank_delta < -0.1:
+            _emit(
+                "review_drop",
+                "warning",
+                f"{salon_display}: ocena spada",
+                f"Ocena konkurenta spadła o {abs(reviews_rank_delta):.2f} pkt. "
+                "Dobre okno żeby przyciągnąć ich niezadowolonych klientów.",
+                meta={"reviews_rank_delta": reviews_rank_delta},
+            )
+
+        if promoted_changed:
+            # v_salon_scrape_pairs daje tylko bool 'changed' — żeby rozróżnić
+            # started/ended musimy znać aktualny stan z najnowszego scrape'a.
+            if promoted_current is True:
+                _emit(
+                    "promotion_started",
+                    "info",
+                    f"{salon_display}: uruchomił promocję",
+                    "Konkurent wszedł w tryb promowany na Booksy. "
+                    "Sprawdź czy nie warto też zarezerwować widoczności w okolicy.",
+                )
+            elif promoted_current is False:
+                _emit(
+                    "promotion_ended",
+                    "info",
+                    f"{salon_display}: zakończył promocję",
+                    "Konkurent wyłączył tryb promowany. "
+                    "To moment, w którym Twoja widoczność może zyskać kosztem ich rezygnacji.",
+                )
+
+    return alerts
+
+
+async def _maybe_trigger_monitoring_diff(
+    booksy_id: int,
+    *,
+    emit_diffs: bool,
+) -> None:
+    """Post-scan hook S0055. Wywołany BEZ WZGLĘDU NA TIER (Gotcha #2).
+
+    Kroki:
+      1. advance_monitoring_due(booksy_id) — jeśli zwróci 0, salon nie jest
+         monitorowany → no-op. To MUSI iść zawsze (nawet przy skipped), inaczej
+         next_due_at zostanie w przeszłości i tier-0 resolver będzie ten sam
+         booksy_id wyciągał co cykl.
+      2. Jeśli emit_diffs=False (skipped lub unchanged rollup), kończymy —
+         v_salon_scrape_pairs nie ma świeżej pary, więc re-emit by spamował.
+      3. Czytamy schedule rows (lista watchlist x users dla tego booksy_id),
+         v_salon_scrape_pairs head row, fn_salon_service_diffs.
+      4. Mapujemy diffy → lista alertów per (watchlist, user).
+      5. POST batch do {convex_url}/api/competitor/alert/ingest.
+
+    Wszystkie błędy są łapane lokalnie — alert pipeline failure NIE może
+    failować scrape joba (caller wraps in try/except też, defensive layer).
+    """
+    client = _get_client()
+
+    # Step 1: ALWAYS advance the clock (per advisor — else salon stays perpetually due).
+    try:
+        adv_res = client.rpc("advance_monitoring_due", {"p_booksy_id": booksy_id}).execute()
+        adv_count = int(adv_res.data or 0)
+    except Exception as e:  # noqa: BLE001
+        logger.warning(
+            "[monitoring] advance_monitoring_due failed for booksy_id=%s "
+            "(migration 126 may not be applied yet): %s",
+            booksy_id, e,
+        )
+        return
+
+    if adv_count == 0:
+        # Salon nie jest na żadnej watchliście — nic do roboty.
+        return
+
+    if not emit_diffs:
+        # Skipped scrape (byte-dupe) lub unchanged rollup — head row nie jest
+        # świeży, v_salon_scrape_pairs zwróciłby tę samą parę co poprzednia
+        # iteracja, alert by się dublował. Clock już ruszyliśmy w kroku 1.
+        return
+
+    # Step 2-4: read schedule rows + diff data, build alerts.
+    try:
+        sched_res = (
+            client.table("monitoring_refresh_schedule")
+            .select("watchlist_id, user_id, salon_ref_id, salon_name")
+            .eq("booksy_id", booksy_id)
+            .eq("enabled", True)
+            .execute()
+        )
+        schedule_rows = sched_res.data or []
+        if not schedule_rows:
+            # advance_monitoring_due > 0 ale tabela pusta → race? log + bail.
+            logger.warning(
+                "[monitoring] schedule rows empty after advance, booksy_id=%s", booksy_id,
+            )
+            return
+
+        # Head pair row dla tego booksy_id (najnowsza para).
+        pair_res = (
+            client.table("v_salon_scrape_pairs")
+            .select(
+                "booksy_id, current_scraped_at, services_count_delta, "
+                "reviews_count_delta, reviews_rank_delta, promoted_changed, "
+                "pricing_level_delta"
+            )
+            .eq("booksy_id", booksy_id)
+            .order("current_scraped_at", desc=True)
+            .limit(1)
+            .execute()
+        )
+        pair_row = (pair_res.data or [None])[0]
+
+        # Promoted bool z aktualnego salon_scrapes (head row).
+        promoted_current: bool | None = None
+        if pair_row is not None and pair_row.get("promoted_changed"):
+            try:
+                latest_scrape = (
+                    client.table("salon_scrapes")
+                    .select("promoted, salon_name")
+                    .eq("booksy_id", booksy_id)
+                    .order("scraped_at", desc=True)
+                    .limit(1)
+                    .execute()
+                )
+                latest_row = (latest_scrape.data or [None])[0]
+                if latest_row is not None:
+                    promoted_current = bool(latest_row.get("promoted"))
+            except Exception as e:  # noqa: BLE001
+                logger.warning(
+                    "[monitoring] failed to read latest promoted for booksy_id=%s: %s",
+                    booksy_id, e,
+                )
+
+        # Service-level diffy.
+        try:
+            diffs_res = client.rpc(
+                "fn_salon_service_diffs", {"p_booksy_id": booksy_id}
+            ).execute()
+            service_diffs = diffs_res.data or []
+        except Exception as e:  # noqa: BLE001
+            logger.warning(
+                "[monitoring] fn_salon_service_diffs failed for booksy_id=%s: %s",
+                booksy_id, e,
+            )
+            service_diffs = []
+
+        alerts = _build_monitoring_alerts(
+            schedule_rows=schedule_rows,
+            pair_row=pair_row,
+            service_diffs=service_diffs,
+            promoted_current=promoted_current,
+            salon_name_fallback=str(booksy_id),
+        )
+
+        if not alerts:
+            # Nic się nie zmieniło na poziomie produktu — skip POST.
+            return
+
+        # Step 5: POST batch do Convex.
+        await _post_monitoring_alerts(alerts)
+
+    except Exception as e:  # noqa: BLE001
+        logger.warning(
+            "[monitoring] _maybe_trigger_monitoring_diff failed for booksy_id=%s: %s",
+            booksy_id, e,
+        )
+
+
+async def _post_monitoring_alerts(alerts: list[dict]) -> None:
+    """POST {alerts: [...]} do {convex_url}/api/competitor/alert/ingest.
+
+    Endpoint (zdefiniowany w convex/http.ts) sprawdza x-api-key header.
+    """
+    convex_url = settings.convex_url or os.environ.get("CONVEX_URL") or ""
+    if not convex_url:
+        logger.warning("[monitoring] CONVEX_URL not configured — skipping %d alerts", len(alerts))
+        return
+
+    url = f"{convex_url.rstrip('/')}/api/competitor/alert/ingest"
+    headers = {
+        "Content-Type": "application/json",
+        "x-api-key": settings.api_key,
+    }
+    payload = {"alerts": alerts}
+
+    try:
+        async with httpx.AsyncClient(timeout=15.0) as ac:
+            r = await ac.post(url, json=payload, headers=headers)
+            if r.status_code >= 300:
+                logger.warning(
+                    "[monitoring] alert ingest POST %s -> %s body=%s",
+                    url, r.status_code, r.text[:200],
+                )
+            else:
+                logger.info(
+                    "[monitoring] alert ingest ok: %d alerts posted", len(alerts),
+                )
+    except httpx.HTTPError as e:
+        logger.warning("[monitoring] alert ingest POST raised %s", e)
+
+
+# ---------------------------------------------------------------------------
 # arq tasks
 # ---------------------------------------------------------------------------
 
@@ -181,6 +541,34 @@ async def drain_scrape_queue(ctx: dict[str, Any]) -> dict[str, int]:
                 "complete_salon_refresh_job",
                 {"p_id": job_id, "p_error": None},
             ).execute()
+            # S0055 — monitoring watchlist post-scan hook. UNCONDITIONAL
+            # (data-driven, not tier-keyed) — per spec Gotcha #2: tier-0
+            # enqueue may be suppressed by the dedup-guard if a global job
+            # is already active, so the diff hook must run regardless of
+            # which tier actually fired the scrape. The RPC inside no-ops
+            # gracefully if the salon isn't on any watchlist.
+            #
+            # emit_diffs gate:
+            #   * result.skipped=True → bytewise dupe, no row written. Skip
+            #     diff emission (head pair view would yield prior period's
+            #     diffs and we'd re-fire those alerts every cadence).
+            #   * counts["dedup_action"]=="unchanged" → chain-head rollup,
+            #     no fresh row. Same reasoning.
+            # advance_monitoring_due still runs in both cases — must move
+            # next_due_at forward or the salon stays perpetually due.
+            try:
+                dedup_action = ""
+                if not result.skipped:
+                    dedup_action = str((result.counts or {}).get("dedup_action") or "")
+                emit_diffs = (not result.skipped) and (dedup_action != "unchanged")
+                await _maybe_trigger_monitoring_diff(
+                    booksy_id, emit_diffs=emit_diffs,
+                )
+            except Exception as hook_e:  # noqa: BLE001 — alert path must never fail the scrape
+                logger.warning(
+                    "[scrape_refresh] monitoring diff hook raised for booksy_id=%s: %s",
+                    booksy_id, hook_e,
+                )
         except LiveIngestError as e:
             error_text = str(e)[:500]
             # Booksy 404/410 = salon deleted/gone permanently. Skip the
@@ -246,6 +634,7 @@ async def schedule_refresh_cron(ctx: dict[str, Any]) -> dict[str, int]:
     from services.healthcheck import ping
     await ping("HC_PING_SCRAPE_ORCHESTRATOR")
     return {
+        "tier0_enqueued": result.enqueued.get(0, 0),
         "tier1_enqueued": result.enqueued.get(1, 0),
         "tier2_enqueued": result.enqueued.get(2, 0),
         "tier3_enqueued": result.enqueued.get(3, 0),
