@@ -54,7 +54,12 @@ TIER_CADENCE_DAYS: dict[int, int] = {
 # so we cap to avoid one cron tick filling the queue with quarterly cold
 # refreshes. The scheduler runs hourly so caps are an upper bound on
 # throughput per hour.
+#
+# Tier 0 (S0055 — watchlist refresh): per-row cadence (6/24/48h) lives in
+# monitoring_refresh_schedule. The scheduler only enqueues due salons —
+# advance_monitoring_due is called from the post-scan hook, not here.
 TIER_BATCH_LIMIT: dict[int, int] = {
+    0: 100,
     1: 200,
     2: 500,
     3: 800,
@@ -63,7 +68,7 @@ TIER_BATCH_LIMIT: dict[int, int] = {
 
 @dataclass
 class ScheduleResult:
-    enqueued: dict[int, int] = field(default_factory=lambda: {1: 0, 2: 0, 3: 0})
+    enqueued: dict[int, int] = field(default_factory=lambda: {0: 0, 1: 0, 2: 0, 3: 0})
     suppressed_dupes: int = 0
     skipped_no_booksy_id: int = 0
 
@@ -94,6 +99,31 @@ def _enqueue(client: Client, booksy_id: int, tier: int) -> bool:
     ).execute()
     new_id = res.data
     return new_id is not None
+
+
+def _tier_zero_due(client: Client) -> list[int]:
+    """booksy_ids w monitoring_refresh_schedule z next_due_at <= NOW().
+
+    Resolver dla watchlist refresh (tier 0). Cadence per-row (6/24/48h)
+    siedzi w monitoring_refresh_schedule, NIE per-tier — schedule_due_refreshes
+    woła tylko enqueue, advance next_due_at robi post-scan hook
+    (advance_monitoring_due RPC w workers/scrape_refresh.py).
+
+    Returns [] gracefully if migration 126 nie została jeszcze applied
+    (RPC nie istnieje) — tier 1/2/3 jadą dalej normalnie.
+    """
+    try:
+        res = client.rpc(
+            "get_monitoring_due_booksy_ids",
+            {"p_limit": TIER_BATCH_LIMIT.get(0, 100)},
+        ).execute()
+        return [row["booksy_id"] for row in (res.data or []) if row.get("booksy_id")]
+    except Exception as e:  # noqa: BLE001
+        logger.warning(
+            "[refresh_scheduler] _tier_zero_due failed "
+            "(migration 126 may not be applied yet): %s", e,
+        )
+        return []
 
 
 def _tier_one_due(client: Client) -> list[int]:
@@ -243,7 +273,12 @@ def schedule_due_refreshes() -> ScheduleResult:
     client = _get_client()
     result = ScheduleResult()
 
+    # Tier 0 (S0055 watchlist refresh) MUST come first — priority=0 = lowest
+    # number = claim_salon_refresh_jobs ORDER BY priority ASC picks it first.
+    # Enqueueing first also lets the dedup-guard suppress lower-tier dupes
+    # rather than the other way around.
     tier_resolvers: list[tuple[int, list[int]]] = [
+        (0, _tier_zero_due(client)[: TIER_BATCH_LIMIT[0]]),
         (1, _tier_one_due(client)[: TIER_BATCH_LIMIT[1]]),
         (2, _tier_two_due(client)[: TIER_BATCH_LIMIT[2]]),
         (3, _tier_three_due(client, TIER_BATCH_LIMIT[3])),
@@ -266,8 +301,8 @@ def schedule_due_refreshes() -> ScheduleResult:
                 )
 
     logger.info(
-        "[refresh_scheduler] enqueued tier1=%d tier2=%d tier3=%d (dupes=%d, no-id=%d)",
-        result.enqueued[1], result.enqueued[2], result.enqueued[3],
+        "[refresh_scheduler] enqueued tier0=%d tier1=%d tier2=%d tier3=%d (dupes=%d, no-id=%d)",
+        result.enqueued.get(0, 0), result.enqueued[1], result.enqueued[2], result.enqueued[3],
         result.suppressed_dupes, result.skipped_no_booksy_id,
     )
     return result
