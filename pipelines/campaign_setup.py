@@ -187,6 +187,30 @@ async def setup_campaign_proposal(
         audit_id=audit_id,
     )
 
+    # FUNNEL_AUDIT R5: copy z wniosków audytu (LLM), szablon jako fallback.
+    # Kategorie HEALTH zawsze na szablonie compliance-safe — nie ryzykujemy
+    # generowanych obietnic w kategorii regulowanej.
+    audit_copy: dict[str, dict[str, str]] = {}
+    if audit_id and not is_health:
+        insights = await _load_audit_insights(audit_id)
+        if insights:
+            try:
+                audit_copy = await _generate_copy_from_audit(
+                    salon_name=scrape["salon_name"],
+                    category=primary_category,
+                    services=top_services[:3],
+                    insights=insights,
+                )
+                notes.append(
+                    f"Copy reklam z wniosków audytu {audit_id} "
+                    f"({len(audit_copy)} usług objętych)."
+                )
+            except Exception as e:  # noqa: BLE001
+                logger.warning("Audit copy generation failed: %s — template fallback", e)
+                notes.append(f"Copy z audytu nie powstało ({e}) — użyto szablonu.")
+        else:
+            notes.append("Brak użytecznych wniosków audytu — copy z szablonu.")
+
     # Generate creative variants for top 3 services
     creatives: list[dict[str, Any]] = []
     for svc in top_services[:3]:
@@ -198,13 +222,15 @@ async def setup_campaign_proposal(
                 price_pln=svc.get("price_pln"),
                 n_variants=n_creative_variants,
             )
+            svc_copy = audit_copy.get(svc["name"])
             for idx, image_bytes in enumerate(variants):
                 creatives.append({
                     "service": svc["name"],
                     "variant_idx": idx,
-                    "headline": _build_headline(svc, primary_category),
-                    "body": _build_body(svc, scrape["salon_name"], primary_category),
+                    "headline": svc_copy["headline"] if svc_copy else _build_headline(svc, primary_category),
+                    "body": svc_copy["body"] if svc_copy else _build_body(svc, scrape["salon_name"], primary_category),
                     "image_bytes": image_bytes,
+                    "copySource": "audit_llm" if svc_copy else "template",
                 })
         except Exception as e:  # noqa: BLE001
             logger.warning("Creative gen failed for %s: %s", svc["name"], e)
@@ -276,6 +302,112 @@ async def _fetch_top_services(
         }
         for r in rows[:5]
     ]
+
+
+# ── FUNNEL_AUDIT R5: copy z wniosków audytu zamiast szablonu ─────────
+# Kampania jest przedłużeniem raportu, za który klient zapłacił — copy ma
+# wynikać z realnych wniosków (pozycja cenowa, wyróżniki, quick wins),
+# nie z wzorca "Zarezerwuj X w Y". Szablon zostaje jako fallback i jako
+# jedyna ścieżka dla kategorii HEALTH (compliance-safe, zero ryzyka LLM).
+
+
+def extract_audit_insights(report: dict[str, Any] | None) -> dict[str, Any] | None:
+    """Kompaktowe insighty z raportu audytu pod prompt copy.
+
+    Czysta funkcja (testowalna): bierze dict raportu (kształt
+    EnhancedAuditReport z get_audit_report) i wyciąga tylko to, co może
+    realnie zabarwić copy. Zwraca None, gdy raportu brak/pusty.
+    """
+    if not report or not isinstance(report, dict):
+        return None
+    quick_wins = [
+        qw.get("title")
+        for qw in (report.get("quickWins") or [])[:4]
+        if isinstance(qw, dict) and qw.get("title")
+    ]
+    market_position = report.get("marketPosition")
+    summary = (report.get("summary") or "").strip()
+    insights = {
+        "totalScore": report.get("totalScore"),
+        "marketPosition": market_position,
+        "quickWins": quick_wins,
+        "summary": summary[:600],
+    }
+    if not any([quick_wins, market_position, summary]):
+        return None
+    return insights
+
+
+async def _load_audit_insights(audit_id: str) -> dict[str, Any] | None:
+    """Best-effort: pełny raport audytu → kompaktowe insighty."""
+    try:
+        from services.supabase import SupabaseService
+
+        report = await SupabaseService().get_audit_report(audit_id)
+        return extract_audit_insights(report)
+    except Exception as e:  # noqa: BLE001
+        logger.warning("Audit insights unavailable for %s: %s", audit_id, e)
+        return None
+
+
+async def _generate_copy_from_audit(
+    salon_name: str,
+    category: str,
+    services: list[dict[str, Any]],
+    insights: dict[str, Any],
+) -> dict[str, dict[str, str]]:
+    """Jeden call LLM → warianty copy per usługa, ugruntowane w audycie.
+
+    Zwraca mapę {nazwa usługi: {headline, body}}. Rzuca przy porażce —
+    caller wraca do szablonu (_build_headline/_build_body).
+    """
+    import json as _json
+
+    from services.minimax import MiniMaxClient
+
+    client = MiniMaxClient(
+        settings.minimax_api_key, settings.minimax_base_url, settings.minimax_model
+    )
+    services_block = "\n".join(
+        f"- {s['name']}" + (f" ({s['price_pln']} zł)" if s.get("price_pln") else "")
+        for s in services
+    )
+    prompt = (
+        "Napisz teksty reklam Meta (Facebook/Instagram) dla salonu beauty.\n\n"
+        f"SALON: {salon_name} (kategoria: {category})\n"
+        f"USŁUGI DO ZAREKLAMOWANIA:\n{services_block}\n\n"
+        f"WNIOSKI Z PŁATNEGO AUDYTU PROFILU (z nich czerp wyróżniki):\n"
+        f"{_json.dumps(insights, ensure_ascii=False)[:1500]}\n\n"
+        "ZASADY:\n"
+        "1. Dla KAŻDEJ usługi: headline (max 38 znaków) i body (110-200 znaków).\n"
+        "2. Wyłącznie polski. Zakaz prostych cudzysłowów \" — pisz «...».\n"
+        "3. Zero obietnic medycznych, superlatyw (najlepszy/najtańszy) i słów "
+        "typu natychmiast — polityka reklamowa Meta.\n"
+        "4. Liczby (ceny) TYLKO z listy usług powyżej. Nie wymyślaj rabatów.\n"
+        "5. Jeśli wnioski audytu dają wyróżnik (pozycja cenowa, mocna strona) — "
+        "wpleć go naturalnie; jeśli nie pasuje, pisz konkretnie o usłudze.\n"
+        "6. Miękkie CTA (zarezerwuj termin / sprawdź wolne terminy).\n\n"
+        'Zwróć JSON: {"copies": [{"service": "<dokładna nazwa z listy>", '
+        '"headline": "...", "body": "..."}]}'
+    )
+    result = await client.generate_json(
+        prompt, system="Jesteś copywriterem reklam Meta dla branży beauty."
+    )
+    out: dict[str, dict[str, str]] = {}
+    for item in result.get("copies") or []:
+        if not isinstance(item, dict):
+            continue
+        svc = (item.get("service") or "").strip()
+        headline = (item.get("headline") or "").strip()
+        body = (item.get("body") or "").strip()
+        if not (svc and headline and body):
+            continue
+        if len(headline) > 40:
+            headline = headline[:37] + "…"
+        out[svc] = {"headline": headline, "body": body[:300]}
+    if not out:
+        raise ValueError("LLM returned no usable ad copies")
+    return out
 
 
 def _build_headline(service: dict[str, Any], category: str) -> str:

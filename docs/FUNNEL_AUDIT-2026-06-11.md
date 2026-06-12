@@ -8,8 +8,11 @@
 > raportu nawet dla jego posiadaczy), ✅ R4 (outreach: salon_name/salon_city/desc_gap_pct
 > dociągane z salons→salon_scrapes→services, best-effort), ✅ P1-3 przy okazji (wzór
 > obowiązkowy dla estimatedRevenueImpactGrosze + zakaz prostych cudzysłowów + zero
-> powtórzeń między sekcjami w competitor_synthesis.txt). Otwarte: R5 (Meta Ads copy
-> z wniosków audytu), R6 (funnel_events).
+> powtórzeń między sekcjami w competitor_synthesis.txt), ✅ R5 (2026-06-12:
+> campaign_setup generuje copy reklam z wniosków audytu — extract_audit_insights +
+> 1 call LLM per proposal, copySource audit_llm|template per kreacja, HEALTH zawsze
+> na szablonie compliance-safe, fallback na szablon przy każdej porażce).
+> Otwarte: R6 (funnel_events).
 
 > Zasada nadrzędna (właściciel, 2026-06-11): BooksyAudit to JEDNA maszyna, a model sprzedażowy
 > to **TRÓJKĄT trzech RÓWNOWAŻNYCH produktów** — (1) audyt profilu z optymalizacją AI,
