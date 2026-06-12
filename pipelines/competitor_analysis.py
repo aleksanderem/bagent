@@ -26,6 +26,7 @@ from __future__ import annotations
 
 import logging
 import re
+import statistics
 import time
 from contextlib import asynccontextmanager
 from datetime import datetime, timezone
@@ -491,6 +492,9 @@ async def compute_competitor_analysis(
             audit_id=audit_id,
             tracer=tracer,
             method_classifier=method_classifier,
+            # S0064 — promote scope gate's LLM pair verification (variant
+            # tier). Same lazy singleton as tier-1 (linia ~1487 pattern).
+            llm_client=_get_hidden_inference_llm(),
         )
         pricing_rows = _dedup_pricing_rows(pricing_rows)
         n_pricing = await service.insert_competitor_pricing_comparisons(pricing_rows)
@@ -771,6 +775,144 @@ def _duration_bucket(duration_minutes: int | None) -> str:
     return "long"
 
 
+# S0064 (2026-06-12) — duration buckets mapped to ordinal indexes for the
+# promote scope gate. Adjacent buckets (distance 1) still compare —
+# 30 vs 45 min is a legit market spread; short (15) vs long (120) is not.
+_DURATION_BUCKET_INDEX: dict[str, int] = {"short": 0, "medium": 1, "long": 2}
+
+
+async def _apply_promote_scope_gates(
+    strong: list[dict[str, Any]],
+    *,
+    subject_name: str,
+    subject_duration_minutes: Any,
+    subj_brand_markers: set[str] | None,
+    booksy_treatment_id: int | None,
+    synthetic_treatment_id: int | None,
+    supabase: "SupabaseService | None",
+    llm_client: Any,
+    audit_id: str | None,
+    min_count: int,
+    min_unique_salons: int,
+) -> dict[str, Any]:
+    """Scope gates for the semantic promote path (S0064 audit fixes).
+
+    Pure embedding cosine accepts scope-mismatched samples (Botoks 1 vs 3
+    okolice 0.878, depilacja damska vs męska 0.888, manicure vs pedicure
+    0.721 — all above the 0.65 promote threshold). Before promoting
+    related_samples to direct comp samples, filter by:
+
+      1. brand marker (optional — tier-1 runs its own classifier-aware
+         method gate first, so it passes ``subj_brand_markers=None``);
+      2. duration bucket distance (>1 bucket apart = different scope;
+         pairs where either side lacks duration>0 pass through);
+      3. batch LLM pair verification via ``verify_service_pairs`` —
+         FAIL-CLOSED: missing llm_client or any verify exception means
+         NO promotion (the caller keeps related_samples soft).
+
+    The LLM round-trip is skipped when the post-prefilter sample set
+    already fails the >=min_count / >=min_unique_salons gate (the caller
+    will demote anyway).
+
+    Returns a dict:
+      strong — filtered sample list ([] on verify error → fail-closed),
+      brand_dropped / duration_dropped / llm_dropped — drop counters,
+      verify_error — str | None (set ⇒ outcome should be
+        ``promote_verify_error``).
+    """
+    info: dict[str, Any] = {
+        "brand_dropped": 0,
+        "duration_dropped": 0,
+        "llm_dropped": 0,
+        "verify_error": None,
+    }
+
+    # (1) Brand/method gate — same semantics as the tier-1 promote gate:
+    # when the subject carries a recognizable marker, samples must carry
+    # an intersecting marker; markerless samples drop too.
+    if subj_brand_markers:
+        kept: list[dict[str, Any]] = []
+        for s in strong:
+            marker = extract_brand_marker(s.get("service_name") or "")
+            if marker and marker in subj_brand_markers:
+                kept.append(s)
+        info["brand_dropped"] = len(strong) - len(kept)
+        strong = kept
+
+    # (2) Duration-bucket prefilter.
+    try:
+        subj_dur = int(subject_duration_minutes or 0)
+    except (TypeError, ValueError):
+        subj_dur = 0
+    if subj_dur > 0:
+        subj_idx = _DURATION_BUCKET_INDEX.get(_duration_bucket(subj_dur))
+        if subj_idx is not None:
+            kept = []
+            for s in strong:
+                raw_dur = s.get("duration_minutes")
+                try:
+                    s_dur = int(raw_dur or 0)
+                except (TypeError, ValueError):
+                    s_dur = 0
+                if s_dur <= 0:
+                    # Unknown duration — don't filter the pair.
+                    kept.append(s)
+                    continue
+                s_idx = _DURATION_BUCKET_INDEX.get(_duration_bucket(s_dur))
+                if s_idx is None or abs(subj_idx - s_idx) <= 1:
+                    kept.append(s)
+                else:
+                    info["duration_dropped"] += 1
+            strong = kept
+
+    # Skip the LLM round-trip when promotion is already impossible.
+    unique_salons = {
+        s.get("salon_id") for s in strong if s.get("salon_id") is not None
+    }
+    if len(strong) < min_count or len(unique_salons) < min_unique_salons:
+        info["strong"] = strong
+        return info
+
+    # (3) Batch LLM pair verification — FAIL-CLOSED.
+    if llm_client is None or supabase is None:
+        info["verify_error"] = (
+            "llm_client unavailable — fail-closed, no promotion"
+        )
+        strong = []
+    else:
+        try:
+            verified_map = await verify_service_pairs(
+                subject_service_name=subject_name,
+                candidate_competitor_names=[
+                    (s.get("service_name") or "") for s in strong
+                ],
+                booksy_treatment_id=booksy_treatment_id,
+                synthetic_treatment_id=synthetic_treatment_id,
+                supabase=supabase,
+                llm_client=llm_client,
+                audit_id=audit_id,
+            )
+        except Exception as e:
+            info["verify_error"] = str(e)[:500]
+            strong = []
+        else:
+            kept = []
+            for s in strong:
+                norm = _normalize_pair_name(s.get("service_name") or "")
+                verdict = verified_map.get(norm, {})
+                s["llm_verified"] = bool(verdict.get("is_comparable", True))
+                s["llm_reasoning"] = verdict.get("reasoning")
+                s["llm_rejection_reason"] = verdict.get("rejection_reason")
+                if s["llm_verified"]:
+                    kept.append(s)
+                else:
+                    info["llm_dropped"] += 1
+            strong = kept
+
+    info["strong"] = strong
+    return info
+
+
 def _active_services_with_variant(
     services: list[dict[str, Any]],
 ) -> dict[tuple[int, int, str], dict[str, Any]]:
@@ -921,6 +1063,7 @@ async def _compute_pricing_comparisons(
     audit_id: str | None = None,
     tracer: TraceWriter | None = None,
     method_classifier: "MethodClassifier | None" = None,
+    llm_client: GeminiLLMClient | None = None,
 ) -> list[dict[str, Any]]:
     """Compute per-variant pricing comparison rows (Phase 5 + mig 064 verify).
 
@@ -1106,7 +1249,7 @@ async def _compute_pricing_comparisons(
             # patterns. Embedding works on any service name including typos.
             #
             # Faza 4b — when ≥STRONG_MIN_COUNT (3) embedding matches have
-            # similarity ≥ STRONG_MIN_SIMILARITY (0.78), promote them from
+            # similarity ≥ STRONG_MIN_SIMILARITY (0.65), promote them from
             # soft `related_samples` to direct `samples` so the pricing
             # engine computes actual market percentiles, deviation, and
             # recommended_action. Without this, "Red Touch twarz + szyja
@@ -1133,13 +1276,62 @@ async def _compute_pricing_comparisons(
                 s for s in semantic_results
                 if (s.get("similarity") or 0) >= STRONG_MIN_SIMILARITY
             ]
+            # S0064 (2026-06-12) — promote scope gates. Pure cosine ≥0.65
+            # accepts scope-mismatched samples (Botoks 1 vs 3 okolice
+            # 0.878, damska vs męska 0.888, manicure vs pedicure 0.721).
+            # Gate by brand marker (extract_brand_marker fallback both
+            # sides — _classified_methods lives in tier-1 scope only),
+            # duration bucket, and batch LLM pair verification
+            # (fail-closed) BEFORE the >=3 strong / >=2 salons re-gate.
+            _gate = await _apply_promote_scope_gates(
+                strong,
+                subject_name=subj_name,
+                subject_duration_minutes=subject_svc.get("duration_minutes"),
+                subj_brand_markers=(
+                    {subject_brand} if subject_brand else None
+                ),
+                booksy_treatment_id=tid,
+                synthetic_treatment_id=None,
+                supabase=service,
+                llm_client=llm_client,
+                audit_id=audit_id,
+                min_count=STRONG_MIN_COUNT,
+                min_unique_salons=STRONG_MIN_UNIQUE_SALONS,
+            )
+            strong = _gate["strong"]
             strong_unique_salons = {
                 s.get("salon_id") for s in strong if s.get("salon_id") is not None
             }
-            if (
+            _promote_ok = (
                 len(strong) >= STRONG_MIN_COUNT
                 and len(strong_unique_salons) >= STRONG_MIN_UNIQUE_SALONS
-            ):
+            )
+            if tracer is not None:
+                tracer.add(
+                    step="market_context.promote_gate",
+                    data={
+                        "tier": "variant",
+                        "tid": tid,
+                        "variant_id": variant_id,
+                        "subject_service_id": subj_service_id,
+                        "subject_name": subj_name[:200],
+                        "brand_dropped": _gate["brand_dropped"],
+                        "duration_dropped": _gate["duration_dropped"],
+                        "llm_dropped": _gate["llm_dropped"],
+                        "post_filter_strong": len(strong),
+                        "post_filter_unique_salons": len(strong_unique_salons),
+                        "outcome": (
+                            "promote_verify_error"
+                            if _gate["verify_error"]
+                            else ("promoted" if _promote_ok else "demoted_after_gates")
+                        ),
+                        **(
+                            {"error": _gate["verify_error"]}
+                            if _gate["verify_error"] else {}
+                        ),
+                    },
+                )
+            if _promote_ok:
                 # Promote to comp samples — engine computes real pricing
                 # comparison. Map embedding sample shape to comp sample shape
                 # (add name_similarity = similarity, brand_marker computed at
@@ -2286,9 +2478,9 @@ async def _compute_treatment_tier_rows(
             for s in subj_svcs
             if s.get("duration_minutes") and s["duration_minutes"] > 0
         ]
-        subj_median_price = sorted(subj_prices)[len(subj_prices) // 2]
+        subj_median_price = statistics.median(subj_prices)
         subj_median_ppm = (
-            round(sorted(subj_ppms)[len(subj_ppms) // 2], 2)
+            round(statistics.median(subj_ppms), 2)
             if subj_ppms else None
         )
 
@@ -2309,7 +2501,7 @@ async def _compute_treatment_tier_rows(
         # Subject-only at tier-1 = no competitor offers anything in this tid.
         if not comp_samples:
             # 2026-05-17 Faza 4 — embedding-cosine semantic match via RPC.
-            # Faza 4b — promote strong matches (≥3 with sim ≥ 0.78) to
+            # Faza 4b — promote strong matches (≥3 with sim ≥ 0.65) to
             # direct comp_samples instead of soft related_samples, so the
             # pricing engine computes percentiles+deviation+action against
             # them. See services.market_context for thresholds.
@@ -2397,10 +2589,74 @@ async def _compute_treatment_tier_rows(
                             pre_brand_count,
                             canonical_name[:60],
                         )
+                # S0064 (2026-06-12) — scope gates on the tier-1 promote
+                # path: duration-bucket prefilter + batch LLM pair
+                # verification (fail-closed). The classifier-aware method
+                # gate above already handled brand scope, so the shared
+                # helper runs with the brand gate disabled. The existing
+                # count/salons gate below acts as the re-gate.
+                _t1_brand_dropped = (
+                    pre_brand_count - len(strong_t1)
+                    if _subj_methods_promote else 0
+                )
+                _t1_gate = await _apply_promote_scope_gates(
+                    strong_t1,
+                    subject_name=canonical_name,
+                    subject_duration_minutes=subj_svcs[0].get(
+                        "duration_minutes"
+                    ),
+                    subj_brand_markers=None,
+                    booksy_treatment_id=(
+                        tid_value if tid_kind == "booksy" else None
+                    ),
+                    synthetic_treatment_id=(
+                        tid_value if tid_kind == "synthetic" else None
+                    ),
+                    supabase=supabase,
+                    llm_client=llm_client,
+                    audit_id=audit_id,
+                    min_count=STRONG_MIN_COUNT,
+                    min_unique_salons=STRONG_MIN_UNIQUE_SALONS,
+                )
+                strong_t1 = _t1_gate["strong"]
                 strong_t1_unique_salons = {
                     s.get("salon_id") for s in strong_t1
                     if s.get("salon_id") is not None
                 }
+                if tracer is not None:
+                    tracer.add(
+                        step="market_context.promote_gate",
+                        data={
+                            "tier": "treatment",
+                            "tid_kind": tid_kind,
+                            "tid_value": tid_value,
+                            "subject_name": canonical_name[:200],
+                            "brand_dropped": _t1_brand_dropped,
+                            "duration_dropped": _t1_gate["duration_dropped"],
+                            "llm_dropped": _t1_gate["llm_dropped"],
+                            "post_filter_strong": len(strong_t1),
+                            "post_filter_unique_salons": len(
+                                strong_t1_unique_salons
+                            ),
+                            "outcome": (
+                                "promote_verify_error"
+                                if _t1_gate["verify_error"]
+                                else (
+                                    "promoted"
+                                    if (
+                                        len(strong_t1) >= STRONG_MIN_COUNT
+                                        and len(strong_t1_unique_salons)
+                                        >= STRONG_MIN_UNIQUE_SALONS
+                                    )
+                                    else "demoted_after_gates"
+                                )
+                            ),
+                            **(
+                                {"error": _t1_gate["verify_error"]}
+                                if _t1_gate["verify_error"] else {}
+                            ),
+                        },
+                    )
                 if (
                     len(strong_t1) >= STRONG_MIN_COUNT
                     and len(strong_t1_unique_salons) >= STRONG_MIN_UNIQUE_SALONS

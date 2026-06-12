@@ -86,8 +86,8 @@ async def gather_market_context_samples(
         need to ship the 1536-dim vector.
       competitor_booksy_ids: scope to chain-head scrapes of these salons
         (typically the 15 selected competitors for the report).
-      limit: cap on rows returned (default 30).
-      min_similarity: cosine similarity floor [0, 1] (default 0.75).
+      limit: cap on rows returned (default 20).
+      min_similarity: cosine similarity floor [0, 1] (default 0.55).
 
     Returns:
       List of sample dicts matching competitor_pricing_comparisons.
