@@ -183,6 +183,20 @@ async def apply_purchase_transitions(ctx: dict[str, Any]) -> dict[str, int]:
             "monitoring": "monitoring",
         }.get(row["funnel"], "audit")
 
+        # FUNNEL_AUDIT R6: atrybuowany zakup = zdarzenie lejka (idempotentnie
+        # po kontakcie i audycie; zapis best-effort).
+        from services.funnel_events import record_funnel_event
+
+        record_funnel_event(
+            sb,
+            event_type=f"purchase_attributed_{product_kind}",
+            source="outreach",
+            dedupe_key=f"purchase_attr:{contact_id}:{audit_id or 'none'}:{product_kind}",
+            contact_id=contact_id,
+            audit_id=audit_id,
+            metadata={"funnel": row["funnel"]},
+        )
+
         applicable = [t for t in PURCHASE_TRANSITIONS if t[0] == product_kind]
         for _kind, target_funnel, target_state, delay_h in applicable:
             # Idempotency: skip if already in this state.

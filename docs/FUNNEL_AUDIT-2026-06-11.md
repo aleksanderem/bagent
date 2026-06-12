@@ -12,7 +12,13 @@
 > campaign_setup generuje copy reklam z wniosków audytu — extract_audit_insights +
 > 1 call LLM per proposal, copySource audit_llm|template per kreacja, HEALTH zawsze
 > na szablonie compliance-safe, fallback na szablon przy każdej porażce).
-> Otwarte: R6 (funnel_events).
+> ✅ R6-kod (2026-06-12: services/funnel_events.py — idempotentny zapis po
+> dedupe_key, best-effort; wpięte 3 źródła: wintact webhook → outreach_click/
+> outreach_reply, campaign_tasks → ad_attribution, state_transition_processor →
+> purchase_attributed_*; schemat deploy/sql/2026-06-12_funnel_events.sql).
+> Otwarte po R6: (a) APLIKACJA tabeli na Supabase — jednorazowo, wymaga zgody;
+> (b) zakupy wprost z Convex (nie-atrybuowane) — wpięcie po stronie BEAUTY_AUDIT
+> (webhook/cron piszący purchase_* do funnel_events).
 
 > Zasada nadrzędna (właściciel, 2026-06-11): BooksyAudit to JEDNA maszyna, a model sprzedażowy
 > to **TRÓJKĄT trzech RÓWNOWAŻNYCH produktów** — (1) audyt profilu z optymalizacją AI,

@@ -2118,6 +2118,19 @@ async def _process_wintact_event(payload: dict) -> None:
         logger.error("Wintact webhook: outreach_messages patch failed: %s", exc)
         return
 
+    # FUNNEL_AUDIT R6: klik/odpowiedź to zdarzenia lejka — jednolity strumień
+    # w funnel_events (idempotentnie po message id; zapis best-effort).
+    if event_type in ("email.clicked", "email.replied"):
+        from services.funnel_events import record_funnel_event
+
+        record_funnel_event(
+            sb,
+            event_type="outreach_click" if event_type == "email.clicked" else "outreach_reply",
+            source="outreach",
+            dedupe_key=f"{event_type}:{wintact_message_id}",
+            metadata={"wintact_message_id": wintact_message_id},
+        )
+
     # 3. Cascading state effects: unsubscribe / complaint must close out
     # all active states for this contact across funnels.
     if event_type in ("email.unsubscribed", "email.complained"):

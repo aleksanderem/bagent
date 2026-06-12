@@ -367,6 +367,23 @@ async def attribute_bookings(ctx: dict[str, Any]) -> dict[str, int]:
             "click_to_booking_hours": float(click.get("hours_ago", 0)),
         }).execute()
 
+        # FUNNEL_AUDIT R6: atrybucja = zdarzenie lejka (idempotentnie po
+        # click_id + scrape pair; zapis best-effort).
+        from services.funnel_events import record_funnel_event
+
+        record_funnel_event(
+            sb,
+            event_type="ad_attribution",
+            source="meta_ads",
+            dedupe_key=f"ad_attr:{click['click_id']}:{pair['current_scrape_id']}",
+            campaign_id=click.get("utm_campaign"),
+            metadata={
+                "booksy_id": booksy_id,
+                "signal_type": signal_type,
+                "utm_term": click.get("utm_term"),
+            },
+        )
+
         # Mirror event to Convex if utm_campaign matches a known campaign
         if click.get("utm_campaign"):
             try:
