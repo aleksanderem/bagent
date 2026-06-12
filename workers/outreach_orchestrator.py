@@ -357,7 +357,7 @@ async def _send_one(
         return {"sent": 0, "skipped_caps": 1}
 
     # 5. Build template variables (pull from contact + salon + state)
-    variables = _build_template_variables(contact, template)
+    variables = _build_template_variables(contact, template, sb=sb)
     utm = {
         "utm_source": settings.outreach_utm_source,
         "utm_medium": "email",
@@ -462,24 +462,76 @@ def _pick_next_step(
     return None, "no_predicate_matched"
 
 
-def _build_template_variables(contact: dict[str, Any], template: dict[str, Any]) -> dict[str, Any]:
+def _build_template_variables(
+    contact: dict[str, Any],
+    template: dict[str, Any],
+    sb: Any = None,
+) -> dict[str, Any]:
     """Build {{variable}} substitutions for transactional.send.
 
-    Pulls from contact row directly. Salon-level enrichment (city,
-    desc_gap_pct, top_missing_service, nearest_competitor) is NOT
-    eagerly joined here — production should add a denormalized
-    snapshot column to outreach_contacts or query salons by
-    salon_ref_id. For now we cover the universal variables.
+    FUNNEL_AUDIT R4: salon-level enrichment (salon_name, salon_city,
+    desc_gap_pct) dociągany best-effort z salons → najnowszy salon_scrapes
+    → salon_scrape_services. Wcześniej te zmienne były PUSTE i cold maile
+    wychodziły generyczne. Awaria joinu nie blokuje wysyłki — wracamy do
+    pustych stringów (szablony muszą znosić brak zmiennej tak jak dotąd).
     """
     full_name = " ".join(filter(None, [contact.get("first_name"), contact.get("last_name")])).strip()
+
+    salon_name = ""
+    salon_city = ""
+    desc_gap_pct = ""
+    if sb is not None and contact.get("salon_ref_id"):
+        try:
+            salon_res = (
+                sb.table("salons")
+                .select("booksy_id")
+                .eq("id", contact["salon_ref_id"])
+                .single()
+                .execute()
+            )
+            booksy_id = (salon_res.data or {}).get("booksy_id")
+            if booksy_id:
+                scrape_res = (
+                    sb.table("salon_scrapes")
+                    .select("id, salon_name, salon_city")
+                    .eq("booksy_id", booksy_id)
+                    .order("scraped_at", desc=True)
+                    .limit(1)
+                    .execute()
+                )
+                if scrape_res.data:
+                    row = scrape_res.data[0]
+                    salon_name = row.get("salon_name") or ""
+                    salon_city = row.get("salon_city") or ""
+                    scrape_id = row.get("id")
+                    if scrape_id is not None:
+                        svc = (
+                            sb.table("salon_scrape_services")
+                            .select("description")
+                            .eq("scrape_id", scrape_id)
+                            .limit(1000)
+                            .execute()
+                        )
+                        rows = svc.data or []
+                        if rows:
+                            missing = sum(
+                                1 for s in rows if not (s.get("description") or "").strip()
+                            )
+                            desc_gap_pct = str(round(missing * 100 / len(rows)))
+        except Exception as e:  # noqa: BLE001
+            logger.warning(
+                "outreach: salon enrichment failed (best-effort, contact=%s): %s",
+                contact.get("id"), e,
+            )
+
     return {
         "greeting": contact.get("greeting") or "Pani / Panie",
         "first_name": contact.get("first_name") or "",
         "last_name": contact.get("last_name") or "",
         "full_name": full_name,
-        "salon_name": "",        # TODO: join salons.name via salon_ref_id
-        "salon_city": "",        # TODO: join salons.salon_city
-        "desc_gap_pct": "",      # TODO: latest diff snapshot
+        "salon_name": salon_name,
+        "salon_city": salon_city,
+        "desc_gap_pct": desc_gap_pct,
     }
 
 

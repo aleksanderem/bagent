@@ -240,6 +240,25 @@ async def synthesize_competitor_insights(
 
     # ── Step 2: Build prompt context ──
     await progress(25, "Budowanie kontekstu dla MiniMax...")
+
+    # FUNNEL_AUDIT R1+R3: kontekst trójkąta produktów (best-effort).
+    product_context_block = ""
+    try:
+        from services.product_context import (
+            build_prompt_block,
+            load_product_context_for_audit,
+        )
+
+        if _synthesis_audit_id:
+            product_ctx = await load_product_context_for_audit(
+                service, _synthesis_audit_id
+            )
+            product_context_block = build_prompt_block(product_ctx)
+    except Exception as e:  # noqa: BLE001
+        logger.warning(
+            "Etap 5: product_context unavailable (best-effort): %s", e
+        )
+
     context = _build_synthesis_prompt_context(
         report=report,
         subject_context=subject_context,
@@ -247,6 +266,7 @@ async def synthesize_competitor_insights(
         pricing=pricing,
         gaps=gaps,
         dimensions=dimensions,
+        product_context_block=product_context_block,
     )
 
     # Collect valid IDs so we can validate source references the agent returns
@@ -425,6 +445,12 @@ async def synthesize_competitor_insights(
         # computed from the full deterministic sample. Empty list (never
         # omitted) in auto mode / when no picks survived.
         "userSelectedCompetitorIds": user_selected_in_report,
+        # FINDINGS P1-2 + P1-5: jawny status degradacji syntezy. Frontend może
+        # pokazać "wersja awaryjna" zamiast udawać pełny raport; ops widzi
+        # skalę dropów sanitizera bez grzebania w logach.
+        "synthesisSource": fallback_source or "minimax",
+        "sanitizerDropped": insights.get("sanitizerDropped")
+        or {"swotDropped": 0, "recommendationsDropped": 0},
     }
     if calendar_comparison is not None:
         persistence_payload["calendarComparison"] = calendar_comparison
@@ -523,6 +549,7 @@ def _build_synthesis_prompt_context(
     pricing: list[dict[str, Any]],
     gaps: list[dict[str, Any]],
     dimensions: list[dict[str, Any]],
+    product_context_block: str = "",
 ) -> str:
     """Format the raw data into the prompt template.
 
@@ -671,6 +698,9 @@ def _build_synthesis_prompt_context(
         ("pricing_insights", pricing_block),
         ("gap_insights", gap_block),
         ("dimensional_insights", dim_block),
+        # FUNNEL_AUDIT R1: blok trójkąta produktów (pusty string gdy
+        # niedostępny — placeholder znika z promptu bez śladu).
+        ("product_context", product_context_block),
     ]:
         result = result.replace(f"{{{key}}}", value)
     return result
@@ -950,10 +980,30 @@ def _sanitize_insights(
     if len(narrative) > 800:
         narrative = narrative[:800]
 
+    # FINDINGS P1-5: liczniki dropów — degradacja nie może być niewidoczna.
+    # Raport z 1-punktowym SWOT-em po cichym wycięciu 3 punktów wygląda jak
+    # "model mało znalazł"; licznik pozwala UI/ops odróżnić te przypadki.
+    raw_swot_count = sum(
+        len(insights["swot"].get(k, []) or []) for k in sanitized_swot.keys()
+    )
+    kept_swot_count = sum(len(v) for v in sanitized_swot.values())
+    raw_recs_count = len(insights.get("recommendations") or [])
+    dropped = {
+        "swotDropped": raw_swot_count - kept_swot_count,
+        "recommendationsDropped": raw_recs_count - len(sanitized_recs),
+    }
+    if dropped["swotDropped"] or dropped["recommendationsDropped"]:
+        logger.warning(
+            "Sanitizer dropped: swot=%d/%d, recommendations=%d/%d",
+            dropped["swotDropped"], raw_swot_count,
+            dropped["recommendationsDropped"], raw_recs_count,
+        )
+
     return {
         "positioning_narrative": narrative,
         "swot": sanitized_swot,
         "recommendations": sanitized_recs,
+        "sanitizerDropped": dropped,
     }
 
 

@@ -1,5 +1,16 @@
 # bagent — Beauty Audit AI Analyzer
 
+> **⚠️ AKTUALNE ŹRÓDŁO PRAWDY: [docs/SYSTEM_MAP-2026-06-11.md](docs/SYSTEM_MAP-2026-06-11.md)**
+> Ten plik powstał przed migracją na arq workers i NIE opisuje dzisiejszego stanu:
+> taski produkcyjne biegną w arq (workers/), nie w FastAPI BackgroundTasks; layout
+> pipelines/ się zmienił (report.py, free_report.py — zamrożony, summary.py,
+> competitor_report.py + synthesis); doszły podsystemy outreach (wintact), Meta Ads,
+> discovery pump i monitoring tier 0-3. Mapa endpointów, kontrakty webhooków, env
+> i observability — wszystko w SYSTEM_MAP. Znane problemy i statusy napraw:
+> [docs/FINDINGS-2026-06-11.md](docs/FINDINGS-2026-06-11.md); zasady lejka/trójkąta:
+> [docs/FUNNEL_AUDIT-2026-06-11.md](docs/FUNNEL_AUDIT-2026-06-11.md); statusy promptów:
+> [prompts/README.md](prompts/README.md). Sekcje poniżej traktuj jako tło historyczne.
+
 Python FastAPI service that runs AI analysis pipelines for BeautyAudit salons using MiniMax M2.7 with tool_use agent loops. Replaces Convex-side AI analysis which had a 600s timeout limit. Deployed alongside bextract on api.booksyaudit.pl.
 
 Three pipelines: audit analysis (10 steps), competitor report (12 steps), pricelist optimization (8 steps). All share the same agent loop, MiniMax client, job store, SSE dashboard, and Convex webhook infrastructure.

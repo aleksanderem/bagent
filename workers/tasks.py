@@ -40,6 +40,8 @@ from typing import Any
 
 from arq.connections import ArqRedis
 
+from services.error_codes import coded_message
+
 logger = logging.getLogger("bagent.workers.tasks")
 
 
@@ -118,7 +120,7 @@ async def run_report_task(ctx: dict[str, Any], request: dict[str, Any]) -> dict[
         if inline_scrape:
             raw_scraped = inline_scrape
         else:
-            supabase = SupabaseService()
+            supabase = ctx.get("supabase") or SupabaseService()
             raw_scraped = await supabase.get_scraped_data(audit_id)
             if not raw_scraped:
                 raise RuntimeError(
@@ -137,7 +139,7 @@ async def run_report_task(ctx: dict[str, Any], request: dict[str, Any]) -> dict[
 
         report = await run_audit_pipeline(scraped_data, audit_id, on_progress)
 
-        supabase = SupabaseService()
+        supabase = ctx.get("supabase") or SupabaseService()
         await supabase.save_report(
             convex_audit_id=audit_id,
             convex_user_id=user_id,
@@ -169,14 +171,14 @@ async def run_report_task(ctx: dict[str, Any], request: dict[str, Any]) -> dict[
         logger.info("[%s] run_report_task cancelled by user", job_id)
         await clear_cancel_flag(ctx["redis"], job_id)
         try:
-            await convex.report_fail(audit_id, "Cancelled by user")
+            await convex.report_fail(audit_id, "[CANCELLED] Anulowane przez użytkownika")
         except Exception:  # noqa: BLE001
             pass
         raise
     except Exception as e:
         logger.error("[%s] run_report_task failed: %s", job_id, e, exc_info=True)
         try:
-            await convex.report_fail(audit_id, str(e))
+            await convex.report_fail(audit_id, coded_message(e))
         except Exception:  # noqa: BLE001
             pass
         raise
@@ -185,6 +187,28 @@ async def run_report_task(ctx: dict[str, Any], request: dict[str, Any]) -> dict[
 # ---------------------------------------------------------------------------
 # Task #2: free_report — frozen BAGENT #1 snapshot
 # ---------------------------------------------------------------------------
+
+def _free_report_next_step_footer(report: dict[str, Any]) -> str:
+    """FUNNEL_AUDIT R2: jedno zdanie next-step dobrane do znalezisk darmowego
+    raportu. Trójkąt produktów jest równoważny — wybieramy wierzchołek,
+    do którego znaleziska prowadzą najnaturalniej (sygnały cenowe → raport
+    konkurencji; problemy treści profilu → pełny audyt z optymalizacją)."""
+    issues = report.get("topIssues") or []
+    n_issues = len(issues)
+    pricing_signals = sum(1 for i in issues if i.get("dimension") == "pricing")
+    score = report.get("totalScore", 0)
+    if pricing_signals >= 2:
+        return (
+            f" Darmowy audyt wskazał {n_issues} obszarów do poprawy — w tym sygnały cenowe. "
+            "Raport konkurencji pokaże, jak Twoje ceny i oferta wypadają na tle salonów "
+            "w okolicy, i wskaże luki, które możesz zająć."
+        )
+    return (
+        f" Darmowy audyt znalazł {n_issues} obszarów do poprawy (wynik {score}/100). "
+        "Pełny audyt z optymalizacją AI przygotuje gotowe nazwy i opisy usług — "
+        "do wdrożenia jednym kliknięciem."
+    )
+
 
 async def run_free_report_task(ctx: dict[str, Any], request: dict[str, Any]) -> dict[str, Any]:
     """Free-tier mirror of run_report_task using pipelines.free_report.
@@ -211,7 +235,7 @@ async def run_free_report_task(ctx: dict[str, Any], request: dict[str, Any]) -> 
         if inline_scrape:
             raw_scraped = inline_scrape
         else:
-            supabase = SupabaseService()
+            supabase = ctx.get("supabase") or SupabaseService()
             raw_scraped = await supabase.get_scraped_data(audit_id)
             if not raw_scraped:
                 raise RuntimeError(
@@ -230,7 +254,16 @@ async def run_free_report_task(ctx: dict[str, Any], request: dict[str, Any]) -> 
 
         report = await run_free_report_pipeline(scraped_data, audit_id, on_progress)
 
-        supabase = SupabaseService()
+        # FUNNEL_AUDIT R2: free report = wejście do trójkąta, nie ślepa
+        # uliczka. Deterministyczna stopka next-step dobrana do znalezisk,
+        # doklejana TUTAJ (wrapper) — zamrożony pipelines/free_report.py
+        # pozostaje nietknięty (kontrakt z docs/free_report.md).
+        try:
+            report["summary"] = (report.get("summary") or "") + _free_report_next_step_footer(report)
+        except Exception as e:  # noqa: BLE001
+            logger.warning("[%s] free report footer failed (best-effort): %s", job_id, e)
+
+        supabase = ctx.get("supabase") or SupabaseService()
         await supabase.save_report(
             convex_audit_id=audit_id,
             convex_user_id=user_id,
@@ -262,14 +295,14 @@ async def run_free_report_task(ctx: dict[str, Any], request: dict[str, Any]) -> 
         logger.info("[%s] run_free_report_task cancelled by user", job_id)
         await clear_cancel_flag(ctx["redis"], job_id)
         try:
-            await convex.report_fail(audit_id, "Cancelled by user")
+            await convex.report_fail(audit_id, "[CANCELLED] Anulowane przez użytkownika")
         except Exception:  # noqa: BLE001
             pass
         raise
     except Exception as e:
         logger.error("[%s] run_free_report_task failed: %s", job_id, e, exc_info=True)
         try:
-            await convex.report_fail(audit_id, str(e))
+            await convex.report_fail(audit_id, coded_message(e))
         except Exception:  # noqa: BLE001
             pass
         raise
@@ -322,14 +355,14 @@ async def run_cennik_task(ctx: dict[str, Any], request: dict[str, Any]) -> dict[
         logger.info("[%s] run_cennik_task cancelled by user", job_id)
         await clear_cancel_flag(ctx["redis"], job_id)
         try:
-            await convex.cennik_fail(audit_id, "Cancelled by user")
+            await convex.cennik_fail(audit_id, "[CANCELLED] Anulowane przez użytkownika")
         except Exception:  # noqa: BLE001
             pass
         raise
     except Exception as e:
         logger.error("[%s] run_cennik_task failed: %s", job_id, e, exc_info=True)
         try:
-            await convex.cennik_fail(audit_id, str(e))
+            await convex.cennik_fail(audit_id, coded_message(e))
         except Exception:  # noqa: BLE001
             pass
         raise
@@ -386,14 +419,14 @@ async def run_summary_task(ctx: dict[str, Any], request: dict[str, Any]) -> dict
         logger.info("[%s] run_summary_task cancelled by user", job_id)
         await clear_cancel_flag(ctx["redis"], job_id)
         try:
-            await convex.summary_fail(audit_id, "Cancelled by user")
+            await convex.summary_fail(audit_id, "[CANCELLED] Anulowane przez użytkownika")
         except Exception:  # noqa: BLE001
             pass
         raise
     except Exception as e:
         logger.error("[%s] run_summary_task failed: %s", job_id, e, exc_info=True)
         try:
-            await convex.summary_fail(audit_id, str(e))
+            await convex.summary_fail(audit_id, coded_message(e))
         except Exception:  # noqa: BLE001
             pass
         raise
@@ -470,14 +503,14 @@ async def run_competitor_report_task(ctx: dict[str, Any], request: dict[str, Any
         logger.info("[%s] run_competitor_report_task cancelled by user", job_id)
         await clear_cancel_flag(ctx["redis"], job_id)
         try:
-            await convex.competitor_report_fail(audit_id, "Cancelled by user")
+            await convex.competitor_report_fail(audit_id, "[CANCELLED] Anulowane przez użytkownika")
         except Exception:  # noqa: BLE001
             pass
         raise
     except Exception as e:
         logger.error("[%s] run_competitor_report_task failed: %s", job_id, e, exc_info=True)
         try:
-            await convex.competitor_report_fail(audit_id, str(e))
+            await convex.competitor_report_fail(audit_id, coded_message(e))
         except Exception:  # noqa: BLE001
             pass
         raise

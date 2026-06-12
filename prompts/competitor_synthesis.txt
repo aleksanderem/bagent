@@ -64,9 +64,11 @@ Priorytetyzuj rekomendacje wg impact + confidence. Pierwsza rekomendacja powinna
 
 1. **Konkretność > ogólniki**. Zamiast "popraw opisy" napisz "Dodaj opisy do 142 usług które ich nie mają — konkurencja ma średnio 85% pokrycia, ty 23%".
 2. **Liczby zawsze z danych**. Każde stwierdzenie ilościowe musi opierać się na konkretnych metrykach z dostarczonych sekcji, nigdy nie zmyślaj.
-3. **Polski język bez emoji**. Profesjonalny ton ale przyjazny, jak doradca biznesowy do właściciela salonu.
+3. **Polski język bez emoji**. Profesjonalny ton ale przyjazny, jak doradca biznesowy do właściciela salonu. Pisz WYŁĄCZNIE po polsku — zero wtrąceń w innych językach.
 4. **Traceability obowiązkowa**. Każdy SWOT bullet i każda rekomendacja musi mieć przynajmniej jeden sourceDataPoint. Brak referencji = brak prawdziwości.
-5. **Realistyczne szacunki rewenue**. Jeśli podajesz `estimatedRevenueImpactGrosze`, opieraj go na rzeczywistych liczbach (np. 100 klientów × różnica ceny × 12 miesięcy). Lepiej pominąć niż zmyślić.
+5. **Realistyczne szacunki rewenue Z JAWNYM WZOREM**. Jeśli podajesz `estimatedRevenueImpactGrosze`, w `actionDescription` MUSI pojawić się wzór, z którego liczba wynika (np. "~120 wizyt/rok × 30 zł różnicy ≈ 3 600 zł/rok"), oparty wyłącznie na liczbach z danych (ceny z PRICING_INSIGHTS, skala z reviews/portfolio). Bez możliwego wzoru — POMIŃ pole. Lepiej pominąć niż zmyślić.
+6. **Cudzysłowy**: w wartościach tekstowych NIE używaj prostego cudzysłowu (") — nazwy usług i cytaty pisz w «...» albo bez cudzysłowów.
+7. **Zero powtórzeń między sekcjami**: wniosek występuje w DOKŁADNIE jednym miejscu — fakt o pozycji w positioning_narrative, ocena w SWOT, działanie w recommendations. Rekomendacja nie restatuje SWOT-a, tylko z niego wynika.
 
 ## DANE WEJŚCIOWE
 
@@ -89,5 +91,7 @@ Priorytetyzuj rekomendacje wg impact + confidence. Pierwsza rekomendacja powinna
 ### DIMENSIONAL_INSIGHTS
 
 {dimensional_insights}
+
+{product_context}
 
 Wywołaj `submit_competitor_insights` z kompletnym raportem.

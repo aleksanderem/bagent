@@ -183,6 +183,7 @@ async def _generate_summary_text(
     key_wins: list[dict[str, Any]],
     stats: dict[str, Any],
     optimization_applied: bool,
+    product_context_block: str = "",
 ) -> str:
     """Generate the narrative summary text via MiniMax.
 
@@ -243,6 +244,11 @@ async def _generate_summary_text(
         names_improved=str(stats.get("namesImproved", 0)),
         descriptions_added=str(stats.get("descriptionsAdded", 0)),
     )
+    # FUNNEL_AUDIT R1: kontekst trójkąta produktów — narracja wie, które
+    # wierzchołki klient ma, referuje zamiast powtarzać i wzmiankuje brakujące
+    # wyłącznie merytorycznie (zasady w bloku).
+    if product_context_block:
+        full_prompt = f"{full_prompt}\n\n{product_context_block}"
 
     system_msg = (
         "Jesteś ekspertem od audytów cenników beauty i copywriterem. "
@@ -378,6 +384,14 @@ async def run_summary_pipeline(
     optimization_applied = bool(optimized_data) and int(
         optimized_data.get("total_changes", 0) or 0
     ) > 0
+
+    # FUNNEL_AUDIT R1+R3: kontekst trójkąta produktów (best-effort — przy
+    # awarii checków traktujemy wierzchołki jako nieznane/brakujące).
+    from services.product_context import build_prompt_block, load_product_context
+
+    product_ctx = await load_product_context(supabase, user_id)
+    product_context_block = build_prompt_block(product_ctx)
+
     await progress(
         75,
         f"Generowanie narracji podsumowania (optimization_applied={optimization_applied})...",
@@ -391,14 +405,30 @@ async def run_summary_pipeline(
         key_wins=key_wins,
         stats=stats,
         optimization_applied=optimization_applied,
+        product_context_block=product_context_block,
     )
     dt = int((time.time() - t0) * 1000)
     await progress(85, f"Narracja wygenerowana: {len(summary_text)} znaków ({dt}ms)")
 
-    cta_text = (
-        "Chcesz pełnej analizy konkurencji? SWOT, ranking lokalny, rekomendacje "
-        "strategiczne i plan działania — dostępne w pakiecie Premium Competitor Analysis."
-    )
+    # FUNNEL_AUDIT R3: CTA świadome trójkąta — promuj wierzchołek, którego
+    # klient NIE MA; przy komplecie jedynym upsellem jest płatna konsultacja.
+    # (Wcześniej: zahardkodowany upsell raportu konkurencji nawet dla klientów,
+    # którzy już go kupili.)
+    if not product_ctx.has_competitor_report:
+        cta_text = (
+            "Chcesz pełnej analizy konkurencji? SWOT, ranking lokalny, rekomendacje "
+            "strategiczne i plan działania — dostępne w raporcie konkurencji."
+        )
+    elif not product_ctx.has_monitoring:
+        cta_text = (
+            "Konkurencja zmienia ceny i ofertę co tydzień. Włącz monitoring "
+            "konkurencji, a będziemy pilnować zmian za Ciebie i podpowiadać reakcje."
+        )
+    else:
+        cta_text = (
+            "Masz komplet danych o swoim salonie i rynku. Umów płatną konsultację "
+            "strategiczną — przejdziemy przez wnioski i ułożymy plan wdrożenia."
+        )
 
     summary_payload = {
         "convex_audit_id": audit_id,
