@@ -1,13 +1,13 @@
 """MiniMax M2.7 client — thin wrapper around anthropic.AsyncAnthropic."""
 
 import asyncio
-import json
 import logging
-import re
 from collections.abc import Awaitable, Callable
 
 import anthropic
 import httpx
+
+from services.json_repair import parse_llm_json
 
 logger = logging.getLogger(__name__)
 
@@ -51,8 +51,19 @@ class MiniMaxClient:
         system: str | None = None,
         max_tokens: int = 16384,
     ) -> dict:
-        """Simple JSON generation (no tools). Parses response as JSON, handles markdown code blocks."""
-        sys = system or "Odpowiadaj WYŁĄCZNIE poprawnym JSON. Bez markdown, bez komentarzy, bez tekstu przed lub po JSON."
+        """Simple JSON generation (no tools).
+
+        Parsowanie przez services.json_repair.parse_llm_json — naprawia znane
+        tryby awarii MiniMax (fences/proza, <think>, surowe \\n w stringach,
+        polskie cytaty z prostym zamknięciem, odpowiedzi ucięte). Patrz
+        docs/FINDINGS-2026-06-11.md P0-1.
+        """
+        sys = system or (
+            "Odpowiadaj WYŁĄCZNIE poprawnym JSON. Bez markdown, bez komentarzy, "
+            "bez tekstu przed lub po JSON. W wartościach tekstowych NIE używaj "
+            "prostego cudzysłowu (\") — cytaty i nazwy pisz w «...» albo bez "
+            "cudzysłowów. Pisz wyłącznie po polsku."
+        )
         response = await self.client.messages.create(
             model=self.model,
             max_tokens=max_tokens,
@@ -67,13 +78,15 @@ class MiniMaxClient:
                 break
         if not text:
             raise ValueError("No text response from MiniMax (only thinking blocks)")
-        try:
-            return json.loads(text)
-        except json.JSONDecodeError:
-            match = re.search(r"```(?:json)?\s*([\s\S]*?)```", text)
-            if match:
-                return json.loads(match.group(1).strip())
-            raise ValueError(f"Invalid JSON from MiniMax: {text[:200]}")
+        parsed = parse_llm_json(text)
+        if parsed is not None:
+            return parsed
+        # Diagnostyka: pełny zrzut do logów (bez tego nie da się ustalić,
+        # który fragment psuje JSON) — a potem dotychczasowy kontrakt ValueError.
+        logger.error("generate_json: unrecoverable JSON (%d chars)", len(text))
+        for i in range(0, min(len(text), 12000), 1500):
+            logger.error("generate_json raw[%d]: %r", i, text[i : i + 1500])
+        raise ValueError(f"Invalid JSON from MiniMax after repair: {text[:200]}")
 
     async def generate_text(
         self,

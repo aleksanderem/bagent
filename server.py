@@ -459,16 +459,55 @@ async def start_competitor_refresh(request: CompetitorRefreshRequest) -> Analyze
             return AnalyzeResponse(jobId=job.job_id, status="already_running")
 
     job_id = str(uuid.uuid4())
+
+    # FINDINGS P1-1: lock idempotencji w Redisie (SET NX). JobStore jest
+    # in-memory i per-proces — check wyżej ma race między check a enqueue
+    # i gubi stan po restarcie FastAPI. TTL 15 min: dłużej niż realny
+    # refresh, krócej niż odstęp między cronowymi refreshami. Wartość locka
+    # = job_id, więc duplikat dostaje id joba będącego w locie. Awaria
+    # Redisa degraduje do dotychczasowego zachowania (sam JobStore check).
+    pool = getattr(app.state, "arq", None)
+    if pool is not None:
+        lock_key = f"bagent:refresh-lock:{request.reportId}"
+        try:
+            acquired = await pool.set(lock_key, job_id, nx=True, ex=900)
+            if not acquired:
+                holder = await pool.get(lock_key)
+                holder_id = (
+                    holder.decode() if isinstance(holder, bytes) else str(holder or "")
+                )
+                logger.info(
+                    "Skipping competitor refresh for report %s — Redis lock held by job %s",
+                    request.reportId, holder_id or "unknown",
+                )
+                return AnalyzeResponse(
+                    jobId=holder_id or "unknown", status="already_running"
+                )
+        except Exception as e:
+            logger.warning(
+                "Redis idempotency lock failed (%s) — JobStore check only", e
+            )
+
     store.create_job(job_id, request.auditId, meta={
         "type": "competitor_refresh",
         "reportId": request.reportId,
         "userId": request.userId,
     })
-    await _enqueue_pipeline(
-        task_name="run_competitor_refresh_task",
-        job_id=job_id,
-        request_payload=request.model_dump(),
-    )
+    try:
+        await _enqueue_pipeline(
+            task_name="run_competitor_refresh_task",
+            job_id=job_id,
+            request_payload=request.model_dump(),
+        )
+    except Exception:
+        # Zwolnij lock przy nieudanym enqueue (np. 503), żeby retry klienta
+        # nie czekał na TTL. Best-effort — TTL i tak posprząta.
+        if pool is not None:
+            try:
+                await pool.delete(f"bagent:refresh-lock:{request.reportId}")
+            except Exception:
+                pass
+        raise
     return AnalyzeResponse(jobId=job_id)
 
 

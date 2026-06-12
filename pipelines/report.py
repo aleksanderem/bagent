@@ -23,6 +23,8 @@ import time
 from pathlib import Path
 from typing import Any, Awaitable, Callable
 
+from services.json_repair import parse_llm_json
+
 logger = logging.getLogger(__name__)
 
 PROMPTS_DIR = Path(__file__).parent.parent / "prompts"
@@ -44,16 +46,18 @@ def _fill_prompt(template: str, **kwargs: str) -> str:
 
 
 def _normalize_item(item: Any) -> dict[str, Any] | None:
-    """Normalize a tool call array item — MiniMax sometimes returns strings instead of dicts."""
+    """Normalize a tool call array item — MiniMax sometimes returns strings instead of dicts.
+
+    Stringi przechodzą przez parse_llm_json (naprawa surowych \\n, polskich
+    cytatów z prostym zamknięciem itd. — docs/FINDINGS-2026-06-11.md P0-1),
+    nie przez gołe json.loads.
+    """
     if isinstance(item, dict):
         return item
     if isinstance(item, str):
-        try:
-            parsed = json.loads(item)
-            if isinstance(parsed, dict):
-                return parsed
-        except (json.JSONDecodeError, ValueError):
-            pass
+        parsed = parse_llm_json(item)
+        if isinstance(parsed, dict):
+            return parsed
     return None
 
 
@@ -338,7 +342,7 @@ async def run_audit_pipeline(
     t0 = time.time()
     from pipelines.category_restructure import restructure_categories
     transformed_pricelist = _apply_transformations_to_scraped(scraped_data, transformations)
-    category_mapping, category_changes = await restructure_categories(
+    category_mapping, category_changes, restructure_status = await restructure_categories(
         client=client,
         transformed_pricelist=transformed_pricelist,
         top_issues=all_issues,
@@ -348,7 +352,8 @@ async def run_audit_pipeline(
     dt = int((time.time() - t0) * 1000)
     await progress(
         85,
-        f"Kategorie gotowe: {len(category_mapping)} mapowań, {len(category_changes)} zmian ({dt}ms)",
+        f"Kategorie gotowe: {len(category_mapping)} mapowań, {len(category_changes)} zmian ({dt}ms)"
+        + (" — agent kategorii zawiódł, struktura bez zmian" if restructure_status == "failed" else ""),
     )
 
     # ── Step 7: Summary ──
@@ -434,6 +439,18 @@ async def run_audit_pipeline(
         "summary": summary.strip(),
         "categoryMapping": category_mapping,
         "categoryChanges": category_changes,
+        # FINDINGS P0-2: odróżnia "agent uznał, że zmian brak" (ok + puste)
+        # od "agent się wywalił" (failed + puste) — frontend/cennik mogą
+        # zakomunikować degradację zamiast udawać świadomą decyzję.
+        "categoryRestructureStatus": restructure_status,
+        # FINDINGS P1-7: skąd pochodzi każdy wynik scoringowy —
+        # minimax | openai_gpt_4o_mini | degraded_default. degraded_default
+        # oznacza, że score to stała zastępcza, nie realna ocena.
+        "llmSources": {
+            "naming": naming_scoring.get("llmSource", "minimax"),
+            "descriptions": desc_scoring.get("llmSource", "minimax"),
+            "structure": structure_result.get("llmSource", "minimax"),
+        },
         # Etap 3 of Unified Report Pipeline: agent coverage stats. Each agent
         # now evaluates every service and reports either an actual change or
         # alreadyOptimal=true. Frontend renders this as
@@ -650,6 +667,26 @@ def _resolve_caused_by_issue_index(
 # ── Phase 1: Scoring (produces issues, no transformations) ──
 
 
+async def _generate_json_resilient(
+    client: Any, prompt: str, system: str
+) -> tuple[dict[str, Any], str]:
+    """MiniMax first, OpenAI gpt-4o-mini second (FINDINGS P1-7).
+
+    Returns (result, source) where source ∈ {minimax, openai_gpt_4o_mini}.
+    Raises when BOTH providers fail — caller decides how to degrade.
+    """
+    try:
+        return await client.generate_json(prompt, system=system), "minimax"
+    except Exception as e:
+        logger.warning(
+            "MiniMax generate_json failed (%s) — trying OpenAI fallback", e
+        )
+        from services.openai_fallback import generate_json_via_openai
+
+        result = await generate_json_via_openai(prompt, system=system)
+        return result, "openai_gpt_4o_mini"
+
+
 async def _score_naming(
     client: Any,
     scraped_data: Any,
@@ -677,8 +714,8 @@ async def _score_naming(
 
     t0 = time.time()
     try:
-        scoring = await client.generate_json(
-            full_prompt, system="Jesteś ekspertem od cenników salonów beauty."
+        scoring, llm_source = await _generate_json_resilient(
+            client, full_prompt, system="Jesteś ekspertem od cenników salonów beauty."
         )
         dt = int((time.time() - t0) * 1000)
         await progress(
@@ -686,9 +723,10 @@ async def _score_naming(
         )
     except Exception as e:
         dt = int((time.time() - t0) * 1000)
-        logger.warning("Naming scoring failed: %s", e)
+        logger.warning("Naming scoring failed (both providers): %s", e)
         await progress(28, f"Naming scoring FAILED ({dt}ms): {e}")
         scoring = {"score": 10, "issues": []}
+        llm_source = "degraded_default"
 
     score = min(20, max(0, int(scoring.get("score", 10))))
     # Ensure every naming-scoring issue is tagged with dimension="naming" even
@@ -700,7 +738,7 @@ async def _score_naming(
         if "dimension" not in iss or not iss.get("dimension"):
             iss["dimension"] = "naming"
         issues.append(iss)
-    return {"score": score, "issues": issues}
+    return {"score": score, "issues": issues, "llmSource": llm_source}
 
 
 async def _score_descriptions(
@@ -742,16 +780,17 @@ async def _score_descriptions(
 
     t0 = time.time()
     try:
-        scoring = await client.generate_json(
-            full_prompt, system="Jesteś ekspertem od cenników salonów beauty."
+        scoring, llm_source = await _generate_json_resilient(
+            client, full_prompt, system="Jesteś ekspertem od cenników salonów beauty."
         )
         dt = int((time.time() - t0) * 1000)
         await progress(54, f"Description score: {scoring.get('score', '?')}/20 ({dt}ms)")
     except Exception as e:
         dt = int((time.time() - t0) * 1000)
-        logger.warning("Description scoring failed: %s", e)
+        logger.warning("Description scoring failed (both providers): %s", e)
         await progress(54, f"Description scoring FAILED ({dt}ms): {e}")
         scoring = {"score": 10, "issues": []}
+        llm_source = "degraded_default"
 
     score = min(20, max(0, int(scoring.get("score", 10))))
     issues = []
@@ -761,7 +800,7 @@ async def _score_descriptions(
         if "dimension" not in iss or not iss.get("dimension"):
             iss["dimension"] = "descriptions"
         issues.append(iss)
-    return {"score": score, "issues": issues}
+    return {"score": score, "issues": issues, "llmSource": llm_source}
 
 
 # ── Phase 2: Agent loops (consume issues as context, emit transformations) ──
@@ -1096,12 +1135,13 @@ async def _analyze_structure(
     full_prompt += stats_context
 
     try:
-        result = await client.generate_json(
-            full_prompt, system="Jesteś ekspertem od struktury cenników beauty."
+        result, llm_source = await _generate_json_resilient(
+            client, full_prompt, system="Jesteś ekspertem od struktury cenników beauty."
         )
     except Exception as e:
-        logger.warning("Structure analysis failed: %s", e)
+        logger.warning("Structure analysis failed (both providers): %s", e)
         result = {}
+        llm_source = "degraded_default"
 
     return {
         "structureScore": min(15, max(0, int(result.get("structureScore", 8)))),
@@ -1109,6 +1149,7 @@ async def _analyze_structure(
         "issues": result.get("issues", []),
         "quickWins": result.get("quickWins", []),
         "missingSeoKeywords": result.get("missingSeoKeywords", []),
+        "llmSource": llm_source,
     }
 
 
@@ -1148,8 +1189,16 @@ async def _generate_summary(
     try:
         return await client.generate_text(full_prompt, system="Jesteś ekspertem od audytów cenników beauty.")
     except Exception as e:
-        logger.warning("Summary generation failed: %s", e)
-        return f"Cennik salonu {salon_name or 'Nieznany'} uzyskał {total_score}/100 punktów."
+        logger.warning("Summary generation failed: %s — trying OpenAI fallback", e)
+        try:
+            from services.openai_fallback import generate_text_via_openai
+
+            return await generate_text_via_openai(
+                full_prompt, system="Jesteś ekspertem od audytów cenników beauty."
+            )
+        except Exception as e2:
+            logger.warning("Summary OpenAI fallback also failed: %s", e2)
+            return f"Cennik salonu {salon_name or 'Nieznany'} uzyskał {total_score}/100 punktów."
 
 
 def _validate_quality(report: dict[str, Any], scraped_data: Any) -> dict[str, Any]:

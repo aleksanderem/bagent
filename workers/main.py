@@ -129,6 +129,23 @@ async def startup(ctx: dict[str, Any]) -> None:
     pong = await redis.ping()
     logger.info("redis PING → %s", pong)
 
+    # FINDINGS P1-10: współdzielone klienty w ctx + fail-fast na env.
+    # Dotąd SupabaseService/MiniMaxClient powstawały per task, więc literówka
+    # w SUPABASE_URL/kluczu wybuchała dopiero W ŚRODKU pierwszego joba.
+    # Konstrukcja tutaj = crashloop przy bootcie (widoczny w PM2) zamiast
+    # cichej porażki klienta w produkcie. Taski biorą ctx["supabase"]
+    # z fallbackiem na świeżą instancję (testy wołają je z pustym ctx).
+    from services.minimax import MiniMaxClient
+    from services.supabase import SupabaseService
+
+    ctx["supabase"] = SupabaseService()
+    ctx["minimax"] = MiniMaxClient(
+        settings.minimax_api_key, settings.minimax_base_url, settings.minimax_model
+    )
+    if not settings.minimax_api_key:
+        raise RuntimeError("MINIMAX_API_KEY is empty — worker would fail every AI job")
+    logger.info("shared clients ready: supabase + minimax (%s)", settings.minimax_model)
+
 
 async def shutdown(ctx: dict[str, Any]) -> None:
     logger.info("arq worker shutting down")

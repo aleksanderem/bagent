@@ -83,7 +83,7 @@ async def restructure_categories(
     top_issues: list[dict[str, Any]],
     audit_id: str,
     on_progress: ProgressCallback,
-) -> tuple[dict[str, str], list[dict[str, Any]]]:
+) -> tuple[dict[str, str], list[dict[str, Any]], str]:
     """Run the category-restructuring agent loop.
 
     Args:
@@ -98,12 +98,16 @@ async def restructure_categories(
             touching callers.
 
     Returns:
-        (category_mapping, category_changes)
+        (category_mapping, category_changes, status)
           category_mapping: {original_category_name: new_category_name}
           category_changes: [{type:"category", before, after, reason}, ...]
+          status: "ok" (agent zadziałał — także gdy uznał, że zmian brak)
+                  | "failed" (agent/parsowanie padło — puste struktury to
+                    DEGRADACJA, nie decyzja; FINDINGS P0-2)
 
     Non-fatal: if the agent loop or parsing fails, returns empty structures
-    so the caller can fall through with unchanged categories.
+    so the caller can fall through with unchanged categories — ale status
+    "failed" pozwala odróżnić awarię od świadomego braku zmian.
     """
     from agent.runner import run_agent_loop
     from agent.tools import CATEGORY_MAPPING_TOOL
@@ -177,6 +181,8 @@ async def restructure_categories(
         logger.warning(
             "[%s][category_restructure] Agent failed: %s (%dms)", audit_id, e, dt
         )
-        # Non-fatal — fall through with empty mapping (no restructuring)
+        # Non-fatal — fall through with empty mapping (no restructuring),
+        # ale status "failed" jedzie do raportu (FINDINGS P0-2).
+        return category_mapping, category_changes, "failed"
 
-    return category_mapping, category_changes
+    return category_mapping, category_changes, "ok"

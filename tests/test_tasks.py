@@ -192,8 +192,11 @@ class TestRunCennikTask:
             with pytest.raises(RuntimeError, match="pipeline boom"):
                 await run_cennik_task(ctx, request)
 
-        # Fail webhook called with error message
-        mock_convex.cennik_fail.assert_awaited_once_with("audit-2", "pipeline boom")
+        # Fail webhook called with coded error message (FINDINGS P2:
+        # services/error_codes.py — prefiks [CODE] przed treścią błędu)
+        mock_convex.cennik_fail.assert_awaited_once_with(
+            "audit-2", "[INTERNAL] pipeline boom"
+        )
         # Complete webhook NOT called
         mock_convex.cennik_complete.assert_not_awaited()
 
@@ -228,8 +231,10 @@ class TestRunCennikTask:
             with pytest.raises(_CancelledByUser):
                 await run_cennik_task(ctx, request)
 
-        # Cancelled fail webhook
-        mock_convex.cennik_fail.assert_awaited_once_with("audit-cancel", "Cancelled by user")
+        # Cancelled fail webhook (kod [CANCELLED] — FINDINGS P2)
+        mock_convex.cennik_fail.assert_awaited_once_with(
+            "audit-cancel", "[CANCELLED] Anulowane przez użytkownika"
+        )
         # Cancel flag was cleared
         redis.delete.assert_awaited()
 

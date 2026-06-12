@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import asyncio
 import logging
 from typing import Any
 
@@ -157,24 +158,63 @@ class ConvexClient:
     # --- 3-bagent migration webhooks (report/cennik/summary) ---
 
     async def _post_webhook(
-        self, path: str, payload: dict[str, Any], raise_on_error: bool = False
+        self,
+        path: str,
+        payload: dict[str, Any],
+        raise_on_error: bool = False,
+        attempts: int | None = None,
     ) -> None:
         """Internal helper for the 3-bagent migration webhooks.
 
         raise_on_error=True for completion webhooks (critical), False for
         progress/fail (best-effort).
+
+        FINDINGS P0-3: retry z backoffem (2/5/10 s) dla błędów PRZEJŚCIOWYCH
+        (timeout, błąd transportu, 429, 5xx) — domyślnie 3 próby dla
+        complete/fail, 1 dla progress (kolejny progress i tak nadpisze
+        poprzedni). 4xx (poza 429) nie retry'ujemy — to błąd kontraktu.
+        Nagłówek X-Idempotency-Key (path + auditId/jobId) pozwala stronie
+        Convex deduplikować powtórzone wywołania (np. gdy arq retry'uje
+        cały task po częściowej awarii i complete leci drugi raz).
         """
         url = f"{self.base_url}{path}"
-        try:
-            async with httpx.AsyncClient(timeout=10.0) as client:
-                response = await client.post(url, json=payload, headers=self._headers())
-                response.raise_for_status()
-                logger.info(f"Webhook {path} ok: {payload.get('auditId', '?')}")
-        except Exception as e:
-            if raise_on_error:
-                logger.error(f"Webhook {path} FAILED: {e}")
-                raise
-            logger.warning(f"Webhook {path} failed (best-effort): {e}")
+        is_progress = path.endswith("/progress")
+        total = attempts if attempts is not None else (1 if is_progress else 3)
+        idem_key = f"{path}:{payload.get('auditId') or payload.get('jobId') or ''}"
+        headers = {**self._headers(), "X-Idempotency-Key": idem_key}
+        delays = (2.0, 5.0, 10.0)
+        last_error: Exception | None = None
+
+        for attempt in range(total):
+            try:
+                async with httpx.AsyncClient(timeout=10.0) as client:
+                    response = await client.post(url, json=payload, headers=headers)
+                    response.raise_for_status()
+                    logger.info(f"Webhook {path} ok: {payload.get('auditId', '?')}")
+                    return
+            except httpx.HTTPStatusError as e:
+                last_error = e
+                status = e.response.status_code
+                if status != 429 and status < 500:
+                    break  # 4xx = błąd kontraktu, retry nic nie da
+            except (httpx.TimeoutException, httpx.TransportError) as e:
+                last_error = e
+            except Exception as e:
+                last_error = e
+                break
+            if attempt < total - 1:
+                delay = delays[min(attempt, len(delays) - 1)]
+                logger.warning(
+                    f"Webhook {path} retry {attempt + 1}/{total} za {delay}s: {last_error}"
+                )
+                await asyncio.sleep(delay)
+
+        if raise_on_error:
+            logger.error(f"Webhook {path} FAILED po {total} próbach: {last_error}")
+            if last_error is not None:
+                raise last_error
+            raise RuntimeError(f"Webhook {path} failed")
+        logger.warning(f"Webhook {path} failed (best-effort, {total} prób): {last_error}")
 
     # BAGENT #1 (report) webhooks
     async def report_progress(self, audit_id: str, progress: int, message: str) -> None:
