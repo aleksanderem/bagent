@@ -34,6 +34,7 @@ dependencies = [
     # the dedup write path in scripts/ingest_salon_jsons.py and the
     # reconstruction helper in services/scrape_history.py.
     "jsonpatch>=1.33",
+    "numpy>=2.4.6",
 ]
 
 [project.optional-dependencies]
