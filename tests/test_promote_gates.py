@@ -134,6 +134,25 @@ def _gather_mock(samples: list[dict]):
     return _fake
 
 
+def _gather_batch_mock(samples: list[dict]):
+    """Async stand-in for gather_market_context_samples_batch.
+
+    After the quick 260613-cl2 N+1 refactor, both promote paths
+    (tier-variant + tier-1) call the BATCH fn, which returns a
+    dict[subject_id, list[dict]]. Every requested subject gets a fresh
+    copy of the same fixture samples — mirrors the old per-subject mock
+    so the existing parity assertions hold unchanged.
+    """
+
+    async def _fake(supabase, subject_service_ids, competitor_booksy_ids, **kwargs):  # noqa: ANN001, ANN003
+        return {
+            int(sid): [dict(s) for s in samples]
+            for sid in subject_service_ids
+        }
+
+    return _fake
+
+
 def _verify_mock(is_comparable: bool):
     """Async stand-in for verify_service_pairs with a uniform verdict."""
 
@@ -240,6 +259,10 @@ class TestTierVariantDurationGate:
             _gather_mock(samples),
         )
         monkeypatch.setattr(
+            "services.market_context.gather_market_context_samples_batch",
+            _gather_batch_mock(samples),
+        )
+        monkeypatch.setattr(
             "pipelines.competitor_analysis.verify_service_pairs",
             _verify_mock(True),
         )
@@ -311,6 +334,10 @@ class TestPromoteLLMFailClosed:
             _gather_mock(samples),
         )
         monkeypatch.setattr(
+            "services.market_context.gather_market_context_samples_batch",
+            _gather_batch_mock(samples),
+        )
+        monkeypatch.setattr(
             "pipelines.competitor_analysis.verify_service_pairs",
             _verify_mock(False),
         )
@@ -334,6 +361,10 @@ class TestPromoteLLMFailClosed:
         monkeypatch.setattr(
             "services.market_context.gather_market_context_samples",
             _gather_mock(samples),
+        )
+        monkeypatch.setattr(
+            "services.market_context.gather_market_context_samples_batch",
+            _gather_batch_mock(samples),
         )
         monkeypatch.setattr(
             "pipelines.competitor_analysis.verify_service_pairs",
@@ -377,6 +408,10 @@ class TestTierVariantBrandGate:
         monkeypatch.setattr(
             "services.market_context.gather_market_context_samples",
             _gather_mock(samples),
+        )
+        monkeypatch.setattr(
+            "services.market_context.gather_market_context_samples_batch",
+            _gather_batch_mock(samples),
         )
         monkeypatch.setattr(
             "pipelines.competitor_analysis.verify_service_pairs",
@@ -430,6 +465,10 @@ class TestPromoteHappyPath:
         monkeypatch.setattr(
             "services.market_context.gather_market_context_samples",
             _gather_mock(samples),
+        )
+        monkeypatch.setattr(
+            "services.market_context.gather_market_context_samples_batch",
+            _gather_batch_mock(samples),
         )
         monkeypatch.setattr(
             "pipelines.competitor_analysis.verify_service_pairs",
