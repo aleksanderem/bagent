@@ -25,10 +25,17 @@ from __future__ import annotations
 import asyncio
 import json
 import logging
+import time
 from pathlib import Path
 from typing import Any, Awaitable, Callable
 
 from services.supabase import SupabaseService
+# Module-level so synthesis observability (quick 260613-m23) can reuse the
+# shared per-phase timer and so TraceWriter is patchable in tests. Neither
+# import is circular: services.pipeline_trace has no pipelines import, and
+# pipelines.competitor_analysis already imports TraceWriter at module top.
+from services.pipeline_trace import TraceWriter
+from pipelines.competitor_analysis import _phase_timer
 
 logger = logging.getLogger(__name__)
 
@@ -207,8 +214,8 @@ async def synthesize_competitor_insights(
     # of 2026-05-24-pipeline-optimization plan). Captures `agent.tokens`
     # for MiniMax + OpenAI fallback so per-report LLM cost is queryable.
     # Flushed on happy path; on synthesis crash the buffered rows are lost
-    # by design (same contract as competitor_analysis tracer).
-    from services.pipeline_trace import TraceWriter
+    # by design (same contract as competitor_analysis tracer). TraceWriter is
+    # imported at module level (see top-of-file note).
     _synthesis_audit_id = report.get("convex_audit_id")
     synth_tracer: TraceWriter | None = None
     try:
@@ -303,47 +310,93 @@ async def synthesize_competitor_insights(
     await progress(40, "MiniMax agent synthesis...")
     used_fallback = False
     fallback_source = None
-    try:
-        insights = await _run_minimax_synthesis(context, tracer=synth_tracer)
-        insights = _sanitize_insights(
-            insights,
-            valid_ids=valid_ids,
-            valid_competitor_ids=valid_competitor_ids,
+
+    def _trace_attempt(
+        attempt: int, model: str, success: bool, error: Exception | None,
+        t0: float,
+    ) -> None:
+        """Emit one synthesis.attempt trace (quick 260613-m23). Guarded —
+        synth_tracer=None is a no-op. Observability only; never alters the
+        chain's control flow."""
+        if synth_tracer is None:
+            return
+        synth_tracer.add(
+            "synthesis.attempt",
+            {
+                "attempt": attempt,
+                "model": model,
+                "success": success,
+                "error": str(error)[:500] if error is not None else None,
+                "duration_ms": int((time.monotonic() - t0) * 1000),
+            },
         )
-    except Exception as e:
-        logger.warning(
-            "Etap 5 MiniMax synthesis failed for report_id=%s: %s — trying OpenAI fallback",
-            report_id, e,
-        )
-        await progress(50, "MiniMax failed — OpenAI fallback synthesis...")
+
+    # P2 (quick 260613-m23): wrap the whole minimax→openai→deterministic chain
+    # in the shared per-phase timer so the synthesis block is no longer a black
+    # hole in the profile. Per-attempt latency is carried by synthesis.attempt
+    # (duration_ms). _phase_timer is safe when synth_tracer is None.
+    async with _phase_timer(synth_tracer, "synthesis"):
+        _attempt_t0 = time.monotonic()
         try:
-            from services.openai_synthesis import synthesize_via_openai
-            insights = await synthesize_via_openai(context, tracer=synth_tracer)
+            insights = await _run_minimax_synthesis(context, tracer=synth_tracer)
             insights = _sanitize_insights(
                 insights,
                 valid_ids=valid_ids,
                 valid_competitor_ids=valid_competitor_ids,
             )
-            used_fallback = True
-            fallback_source = "openai_gpt_4o_mini"
-            logger.info(
-                "Etap 5 OpenAI fallback succeeded for report_id=%s",
-                report_id,
-            )
-        except Exception as e2:
+            _trace_attempt(1, "minimax", True, None, _attempt_t0)
+        except Exception as e:
+            _trace_attempt(1, "minimax", False, e, _attempt_t0)
             logger.warning(
-                "Etap 5 OpenAI fallback also failed for report_id=%s: %s — using deterministic template",
-                report_id, e2,
+                "Etap 5 MiniMax synthesis failed for report_id=%s: %s — trying OpenAI fallback",
+                report_id, e,
             )
-            used_fallback = True
-            fallback_source = "deterministic_template"
-            insights = _deterministic_fallback(
-                subject_context=subject_context,
-                matches=matches,
-                pricing=pricing,
-                gaps=gaps,
-                dimensions=dimensions,
-            )
+            await progress(50, "MiniMax failed — OpenAI fallback synthesis...")
+            _attempt_t0 = time.monotonic()
+            try:
+                from services.openai_synthesis import synthesize_via_openai
+                insights = await synthesize_via_openai(context, tracer=synth_tracer)
+                insights = _sanitize_insights(
+                    insights,
+                    valid_ids=valid_ids,
+                    valid_competitor_ids=valid_competitor_ids,
+                )
+                used_fallback = True
+                fallback_source = "openai_gpt_4o_mini"
+                _trace_attempt(2, "openai", True, None, _attempt_t0)
+                logger.info(
+                    "Etap 5 OpenAI fallback succeeded for report_id=%s",
+                    report_id,
+                )
+            except Exception as e2:
+                _trace_attempt(2, "openai", False, e2, _attempt_t0)
+                logger.warning(
+                    "Etap 5 OpenAI fallback also failed for report_id=%s: %s — using deterministic template",
+                    report_id, e2,
+                )
+                _attempt_t0 = time.monotonic()
+                used_fallback = True
+                fallback_source = "deterministic_template"
+                insights = _deterministic_fallback(
+                    subject_context=subject_context,
+                    matches=matches,
+                    pricing=pricing,
+                    gaps=gaps,
+                    dimensions=dimensions,
+                )
+                _trace_attempt(3, "deterministic", True, None, _attempt_t0)
+
+    # P0 silent-fail surfacing (quick 260613-m23): _sanitize_insights drops
+    # SWOT bullets / recommendations whose sourceDataPoints reference unknown
+    # ids (a silent loss of model output). The counts already live in
+    # insights["sanitizerDropped"] (and a logger.warning fires inside the
+    # sanitizer) — surface them as a trace too. Read post-chain so it covers
+    # whichever tier produced `insights`. Guarded; tracer=None is a no-op.
+    _drop = insights.get("sanitizerDropped") or {}
+    if synth_tracer is not None and (
+        _drop.get("swotDropped") or _drop.get("recommendationsDropped")
+    ):
+        synth_tracer.add("synthesis.sanitizer_dropped", _drop)
 
     # ── Step 4: Persist narrative + SWOT + deterministic enrichment ──
     # Frontend rich UI (BEAUTY_AUDIT competitor report) needs more fields than

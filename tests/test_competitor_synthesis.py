@@ -802,3 +802,251 @@ async def test_synthesize_raises_when_report_not_found(
     )
     with pytest.raises(ValueError, match="not found"):
         await synthesize_competitor_insights(report_id=999, supabase=mock_supabase)
+
+
+# ===========================================================================
+# quick 260613-m23 Task 2 — synthesis observability instrumentation
+# ===========================================================================
+#
+# synthesis.attempt per fallback step (minimax/openai/deterministic),
+# phase.timer "synthesis" around the chain, synthesis.sanitizer_dropped when
+# the sanitizer drops SWOT/rec bullets. Observability-only: the result dict
+# {narrative, swot_item_count, recommendation_count, used_fallback} and the
+# fallback chain are byte-identical to before (covered by the tests above).
+# ===========================================================================
+
+
+class _FakeTracer:
+    """Capturing fake matching the TraceWriter public surface synthesis uses
+    (add/flush/buffered) — synth_tracer is only ever add()'d, never poked
+    for _buffer in the synthesis path."""
+
+    def __init__(self, *args, **kwargs) -> None:  # noqa: ANN002, ANN003
+        self.calls: list[dict] = []
+
+    def add(self, step, data, *, salon_ref_id=None, tokens_used=None):  # noqa: ANN001
+        self.calls.append({"step": step, "data": data})
+
+    def buffered(self) -> int:
+        return len(self.calls)
+
+    async def flush(self) -> int:
+        return len(self.calls)
+
+    def of(self, step: str) -> list[dict]:
+        return [c for c in self.calls if c["step"] == step]
+
+
+_CANNED_OK = {
+    "positioning_narrative": "Beauty4ever " + "x" * 60,
+    "swot": {
+        "strengths": [
+            {
+                "text": "Największe portfolio",
+                "sourceDataPoints": [{"type": "dimensional_score", "id": 1002}],
+            }
+        ],
+        "weaknesses": [],
+        "opportunities": [],
+        "threats": [],
+    },
+    "recommendations": [],
+}
+
+
+def _patch_tracer():
+    """Patch TraceWriter in the synthesis module with a captured _FakeTracer.
+    Returns the patcher; the captured tracer is available via the closure
+    list after entering."""
+    captured: list[_FakeTracer] = []
+
+    def _factory(*args, **kwargs):  # noqa: ANN002, ANN003
+        t = _FakeTracer()
+        captured.append(t)
+        return t
+
+    return patch(
+        "pipelines.competitor_synthesis.TraceWriter", side_effect=_factory,
+    ), captured
+
+
+@pytest.mark.asyncio
+async def test_synthesis_attempt_minimax_success(
+    sample_report, sample_subject_context, sample_matches,
+    sample_pricing, sample_gaps, sample_dimensions,
+) -> None:
+    mock_supabase = _mk_mock_supabase(
+        sample_report, sample_subject_context, sample_matches,
+        sample_pricing, sample_gaps, sample_dimensions,
+    )
+    patcher, captured = _patch_tracer()
+    with patcher, patch(
+        "pipelines.competitor_synthesis._run_minimax_synthesis",
+        new=AsyncMock(return_value=_CANNED_OK),
+    ):
+        await synthesize_competitor_insights(report_id=27, supabase=mock_supabase)
+
+    tracer = captured[0]
+    attempts = tracer.of("synthesis.attempt")
+    assert len(attempts) == 1
+    a = attempts[0]["data"]
+    assert a["attempt"] == 1
+    assert a["model"] == "minimax"
+    assert a["success"] is True
+    assert a["error"] is None
+    assert isinstance(a["duration_ms"], int)
+
+
+@pytest.mark.asyncio
+async def test_synthesis_attempt_minimax_fail_then_openai_success(
+    sample_report, sample_subject_context, sample_matches,
+    sample_pricing, sample_gaps, sample_dimensions,
+) -> None:
+    mock_supabase = _mk_mock_supabase(
+        sample_report, sample_subject_context, sample_matches,
+        sample_pricing, sample_gaps, sample_dimensions,
+    )
+    patcher, captured = _patch_tracer()
+    with patcher, patch(
+        "pipelines.competitor_synthesis._run_minimax_synthesis",
+        new=AsyncMock(side_effect=RuntimeError("minimax boom")),
+    ), patch(
+        "services.openai_synthesis.synthesize_via_openai",
+        new=AsyncMock(return_value=_CANNED_OK),
+    ):
+        result = await synthesize_competitor_insights(
+            report_id=27, supabase=mock_supabase,
+        )
+    assert result["used_fallback"] is True
+
+    tracer = captured[0]
+    attempts = tracer.of("synthesis.attempt")
+    assert len(attempts) == 2
+    assert attempts[0]["data"]["model"] == "minimax"
+    assert attempts[0]["data"]["success"] is False
+    assert "boom" in attempts[0]["data"]["error"]
+    assert attempts[1]["data"]["model"] == "openai"
+    assert attempts[1]["data"]["success"] is True
+
+
+@pytest.mark.asyncio
+async def test_synthesis_attempt_all_fail_deterministic(
+    sample_report, sample_subject_context, sample_matches,
+    sample_pricing, sample_gaps, sample_dimensions,
+) -> None:
+    mock_supabase = _mk_mock_supabase(
+        sample_report, sample_subject_context, sample_matches,
+        sample_pricing, sample_gaps, sample_dimensions,
+    )
+    mock_supabase.insert_competitor_recommendations = AsyncMock(return_value=0)
+    patcher, captured = _patch_tracer()
+    with patcher, patch(
+        "pipelines.competitor_synthesis._run_minimax_synthesis",
+        new=AsyncMock(side_effect=RuntimeError("minimax boom")),
+    ), patch(
+        "services.openai_synthesis.synthesize_via_openai",
+        new=AsyncMock(side_effect=RuntimeError("openai boom")),
+    ):
+        result = await synthesize_competitor_insights(
+            report_id=27, supabase=mock_supabase,
+        )
+    assert result["used_fallback"] is True
+
+    tracer = captured[0]
+    attempts = tracer.of("synthesis.attempt")
+    assert len(attempts) == 3
+    assert attempts[2]["data"]["model"] == "deterministic"
+    assert attempts[2]["data"]["success"] is True
+
+
+@pytest.mark.asyncio
+async def test_synthesis_phase_timer_emitted(
+    sample_report, sample_subject_context, sample_matches,
+    sample_pricing, sample_gaps, sample_dimensions,
+) -> None:
+    mock_supabase = _mk_mock_supabase(
+        sample_report, sample_subject_context, sample_matches,
+        sample_pricing, sample_gaps, sample_dimensions,
+    )
+    patcher, captured = _patch_tracer()
+    with patcher, patch(
+        "pipelines.competitor_synthesis._run_minimax_synthesis",
+        new=AsyncMock(return_value=_CANNED_OK),
+    ):
+        await synthesize_competitor_insights(report_id=27, supabase=mock_supabase)
+
+    tracer = captured[0]
+    timers = tracer.of("phase.timer")
+    phases = [t["data"]["phase"] for t in timers]
+    assert "synthesis" in phases
+
+
+@pytest.mark.asyncio
+async def test_synthesis_sanitizer_dropped_trace(
+    sample_report, sample_subject_context, sample_matches,
+    sample_pricing, sample_gaps, sample_dimensions,
+) -> None:
+    """A SWOT bullet referencing an unknown id is dropped by _sanitize_insights
+    (sanitizerDropped > 0). The drop is now surfaced as a
+    synthesis.sanitizer_dropped trace."""
+    mock_supabase = _mk_mock_supabase(
+        sample_report, sample_subject_context, sample_matches,
+        sample_pricing, sample_gaps, sample_dimensions,
+    )
+    # One valid strength + one strength referencing a non-existent dimensional
+    # id (99999) → sanitizer drops the invalid one.
+    canned = {
+        "positioning_narrative": "Beauty4ever " + "x" * 60,
+        "swot": {
+            "strengths": [
+                {
+                    "text": "Valid",
+                    "sourceDataPoints": [{"type": "dimensional_score", "id": 1002}],
+                },
+                {
+                    "text": "Invalid ref",
+                    "sourceDataPoints": [{"type": "dimensional_score", "id": 99999}],
+                },
+            ],
+            "weaknesses": [],
+            "opportunities": [],
+            "threats": [],
+        },
+        "recommendations": [],
+    }
+    patcher, captured = _patch_tracer()
+    with patcher, patch(
+        "pipelines.competitor_synthesis._run_minimax_synthesis",
+        new=AsyncMock(return_value=canned),
+    ):
+        await synthesize_competitor_insights(report_id=27, supabase=mock_supabase)
+
+    tracer = captured[0]
+    dropped = tracer.of("synthesis.sanitizer_dropped")
+    assert len(dropped) == 1
+    assert dropped[0]["data"].get("swotDropped", 0) >= 1
+
+
+@pytest.mark.asyncio
+async def test_synthesis_tracer_none_safe(
+    sample_report, sample_subject_context, sample_matches,
+    sample_pricing, sample_gaps, sample_dimensions,
+) -> None:
+    """When TraceWriter init fails (synth_tracer=None), synthesis must not
+    crash and must still return a valid result."""
+    mock_supabase = _mk_mock_supabase(
+        sample_report, sample_subject_context, sample_matches,
+        sample_pricing, sample_gaps, sample_dimensions,
+    )
+    with patch(
+        "pipelines.competitor_synthesis.TraceWriter",
+        side_effect=RuntimeError("trace init boom"),
+    ), patch(
+        "pipelines.competitor_synthesis._run_minimax_synthesis",
+        new=AsyncMock(return_value=_CANNED_OK),
+    ):
+        result = await synthesize_competitor_insights(
+            report_id=27, supabase=mock_supabase,
+        )
+    assert result["used_fallback"] is False
+    assert result["narrative"]
