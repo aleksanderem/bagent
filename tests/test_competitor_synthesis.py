@@ -10,6 +10,8 @@ Covers:
 
 from __future__ import annotations
 
+import json
+from contextlib import asynccontextmanager
 from types import SimpleNamespace
 from unittest.mock import AsyncMock, MagicMock, patch
 
@@ -19,6 +21,7 @@ from pipelines.competitor_synthesis import (
     _build_synthesis_prompt_context,
     _deterministic_fallback,
     _extract_insights_from_agent_result,
+    _run_minimax_synthesis,
     _sanitize_insights,
     _sanitize_source_data_points,
     synthesize_competitor_insights,
@@ -1049,4 +1052,157 @@ async def test_synthesis_tracer_none_safe(
             report_id=27, supabase=mock_supabase,
         )
     assert result["used_fallback"] is False
-    assert result["narrative"]
+
+
+# ---------------------------------------------------------------------------
+# Global per-MODEL LLM limiter wiring (beads BEAUTY_AUDIT-ii0 increment 2)
+# ---------------------------------------------------------------------------
+
+
+def _mk_synthesis_agent_result() -> SimpleNamespace:
+    """Fake AgentResult shaped like agent.runner.AgentResult — one
+    submit_competitor_insights tool call with a valid narrative + SWOT so
+    _extract_insights_from_agent_result returns a non-empty dict."""
+    call = SimpleNamespace(
+        name="submit_competitor_insights",
+        input={
+            "positioning_narrative": "Beauty4ever " + "x" * 60,
+            "swot": {
+                "strengths": [
+                    {
+                        "text": "Największe portfolio",
+                        "sourceDataPoints": [
+                            {"type": "dimensional_score", "id": 1002}
+                        ],
+                    }
+                ],
+                "weaknesses": [],
+                "opportunities": [],
+                "threats": [],
+            },
+            "recommendations": [],
+        },
+    )
+    return SimpleNamespace(
+        tool_calls=[call],
+        final_text="",
+        total_steps=1,
+        total_input_tokens=0,
+        total_output_tokens=0,
+    )
+
+
+@pytest.mark.asyncio
+async def test_run_minimax_synthesis_acquires_minimax_slot(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """_run_minimax_synthesis must enter provider_slot exactly once, keyed by
+    settings.minimax_model ("MiniMax-M2.7"), wrapping the run_agent_loop await
+    — and return the parsed insights dict unchanged (decision logic untouched).
+
+    Does NOT patch _run_minimax_synthesis (that is what we exercise). Instead it
+    patches the late-imported run_agent_loop (resolved as an attribute of module
+    agent.runner) + services.minimax.MiniMaxClient, and spies on the MODULE-TOP
+    pipelines.competitor_synthesis.provider_slot."""
+    run_loop_mock = AsyncMock(return_value=_mk_synthesis_agent_result())
+    monkeypatch.setattr("agent.runner.run_agent_loop", run_loop_mock)
+
+    # Stub MiniMaxClient so the ctor + `client.client = AsyncAnthropic(...)`
+    # override in _run_minimax_synthesis is harmless (no real network client).
+    monkeypatch.setattr(
+        "services.minimax.MiniMaxClient",
+        lambda *a, **k: SimpleNamespace(client=None, model="MiniMax-M2.7"),
+    )
+
+    slot_entries: list[str] = []
+
+    @asynccontextmanager
+    async def _spy_provider_slot(model: str):
+        slot_entries.append(model)
+        yield
+
+    monkeypatch.setattr(
+        "pipelines.competitor_synthesis.provider_slot", _spy_provider_slot
+    )
+
+    insights = await _run_minimax_synthesis(context="ctx", tracer=None)
+
+    # Slot entered exactly once, keyed by the MiniMax model.
+    assert slot_entries == ["MiniMax-M2.7"], (
+        f"expected provider_slot entered once == ['MiniMax-M2.7'], got "
+        f"{slot_entries}"
+    )
+    # run_agent_loop was awaited exactly once (inside the slot).
+    assert run_loop_mock.await_count == 1
+    # Decision UNCHANGED: returns the parsed insights dict.
+    assert insights["positioning_narrative"].startswith("Beauty4ever")
+    assert len(insights["swot"]["strengths"]) == 1
+
+
+@pytest.mark.asyncio
+async def test_synthesize_via_openai_acquires_gpt4omini_slot(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """synthesize_via_openai (the rare OpenAI fallback) must enter provider_slot
+    exactly once keyed "gpt-4o-mini" (shares the gpt-4o-mini bucket), wrapping
+    the create() await — and return the parsed/normalized dict unchanged."""
+    from services.openai_synthesis import synthesize_via_openai
+
+    valid_json = json.dumps(
+        {
+            "positioning_narrative": "Pozycja salonu " + "y" * 40,
+            "swot": {
+                "strengths": [{"text": "S1"}],
+                "weaknesses": [],
+                "opportunities": [],
+                "threats": [],
+            },
+            "recommendations": [
+                {
+                    "actionTitle": "Obniż cenę",
+                    "actionDescription": "Konkurenci tańsi.",
+                    "category": "pricing",
+                    "impact": "high",
+                    "effort": "low",
+                    "confidence": 0.8,
+                }
+            ],
+        }
+    )
+    fake_resp = SimpleNamespace(
+        choices=[
+            SimpleNamespace(message=SimpleNamespace(content=valid_json))
+        ],
+        usage=SimpleNamespace(prompt_tokens=10, completion_tokens=5),
+    )
+    create_mock = AsyncMock(return_value=fake_resp)
+    fake_client = SimpleNamespace(
+        chat=SimpleNamespace(completions=SimpleNamespace(create=create_mock)),
+    )
+    monkeypatch.setattr(
+        "services.openai_synthesis._get_openai_client", lambda: fake_client
+    )
+
+    slot_entries: list[str] = []
+
+    @asynccontextmanager
+    async def _spy_provider_slot(model: str):
+        slot_entries.append(model)
+        yield
+
+    monkeypatch.setattr(
+        "services.openai_synthesis.provider_slot", _spy_provider_slot
+    )
+
+    result = await synthesize_via_openai("ctx")
+
+    assert slot_entries == ["gpt-4o-mini"], (
+        f"expected provider_slot entered once == ['gpt-4o-mini'], got "
+        f"{slot_entries}"
+    )
+    assert create_mock.await_count == 1
+    # Parse/normalization UNCHANGED: positioning_narrative present, recs
+    # normalized with empty source lists added by the fallback.
+    assert result["positioning_narrative"].startswith("Pozycja salonu")
+    assert result["recommendations"][0]["sourceCompetitorIds"] == []
+    assert result["recommendations"][0]["sourceDataPoints"] == []

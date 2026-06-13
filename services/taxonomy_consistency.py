@@ -541,14 +541,16 @@ async def apply_intra_salon_consistency(
                         tool_schema=_TAXONOMY_DECISIONS_TOOL,
                         max_tokens=16384,
                     )
-                # Global per-provider concurrency cap (cross-report, INNER).
-                # The per-report `sem` above is the OUTER acquire; this slot is
-                # the INNER acquire — single direction (outer per-report, inner
-                # global) on every chunk = no lock-ordering cycle, no deadlock.
-                # Caps total in-flight gpt-4o process-wide so N concurrent
-                # reports can't fan out to N*chunks calls and trip OpenAI
-                # RPM/TPM -> 429 backoff (LT2 measured ~18x pass5 blowup).
-                async with provider_slot("openai"):
+                # Global per-MODEL concurrency cap (cross-report, INNER), keyed
+                # by the pass5 model (oai_model, default gpt-4o). The per-report
+                # `sem` above is the OUTER acquire; this slot is the INNER
+                # acquire — single direction (outer per-report, inner global) on
+                # every chunk = no lock-ordering cycle, no deadlock. Caps total
+                # in-flight gpt-4o process-wide (its own bucket, separate from
+                # gpt-4o-mini) so N concurrent reports can't fan out to N*chunks
+                # calls and trip OpenAI RPM/TPM -> 429 backoff (LT2 measured
+                # ~18x pass5 blowup).
+                async with provider_slot(oai_model):
                     chunk_raw, chunk_usage = await with_retry(
                         _call_oai, max_attempts=2, base_delay=2.0,
                     )

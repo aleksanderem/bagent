@@ -29,11 +29,15 @@ import time
 from pathlib import Path
 from typing import Any, Awaitable, Callable
 
+from services.llm_rate_limiter import provider_slot
 from services.supabase import SupabaseService
 # Module-level so synthesis observability (quick 260613-m23) can reuse the
 # shared per-phase timer and so TraceWriter is patchable in tests. Neither
 # import is circular: services.pipeline_trace has no pipelines import, and
 # pipelines.competitor_analysis already imports TraceWriter at module top.
+# provider_slot (global per-model LLM limiter) is likewise module-top so the
+# synthesis test can patch pipelines.competitor_synthesis.provider_slot;
+# services.llm_rate_limiter imports nothing from pipelines/ (no circular risk).
 from services.pipeline_trace import TraceWriter
 from pipelines.competitor_analysis import _phase_timer
 
@@ -807,17 +811,22 @@ async def _run_minimax_synthesis(
         max_retries=2,
     )
 
-    agent_result = await run_agent_loop(
-        client=client,
-        system_prompt=(
-            "Jesteś strategiem marketingowym specjalizującym się w polskich "
-            "salonach beauty na Booksy.pl. Odpowiadasz po polsku, używasz tylko "
-            "prawdziwych liczb z dostarczonych danych, nigdy nie zmyślasz."
-        ),
-        user_message=context,
-        tools=[COMPETITOR_INSIGHTS_TOOL],
-        max_steps=3,
-    )
+    # Global per-MODEL concurrency cap (cross-report). MiniMax-M2.7 has its own
+    # bucket (synthesis is heavy + low-volume) so a burst of concurrent reports
+    # can't fan out uncapped MiniMax agent loops. Only the await is gated; the
+    # token-trace + insight extraction below stay OUTSIDE the slot.
+    async with provider_slot(settings.minimax_model):
+        agent_result = await run_agent_loop(
+            client=client,
+            system_prompt=(
+                "Jesteś strategiem marketingowym specjalizującym się w polskich "
+                "salonach beauty na Booksy.pl. Odpowiadasz po polsku, używasz tylko "
+                "prawdziwych liczb z dostarczonych danych, nigdy nie zmyślasz."
+            ),
+            user_message=context,
+            tools=[COMPETITOR_INSIGHTS_TOOL],
+            max_steps=3,
+        )
 
     # Persist token usage (mig 121). AgentResult already aggregates totals
     # across the multi-turn tool_use loop.
