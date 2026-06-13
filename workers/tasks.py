@@ -473,6 +473,7 @@ async def run_competitor_report_task(ctx: dict[str, Any], request: dict[str, Any
             target_count=target_count,
             convex_user_id=user_id,
             on_progress=on_progress,
+            job_id=job_id,
         )
 
         report_stats = {

@@ -307,3 +307,44 @@ class TestRunCompetitorRefreshTask:
         mock_convex_cls.assert_not_called()
 
         assert result["significant_change_count"] == 3
+
+
+# ---------------------------------------------------------------------------
+# run_competitor_report_task — job_id threading (quick 260613-m23 Task 3)
+# ---------------------------------------------------------------------------
+
+
+class TestRunCompetitorReportTask:
+    @pytest.mark.asyncio
+    async def test_passes_job_id_to_pipeline(self):
+        from workers.tasks import run_competitor_report_task
+
+        mock_pipeline = AsyncMock(return_value={
+            "report_id": 7,
+            "narrative": "n",
+            "swot_item_count": 0,
+            "recommendation_count": 0,
+            "used_fallback": False,
+        })
+        mock_convex = MagicMock()
+        mock_convex.competitor_report_progress = AsyncMock()
+        mock_convex.competitor_report_complete = AsyncMock()
+        mock_convex.competitor_report_fail = AsyncMock()
+        mock_convex_cls = MagicMock(return_value=mock_convex)
+
+        redis = AsyncMock()
+        redis.get = AsyncMock(return_value=None)  # no cancel
+        ctx = {"redis": redis, "job_id": "job-3"}
+        request = {"auditId": "audit-1", "userId": "user-1"}
+
+        with (
+            patch(
+                "pipelines.competitor_report.run_competitor_report_pipeline",
+                mock_pipeline,
+            ),
+            patch("services.convex.ConvexClient", mock_convex_cls),
+        ):
+            await run_competitor_report_task(ctx, request)
+
+        mock_pipeline.assert_awaited_once()
+        assert mock_pipeline.await_args.kwargs["job_id"] == "job-3"

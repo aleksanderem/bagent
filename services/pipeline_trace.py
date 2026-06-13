@@ -93,6 +93,7 @@ class TraceWriter:
         audit_id: Optional[str],
         report_id: Optional[int],
         pipeline: str,
+        job_id: Optional[str] = None,
     ) -> None:
         if not pipeline:
             raise ValueError("TraceWriter: pipeline name is required")
@@ -100,6 +101,10 @@ class TraceWriter:
         self.audit_id = audit_id
         self.report_id = report_id
         self.pipeline = pipeline
+        # quick 260613-m23: arq/PM2 job id. pipeline_traces (mig 094 + 121)
+        # has NO job_id column, so we ride it inside trace_data as `_job_id`
+        # (injected centrally in add() — no migration, locked-design safe).
+        self.job_id = job_id
         self._buffer: list[dict[str, Any]] = []
 
     def add(
@@ -123,6 +128,14 @@ class TraceWriter:
             raise TypeError(
                 f"TraceWriter.add: data must be dict, got {type(data).__name__}",
             )
+        # quick 260613-m23: centrally stamp the job_id onto every row so a
+        # trace line can be correlated with its arq job / PM2 log without
+        # touching the hundreds of add() callsites. No job_id COLUMN exists
+        # (mig 094 + 121), so it lives inside trace_data as `_job_id`. Copy —
+        # never mutate the caller's dict (immutability). Done BEFORE the size
+        # check so the extra key counts toward the limit.
+        if self.job_id is not None:
+            data = {**data, "_job_id": self.job_id}
         try:
             serialized = json.dumps(data, default=str, ensure_ascii=False)
         except (TypeError, ValueError) as e:

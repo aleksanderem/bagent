@@ -184,6 +184,7 @@ async def synthesize_competitor_insights(
     on_progress: ProgressCallback | None = None,
     supabase: SupabaseService | None = None,
     user_selected_salon_ids: list[int] | None = None,
+    job_id: str = "unknown",
 ) -> dict[str, Any]:
     """Etap 5 main entry — reads the populated competitor_reports row + children,
     calls MiniMax with the synthesis prompt, and persists narrative + SWOT +
@@ -224,6 +225,7 @@ async def synthesize_competitor_insights(
             audit_id=_synthesis_audit_id,
             report_id=report_id,
             pipeline="competitor_synthesis",
+            job_id=job_id,
         )
     except Exception:
         logger.exception(
@@ -238,8 +240,8 @@ async def synthesize_competitor_insights(
     dimensions = await service.get_competitor_dimensional_scores(report_id)
 
     logger.info(
-        "Etap 5: loaded report_id=%s — %d matches, %d pricing, %d gaps, %d dims",
-        report_id, len(matches), len(pricing), len(gaps), len(dimensions),
+        "[%s] Etap 5: loaded report_id=%s — %d matches, %d pricing, %d gaps, %d dims",
+        job_id, report_id, len(matches), len(pricing), len(gaps), len(dimensions),
     )
 
     # Resolve subject salon info for prompt context

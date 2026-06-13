@@ -39,6 +39,7 @@ async def run_competitor_report_pipeline(
     on_progress: ProgressCallback | None = None,
     supabase: SupabaseService | None = None,
     must_include_salon_ids: list[int] | None = None,
+    job_id: str = "unknown",
 ) -> dict[str, Any]:
     """Top-level competitor report pipeline.
 
@@ -81,8 +82,8 @@ async def run_competitor_report_pipeline(
         await progress(int(p * 0.70), m)
 
     logger.info(
-        "Starting competitor report pipeline for audit_id=%s tier=%s",
-        audit_id, tier,
+        "[%s] Starting competitor report pipeline for audit_id=%s tier=%s",
+        job_id, audit_id, tier,
     )
 
     report_id = await compute_competitor_analysis(
@@ -94,8 +95,12 @@ async def run_competitor_report_pipeline(
         supabase=service,
         convex_user_id=convex_user_id,
         must_include_salon_ids=must_include_salon_ids,
+        job_id=job_id,
     )
-    logger.info("Etap 4 complete — report_id=%s, starting Etap 5", report_id)
+    logger.info(
+        "[%s] Etap 4 complete — report_id=%s, starting Etap 5",
+        job_id, report_id,
+    )
 
     # Scale Etap 5 progress to 70-100
     async def synth_progress(p: int, m: str) -> None:
@@ -106,6 +111,7 @@ async def run_competitor_report_pipeline(
         on_progress=synth_progress,
         supabase=service,
         user_selected_salon_ids=must_include_salon_ids,
+        job_id=job_id,
     )
 
     return {

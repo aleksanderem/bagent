@@ -139,6 +139,7 @@ async def compute_competitor_analysis(
     supabase: SupabaseService | None = None,
     convex_user_id: str = "unknown",
     must_include_salon_ids: list[int] | None = None,
+    job_id: str = "unknown",
 ) -> int:
     """Compute a full competitor analysis for an audit and persist to Supabase.
 
@@ -177,6 +178,7 @@ async def compute_competitor_analysis(
         audit_id=audit_id,
         report_id=None,  # set after create_competitor_report
         pipeline="competitor_analysis",
+        job_id=job_id,
     )
 
     # ── Step 1: Select competitors (Comp Etap 1) ──
