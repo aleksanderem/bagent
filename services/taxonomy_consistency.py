@@ -39,6 +39,7 @@ from typing import Any
 
 from services.body_area_taxonomy import extract_body_areas
 from services.brand_marker import extract_brand_marker
+from services.llm_rate_limiter import provider_slot
 from services.method_marker import extract_method_marker
 from services.minimax import MiniMaxClient, with_retry
 
@@ -540,9 +541,17 @@ async def apply_intra_salon_consistency(
                         tool_schema=_TAXONOMY_DECISIONS_TOOL,
                         max_tokens=16384,
                     )
-                chunk_raw, chunk_usage = await with_retry(
-                    _call_oai, max_attempts=2, base_delay=2.0,
-                )
+                # Global per-provider concurrency cap (cross-report, INNER).
+                # The per-report `sem` above is the OUTER acquire; this slot is
+                # the INNER acquire — single direction (outer per-report, inner
+                # global) on every chunk = no lock-ordering cycle, no deadlock.
+                # Caps total in-flight gpt-4o process-wide so N concurrent
+                # reports can't fan out to N*chunks calls and trip OpenAI
+                # RPM/TPM -> 429 backoff (LT2 measured ~18x pass5 blowup).
+                async with provider_slot("openai"):
+                    chunk_raw, chunk_usage = await with_retry(
+                        _call_oai, max_attempts=2, base_delay=2.0,
+                    )
             else:
                 # Legacy MiniMax path (kept for A/B). Use tool_use API to
                 # force structured output.
