@@ -77,6 +77,14 @@ ProgressCallback = Callable[[int, str], Awaitable[None]]
 _PROMOTE_GATE_CONCURRENCY = 8
 
 
+# Concurrency / RPC latency trace thresholds (quick 260613-m23, P3). Only
+# emit a trace when a semaphore acquire or an RPC round-trip exceeds this, so
+# the trace isn't flooded on the common fast path — mirrors market_context's
+# _RPC_SLOW_MS. 1s headroom over normal acquire (<1ms when uncontended).
+_CONCURRENCY_WAIT_SLOW_MS = 1000
+_RPC_SLOW_MS = 1000
+
+
 # Per-salon wall-clock cap for the taxonomy router. One hung LLM call inside
 # _apply_llm_taxonomy_to_null_tid_services used to freeze the whole
 # asyncio.gather (no timeout) and wedge the job at ~26-38% (quick 260613-kiu —
@@ -183,18 +191,22 @@ async def compute_competitor_analysis(
 
     # ── Step 1: Select competitors (Comp Etap 1) ──
     await progress(5, "Selekcja konkurentów...")
-    candidates = await select_competitors(
-        audit_id,
-        target_count=target_count,
-        mode=selection_mode,
-        supabase=service,
-        tracer=tracer,
-        must_include_salon_ids=must_include_salon_ids,
-    )
-    if not candidates:
-        raise RuntimeError(
-            f"No competitor candidates selected for audit_id={audit_id!r}"
+    # P2 (quick 260613-m23): selection had no _phase_timer — a black hole in
+    # the profile. Wrap the select call (+ its validation) only; progress()
+    # stays outside so ordering/semantics are unchanged.
+    async with _phase_timer(tracer, "selection"):
+        candidates = await select_competitors(
+            audit_id,
+            target_count=target_count,
+            mode=selection_mode,
+            supabase=service,
+            tracer=tracer,
+            must_include_salon_ids=must_include_salon_ids,
         )
+        if not candidates:
+            raise RuntimeError(
+                f"No competitor candidates selected for audit_id={audit_id!r}"
+            )
     logger.info(
         "Etap 4: selected %d competitors for audit=%s",
         len(candidates), audit_id,
@@ -251,23 +263,26 @@ async def compute_competitor_analysis(
 
     # ── Step 3: Load subject + competitors full data ──
     await progress(25, "Ładowanie danych subject + konkurentów...")
-    subject_data = await service.get_subject_full_data(audit_id)
+    # P2 (quick 260613-m23): separate timers for the two heavy data loads.
+    async with _phase_timer(tracer, "load.subject"):
+        subject_data = await service.get_subject_full_data(audit_id)
 
     competitor_booksy_ids = [c.booksy_id for c in candidates]
-    competitor_data_map = await service.get_competitor_full_data(competitor_booksy_ids)
     # Keep only candidates whose data loaded successfully; align bucket metadata
     aligned_competitors: list[tuple[CompetitorCandidate, dict[str, Any]]] = []
     _dropped_booksy_ids: list[int] = []
-    for c in candidates:
-        data = competitor_data_map.get(c.booksy_id)
-        if data is None:
-            logger.warning(
-                "Competitor booksy_id=%s missing scrape data — dropped from computations",
-                c.booksy_id,
-            )
-            _dropped_booksy_ids.append(c.booksy_id)
-            continue
-        aligned_competitors.append((c, data))
+    async with _phase_timer(tracer, "load.competitors"):
+        competitor_data_map = await service.get_competitor_full_data(competitor_booksy_ids)
+        for c in candidates:
+            data = competitor_data_map.get(c.booksy_id)
+            if data is None:
+                logger.warning(
+                    "Competitor booksy_id=%s missing scrape data — dropped from computations",
+                    c.booksy_id,
+                )
+                _dropped_booksy_ids.append(c.booksy_id)
+                continue
+            aligned_competitors.append((c, data))
 
     # P0 silent-fail surfacing (quick 260613-m23): dropping a selected
     # candidate because its scrape never loaded is a silent shrink of the
@@ -306,10 +321,12 @@ async def compute_competitor_analysis(
     for _, cdata in aligned_competitors:
         if cdata.get("salon_id") is not None:
             salon_ids_for_mapping.append(cdata["salon_id"])
-    versum_map = await service.get_versum_mappings(salon_ids_for_mapping)
-    _apply_versum_mappings(subject_data, versum_map)
-    for _, cdata in aligned_competitors:
-        _apply_versum_mappings(cdata, versum_map)
+    # P2 (quick 260613-m23): the Versum mapping fetch + apply had no timer.
+    async with _phase_timer(tracer, "versum.mapping"):
+        versum_map = await service.get_versum_mappings(salon_ids_for_mapping)
+        _apply_versum_mappings(subject_data, versum_map)
+        for _, cdata in aligned_competitors:
+            _apply_versum_mappings(cdata, versum_map)
 
     # LLM-assisted taxonomy inference for services z NULL booksy_treatment_id
     # (po Versum mapping) — Booksy nie skategoryzował tych usług, więc
@@ -367,7 +384,22 @@ async def compute_competitor_analysis(
             async def _route_salon(
                 services_list: list[dict[str, Any]], label: str,
             ) -> int:
+                # P3 (quick 260613-m23): measure how long this salon waited to
+                # acquire the router semaphore. Only traced when slow (>1s) so
+                # contention is visible without flooding the trace. The acquire
+                # semantics are unchanged — we just time the existing wait.
+                _sem_t0 = time.monotonic()
                 async with _router_sem:
+                    _wait_ms = int((time.monotonic() - _sem_t0) * 1000)
+                    if tracer is not None and _wait_ms > _CONCURRENCY_WAIT_SLOW_MS:
+                        tracer.add(
+                            "concurrency.semaphore_wait",
+                            {
+                                "gate": "taxonomy_router",
+                                "wait_ms": _wait_ms,
+                                "label": label,
+                            },
+                        )
                     return await _router_asyncio.wait_for(
                         _apply_llm_taxonomy_to_null_tid_services(
                             service, services_list, label=label,
@@ -1458,7 +1490,15 @@ async def _compute_pricing_comparisons(
             # Gate by brand marker, duration bucket, and batch LLM pair
             # verification (fail-closed) BEFORE the >=3 strong / >=2 salons
             # re-gate.
+            # P3 (quick 260613-m23): time the promote-gate semaphore acquire.
+            _gate_sem_t0 = time.monotonic()
             async with _gate_sem:
+                _gate_wait_ms = int((time.monotonic() - _gate_sem_t0) * 1000)
+                if tracer is not None and _gate_wait_ms > _CONCURRENCY_WAIT_SLOW_MS:
+                    tracer.add(
+                        "concurrency.semaphore_wait",
+                        {"gate": "promote_gate", "wait_ms": _gate_wait_ms},
+                    )
                 gate = await _apply_promote_scope_gates(
                     strong,
                     subject_name=ctx["subj_name"],
@@ -3043,7 +3083,15 @@ async def _compute_treatment_tier_rows(
             # (fail-closed). The classifier-aware method gate above already
             # handled brand scope, so the shared helper runs with the brand
             # gate disabled. The count/salons gate below acts as the re-gate.
+            # P3 (quick 260613-m23): time the tier-1 promote-gate semaphore.
+            _t1_gate_sem_t0 = time.monotonic()
             async with _t1_gate_sem:
+                _t1_gate_wait_ms = int((time.monotonic() - _t1_gate_sem_t0) * 1000)
+                if tracer is not None and _t1_gate_wait_ms > _CONCURRENCY_WAIT_SLOW_MS:
+                    tracer.add(
+                        "concurrency.semaphore_wait",
+                        {"gate": "promote_gate", "wait_ms": _t1_gate_wait_ms},
+                    )
                 _t1_gate = await _apply_promote_scope_gates(
                     strong_t1,
                     subject_name=canonical_name,
@@ -3272,10 +3320,23 @@ async def _compute_method_targeted_pricing(
     # 1. List subject's classified methods. RPC returns each canonical
     # method once, with services_count showing how many subject services
     # map to it. Sorted services_count DESC inside the RPC.
+    # P3 (quick 260613-m23): time the RPC; trace only when slow (>1s).
+    _sm_t0 = time.monotonic()
     methods_res = service.client.rpc(
         "fn_subject_methods",
         {"p_subject_salon_id": int(subject_salon_id)},
     ).execute()
+    _sm_dur_ms = int((time.monotonic() - _sm_t0) * 1000)
+    if _sm_dur_ms > _RPC_SLOW_MS:
+        logger.warning(
+            "Etap 4 tier-4: fn_subject_methods slow (salon=%s): %dms",
+            subject_salon_id, _sm_dur_ms,
+        )
+        if tracer is not None:
+            tracer.add(
+                "rpc.latency",
+                {"rpc": "fn_subject_methods", "duration_ms": _sm_dur_ms},
+            )
     subject_methods = methods_res.data or []
     if not subject_methods:
         logger.info(
@@ -3318,6 +3379,9 @@ async def _compute_method_targeted_pricing(
         subject_services_for_method = subj_svcs_by_method.get(method_id, [])
 
         # Call market pricing RPC
+        # P3 (quick 260613-m23): time per-method RPC; carry duration into the
+        # existing per-method trace below + warn when slow (>1s).
+        _mp_t0 = time.monotonic()
         pricing_res = service.client.rpc(
             "fn_compute_method_pricing",
             {
@@ -3329,6 +3393,21 @@ async def _compute_method_targeted_pricing(
                 "p_sample_limit": 30,
             },
         ).execute()
+        _mp_dur_ms = int((time.monotonic() - _mp_t0) * 1000)
+        if _mp_dur_ms > _RPC_SLOW_MS:
+            logger.warning(
+                "Etap 4 tier-4: fn_compute_method_pricing slow "
+                "(method=%s): %dms", method_id, _mp_dur_ms,
+            )
+            if tracer is not None:
+                tracer.add(
+                    "rpc.latency",
+                    {
+                        "rpc": "fn_compute_method_pricing",
+                        "method_id": method_id,
+                        "duration_ms": _mp_dur_ms,
+                    },
+                )
         pricing_data = pricing_res.data or []
         if not pricing_data:
             # No competitors in radius offering this method — emit

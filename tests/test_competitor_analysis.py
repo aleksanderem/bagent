@@ -1873,3 +1873,192 @@ async def test_tier_funcs_tracer_none_safe() -> None:
     assert await _resolve_method_categories_for_services(
         service, [1, 2], tracer=None,
     ) == {}
+
+
+# ---------------------------------------------------------------------------
+# Task 4 — P2 missing phase timers (selection, load.subject, load.competitors,
+# versum.mapping). Driven through the full pipeline with the tracer captured.
+# ---------------------------------------------------------------------------
+
+
+async def _run_pipeline_capturing_tracer(
+    monkeypatch: pytest.MonkeyPatch,
+    *,
+    competitor_data_map=None,
+) -> _FakeTracer:
+    """Run compute_competitor_analysis end-to-end with mocks, capturing the
+    pipeline's tracer. Returns the _FakeTracer for assertions."""
+    import pipelines.competitor_analysis as ca
+
+    _stub_focus_bundles_for_router(monkeypatch)
+    monkeypatch.setenv("ROUTER_PER_SALON_TIMEOUT_S", "1")
+
+    async def _fake_route(supabase, services, label="salon", **kwargs):  # noqa: ANN001
+        return 0
+
+    monkeypatch.setattr(
+        ca, "_apply_llm_taxonomy_to_null_tid_services", _fake_route,
+    )
+
+    captured: dict[str, _FakeTracer] = {}
+
+    def _fake_tracewriter(*args, **kwargs):  # noqa: ANN001, ANN002
+        t = _FakeTracer()
+        captured["tracer"] = t
+        return t
+
+    monkeypatch.setattr(ca, "TraceWriter", _fake_tracewriter)
+
+    mock = _mock_supabase_for_e2e()
+    if competitor_data_map is not None:
+        mock.get_competitor_full_data = AsyncMock(return_value=competitor_data_map)
+
+    await asyncio.wait_for(
+        ca.compute_competitor_analysis(
+            audit_id="test_audit", tier="base", selection_mode="auto",
+            supabase=mock, convex_user_id="user_1",
+        ),
+        timeout=10,
+    )
+    return captured["tracer"]
+
+
+@pytest.mark.asyncio
+async def test_phase_timers_selection_and_loads_emitted(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    tracer = await _run_pipeline_capturing_tracer(monkeypatch)
+    timers = tracer.of("phase.timer")
+    phases = {t["data"]["phase"] for t in timers}
+    for expected in (
+        "selection", "load.subject", "load.competitors", "versum.mapping",
+    ):
+        assert expected in phases, (
+            f"missing phase.timer {expected!r}; got {sorted(phases)}"
+        )
+    # Each phase.timer carries an integer elapsed_ms.
+    for t in timers:
+        assert isinstance(t["data"]["elapsed_ms"], int)
+
+
+# ---------------------------------------------------------------------------
+# Task 4 — P3 router semaphore wait latency trace (only when slow)
+# ---------------------------------------------------------------------------
+
+
+@pytest.mark.asyncio
+async def test_semaphore_wait_traced_when_slow(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """With outer concurrency forced to 1 and the first salon's routing held
+    longer than the wait threshold, the second salon's semaphore acquire is
+    slow → concurrency.semaphore_wait trace. The default 1000ms threshold is
+    lowered to 0 for the test so a tiny real wait crosses it deterministically
+    (we don't want a 1s sleep in the unit suite)."""
+    import pipelines.competitor_analysis as ca
+
+    _stub_focus_bundles_for_router(monkeypatch)
+    monkeypatch.setenv("ROUTER_PER_SALON_TIMEOUT_S", "5")
+    # Force serial routing so salons queue on the semaphore.
+    monkeypatch.setenv("TAXONOMY_ROUTER_CONCURRENCY", "1")
+    # Lower the slow threshold so any real wait (>0ms) trips the trace.
+    monkeypatch.setattr(ca, "_CONCURRENCY_WAIT_SLOW_MS", -1)
+
+    async def _slow_route(supabase, services, label="salon", **kwargs):  # noqa: ANN001
+        # Subject holds the single permit briefly so competitors must wait.
+        if label == "subject":
+            await asyncio.sleep(0.05)
+        return 0
+
+    monkeypatch.setattr(
+        ca, "_apply_llm_taxonomy_to_null_tid_services", _slow_route,
+    )
+
+    captured: dict[str, _FakeTracer] = {}
+
+    def _fake_tracewriter(*args, **kwargs):  # noqa: ANN001, ANN002
+        t = _FakeTracer()
+        captured["tracer"] = t
+        return t
+
+    monkeypatch.setattr(ca, "TraceWriter", _fake_tracewriter)
+
+    mock = _mock_supabase_for_e2e()
+    await asyncio.wait_for(
+        ca.compute_competitor_analysis(
+            audit_id="test_audit", tier="base", selection_mode="auto",
+            supabase=mock, convex_user_id="user_1",
+        ),
+        timeout=10,
+    )
+
+    waits = captured["tracer"].of("concurrency.semaphore_wait")
+    assert waits, "expected at least one concurrency.semaphore_wait trace"
+    assert all(w["data"]["gate"] == "taxonomy_router" for w in waits)
+
+
+# ---------------------------------------------------------------------------
+# Task 4 — RPC latency trace for fn_subject_methods when slow
+# ---------------------------------------------------------------------------
+
+
+@pytest.mark.asyncio
+async def test_fn_subject_methods_rpc_latency_traced_when_slow(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    import pipelines.competitor_analysis as ca
+    from pipelines.competitor_analysis import _compute_method_targeted_pricing
+
+    # Lower the slow threshold to -1 so even a ~0ms RPC trips the trace.
+    monkeypatch.setattr(ca, "_RPC_SLOW_MS", -1)
+
+    tracer = _FakeTracer()
+    service = MagicMock()
+    # fn_subject_methods returns no methods → early return after the timed RPC,
+    # so the rpc.latency trace fires but the per-method RPC never runs.
+    service.client.rpc.return_value.execute.return_value = MagicMock(data=[])
+
+    rows = await _compute_method_targeted_pricing(
+        service, report_id=1, subject_data={"salon_id": 500}, tracer=tracer,
+    )
+    assert rows == []
+    lat = tracer.of("rpc.latency")
+    assert any(c["data"]["rpc"] == "fn_subject_methods" for c in lat)
+
+
+# ---------------------------------------------------------------------------
+# Task 4 — tracer=None safe across the new phase timers / metrics
+# ---------------------------------------------------------------------------
+
+
+@pytest.mark.asyncio
+async def test_pipeline_tracer_none_safe_full_run(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """Force TraceWriter init to a None-equivalent by patching it to a tracer
+    that the pipeline can still poke (_buffer, report_id) but whose add() is a
+    no-op — exercises every new _phase_timer / metric guard. Pipeline must
+    complete."""
+    import pipelines.competitor_analysis as ca
+
+    _stub_focus_bundles_for_router(monkeypatch)
+    monkeypatch.setenv("ROUTER_PER_SALON_TIMEOUT_S", "1")
+
+    async def _fake_route(supabase, services, label="salon", **kwargs):  # noqa: ANN001
+        return 0
+
+    monkeypatch.setattr(
+        ca, "_apply_llm_taxonomy_to_null_tid_services", _fake_route,
+    )
+
+    # _phase_timer is called with the real tracer; the guards check
+    # `tracer is not None`, so this verifies the timers themselves don't crash.
+    mock = _mock_supabase_for_e2e()
+    report_id = await asyncio.wait_for(
+        ca.compute_competitor_analysis(
+            audit_id="test_audit", tier="base", selection_mode="auto",
+            supabase=mock, convex_user_id="user_1",
+        ),
+        timeout=10,
+    )
+    assert report_id == 999

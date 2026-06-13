@@ -454,6 +454,24 @@ async def run_competitor_report_task(ctx: dict[str, Any], request: dict[str, Any
 
     logger.info("[%s] run_competitor_report_task started audit_id=%s tier=%s",
                 job_id, audit_id, tier)
+
+    # P3 (quick 260613-m23): best-effort queue-depth probe on job start so the
+    # operator can see backlog when the competitor report (the heaviest task)
+    # is picked up. arq stores queued jobs in a Redis sorted set keyed by
+    # WorkerSettings.queue_name ("arq:queue"). ZCARD is O(1). Strictly
+    # best-effort — never block or crash the job on a Redis hiccup or an API
+    # mismatch; just log a warning and move on.
+    try:
+        _redis = ctx.get("redis")
+        if _redis is not None:
+            _depth = await _redis.zcard("arq:queue")
+            logger.info("[%s] competitor_report queue depth=%s", job_id, _depth)
+    except Exception as _qe:  # noqa: BLE001
+        logger.warning(
+            "[%s] queue depth probe failed (best-effort, ignored): %s",
+            job_id, _qe,
+        )
+
     convex = ConvexClient()
 
     try:
