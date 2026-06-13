@@ -26,6 +26,7 @@ from __future__ import annotations
 
 import asyncio
 import logging
+import os
 import re
 import statistics
 import time
@@ -74,6 +75,15 @@ ProgressCallback = Callable[[int, str], Awaitable[None]]
 # stało się wąskim gardłem. asyncio.gather + Semaphore(8) zrównolegla je,
 # bezpiecznie vs OpenAI rate limit (verify_service_pairs jest cache'owane).
 _PROMOTE_GATE_CONCURRENCY = 8
+
+
+# Per-salon wall-clock cap for the taxonomy router. One hung LLM call inside
+# _apply_llm_taxonomy_to_null_tid_services used to freeze the whole
+# asyncio.gather (no timeout) and wedge the job at ~26-38% (quick 260613-kiu —
+# prod hang >10min vs ~8.8s normal). 90s is generous headroom over the normal
+# pass; env-overridable (the router block re-reads the env at call time so a
+# test's monkeypatch.setenv takes effect without re-import).
+ROUTER_PER_SALON_TIMEOUT_S = int(os.environ.get("ROUTER_PER_SALON_TIMEOUT_S", "90"))
 
 
 async def _noop_progress(progress: int, message: str) -> None:
@@ -324,14 +334,25 @@ async def compute_competitor_analysis(
                 _router_os.environ.get("TAXONOMY_ROUTER_CONCURRENCY", "8")
             )
             _router_sem = _router_asyncio.Semaphore(_outer_concurrency)
+            # Per-salon wall-clock cap (quick 260613-kiu). Read at call time
+            # (not just module-import) so env override / tests apply without
+            # re-import; ROUTER_PER_SALON_TIMEOUT_S module constant is the
+            # documented default. One hung LLM call previously froze the whole
+            # gather and wedged the job at ~26-38%.
+            _per_salon_timeout = int(
+                _router_os.environ.get("ROUTER_PER_SALON_TIMEOUT_S", "90")
+            )
 
             async def _route_salon(
                 services_list: list[dict[str, Any]], label: str,
             ) -> int:
                 async with _router_sem:
-                    return await _apply_llm_taxonomy_to_null_tid_services(
-                        service, services_list, label=label,
-                        audit_id=audit_id,
+                    return await _router_asyncio.wait_for(
+                        _apply_llm_taxonomy_to_null_tid_services(
+                            service, services_list, label=label,
+                            audit_id=audit_id,
+                        ),
+                        timeout=_per_salon_timeout,
                     )
 
             _salon_tasks: list[Awaitable[int]] = [
@@ -346,7 +367,54 @@ async def compute_competitor_analysis(
                         label=f"competitor booksy_id={cdata.get('booksy_id')}",
                     )
                 )
-            _salon_counts = await _router_asyncio.gather(*_salon_tasks)
+            # return_exceptions=True so one hung/erroring salon (its wait_for
+            # raised TimeoutError, or _resolve_service_taxonomy raised) NEVER
+            # propagates to the outer except (which re-raises and aborts the
+            # whole etap). A skipped salon degrades to 0 routed — its null-tid
+            # services simply stay un-routed, identical to the pre-router
+            # state, so the pipeline continues safely (quick 260613-kiu).
+            _salon_results = await _router_asyncio.gather(
+                *_salon_tasks, return_exceptions=True,
+            )
+            # Build labels from the SAME source/order used for _salon_tasks
+            # (subject first, then aligned_competitors) so a skipped salon is
+            # logged with its correct label.
+            _salon_labels = ["subject"] + [
+                f"competitor booksy_id={c.get('booksy_id')}"
+                for _, c in aligned_competitors
+            ]
+            _salon_counts: list[int] = []
+            for _label, _res in zip(_salon_labels, _salon_results):
+                if isinstance(_res, BaseException):
+                    _outcome = (
+                        "router_timeout"
+                        if isinstance(_res, _router_asyncio.TimeoutError)
+                        else "router_error"
+                    )
+                    logger.warning(
+                        "Etap 4: taxonomy router skipped salon (%s): %s — "
+                        "null-tid services for this salon stay un-routed "
+                        "(safe degradation, pipeline continues)",
+                        _label, _outcome,
+                    )
+                    if tracer is not None:
+                        try:
+                            tracer.add(
+                                "taxonomy.router_skip",
+                                {
+                                    "label": _label,
+                                    "outcome": _outcome,
+                                    "error": repr(_res),
+                                },
+                            )
+                        except Exception:
+                            logger.exception(
+                                "taxonomy.router_skip trace add failed for %s",
+                                _label,
+                            )
+                    _salon_counts.append(0)
+                else:
+                    _salon_counts.append(_res)
             total_overridden = sum(_salon_counts)
             logger.info(
                 "Etap 4: taxonomy routing applied to %d NULL-tid services "
