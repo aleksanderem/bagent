@@ -878,7 +878,7 @@ class TestComputeServiceGaps:
         service.get_service_embeddings.return_value = {}
         # Walk-up no-ops with empty subject service list, but stub the
         # resolver anyway so any incidental call returns {}.
-        async def _resolve_stub(svc, sids):
+        async def _resolve_stub(svc, sids, **kwargs):  # tracer kw accepted (m23)
             return {}
         monkeypatch.setattr(
             "pipelines.competitor_analysis._resolve_method_categories_for_services",
@@ -914,7 +914,7 @@ class TestComputeServiceGaps:
         ]
         service = AsyncMock()
         service.get_service_embeddings.return_value = {}
-        async def _resolve_stub(svc, sids):
+        async def _resolve_stub(svc, sids, **kwargs):  # tracer kw accepted (m23)
             return {}
         monkeypatch.setattr(
             "pipelines.competitor_analysis._resolve_method_categories_for_services",
@@ -942,7 +942,7 @@ class TestComputeServiceGaps:
         ]
         service = AsyncMock()
         service.get_service_embeddings.return_value = {}
-        async def _resolve_stub(svc, sids):
+        async def _resolve_stub(svc, sids, **kwargs):  # tracer kw accepted (m23)
             return {}
         monkeypatch.setattr(
             "pipelines.competitor_analysis._resolve_method_categories_for_services",
@@ -986,7 +986,7 @@ class TestComputeServiceGaps:
         service = AsyncMock()
         service.get_service_embeddings.return_value = {}
 
-        async def _resolve_stub(svc, sids):
+        async def _resolve_stub(svc, sids, **kwargs):  # tracer kw accepted (m23)
             # Same category for both subject (svc id 9001) and competitor
             # (svc id 9101). Walk-up should suppress the gap row.
             out: dict[int, set[str]] = {}
@@ -1039,7 +1039,7 @@ class TestComputeServiceGaps:
         service = AsyncMock()
         service.get_service_embeddings.return_value = {}
 
-        async def _resolve_stub(svc, sids):
+        async def _resolve_stub(svc, sids, **kwargs):  # tracer kw accepted (m23)
             out: dict[int, set[str]] = {}
             for sid in sids:
                 if int(sid) == 8001:
@@ -1085,7 +1085,7 @@ class TestComputeServiceGaps:
         service = AsyncMock()
         service.get_service_embeddings.return_value = {}
 
-        async def _resolve_stub(svc, sids):
+        async def _resolve_stub(svc, sids, **kwargs):  # tracer kw accepted (m23)
             # Empty — simulate cold classification cache.
             return {}
 
@@ -1606,3 +1606,270 @@ async def test_router_normal_salon_unchanged_no_skip_warning(
     assert skip_warnings == [], (
         f"normal-path routing must not log skip warnings, got: {skip_warnings}"
     )
+
+
+# ===========================================================================
+# quick 260613-m23 — observability-only instrumentation tests
+# ===========================================================================
+#
+# Each test asserts a tracer.add(step, data) on a previously-silent fallback /
+# drop / except, OR that tracer=None is safe. The RETURN VALUES are unchanged
+# (covered by the existing tests above) — these are observability-only.
+# ===========================================================================
+
+
+class _FakeTracer:
+    """Capturing fake matching the TraceWriter public surface used by the
+    pipeline: add(), flush(), buffered(), plus the two attributes the
+    orchestrator pokes directly (`_buffer`, `report_id`)."""
+
+    def __init__(self) -> None:
+        self.calls: list[dict] = []
+        # The orchestrator backfills report_id onto buffered rows
+        # (`for row in tracer._buffer`) and sets `tracer.report_id`.
+        self._buffer: list[dict] = []
+        self.report_id = None
+
+    def add(self, step, data, *, salon_ref_id=None, tokens_used=None):  # noqa: ANN001
+        self.calls.append(
+            {"step": step, "data": data, "salon_ref_id": salon_ref_id}
+        )
+
+    def buffered(self) -> int:
+        return len(self.calls)
+
+    async def flush(self) -> int:
+        return len(self.calls)
+
+    def steps(self) -> list[str]:
+        return [c["step"] for c in self.calls]
+
+    def of(self, step: str) -> list[dict]:
+        return [c for c in self.calls if c["step"] == step]
+
+
+# ---------------------------------------------------------------------------
+# Test 1 — competitor drop (no scrape data) emits competitors.data_load
+# ---------------------------------------------------------------------------
+
+
+@pytest.mark.asyncio
+async def test_competitor_drop_emits_data_load_trace(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """When a selected candidate has no loadable scrape data it is dropped
+    (logger.warning was the only signal). Now an aggregate
+    `competitors.data_load` trace surfaces candidate_count + dropped_count +
+    dropped_booksy_ids. Behaviour unchanged: the drop still happens and the
+    pipeline still completes with the remaining competitors."""
+    import pipelines.competitor_analysis as ca
+
+    _stub_focus_bundles_for_router(monkeypatch)
+    monkeypatch.setenv("ROUTER_PER_SALON_TIMEOUT_S", "1")
+
+    async def _fake_route(supabase, services, label="salon", **kwargs):  # noqa: ANN001
+        return 0
+
+    monkeypatch.setattr(
+        ca, "_apply_llm_taxonomy_to_null_tid_services", _fake_route,
+    )
+
+    # Capture the tracer the pipeline constructs by patching TraceWriter.
+    captured: dict[str, _FakeTracer] = {}
+
+    def _fake_tracewriter(*args, **kwargs):  # noqa: ANN001, ANN002
+        t = _FakeTracer()
+        captured["tracer"] = t
+        return t
+
+    monkeypatch.setattr(ca, "TraceWriter", _fake_tracewriter)
+
+    mock = _mock_supabase_for_e2e()
+    # Drop competitor booksy_id=3000 — return data only for 2000 and 4000.
+    full = await mock.get_competitor_full_data()
+    full.pop(3000, None)
+    mock.get_competitor_full_data = AsyncMock(return_value=full)
+
+    report_id = await asyncio.wait_for(
+        ca.compute_competitor_analysis(
+            audit_id="test_audit", tier="base", selection_mode="auto",
+            supabase=mock, convex_user_id="user_1",
+        ),
+        timeout=10,
+    )
+    assert report_id == 999
+
+    tracer = captured["tracer"]
+    load = tracer.of("competitors.data_load")
+    assert len(load) == 1
+    data = load[0]["data"]
+    assert data["dropped_count"] == 1
+    assert 3000 in data["dropped_booksy_ids"]
+    assert data["candidate_count"] >= 2
+
+
+# ---------------------------------------------------------------------------
+# Test 3 — _tid_key None on a subject service emits service.tid_unresolved
+# ---------------------------------------------------------------------------
+
+
+@pytest.mark.asyncio
+async def test_tid_unresolved_subject_service_emits_trace() -> None:
+    """A subject service whose _tid_key resolves to None (no booksy_treatment_id
+    AND no synthetic_treatment_id) is skipped from the tier-1 pricing matrix.
+    That skip is now traced as `service.tid_unresolved`. Behaviour unchanged:
+    the service is still excluded, the row count is unaffected."""
+    from pipelines.competitor_analysis import _compute_treatment_tier_rows
+
+    tracer = _FakeTracer()
+    # One service WITH a tid (so the matrix isn't empty) + one WITHOUT.
+    # duration_minutes set so both pass the _eligible 5..240 gate and the
+    # tid-less one reaches the _tid_key None branch (the skip we trace).
+    good = _svc(treatment_id=5, price_grosze=1000, name="Good")
+    good["duration_minutes"] = 60
+    bad = _svc(treatment_id=5, price_grosze=1000, name="NoTid")
+    bad["duration_minutes"] = 60
+    bad["booksy_treatment_id"] = None
+    bad["synthetic_treatment_id"] = None
+    subject_data = {"services": [good, bad]}
+    aligned = [
+        (_cand(salon_id=1), {
+            "services": [_svc(treatment_id=5, price_grosze=900)],
+            "scrape": {"salon_name": "Cand1"}, "salon_id": 1,
+        }),
+    ]
+
+    await _compute_treatment_tier_rows(
+        report_id=1, subject_data=subject_data, aligned_competitors=aligned,
+        supabase=_mock_supabase_no_verify(), tracer=tracer,
+    )
+
+    unresolved = tracer.of("service.tid_unresolved")
+    assert len(unresolved) == 1
+    assert unresolved[0]["data"]["reason"] == "no_tid"
+    assert unresolved[0]["data"]["name"] == "NoTid"
+
+
+# ---------------------------------------------------------------------------
+# Test 4 — empty tier funcs emit pricing.computed {row_count: 0, skip_reason}
+# ---------------------------------------------------------------------------
+
+
+@pytest.mark.asyncio
+async def test_treatment_tier_empty_subject_emits_pricing_computed() -> None:
+    from pipelines.competitor_analysis import _compute_treatment_tier_rows
+
+    tracer = _FakeTracer()
+    rows = await _compute_treatment_tier_rows(
+        report_id=1, subject_data={"services": []}, aligned_competitors=[],
+        supabase=_mock_supabase_no_verify(), tracer=tracer,
+    )
+    assert rows == []  # behaviour unchanged
+    pc = tracer.of("pricing.computed")
+    assert any(
+        c["data"]["pricing_type"] == "treatment"
+        and c["data"]["row_count"] == 0
+        for c in pc
+    )
+
+
+@pytest.mark.asyncio
+async def test_method_targeted_no_salon_id_emits_pricing_computed() -> None:
+    from pipelines.competitor_analysis import _compute_method_targeted_pricing
+
+    tracer = _FakeTracer()
+    rows = await _compute_method_targeted_pricing(
+        _mock_supabase_no_verify(), report_id=1,
+        subject_data={"salon_id": None}, tracer=tracer,
+    )
+    assert rows == []
+    pc = tracer.of("pricing.computed")
+    assert any(
+        c["data"]["pricing_type"] == "method"
+        and c["data"]["row_count"] == 0
+        for c in pc
+    )
+
+
+@pytest.mark.asyncio
+async def test_brand_structured_no_competitors_emits_pricing_computed() -> None:
+    from pipelines.competitor_analysis import _compute_brand_structured_pricing
+
+    tracer = _FakeTracer()
+    rows = await _compute_brand_structured_pricing(
+        _mock_supabase_no_verify(), report_id=1,
+        subject_data={"services": []}, aligned_competitors=[], tracer=tracer,
+    )
+    assert rows == []
+    pc = tracer.of("pricing.computed")
+    assert any(
+        c["data"]["pricing_type"] == "structured"
+        and c["data"]["row_count"] == 0
+        for c in pc
+    )
+
+
+# ---------------------------------------------------------------------------
+# Test 5 — _resolve_method_categories_for_services RPC fail emits trace
+# ---------------------------------------------------------------------------
+
+
+@pytest.mark.asyncio
+async def test_resolve_method_categories_rpc_fail_emits_trace() -> None:
+    """When the classification lookup raises, the function fails open (returns
+    {}) — UNCHANGED. With a tracer it now emits `method_categories.rpc_fail`
+    {error, service_ids_count}."""
+    from pipelines.competitor_analysis import (
+        _resolve_method_categories_for_services,
+    )
+
+    tracer = _FakeTracer()
+    service = MagicMock()
+    service.client.table.return_value.select.return_value.in_.return_value.execute.side_effect = (
+        RuntimeError("supabase down (mock)")
+    )
+
+    result = await _resolve_method_categories_for_services(
+        service, [9001, 9002], tracer=tracer,
+    )
+    assert result == {}  # fail-open unchanged
+
+    fail = tracer.of("method_categories.rpc_fail")
+    assert len(fail) == 1
+    assert fail[0]["data"]["service_ids_count"] == 2
+    assert "supabase down" in fail[0]["data"]["error"]
+
+
+# ---------------------------------------------------------------------------
+# Test 8 — tracer=None is safe across all instrumented funcs
+# ---------------------------------------------------------------------------
+
+
+@pytest.mark.asyncio
+async def test_tier_funcs_tracer_none_safe() -> None:
+    from pipelines.competitor_analysis import (
+        _compute_brand_structured_pricing,
+        _compute_method_targeted_pricing,
+        _compute_treatment_tier_rows,
+        _resolve_method_categories_for_services,
+    )
+
+    assert await _compute_treatment_tier_rows(
+        report_id=1, subject_data={"services": []}, aligned_competitors=[],
+        supabase=_mock_supabase_no_verify(), tracer=None,
+    ) == []
+    assert await _compute_method_targeted_pricing(
+        _mock_supabase_no_verify(), report_id=1,
+        subject_data={"salon_id": None}, tracer=None,
+    ) == []
+    assert await _compute_brand_structured_pricing(
+        _mock_supabase_no_verify(), report_id=1,
+        subject_data={"services": []}, aligned_competitors=[], tracer=None,
+    ) == []
+    service = MagicMock()
+    service.client.table.return_value.select.return_value.in_.return_value.execute.side_effect = (
+        RuntimeError("boom")
+    )
+    assert await _resolve_method_categories_for_services(
+        service, [1, 2], tracer=None,
+    ) == {}

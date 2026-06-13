@@ -233,3 +233,93 @@ async def test_no_price_rows_skipped() -> None:
     samples = result[501]
     assert len(samples) == 1
     assert samples[0]["service_name"] == "With price"
+
+
+# ---------------------------------------------------------------------------
+# RPC latency instrumentation (quick 260613-m23 Task 1, P3 RPC latency)
+# Both fns wrap the RPC .execute() in a monotonic timer and surface
+# `rpc_duration_ms` in the trace on BOTH the ok and rpc_error paths. The
+# RETURN VALUE is unchanged — this is observability-only.
+# ---------------------------------------------------------------------------
+
+
+class _FakeTracer:
+    def __init__(self) -> None:
+        self.calls: list[dict[str, Any]] = []
+
+    def add(self, step, data, *, salon_ref_id=None, tokens_used=None):  # noqa: ANN001
+        self.calls.append({"step": step, "data": data})
+
+    def buffered(self) -> int:
+        return len(self.calls)
+
+    async def flush(self) -> int:
+        return len(self.calls)
+
+    def of(self, step: str) -> list[dict[str, Any]]:
+        return [c for c in self.calls if c["step"] == step]
+
+
+@pytest.mark.asyncio
+async def test_single_ok_trace_has_rpc_duration_ms() -> None:
+    rows = [_row(subject_service_id=None, salon_id=1, service_id=1, name="A")]
+    # Old single RPC rows do not carry subject_service_id.
+    rows = [_single_row(r) for r in rows]
+    supabase = _mock_supabase_returning(rows)
+    tracer = _FakeTracer()
+
+    result = await gather_market_context_samples(
+        supabase, 700, [1001], tracer=tracer,
+    )
+    assert len(result) == 1  # behaviour unchanged
+
+    ok = tracer.of("market_context.per_service_samples")
+    assert ok and ok[-1]["data"]["outcome"] == "ok"
+    assert isinstance(ok[-1]["data"]["rpc_duration_ms"], int)
+    assert ok[-1]["data"]["rpc_duration_ms"] >= 0
+
+
+@pytest.mark.asyncio
+async def test_single_rpc_error_trace_has_rpc_duration_ms() -> None:
+    supabase = _mock_supabase_raising()
+    tracer = _FakeTracer()
+
+    result = await gather_market_context_samples(
+        supabase, 701, [1001], tracer=tracer,
+    )
+    assert result == []  # fail-closed unchanged
+
+    err = tracer.of("market_context.per_service_samples")
+    assert err and err[-1]["data"]["outcome"] == "rpc_error"
+    assert isinstance(err[-1]["data"]["rpc_duration_ms"], int)
+
+
+@pytest.mark.asyncio
+async def test_batch_ok_trace_has_rpc_duration_ms() -> None:
+    rows = [_row(subject_service_id=800, salon_id=1, service_id=1, name="A")]
+    supabase = _mock_supabase_returning(rows)
+    tracer = _FakeTracer()
+
+    result = await gather_market_context_samples_batch(
+        supabase, [800], [1001], tracer=tracer,
+    )
+    assert result[800] and len(result[800]) == 1
+
+    ok = tracer.of("market_context.batch_samples")
+    assert ok and ok[-1]["data"]["outcome"] == "ok"
+    assert isinstance(ok[-1]["data"]["rpc_duration_ms"], int)
+
+
+@pytest.mark.asyncio
+async def test_batch_rpc_error_trace_has_rpc_duration_ms() -> None:
+    supabase = _mock_supabase_raising()
+    tracer = _FakeTracer()
+
+    result = await gather_market_context_samples_batch(
+        supabase, [801, 802], [1001], tracer=tracer,
+    )
+    assert result == {801: [], 802: []}
+
+    err = tracer.of("market_context.batch_samples")
+    assert err and err[-1]["data"]["outcome"] == "rpc_error"
+    assert isinstance(err[-1]["data"]["rpc_duration_ms"], int)

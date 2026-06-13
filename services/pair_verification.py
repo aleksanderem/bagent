@@ -34,9 +34,13 @@ from __future__ import annotations
 
 import logging
 import re
-from typing import Any
+import time
+from typing import TYPE_CHECKING, Any
 
 from services.supabase import SupabaseService
+
+if TYPE_CHECKING:  # avoid a runtime circular import (pipeline_trace ← services)
+    from services.pipeline_trace import TraceWriter
 
 logger = logging.getLogger(__name__)
 
@@ -266,6 +270,7 @@ async def verify_service_pairs(
     llm_client: Any,
     audit_id: str | None = None,
     model: str = _PAIR_VERIFY_MODEL,
+    tracer: "TraceWriter | None" = None,
 ) -> dict[str, dict[str, Any]]:
     """Verify each candidate vs subject — is this actually a comparable
     service for pricing comparison purposes?
@@ -374,7 +379,9 @@ async def verify_service_pairs(
     # Step 2: LLM batches for uncached pairs.
     if uncached_norms:
         new_rows: list[dict[str, Any]] = []
-        for batch_start in range(0, len(uncached_norms), _PAIR_VERIFY_BATCH_SIZE):
+        for _batch_index, batch_start in enumerate(
+            range(0, len(uncached_norms), _PAIR_VERIFY_BATCH_SIZE)
+        ):
             batch_norms = uncached_norms[
                 batch_start : batch_start + _PAIR_VERIFY_BATCH_SIZE
             ]
@@ -383,6 +390,9 @@ async def verify_service_pairs(
             # parens that hint at intensity / area).
             batch_raw = [norm_to_raw[n] for n in batch_norms]
 
+            # P3 LLM latency (quick 260613-m23): time each LLM batch call so
+            # the operator can see per-batch verification latency in the trace.
+            _llm_t0 = time.monotonic()
             response = await _call_llm_for_batch(
                 subject_service_name=subject_service_name,
                 candidate_names=batch_raw,
@@ -390,6 +400,19 @@ async def verify_service_pairs(
                 synthetic_treatment_id=synthetic_treatment_id,
                 llm_client=llm_client,
             )
+            _llm_dur_ms = int((time.monotonic() - _llm_t0) * 1000)
+            if tracer is not None:
+                tracer.add(
+                    "pair_verify.llm_batch",
+                    {
+                        "candidates": len(batch_raw),
+                        "duration_ms": _llm_dur_ms,
+                        "batch_index": _batch_index,
+                        "subject": subject_service_name[:120],
+                        "booksy_tid": booksy_treatment_id,
+                        "synthetic_tid": synthetic_treatment_id,
+                    },
+                )
 
             verdicts = response.get("verdicts")
             if not isinstance(verdicts, list):
@@ -458,8 +481,10 @@ async def verify_service_pairs(
     # Sanity: any candidate that the LLM silently skipped (no matching
     # verdict by index) gets a permissive default. Better keep + flag
     # than silently drop. This should be exceedingly rare given temp=0.1.
+    _missing_count = 0
     for norm in candidate_norms:
         if norm not in results:
+            _missing_count += 1
             logger.warning(
                 "pair_verification: LLM did not return verdict for "
                 "candidate=%r subject=%r — defaulting to comparable=True",
@@ -474,5 +499,21 @@ async def verify_service_pairs(
                 "from_cache": False,
                 "cached_id": None,
             }
+
+    # P0 silent-fail surfacing (quick 260613-m23): a candidate kept by the
+    # permissive default above is a SILENT drop of LLM signal — the row stays
+    # comparable=True without the model ever judging it. Aggregate-trace it so
+    # the operator sees "subject X had N candidates without a verdict" without
+    # grepping per-candidate warnings. Guarded — tracer=None is a no-op.
+    if tracer is not None and _missing_count:
+        tracer.add(
+            "pair_verify.no_verdict",
+            {
+                "count": _missing_count,
+                "subject": subject_service_name[:120],
+                "booksy_tid": booksy_treatment_id,
+                "synthetic_tid": synthetic_treatment_id,
+            },
+        )
 
     return results

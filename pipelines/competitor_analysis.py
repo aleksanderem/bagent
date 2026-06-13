@@ -255,6 +255,7 @@ async def compute_competitor_analysis(
     competitor_data_map = await service.get_competitor_full_data(competitor_booksy_ids)
     # Keep only candidates whose data loaded successfully; align bucket metadata
     aligned_competitors: list[tuple[CompetitorCandidate, dict[str, Any]]] = []
+    _dropped_booksy_ids: list[int] = []
     for c in candidates:
         data = competitor_data_map.get(c.booksy_id)
         if data is None:
@@ -262,8 +263,26 @@ async def compute_competitor_analysis(
                 "Competitor booksy_id=%s missing scrape data — dropped from computations",
                 c.booksy_id,
             )
+            _dropped_booksy_ids.append(c.booksy_id)
             continue
         aligned_competitors.append((c, data))
+
+    # P0 silent-fail surfacing (quick 260613-m23): dropping a selected
+    # candidate because its scrape never loaded is a silent shrink of the
+    # comparison set (the metadata `competitors_dropped_no_data` aggregate
+    # existed but never reached the trace). Surface candidate_count vs
+    # dropped_count + the dropped ids so the operator can correlate a thin
+    # report with missing scrapes. Behaviour unchanged — the drop already
+    # happened above.
+    if tracer is not None and _dropped_booksy_ids:
+        tracer.add(
+            "competitors.data_load",
+            {
+                "candidate_count": len(candidates),
+                "dropped_count": len(_dropped_booksy_ids),
+                "dropped_booksy_ids": _dropped_booksy_ids[:50],
+            },
+        )
 
     if not aligned_competitors:
         logger.error(
@@ -602,6 +621,7 @@ async def compute_competitor_analysis(
     async with _phase_timer(tracer, "gaps.compute"):
         gap_rows = await _compute_service_gaps(
             service, report_id, subject_data, aligned_competitors,
+            tracer=tracer,
         )
         n_gaps = await service.insert_competitor_service_gaps(gap_rows)
         logger.info("Etap 4: inserted %d service_gaps", n_gaps)
@@ -870,6 +890,7 @@ async def _apply_promote_scope_gates(
     audit_id: str | None,
     min_count: int,
     min_unique_salons: int,
+    tracer: "TraceWriter | None" = None,
 ) -> dict[str, Any]:
     """Scope gates for the semantic promote path (S0064 audit fixes).
 
@@ -967,6 +988,7 @@ async def _apply_promote_scope_gates(
                 supabase=supabase,
                 llm_client=llm_client,
                 audit_id=audit_id,
+                tracer=tracer,
             )
         except Exception as e:
             info["verify_error"] = str(e)[:500]
@@ -1451,6 +1473,7 @@ async def _compute_pricing_comparisons(
                     audit_id=audit_id,
                     min_count=STRONG_MIN_COUNT,
                     min_unique_salons=STRONG_MIN_UNIQUE_SALONS,
+                    tracer=tracer,
                 )
             return {
                 "sid": _sid,
@@ -2407,10 +2430,37 @@ async def _compute_treatment_tier_rows(
             continue
         key = _tid_key(svc)
         if key is None:
+            # P0 silent-fail surfacing (quick 260613-m23): an eligible
+            # subject service with neither booksy_treatment_id nor
+            # synthetic_treatment_id can't enter the tier-1 pricing matrix
+            # and silently disappears from the comparison. Trace the skip so
+            # the operator sees "this priced service has no comparison" with
+            # a concrete reason. Behaviour unchanged — still skipped.
+            if tracer is not None:
+                tracer.add(
+                    "service.tid_unresolved",
+                    {
+                        "service_id": svc.get("id"),
+                        "name": (svc.get("name") or "")[:120],
+                        "reason": "no_tid",
+                    },
+                )
             continue
         subject_by_tid.setdefault(key, []).append(svc)
 
     if not subject_by_tid:
+        # P0 silent-fail surfacing (quick 260613-m23): no subject service
+        # carried a usable tid → zero tier-1 rows. Trace the empty outcome so
+        # "report has no treatment-tier pricing" has a reason in the trace.
+        if tracer is not None:
+            tracer.add(
+                "pricing.computed",
+                {
+                    "pricing_type": "treatment",
+                    "row_count": 0,
+                    "skip_reason": "no_subject_services_with_tid",
+                },
+            )
         return rows
 
     # T1 fix 2026-05-19 — hydrate name_embedding for subject + competitor
@@ -2784,6 +2834,7 @@ async def _compute_treatment_tier_rows(
                 supabase=supabase,
                 llm_client=llm_client,
                 audit_id=audit_id,
+                tracer=tracer,
             )
             verified_samples: list[dict[str, Any]] = []
             rejected_count = 0
@@ -3009,6 +3060,7 @@ async def _compute_treatment_tier_rows(
                     audit_id=audit_id,
                     min_count=STRONG_MIN_COUNT,
                     min_unique_salons=STRONG_MIN_UNIQUE_SALONS,
+                    tracer=tracer,
                 )
             return {
                 "sid": _sid,
@@ -3204,6 +3256,15 @@ async def _compute_method_targeted_pricing(
             "method-targeted pricing (audit_id=%s)",
             audit_id,
         )
+        if tracer is not None:
+            tracer.add(
+                "pricing.computed",
+                {
+                    "pricing_type": "method",
+                    "row_count": 0,
+                    "skip_reason": "no_subject_salon_id",
+                },
+            )
         return []
 
     # 1. List subject's classified methods. RPC returns each canonical
@@ -3220,6 +3281,15 @@ async def _compute_method_targeted_pricing(
             "— skipping method-targeted pricing (backfill may be pending)",
             subject_salon_id,
         )
+        if tracer is not None:
+            tracer.add(
+                "pricing.computed",
+                {
+                    "pricing_type": "method",
+                    "row_count": 0,
+                    "skip_reason": "no_classified_methods",
+                },
+            )
         return []
 
     logger.info(
@@ -3478,12 +3548,30 @@ async def _compute_brand_structured_pricing(
     duration) grouping key.
     """
     if not aligned_competitors:
+        if tracer is not None:
+            tracer.add(
+                "pricing.computed",
+                {
+                    "pricing_type": "structured",
+                    "row_count": 0,
+                    "skip_reason": "no_competitors",
+                },
+            )
         return []
     competitor_booksy_ids = [
         cand.booksy_id for cand, _ in aligned_competitors
         if cand.counts_in_aggregates
     ]
     if not competitor_booksy_ids:
+        if tracer is not None:
+            tracer.add(
+                "pricing.computed",
+                {
+                    "pricing_type": "structured",
+                    "row_count": 0,
+                    "skip_reason": "no_counting_competitors",
+                },
+            )
         return []
 
     rows: list[dict[str, Any]] = []
@@ -4151,6 +4239,8 @@ _NON_DISCRIMINATIVE_METHOD_CATEGORIES: frozenset[str] = frozenset({"inny"})
 async def _resolve_method_categories_for_services(
     service: SupabaseService,
     service_ids: list[int],
+    *,
+    tracer: "TraceWriter | None" = None,
 ) -> dict[int, set[str]]:
     """Return {service_id: {treatment_methods.category}} for given service ids.
 
@@ -4187,6 +4277,19 @@ async def _resolve_method_categories_for_services(
             "Failed to load service_method_classification for %d service ids: %s",
             len(service_ids), e,
         )
+        # P0 silent-fail surfacing (quick 260613-m23): the gap walk-up fails
+        # open to legacy tid-only behaviour on a classification RPC error — a
+        # silent loss of method-category filtering. Trace it so the operator
+        # can correlate noisy gap rows with a DB blip. Behaviour unchanged.
+        if tracer is not None:
+            tracer.add(
+                "method_categories.rpc_fail",
+                {
+                    "stage": "service_method_classification",
+                    "service_ids_count": len(service_ids),
+                    "error": str(e)[:500],
+                },
+            )
         return {}
     rows = cls_res.data or []
     if not rows:
@@ -4206,6 +4309,16 @@ async def _resolve_method_categories_for_services(
             "Failed to load treatment_methods categories for %d method ids: %s",
             len(method_ids), e,
         )
+        if tracer is not None:
+            tracer.add(
+                "method_categories.rpc_fail",
+                {
+                    "stage": "treatment_methods",
+                    "service_ids_count": len(service_ids),
+                    "method_ids_count": len(method_ids),
+                    "error": str(e)[:500],
+                },
+            )
         return {}
     method_to_category: dict[int, str] = {
         int(r["id"]): r["category"]
@@ -4232,6 +4345,8 @@ async def _filter_missing_by_method_category(
     missing: list[dict[str, Any]],
     subject_svcs: dict[int, dict[str, Any]],
     competitor_service_ids_by_tid: dict[int, list[int]],
+    *,
+    tracer: "TraceWriter | None" = None,
 ) -> list[dict[str, Any]]:
     """Drop missing-gap rows whose method category is already covered by
     the subject.
@@ -4267,7 +4382,7 @@ async def _filter_missing_by_method_category(
         return missing
 
     subject_categories_by_svc = await _resolve_method_categories_for_services(
-        service, subject_service_ids,
+        service, subject_service_ids, tracer=tracer,
     )
     subject_categories: set[str] = set()
     for cats in subject_categories_by_svc.values():
@@ -4294,7 +4409,7 @@ async def _filter_missing_by_method_category(
     all_comp_svc_ids = list({int(x) for x in all_comp_svc_ids})
 
     comp_categories_by_svc = await _resolve_method_categories_for_services(
-        service, all_comp_svc_ids,
+        service, all_comp_svc_ids, tracer=tracer,
     )
 
     # Build tid → set[category] by aggregating across the tid's
@@ -4345,6 +4460,8 @@ async def _compute_service_gaps(
     report_id: int,
     subject_data: dict[str, Any],
     aligned_competitors: list[tuple[CompetitorCandidate, dict[str, Any]]],
+    *,
+    tracer: "TraceWriter | None" = None,
 ) -> list[dict[str, Any]]:
     """Compute service gap rows (missing + unique_usp).
 
@@ -4473,6 +4590,7 @@ async def _compute_service_gaps(
     if missing:
         missing = await _filter_missing_by_method_category(
             service, missing, subject_svcs, competitor_service_ids_by_tid,
+            tracer=tracer,
         )
 
     missing.sort(key=lambda r: (-(r["popularity_score"] or 0), -(r["competitor_count"] or 0)))

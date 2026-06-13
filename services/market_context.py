@@ -19,12 +19,19 @@ salon might write, in any language form, with any typo.
 from __future__ import annotations
 
 import logging
+import time
 from typing import Any
 
 from services.pipeline_trace import TraceWriter
 from services.supabase import SupabaseService
 
 logger = logging.getLogger(__name__)
+
+
+# RPC slow-query threshold (ms). Above this, the single/batch related-services
+# RPC also logs a warning so PM2/loki surfaces slow Postgres without grepping
+# trace rows (quick 260613-m23, P3 concurrency/RPC latency).
+_RPC_SLOW_MS = 1000
 
 
 # Threshold tuning notes (empirical, audit 34):
@@ -125,6 +132,10 @@ async def gather_market_context_samples(
             )
         return []
 
+    # P3 RPC latency (quick 260613-m23): time the embedding-cosine RPC so the
+    # operator sees per-service round-trip latency in the trace. Observability
+    # only — the return value is byte-identical.
+    _rpc_t0 = time.monotonic()
     try:
         res = supabase.client.rpc(
             "fn_find_related_competitor_services",
@@ -136,9 +147,10 @@ async def gather_market_context_samples(
             },
         ).execute()
     except Exception as e:
+        _rpc_dur_ms = int((time.monotonic() - _rpc_t0) * 1000)
         logger.warning(
-            "gather_market_context_samples RPC failed (svc=%s): %s",
-            subject_service_id, e,
+            "gather_market_context_samples RPC failed (svc=%s, %dms): %s",
+            subject_service_id, _rpc_dur_ms, e,
         )
         if tracer is not None:
             tracer.add(
@@ -150,11 +162,18 @@ async def gather_market_context_samples(
                     "limit": limit,
                     "min_similarity": min_similarity,
                     "outcome": "rpc_error",
+                    "rpc_duration_ms": _rpc_dur_ms,
                     "error": str(e)[:500],
                 },
                 salon_ref_id=None,
             )
         return []
+    _rpc_dur_ms = int((time.monotonic() - _rpc_t0) * 1000)
+    if _rpc_dur_ms > _RPC_SLOW_MS:
+        logger.warning(
+            "market_context RPC slow (svc=%s): %dms",
+            subject_service_id, _rpc_dur_ms,
+        )
 
     out: list[dict[str, Any]] = []
     raw_rows = res.data or []
@@ -208,6 +227,7 @@ async def gather_market_context_samples(
                 "strong_min_count": STRONG_MIN_COUNT,
                 "strong_min_unique_salons": STRONG_MIN_UNIQUE_SALONS,
                 "outcome": "ok",
+                "rpc_duration_ms": _rpc_dur_ms,
                 "raw_rows_count": len(raw_rows),
                 "skipped_no_price": skipped_no_price,
                 "accepted_count": len(out),
@@ -273,6 +293,8 @@ async def gather_market_context_samples_batch(
     if not subject_service_ids or not competitor_booksy_ids:
         return {int(sid): [] for sid in (subject_service_ids or [])}
 
+    # P3 RPC latency (quick 260613-m23): time the single batch RPC round-trip.
+    _rpc_t0 = time.monotonic()
     try:
         res = supabase.client.rpc(
             "fn_find_related_competitor_services_batch",
@@ -284,9 +306,11 @@ async def gather_market_context_samples_batch(
             },
         ).execute()
     except Exception as e:
+        _rpc_dur_ms = int((time.monotonic() - _rpc_t0) * 1000)
         logger.warning(
-            "gather_market_context_samples_batch RPC failed (n_subjects=%d): %s",
-            len(subject_service_ids), e,
+            "gather_market_context_samples_batch RPC failed "
+            "(n_subjects=%d, %dms): %s",
+            len(subject_service_ids), _rpc_dur_ms, e,
         )
         if tracer is not None:
             tracer.add(
@@ -297,11 +321,18 @@ async def gather_market_context_samples_batch(
                     "limit": limit,
                     "min_similarity": min_similarity,
                     "outcome": "rpc_error",
+                    "rpc_duration_ms": _rpc_dur_ms,
                     "error": str(e)[:500],
                 },
                 salon_ref_id=None,
             )
         return {int(sid): [] for sid in subject_service_ids}
+    _rpc_dur_ms = int((time.monotonic() - _rpc_t0) * 1000)
+    if _rpc_dur_ms > _RPC_SLOW_MS:
+        logger.warning(
+            "market_context batch RPC slow (n_subjects=%d): %dms",
+            len(subject_service_ids), _rpc_dur_ms,
+        )
 
     out: dict[int, list[dict[str, Any]]] = {
         int(sid): [] for sid in subject_service_ids
@@ -352,6 +383,7 @@ async def gather_market_context_samples_batch(
                 "skipped_no_price": skipped_no_price,
                 "subjects_with_matches": subjects_with_matches,
                 "outcome": "ok",
+                "rpc_duration_ms": _rpc_dur_ms,
             },
             salon_ref_id=None,
         )
