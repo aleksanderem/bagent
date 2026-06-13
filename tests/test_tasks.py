@@ -307,3 +307,112 @@ class TestRunCompetitorRefreshTask:
         mock_convex_cls.assert_not_called()
 
         assert result["significant_change_count"] == 3
+
+
+# ---------------------------------------------------------------------------
+# run_competitor_report_task — job_id threading (quick 260613-m23 Task 3)
+# ---------------------------------------------------------------------------
+
+
+class TestRunCompetitorReportTask:
+    @pytest.mark.asyncio
+    async def test_passes_job_id_to_pipeline(self):
+        from workers.tasks import run_competitor_report_task
+
+        mock_pipeline = AsyncMock(return_value={
+            "report_id": 7,
+            "narrative": "n",
+            "swot_item_count": 0,
+            "recommendation_count": 0,
+            "used_fallback": False,
+        })
+        mock_convex = MagicMock()
+        mock_convex.competitor_report_progress = AsyncMock()
+        mock_convex.competitor_report_complete = AsyncMock()
+        mock_convex.competitor_report_fail = AsyncMock()
+        mock_convex_cls = MagicMock(return_value=mock_convex)
+
+        redis = AsyncMock()
+        redis.get = AsyncMock(return_value=None)  # no cancel
+        ctx = {"redis": redis, "job_id": "job-3"}
+        request = {"auditId": "audit-1", "userId": "user-1"}
+
+        with (
+            patch(
+                "pipelines.competitor_report.run_competitor_report_pipeline",
+                mock_pipeline,
+            ),
+            patch("services.convex.ConvexClient", mock_convex_cls),
+        ):
+            await run_competitor_report_task(ctx, request)
+
+        mock_pipeline.assert_awaited_once()
+        assert mock_pipeline.await_args.kwargs["job_id"] == "job-3"
+
+    @pytest.mark.asyncio
+    async def test_logs_queue_depth_on_start(self, caplog):
+        """Best-effort queue-depth probe ZCARDs arq:queue on start (P3)."""
+        import logging
+
+        from workers.tasks import run_competitor_report_task
+
+        mock_pipeline = AsyncMock(return_value={
+            "report_id": 7, "narrative": "n", "swot_item_count": 0,
+            "recommendation_count": 0, "used_fallback": False,
+        })
+        mock_convex = MagicMock()
+        mock_convex.competitor_report_progress = AsyncMock()
+        mock_convex.competitor_report_complete = AsyncMock()
+        mock_convex.competitor_report_fail = AsyncMock()
+        mock_convex_cls = MagicMock(return_value=mock_convex)
+
+        redis = AsyncMock()
+        redis.get = AsyncMock(return_value=None)
+        redis.zcard = AsyncMock(return_value=4)
+        ctx = {"redis": redis, "job_id": "job-q"}
+        request = {"auditId": "audit-1", "userId": "user-1"}
+
+        with (
+            patch(
+                "pipelines.competitor_report.run_competitor_report_pipeline",
+                mock_pipeline,
+            ),
+            patch("services.convex.ConvexClient", mock_convex_cls),
+            caplog.at_level(logging.INFO),
+        ):
+            await run_competitor_report_task(ctx, request)
+
+        redis.zcard.assert_awaited_once_with("arq:queue")
+        assert any("queue depth=4" in r.getMessage() for r in caplog.records)
+
+    @pytest.mark.asyncio
+    async def test_queue_depth_probe_never_crashes_task(self):
+        """A Redis hiccup on the queue-depth probe must not fail the task."""
+        from workers.tasks import run_competitor_report_task
+
+        mock_pipeline = AsyncMock(return_value={
+            "report_id": 7, "narrative": "n", "swot_item_count": 0,
+            "recommendation_count": 0, "used_fallback": False,
+        })
+        mock_convex = MagicMock()
+        mock_convex.competitor_report_progress = AsyncMock()
+        mock_convex.competitor_report_complete = AsyncMock()
+        mock_convex.competitor_report_fail = AsyncMock()
+        mock_convex_cls = MagicMock(return_value=mock_convex)
+
+        redis = AsyncMock()
+        redis.get = AsyncMock(return_value=None)
+        redis.zcard = AsyncMock(side_effect=ConnectionError("redis down"))
+        ctx = {"redis": redis, "job_id": "job-q2"}
+        request = {"auditId": "audit-1", "userId": "user-1"}
+
+        with (
+            patch(
+                "pipelines.competitor_report.run_competitor_report_pipeline",
+                mock_pipeline,
+            ),
+            patch("services.convex.ConvexClient", mock_convex_cls),
+        ):
+            # Must complete despite the probe error.
+            await run_competitor_report_task(ctx, request)
+        mock_pipeline.assert_awaited_once()

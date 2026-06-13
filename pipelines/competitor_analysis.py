@@ -77,6 +77,14 @@ ProgressCallback = Callable[[int, str], Awaitable[None]]
 _PROMOTE_GATE_CONCURRENCY = 8
 
 
+# Concurrency / RPC latency trace thresholds (quick 260613-m23, P3). Only
+# emit a trace when a semaphore acquire or an RPC round-trip exceeds this, so
+# the trace isn't flooded on the common fast path — mirrors market_context's
+# _RPC_SLOW_MS. 1s headroom over normal acquire (<1ms when uncontended).
+_CONCURRENCY_WAIT_SLOW_MS = 1000
+_RPC_SLOW_MS = 1000
+
+
 # Per-salon wall-clock cap for the taxonomy router. One hung LLM call inside
 # _apply_llm_taxonomy_to_null_tid_services used to freeze the whole
 # asyncio.gather (no timeout) and wedge the job at ~26-38% (quick 260613-kiu —
@@ -139,6 +147,7 @@ async def compute_competitor_analysis(
     supabase: SupabaseService | None = None,
     convex_user_id: str = "unknown",
     must_include_salon_ids: list[int] | None = None,
+    job_id: str = "unknown",
 ) -> int:
     """Compute a full competitor analysis for an audit and persist to Supabase.
 
@@ -177,22 +186,27 @@ async def compute_competitor_analysis(
         audit_id=audit_id,
         report_id=None,  # set after create_competitor_report
         pipeline="competitor_analysis",
+        job_id=job_id,
     )
 
     # ── Step 1: Select competitors (Comp Etap 1) ──
     await progress(5, "Selekcja konkurentów...")
-    candidates = await select_competitors(
-        audit_id,
-        target_count=target_count,
-        mode=selection_mode,
-        supabase=service,
-        tracer=tracer,
-        must_include_salon_ids=must_include_salon_ids,
-    )
-    if not candidates:
-        raise RuntimeError(
-            f"No competitor candidates selected for audit_id={audit_id!r}"
+    # P2 (quick 260613-m23): selection had no _phase_timer — a black hole in
+    # the profile. Wrap the select call (+ its validation) only; progress()
+    # stays outside so ordering/semantics are unchanged.
+    async with _phase_timer(tracer, "selection"):
+        candidates = await select_competitors(
+            audit_id,
+            target_count=target_count,
+            mode=selection_mode,
+            supabase=service,
+            tracer=tracer,
+            must_include_salon_ids=must_include_salon_ids,
         )
+        if not candidates:
+            raise RuntimeError(
+                f"No competitor candidates selected for audit_id={audit_id!r}"
+            )
     logger.info(
         "Etap 4: selected %d competitors for audit=%s",
         len(candidates), audit_id,
@@ -249,21 +263,43 @@ async def compute_competitor_analysis(
 
     # ── Step 3: Load subject + competitors full data ──
     await progress(25, "Ładowanie danych subject + konkurentów...")
-    subject_data = await service.get_subject_full_data(audit_id)
+    # P2 (quick 260613-m23): separate timers for the two heavy data loads.
+    async with _phase_timer(tracer, "load.subject"):
+        subject_data = await service.get_subject_full_data(audit_id)
 
     competitor_booksy_ids = [c.booksy_id for c in candidates]
-    competitor_data_map = await service.get_competitor_full_data(competitor_booksy_ids)
     # Keep only candidates whose data loaded successfully; align bucket metadata
     aligned_competitors: list[tuple[CompetitorCandidate, dict[str, Any]]] = []
-    for c in candidates:
-        data = competitor_data_map.get(c.booksy_id)
-        if data is None:
-            logger.warning(
-                "Competitor booksy_id=%s missing scrape data — dropped from computations",
-                c.booksy_id,
-            )
-            continue
-        aligned_competitors.append((c, data))
+    _dropped_booksy_ids: list[int] = []
+    async with _phase_timer(tracer, "load.competitors"):
+        competitor_data_map = await service.get_competitor_full_data(competitor_booksy_ids)
+        for c in candidates:
+            data = competitor_data_map.get(c.booksy_id)
+            if data is None:
+                logger.warning(
+                    "Competitor booksy_id=%s missing scrape data — dropped from computations",
+                    c.booksy_id,
+                )
+                _dropped_booksy_ids.append(c.booksy_id)
+                continue
+            aligned_competitors.append((c, data))
+
+    # P0 silent-fail surfacing (quick 260613-m23): dropping a selected
+    # candidate because its scrape never loaded is a silent shrink of the
+    # comparison set (the metadata `competitors_dropped_no_data` aggregate
+    # existed but never reached the trace). Surface candidate_count vs
+    # dropped_count + the dropped ids so the operator can correlate a thin
+    # report with missing scrapes. Behaviour unchanged — the drop already
+    # happened above.
+    if tracer is not None and _dropped_booksy_ids:
+        tracer.add(
+            "competitors.data_load",
+            {
+                "candidate_count": len(candidates),
+                "dropped_count": len(_dropped_booksy_ids),
+                "dropped_booksy_ids": _dropped_booksy_ids[:50],
+            },
+        )
 
     if not aligned_competitors:
         logger.error(
@@ -285,10 +321,12 @@ async def compute_competitor_analysis(
     for _, cdata in aligned_competitors:
         if cdata.get("salon_id") is not None:
             salon_ids_for_mapping.append(cdata["salon_id"])
-    versum_map = await service.get_versum_mappings(salon_ids_for_mapping)
-    _apply_versum_mappings(subject_data, versum_map)
-    for _, cdata in aligned_competitors:
-        _apply_versum_mappings(cdata, versum_map)
+    # P2 (quick 260613-m23): the Versum mapping fetch + apply had no timer.
+    async with _phase_timer(tracer, "versum.mapping"):
+        versum_map = await service.get_versum_mappings(salon_ids_for_mapping)
+        _apply_versum_mappings(subject_data, versum_map)
+        for _, cdata in aligned_competitors:
+            _apply_versum_mappings(cdata, versum_map)
 
     # LLM-assisted taxonomy inference for services z NULL booksy_treatment_id
     # (po Versum mapping) — Booksy nie skategoryzował tych usług, więc
@@ -346,7 +384,22 @@ async def compute_competitor_analysis(
             async def _route_salon(
                 services_list: list[dict[str, Any]], label: str,
             ) -> int:
+                # P3 (quick 260613-m23): measure how long this salon waited to
+                # acquire the router semaphore. Only traced when slow (>1s) so
+                # contention is visible without flooding the trace. The acquire
+                # semantics are unchanged — we just time the existing wait.
+                _sem_t0 = time.monotonic()
                 async with _router_sem:
+                    _wait_ms = int((time.monotonic() - _sem_t0) * 1000)
+                    if tracer is not None and _wait_ms > _CONCURRENCY_WAIT_SLOW_MS:
+                        tracer.add(
+                            "concurrency.semaphore_wait",
+                            {
+                                "gate": "taxonomy_router",
+                                "wait_ms": _wait_ms,
+                                "label": label,
+                            },
+                        )
                     return await _router_asyncio.wait_for(
                         _apply_llm_taxonomy_to_null_tid_services(
                             service, services_list, label=label,
@@ -602,6 +655,7 @@ async def compute_competitor_analysis(
     async with _phase_timer(tracer, "gaps.compute"):
         gap_rows = await _compute_service_gaps(
             service, report_id, subject_data, aligned_competitors,
+            tracer=tracer,
         )
         n_gaps = await service.insert_competitor_service_gaps(gap_rows)
         logger.info("Etap 4: inserted %d service_gaps", n_gaps)
@@ -870,6 +924,7 @@ async def _apply_promote_scope_gates(
     audit_id: str | None,
     min_count: int,
     min_unique_salons: int,
+    tracer: "TraceWriter | None" = None,
 ) -> dict[str, Any]:
     """Scope gates for the semantic promote path (S0064 audit fixes).
 
@@ -967,6 +1022,7 @@ async def _apply_promote_scope_gates(
                 supabase=supabase,
                 llm_client=llm_client,
                 audit_id=audit_id,
+                tracer=tracer,
             )
         except Exception as e:
             info["verify_error"] = str(e)[:500]
@@ -1434,7 +1490,15 @@ async def _compute_pricing_comparisons(
             # Gate by brand marker, duration bucket, and batch LLM pair
             # verification (fail-closed) BEFORE the >=3 strong / >=2 salons
             # re-gate.
+            # P3 (quick 260613-m23): time the promote-gate semaphore acquire.
+            _gate_sem_t0 = time.monotonic()
             async with _gate_sem:
+                _gate_wait_ms = int((time.monotonic() - _gate_sem_t0) * 1000)
+                if tracer is not None and _gate_wait_ms > _CONCURRENCY_WAIT_SLOW_MS:
+                    tracer.add(
+                        "concurrency.semaphore_wait",
+                        {"gate": "promote_gate", "wait_ms": _gate_wait_ms},
+                    )
                 gate = await _apply_promote_scope_gates(
                     strong,
                     subject_name=ctx["subj_name"],
@@ -1451,6 +1515,7 @@ async def _compute_pricing_comparisons(
                     audit_id=audit_id,
                     min_count=STRONG_MIN_COUNT,
                     min_unique_salons=STRONG_MIN_UNIQUE_SALONS,
+                    tracer=tracer,
                 )
             return {
                 "sid": _sid,
@@ -2407,10 +2472,37 @@ async def _compute_treatment_tier_rows(
             continue
         key = _tid_key(svc)
         if key is None:
+            # P0 silent-fail surfacing (quick 260613-m23): an eligible
+            # subject service with neither booksy_treatment_id nor
+            # synthetic_treatment_id can't enter the tier-1 pricing matrix
+            # and silently disappears from the comparison. Trace the skip so
+            # the operator sees "this priced service has no comparison" with
+            # a concrete reason. Behaviour unchanged — still skipped.
+            if tracer is not None:
+                tracer.add(
+                    "service.tid_unresolved",
+                    {
+                        "service_id": svc.get("id"),
+                        "name": (svc.get("name") or "")[:120],
+                        "reason": "no_tid",
+                    },
+                )
             continue
         subject_by_tid.setdefault(key, []).append(svc)
 
     if not subject_by_tid:
+        # P0 silent-fail surfacing (quick 260613-m23): no subject service
+        # carried a usable tid → zero tier-1 rows. Trace the empty outcome so
+        # "report has no treatment-tier pricing" has a reason in the trace.
+        if tracer is not None:
+            tracer.add(
+                "pricing.computed",
+                {
+                    "pricing_type": "treatment",
+                    "row_count": 0,
+                    "skip_reason": "no_subject_services_with_tid",
+                },
+            )
         return rows
 
     # T1 fix 2026-05-19 — hydrate name_embedding for subject + competitor
@@ -2784,6 +2876,7 @@ async def _compute_treatment_tier_rows(
                 supabase=supabase,
                 llm_client=llm_client,
                 audit_id=audit_id,
+                tracer=tracer,
             )
             verified_samples: list[dict[str, Any]] = []
             rejected_count = 0
@@ -2990,7 +3083,15 @@ async def _compute_treatment_tier_rows(
             # (fail-closed). The classifier-aware method gate above already
             # handled brand scope, so the shared helper runs with the brand
             # gate disabled. The count/salons gate below acts as the re-gate.
+            # P3 (quick 260613-m23): time the tier-1 promote-gate semaphore.
+            _t1_gate_sem_t0 = time.monotonic()
             async with _t1_gate_sem:
+                _t1_gate_wait_ms = int((time.monotonic() - _t1_gate_sem_t0) * 1000)
+                if tracer is not None and _t1_gate_wait_ms > _CONCURRENCY_WAIT_SLOW_MS:
+                    tracer.add(
+                        "concurrency.semaphore_wait",
+                        {"gate": "promote_gate", "wait_ms": _t1_gate_wait_ms},
+                    )
                 _t1_gate = await _apply_promote_scope_gates(
                     strong_t1,
                     subject_name=canonical_name,
@@ -3009,6 +3110,7 @@ async def _compute_treatment_tier_rows(
                     audit_id=audit_id,
                     min_count=STRONG_MIN_COUNT,
                     min_unique_salons=STRONG_MIN_UNIQUE_SALONS,
+                    tracer=tracer,
                 )
             return {
                 "sid": _sid,
@@ -3204,15 +3306,37 @@ async def _compute_method_targeted_pricing(
             "method-targeted pricing (audit_id=%s)",
             audit_id,
         )
+        if tracer is not None:
+            tracer.add(
+                "pricing.computed",
+                {
+                    "pricing_type": "method",
+                    "row_count": 0,
+                    "skip_reason": "no_subject_salon_id",
+                },
+            )
         return []
 
     # 1. List subject's classified methods. RPC returns each canonical
     # method once, with services_count showing how many subject services
     # map to it. Sorted services_count DESC inside the RPC.
+    # P3 (quick 260613-m23): time the RPC; trace only when slow (>1s).
+    _sm_t0 = time.monotonic()
     methods_res = service.client.rpc(
         "fn_subject_methods",
         {"p_subject_salon_id": int(subject_salon_id)},
     ).execute()
+    _sm_dur_ms = int((time.monotonic() - _sm_t0) * 1000)
+    if _sm_dur_ms > _RPC_SLOW_MS:
+        logger.warning(
+            "Etap 4 tier-4: fn_subject_methods slow (salon=%s): %dms",
+            subject_salon_id, _sm_dur_ms,
+        )
+        if tracer is not None:
+            tracer.add(
+                "rpc.latency",
+                {"rpc": "fn_subject_methods", "duration_ms": _sm_dur_ms},
+            )
     subject_methods = methods_res.data or []
     if not subject_methods:
         logger.info(
@@ -3220,6 +3344,15 @@ async def _compute_method_targeted_pricing(
             "— skipping method-targeted pricing (backfill may be pending)",
             subject_salon_id,
         )
+        if tracer is not None:
+            tracer.add(
+                "pricing.computed",
+                {
+                    "pricing_type": "method",
+                    "row_count": 0,
+                    "skip_reason": "no_classified_methods",
+                },
+            )
         return []
 
     logger.info(
@@ -3246,6 +3379,9 @@ async def _compute_method_targeted_pricing(
         subject_services_for_method = subj_svcs_by_method.get(method_id, [])
 
         # Call market pricing RPC
+        # P3 (quick 260613-m23): time per-method RPC; carry duration into the
+        # existing per-method trace below + warn when slow (>1s).
+        _mp_t0 = time.monotonic()
         pricing_res = service.client.rpc(
             "fn_compute_method_pricing",
             {
@@ -3257,6 +3393,21 @@ async def _compute_method_targeted_pricing(
                 "p_sample_limit": 30,
             },
         ).execute()
+        _mp_dur_ms = int((time.monotonic() - _mp_t0) * 1000)
+        if _mp_dur_ms > _RPC_SLOW_MS:
+            logger.warning(
+                "Etap 4 tier-4: fn_compute_method_pricing slow "
+                "(method=%s): %dms", method_id, _mp_dur_ms,
+            )
+            if tracer is not None:
+                tracer.add(
+                    "rpc.latency",
+                    {
+                        "rpc": "fn_compute_method_pricing",
+                        "method_id": method_id,
+                        "duration_ms": _mp_dur_ms,
+                    },
+                )
         pricing_data = pricing_res.data or []
         if not pricing_data:
             # No competitors in radius offering this method — emit
@@ -3478,12 +3629,30 @@ async def _compute_brand_structured_pricing(
     duration) grouping key.
     """
     if not aligned_competitors:
+        if tracer is not None:
+            tracer.add(
+                "pricing.computed",
+                {
+                    "pricing_type": "structured",
+                    "row_count": 0,
+                    "skip_reason": "no_competitors",
+                },
+            )
         return []
     competitor_booksy_ids = [
         cand.booksy_id for cand, _ in aligned_competitors
         if cand.counts_in_aggregates
     ]
     if not competitor_booksy_ids:
+        if tracer is not None:
+            tracer.add(
+                "pricing.computed",
+                {
+                    "pricing_type": "structured",
+                    "row_count": 0,
+                    "skip_reason": "no_counting_competitors",
+                },
+            )
         return []
 
     rows: list[dict[str, Any]] = []
@@ -4151,6 +4320,8 @@ _NON_DISCRIMINATIVE_METHOD_CATEGORIES: frozenset[str] = frozenset({"inny"})
 async def _resolve_method_categories_for_services(
     service: SupabaseService,
     service_ids: list[int],
+    *,
+    tracer: "TraceWriter | None" = None,
 ) -> dict[int, set[str]]:
     """Return {service_id: {treatment_methods.category}} for given service ids.
 
@@ -4187,6 +4358,19 @@ async def _resolve_method_categories_for_services(
             "Failed to load service_method_classification for %d service ids: %s",
             len(service_ids), e,
         )
+        # P0 silent-fail surfacing (quick 260613-m23): the gap walk-up fails
+        # open to legacy tid-only behaviour on a classification RPC error — a
+        # silent loss of method-category filtering. Trace it so the operator
+        # can correlate noisy gap rows with a DB blip. Behaviour unchanged.
+        if tracer is not None:
+            tracer.add(
+                "method_categories.rpc_fail",
+                {
+                    "stage": "service_method_classification",
+                    "service_ids_count": len(service_ids),
+                    "error": str(e)[:500],
+                },
+            )
         return {}
     rows = cls_res.data or []
     if not rows:
@@ -4206,6 +4390,16 @@ async def _resolve_method_categories_for_services(
             "Failed to load treatment_methods categories for %d method ids: %s",
             len(method_ids), e,
         )
+        if tracer is not None:
+            tracer.add(
+                "method_categories.rpc_fail",
+                {
+                    "stage": "treatment_methods",
+                    "service_ids_count": len(service_ids),
+                    "method_ids_count": len(method_ids),
+                    "error": str(e)[:500],
+                },
+            )
         return {}
     method_to_category: dict[int, str] = {
         int(r["id"]): r["category"]
@@ -4232,6 +4426,8 @@ async def _filter_missing_by_method_category(
     missing: list[dict[str, Any]],
     subject_svcs: dict[int, dict[str, Any]],
     competitor_service_ids_by_tid: dict[int, list[int]],
+    *,
+    tracer: "TraceWriter | None" = None,
 ) -> list[dict[str, Any]]:
     """Drop missing-gap rows whose method category is already covered by
     the subject.
@@ -4267,7 +4463,7 @@ async def _filter_missing_by_method_category(
         return missing
 
     subject_categories_by_svc = await _resolve_method_categories_for_services(
-        service, subject_service_ids,
+        service, subject_service_ids, tracer=tracer,
     )
     subject_categories: set[str] = set()
     for cats in subject_categories_by_svc.values():
@@ -4294,7 +4490,7 @@ async def _filter_missing_by_method_category(
     all_comp_svc_ids = list({int(x) for x in all_comp_svc_ids})
 
     comp_categories_by_svc = await _resolve_method_categories_for_services(
-        service, all_comp_svc_ids,
+        service, all_comp_svc_ids, tracer=tracer,
     )
 
     # Build tid → set[category] by aggregating across the tid's
@@ -4345,6 +4541,8 @@ async def _compute_service_gaps(
     report_id: int,
     subject_data: dict[str, Any],
     aligned_competitors: list[tuple[CompetitorCandidate, dict[str, Any]]],
+    *,
+    tracer: "TraceWriter | None" = None,
 ) -> list[dict[str, Any]]:
     """Compute service gap rows (missing + unique_usp).
 
@@ -4473,6 +4671,7 @@ async def _compute_service_gaps(
     if missing:
         missing = await _filter_missing_by_method_category(
             service, missing, subject_svcs, competitor_service_ids_by_tid,
+            tracer=tracer,
         )
 
     missing.sort(key=lambda r: (-(r["popularity_score"] or 0), -(r["competitor_count"] or 0)))
