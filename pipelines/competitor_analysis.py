@@ -2149,6 +2149,166 @@ async def _compute_treatment_tier_rows(
     """
     rows: list[dict[str, Any]] = []
 
+    def _emit_treatment_percentile_row(
+        *,
+        comp_samples: list[dict[str, Any]],
+        subj_svcs: list[dict[str, Any]],
+        subj_median_price: float,
+        subj_median_ppm: float | None,
+        canonical_name: str,
+        emit_booksy_tid: int | None,
+        emit_synthetic_tid: int | None,
+        emit_taxonomy_source: Any,
+    ) -> None:
+        """Compute market percentiles + deviation and append a treatment row.
+
+        Extracted verbatim from the original inline tier-1 emit block (quick
+        260613-cl2 N+1 refactor) so both the direct-sample path (pass 1) and
+        the promoted-semantic path (pass 2) share ONE implementation —
+        guarantees bit-for-bit identical rows. Logic unchanged.
+        """
+        # Compute market percentiles for both price and PLN/min.
+        market_prices = [float(s["price_grosze"]) for s in comp_samples]
+        market_ppms = [
+            float(s["price_grosze"]) / float(s["duration_minutes"])
+            for s in comp_samples
+            if s["duration_minutes"] > 0
+        ]
+        price_pcts = compute_percentiles(market_prices)
+        ppm_pcts = compute_percentiles(market_ppms) if market_ppms else None
+
+        # Deviation: total price (dev_raw) drives recommended_action to match
+        # user intuition. dev_per_min stays as informational context but NOT
+        # as the primary classifier input — when subject duration < market
+        # duration, dev_per_min may carry the opposite sign vs dev_raw
+        # (subject is cheaper total but pricier per minute), which previously
+        # produced 'lower' recommendations on negative-deviation rows.
+        dev_per_min = None
+        dev_raw = None
+        recommended_action = "hold"
+        if (
+            subj_median_ppm is not None
+            and ppm_pcts is not None
+            and ppm_pcts["market_p50"] > 0
+        ):
+            dev_per_min = round(
+                (subj_median_ppm - ppm_pcts["market_p50"]) / ppm_pcts["market_p50"]
+                * 100.0,
+                2,
+            )
+        if price_pcts["market_p50"] > 0:
+            dev_raw = round(
+                (subj_median_price - price_pcts["market_p50"])
+                / price_pcts["market_p50"] * 100.0,
+                2,
+            )
+        if dev_raw is not None:
+            recommended_action = _classify_pricing_action(dev_raw)
+        elif dev_per_min is not None:
+            recommended_action = _classify_pricing_action(dev_per_min)
+
+        subj_pct = compute_subject_percentile(subj_median_price, market_prices)
+
+        rows.append({
+            "report_id": report_id,
+            "comparison_tier": "treatment",
+            "booksy_treatment_id": emit_booksy_tid,
+            "synthetic_treatment_id": emit_synthetic_tid,
+            "taxonomy_source": emit_taxonomy_source,
+            "variant_id": None,
+            "treatment_name": canonical_name,
+            "treatment_parent_id": subj_svcs[0].get("treatment_parent_id"),
+            "subject_price_grosze": int(subj_median_price),
+            "subject_is_from_price": False,
+            "subject_duration_minutes": int(
+                subj_svcs[0].get("duration_minutes") or 0
+            ) or None,
+            "subject_price_per_min_grosze": subj_median_ppm,
+            "market_min_grosze": int(price_pcts["market_min"]),
+            "market_p25_grosze": int(price_pcts["market_p25"]),
+            "market_median_grosze": int(price_pcts["market_p50"]),
+            "market_p75_grosze": int(price_pcts["market_p75"]),
+            "market_max_grosze": int(price_pcts["market_max"]),
+            "market_price_per_min_grosze_min": (
+                round(ppm_pcts["market_min"], 2) if ppm_pcts else None
+            ),
+            "market_price_per_min_grosze_p25": (
+                round(ppm_pcts["market_p25"], 2) if ppm_pcts else None
+            ),
+            "market_price_per_min_grosze_median": (
+                round(ppm_pcts["market_p50"], 2) if ppm_pcts else None
+            ),
+            "market_price_per_min_grosze_p75": (
+                round(ppm_pcts["market_p75"], 2) if ppm_pcts else None
+            ),
+            "market_price_per_min_grosze_max": (
+                round(ppm_pcts["market_max"], 2) if ppm_pcts else None
+            ),
+            "subject_percentile": round(subj_pct, 2),
+            "deviation_pct": dev_raw,
+            "deviation_pct_per_min": dev_per_min,
+            "sample_size": len(comp_samples),
+            "recommended_action": recommended_action,
+            "verification_status": "verified",  # tier-1 nie używa verification
+            "verification_details": {
+                "tier": "treatment",
+                "subject_variants_in_tid": len(subj_svcs),
+                "competitor_services_in_tid": len(comp_samples),
+                "unique_competitor_salons": len(
+                    set(s["booksy_id"] for s in comp_samples if s.get("booksy_id"))
+                ),
+            },
+            "competitor_samples": comp_samples[:30],  # cap dla payload size
+        })
+
+    def _emit_treatment_subject_only_row(
+        *,
+        related_t1: list[dict[str, Any]],
+        subj_svcs: list[dict[str, Any]],
+        subj_median_price: float,
+        subj_median_ppm: float | None,
+        canonical_name: str,
+        emit_booksy_tid: int | None,
+        emit_synthetic_tid: int | None,
+        emit_taxonomy_source: Any,
+    ) -> None:
+        """Append a tier-1 subject_only row (no market data, soft related)."""
+        rows.append({
+            "report_id": report_id,
+            "comparison_tier": "treatment",
+            "booksy_treatment_id": emit_booksy_tid,
+            "synthetic_treatment_id": emit_synthetic_tid,
+            "taxonomy_source": emit_taxonomy_source,
+            "variant_id": None,
+            "treatment_name": canonical_name,
+            "treatment_parent_id": subj_svcs[0].get("treatment_parent_id"),
+            "subject_price_grosze": int(subj_median_price),
+            "subject_is_from_price": False,
+            "subject_duration_minutes": int(
+                subj_svcs[0].get("duration_minutes") or 0
+            ) or None,
+            "subject_price_per_min_grosze": subj_median_ppm,
+            "market_min_grosze": None,
+            "market_p25_grosze": None,
+            "market_median_grosze": None,
+            "market_p75_grosze": None,
+            "market_max_grosze": None,
+            "market_price_per_min_grosze_min": None,
+            "market_price_per_min_grosze_p25": None,
+            "market_price_per_min_grosze_median": None,
+            "market_price_per_min_grosze_p75": None,
+            "market_price_per_min_grosze_max": None,
+            "subject_percentile": None,
+            "deviation_pct": None,
+            "deviation_pct_per_min": None,
+            "sample_size": 0,
+            "recommended_action": "subject_only",
+            "verification_status": "subject_only",
+            "verification_details": None,
+            "competitor_samples": [],
+            "related_samples": related_t1,
+        })
+
     def _eligible(svc: dict[str, Any]) -> bool:
         if not svc.get("is_active", True):
             return False
@@ -2406,6 +2566,16 @@ async def _compute_treatment_tier_rows(
         )
 
     # 3. Per tid_key, build aggregate row.
+    # 2026-06-13 (quick 260613-cl2) — N+1 elimination. The subject_only
+    # branch used to call gather_market_context_samples() inline per tid
+    # (one RPC round-trip each). Pass 1 below now DEFERS those subjects;
+    # one batch RPC + parallel promote-gates run in the post-pass.
+    _t1_subject_only_ids: list[int] = []
+    _t1_ctx: dict[int, dict[str, Any]] = {}
+    competitor_booksy_ids = [
+        cand.booksy_id for cand, _ in aligned_competitors
+        if cand.counts_in_aggregates
+    ]
     for key, subj_svcs in subject_by_tid.items():
         tid_kind, tid_value = key
         comp_samples = competitor_by_tid.get(key, [])
@@ -2608,106 +2778,151 @@ async def _compute_treatment_tier_rows(
         )
 
         # Subject-only at tier-1 = no competitor offers anything in this tid.
+        # 2026-06-13 (quick 260613-cl2) — pre-pass. The per-subject semantic
+        # RPC + LLM promote-gate are DEFERRED to the post-pass below (one
+        # batch RPC + parallel gates). Here we only emit direct-sample rows
+        # inline and collect subject_only candidates.
         if not comp_samples:
-            # 2026-05-17 Faza 4 — embedding-cosine semantic match via RPC.
-            # Faza 4b — promote strong matches (≥3 with sim ≥ 0.65) to
-            # direct comp_samples instead of soft related_samples, so the
-            # pricing engine computes percentiles+deviation+action against
-            # them. See services.market_context for thresholds.
-            from services.market_context import (
-                gather_market_context_samples,
-                STRONG_MIN_SIMILARITY,
-                STRONG_MIN_COUNT,
-                STRONG_MIN_UNIQUE_SALONS,
-            )
-            related_t1: list[dict[str, Any]] = []
-            semantic_t1: list[dict[str, Any]] = []
-            promoted_t1 = False
             if subj_svcs and supabase is not None:
                 subj_id_for_rpc = subj_svcs[0].get("id")
-                competitor_booksy_ids = [
-                    cand.booksy_id for cand, _ in aligned_competitors
-                    if cand.counts_in_aggregates
-                ]
-                semantic_t1 = await gather_market_context_samples(
-                    supabase, subj_id_for_rpc, competitor_booksy_ids,
-                    tracer=tracer,
-                    subject_service_name=subj_svcs[0].get("name") if subj_svcs else None,
-                )
-                strong_t1 = [
-                    s for s in semantic_t1
-                    if (s.get("similarity") or 0) >= STRONG_MIN_SIMILARITY
-                ]
-                # Systemowy fix 2026-05-19 — brand-marker hard gate na
-                # promote path. RPC `fn_find_related_competitor_services`
-                # zwraca strong matches po pure embedding cosine, ALE
-                # OpenAI text-embedding-3-small jest method-agnostic dla
-                # blisko-medycznie powiązanych zabiegów (RESUR FX laser,
-                # DermaClear PRX, Mesoestetic peel — wszystkie "treatment
-                # for acne on face" → sim 0.78-0.86). Jeśli subject ma
-                # rozpoznawalny brand_marker (PRO XN, Thunder, Onda,
-                # PRX T33, ...) zostawiamy tylko competitor services z TYM
-                # SAMYM brand_marker albo bez markeru (generic). Bez tej
-                # bramki tier=treatment promoted_t1 wciąga cross-brand
-                # noise (audit 34 PRO XN III stopień: 14/14 sampli było z
-                # RESUR FX / DermaClear / Mesoestetic / Dermalogica —
-                # wszystkie ≥0.78 cosine, wszystkie inny brand).
-                # T3b multi-match — set intersection same as traditional
-                # path. `gather_market_context_samples` zwraca services
-                # spoza aligned_competitors (RPC scopes by booksy_id) —
-                # mogą one nie być w pre-classify cache, więc fallback do
-                # extract_brand_marker dla nich.
-                _subj_methods_promote: set[str] = (
-                    set(subj_method_canonicals)
-                    if subj_method_canonicals
-                    else (
-                        {extract_brand_marker(subj_svcs[0].get("name") or "")}
-                        if subj_svcs and extract_brand_marker(subj_svcs[0].get("name") or "")
-                        else set()
-                    )
-                )
-                if _subj_methods_promote:
-                    pre_brand_count = len(strong_t1)
-                    _filtered: list[dict[str, Any]] = []
-                    for _s in strong_t1:
-                        _sid = _s.get("service_id")
-                        _comp_methods: set[str] = set()
-                        if _sid is not None:
-                            _cm_list = _classified_methods.get(int(_sid))
-                            if _cm_list:
-                                _comp_methods = {m.canonical_name for m in _cm_list}
-                        if not _comp_methods:
-                            _bm = extract_brand_marker(
-                                _s.get("service_name") or ""
-                            )
-                            if _bm:
-                                _comp_methods = {_bm}
-                        if _comp_methods & _subj_methods_promote:
-                            _s["_canonical_method"] = next(
-                                iter(_comp_methods & _subj_methods_promote)
-                            )
-                            _filtered.append(_s)
-                    strong_t1 = _filtered
+                if subj_id_for_rpc is not None:
+                    _t1_subject_only_ids.append(int(subj_id_for_rpc))
+                    _t1_ctx[int(subj_id_for_rpc)] = {
+                        "tid_kind": tid_kind,
+                        "tid_value": tid_value,
+                        "subj_svcs": subj_svcs,
+                        "subj_method_canonicals": subj_method_canonicals,
+                        "canonical_name": canonical_name,
+                        "subj_median_price": subj_median_price,
+                        "subj_median_ppm": subj_median_ppm,
+                        "emit_booksy_tid": emit_booksy_tid,
+                        "emit_synthetic_tid": emit_synthetic_tid,
+                        "emit_taxonomy_source": emit_taxonomy_source,
+                    }
+                    continue
+            # No subj id (or no supabase) → cannot run the semantic RPC; emit
+            # subject_only with empty related_samples (same as the old path
+            # where the `if subj_svcs and supabase` guard was False).
+            _emit_treatment_subject_only_row(
+                related_t1=[],
+                subj_svcs=subj_svcs,
+                subj_median_price=subj_median_price,
+                subj_median_ppm=subj_median_ppm,
+                canonical_name=canonical_name,
+                emit_booksy_tid=emit_booksy_tid,
+                emit_synthetic_tid=emit_synthetic_tid,
+                emit_taxonomy_source=emit_taxonomy_source,
+            )
+            continue
 
-                    if pre_brand_count != len(strong_t1):
-                        logger.info(
-                            "Etap 4 tier-1 promote: methods=%s dropped "
-                            "%d/%d cross-method samples for %r",
-                            sorted(_subj_methods_promote),
-                            pre_brand_count - len(strong_t1),
-                            pre_brand_count,
-                            canonical_name[:60],
-                        )
-                # S0064 (2026-06-12) — scope gates on the tier-1 promote
-                # path: duration-bucket prefilter + batch LLM pair
-                # verification (fail-closed). The classifier-aware method
-                # gate above already handled brand scope, so the shared
-                # helper runs with the brand gate disabled. The existing
-                # count/salons gate below acts as the re-gate.
-                _t1_brand_dropped = (
-                    pre_brand_count - len(strong_t1)
-                    if _subj_methods_promote else 0
+        # Direct-sample path — shared percentile/emit (bit-for-bit identical
+        # via the extracted closure).
+        _emit_treatment_percentile_row(
+            comp_samples=comp_samples,
+            subj_svcs=subj_svcs,
+            subj_median_price=subj_median_price,
+            subj_median_ppm=subj_median_ppm,
+            canonical_name=canonical_name,
+            emit_booksy_tid=emit_booksy_tid,
+            emit_synthetic_tid=emit_synthetic_tid,
+            emit_taxonomy_source=emit_taxonomy_source,
+        )
+
+    # ------------------------------------------------------------------
+    # Post-pass (quick 260613-cl2) — one batch semantic RPC for ALL tier-1
+    # subject_only services, then promote-gates run in parallel.
+    #
+    # 2026-05-17 Faza 4 — pure embedding cosine via the batch RPC. Faza 4b —
+    # promote strong matches (≥3 with sim ≥ 0.65 from ≥2 salons, after the
+    # method gate + S0064 scope gates) to direct comp_samples so the pricing
+    # engine computes percentiles+deviation+action. Semantics identical to the
+    # old per-subject path — only the mechanism (1 round-trip + parallel LLM
+    # gates) changed. The classifier-aware method gate runs per subject in the
+    # post-pass (sync), the LLM verify_service_pairs gate runs in parallel.
+    if _t1_subject_only_ids:
+        from services.market_context import (
+            gather_market_context_samples_batch,
+            STRONG_MIN_SIMILARITY,
+            STRONG_MIN_COUNT,
+            STRONG_MIN_UNIQUE_SALONS,
+        )
+        t1_samples_by_subject = await gather_market_context_samples_batch(
+            supabase, _t1_subject_only_ids, competitor_booksy_ids,
+            tracer=tracer,
+        )
+
+        _t1_gate_sem = asyncio.Semaphore(_PROMOTE_GATE_CONCURRENCY)
+
+        async def _run_t1_gate(_sid: int) -> dict[str, Any]:
+            ctx = _t1_ctx[_sid]
+            tid_kind = ctx["tid_kind"]
+            tid_value = ctx["tid_value"]
+            subj_svcs = ctx["subj_svcs"]
+            subj_method_canonicals = ctx["subj_method_canonicals"]
+            canonical_name = ctx["canonical_name"]
+            semantic_t1 = t1_samples_by_subject.get(_sid, [])
+            strong_t1 = [
+                s for s in semantic_t1
+                if (s.get("similarity") or 0) >= STRONG_MIN_SIMILARITY
+            ]
+            # Systemowy fix 2026-05-19 — brand-marker hard gate na promote
+            # path. RPC zwraca strong matches po pure embedding cosine, ALE
+            # OpenAI text-embedding-3-small jest method-agnostic dla blisko-
+            # medycznie powiązanych zabiegów. Jeśli subject ma rozpoznawalny
+            # brand_marker zostawiamy tylko competitor services z TYM SAMYM
+            # brand_marker albo bez markeru (generic). T3b multi-match — set
+            # intersection same as traditional path. Batch fn zwraca services
+            # spoza aligned_competitors (RPC scopes by booksy_id) — mogą one
+            # nie być w pre-classify cache, więc fallback do
+            # extract_brand_marker dla nich.
+            _subj_methods_promote: set[str] = (
+                set(subj_method_canonicals)
+                if subj_method_canonicals
+                else (
+                    {extract_brand_marker(subj_svcs[0].get("name") or "")}
+                    if subj_svcs and extract_brand_marker(subj_svcs[0].get("name") or "")
+                    else set()
                 )
+            )
+            _t1_brand_dropped = 0
+            if _subj_methods_promote:
+                pre_brand_count = len(strong_t1)
+                _filtered: list[dict[str, Any]] = []
+                for _s in strong_t1:
+                    _csid = _s.get("service_id")
+                    _comp_methods: set[str] = set()
+                    if _csid is not None:
+                        _cm_list = _classified_methods.get(int(_csid))
+                        if _cm_list:
+                            _comp_methods = {m.canonical_name for m in _cm_list}
+                    if not _comp_methods:
+                        _bm = extract_brand_marker(
+                            _s.get("service_name") or ""
+                        )
+                        if _bm:
+                            _comp_methods = {_bm}
+                    if _comp_methods & _subj_methods_promote:
+                        _s["_canonical_method"] = next(
+                            iter(_comp_methods & _subj_methods_promote)
+                        )
+                        _filtered.append(_s)
+                strong_t1 = _filtered
+                _t1_brand_dropped = pre_brand_count - len(strong_t1)
+                if _t1_brand_dropped:
+                    logger.info(
+                        "Etap 4 tier-1 promote: methods=%s dropped "
+                        "%d/%d cross-method samples for %r",
+                        sorted(_subj_methods_promote),
+                        _t1_brand_dropped,
+                        pre_brand_count,
+                        canonical_name[:60],
+                    )
+            # S0064 (2026-06-12) — scope gates on the tier-1 promote path:
+            # duration-bucket prefilter + batch LLM pair verification
+            # (fail-closed). The classifier-aware method gate above already
+            # handled brand scope, so the shared helper runs with the brand
+            # gate disabled. The count/salons gate below acts as the re-gate.
+            async with _t1_gate_sem:
                 _t1_gate = await _apply_promote_scope_gates(
                     strong_t1,
                     subject_name=canonical_name,
@@ -2727,231 +2942,144 @@ async def _compute_treatment_tier_rows(
                     min_count=STRONG_MIN_COUNT,
                     min_unique_salons=STRONG_MIN_UNIQUE_SALONS,
                 )
-                strong_t1 = _t1_gate["strong"]
-                strong_t1_unique_salons = {
-                    s.get("salon_id") for s in strong_t1
-                    if s.get("salon_id") is not None
-                }
-                if tracer is not None:
-                    tracer.add(
-                        step="market_context.promote_gate",
-                        data={
-                            "tier": "treatment",
-                            "tid_kind": tid_kind,
-                            "tid_value": tid_value,
-                            "subject_name": canonical_name[:200],
-                            "brand_dropped": _t1_brand_dropped,
-                            "duration_dropped": _t1_gate["duration_dropped"],
-                            "llm_dropped": _t1_gate["llm_dropped"],
-                            "post_filter_strong": len(strong_t1),
-                            "post_filter_unique_salons": len(
-                                strong_t1_unique_salons
-                            ),
-                            "outcome": (
-                                "promote_verify_error"
-                                if _t1_gate["verify_error"]
-                                else (
-                                    "promoted"
-                                    if (
-                                        len(strong_t1) >= STRONG_MIN_COUNT
-                                        and len(strong_t1_unique_salons)
-                                        >= STRONG_MIN_UNIQUE_SALONS
-                                    )
-                                    else "demoted_after_gates"
+            return {
+                "sid": _sid,
+                "gate": _t1_gate,
+                "semantic_t1": semantic_t1,
+                "brand_dropped": _t1_brand_dropped,
+            }
+
+        _t1_gate_results = await asyncio.gather(
+            *(_run_t1_gate(sid) for sid in _t1_subject_only_ids)
+        )
+        _t1_gate_by_sid = {r["sid"]: r for r in _t1_gate_results}
+
+        # Apply in DETERMINISTIC order (iterate the original subject_only id
+        # order, NOT gather-completion) so rows[] ordering and trace ordering
+        # stay stable across the parallel LLM calls.
+        for _sid in _t1_subject_only_ids:
+            res = _t1_gate_by_sid[_sid]
+            ctx = _t1_ctx[_sid]
+            tid_kind = ctx["tid_kind"]
+            tid_value = ctx["tid_value"]
+            subj_svcs = ctx["subj_svcs"]
+            canonical_name = ctx["canonical_name"]
+            subj_median_price = ctx["subj_median_price"]
+            subj_median_ppm = ctx["subj_median_ppm"]
+            emit_booksy_tid = ctx["emit_booksy_tid"]
+            emit_synthetic_tid = ctx["emit_synthetic_tid"]
+            emit_taxonomy_source = ctx["emit_taxonomy_source"]
+            _t1_gate = res["gate"]
+            semantic_t1 = res["semantic_t1"]
+            _t1_brand_dropped = res["brand_dropped"]
+
+            strong_t1 = _t1_gate["strong"]
+            strong_t1_unique_salons = {
+                s.get("salon_id") for s in strong_t1
+                if s.get("salon_id") is not None
+            }
+            if tracer is not None:
+                tracer.add(
+                    step="market_context.promote_gate",
+                    data={
+                        "tier": "treatment",
+                        "tid_kind": tid_kind,
+                        "tid_value": tid_value,
+                        "subject_name": canonical_name[:200],
+                        "brand_dropped": _t1_brand_dropped,
+                        "duration_dropped": _t1_gate["duration_dropped"],
+                        "llm_dropped": _t1_gate["llm_dropped"],
+                        "post_filter_strong": len(strong_t1),
+                        "post_filter_unique_salons": len(
+                            strong_t1_unique_salons
+                        ),
+                        "outcome": (
+                            "promote_verify_error"
+                            if _t1_gate["verify_error"]
+                            else (
+                                "promoted"
+                                if (
+                                    len(strong_t1) >= STRONG_MIN_COUNT
+                                    and len(strong_t1_unique_salons)
+                                    >= STRONG_MIN_UNIQUE_SALONS
                                 )
-                            ),
-                            **(
-                                {"error": _t1_gate["verify_error"]}
-                                if _t1_gate["verify_error"] else {}
-                            ),
-                        },
-                    )
-                if (
-                    len(strong_t1) >= STRONG_MIN_COUNT
-                    and len(strong_t1_unique_salons) >= STRONG_MIN_UNIQUE_SALONS
-                ):
-                    # Promote — convert to comp_samples shape and let
-                    # tier-1 percentile path below compute the comparison.
-                    # Forward similarity + brand_marker do każdego sample
-                    # (downstream serializer i UI sort'ują po name_similarity
-                    # — wcześniej gubione bo dict comprehension nie kopiował
-                    # tych pól).
-                    comp_samples = [
-                        {
-                            "salon_id": s["salon_id"],
-                            "salon_name": s["salon_name"],
-                            "booksy_id": s["booksy_id"],
-                            "service_id": s["service_id"],
-                            "service_name": s["service_name"],
-                            "price_grosze": int(s["price_grosze"]),
-                            "duration_minutes": s.get("duration_minutes"),
-                            "name_similarity": s.get("similarity"),
-                            # brand_marker = classifier canonical method
-                            # (taxonomy-aware) gdy istnieje, fallback do
-                            # regex extract_brand_marker dla services
-                            # nieobecnych w treatment_methods bazie.
-                            "brand_marker": (
-                                s.get("_canonical_method")
-                                or extract_brand_marker(
-                                    s.get("service_name") or ""
-                                )
-                            ),
-                            "relation": s.get("relation"),
-                        }
-                        for s in strong_t1
-                    ]
-                    promoted_t1 = True
+                                else "demoted_after_gates"
+                            )
+                        ),
+                        **(
+                            {"error": _t1_gate["verify_error"]}
+                            if _t1_gate["verify_error"] else {}
+                        ),
+                    },
+                )
+            if (
+                len(strong_t1) >= STRONG_MIN_COUNT
+                and len(strong_t1_unique_salons) >= STRONG_MIN_UNIQUE_SALONS
+            ):
+                # Promote — convert to comp_samples shape and run the shared
+                # percentile path (bit-for-bit). Forward similarity +
+                # brand_marker do każdego sample (downstream serializer i UI
+                # sort'ują po name_similarity).
+                comp_samples = [
+                    {
+                        "salon_id": s["salon_id"],
+                        "salon_name": s["salon_name"],
+                        "booksy_id": s["booksy_id"],
+                        "service_id": s["service_id"],
+                        "service_name": s["service_name"],
+                        "price_grosze": int(s["price_grosze"]),
+                        "duration_minutes": s.get("duration_minutes"),
+                        "name_similarity": s.get("similarity"),
+                        # brand_marker = classifier canonical method
+                        # (taxonomy-aware) gdy istnieje, fallback do regex
+                        # extract_brand_marker dla services nieobecnych w
+                        # treatment_methods bazie.
+                        "brand_marker": (
+                            s.get("_canonical_method")
+                            or extract_brand_marker(
+                                s.get("service_name") or ""
+                            )
+                        ),
+                        "relation": s.get("relation"),
+                    }
+                    for s in strong_t1
+                ]
+                logger.info(
+                    "Etap 4 tier-1 pricing: %r PROMOTED %d strong "
+                    "semantic matches (top sim=%.3f) to comp_samples",
+                    canonical_name[:60], len(strong_t1),
+                    strong_t1[0].get("similarity") or 0,
+                )
+                _emit_treatment_percentile_row(
+                    comp_samples=comp_samples,
+                    subj_svcs=subj_svcs,
+                    subj_median_price=subj_median_price,
+                    subj_median_ppm=subj_median_ppm,
+                    canonical_name=canonical_name,
+                    emit_booksy_tid=emit_booksy_tid,
+                    emit_synthetic_tid=emit_synthetic_tid,
+                    emit_taxonomy_source=emit_taxonomy_source,
+                )
+            else:
+                related_t1 = semantic_t1
+                if related_t1:
+                    top_sim = related_t1[0].get("similarity")
                     logger.info(
-                        "Etap 4 tier-1 pricing: %r PROMOTED %d strong "
-                        "semantic matches (top sim=%.3f) to comp_samples",
-                        canonical_name[:60], len(strong_t1),
-                        strong_t1[0].get("similarity") or 0,
+                        "Etap 4 tier-1 pricing: subject_only %r → %d "
+                        "semantic matches (top sim=%.3f, none promoted)",
+                        canonical_name[:60], len(related_t1),
+                        top_sim if top_sim is not None else -1.0,
                     )
-                else:
-                    related_t1 = semantic_t1
-                    if related_t1:
-                        top_sim = related_t1[0].get("similarity")
-                        logger.info(
-                            "Etap 4 tier-1 pricing: subject_only %r → %d "
-                            "semantic matches (top sim=%.3f, none promoted)",
-                            canonical_name[:60], len(related_t1),
-                            top_sim if top_sim is not None else -1.0,
-                        )
-            if not promoted_t1:
-                # No strong semantic matches → emit subject_only row with
-                # related_samples for soft context. When promoted_t1 is True
-                # the comp_samples list has been populated above and we
-                # fall through to the normal percentile computation below.
-                rows.append({
-                    "report_id": report_id,
-                    "comparison_tier": "treatment",
-                    "booksy_treatment_id": emit_booksy_tid,
-                    "synthetic_treatment_id": emit_synthetic_tid,
-                    "taxonomy_source": emit_taxonomy_source,
-                    "variant_id": None,
-                    "treatment_name": canonical_name,
-                    "treatment_parent_id": subj_svcs[0].get("treatment_parent_id"),
-                    "subject_price_grosze": int(subj_median_price),
-                    "subject_is_from_price": False,
-                    "subject_duration_minutes": int(
-                        subj_svcs[0].get("duration_minutes") or 0
-                    ) or None,
-                    "subject_price_per_min_grosze": subj_median_ppm,
-                    "market_min_grosze": None,
-                    "market_p25_grosze": None,
-                    "market_median_grosze": None,
-                    "market_p75_grosze": None,
-                    "market_max_grosze": None,
-                    "market_price_per_min_grosze_min": None,
-                    "market_price_per_min_grosze_p25": None,
-                    "market_price_per_min_grosze_median": None,
-                    "market_price_per_min_grosze_p75": None,
-                    "market_price_per_min_grosze_max": None,
-                    "subject_percentile": None,
-                    "deviation_pct": None,
-                    "deviation_pct_per_min": None,
-                    "sample_size": 0,
-                    "recommended_action": "subject_only",
-                    "verification_status": "subject_only",
-                    "verification_details": None,
-                    "competitor_samples": [],
-                    "related_samples": related_t1,
-                })
-                continue
-
-        # Compute market percentiles for both price and PLN/min.
-        market_prices = [float(s["price_grosze"]) for s in comp_samples]
-        market_ppms = [
-            float(s["price_grosze"]) / float(s["duration_minutes"])
-            for s in comp_samples
-            if s["duration_minutes"] > 0
-        ]
-        price_pcts = compute_percentiles(market_prices)
-        ppm_pcts = compute_percentiles(market_ppms) if market_ppms else None
-
-        # Deviation: total price (dev_raw) drives recommended_action to match
-        # user intuition. dev_per_min stays as informational context but NOT
-        # as the primary classifier input — when subject duration < market
-        # duration, dev_per_min may carry the opposite sign vs dev_raw
-        # (subject is cheaper total but pricier per minute), which previously
-        # produced 'lower' recommendations on negative-deviation rows.
-        dev_per_min = None
-        dev_raw = None
-        recommended_action = "hold"
-        if (
-            subj_median_ppm is not None
-            and ppm_pcts is not None
-            and ppm_pcts["market_p50"] > 0
-        ):
-            dev_per_min = round(
-                (subj_median_ppm - ppm_pcts["market_p50"]) / ppm_pcts["market_p50"]
-                * 100.0,
-                2,
-            )
-        if price_pcts["market_p50"] > 0:
-            dev_raw = round(
-                (subj_median_price - price_pcts["market_p50"])
-                / price_pcts["market_p50"] * 100.0,
-                2,
-            )
-        if dev_raw is not None:
-            recommended_action = _classify_pricing_action(dev_raw)
-        elif dev_per_min is not None:
-            recommended_action = _classify_pricing_action(dev_per_min)
-
-        subj_pct = compute_subject_percentile(subj_median_price, market_prices)
-
-        rows.append({
-            "report_id": report_id,
-            "comparison_tier": "treatment",
-            "booksy_treatment_id": emit_booksy_tid,
-            "synthetic_treatment_id": emit_synthetic_tid,
-            "taxonomy_source": emit_taxonomy_source,
-            "variant_id": None,
-            "treatment_name": canonical_name,
-            "treatment_parent_id": subj_svcs[0].get("treatment_parent_id"),
-            "subject_price_grosze": int(subj_median_price),
-            "subject_is_from_price": False,
-            "subject_duration_minutes": int(
-                subj_svcs[0].get("duration_minutes") or 0
-            ) or None,
-            "subject_price_per_min_grosze": subj_median_ppm,
-            "market_min_grosze": int(price_pcts["market_min"]),
-            "market_p25_grosze": int(price_pcts["market_p25"]),
-            "market_median_grosze": int(price_pcts["market_p50"]),
-            "market_p75_grosze": int(price_pcts["market_p75"]),
-            "market_max_grosze": int(price_pcts["market_max"]),
-            "market_price_per_min_grosze_min": (
-                round(ppm_pcts["market_min"], 2) if ppm_pcts else None
-            ),
-            "market_price_per_min_grosze_p25": (
-                round(ppm_pcts["market_p25"], 2) if ppm_pcts else None
-            ),
-            "market_price_per_min_grosze_median": (
-                round(ppm_pcts["market_p50"], 2) if ppm_pcts else None
-            ),
-            "market_price_per_min_grosze_p75": (
-                round(ppm_pcts["market_p75"], 2) if ppm_pcts else None
-            ),
-            "market_price_per_min_grosze_max": (
-                round(ppm_pcts["market_max"], 2) if ppm_pcts else None
-            ),
-            "subject_percentile": round(subj_pct, 2),
-            "deviation_pct": dev_raw,
-            "deviation_pct_per_min": dev_per_min,
-            "sample_size": len(comp_samples),
-            "recommended_action": recommended_action,
-            "verification_status": "verified",  # tier-1 nie używa verification
-            "verification_details": {
-                "tier": "treatment",
-                "subject_variants_in_tid": len(subj_svcs),
-                "competitor_services_in_tid": len(comp_samples),
-                "unique_competitor_salons": len(
-                    set(s["booksy_id"] for s in comp_samples if s.get("booksy_id"))
-                ),
-            },
-            "competitor_samples": comp_samples[:30],  # cap dla payload size
-        })
+                _emit_treatment_subject_only_row(
+                    related_t1=related_t1,
+                    subj_svcs=subj_svcs,
+                    subj_median_price=subj_median_price,
+                    subj_median_ppm=subj_median_ppm,
+                    canonical_name=canonical_name,
+                    emit_booksy_tid=emit_booksy_tid,
+                    emit_synthetic_tid=emit_synthetic_tid,
+                    emit_taxonomy_source=emit_taxonomy_source,
+                )
 
     if rows:
         n_booksy = sum(1 for r in rows if r.get("booksy_treatment_id") is not None)
