@@ -1960,15 +1960,16 @@ async def _compute_pricing_comparisons(
     # `_get_hidden_inference_llm()` is lazy + cached; reuse it instead
     # of spinning up a new client per call.
     tier1_llm_client = _get_hidden_inference_llm()
-    tier1_rows = await _compute_treatment_tier_rows(
-        report_id, subject_data, aligned_competitors,
-        variant_centroids=variant_centroids,
-        supabase=service,
-        llm_client=tier1_llm_client,
-        audit_id=audit_id,
-        tracer=tracer,
-        method_classifier=method_classifier,
-    )
+    async with _phase_timer(tracer, "pricing.tier1_treatment"):
+        tier1_rows = await _compute_treatment_tier_rows(
+            report_id, subject_data, aligned_competitors,
+            variant_centroids=variant_centroids,
+            supabase=service,
+            llm_client=tier1_llm_client,
+            audit_id=audit_id,
+            tracer=tracer,
+            method_classifier=method_classifier,
+        )
     rows.extend(tier1_rows)
 
     # ── Tier-4 (NEW 2026-05-19): method-targeted pricing rows ──
@@ -1980,13 +1981,14 @@ async def _compute_pricing_comparisons(
     # User mandate 2026-05-19: "cross-reference między urządzeniami w
     # zabiegach, a nie między salonami które są podobne do naszego".
     try:
-        tier4_rows = await _compute_method_targeted_pricing(
-            service,
-            report_id,
-            subject_data,
-            audit_id=audit_id,
-            tracer=tracer,
-        )
+        async with _phase_timer(tracer, "pricing.tier4_method"):
+            tier4_rows = await _compute_method_targeted_pricing(
+                service,
+                report_id,
+                subject_data,
+                audit_id=audit_id,
+                tracer=tracer,
+            )
         rows.extend(tier4_rows)
         logger.info(
             "Etap 4 tier-4 method-targeted: emitted %d method-level rows",
@@ -2013,10 +2015,11 @@ async def _compute_pricing_comparisons(
     # 'treatment' for the same (booksy_treatment_id, subject_price,
     # duration) grouping key, so this becomes the visible per-service row.
     try:
-        tier5_rows = await _compute_brand_structured_pricing(
-            service, report_id, subject_data, aligned_competitors,
-            audit_id=audit_id, tracer=tracer,
-        )
+        async with _phase_timer(tracer, "pricing.tier5_structured"):
+            tier5_rows = await _compute_brand_structured_pricing(
+                service, report_id, subject_data, aligned_competitors,
+                audit_id=audit_id, tracer=tracer,
+            )
         rows.extend(tier5_rows)
         logger.info(
             "Etap 4 tier-5 brand-structured: emitted %d per-service rows",
@@ -2038,9 +2041,10 @@ async def _compute_pricing_comparisons(
     # listingiem dostają NULL group_id na sub-variantach i pomijamy je
     # w tier-3 (zostają w tier-1/tier-2).
     try:
-        tier3_rows = await _compute_sub_variant_tier_rows(
-            service, report_id, subject_data, aligned_competitors,
-        )
+        async with _phase_timer(tracer, "pricing.tier3_subvariant"):
+            tier3_rows = await _compute_sub_variant_tier_rows(
+                service, report_id, subject_data, aligned_competitors,
+            )
         rows.extend(tier3_rows)
         logger.info(
             "Etap 4 tier-3: emitted %d sub_variant-level rows",
