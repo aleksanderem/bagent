@@ -16,6 +16,8 @@ development — see the commit message).
 
 from __future__ import annotations
 
+import asyncio
+import logging
 from datetime import datetime, timezone
 from unittest.mock import AsyncMock, MagicMock
 
@@ -1405,3 +1407,202 @@ class TestInsertCompetitorMatchesUserSelected:
         assert rows[0]["is_user_selected"] is True
         assert rows[1]["is_user_selected"] is False
         assert rows[2]["is_user_selected"] is False  # missing attr → default
+
+
+# ---------------------------------------------------------------------------
+# Taxonomy router per-salon timeout + return_exceptions degradation
+# (quick 260613-kiu — prod hang >10min vs ~8.8s normal; one hung LLM call
+# inside _apply_llm_taxonomy_to_null_tid_services froze the whole gather and
+# wedged the job at ~26-38%). These drive the PUBLIC entry point
+# compute_competitor_analysis with the taxonomy routing call monkeypatched —
+# ZERO live LLM calls. The fix must NOT hang on a slow/erroring salon.
+# ---------------------------------------------------------------------------
+
+
+def _stub_focus_bundles_for_router(monkeypatch: pytest.MonkeyPatch) -> None:
+    """Reuse the selection focus-bundle stubs from the e2e test so the
+    orchestration path is isolated from embedding plumbing (every candidate
+    buckets 'direct')."""
+    _emb = np.ones(1536, dtype=np.float64)
+    _focus = {503: 1.0}
+
+    def _subject_bundle(service, salon_id, booksy_id):  # noqa: ANN001
+        return SalonFocusBundle(
+            salon_id=salon_id, booksy_id=booksy_id,
+            portfolio_embedding=_emb, focus_distribution=dict(_focus),
+            focus_variant_distribution=dict(_focus),
+            service_count=10, embedded_count=10,
+        )
+
+    def _candidate_bundles(service, salon_ids):  # noqa: ANN001
+        return {
+            sid: SalonFocusBundle(
+                salon_id=sid, booksy_id=None,
+                portfolio_embedding=_emb, focus_distribution=dict(_focus),
+                focus_variant_distribution=dict(_focus),
+                service_count=10, embedded_count=10,
+            )
+            for sid in salon_ids
+        }
+
+    monkeypatch.setattr(
+        selection_mod, "_fetch_subject_focus_bundle", _subject_bundle,
+    )
+    monkeypatch.setattr(
+        selection_mod, "_fetch_candidate_focus_bundles_batch", _candidate_bundles,
+    )
+
+
+@pytest.mark.asyncio
+async def test_router_timeout_salon_does_not_hang_pipeline(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """A salon whose taxonomy routing sleeps past ROUTER_PER_SALON_TIMEOUT_S
+    is skipped (wait_for cancels it) and the pipeline still reaches completion
+    instead of freezing the whole gather."""
+    import pipelines.competitor_analysis as ca
+
+    _stub_focus_bundles_for_router(monkeypatch)
+    # Tiny per-salon cap so the subject's 2s sleep blows the timeout fast.
+    monkeypatch.setenv("ROUTER_PER_SALON_TIMEOUT_S", "1")
+
+    async def _fake_route(supabase, services, label="salon", **kwargs):  # noqa: ANN001
+        if label == "subject":
+            # Hang far past BOTH the 1s per-salon cap and the 10s test-level
+            # wait_for. Without the fix the un-timed gather blocks the full
+            # 30s and the test-level wait_for raises TimeoutError (RED). With
+            # the fix the 1s wait_for cancels this salon and the pipeline
+            # completes in <1s (GREEN). 30s simulates the prod >10min hang.
+            await asyncio.sleep(30)
+            return 5
+        return 0
+
+    monkeypatch.setattr(
+        ca, "_apply_llm_taxonomy_to_null_tid_services", _fake_route,
+    )
+
+    mock = _mock_supabase_for_e2e()
+    progress_calls = []
+
+    async def progress(p: int, m: str) -> None:
+        progress_calls.append((p, m))
+
+    # Test-level wait_for so a true regression (real hang) fails FAST as a
+    # TimeoutError rather than wedging the whole suite.
+    report_id = await asyncio.wait_for(
+        ca.compute_competitor_analysis(
+            audit_id="test_audit",
+            tier="base",
+            selection_mode="auto",
+            on_progress=progress,
+            supabase=mock,
+            convex_user_id="user_1",
+        ),
+        timeout=10,
+    )
+
+    assert report_id == 999
+    mock.update_competitor_report_status.assert_called_once()
+    status_args = mock.update_competitor_report_status.call_args
+    assert status_args[0][0] == 999
+    assert status_args[0][1] == "completed"
+    assert progress_calls[-1][0] == 100
+
+
+@pytest.mark.asyncio
+async def test_router_exception_salon_is_caught_others_continue(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """A salon whose routing raises a non-timeout exception is swallowed by
+    return_exceptions=True (degraded to 0 routed); remaining salons process
+    normally and the pipeline completes."""
+    import pipelines.competitor_analysis as ca
+
+    _stub_focus_bundles_for_router(monkeypatch)
+    monkeypatch.setenv("ROUTER_PER_SALON_TIMEOUT_S", "1")
+
+    async def _fake_route(supabase, services, label="salon", **kwargs):  # noqa: ANN001
+        if label == "subject":
+            raise RuntimeError("boom")
+        return 3
+
+    monkeypatch.setattr(
+        ca, "_apply_llm_taxonomy_to_null_tid_services", _fake_route,
+    )
+
+    mock = _mock_supabase_for_e2e()
+    progress_calls = []
+
+    async def progress(p: int, m: str) -> None:
+        progress_calls.append((p, m))
+
+    report_id = await asyncio.wait_for(
+        ca.compute_competitor_analysis(
+            audit_id="test_audit",
+            tier="base",
+            selection_mode="auto",
+            on_progress=progress,
+            supabase=mock,
+            convex_user_id="user_1",
+        ),
+        timeout=10,
+    )
+
+    assert report_id == 999
+    status_args = mock.update_competitor_report_status.call_args
+    assert status_args[0][0] == 999
+    assert status_args[0][1] == "completed"
+    assert progress_calls[-1][0] == 100
+
+
+@pytest.mark.asyncio
+async def test_router_normal_salon_unchanged_no_skip_warning(
+    monkeypatch: pytest.MonkeyPatch,
+    caplog: pytest.LogCaptureFixture,
+) -> None:
+    """A normal fast salon routes exactly as before — pipeline completes and
+    NO router_timeout/router_error skip WARNING is logged (proving the happy
+    path is untouched)."""
+    import pipelines.competitor_analysis as ca
+
+    _stub_focus_bundles_for_router(monkeypatch)
+    monkeypatch.setenv("ROUTER_PER_SALON_TIMEOUT_S", "1")
+
+    async def _fake_route(supabase, services, label="salon", **kwargs):  # noqa: ANN001
+        return 2
+
+    monkeypatch.setattr(
+        ca, "_apply_llm_taxonomy_to_null_tid_services", _fake_route,
+    )
+
+    mock = _mock_supabase_for_e2e()
+    progress_calls = []
+
+    async def progress(p: int, m: str) -> None:
+        progress_calls.append((p, m))
+
+    with caplog.at_level(logging.WARNING, logger="pipelines.competitor_analysis"):
+        report_id = await asyncio.wait_for(
+            ca.compute_competitor_analysis(
+                audit_id="test_audit",
+                tier="base",
+                selection_mode="auto",
+                on_progress=progress,
+                supabase=mock,
+                convex_user_id="user_1",
+            ),
+            timeout=10,
+        )
+
+    assert report_id == 999
+    status_args = mock.update_competitor_report_status.call_args
+    assert status_args[0][1] == "completed"
+    assert progress_calls[-1][0] == 100
+    # Happy path: no salon was skipped.
+    skip_warnings = [
+        r.getMessage() for r in caplog.records
+        if "taxonomy router skipped salon" in r.getMessage()
+    ]
+    assert skip_warnings == [], (
+        f"normal-path routing must not log skip warnings, got: {skip_warnings}"
+    )
