@@ -616,18 +616,59 @@ async def compute_competitor_analysis(
 
     await progress(45, "Pricing comparisons per treatment_id...")
     async with _phase_timer(tracer, "pricing.comparisons"):
-        pricing_rows = await _compute_pricing_comparisons(
-            service, report_id, subject_data, aligned_competitors,
-            audit_id=audit_id,
-            tracer=tracer,
-            method_classifier=method_classifier,
-            # S0064 — promote scope gate's LLM pair verification (variant
-            # tier). Same lazy singleton as tier-1 (linia ~1487 pattern).
-            llm_client=_get_hidden_inference_llm(),
-        )
-        pricing_rows = _dedup_pricing_rows(pricing_rows)
-        n_pricing = await service.insert_competitor_pricing_comparisons(pricing_rows)
-        logger.info("Etap 4: inserted %d pricing_comparisons", n_pricing)
+        # Early-exit (quick 260613-rne): subject has services with tid+price
+        # but ZERO variant_id (load test 2026-06-13 report 36, subject
+        # j5796vaa: 282 qualified, variant_id=0). Without variants
+        # _compute_pricing_comparisons would still return [] (its own internal
+        # _active_services_with_variant guard, ~1220) — but only AFTER grinding
+        # tier-1/3/5 for 280-450s. Detect the empty subject-variant set HERE
+        # and emit tier-1-shaped subject_only rows directly (one per _tid_key
+        # group), skipping the heavy tiers. The rest of the pipeline
+        # (insert/aggregate/gaps/dims/synthesis) operates on pricing_rows
+        # regardless of which branch produced them.
+        _subject_services = subject_data.get("services") or []
+        _subject_qualified = _active_services_with_variant(_subject_services)
+        if not _subject_qualified:
+            pricing_rows = _emit_subject_only_rows_no_variants(
+                report_id, _subject_services,
+            )
+            pricing_rows = _dedup_pricing_rows(pricing_rows)
+            n_pricing = await service.insert_competitor_pricing_comparisons(
+                pricing_rows
+            )
+            logger.info(
+                "Etap 4: early-exit subject_only — %d usług, %d subject_only "
+                "rows (subject bez wariantów; tiery variant/treatment/"
+                "structured/method/sub_variant pominięte)",
+                len(_subject_services), n_pricing,
+            )
+            if tracer is not None:
+                tracer.add("pricing.computed", {
+                    "pricing_type": "subject_only_early_exit",
+                    "row_count": n_pricing,
+                    "skip_reason": "subject_has_no_variants",
+                    "total_services": len(_subject_services),
+                    "services_with_variant": 0,
+                    "tiers_skipped": [
+                        "variant", "treatment", "structured",
+                        "method", "sub_variant",
+                    ],
+                })
+        else:
+            pricing_rows = await _compute_pricing_comparisons(
+                service, report_id, subject_data, aligned_competitors,
+                audit_id=audit_id,
+                tracer=tracer,
+                method_classifier=method_classifier,
+                # S0064 — promote scope gate's LLM pair verification (variant
+                # tier). Same lazy singleton as tier-1 (linia ~1487 pattern).
+                llm_client=_get_hidden_inference_llm(),
+            )
+            pricing_rows = _dedup_pricing_rows(pricing_rows)
+            n_pricing = await service.insert_competitor_pricing_comparisons(
+                pricing_rows
+            )
+            logger.info("Etap 4: inserted %d pricing_comparisons", n_pricing)
 
     # Flush all method classifications buffered during tier-1/tier-2 runs.
     if method_classifier is not None:
@@ -4238,6 +4279,120 @@ def _classify_pricing_action(deviation_pct: float) -> str:
     if deviation_pct > 20.0:
         return "lower"
     return "hold"
+
+
+def _emit_subject_only_rows_no_variants(
+    report_id: int,
+    services: list[dict[str, Any]],
+) -> list[dict[str, Any]]:
+    """Subject-only pricing rows for a subject with NO variant_id at all
+    (quick 260613-rne early-exit). Groups subject services per _tid_key
+    (Booksy OR synthetic), emits one tier-1 row per group, price = group
+    median (same as tier-1). No market data, no related_samples (zero RPC) —
+    the UI renders "tylko u Ciebie" with dashes instead of an empty section.
+
+    The row shape MUST be identical to _compute_treatment_tier_rows's
+    _emit_treatment_subject_only_row (comparison_tier='treatment',
+    variant_id=None, recommended_action='subject_only', with
+    synthetic_treatment_id + taxonomy_source) so the insert into
+    competitor_pricing_comparisons and _dedup_pricing_rows work unchanged.
+    Grouping per _tid_key (one row per booksy_tid, or per synthetic_tid +
+    treatment_name) lines up with _dedup_pricing_rows.row_key (variant_id
+    None, no sub_variant_*, treatment_name in key when tid is NULL).
+    """
+    # Mirror of _compute_treatment_tier_rows::_eligible (nested → not
+    # importable; replicated verbatim).
+    def _eligible(svc: dict[str, Any]) -> bool:
+        if not svc.get("is_active", True):
+            return False
+        if svc.get("price_grosze") is None or svc.get("price_grosze", 0) <= 0:
+            return False
+        dur = svc.get("duration_minutes")
+        if dur is None or dur < 5 or dur > 240:
+            return False
+        name = (svc.get("name") or "").lower()
+        if any(kw in name for kw in (
+            "pakiet", "abonament", "karnet", "voucher", "bon ",
+            "x zabieg", "zabiegów",
+        )):
+            return False
+        if detect_package_keyword(svc.get("name") or ""):
+            return False
+        return True
+
+    groups: dict[tuple[str, int], list[dict[str, Any]]] = {}
+    for svc in services:
+        if not _eligible(svc):
+            continue
+        key = _tid_key(svc)
+        if key is None:
+            continue
+        groups.setdefault(key, []).append(svc)
+
+    rows: list[dict[str, Any]] = []
+    for (kind, tid_int), svcs in groups.items():
+        prices = [
+            int(s["price_grosze"]) for s in svcs
+            if s.get("price_grosze") is not None
+        ]
+        if not prices:
+            continue
+        median_price = statistics.median(prices)
+        ppms = [
+            round(int(s["price_grosze"]) / s["duration_minutes"], 2)
+            for s in svcs
+            if s.get("price_grosze") is not None
+            and s.get("duration_minutes")
+        ]
+        median_ppm = round(statistics.median(ppms), 2) if ppms else None
+        first = svcs[0]
+        # taxonomy_source — propagated from any service in the group (they
+        # should share the same source by construction; first non-null,
+        # else None). Mirrors _compute_treatment_tier_rows ~2936. The column
+        # is nullable (mig 074: TEXT + CHECK IN(...) which passes on NULL),
+        # so None is a valid value when no service carries a source.
+        taxonomy_source = next(
+            (s.get("taxonomy_source") for s in svcs if s.get("taxonomy_source")),
+            None,
+        )
+        rows.append({
+            "report_id": report_id,
+            "comparison_tier": "treatment",
+            "booksy_treatment_id": tid_int if kind == "booksy" else None,
+            "synthetic_treatment_id": tid_int if kind == "synthetic" else None,
+            "taxonomy_source": taxonomy_source,
+            "variant_id": None,
+            "treatment_name": (
+                first.get("treatment_name") or first.get("name") or "Unknown"
+            ),
+            "treatment_parent_id": first.get("treatment_parent_id"),
+            "subject_price_grosze": int(median_price),
+            "subject_is_from_price": False,
+            "subject_duration_minutes": int(
+                first.get("duration_minutes") or 0
+            ) or None,
+            "subject_price_per_min_grosze": median_ppm,
+            "market_min_grosze": None,
+            "market_p25_grosze": None,
+            "market_median_grosze": None,
+            "market_p75_grosze": None,
+            "market_max_grosze": None,
+            "market_price_per_min_grosze_min": None,
+            "market_price_per_min_grosze_p25": None,
+            "market_price_per_min_grosze_median": None,
+            "market_price_per_min_grosze_p75": None,
+            "market_price_per_min_grosze_max": None,
+            "subject_percentile": None,
+            "deviation_pct": None,
+            "deviation_pct_per_min": None,
+            "sample_size": 0,
+            "recommended_action": "subject_only",
+            "verification_status": "subject_only",
+            "verification_details": None,
+            "competitor_samples": [],
+            "related_samples": [],
+        })
+    return rows
 
 
 def _dedup_pricing_rows(rows: list[dict[str, Any]]) -> list[dict[str, Any]]:
