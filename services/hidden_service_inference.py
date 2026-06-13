@@ -42,6 +42,7 @@ import os
 import re
 from typing import Any
 
+from services.llm_rate_limiter import provider_slot
 from services.minimax import with_retry  # exception-class-aware retry helper
 from services.supabase import SupabaseService
 
@@ -116,16 +117,24 @@ class GeminiLLMClient:
         self.total_calls: int = 0
 
     async def generate_json(self, prompt: str, system: str, max_tokens: int = 512) -> dict[str, Any]:
-        resp = await self._client.chat.completions.create(
-            model=self.model,
-            messages=[
-                {"role": "system", "content": system},
-                {"role": "user", "content": prompt},
-            ],
-            response_format={"type": "json_object"},
-            temperature=0.1,
-            max_tokens=max_tokens,
-        )
+        # Global per-MODEL concurrency cap (cross-report). This single client
+        # is the LLM for router/hidden-inference, pricing-tier1 short-category,
+        # AND pair-verify — all gpt-4o-mini. Wrapping the one create() await
+        # here caps all four call-sites with the gpt-4o-mini bucket (separate
+        # from the slow gpt-4o pass5 bucket, matching OpenAI's per-model rate
+        # limits — see services/llm_rate_limiter.py). Token accounting + JSON
+        # parse below stay OUTSIDE the slot (local work, no need to hold it).
+        async with provider_slot(self.model):
+            resp = await self._client.chat.completions.create(
+                model=self.model,
+                messages=[
+                    {"role": "system", "content": system},
+                    {"role": "user", "content": prompt},
+                ],
+                response_format={"type": "json_object"},
+                temperature=0.1,
+                max_tokens=max_tokens,
+            )
         # Accumulate token usage for trace persistence (mig 121).
         usage_obj = getattr(resp, "usage", None)
         if usage_obj is not None:

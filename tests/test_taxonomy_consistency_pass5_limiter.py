@@ -1,11 +1,14 @@
-"""Parity test: pass5 OpenAI chunk dispatch acquires the GLOBAL per-provider
-slot (provider_slot("openai")) without changing decisions.
+"""Parity test: pass5 OpenAI chunk dispatch acquires the GLOBAL per-MODEL slot
+(provider_slot(oai_model), default "gpt-4o") without changing decisions.
 
 Wired as increment 1 of the global LLM limiter (beads BEAUTY_AUDIT-ii0, P0):
 the pass5 per-report semaphore in taxonomy_consistency.py is PER-REPORT, so N
 concurrent reports fan out to N x chunks in-flight gpt-4o calls with no
 cross-report cap (LT2 measured ~18x pass5 blowup under 3x concurrency). The
 limiter adds a process-wide ceiling that COMPOSES with the per-report sem.
+Increment 2 generalized the limiter to per-MODEL keys, so the pass5 slot is now
+keyed by the pass5 model (oai_model, default gpt-4o) rather than the provider
+string "openai" — gpt-4o gets its own bucket separate from gpt-4o-mini.
 
 This test proves the wire is in place and decision logic is untouched: it
 reuses the harness from tests/test_taxonomy_consistency_chunking.py (the
@@ -15,8 +18,8 @@ settings, the env_openai_provider fixture) and adds a spy that wraps
 provider_slot to count entries. With N=31 clusters at chunk_size=30 (-> 2
 chunks), it asserts:
 
-  * provider_slot("openai") entered exactly once per LLM call (== 2)
-  * every entry named the openai provider
+  * provider_slot(oai_model) entered exactly once per LLM call (== 2)
+  * every entry named the pass5 model "gpt-4o" (oai_model default)
   * decisions/stats invariants match the chunking test (clusters_mixed == N,
     rerouted == N, each cluster_id decided exactly once)
 
@@ -147,8 +150,10 @@ async def test_pass5_openai_acquires_provider_slot_once_per_call(
         f"provider_slot entered {len(slot_entries)} times, expected "
         f"{len(fake_oai.calls)} (once per LLM call)"
     )
-    assert all(p == "openai" for p in slot_entries), (
-        f"all slot entries must name openai, got {slot_entries}"
+    assert all(p == "gpt-4o" for p in slot_entries), (
+        f"all slot entries must name the pass5 model gpt-4o (oai_model "
+        f"default, env fixture sets TAXONOMY_PASS5_PROVIDER but not "
+        f"TAXONOMY_PASS5_OPENAI_MODEL), got {slot_entries}"
     )
     # Decisions UNCHANGED vs. chunking behavior: every cluster decided once.
     assert sorted(applied_cluster_ids) == sorted(range(1, n_clusters + 1))

@@ -35,6 +35,8 @@ import logging
 import os
 from typing import Any
 
+from services.llm_rate_limiter import provider_slot
+
 logger = logging.getLogger(__name__)
 
 
@@ -176,23 +178,29 @@ async def synthesize_via_openai(
     if client is None:
         raise RuntimeError("OpenAI client unavailable (no OPENAI_API_KEY)")
 
-    response = await client.chat.completions.create(
-        model="gpt-4o-mini",
-        temperature=0.3,
-        max_tokens=4000,
-        messages=[
-            {"role": "system", "content": _SYSTEM_PROMPT},
-            {"role": "user", "content": context},
-        ],
-        response_format={
-            "type": "json_schema",
-            "json_schema": {
-                "name": "competitor_insights",
-                "strict": True,
-                "schema": _INSIGHTS_SCHEMA,
+    # Global per-MODEL concurrency cap (cross-report). This rare fallback
+    # shares the gpt-4o-mini bucket with the router/hidden/pricing-tier1/
+    # pair-verify call-sites — acceptable since it only fires when MiniMax
+    # synthesis fails. Only the await is gated; parse/normalize below stay
+    # OUTSIDE the slot.
+    async with provider_slot("gpt-4o-mini"):
+        response = await client.chat.completions.create(
+            model="gpt-4o-mini",
+            temperature=0.3,
+            max_tokens=4000,
+            messages=[
+                {"role": "system", "content": _SYSTEM_PROMPT},
+                {"role": "user", "content": context},
+            ],
+            response_format={
+                "type": "json_schema",
+                "json_schema": {
+                    "name": "competitor_insights",
+                    "strict": True,
+                    "schema": _INSIGHTS_SCHEMA,
+                },
             },
-        },
-    )
+        )
     raw = response.choices[0].message.content or "{}"
     parsed = json.loads(raw)
 
