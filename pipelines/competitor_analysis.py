@@ -24,6 +24,7 @@ See docs/plans/2026-04-08-competitor-report-pipeline.md sections
 
 from __future__ import annotations
 
+import asyncio
 import logging
 import re
 import statistics
@@ -66,6 +67,13 @@ logger = logging.getLogger(__name__)
 
 
 ProgressCallback = Callable[[int, str], Awaitable[None]]
+
+
+# Max równoległych promote-gate LLM verifications (verify_service_pairs).
+# Po wyeliminowaniu N+1 RPC (quick 260613-cl2) ~83 sekwencyjnych gate'ów
+# stało się wąskim gardłem. asyncio.gather + Semaphore(8) zrównolegla je,
+# bezpiecznie vs OpenAI rate limit (verify_service_pairs jest cache'owane).
+_PROMOTE_GATE_CONCURRENCY = 8
 
 
 async def _noop_progress(progress: int, message: str) -> None:
@@ -1190,6 +1198,15 @@ async def _compute_pricing_comparisons(
     variant_ids_needing_verify: set[int] = set()
     subject_service_ids_needing_verify: set[int] = set()
     prelim: list[dict[str, Any]] = []
+    # 2026-06-13 (quick 260613-cl2) — N+1 elimination. Pre-pass collects
+    # subject_only subject ids + their context; one batch RPC + parallel
+    # promote-gates run after this loop (see post-pass below).
+    _subject_only_ids: list[int] = []
+    _subject_only_ctx: dict[int, dict[str, Any]] = {}
+    competitor_booksy_ids = [
+        cand.booksy_id for cand, _ in aligned_competitors
+        if cand.counts_in_aggregates
+    ]
     for variant_key, subject_svc in subject_svcs.items():
         tid, variant_id, _dur_bucket = variant_key
         samples = competitor_samples_by_variant.get(variant_key, [])
@@ -1243,35 +1260,102 @@ async def _compute_pricing_comparisons(
         # z NULL market data + recommended_action='subject_only'. UI rysuje
         # kreski w market columns i badge "tylko u Ciebie".
         if len(samples) == 0:
-            # 2026-05-17 (Faza 4) — pure embedding cosine via RPC
-            # fn_find_related_competitor_services. Replaces the previous
-            # regex-based brand/method/area helper which required hardcoded
-            # patterns. Embedding works on any service name including typos.
-            #
-            # Faza 4b — when ≥STRONG_MIN_COUNT (3) embedding matches have
-            # similarity ≥ STRONG_MIN_SIMILARITY (0.65), promote them from
-            # soft `related_samples` to direct `samples` so the pricing
-            # engine computes actual market percentiles, deviation, and
-            # recommended_action. Without this, "Red Touch twarz + szyja
-            # - PROMOCJA" subject_only had top match "RedTouch PRO Twarz +
-            # szyja" 0.90 sitting in related_samples instead of driving a
-            # +75% vs market median verdict.
-            from services.market_context import (
-                gather_market_context_samples,
-                STRONG_MIN_SIMILARITY,
-                STRONG_MIN_COUNT,
-                STRONG_MIN_UNIQUE_SALONS,
-            )
+            # 2026-06-13 (quick 260613-cl2) — N+1 elimination. Pre-pass:
+            # defer the per-subject semantic RPC + promote-gate to a single
+            # batch round-trip after this loop. We only collect the subject
+            # id + the context needed to reproduce the original logic
+            # bit-for-bit in the post-pass. The semantic match itself
+            # (gather_market_context_samples) + the LLM promote-gate
+            # (_apply_promote_scope_gates) used to run inline here, one
+            # round-trip per subject_only service (~286 for big salons).
             subj_service_id = subject_svc.get("id")
-            competitor_booksy_ids = [
-                cand.booksy_id for cand, _ in aligned_competitors
-                if cand.counts_in_aggregates
-            ]
-            semantic_results = await gather_market_context_samples(
-                service, subj_service_id, competitor_booksy_ids,
-                tracer=tracer,
-                subject_service_name=subject_svc.get("name"),
-            )
+            if subj_service_id is not None:
+                _subject_only_ids.append(int(subj_service_id))
+                _subject_only_ctx[int(subj_service_id)] = {
+                    "variant_key": variant_key,
+                    "tid": tid,
+                    "variant_id": variant_id,
+                    "subject_svc": subject_svc,
+                    "subject_price": subject_price,
+                    "subj_name": subj_name,
+                    "subject_brand": subject_brand,
+                }
+            else:
+                # No id → cannot run the semantic RPC; emit subject_only
+                # with empty related_samples (same as a no-match RPC).
+                prelim.append({
+                    "variant_key": variant_key,
+                    "tid": tid,
+                    "variant_id": variant_id,
+                    "subject_svc": subject_svc,
+                    "subject_price": subject_price,
+                    "samples": [],
+                    "market_prices_f": [],
+                    "percentiles": None,
+                    "deviation_pct": None,
+                    "subject_only": True,
+                    "related_samples": [],
+                })
+            continue
+        market_prices_f = [float(s["price_grosze"]) for s in samples]
+        percentiles = compute_percentiles(market_prices_f)
+        median = percentiles["market_p50"]
+        deviation_pct = (
+            ((float(subject_price) - median) / median * 100.0) if median > 0 else 0.0
+        )
+        prelim.append({
+            "variant_key": variant_key,
+            "tid": tid,
+            "variant_id": variant_id,
+            "subject_svc": subject_svc,
+            "subject_price": subject_price,
+            "samples": samples,
+            "market_prices_f": market_prices_f,
+            "percentiles": percentiles,
+            "deviation_pct": deviation_pct,
+            "subject_only": False,
+            "is_aggregated_cross_variant": is_aggregated_cross_variant,
+        })
+        if abs(deviation_pct) > VERIFICATION_THRESHOLD_PCT:
+            variant_ids_needing_verify.add(int(variant_id))
+            sid = subject_svc.get("id")
+            if sid is not None:
+                subject_service_ids_needing_verify.add(int(sid))
+
+    # ------------------------------------------------------------------
+    # Post-pass (quick 260613-cl2) — one batch semantic RPC for ALL
+    # subject_only services, then promote-gates run in parallel.
+    #
+    # 2026-05-17 (Faza 4) — pure embedding cosine via the batch RPC
+    # fn_find_related_competitor_services_batch. Faza 4b — when
+    # ≥STRONG_MIN_COUNT (3) embedding matches have similarity
+    # ≥ STRONG_MIN_SIMILARITY (0.65) from ≥STRONG_MIN_UNIQUE_SALONS (2)
+    # distinct salons (after the S0064 scope gates), promote them from
+    # soft `related_samples` to direct `samples` so the pricing engine
+    # computes actual market percentiles, deviation and recommended_action.
+    # The semantics are identical to the old per-subject path — only the
+    # mechanism (1 round-trip + parallel LLM gates) changed.
+    if _subject_only_ids:
+        from services.market_context import (
+            gather_market_context_samples_batch,
+            STRONG_MIN_SIMILARITY,
+            STRONG_MIN_COUNT,
+            STRONG_MIN_UNIQUE_SALONS,
+        )
+        samples_by_subject = await gather_market_context_samples_batch(
+            service, _subject_only_ids, competitor_booksy_ids, tracer=tracer,
+        )
+
+        # Run the promote-gate (LLM verify_service_pairs) for every
+        # subject_only service in parallel, bounded by a semaphore so we
+        # don't blow the OpenAI rate limit. Each task operates on its own
+        # `strong` list (the batch fn builds fresh dicts per subject), so
+        # there is no shared mutable state across tasks.
+        _gate_sem = asyncio.Semaphore(_PROMOTE_GATE_CONCURRENCY)
+
+        async def _run_variant_gate(_sid: int) -> dict[str, Any]:
+            ctx = _subject_only_ctx[_sid]
+            semantic_results = samples_by_subject.get(_sid, [])
             strong = [
                 s for s in semantic_results
                 if (s.get("similarity") or 0) >= STRONG_MIN_SIMILARITY
@@ -1279,25 +1363,53 @@ async def _compute_pricing_comparisons(
             # S0064 (2026-06-12) — promote scope gates. Pure cosine ≥0.65
             # accepts scope-mismatched samples (Botoks 1 vs 3 okolice
             # 0.878, damska vs męska 0.888, manicure vs pedicure 0.721).
-            # Gate by brand marker (extract_brand_marker fallback both
-            # sides — _classified_methods lives in tier-1 scope only),
-            # duration bucket, and batch LLM pair verification
-            # (fail-closed) BEFORE the >=3 strong / >=2 salons re-gate.
-            _gate = await _apply_promote_scope_gates(
-                strong,
-                subject_name=subj_name,
-                subject_duration_minutes=subject_svc.get("duration_minutes"),
-                subj_brand_markers=(
-                    {subject_brand} if subject_brand else None
-                ),
-                booksy_treatment_id=tid,
-                synthetic_treatment_id=None,
-                supabase=service,
-                llm_client=llm_client,
-                audit_id=audit_id,
-                min_count=STRONG_MIN_COUNT,
-                min_unique_salons=STRONG_MIN_UNIQUE_SALONS,
-            )
+            # Gate by brand marker, duration bucket, and batch LLM pair
+            # verification (fail-closed) BEFORE the >=3 strong / >=2 salons
+            # re-gate.
+            async with _gate_sem:
+                gate = await _apply_promote_scope_gates(
+                    strong,
+                    subject_name=ctx["subj_name"],
+                    subject_duration_minutes=ctx["subject_svc"].get(
+                        "duration_minutes"
+                    ),
+                    subj_brand_markers=(
+                        {ctx["subject_brand"]} if ctx["subject_brand"] else None
+                    ),
+                    booksy_treatment_id=ctx["tid"],
+                    synthetic_treatment_id=None,
+                    supabase=service,
+                    llm_client=llm_client,
+                    audit_id=audit_id,
+                    min_count=STRONG_MIN_COUNT,
+                    min_unique_salons=STRONG_MIN_UNIQUE_SALONS,
+                )
+            return {
+                "sid": _sid,
+                "gate": gate,
+                "semantic_results": semantic_results,
+            }
+
+        _gate_results = await asyncio.gather(
+            *(_run_variant_gate(sid) for sid in _subject_only_ids)
+        )
+        _gate_by_sid = {r["sid"]: r for r in _gate_results}
+
+        # Apply gate results in DETERMINISTIC order (iterate the original
+        # subject_only id order, NOT the gather-completion order) so prelim
+        # and trace ordering stay stable across the parallel LLM calls.
+        for _sid in _subject_only_ids:
+            res = _gate_by_sid[_sid]
+            ctx = _subject_only_ctx[_sid]
+            variant_key = ctx["variant_key"]
+            tid = ctx["tid"]
+            variant_id = ctx["variant_id"]
+            subject_svc = ctx["subject_svc"]
+            subject_price = ctx["subject_price"]
+            subj_name = ctx["subj_name"]
+            _gate = res["gate"]
+            semantic_results = res["semantic_results"]
+
             strong = _gate["strong"]
             strong_unique_salons = {
                 s.get("salon_id") for s in strong if s.get("salon_id") is not None
@@ -1313,7 +1425,7 @@ async def _compute_pricing_comparisons(
                         "tier": "variant",
                         "tid": tid,
                         "variant_id": variant_id,
-                        "subject_service_id": subj_service_id,
+                        "subject_service_id": _sid,
                         "subject_name": subj_name[:200],
                         "brand_dropped": _gate["brand_dropped"],
                         "duration_dropped": _gate["duration_dropped"],
@@ -1350,13 +1462,37 @@ async def _compute_pricing_comparisons(
                     }
                     for s in strong
                 ]
-                related = []  # no soft list — strong matches handled as direct
                 logger.info(
                     "Etap 4 variant pricing: %r PROMOTED %d strong semantic "
                     "matches (top sim=%.3f) to comp_samples",
                     subj_name[:60], len(strong),
                     strong[0].get("similarity") or 0,
                 )
+                # Same percentile/deviation computation as the direct-sample
+                # path above (bit-for-bit) — promoted samples flow through it.
+                market_prices_f = [float(s["price_grosze"]) for s in samples]
+                percentiles = compute_percentiles(market_prices_f)
+                median = percentiles["market_p50"]
+                deviation_pct = (
+                    ((float(subject_price) - median) / median * 100.0)
+                    if median > 0 else 0.0
+                )
+                prelim.append({
+                    "variant_key": variant_key,
+                    "tid": tid,
+                    "variant_id": variant_id,
+                    "subject_svc": subject_svc,
+                    "subject_price": subject_price,
+                    "samples": samples,
+                    "market_prices_f": market_prices_f,
+                    "percentiles": percentiles,
+                    "deviation_pct": deviation_pct,
+                    "subject_only": False,
+                    "is_aggregated_cross_variant": False,
+                })
+                if abs(deviation_pct) > VERIFICATION_THRESHOLD_PCT:
+                    variant_ids_needing_verify.add(int(variant_id))
+                    subject_service_ids_needing_verify.add(int(_sid))
             else:
                 related = semantic_results
                 if related:
@@ -1380,33 +1516,6 @@ async def _compute_pricing_comparisons(
                     "subject_only": True,
                     "related_samples": related,
                 })
-                continue
-            # else: strong matches promoted to samples → fall through to
-            # the normal percentile/deviation computation below.
-        market_prices_f = [float(s["price_grosze"]) for s in samples]
-        percentiles = compute_percentiles(market_prices_f)
-        median = percentiles["market_p50"]
-        deviation_pct = (
-            ((float(subject_price) - median) / median * 100.0) if median > 0 else 0.0
-        )
-        prelim.append({
-            "variant_key": variant_key,
-            "tid": tid,
-            "variant_id": variant_id,
-            "subject_svc": subject_svc,
-            "subject_price": subject_price,
-            "samples": samples,
-            "market_prices_f": market_prices_f,
-            "percentiles": percentiles,
-            "deviation_pct": deviation_pct,
-            "subject_only": False,
-            "is_aggregated_cross_variant": is_aggregated_cross_variant,
-        })
-        if abs(deviation_pct) > VERIFICATION_THRESHOLD_PCT:
-            variant_ids_needing_verify.add(int(variant_id))
-            sid = subject_svc.get("id")
-            if sid is not None:
-                subject_service_ids_needing_verify.add(int(sid))
 
     # Batch fetch centroids + subject embeddings only for rows we'll verify.
     variant_centroids = await service.get_variant_centroids(
