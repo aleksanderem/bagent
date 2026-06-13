@@ -2062,3 +2062,182 @@ async def test_pipeline_tracer_none_safe_full_run(
         timeout=10,
     )
     assert report_id == 999
+
+
+# ===========================================================================
+# quick 260613-rne — early-exit subject_only when subject has NO variant_id
+# ===========================================================================
+#
+# Subject with tid+price services but ZERO variant_id (load test 2026-06-13
+# report 36, subject j5796vaa: 282 qualified) used to run tier-1/3/5 for
+# 280-450s and return 0 rows (each tier's own _active_services_with_variant
+# guard returns []). The early-exit detects the empty subject-variant set
+# BEFORE the heavy block and emits tier-1-shaped subject_only rows directly,
+# skipping the expensive tiers. Subject WITH >=1 variant must take the
+# unchanged path through _compute_pricing_comparisons (zero-diff parity).
+# ===========================================================================
+
+
+async def _run_pipeline_with_pricing_spy(
+    monkeypatch: pytest.MonkeyPatch,
+    *,
+    subject_full_data=None,
+    competitor_data_map=None,
+    pricing_return=None,
+):
+    """Like _run_pipeline_capturing_tracer but also spies
+    ca._compute_pricing_comparisons (AsyncMock) so a test can assert whether
+    the heavy pricing block was entered. Returns (tracer, spy, mock).
+
+    subject_full_data / competitor_data_map override the default mock's
+    get_subject_full_data / get_competitor_full_data so a test can inject a
+    subject WITH variant_id (parity path)."""
+    import pipelines.competitor_analysis as ca
+
+    _stub_focus_bundles_for_router(monkeypatch)
+    monkeypatch.setenv("ROUTER_PER_SALON_TIMEOUT_S", "1")
+
+    async def _fake_route(supabase, services, label="salon", **kwargs):  # noqa: ANN001
+        return 0
+
+    monkeypatch.setattr(
+        ca, "_apply_llm_taxonomy_to_null_tid_services", _fake_route,
+    )
+
+    pricing_spy = AsyncMock(return_value=list(pricing_return or []))
+    monkeypatch.setattr(ca, "_compute_pricing_comparisons", pricing_spy)
+
+    captured: dict[str, _FakeTracer] = {}
+
+    def _fake_tracewriter(*args, **kwargs):  # noqa: ANN001, ANN002
+        t = _FakeTracer()
+        captured["tracer"] = t
+        return t
+
+    monkeypatch.setattr(ca, "TraceWriter", _fake_tracewriter)
+
+    mock = _mock_supabase_for_e2e()
+    if subject_full_data is not None:
+        mock.get_subject_full_data = AsyncMock(return_value=subject_full_data)
+    if competitor_data_map is not None:
+        mock.get_competitor_full_data = AsyncMock(return_value=competitor_data_map)
+
+    await asyncio.wait_for(
+        ca.compute_competitor_analysis(
+            audit_id="test_audit", tier="base", selection_mode="auto",
+            supabase=mock, convex_user_id="user_1",
+        ),
+        timeout=10,
+    )
+    return captured["tracer"], pricing_spy, mock
+
+
+@pytest.mark.asyncio
+async def test_subject_only_early_exit_when_no_variants(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """Subject without ANY variant_id but with eligible (priced + duration)
+    services → early-exit: heavy _compute_pricing_comparisons is NEVER
+    awaited, a subject_only_early_exit trace is emitted, and the insert
+    receives non-empty tier-1-shaped subject_only rows. Pipeline still
+    completes (report_id 999).
+
+    (The default _mock_supabase_for_e2e subject service has
+    duration_minutes=None, which tier-1 _eligible — and our early-exit
+    helper — reject. We stamp a duration so the service qualifies for a
+    subject_only row while leaving variant_id absent so the guard fires.)"""
+    import copy
+
+    base_mock = _mock_supabase_for_e2e()
+    subject_data = copy.deepcopy(await base_mock.get_subject_full_data())
+    for svc in subject_data["services"]:
+        svc["duration_minutes"] = 30  # eligible; still no variant_id
+
+    tracer, pricing_spy, mock = await _run_pipeline_with_pricing_spy(
+        monkeypatch, subject_full_data=subject_data,
+    )
+
+    # Heavy tiers skipped — the proof of the 280-450s saving.
+    assert pricing_spy.await_count == 0, (
+        "subject without variants must NOT enter _compute_pricing_comparisons"
+    )
+
+    # subject_only_early_exit trace emitted with the expected shape.
+    early = tracer.of("pricing.computed")
+    early_exit = [
+        c for c in early
+        if c["data"].get("pricing_type") == "subject_only_early_exit"
+    ]
+    assert len(early_exit) == 1, (
+        f"expected one subject_only_early_exit trace; got {early}"
+    )
+    data = early_exit[0]["data"]
+    assert data["skip_reason"] == "subject_has_no_variants"
+    assert data["services_with_variant"] == 0
+    assert data["total_services"] >= 1
+    for tier in ("variant", "treatment", "structured", "method", "sub_variant"):
+        assert tier in data["tiers_skipped"]
+
+    # Insert got non-empty subject_only rows in tier-1 shape.
+    mock.insert_competitor_pricing_comparisons.assert_called_once()
+    rows = mock.insert_competitor_pricing_comparisons.call_args[0][0]
+    assert rows, "early-exit must emit at least one subject_only row"
+    for r in rows:
+        assert r["recommended_action"] == "subject_only"
+        assert r["comparison_tier"] == "treatment"
+        assert r["variant_id"] is None
+
+    # Rest of the pipeline ran on the subject_only rows → completed.
+    status_args = mock.update_competitor_report_status.call_args
+    assert status_args[0][0] == 999
+    assert status_args[0][1] == "completed"
+
+
+@pytest.mark.asyncio
+async def test_subject_with_variants_takes_unchanged_path(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """Subject with >=1 variant_id → the early-exit does NOT fire: the existing
+    _compute_pricing_comparisons path is awaited exactly once and no
+    subject_only_early_exit trace is emitted (zero-diff parity)."""
+    import copy
+
+    # Clone the default salon fixtures and stamp a variant_id on the subject
+    # service AND on one competitor's matching (tid, variant) — so
+    # _active_services_with_variant(subject) is non-empty.
+    base_mock = _mock_supabase_for_e2e()
+    subject_data = await base_mock.get_subject_full_data()
+    subject_data = copy.deepcopy(subject_data)
+    for svc in subject_data["services"]:
+        svc["variant_id"] = 7
+        svc["duration_minutes"] = 30  # tier needs a duration bucket
+
+    competitor_map = await base_mock.get_competitor_full_data()
+    competitor_map = copy.deepcopy(competitor_map)
+    first_comp_id = next(iter(competitor_map))
+    for svc in competitor_map[first_comp_id]["services"]:
+        svc["variant_id"] = 7
+        svc["duration_minutes"] = 30
+
+    tracer, pricing_spy, _mock = await _run_pipeline_with_pricing_spy(
+        monkeypatch,
+        subject_full_data=subject_data,
+        competitor_data_map=competitor_map,
+        pricing_return=[],
+    )
+
+    # Existing heavy path entered exactly once — unchanged behaviour.
+    assert pricing_spy.await_count == 1, (
+        "subject with a variant must take the existing "
+        "_compute_pricing_comparisons path"
+    )
+
+    # Early-exit must NOT have fired.
+    early_exit = [
+        c for c in tracer.of("pricing.computed")
+        if c["data"].get("pricing_type") == "subject_only_early_exit"
+    ]
+    assert early_exit == [], (
+        f"subject with variants must not emit subject_only_early_exit; "
+        f"got {early_exit}"
+    )
