@@ -416,3 +416,125 @@ class TestRunCompetitorReportTask:
             # Must complete despite the probe error.
             await run_competitor_report_task(ctx, request)
         mock_pipeline.assert_awaited_once()
+
+    # --- queue slot release (beads BEAUTY_AUDIT-1mb) ---
+
+    @pytest.mark.asyncio
+    async def test_completes_queue_slot_on_success(self):
+        """With _queue_id present, success releases the slot (p_error=None)."""
+        from workers.tasks import run_competitor_report_task
+
+        mock_pipeline = AsyncMock(return_value={
+            "report_id": 7, "narrative": "n", "swot_item_count": 0,
+            "recommendation_count": 0, "used_fallback": False,
+        })
+        mock_convex = MagicMock()
+        mock_convex.competitor_report_progress = AsyncMock()
+        mock_convex.competitor_report_complete = AsyncMock()
+        mock_convex.competitor_report_fail = AsyncMock()
+        mock_convex_cls = MagicMock(return_value=mock_convex)
+
+        mock_sb = MagicMock()  # SupabaseService instance (sync .rpc(...).execute())
+        redis = AsyncMock()
+        redis.get = AsyncMock(return_value=None)  # no cancel
+        ctx = {"redis": redis, "job_id": "job-c1", "supabase": mock_sb}
+        request = {"auditId": "a", "userId": "u", "_queue_id": 42}
+
+        with (
+            patch(
+                "pipelines.competitor_report.run_competitor_report_pipeline",
+                mock_pipeline,
+            ),
+            patch("services.convex.ConvexClient", mock_convex_cls),
+        ):
+            await run_competitor_report_task(ctx, request)
+
+        mock_sb.rpc.assert_called_once_with(
+            "complete_competitor_report_job",
+            {"p_id": 42, "p_error": None},
+        )
+
+    @pytest.mark.asyncio
+    async def test_completes_queue_slot_on_failure(self):
+        """A pipeline failure still releases the slot (p_error = coded msg)."""
+        from workers.tasks import run_competitor_report_task
+
+        mock_pipeline = AsyncMock(side_effect=RuntimeError("boom"))
+        mock_convex = MagicMock()
+        mock_convex.competitor_report_progress = AsyncMock()
+        mock_convex.competitor_report_complete = AsyncMock()
+        mock_convex.competitor_report_fail = AsyncMock()
+        mock_convex_cls = MagicMock(return_value=mock_convex)
+
+        mock_sb = MagicMock()
+        redis = AsyncMock()
+        redis.get = AsyncMock(return_value=None)
+        ctx = {"redis": redis, "job_id": "job-c2", "supabase": mock_sb}
+        request = {"auditId": "a", "userId": "u", "_queue_id": 43}
+
+        with (
+            patch(
+                "pipelines.competitor_report.run_competitor_report_pipeline",
+                mock_pipeline,
+            ),
+            patch("services.convex.ConvexClient", mock_convex_cls),
+            pytest.raises(RuntimeError),
+        ):
+            await run_competitor_report_task(ctx, request)
+
+        assert mock_sb.rpc.call_count == 1
+        name, params = mock_sb.rpc.call_args.args
+        assert name == "complete_competitor_report_job"
+        assert params["p_id"] == 43
+        # slot released even on failure — error string is non-empty
+        assert isinstance(params["p_error"], str) and params["p_error"]
+
+    @pytest.mark.asyncio
+    async def test_no_queue_id_skips_completion(self):
+        """Back-compat: without _queue_id the completion hook is a no-op.
+
+        The 3 pre-existing tests run this path (ctx has no 'supabase' key, the
+        request has no _queue_id) — the hook must NOT construct a client or call
+        the RPC when _queue_id is absent.
+        """
+        from workers.tasks import run_competitor_report_task
+
+        mock_pipeline = AsyncMock(return_value={
+            "report_id": 7, "narrative": "n", "swot_item_count": 0,
+            "recommendation_count": 0, "used_fallback": False,
+        })
+        mock_convex = MagicMock()
+        mock_convex.competitor_report_progress = AsyncMock()
+        mock_convex.competitor_report_complete = AsyncMock()
+        mock_convex.competitor_report_fail = AsyncMock()
+        mock_convex_cls = MagicMock(return_value=mock_convex)
+
+        mock_sb = MagicMock()
+        redis = AsyncMock()
+        redis.get = AsyncMock(return_value=None)
+        ctx = {"redis": redis, "job_id": "job-c3", "supabase": mock_sb}
+        request = {"auditId": "a", "userId": "u"}  # NO _queue_id
+
+        with (
+            patch(
+                "pipelines.competitor_report.run_competitor_report_pipeline",
+                mock_pipeline,
+            ),
+            patch("services.convex.ConvexClient", mock_convex_cls),
+        ):
+            await run_competitor_report_task(ctx, request)
+
+        # No completion RPC when _queue_id is absent.
+        for call in mock_sb.rpc.call_args_list:
+            assert call.args[0] != "complete_competitor_report_job"
+
+
+class TestCompetitorQueueTasksRegistered:
+    def test_worker_settings_includes_competitor_queue_tasks(self):
+        from workers.competitor_report_queue import ALL_COMPETITOR_QUEUE_TASKS
+        from workers.main import WorkerSettings
+
+        for task in ALL_COMPETITOR_QUEUE_TASKS:
+            assert task in WorkerSettings.functions, (
+                f"{task.__name__} not registered in WorkerSettings.functions"
+            )

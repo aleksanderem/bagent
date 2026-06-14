@@ -1,0 +1,47 @@
+[project]
+name = "embeddings-local"
+version = "0.1.0"
+description = "Quota-proof local embedding sidecar (sdadas/mmlw-e5-large, 1024-dim) for BeautyAudit — booksyaudit.pl"
+requires-python = ">=3.12"
+dependencies = [
+    "fastapi>=0.115.0",
+    "uvicorn>=0.34.0",
+    # sentence-transformers loads sdadas/mmlw-e5-large; pulls torch transitively.
+    "sentence-transformers>=3.0.0",
+    # torch MUST be the CPU wheel — tytan is CPU-only (AMD Ryzen 5 3600,
+    # AVX2/FMA, NO GPU). The default PyPI torch wheel pulls multi-GB CUDA
+    # runtime we cannot use. The [[tool.uv.index]] + [tool.uv.sources] block
+    # below pins torch to download.pytorch.org/whl/cpu so `uv sync` resolves
+    # the CPU build on Linux x86_64. The operator confirms the CPU wheel
+    # resolves on the FIRST `uv sync` at deploy (torch + model weights are
+    # downloaded at deploy time, never in this phase / not in tests).
+    "torch>=2.2.0",
+    "numpy>=2.0.0",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=8.0.0",
+]
+
+# --- PyTorch CPU wheel index (deploy-time resolution only) -------------------
+# Best-effort uv CPU-index pin. If a future uv changes this syntax, the README
+# documents the fallback: the operator confirms the CPU wheel resolves on the
+# first `uv sync` at deploy (e.g. `uv sync --extra dev` on tytan).
+[[tool.uv.index]]
+name = "pytorch-cpu"
+url = "https://download.pytorch.org/whl/cpu"
+explicit = true
+
+[tool.uv.sources]
+torch = { index = "pytorch-cpu" }
+
+[tool.pytest.ini_options]
+# Scope collection to this sidecar's own tests only. No testpaths widening,
+# no shared conftest with the main bagent worker — the sidecar tests live
+# under embeddings-local/tests/ and are run from this folder.
+testpaths = ["tests"]
+
+[tool.ruff]
+line-length = 120
+target-version = "py312"

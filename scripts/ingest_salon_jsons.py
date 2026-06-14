@@ -54,6 +54,7 @@ from services.scrape_history import (  # noqa: E402
 )
 
 from config import settings  # noqa: E402
+from services.embeddings import embed_texts  # noqa: E402
 
 logger = logging.getLogger("ingest_salon_jsons")
 
@@ -69,41 +70,40 @@ logger = logging.getLogger("ingest_salon_jsons")
 # nightly cron stays as a CATCH-UP for legacy rows whose ingest predates
 # this feature (or for rows where the inline call failed).
 
-def _embed_service_names_sync(rows: list[dict]) -> list[list[float]] | None:
-    """Batch-embed services via OpenAI text-embedding-3-small.
+def _embed_service_names_sync(rows: list[dict]) -> tuple[list[list[float]], str] | None:
+    """Batch-embed services, returning (vectors, space) or None.
 
     Each row is `{"name": str, "description": str | None}`. Input do
     embedding to "name. description"[:1500] — opis dodaje kontekst
     branżowy (np. "Onda 4 zabiegi" + "modelowanie sylwetki Coolwaves")
     który radykalnie poprawia variant matching dla custom brand names.
 
-    Returns one vector per input row. Returns None on any failure.
+    Delegates to services.embeddings.embed_texts: OpenAI text-embedding-3-small
+    PRIMARY (returns space "openai-3-small" — byte-identical to the previous
+    inline call), with a mmlw-sidecar fallback on a real OpenAI outage (space
+    "mmlw-e5-large"). The `space` tag tells the caller which embedding column to
+    write. Returns None on any failure (caller leaves the row NULL; nightly cron
+    catches up).
     """
-    if not os.getenv("OPENAI_API_KEY"):
+    # Short-circuit only when NEITHER embedding path is available. With the
+    # sidecar fallback, a missing OPENAI_API_KEY can still embed via the local
+    # sidecar IF it is enabled. When the key IS present (production-healthy
+    # case) this guard is a no-op and behavior is unchanged.
+    if not os.getenv("OPENAI_API_KEY") and not settings.embedding_local_enabled:
         return None
     if not rows:
         return None
-    try:
-        from openai import OpenAI
-        client = OpenAI()
-        # Compose name + description with hard 1500-char cap. text-embedding-
-        # 3-small bierze do 8K tokenów, 1500 znaków to ~400 tokenów —
-        # przewidywalny rozmiar, bogaty kontekst.
-        def _compose(r: dict) -> str:
-            name = (r.get("name") or "").strip()
-            desc = (r.get("description") or "").strip()
-            if not desc:
-                return name[:1500]
-            return f"{name}. {desc}"[:1500]
-        inputs = [_compose(r) for r in rows]
-        resp = client.embeddings.create(
-            model="text-embedding-3-small",
-            input=inputs,
-        )
-        return [list(d.embedding) for d in resp.data]
-    except Exception as e:  # noqa: BLE001
-        logger.warning("inline embedding failed: %s — nightly cron will catch up", e)
-        return None
+    # Compose name + description with hard 1500-char cap. text-embedding-
+    # 3-small bierze do 8K tokenów, 1500 znaków to ~400 tokenów —
+    # przewidywalny rozmiar, bogaty kontekst.
+    def _compose(r: dict) -> str:
+        name = (r.get("name") or "").strip()
+        desc = (r.get("description") or "").strip()
+        if not desc:
+            return name[:1500]
+        return f"{name}. {desc}"[:1500]
+    inputs = [_compose(r) for r in rows]
+    return embed_texts(inputs)
 
 
 # ---------------------------------------------------------------------------
@@ -274,39 +274,28 @@ class SalonJsonIngester:
     def _hashes_already_ingested(self, hashes: list[str]) -> set[str]:
         """Return the subset of `hashes` already present in json_ingestion_log.
 
-        Uses a single full-table scan of content_hash (5267 rows in a typical
-        first-batch run is trivially small — ~350KB of payload) and intersects
-        locally. This avoids generating an IN filter with 5267 hex strings
-        that produces a >300KB URL which the reverse proxy rejects with HTTP/2
-        ENHANCE_YOUR_CALM.
+        Issues a single indexed batch lookup via the Supabase RPC
+        `fn_existing_content_hashes` (migration 133): server-side
+        `WHERE content_hash = ANY($batch)` probes the UNIQUE index on
+        content_hash (migration 020), so it touches ONLY the batch's hashes —
+        no full-table scan. The batch is passed in the RPC POST body, not the
+        URL, which sidesteps the >300KB IN-filter URL that the reverse proxy
+        rejects with HTTP/2 ENHANCE_YOUR_CALM (the original reason this used a
+        whole-table scan). `_retry_http` is kept for transient HTTP/2
+        resilience.
         """
         if not hashes:
             return set()
 
-        wanted = set(hashes)
-        found: set[str] = set()
-        # Paginate through the whole table in 1000-row pages via Range header.
-        page_size = 1000
-        offset = 0
-        while True:
-            res = _retry_http(
-                lambda: self.client.table("json_ingestion_log")
-                    .select("content_hash")
-                    .range(offset, offset + page_size - 1)
-                    .execute(),
-                op_name="json_ingestion_log.select",
-            )
-            rows = res.data or []
-            if not rows:
-                break
-            for row in rows:
-                h = row.get("content_hash")
-                if isinstance(h, str) and h in wanted:
-                    found.add(h)
-            if len(rows) < page_size:
-                break
-            offset += page_size
-        return found
+        res = _retry_http(
+            lambda: self.client.rpc("fn_existing_content_hashes", {"p_hashes": hashes}).execute(),
+            op_name="fn_existing_content_hashes",
+        )
+        return {
+            row["content_hash"]
+            for row in (res.data or [])
+            if isinstance(row.get("content_hash"), str)
+        }
 
     # -- salons (upsert registry) -------------------------------------------
 
@@ -467,18 +456,26 @@ class SalonJsonIngester:
 
         HARD GATE from 2026-05-15 (Phase 2): before promoting, verify that
         all services attached to this scrape have embeddings. If any service
-        is missing `embedding_applied_at`, refuse to promote — the previous
-        chain head stays active. A follow-up scrape attempt will retry once
-        embedding succeeds. This prevents the "comparisons without embeddings"
+        is missing an embedding, refuse to promote — the previous chain head
+        stays active. A follow-up scrape attempt will retry once embedding
+        succeeds. This prevents the "comparisons without embeddings"
         contamination class of bugs.
+
+        EITHER-SPACE (beads BEAUTY_AUDIT-lrh Phase 2): a service is considered
+        embedded if it has EITHER the OpenAI vector (`embedding_applied_at`) OR
+        the mmlw backup vector (`embedding_mmlw_applied_at`). Only rows missing
+        BOTH count as unembedded. This is what lets a backup-embedded scrape
+        promote during an OpenAI outage instead of stalling the whole chain.
         """
-        # Gate: count services in this scrape that lack an embedding.
+        # Gate: count services in this scrape that lack an embedding in BOTH
+        # spaces (PostgREST ANDs the two .is_ filters -> rows missing both).
         try:
             missing = (
                 self.client.table("salon_scrape_services")
                 .select("id", count="exact")
                 .eq("scrape_id", new_scrape_id)
                 .is_("embedding_applied_at", "null")
+                .is_("embedding_mmlw_applied_at", "null")
                 .execute()
             )
             missing_count = missing.count or 0
@@ -878,27 +875,37 @@ class SalonJsonIngester:
                 {"name": r.get("name") or "", "description": r.get("description") or ""}
                 for r in inserted_rows
             ]
-            embeddings = _embed_service_names_sync(embed_inputs)
-            if embeddings is not None and len(embeddings) == len(inserted_rows):
-                payload = [
-                    {"id": int(row["id"]), "embedding": emb}
-                    for row, emb in zip(inserted_rows, embeddings)
-                ]
-                # Chunk the RPC call too — 1536-dim vectors per row
-                # produce sizeable JSON payloads.
-                for j in range(0, len(payload), 200):
-                    sub = payload[j : j + 200]
-                    _retry_http(
-                        lambda sub=sub: self.client.rpc(
-                            "bulk_update_service_embeddings",
-                            {"payloads": sub},
-                        ).execute(),
-                        op_name="bulk_update_service_embeddings",
+            result = _embed_service_names_sync(embed_inputs)
+            if result is not None:
+                embeddings, space = result
+                if len(embeddings) == len(inserted_rows):
+                    payload = [
+                        {"id": int(row["id"]), "embedding": emb}
+                        for row, emb in zip(inserted_rows, embeddings)
+                    ]
+                    # Route by embedding space: OpenAI -> the unchanged RPC
+                    # (byte-identical to before), mmlw outage fallback -> the
+                    # 1024-dim sibling RPC (migration 132).
+                    rpc_name = (
+                        "bulk_update_service_embeddings_mmlw"
+                        if space == "mmlw-e5-large"
+                        else "bulk_update_service_embeddings"
                     )
-                logger.debug(
-                    "inline embedded %d services for booksy_id=%s",
-                    len(payload), booksy_id,
-                )
+                    # Chunk the RPC call too — embedding vectors per row
+                    # produce sizeable JSON payloads.
+                    for j in range(0, len(payload), 200):
+                        sub = payload[j : j + 200]
+                        _retry_http(
+                            lambda sub=sub, rpc_name=rpc_name: self.client.rpc(
+                                rpc_name,
+                                {"payloads": sub},
+                            ).execute(),
+                            op_name=rpc_name,
+                        )
+                    logger.debug(
+                        "inline embedded %d services (space=%s) for booksy_id=%s",
+                        len(payload), space, booksy_id,
+                    )
         except Exception as e:  # noqa: BLE001
             # Embedding is a non-blocking enrichment — log loud, move on.
             logger.warning(

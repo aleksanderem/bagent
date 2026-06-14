@@ -451,6 +451,11 @@ async def run_competitor_report_task(ctx: dict[str, Any], request: dict[str, Any
     tier = request.get("tier", "base")
     selection_mode = request.get("selectionMode", "auto")
     target_count = request.get("targetCount", 5)
+    # beads BEAUTY_AUDIT-1mb: the queue row id, threaded by the drain. When
+    # present, the finally below releases the queue slot so the concurrency cap
+    # can't fill up permanently. Absent for legacy / direct-enqueue calls —
+    # then the completion hook is a strict no-op (back-compat).
+    queue_id = request.get("_queue_id")
 
     logger.info("[%s] run_competitor_report_task started audit_id=%s tier=%s",
                 job_id, audit_id, tier)
@@ -473,6 +478,11 @@ async def run_competitor_report_task(ctx: dict[str, Any], request: dict[str, Any
         )
 
     convex = ConvexClient()
+
+    # Tracks the queue-slot error text: None on success, a coded string on
+    # failure. Released in the finally (beads BEAUTY_AUDIT-1mb) — only when
+    # queue_id is present.
+    error_text: str | None = None
 
     try:
         async def on_progress(progress: int, message: str) -> None:
@@ -519,20 +529,50 @@ async def run_competitor_report_task(ctx: dict[str, Any], request: dict[str, Any
         return result
 
     except _CancelledByUser:
+        error_text = "[CANCELLED] Anulowane przez użytkownika"
         logger.info("[%s] run_competitor_report_task cancelled by user", job_id)
         await clear_cancel_flag(ctx["redis"], job_id)
         try:
-            await convex.competitor_report_fail(audit_id, "[CANCELLED] Anulowane przez użytkownika")
+            await convex.competitor_report_fail(audit_id, error_text)
         except Exception:  # noqa: BLE001
             pass
         raise
     except Exception as e:
+        error_text = coded_message(e)
         logger.error("[%s] run_competitor_report_task failed: %s", job_id, e, exc_info=True)
         try:
-            await convex.competitor_report_fail(audit_id, coded_message(e))
+            await convex.competitor_report_fail(audit_id, error_text)
         except Exception:  # noqa: BLE001
             pass
         raise
+    finally:
+        # beads BEAUTY_AUDIT-1mb: release the queue slot on BOTH success
+        # (error_text=None) and failure (coded string), so the concurrency cap
+        # can never silently fill up. Strict guard: when _queue_id is absent
+        # (legacy / direct enqueue, and the pre-1mb tests) do NOT construct a
+        # client or call the RPC. A completion-RPC failure must never mask the
+        # original exception, so it gets its own try/except and never re-raises.
+        if queue_id is not None:
+            # The raw supabase Client exposes a synchronous .rpc(...).execute().
+            # Tests inject a mock via ctx["supabase"]; production builds a real
+            # client (SupabaseService is the higher-level wrapper and has no
+            # top-level .rpc, so we use the underlying client directly here).
+            sb_client = ctx.get("supabase")
+            if sb_client is None:
+                from services.sb_client import make_supabase_client
+                from config import settings as _settings
+                sb_client = make_supabase_client(
+                    _settings.supabase_url, _settings.supabase_service_key,
+                )
+            try:
+                sb_client.rpc(
+                    "complete_competitor_report_job",
+                    {"p_id": queue_id, "p_error": error_text},
+                ).execute()
+            except Exception as ce:  # noqa: BLE001
+                logger.warning(
+                    "[%s] complete_competitor_report_job failed: %s", job_id, ce,
+                )
 
 
 # ---------------------------------------------------------------------------

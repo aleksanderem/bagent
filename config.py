@@ -71,6 +71,19 @@ class Settings(BaseSettings):
     # is unavailable.
     openai_api_key: str = ""
 
+    # --- Embedding fallback (beads BEAUTY_AUDIT-lrh Phase 2) ---
+    # OpenAI text-embedding-3-small is PRIMARY. On a 429/quota or connection
+    # error the ingest path falls back to the local mmlw sidecar (Phase 1,
+    # embeddings-local/, default :3010). Rollout order is sidecar-UP THEN this
+    # code, so default embedding_local_enabled=True is safe — if the sidecar is
+    # down the helper degrades to None gracefully (today's behavior). Flip
+    # embedding_primary to "mmlw" to pin the sidecar (soft, reversible step
+    # toward self-hosting); set embedding_local_enabled=False for a fast
+    # rollback to today's OpenAI-only behavior.
+    embedding_primary: str = "openai"          # "openai" | "mmlw"
+    embedding_local_url: str = "http://127.0.0.1:3010"
+    embedding_local_enabled: bool = True
+
     # extra="ignore" lets us put arbitrary env vars in .env (e.g. BUGSINK_DSN_*,
     # HC_PING_*) without having to declare each one as a pydantic field.
     model_config = {"env_file": ".env", "env_file_encoding": "utf-8", "extra": "ignore"}

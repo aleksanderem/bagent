@@ -415,6 +415,13 @@ async def start_competitor_report(request: CompetitorReportRequest) -> AnalyzeRe
 
     Runs selection (Etap 1) + deterministic analysis (Etap 4) + AI synthesis
     (Etap 5). Webhooks to Convex for progress / complete / fail.
+
+    beads BEAUTY_AUDIT-1mb: instead of enqueuing directly to arq (which had no
+    concurrency cap — N reports → N concurrent heavy LLM jobs → OpenAI quota
+    spikes), this inserts into competitor_report_queue (migration 131). A
+    capped drain (workers/competitor_report_queue.py) enqueues the actual
+    run_competitor_report_task in controlled waves, reusing this job_id as the
+    arq _job_id so the frontend's jobId polling keeps working.
     """
     job_id = str(uuid.uuid4())
     store.create_job(job_id, request.auditId, meta={
@@ -424,11 +431,42 @@ async def start_competitor_report(request: CompetitorReportRequest) -> AnalyzeRe
         "selectionMode": request.selectionMode,
         "targetCount": request.targetCount,
     })
-    await _enqueue_pipeline(
-        task_name="run_competitor_report_task",
-        job_id=job_id,
-        request_payload=request.model_dump(),
-    )
+
+    # Insert into the DB-backed queue (cap enforced at drain time). We no longer
+    # touch arq here, so the 503 below now guards DB availability instead.
+    from services.sb_client import make_supabase_client
+    sb = make_supabase_client(settings.supabase_url, settings.supabase_service_key)
+    try:
+        res = sb.rpc(
+            "enqueue_competitor_report",
+            {
+                "p_audit_id": request.auditId,
+                "p_user_id": request.userId,
+                "p_arq_job_id": job_id,
+                "p_tier": request.tier,
+                "p_selection_mode": request.selectionMode,
+                "p_target_count": request.targetCount,
+            },
+        ).execute()
+    except Exception as e:  # noqa: BLE001
+        logger.error(
+            "enqueue_competitor_report failed audit_id=%s job_id=%s: %s",
+            request.auditId, job_id, e,
+        )
+        raise HTTPException(
+            status_code=503,
+            detail="competitor report queue unavailable — retry shortly",
+        ) from e
+
+    if res.data is None:
+        # Dedup guard fired — an active (queued/running) row already exists for
+        # this audit. Mirror the refresh endpoint's already_running idiom.
+        logger.info(
+            "competitor report for audit %s already queued — skipping duplicate",
+            request.auditId,
+        )
+        return AnalyzeResponse(jobId=job_id, status="already_queued")
+
     return AnalyzeResponse(jobId=job_id)
 
 

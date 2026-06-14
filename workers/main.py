@@ -212,6 +212,8 @@ async def smoke_test(ctx: dict[str, Any], message: str = "hello") -> dict[str, A
 from .tasks import ALL_TASKS
 # Issue #23 — scrape orchestrator tasks (queue drain + scheduler + reaper).
 from .scrape_refresh import ALL_SCRAPE_TASKS
+# beads BEAUTY_AUDIT-1mb — competitor report queue (capped drain + reaper).
+from .competitor_report_queue import ALL_COMPETITOR_QUEUE_TASKS
 # Issue #34 — Booksy listing discovery tasks.
 from .discovery_tasks import ALL_DISCOVERY_TASKS
 # Meta Ads automation — push approved drafts, daily metrics fetch, attribution diff.
@@ -246,6 +248,19 @@ try:  # pragma: no cover
         cron("workers.scrape_refresh.schedule_refresh_cron", minute={5}),
         # Reap stuck jobs every 10 minutes.
         cron("workers.scrape_refresh.reap_stuck_jobs", minute={i for i in range(2, 60, 10)}),
+        # beads BEAUTY_AUDIT-1mb — competitor report queue: controlled-concurrency
+        # drain + zombie reap. Drain runs every minute (per-second granularity is
+        # pointless — the global cap, not the tick frequency, gates throughput, and
+        # reports run minutes not seconds). Reap every ~10 min, offset off scrape's
+        # {2,12,22,...} to stagger.
+        cron(
+            "workers.competitor_report_queue.drain_competitor_report_queue",
+            minute={i for i in range(0, 60)},
+        ),
+        cron(
+            "workers.competitor_report_queue.reap_stuck_competitor_report_jobs",
+            minute={i for i in range(8, 60, 10)},
+        ),
         # Issue #34 — every 30s: bulk-enqueue newly discovered salons.
         # Synced with the drain cadence so a discovery dump at any
         # given second waits at most ~30s before reaching the queue
@@ -439,6 +454,7 @@ class WorkerSettings:
         worker_heartbeat,
         *ALL_TASKS,
         *ALL_SCRAPE_TASKS,
+        *ALL_COMPETITOR_QUEUE_TASKS,
         *ALL_DISCOVERY_TASKS,
         *ALL_CAMPAIGN_TASKS,
         *ALL_OUTREACH_DEPLOYER_TASKS,
