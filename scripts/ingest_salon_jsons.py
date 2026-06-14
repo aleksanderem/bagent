@@ -274,39 +274,28 @@ class SalonJsonIngester:
     def _hashes_already_ingested(self, hashes: list[str]) -> set[str]:
         """Return the subset of `hashes` already present in json_ingestion_log.
 
-        Uses a single full-table scan of content_hash (5267 rows in a typical
-        first-batch run is trivially small — ~350KB of payload) and intersects
-        locally. This avoids generating an IN filter with 5267 hex strings
-        that produces a >300KB URL which the reverse proxy rejects with HTTP/2
-        ENHANCE_YOUR_CALM.
+        Issues a single indexed batch lookup via the Supabase RPC
+        `fn_existing_content_hashes` (migration 133): server-side
+        `WHERE content_hash = ANY($batch)` probes the UNIQUE index on
+        content_hash (migration 020), so it touches ONLY the batch's hashes —
+        no full-table scan. The batch is passed in the RPC POST body, not the
+        URL, which sidesteps the >300KB IN-filter URL that the reverse proxy
+        rejects with HTTP/2 ENHANCE_YOUR_CALM (the original reason this used a
+        whole-table scan). `_retry_http` is kept for transient HTTP/2
+        resilience.
         """
         if not hashes:
             return set()
 
-        wanted = set(hashes)
-        found: set[str] = set()
-        # Paginate through the whole table in 1000-row pages via Range header.
-        page_size = 1000
-        offset = 0
-        while True:
-            res = _retry_http(
-                lambda: self.client.table("json_ingestion_log")
-                    .select("content_hash")
-                    .range(offset, offset + page_size - 1)
-                    .execute(),
-                op_name="json_ingestion_log.select",
-            )
-            rows = res.data or []
-            if not rows:
-                break
-            for row in rows:
-                h = row.get("content_hash")
-                if isinstance(h, str) and h in wanted:
-                    found.add(h)
-            if len(rows) < page_size:
-                break
-            offset += page_size
-        return found
+        res = _retry_http(
+            lambda: self.client.rpc("fn_existing_content_hashes", {"p_hashes": hashes}).execute(),
+            op_name="fn_existing_content_hashes",
+        )
+        return {
+            row["content_hash"]
+            for row in (res.data or [])
+            if isinstance(row.get("content_hash"), str)
+        }
 
     # -- salons (upsert registry) -------------------------------------------
 
