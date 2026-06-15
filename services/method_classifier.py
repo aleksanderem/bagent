@@ -227,6 +227,34 @@ def _levenshtein(a: str, b: str) -> int:
     return prev[-1]
 
 
+# Process-level cache of the treatment_methods dictionary rows. The
+# competitor pipeline builds a fresh MethodClassifier per report (worker
+# cap is small, a few concurrent), and the dictionary (~23k rows) is
+# read-only between reports — so we fetch it ONCE per process and let
+# every instance build its OWN index from the shared rows. Each instance
+# owns its _methods / _alias_index, so use_llm=True INSERTs (offline
+# backfill) never mutate another instance's index. Reset in tests via
+# _reset_warmup_cache().
+_WARMUP_ROWS_CACHE: list[dict[str, Any]] | None = None
+_WARMUP_CACHE_LOCK: asyncio.Lock | None = None
+
+
+def _warmup_lock() -> asyncio.Lock:
+    """Lazily-constructed lock guarding the one-time dictionary fetch so
+    concurrent cold warmups don't each page the whole table."""
+    global _WARMUP_CACHE_LOCK
+    if _WARMUP_CACHE_LOCK is None:
+        _WARMUP_CACHE_LOCK = asyncio.Lock()
+    return _WARMUP_CACHE_LOCK
+
+
+def _reset_warmup_cache() -> None:
+    """Test hook — drop the process-level dictionary cache so the next
+    warmup() re-fetches."""
+    global _WARMUP_ROWS_CACHE
+    _WARMUP_ROWS_CACHE = None
+
+
 class MethodClassifier:
     """Cached cascading classifier. Instantiate once per pipeline run;
     warmup() loads all treatment_methods + alias index into memory.
@@ -262,22 +290,29 @@ class MethodClassifier:
 
     # ── Loading / warmup ─────────────────────────────────────────────
 
-    async def warmup(self) -> None:
-        """Load all treatment_methods + build alias substring index."""
+    async def warmup(self, *, force_reload: bool = False) -> None:
+        """Load all treatment_methods + build alias substring index.
+
+        Pages through the WHOLE dictionary: PostgREST caps each response
+        at PGRST_DB_MAX_ROWS (=1000), so the old single .execute() silently
+        truncated ~23k methods to their first 1000 — the entity-resolution
+        bug where the alias index saw ~4% of the dictionary (fixed
+        2026-06-15). Rows are cached per process (see _WARMUP_ROWS_CACHE);
+        each instance builds its own index from them so concurrent reports
+        share the fetch but not the mutable buffers."""
+        global _WARMUP_ROWS_CACHE
         try:
-            res = (
-                self.supabase.client.table("treatment_methods")
-                .select(
-                    "id, canonical_name, display_name, category, method_type, "
-                    "brand_family, aliases, source"
-                )
-                .execute()
-            )
+            rows = _WARMUP_ROWS_CACHE
+            if rows is None or force_reload:
+                async with _warmup_lock():
+                    rows = _WARMUP_ROWS_CACHE
+                    if rows is None or force_reload:
+                        rows = await asyncio.to_thread(self._fetch_all_methods)
+                        _WARMUP_ROWS_CACHE = rows
         except Exception as e:
             logger.error("warmup: failed to load treatment_methods: %s", e)
             raise
 
-        rows = res.data or []
         self._methods = {}
         self._canonical_to_id = {}
         self._alias_index = []
@@ -290,6 +325,34 @@ class MethodClassifier:
             len(self._methods),
             len(self._alias_index),
         )
+
+    def _fetch_all_methods(self) -> list[dict[str, Any]]:
+        """Synchronously page through every treatment_methods row.
+
+        PostgREST returns at most PGRST_DB_MAX_ROWS (=1000) per request,
+        so we walk fixed 1000-row windows ordered by id (stable paging)
+        until a short page signals the end. Runs sync; warmup() calls it
+        via asyncio.to_thread so the round-trips don't block the loop."""
+        rows: list[dict[str, Any]] = []
+        page = 1000
+        offset = 0
+        while True:
+            res = (
+                self.supabase.client.table("treatment_methods")
+                .select(
+                    "id, canonical_name, display_name, category, method_type, "
+                    "brand_family, aliases, source"
+                )
+                .order("id")
+                .range(offset, offset + page - 1)
+                .execute()
+            )
+            batch = res.data or []
+            rows.extend(batch)
+            if len(batch) < page:
+                break
+            offset += page
+        return rows
 
     def _register_method_row(self, r: dict) -> int:
         """Add a row to the in-memory index. Used both during warmup and
