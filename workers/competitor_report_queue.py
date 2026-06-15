@@ -109,10 +109,14 @@ async def drain_competitor_report_queue(ctx: dict[str, Any]) -> dict[str, int]:
             "_queue_id": job["id"],
         }
         # _job_id=arq_job_id so the frontend's jobId polling keeps working.
+        # _queue_name="arq:reports" routes the task to the dedicated nice'd
+        # bagent-report-worker (ReportWorkerSettings), isolated from the scrape
+        # pump (2026-06-15). MUST match ReportWorkerSettings.queue_name.
         await redis.enqueue_job(
             "run_competitor_report_task",
             payload,
             _job_id=job["arq_job_id"],
+            _queue_name="arq:reports",
         )
         enqueued += 1
 
