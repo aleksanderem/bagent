@@ -11,6 +11,15 @@ In .env (one line per check):
 
     HC_PING_TAXONOMY_VIEWS_REFRESH=https://hc-ping.booksyaudit.pl/<uuid>
     HC_PING_BAGENT_WORKER_HEARTBEAT=https://hc-ping.booksyaudit.pl/<uuid>
+    HC_PING_BAGENT_REPORT_WORKER_HEARTBEAT=https://hc-ping.booksyaudit.pl/<uuid>
+
+Two separate worker-liveness checks (since 2026-06-15 there are two worker
+processes): HC_PING_BAGENT_WORKER_HEARTBEAT is pinged only by the scrape worker
+(WorkerSettings / arq:queue) via worker_heartbeat, and
+HC_PING_BAGENT_REPORT_WORKER_HEARTBEAT only by the report worker
+(ReportWorkerSettings / arq:reports — drains every audit + on-demand report) via
+report_worker_heartbeat. Each needs its own Healthchecks check (~10 min grace);
+one going green tells you nothing about the other.
 
 In an arq cron task:
 

@@ -2,6 +2,15 @@
 // .env before exec (PM2 v6.0.14 nie ma env_file natywnie). Without this
 // wrapper, worker runs with empty env and pipelines crash on missing
 // OPENAI_API_KEY / SUPABASE_URL etc. Naprawa 2026-05-20 incident.
+//
+// ⚠️ A THIRD process is NOT defined here: bagent-report-worker (queue
+// "arq:reports") lives in deploy/ecosystem.bagent-report-worker.config.js
+// (nice'd/ionice'd, own max_memory_restart). Since 2026-06-15 it drains EVERY
+// audit + on-demand report (server._enqueue_pipeline routes them to
+// arq:reports) — it MUST be running and `pm2 save`d or all audits silently
+// stall. Deploy is ORDER-SENSITIVE: restart the report worker BEFORE
+// bagent-booksyauditor, and NEVER `pm2 restart all`. See
+// docs/runbooks/2026-06-15-report-worker-routing-deploy.md.
 module.exports = {
   apps: [
     {

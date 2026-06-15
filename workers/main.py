@@ -152,21 +152,48 @@ async def shutdown(ctx: dict[str, Any]) -> None:
 
 
 # ---------------------------------------------------------------------------
-# Worker heartbeat — Healthchecks ping every 5 minutes (issue: monitoring)
+# Worker heartbeats — Healthchecks ping every 5 minutes (issue: monitoring)
 # ---------------------------------------------------------------------------
-# Standalone heartbeat cron so Healthchecks alerts when the worker process
-# dies entirely. Each named cron has its own check; this one specifically
-# proves the worker is alive between scheduled jobs.
+# Standalone heartbeat crons so Healthchecks alerts when a worker process dies
+# entirely. Each named cron has its own check; these specifically prove a
+# worker is alive between scheduled jobs.
+#
+# We run TWO physically separate worker processes (since 2026-06-15), so we
+# need TWO independent heartbeats — one is NOT a proxy for the other:
+#   * worker_heartbeat        → scrape worker  (WorkerSettings / arq:queue)
+#   * report_worker_heartbeat → report worker  (ReportWorkerSettings / arq:reports)
+# The report worker now processes every audit + on-demand report; if it died
+# while the scrape worker kept pinging, monitoring would stay green while all
+# audits silently stalled. Hence the dedicated report-worker heartbeat below.
 
 async def worker_heartbeat(ctx: dict[str, Any]) -> str:
-    """Ping the bagent-worker-heartbeat Healthchecks endpoint.
+    """Ping the bagent-worker-heartbeat Healthchecks endpoint (SCRAPE worker).
 
-    Fired every 5 minutes by the arq scheduler. If the worker process is
-    killed, this stops pinging and Healthchecks alerts after the grace
-    window (10 minutes for this check).
+    Fired every 5 minutes by the scrape worker's arq scheduler (SCRAPE_CRONS).
+    Proves ONLY the scrape worker (WorkerSettings, arq:queue) is alive — it says
+    nothing about the report worker, which has its own report_worker_heartbeat.
+    If the scrape worker process is killed, this stops pinging and Healthchecks
+    alerts after the grace window (10 minutes for this check).
     """
     from services.healthcheck import ping
     await ping("HC_PING_BAGENT_WORKER_HEARTBEAT")
+    return "ok"
+
+
+async def report_worker_heartbeat(ctx: dict[str, Any]) -> str:
+    """Ping the bagent-report-worker-heartbeat Healthchecks endpoint.
+
+    Fired every 5 minutes by the report worker's arq scheduler (REPORT_CRONS).
+    The report worker (ReportWorkerSettings, arq:reports) processes ALL
+    user-facing report jobs — audits (run_report_task), free report, cennik,
+    summary, versum, competitor reports. The scrape worker's heartbeat proves
+    nothing about THIS process, so without this independent ping a dead report
+    worker would stall every audit while Healthchecks stayed green. If this
+    process is killed, the ping stops and Healthchecks alerts after the grace
+    window (10 minutes for this check).
+    """
+    from services.healthcheck import ping
+    await ping("HC_PING_BAGENT_REPORT_WORKER_HEARTBEAT")
     return "ok"
 
 
@@ -450,6 +477,17 @@ try:  # pragma: no cover
             "workers.competitor_report_queue.reap_stuck_competitor_report_jobs",
             minute={i for i in range(8, 60, 10)},
         ),
+        # Report worker heartbeat — every 5 minutes pings the Healthchecks
+        # bagent-report-worker-heartbeat URL so HC alerts when THIS process
+        # dies. MUST live in REPORT_CRONS (ReportWorkerSettings.cron_jobs):
+        # registering report_worker_heartbeat in functions does NOT fire it —
+        # arq only runs crons listed in cron_jobs. Since 2026-06-15 the report
+        # worker drains every audit + on-demand report, so a dead report worker
+        # stalls all audits while the scrape worker's heartbeat stays green.
+        cron(
+            "workers.main.report_worker_heartbeat",
+            minute={i for i in range(0, 60, 5)},
+        ),
     ]
 except Exception:  # noqa: BLE001
     SCRAPE_CRONS = []
@@ -519,7 +557,10 @@ class ReportWorkerSettings:
     """
     functions = [
         smoke_test,
-        worker_heartbeat,
+        # This worker fires its OWN heartbeat (report_worker_heartbeat via
+        # REPORT_CRONS), NOT the scrape worker's. The scrape heartbeat stays
+        # scoped to WorkerSettings so the two liveness signals don't conflate.
+        report_worker_heartbeat,
         *ALL_TASKS,
         *ALL_COMPETITOR_QUEUE_TASKS,
     ]
@@ -527,12 +568,16 @@ class ReportWorkerSettings:
     redis_settings = redis_settings
     on_startup = startup
     on_shutdown = shutdown
-    # Reports are heavy but IO-bound (mostly waiting on MiniMax/OpenAI HTTP).
-    # Competitor reports self-cap at COMPETITOR_REPORT_MAX_CONCURRENT (4) via the
-    # drain; audits + the other on-demand jobs enqueue uncapped, so give a little
-    # headroom above 4 so an audit isn't starved behind a competitor-report
-    # burst. nice/ionice keeps this from hurting the scrape worker.
-    max_jobs = 8
+    # Reports are heavy. Competitor reports self-cap at
+    # COMPETITOR_REPORT_MAX_CONCURRENT (4) via the drain; audits + the other
+    # on-demand jobs enqueue UNCAPPED and each audit fans out several concurrent
+    # MiniMax calls that bypass the global per-model limiter, so total concurrency
+    # here is the only ceiling. Kept at 6 (≈4 capped competitor reports + ~2
+    # audits) rather than raised — a prior shared-worker incident traced
+    # degradation to event-loop saturation, not pure IO-wait, so we do NOT raise
+    # concurrency on this workload without a load test. The 50-concurrent goal is
+    # a queue/horizontal-scaling concern, not a max_jobs knob on one process.
+    max_jobs = 6
     job_timeout = 4 * 60 * 60
     keep_result = 86400  # 24 hours
     max_tries = 3
