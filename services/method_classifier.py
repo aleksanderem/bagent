@@ -140,6 +140,37 @@ LLM_MIN_CONFIDENCE = 0.7
 # us the right "absurd cutoff" threshold (likely 0.40-0.50).
 EMBED_GATE_MIN_COSINE = float(os.environ.get("EMBED_GATE_MIN_COSINE", "0.55"))
 
+# Alias-match specificity confidence (2026-06-15 precision fix). Every alias
+# hit is classifier='alias_exact', so the is_primary trigger
+# (fn_smc_recompute_primary, mig 105: ORDER BY classifier, confidence DESC,
+# classified_at ASC) breaks ties by confidence then arbitrary classified_at.
+# A single service name like "estGen - Krem aktywny" matches BOTH the branded
+# method (estgen) AND a generic descriptor method (krem); with flat 1.0
+# confidence the generic one could win is_primary by classified_at accident,
+# poisoning the structured/method pricing tiers (wrong primary + noisy market).
+# Rank alias hits by specificity so the branded/specific method wins is_primary:
+#   branded (brand_family present)           -> 1.0
+#   specific phrase (multi-token canonical / long alias) -> 0.95
+#   generic short single word (krem, twarz)  -> 0.85
+# This ONLY reorders within alias_exact (the classifier tier sorts first, so an
+# alias hit still always beats embedding/LLM regardless of these values).
+ALIAS_CONF_BRANDED = 1.0
+ALIAS_CONF_SPECIFIC = 0.95
+ALIAS_CONF_GENERIC = 0.85
+_ALIAS_SPECIFIC_MIN_LEN = 6
+
+
+def _alias_match_confidence(
+    brand_family: str | None, canonical_name: str, alias: str
+) -> float:
+    """Specificity-ranked confidence for an alias hit (see ALIAS_CONF_*)."""
+    if brand_family:
+        return ALIAS_CONF_BRANDED
+    if "_" in canonical_name or len(alias) >= _ALIAS_SPECIFIC_MIN_LEN:
+        return ALIAS_CONF_SPECIFIC
+    return ALIAS_CONF_GENERIC
+
+
 # Method types allowed in treatment_methods (matches CHECK constraint
 # from mig 095). LLM must propose exactly one of these for any new entry.
 _ALLOWED_METHOD_TYPES = {"device", "substance", "technique", "protocol"}
@@ -529,7 +560,9 @@ class MethodClassifier:
                     category=method.category,
                     method_type=method.method_type,
                     brand_family=method.brand_family,
-                    confidence=ALIAS_EXACT_CONFIDENCE,
+                    confidence=_alias_match_confidence(
+                        method.brand_family, method.canonical_name, alias
+                    ),
                     classifier="alias_exact",
                     matched_alias=alias,
                 ))
