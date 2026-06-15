@@ -209,7 +209,7 @@ async def smoke_test(ctx: dict[str, Any], message: str = "hello") -> dict[str, A
 # keep_result: 24h — long enough that frontend polling for status after a
 # slow job still works, short enough that result store doesn't bloat.
 
-from .tasks import ALL_TASKS, run_competitor_report_task
+from .tasks import ALL_TASKS
 # Issue #23 — scrape orchestrator tasks (queue drain + scheduler + reaper).
 from .scrape_refresh import ALL_SCRAPE_TASKS
 # beads BEAUTY_AUDIT-1mb — competitor report queue (capped drain + reaper).
@@ -494,33 +494,45 @@ class WorkerSettings:
 
 
 class ReportWorkerSettings:
-    """Dedicated arq worker for competitor reports, isolated from the scrape
-    pump (2026-06-15). Runs as a separate, nice'd PM2 process
-    (bagent-report-worker) on its OWN queue ("arq:reports"), so a heavy report
-    or classification-backfill load can't starve the scrape worker — and the
-    scrape pump can't starve report latency (the stuck-worker incident where
-    reports cycled >1h under shared load).
+    """Dedicated arq worker for ALL user-facing report/LLM generation, isolated
+    from the scrape pump. Runs as a separate, nice'd PM2 process
+    (bagent-report-worker) on its OWN queue ("arq:reports"), so heavy report /
+    classification load can't starve the scrape worker — and the scrape pump
+    can't starve report latency (the stuck-worker incident where reports cycled
+    >1h under shared load).
 
-    The report-queue drain + reap crons live HERE (moved off SCRAPE_CRONS) and
-    enqueue run_competitor_report_task to "arq:reports", which only this worker
-    consumes. Shares Redis + Supabase with the scrape worker — DB contention is
-    mitigated, not eliminated, so keep any classification backfill concurrency
-    low (and nice/ionice the process).
+    Consumes "arq:reports" for:
+      * competitor reports — enqueued by the report-queue drain cron (which also
+        lives here, moved off SCRAPE_CRONS), globally capped at
+        COMPETITOR_REPORT_MAX_CONCURRENT (4);
+      * every other on-demand report job — audit (run_report_task), free report,
+        cennik, summary, versum suggest, competitor refresh — routed here by
+        server._enqueue_pipeline (2026-06-15). Previously these ran on the scrape
+        worker and contended with the discovery pump (the audit-hangs-at-40%
+        latency tail); now scraping runs alone on WorkerSettings.
+
+    functions registers *ALL_TASKS so this worker can execute every report task
+    enqueued to its queue. They remain registered on WorkerSettings too (belt +
+    suspenders for graceful drain of in-flight jobs across a deploy — routing,
+    not deregistration, is what isolates the load). Shares Redis + Supabase with
+    the scrape worker — DB contention is mitigated, not eliminated.
     """
     functions = [
         smoke_test,
         worker_heartbeat,
-        run_competitor_report_task,
+        *ALL_TASKS,
         *ALL_COMPETITOR_QUEUE_TASKS,
     ]
     cron_jobs = REPORT_CRONS
     redis_settings = redis_settings
     on_startup = startup
     on_shutdown = shutdown
-    # Small pool: reports are heavy and globally capped at
-    # COMPETITOR_REPORT_MAX_CONCURRENT (4); a little headroom for the
-    # drain/reap crons.
-    max_jobs = 6
+    # Reports are heavy but IO-bound (mostly waiting on MiniMax/OpenAI HTTP).
+    # Competitor reports self-cap at COMPETITOR_REPORT_MAX_CONCURRENT (4) via the
+    # drain; audits + the other on-demand jobs enqueue uncapped, so give a little
+    # headroom above 4 so an audit isn't starved behind a competitor-report
+    # burst. nice/ionice keeps this from hurting the scrape worker.
+    max_jobs = 8
     job_timeout = 4 * 60 * 60
     keep_result = 86400  # 24 hours
     max_tries = 3
