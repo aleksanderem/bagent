@@ -588,6 +588,54 @@ async def compute_competitor_analysis(
         )
         raise
 
+    # ── Scrape-consistency (2026-06-15): use the subject's CHAIN-HEAD scrape
+    # services for the PRICING tiers. The audit-triggered scrape loaded above
+    # (get_subject_full_data, keyed by convex_audit_id) goes STALE once
+    # discovery re-scrapes the salon — a newer scrape becomes the chain head,
+    # and the audit scrape's service ids have no classification on it. Every
+    # dictionary tier RPC (fn_subject_methods, fn_pricing_samples_structured,
+    # fn_compute_method_pricing) keys off the chain head, so with a stale audit
+    # the structured/method tiers collapse to subject_only. Swap in the chain
+    # head services for pricing; scoring above keeps the audit-time snapshot.
+    # No-op when the audit scrape already IS the chain head (fresh audit).
+    try:
+        _audit_scrape_id = (subject_data.get("scrape") or {}).get("id")
+        _ch_id, _ch_services = await service.get_chain_head_services(
+            int(subject_data["booksy_id"])
+        )
+        if _ch_id and _ch_id != _audit_scrape_id and _ch_services:
+            # Re-anchor chain-head tids via crowd lookup (same treatment the
+            # audit services got). Classification tiers don't need it; the
+            # variant/treatment tiers group by tid so it keeps them clean.
+            try:
+                await infer_and_apply(
+                    service, _ch_services, label="subject_chain_head",
+                )
+            except Exception:
+                logger.exception(
+                    "scrape-consistency: infer_and_apply on chain-head failed "
+                    "— pricing continues with raw tids"
+                )
+            logger.info(
+                "Etap 4 scrape-consistency: audit scrape %s stale → using "
+                "chain-head %s for pricing (%d → %d services)",
+                _audit_scrape_id, _ch_id,
+                len(subject_data.get("services") or []), len(_ch_services),
+            )
+            if tracer is not None:
+                tracer.add("pricing.subject_scrape_swap", {
+                    "audit_scrape_id": str(_audit_scrape_id),
+                    "chain_head_scrape_id": str(_ch_id),
+                    "audit_services": len(subject_data.get("services") or []),
+                    "chain_head_services": len(_ch_services),
+                })
+            subject_data["services"] = _ch_services
+    except Exception as _sce:
+        logger.warning(
+            "Etap 4 scrape-consistency check failed (%s) — keeping audit "
+            "scrape services for pricing", _sce,
+        )
+
     # ── Step 4: Pricing comparisons ──
     # T3b 2026-05-19 — single-instance MethodClassifier shared across
     # both tier-1 (treatment) and tier-2 (variant) paths. Warmup loads
