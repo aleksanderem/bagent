@@ -15,6 +15,7 @@ happens in iteration #21.
 """
 
 from .main import (
+    ReportWorkerSettings,
     WorkerSettings,
     get_redis_pool,
     redis_settings,
@@ -35,6 +36,7 @@ from .tasks import (
 
 __all__ = [
     "WorkerSettings",
+    "ReportWorkerSettings",
     "get_redis_pool",
     "redis_settings",
     "smoke_test",
