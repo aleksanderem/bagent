@@ -209,7 +209,7 @@ async def smoke_test(ctx: dict[str, Any], message: str = "hello") -> dict[str, A
 # keep_result: 24h — long enough that frontend polling for status after a
 # slow job still works, short enough that result store doesn't bloat.
 
-from .tasks import ALL_TASKS
+from .tasks import ALL_TASKS, run_competitor_report_task
 # Issue #23 — scrape orchestrator tasks (queue drain + scheduler + reaper).
 from .scrape_refresh import ALL_SCRAPE_TASKS
 # beads BEAUTY_AUDIT-1mb — competitor report queue (capped drain + reaper).
@@ -248,19 +248,12 @@ try:  # pragma: no cover
         cron("workers.scrape_refresh.schedule_refresh_cron", minute={5}),
         # Reap stuck jobs every 10 minutes.
         cron("workers.scrape_refresh.reap_stuck_jobs", minute={i for i in range(2, 60, 10)}),
-        # beads BEAUTY_AUDIT-1mb — competitor report queue: controlled-concurrency
-        # drain + zombie reap. Drain runs every minute (per-second granularity is
-        # pointless — the global cap, not the tick frequency, gates throughput, and
-        # reports run minutes not seconds). Reap every ~10 min, offset off scrape's
-        # {2,12,22,...} to stagger.
-        cron(
-            "workers.competitor_report_queue.drain_competitor_report_queue",
-            minute={i for i in range(0, 60)},
-        ),
-        cron(
-            "workers.competitor_report_queue.reap_stuck_competitor_report_jobs",
-            minute={i for i in range(8, 60, 10)},
-        ),
+        # beads BEAUTY_AUDIT-1mb — competitor report queue drain + zombie reap
+        # MOVED to ReportWorkerSettings (2026-06-15): report processing +
+        # classification now run on a dedicated, nice'd bagent-report-worker
+        # off the "arq:reports" queue so a heavy report/backfill load can't
+        # starve the scrape pump (and vice versa). The drain cron lives with
+        # that worker and enqueues run_competitor_report_task to its own queue.
         # Issue #34 — every 30s: bulk-enqueue newly discovered salons.
         # Synced with the drain cadence so a discovery dump at any
         # given second waits at most ~30s before reaching the queue
@@ -443,8 +436,24 @@ try:  # pragma: no cover
             hour={4, 10, 16, 22}, minute={27},
         ),
     ]
+    # Competitor report queue: drain + zombie reap. These run on the
+    # dedicated bagent-report-worker (ReportWorkerSettings), NOT the scrape
+    # worker, so report/classification load is isolated from the scrape pump
+    # (2026-06-15). The drain enqueues run_competitor_report_task to the
+    # "arq:reports" queue, which only the report worker consumes.
+    REPORT_CRONS = [
+        cron(
+            "workers.competitor_report_queue.drain_competitor_report_queue",
+            minute={i for i in range(0, 60)},
+        ),
+        cron(
+            "workers.competitor_report_queue.reap_stuck_competitor_report_jobs",
+            minute={i for i in range(8, 60, 10)},
+        ),
+    ]
 except Exception:  # noqa: BLE001
     SCRAPE_CRONS = []
+    REPORT_CRONS = []
 
 
 class WorkerSettings:
@@ -482,3 +491,37 @@ class WorkerSettings:
     # to steal each other's jobs. For now we use the arq default since we
     # only have one environment running — production on tytan.
     queue_name = "arq:queue"
+
+
+class ReportWorkerSettings:
+    """Dedicated arq worker for competitor reports, isolated from the scrape
+    pump (2026-06-15). Runs as a separate, nice'd PM2 process
+    (bagent-report-worker) on its OWN queue ("arq:reports"), so a heavy report
+    or classification-backfill load can't starve the scrape worker — and the
+    scrape pump can't starve report latency (the stuck-worker incident where
+    reports cycled >1h under shared load).
+
+    The report-queue drain + reap crons live HERE (moved off SCRAPE_CRONS) and
+    enqueue run_competitor_report_task to "arq:reports", which only this worker
+    consumes. Shares Redis + Supabase with the scrape worker — DB contention is
+    mitigated, not eliminated, so keep any classification backfill concurrency
+    low (and nice/ionice the process).
+    """
+    functions = [
+        smoke_test,
+        worker_heartbeat,
+        run_competitor_report_task,
+        *ALL_COMPETITOR_QUEUE_TASKS,
+    ]
+    cron_jobs = REPORT_CRONS
+    redis_settings = redis_settings
+    on_startup = startup
+    on_shutdown = shutdown
+    # Small pool: reports are heavy and globally capped at
+    # COMPETITOR_REPORT_MAX_CONCURRENT (4); a little headroom for the
+    # drain/reap crons.
+    max_jobs = 6
+    job_timeout = 4 * 60 * 60
+    keep_result = 86400  # 24 hours
+    max_tries = 3
+    queue_name = "arq:reports"
