@@ -1842,6 +1842,36 @@ class SupabaseService:
         # that the dimension computation needs.
         scrape.pop("raw_response", None)
 
+    async def get_chain_head_services(
+        self, booksy_id: int
+    ) -> tuple[str | None, list[dict[str, Any]]]:
+        """Return (chain_head_scrape_id, services) for a salon's CURRENT
+        chain-head scrape, or (None, []) when there is none.
+
+        Scrape-consistency (2026-06-15): the competitor pricing tiers and
+        their RPCs (fn_subject_methods, fn_pricing_samples_structured,
+        fn_compute_method_pricing) all key off the chain-head scrape and its
+        service_method_classification rows. The audit-triggered subject scrape
+        that get_subject_full_data loads can be STALE — once discovery
+        re-scrapes the salon, a newer scrape becomes the chain head and the
+        audit scrape's service ids have no classification on it, so the
+        dictionary tiers collapse to subject_only. The pricing step swaps in
+        these chain-head services when the audit scrape is no longer the head.
+        """
+        res = (
+            self.client.table("salon_scrapes")
+            .select("id")
+            .eq("booksy_id", booksy_id)
+            .eq("is_chain_head", True)
+            .order("scraped_at", desc=True)
+            .limit(1)
+            .execute()
+        )
+        if not res.data:
+            return None, []
+        scrape_id = res.data[0]["id"]
+        return scrape_id, self._load_services_for_scrape(scrape_id)
+
     def _load_services_for_scrape(self, scrape_id: Any) -> list[dict[str, Any]]:
         """Load all salon_scrape_services rows for a given scrape_id.
 

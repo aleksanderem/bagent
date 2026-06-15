@@ -119,22 +119,35 @@ async def _fetch_scoped_services(
     if not scrape_ids:
         return []
 
-    # Step 2: services per scrape_id chunk
+    # Step 2: services per scrape_id chunk. PostgREST caps each response at
+    # PGRST_DB_MAX_ROWS=1000, and a 50-scrape chunk easily holds >1000
+    # services (~94/scrape), so a single .execute() per chunk silently
+    # truncated the scope (e.g. 477 scrapes → only 10000 fetched). Page each
+    # chunk with .range until a short page (same cap fix as warmup, 2026-06-15).
     all_services: list[dict] = []
     SVC_CHUNK = 50  # smaller — UUIDs are long
+    PAGE = 1000
     for chunk in _chunked(scrape_ids, SVC_CHUNK):
-        res = (
-            supabase.client.table("salon_scrape_services")
-            .select(
-                "id, name, name_embedding, category_name, "
-                "scrape_id, price_grosze"
+        offset = 0
+        while True:
+            res = (
+                supabase.client.table("salon_scrape_services")
+                .select(
+                    "id, name, name_embedding, category_name, "
+                    "scrape_id, price_grosze"
+                )
+                .in_("scrape_id", chunk)
+                .eq("is_active", True)
+                .not_.is_("price_grosze", "null")
+                .order("id")
+                .range(offset, offset + PAGE - 1)
+                .execute()
             )
-            .in_("scrape_id", chunk)
-            .eq("is_active", True)
-            .not_.is_("price_grosze", "null")
-            .execute()
-        )
-        all_services.extend(res.data or [])
+            batch = res.data or []
+            all_services.extend(batch)
+            if len(batch) < PAGE:
+                break
+            offset += PAGE
     logger.info(
         "Active services in scope: %d (across %d scrapes)",
         len(all_services), len(scrape_ids),
@@ -254,6 +267,11 @@ async def main() -> int:
     parser.add_argument("--limit", type=int, default=None, help="Max services to process (test runs)")
     parser.add_argument("--skip-classified", action="store_true",
                         help="Skip services that already have any classification row")
+    parser.add_argument("--reclassify", action="store_true",
+                        help="Re-classify even already-classified services (bypass "
+                             "cache; upsert refreshes confidence so the is_primary "
+                             "trigger recomputes). Use after a confidence/specificity "
+                             "change. Overrides --skip-classified filtering.")
     parser.add_argument("--concurrent", type=int, default=8)
     parser.add_argument("--no-llm", action="store_true",
                         help="Disable LLM fallback (alias_exact + ANN only)")
@@ -288,7 +306,7 @@ async def main() -> int:
         if args.audit_id:
             salon_ids = await _resolve_audit_salon_ids(supabase, args.audit_id)
         services = await _fetch_scoped_services(supabase, salon_ids or [])
-        if args.skip_classified:
+        if args.skip_classified and not args.reclassify:
             sids = [int(s["id"]) for s in services]
             classified: set[int] = set()
             for chunk in _chunked(sids, 200):
@@ -317,7 +335,7 @@ async def main() -> int:
                 classifier, batch,
                 use_llm=not args.no_llm,
                 concurrent=args.concurrent,
-                skip_db_cache=args.skip_classified,
+                skip_db_cache=args.skip_classified or args.reclassify,
             )
             overall_with += with_m
             overall_multi += multi_m
@@ -349,7 +367,7 @@ async def main() -> int:
                 classifier, batch,
                 use_llm=not args.no_llm,
                 concurrent=args.concurrent,
-                skip_db_cache=args.skip_classified,
+                skip_db_cache=args.skip_classified or args.reclassify,
             )
             overall_with += with_m
             overall_multi += multi_m
