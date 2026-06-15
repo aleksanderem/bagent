@@ -119,22 +119,35 @@ async def _fetch_scoped_services(
     if not scrape_ids:
         return []
 
-    # Step 2: services per scrape_id chunk
+    # Step 2: services per scrape_id chunk. PostgREST caps each response at
+    # PGRST_DB_MAX_ROWS=1000, and a 50-scrape chunk easily holds >1000
+    # services (~94/scrape), so a single .execute() per chunk silently
+    # truncated the scope (e.g. 477 scrapes → only 10000 fetched). Page each
+    # chunk with .range until a short page (same cap fix as warmup, 2026-06-15).
     all_services: list[dict] = []
     SVC_CHUNK = 50  # smaller — UUIDs are long
+    PAGE = 1000
     for chunk in _chunked(scrape_ids, SVC_CHUNK):
-        res = (
-            supabase.client.table("salon_scrape_services")
-            .select(
-                "id, name, name_embedding, category_name, "
-                "scrape_id, price_grosze"
+        offset = 0
+        while True:
+            res = (
+                supabase.client.table("salon_scrape_services")
+                .select(
+                    "id, name, name_embedding, category_name, "
+                    "scrape_id, price_grosze"
+                )
+                .in_("scrape_id", chunk)
+                .eq("is_active", True)
+                .not_.is_("price_grosze", "null")
+                .order("id")
+                .range(offset, offset + PAGE - 1)
+                .execute()
             )
-            .in_("scrape_id", chunk)
-            .eq("is_active", True)
-            .not_.is_("price_grosze", "null")
-            .execute()
-        )
-        all_services.extend(res.data or [])
+            batch = res.data or []
+            all_services.extend(batch)
+            if len(batch) < PAGE:
+                break
+            offset += PAGE
     logger.info(
         "Active services in scope: %d (across %d scrapes)",
         len(all_services), len(scrape_ids),
