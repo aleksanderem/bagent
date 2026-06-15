@@ -9,9 +9,9 @@ Usage
 
 In .env (one line per check):
 
-    HC_PING_TAXONOMY_VIEWS_REFRESH=https://hc-ping.booksyaudit.pl/<uuid>
-    HC_PING_BAGENT_WORKER_HEARTBEAT=https://hc-ping.booksyaudit.pl/<uuid>
-    HC_PING_BAGENT_REPORT_WORKER_HEARTBEAT=https://hc-ping.booksyaudit.pl/<uuid>
+    HC_PING_TAXONOMY_VIEWS_REFRESH=https://healthchecks.booksyaudit.pl/ping/<uuid>
+    HC_PING_BAGENT_WORKER_HEARTBEAT=https://healthchecks.booksyaudit.pl/ping/<uuid>
+    HC_PING_BAGENT_REPORT_WORKER_HEARTBEAT=https://healthchecks.booksyaudit.pl/ping/<uuid>
 
 Two separate worker-liveness checks (since 2026-06-15 there are two worker
 processes): HC_PING_BAGENT_WORKER_HEARTBEAT is pinged only by the scrape worker
@@ -46,7 +46,7 @@ Design notes
 Operational reference
 ---------------------
 Self-hosted instance: https://healthchecks.booksyaudit.pl/
-Ping host:            https://hc-ping.booksyaudit.pl/
+Ping host:            https://healthchecks.booksyaudit.pl/ping/
 Project API key:      see Healthchecks admin (project "BeautyAudit")
 """
 

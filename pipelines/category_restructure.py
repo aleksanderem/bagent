@@ -28,6 +28,12 @@ import time
 from pathlib import Path
 from typing import Any, Awaitable, Callable
 
+# Module-top so the audit category-restructure agent loop shares the cross-job
+# "MiniMax-M2.7" cap bucket (services/llm_rate_limiter.py) and tests can patch
+# pipelines.category_restructure.provider_slot. This module runs ONLY inside the
+# audit report pipeline (sole caller: pipelines/report.py Step 6.5).
+from services.llm_rate_limiter import provider_slot
+
 logger = logging.getLogger(__name__)
 
 PROMPTS_DIR = Path(__file__).parent.parent / "prompts"
@@ -144,16 +150,19 @@ async def restructure_categories(
 
     t0 = time.time()
     try:
-        agent_result = await run_agent_loop(
-            client=client,
-            system_prompt="Jesteś ekspertem od struktury cenników salonów beauty.",
-            user_message=user_msg,
-            tools=[CATEGORY_MAPPING_TOOL],
-            max_steps=10,
-            on_step=lambda step, count: logger.info(
-                "[%s][category_restructure] step %d, %d calls", audit_id, step, count
-            ),
-        )
+        # Cross-job MiniMax-M2.7 cap (this loop runs only inside the audit
+        # report pipeline). Only the await is gated; parsing below is OUTSIDE.
+        async with provider_slot(client.model):
+            agent_result = await run_agent_loop(
+                client=client,
+                system_prompt="Jesteś ekspertem od struktury cenników salonów beauty.",
+                user_message=user_msg,
+                tools=[CATEGORY_MAPPING_TOOL],
+                max_steps=10,
+                on_step=lambda step, count: logger.info(
+                    "[%s][category_restructure] step %d, %d calls", audit_id, step, count
+                ),
+            )
         dt = int((time.time() - t0) * 1000)
         logger.info(
             "[%s][category_restructure] agent done: %d steps (%dms)",
