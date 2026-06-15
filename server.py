@@ -255,13 +255,30 @@ def verify_api_key(x_api_key: str = Header(...)) -> None:
 # accepted and lost. This is the explicit follow-up from python-reviewer's
 # code review on #20.
 
+# All user-facing report/LLM generation jobs (audit, free report, cennik,
+# summary, versum suggest, competitor refresh) are enqueued through
+# _enqueue_pipeline — it is the ONLY caller path for these tasks (scrape /
+# discovery / cron jobs use pool.enqueue_job directly). Routing it to the
+# dedicated "arq:reports" queue (consumed only by bagent-report-worker) takes
+# these heavy jobs OFF the scrape worker so they no longer contend with the
+# discovery pump (the audit-hangs-at-40% latency tail). Competitor reports
+# already reach this queue via the queue drain; this puts audits + the rest of
+# the on-demand report lane on the same isolated worker. MUST equal
+# ReportWorkerSettings.queue_name in workers/main.py — a mismatch means jobs sit
+# in a queue no worker consumes (stuck forever).
+REPORT_QUEUE_NAME = "arq:reports"
+
+
 async def _enqueue_pipeline(
     *,
     task_name: str,
     job_id: str,
     request_payload: dict,
 ) -> None:
-    """Enqueue a pipeline task in arq with our chosen job_id.
+    """Enqueue a user-facing report/LLM pipeline task on the report queue.
+
+    Routes to REPORT_QUEUE_NAME ("arq:reports") so the dedicated, nice'd
+    bagent-report-worker runs it — isolated from the scrape pump.
 
     Raises HTTPException(503) if the pool is unavailable OR if the actual
     enqueue raises a connection error (Redis went down post-startup).
@@ -288,6 +305,7 @@ async def _enqueue_pipeline(
             task_name,
             request_payload,
             _job_id=job_id,
+            _queue_name=REPORT_QUEUE_NAME,
         )
     except Exception as e:  # noqa: BLE001
         # Redis connectivity lost mid-flight, pool unhealthy, etc.

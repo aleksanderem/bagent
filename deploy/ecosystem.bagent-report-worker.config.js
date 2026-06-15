@@ -34,7 +34,12 @@ module.exports = {
       exec_mode: "fork",
       autorestart: true,
       watch: false,
-      max_memory_restart: "1G",
+      // 2G (was 1G): this worker now drains every audit too — each audit fans
+      // out several concurrent MiniMax calls, and an OOM restart kills ALL
+      // in-flight jobs (audits + the 4 capped competitor reports). tytan has
+      // ~34Gi available, so the headroom is cheap insurance against that
+      // blast radius. Pair with max_jobs=6 in ReportWorkerSettings.
+      max_memory_restart: "2G",
       kill_timeout: 30000, // 30s for graceful arq shutdown (in-flight report)
       env: {},
     },

@@ -152,21 +152,48 @@ async def shutdown(ctx: dict[str, Any]) -> None:
 
 
 # ---------------------------------------------------------------------------
-# Worker heartbeat — Healthchecks ping every 5 minutes (issue: monitoring)
+# Worker heartbeats — Healthchecks ping every 5 minutes (issue: monitoring)
 # ---------------------------------------------------------------------------
-# Standalone heartbeat cron so Healthchecks alerts when the worker process
-# dies entirely. Each named cron has its own check; this one specifically
-# proves the worker is alive between scheduled jobs.
+# Standalone heartbeat crons so Healthchecks alerts when a worker process dies
+# entirely. Each named cron has its own check; these specifically prove a
+# worker is alive between scheduled jobs.
+#
+# We run TWO physically separate worker processes (since 2026-06-15), so we
+# need TWO independent heartbeats — one is NOT a proxy for the other:
+#   * worker_heartbeat        → scrape worker  (WorkerSettings / arq:queue)
+#   * report_worker_heartbeat → report worker  (ReportWorkerSettings / arq:reports)
+# The report worker now processes every audit + on-demand report; if it died
+# while the scrape worker kept pinging, monitoring would stay green while all
+# audits silently stalled. Hence the dedicated report-worker heartbeat below.
 
 async def worker_heartbeat(ctx: dict[str, Any]) -> str:
-    """Ping the bagent-worker-heartbeat Healthchecks endpoint.
+    """Ping the bagent-worker-heartbeat Healthchecks endpoint (SCRAPE worker).
 
-    Fired every 5 minutes by the arq scheduler. If the worker process is
-    killed, this stops pinging and Healthchecks alerts after the grace
-    window (10 minutes for this check).
+    Fired every 5 minutes by the scrape worker's arq scheduler (SCRAPE_CRONS).
+    Proves ONLY the scrape worker (WorkerSettings, arq:queue) is alive — it says
+    nothing about the report worker, which has its own report_worker_heartbeat.
+    If the scrape worker process is killed, this stops pinging and Healthchecks
+    alerts after the grace window (10 minutes for this check).
     """
     from services.healthcheck import ping
     await ping("HC_PING_BAGENT_WORKER_HEARTBEAT")
+    return "ok"
+
+
+async def report_worker_heartbeat(ctx: dict[str, Any]) -> str:
+    """Ping the bagent-report-worker-heartbeat Healthchecks endpoint.
+
+    Fired every 5 minutes by the report worker's arq scheduler (REPORT_CRONS).
+    The report worker (ReportWorkerSettings, arq:reports) processes ALL
+    user-facing report jobs — audits (run_report_task), free report, cennik,
+    summary, versum, competitor reports. The scrape worker's heartbeat proves
+    nothing about THIS process, so without this independent ping a dead report
+    worker would stall every audit while Healthchecks stayed green. If this
+    process is killed, the ping stops and Healthchecks alerts after the grace
+    window (10 minutes for this check).
+    """
+    from services.healthcheck import ping
+    await ping("HC_PING_BAGENT_REPORT_WORKER_HEARTBEAT")
     return "ok"
 
 
@@ -209,7 +236,7 @@ async def smoke_test(ctx: dict[str, Any], message: str = "hello") -> dict[str, A
 # keep_result: 24h — long enough that frontend polling for status after a
 # slow job still works, short enough that result store doesn't bloat.
 
-from .tasks import ALL_TASKS, run_competitor_report_task
+from .tasks import ALL_TASKS
 # Issue #23 — scrape orchestrator tasks (queue drain + scheduler + reaper).
 from .scrape_refresh import ALL_SCRAPE_TASKS
 # beads BEAUTY_AUDIT-1mb — competitor report queue (capped drain + reaper).
@@ -450,6 +477,17 @@ try:  # pragma: no cover
             "workers.competitor_report_queue.reap_stuck_competitor_report_jobs",
             minute={i for i in range(8, 60, 10)},
         ),
+        # Report worker heartbeat — every 5 minutes pings the Healthchecks
+        # bagent-report-worker-heartbeat URL so HC alerts when THIS process
+        # dies. MUST live in REPORT_CRONS (ReportWorkerSettings.cron_jobs):
+        # registering report_worker_heartbeat in functions does NOT fire it —
+        # arq only runs crons listed in cron_jobs. Since 2026-06-15 the report
+        # worker drains every audit + on-demand report, so a dead report worker
+        # stalls all audits while the scrape worker's heartbeat stays green.
+        cron(
+            "workers.main.report_worker_heartbeat",
+            minute={i for i in range(0, 60, 5)},
+        ),
     ]
 except Exception:  # noqa: BLE001
     SCRAPE_CRONS = []
@@ -494,32 +532,51 @@ class WorkerSettings:
 
 
 class ReportWorkerSettings:
-    """Dedicated arq worker for competitor reports, isolated from the scrape
-    pump (2026-06-15). Runs as a separate, nice'd PM2 process
-    (bagent-report-worker) on its OWN queue ("arq:reports"), so a heavy report
-    or classification-backfill load can't starve the scrape worker — and the
-    scrape pump can't starve report latency (the stuck-worker incident where
-    reports cycled >1h under shared load).
+    """Dedicated arq worker for ALL user-facing report/LLM generation, isolated
+    from the scrape pump. Runs as a separate, nice'd PM2 process
+    (bagent-report-worker) on its OWN queue ("arq:reports"), so heavy report /
+    classification load can't starve the scrape worker — and the scrape pump
+    can't starve report latency (the stuck-worker incident where reports cycled
+    >1h under shared load).
 
-    The report-queue drain + reap crons live HERE (moved off SCRAPE_CRONS) and
-    enqueue run_competitor_report_task to "arq:reports", which only this worker
-    consumes. Shares Redis + Supabase with the scrape worker — DB contention is
-    mitigated, not eliminated, so keep any classification backfill concurrency
-    low (and nice/ionice the process).
+    Consumes "arq:reports" for:
+      * competitor reports — enqueued by the report-queue drain cron (which also
+        lives here, moved off SCRAPE_CRONS), globally capped at
+        COMPETITOR_REPORT_MAX_CONCURRENT (4);
+      * every other on-demand report job — audit (run_report_task), free report,
+        cennik, summary, versum suggest, competitor refresh — routed here by
+        server._enqueue_pipeline (2026-06-15). Previously these ran on the scrape
+        worker and contended with the discovery pump (the audit-hangs-at-40%
+        latency tail); now scraping runs alone on WorkerSettings.
+
+    functions registers *ALL_TASKS so this worker can execute every report task
+    enqueued to its queue. They remain registered on WorkerSettings too (belt +
+    suspenders for graceful drain of in-flight jobs across a deploy — routing,
+    not deregistration, is what isolates the load). Shares Redis + Supabase with
+    the scrape worker — DB contention is mitigated, not eliminated.
     """
     functions = [
         smoke_test,
-        worker_heartbeat,
-        run_competitor_report_task,
+        # This worker fires its OWN heartbeat (report_worker_heartbeat via
+        # REPORT_CRONS), NOT the scrape worker's. The scrape heartbeat stays
+        # scoped to WorkerSettings so the two liveness signals don't conflate.
+        report_worker_heartbeat,
+        *ALL_TASKS,
         *ALL_COMPETITOR_QUEUE_TASKS,
     ]
     cron_jobs = REPORT_CRONS
     redis_settings = redis_settings
     on_startup = startup
     on_shutdown = shutdown
-    # Small pool: reports are heavy and globally capped at
-    # COMPETITOR_REPORT_MAX_CONCURRENT (4); a little headroom for the
-    # drain/reap crons.
+    # Reports are heavy. Competitor reports self-cap at
+    # COMPETITOR_REPORT_MAX_CONCURRENT (4) via the drain; audits + the other
+    # on-demand jobs enqueue UNCAPPED and each audit fans out several concurrent
+    # MiniMax calls that bypass the global per-model limiter, so total concurrency
+    # here is the only ceiling. Kept at 6 (≈4 capped competitor reports + ~2
+    # audits) rather than raised — a prior shared-worker incident traced
+    # degradation to event-loop saturation, not pure IO-wait, so we do NOT raise
+    # concurrency on this workload without a load test. The 50-concurrent goal is
+    # a queue/horizontal-scaling concern, not a max_jobs knob on one process.
     max_jobs = 6
     job_timeout = 4 * 60 * 60
     keep_result = 86400  # 24 hours
