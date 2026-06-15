@@ -1,7 +1,9 @@
 """Generic multi-turn agent loop for MiniMax M2.7 tool_use."""
 
+import inspect
 from collections.abc import Callable
 from dataclasses import dataclass, field
+from typing import Any
 
 from services.minimax import MiniMaxClient
 
@@ -27,7 +29,7 @@ async def run_agent_loop(
     user_message: str,
     tools: list[dict],
     max_steps: int = 30,
-    on_step: Callable[[int, int], None] | None = None,
+    on_step: Callable[[int, int], Any] | None = None,
 ) -> AgentResult:
     """Multi-turn agent loop with tool_use.
 
@@ -64,7 +66,9 @@ async def run_agent_loop(
         # If no tool calls, agent is done
         if not tool_calls or response.stop_reason != "tool_use":
             if on_step:
-                on_step(step + 1, len(collected_calls))
+                _r = on_step(step + 1, len(collected_calls))
+                if inspect.isawaitable(_r):
+                    await _r
             break
 
         # Collect tool call data
@@ -72,7 +76,9 @@ async def run_agent_loop(
             collected_calls.append(ToolCallResult(name=call.name, input=call.input))
 
         if on_step:
-            on_step(step + 1, len(collected_calls))
+            _r = on_step(step + 1, len(collected_calls))
+            if inspect.isawaitable(_r):
+                await _r
 
         # Send acknowledgments
         tool_results = [

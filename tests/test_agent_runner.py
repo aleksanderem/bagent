@@ -191,3 +191,50 @@ async def test_agent_handles_api_error():
             user_message="Go",
             tools=[],
         )
+
+
+@pytest.mark.asyncio
+async def test_agent_awaits_async_on_step():
+    """on_step returning a coroutine is awaited on every step (per-step progress)."""
+    client = _make_client()
+    tool_block = MockToolUseBlock(id="call_1", name="submit_naming_results")
+    client.create_message.side_effect = [
+        MockResponse(content=[tool_block], stop_reason="tool_use"),
+        MockResponse(content=[MockTextBlock(text="Done.")], stop_reason="end_turn"),
+    ]
+
+    seen: list[tuple[int, int]] = []
+
+    async def on_step(step: int, count: int) -> None:
+        seen.append((step, count))
+
+    await run_agent_loop(
+        client=client,
+        system_prompt="S",
+        user_message="Go",
+        tools=[{"name": "submit_naming_results"}],
+        on_step=on_step,
+    )
+
+    # step 1 = tool_use turn (1 call collected), step 2 = end_turn break branch
+    assert seen == [(1, 1), (2, 1)]
+
+
+@pytest.mark.asyncio
+async def test_agent_sync_on_step_still_works():
+    """A plain sync on_step (returns None) is still invoked — backward compat."""
+    client = _make_client()
+    client.create_message.return_value = MockResponse(
+        content=[MockTextBlock(text="done")], stop_reason="end_turn"
+    )
+
+    seen: list[tuple[int, int]] = []
+    await run_agent_loop(
+        client=client,
+        system_prompt="S",
+        user_message="Go",
+        tools=[],
+        on_step=lambda s, c: seen.append((s, c)),
+    )
+
+    assert seen == [(1, 0)]

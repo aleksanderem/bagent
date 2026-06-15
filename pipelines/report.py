@@ -17,6 +17,7 @@ Webhook callbacks:
 
 from __future__ import annotations
 
+import inspect
 import json
 import logging
 import time
@@ -145,6 +146,57 @@ async def _noop_progress(progress: int, message: str) -> None:
     pass
 
 
+def _make_monotonic_progress(base: ProgressCallback) -> ProgressCallback:
+    """Wrap a progress callback so the emitted percent never decreases.
+
+    Phase 1 (scoring) and Phase 2 (agents) each run naming + description
+    concurrently via asyncio.gather, with naming on a LOWER sub-range than
+    description (naming 30→42, description 56→64). Emitted concurrently the raw
+    percent regresses (e.g. 56→38); neither convex (updateProgress patches raw)
+    nor the frontend (formatProgress only clamps to [0,100]) guards monotonicity,
+    so the bar visibly jumps backward. We clamp the number here while always
+    forwarding the MESSAGE, so per-phase status text still updates live.
+    """
+    state = {"last": 0}
+
+    async def progress(pct: int, message: str) -> None:
+        if pct < state["last"]:
+            pct = state["last"]
+        else:
+            state["last"] = pct
+        await base(pct, message)
+
+    return progress
+
+
+def _make_phase2_step_emitter(
+    progress: ProgressCallback,
+    lo: int = 58,
+    hi: int = 74,
+    cap: int = 24,
+) -> Callable[[str, int, int], Awaitable[None]]:
+    """Build a shared per-step progress emitter for the Phase 2 agent loops.
+
+    Both the naming and description agents make many SEQUENTIAL MiniMax tool_use
+    calls (~15-35s each; measured 202s/12 steps naming, 386s/11 steps desc). With
+    no per-step progress the bar froze at ~40% for ~6 min. This emitter feeds
+    both agents' steps into ONE counter that creeps the bar lo→hi across the
+    whole phase (asyncio is single-threaded, so the bare += is race-free).
+    """
+    state = {"steps": 0}
+
+    async def on_agent_step(label: str, step: int, count: int) -> None:
+        state["steps"] += 1
+        frac = min(state["steps"], cap) / cap
+        pct = lo + int(frac * (hi - lo))
+        await progress(
+            pct,
+            f"Agent {label}: krok {step} ({count} partii usług przetworzonych)...",
+        )
+
+    return on_agent_step
+
+
 async def run_audit_pipeline(
     scraped_data: Any,
     audit_id: str,
@@ -164,7 +216,9 @@ async def run_audit_pipeline(
     from services.minimax import MiniMaxClient
     from services.supabase import SupabaseService
 
-    progress = on_progress or _noop_progress
+    # Clamp progress monotonic (see _make_monotonic_progress): the concurrent
+    # naming/description phases would otherwise make the frontend bar jump back.
+    progress = _make_monotonic_progress(on_progress or _noop_progress)
     total_services = scraped_data.totalServices
     cat_count = len(scraped_data.categories)
 
@@ -233,9 +287,19 @@ async def run_audit_pipeline(
     await progress(58, "Faza 2/2 — agenty transformacyjne z kontekstem problemów...")
     t0 = time.time()
 
+    # Per-step progress so the bar creeps 58→74 during the long agent loops
+    # instead of freezing at ~40% (see _make_phase2_step_emitter).
+    _on_agent_step = _make_phase2_step_emitter(progress)
+
     naming_result, desc_result = await _asyncio.gather(
-        _agent_naming(client, scraped_data, all_issues, run_agent_loop, NAMING_TOOL, progress),
-        _agent_descriptions(client, scraped_data, all_issues, run_agent_loop, DESCRIPTION_TOOL, progress),
+        _agent_naming(
+            client, scraped_data, all_issues, run_agent_loop, NAMING_TOOL, progress,
+            on_step=lambda step, count: _on_agent_step("nazwy", step, count),
+        ),
+        _agent_descriptions(
+            client, scraped_data, all_issues, run_agent_loop, DESCRIPTION_TOOL, progress,
+            on_step=lambda step, count: _on_agent_step("opisy", step, count),
+        ),
     )
 
     dt = int((time.time() - t0) * 1000)
@@ -813,6 +877,7 @@ async def _agent_naming(
     run_agent_loop: Any,
     naming_tool: dict[str, Any],
     progress: ProgressCallback,
+    on_step: Any = None,
 ) -> dict[str, Any]:
     """Agent-loop half of the old _analyze_naming.
 
@@ -859,6 +924,14 @@ async def _agent_naming(
     already_optimal_count = 0
     rejected_count = 0
     t0 = time.time()
+
+    async def _step(step: int, count: int) -> None:
+        logger.info("[naming] Agent step %d, %d tool calls so far", step, count)
+        if on_step is not None:
+            r = on_step(step, count)
+            if inspect.isawaitable(r):
+                await r
+
     try:
         agent_result = await run_agent_loop(
             client=client,
@@ -866,9 +939,7 @@ async def _agent_naming(
             user_message=user_msg,
             tools=[naming_tool],
             max_steps=30,
-            on_step=lambda step, count: logger.info(
-                "[naming] Agent step %d, %d tool calls so far", step, count
-            ),
+            on_step=_step,
         )
         dt = int((time.time() - t0) * 1000)
         tokens = agent_result.total_input_tokens + agent_result.total_output_tokens
@@ -959,6 +1030,7 @@ async def _agent_descriptions(
     run_agent_loop: Any,
     description_tool: dict[str, Any],
     progress: ProgressCallback,
+    on_step: Any = None,
 ) -> dict[str, Any]:
     """Agent-loop half of the old _analyze_descriptions."""
     from pipelines.helpers import build_full_pricelist_text
@@ -1005,6 +1077,14 @@ async def _agent_descriptions(
     already_optimal_count = 0
     rejected_count = 0
     t0 = time.time()
+
+    async def _step(step: int, count: int) -> None:
+        logger.info("[descriptions] Agent step %d, %d tool calls so far", step, count)
+        if on_step is not None:
+            r = on_step(step, count)
+            if inspect.isawaitable(r):
+                await r
+
     try:
         agent_result = await run_agent_loop(
             client=client,
@@ -1012,9 +1092,7 @@ async def _agent_descriptions(
             user_message=user_msg,
             tools=[description_tool],
             max_steps=30,
-            on_step=lambda step, count: logger.info(
-                "[descriptions] Agent step %d, %d tool calls so far", step, count
-            ),
+            on_step=_step,
         )
         dt = int((time.time() - t0) * 1000)
         tokens = agent_result.total_input_tokens + agent_result.total_output_tokens
