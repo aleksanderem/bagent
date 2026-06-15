@@ -25,6 +25,14 @@ from pathlib import Path
 from typing import Any, Awaitable, Callable
 
 from services.json_repair import parse_llm_json
+# provider_slot (global per-MODEL LLM limiter) is imported module-top — NOT
+# lazily inside the call-sites — so (a) every audit MiniMax await shares the
+# cross-job "MiniMax-M2.7" cap bucket with competitor synthesis / pass5 / etc.
+# (services/llm_rate_limiter.py) giving backpressure at ~6 concurrent audits,
+# and (b) tests can patch pipelines.report.provider_slot. The cap (default 4,
+# env LLM_MAX_CONCURRENCY_MINIMAX_M2_7) stays >= 3 so a SOLO audit's 3 parallel
+# Phase-1 calls never self-starve. Mirrors pipelines/competitor_synthesis.py.
+from services.llm_rate_limiter import provider_slot
 
 logger = logging.getLogger(__name__)
 
@@ -740,7 +748,14 @@ async def _generate_json_resilient(
     Raises when BOTH providers fail — caller decides how to degrade.
     """
     try:
-        return await client.generate_json(prompt, system=system), "minimax"
+        # Gate ONLY the MiniMax await on the cross-job MiniMax-M2.7 bucket. The
+        # slot is released the instant the call returns OR raises, so the OpenAI
+        # fallback below runs OUTSIDE this slot (it owns its own gpt-4o-mini
+        # bucket via services.openai_fallback) — we never hold a MiniMax slot
+        # while waiting on OpenAI.
+        async with provider_slot(client.model):
+            result = await client.generate_json(prompt, system=system)
+        return result, "minimax"
     except Exception as e:
         logger.warning(
             "MiniMax generate_json failed (%s) — trying OpenAI fallback", e
@@ -933,14 +948,19 @@ async def _agent_naming(
                 await r
 
     try:
-        agent_result = await run_agent_loop(
-            client=client,
-            system_prompt="Jesteś ekspertem od nazw usług beauty.",
-            user_message=user_msg,
-            tools=[naming_tool],
-            max_steps=30,
-            on_step=_step,
-        )
+        # Coarse cap (mirrors pipelines/competitor_synthesis.py): the whole
+        # agent loop holds ONE MiniMax-M2.7 slot for the duration of its
+        # sequential tool_use calls. Only the await is gated; the tool_call
+        # parsing + progress emits below run OUTSIDE the slot.
+        async with provider_slot(client.model):
+            agent_result = await run_agent_loop(
+                client=client,
+                system_prompt="Jesteś ekspertem od nazw usług beauty.",
+                user_message=user_msg,
+                tools=[naming_tool],
+                max_steps=30,
+                on_step=_step,
+            )
         dt = int((time.time() - t0) * 1000)
         tokens = agent_result.total_input_tokens + agent_result.total_output_tokens
         await progress(
@@ -1086,14 +1106,19 @@ async def _agent_descriptions(
                 await r
 
     try:
-        agent_result = await run_agent_loop(
-            client=client,
-            system_prompt="Jesteś ekspertem od opisów usług beauty.",
-            user_message=user_msg,
-            tools=[description_tool],
-            max_steps=30,
-            on_step=_step,
-        )
+        # Coarse cap (mirrors pipelines/competitor_synthesis.py): the whole
+        # agent loop holds ONE MiniMax-M2.7 slot for the duration of its
+        # sequential tool_use calls. Only the await is gated; the tool_call
+        # parsing + progress emits below run OUTSIDE the slot.
+        async with provider_slot(client.model):
+            agent_result = await run_agent_loop(
+                client=client,
+                system_prompt="Jesteś ekspertem od opisów usług beauty.",
+                user_message=user_msg,
+                tools=[description_tool],
+                max_steps=30,
+                on_step=_step,
+            )
         dt = int((time.time() - t0) * 1000)
         tokens = agent_result.total_input_tokens + agent_result.total_output_tokens
         await progress(
@@ -1265,7 +1290,12 @@ async def _generate_summary(
     )
 
     try:
-        return await client.generate_text(full_prompt, system="Jesteś ekspertem od audytów cenników beauty.")
+        # Gate only the MiniMax await; the OpenAI fallback (different bucket)
+        # runs outside this slot.
+        async with provider_slot(client.model):
+            return await client.generate_text(
+                full_prompt, system="Jesteś ekspertem od audytów cenników beauty."
+            )
     except Exception as e:
         logger.warning("Summary generation failed: %s — trying OpenAI fallback", e)
         try:
