@@ -21,8 +21,16 @@ from __future__ import annotations
 
 import argparse
 import asyncio
+import os
+import sys
 import time
 from typing import Any
+
+# Run as `python scripts/loadtest_report_concurrency.py` from the repo root:
+# Python puts the SCRIPT's dir (scripts/) on sys.path[0], NOT cwd, so the
+# repo-root packages (config / pipelines / services / models) aren't importable
+# without this. Insert the repo root (parent of scripts/) explicitly.
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 
 async def _one_run(idx: int, scraped: Any) -> dict[str, Any]:
