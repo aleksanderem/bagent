@@ -280,6 +280,7 @@ class SupabaseService:
             "stats": report.get("stats", {}),
             "industry_comparison": report.get("industryComparison", {}),
             "market_position": report.get("marketPosition"),
+            "service_gaps": report.get("serviceGaps"),
             "competitor_context": report.get("competitorContext"),
             "salon_lat": location.get("lat"),
             "salon_lng": location.get("lng"),
@@ -1572,6 +1573,23 @@ class SupabaseService:
             return result.data if isinstance(result.data, dict) else None
         except Exception as e:  # noqa: BLE001
             logger.warning("get_market_position booksy_id=%s failed: %s", booksy_id, e)
+            return None
+
+    async def get_service_gaps(self, booksy_id: int) -> dict | None:
+        """Honest coarse service-category gaps + strengths from fn_service_gaps
+        (lift over genuine peers vs national base rate; migration 125). Returns
+        the RPC dict (status='ok' | 'insufficient') or None on error. Never raises.
+        Reuses the pre-computed service->method->category classification; fully
+        isolated from the pricing matrix."""
+        if not booksy_id:
+            return None
+        try:
+            result = self.client.rpc(
+                "fn_service_gaps", {"p_booksy_id": booksy_id},
+            ).execute()
+            return result.data if isinstance(result.data, dict) else None
+        except Exception as e:  # noqa: BLE001
+            logger.warning("get_service_gaps booksy_id=%s failed: %s", booksy_id, e)
             return None
 
     async def update_competitor_report_status(

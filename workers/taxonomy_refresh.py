@@ -27,6 +27,7 @@ inference_applied_at) and skip rows already done. Safe to run partial / interrup
 from __future__ import annotations
 
 import asyncio
+import httpx
 import logging
 import os
 import time
@@ -59,7 +60,17 @@ async def refresh_taxonomy_views(ctx: dict[str, Any]) -> str:
     from services.sb_client import make_supabase_client
     from config import settings
 
-    client = make_supabase_client(settings.supabase_url, settings.supabase_service_key)
+    # This RPC runs REFRESH MATERIALIZED VIEW CONCURRENTLY on views derived
+    # from salon_scrape_services (44 GB+). Measured 22-32s and climbing as the
+    # table grows, so the module-default 30s httpx read timeout intermittently
+    # fires ReadTimeout even though Postgres finishes (statement_timeout=10min).
+    # Per-call 120s override keeps us well under Kong's 150s proxy read_timeout
+    # without loosening fail-fast on every other supabase call in the worker.
+    client = make_supabase_client(
+        settings.supabase_url,
+        settings.supabase_service_key,
+        timeout=httpx.Timeout(120.0, connect=10.0),
+    )
     t0 = time.time()
     try:
         await asyncio.to_thread(

@@ -450,6 +450,7 @@ async def run_audit_pipeline(
     await progress(88, "Pozycja na tle rynku...")
     from pipelines.competitor_dimensional_scores import compute_all_dimensions_for_salon
     market_position: dict[str, Any] | None = None
+    service_gaps: dict[str, Any] | None = None
     try:
         subject_full = await supabase.get_subject_full_data(audit_id)
         booksy_id = subject_full.get("booksy_id")
@@ -464,6 +465,11 @@ async def run_audit_pipeline(
                 scraped_at=(subject_full.get("scrape") or {}).get("scraped_at"),
             )
             market_position = await supabase.get_market_position(booksy_id)
+        # Honest coarse service-category gaps + strengths (migration 125). Same
+        # booksy_id path, isolated from the pricing matrix. Reuses the
+        # pre-computed classification - no per-audit LLM.
+        if booksy_id:
+            service_gaps = await supabase.get_service_gaps(booksy_id)
         if market_position and market_position.get("status") == "ok":
             await progress(
                 90,
@@ -508,6 +514,7 @@ async def run_audit_pipeline(
         "missingSeoKeywords": structure_result.get("missingSeoKeywords", []),
         "quickWins": quick_wins,
         "marketPosition": market_position,
+        "serviceGaps": service_gaps,
         "summary": summary.strip(),
         "categoryMapping": category_mapping,
         "categoryChanges": category_changes,
