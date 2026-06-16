@@ -322,6 +322,17 @@ async def _enqueue_pipeline(
         logger.warning("arq enqueue_job returned None for %s job_id=%s — duplicate?", task_name, job_id)
         raise HTTPException(status_code=409, detail="duplicate job_id")
 
+    # Stash retry info on the JobStore job so POST /api/jobs/{job_id}/retry can
+    # re-enqueue the exact same task + payload. Workers don't update the
+    # JobStore live, but this metadata is written here in the API process at
+    # enqueue time and is all that's needed to reconstruct a report-lane job.
+    retry_entry = store.get_job(job_id)
+    if retry_entry is not None:
+        retry_entry.meta["_retry"] = {
+            "task_name": task_name,
+            "payload": request_payload,
+        }
+
 
 # --- 3-bagent migration endpoints ---
 
@@ -727,6 +738,83 @@ async def cancel_job(job_id: str) -> dict:
     job.request_cancel()
     store.notify_progress(job)
     return {"jobId": job_id, "status": "cancel_requested"}
+
+
+@app.post("/api/jobs/{job_id}/retry", dependencies=[Depends(verify_api_key)])
+async def retry_job(job_id: str) -> dict:
+    """Re-enqueue a finished report-lane job with the same task + payload.
+
+    Only report-lane jobs enqueued via `_enqueue_pipeline` carry the
+    `meta["_retry"]` blob needed to re-run them. Scrape / discovery jobs are
+    auto-retried by their own crons (reap_stuck_jobs / schedule_refresh) and
+    return 400 here. Generates a FRESH job_id (the original may have a kept
+    arq result under its id); Convex correlates by auditId via webhooks, so a
+    new job_id is transparent to the customer.
+    """
+    job = store.get_job(job_id)
+    if job is None:
+        raise HTTPException(status_code=404, detail="Job not found")
+    retry = job.meta.get("_retry") if job.meta else None
+    if not retry or "task_name" not in retry or "payload" not in retry:
+        raise HTTPException(
+            status_code=400,
+            detail="Job is not retryable (no stored task/payload — not a report-lane job)",
+        )
+
+    new_job_id = str(uuid.uuid4())
+    store.create_job(new_job_id, job.audit_id, meta={**job.meta, "retried_from": job_id})
+    await _enqueue_pipeline(
+        task_name=retry["task_name"],
+        job_id=new_job_id,
+        request_payload=retry["payload"],
+    )
+    return {"jobId": new_job_id, "retriedFrom": job_id, "status": "queued"}
+
+
+@app.get("/api/queues", dependencies=[Depends(verify_api_key)])
+async def list_queues() -> dict:
+    """Redis-truth view of the arq queues for the admin Health tab.
+
+    Reports each queue's pending DEPTH (zcard of the arq queue sorted set) and
+    coarse worker liveness (the arq `{queue}:health-check` key, refreshed every
+    health_check_interval). Queue depth is the authoritative 'is work piling up
+    / are we stuck' signal — the JobStore /api/jobs list is API-process-local
+    and not updated by workers, so it can't show backlog.
+    """
+    pool: ArqRedis | None = getattr(app.state, "arq", None)
+    queues_meta = [
+        {"name": "arq:queue", "label": "Scrape / discovery"},
+        {"name": "arq:reports", "label": "Raporty (user-facing)"},
+    ]
+    out: list[dict] = []
+    for q in queues_meta:
+        depth: int | None = None
+        worker_alive: bool | None = None
+        health: str | None = None
+        if pool is not None:
+            try:
+                depth = await pool.zcard(q["name"])
+            except Exception:  # noqa: BLE001
+                depth = None
+            try:
+                raw = await pool.get(f"{q['name']}:health-check")
+                if raw is None:
+                    worker_alive = False
+                else:
+                    worker_alive = True
+                    health = raw.decode() if isinstance(raw, (bytes, bytearray)) else str(raw)
+            except Exception:  # noqa: BLE001
+                worker_alive = None
+        out.append({**q, "depth": depth, "workerAlive": worker_alive, "health": health})
+
+    running = sum(1 for j in store.list_jobs() if j.status == "running")
+    redis_ok = pool is not None
+    if pool is not None:
+        try:
+            await pool.ping()
+        except Exception:  # noqa: BLE001
+            redis_ok = False
+    return {"queues": out, "jobsRunningApi": running, "redisOk": redis_ok}
 
 
 @app.get("/api/events")
