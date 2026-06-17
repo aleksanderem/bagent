@@ -1097,13 +1097,15 @@ async def test_run_minimax_synthesis_acquires_minimax_slot(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
     """_run_minimax_synthesis must enter provider_slot exactly once, keyed by
-    settings.minimax_model ("MiniMax-M2.7"), wrapping the run_agent_loop await
-    — and return the parsed insights dict unchanged (decision logic untouched).
+    settings.minimax_model, wrapping the run_agent_loop await — and return the
+    parsed insights dict unchanged (decision logic untouched).
 
     Does NOT patch _run_minimax_synthesis (that is what we exercise). Instead it
     patches the late-imported run_agent_loop (resolved as an attribute of module
     agent.runner) + services.minimax.MiniMaxClient, and spies on the MODULE-TOP
     pipelines.competitor_synthesis.provider_slot."""
+    from config import settings
+
     run_loop_mock = AsyncMock(return_value=_mk_synthesis_agent_result())
     monkeypatch.setattr("agent.runner.run_agent_loop", run_loop_mock)
 
@@ -1111,7 +1113,7 @@ async def test_run_minimax_synthesis_acquires_minimax_slot(
     # override in _run_minimax_synthesis is harmless (no real network client).
     monkeypatch.setattr(
         "services.minimax.MiniMaxClient",
-        lambda *a, **k: SimpleNamespace(client=None, model="MiniMax-M2.7"),
+        lambda *a, **k: SimpleNamespace(client=None, model=settings.minimax_model),
     )
 
     slot_entries: list[str] = []
@@ -1128,8 +1130,8 @@ async def test_run_minimax_synthesis_acquires_minimax_slot(
     insights = await _run_minimax_synthesis(context="ctx", tracer=None)
 
     # Slot entered exactly once, keyed by the MiniMax model.
-    assert slot_entries == ["MiniMax-M2.7"], (
-        f"expected provider_slot entered once == ['MiniMax-M2.7'], got "
+    assert slot_entries == [settings.minimax_model], (
+        f"expected provider_slot entered once == [{settings.minimax_model!r}], got "
         f"{slot_entries}"
     )
     # run_agent_loop was awaited exactly once (inside the slot).
