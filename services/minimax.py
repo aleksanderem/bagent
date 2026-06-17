@@ -7,17 +7,34 @@ from collections.abc import Awaitable, Callable
 import anthropic
 import httpx
 
+from config import settings
 from services.json_repair import parse_llm_json
 
 logger = logging.getLogger(__name__)
 
 
 class MiniMaxClient:
-    def __init__(self, api_key: str, base_url: str, model: str) -> None:
+    def __init__(
+        self,
+        api_key: str,
+        base_url: str,
+        model: str,
+        *,
+        enable_1m_context: bool | None = None,
+    ) -> None:
+        # M3 obsługuje okno kontekstu do 1M tokenów po stronie serwera. Warstwa
+        # /anthropic zaniża je do 200K w metadanych (MiniMax-AI/MiniMax-M2.7#46),
+        # więc o pełne okno prosimy jawnie nagłówkiem beta Anthropic. Nieszkodliwy,
+        # gdy warstwa kompatybilności zignoruje nieznaną betę. Domyślnie steruje
+        # tym flaga settings.minimax_1m_context (override per-instancja parametrem).
+        use_1m = settings.minimax_1m_context if enable_1m_context is None else enable_1m_context
+        headers = {"Authorization": f"Bearer {api_key}"}
+        if use_1m:
+            headers["anthropic-beta"] = "context-1m-2025-08-07"
         self.client = anthropic.AsyncAnthropic(
             base_url=base_url,
             api_key=api_key,
-            default_headers={"Authorization": f"Bearer {api_key}"},
+            default_headers=headers,
             timeout=httpx.Timeout(120.0, connect=15.0),  # 120s total, 15s connect
         )
         self.model = model

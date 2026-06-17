@@ -6,7 +6,13 @@ from pydantic_settings import BaseSettings
 class Settings(BaseSettings):
     minimax_api_key: str = ""
     minimax_base_url: str = "https://api.minimax.io/anthropic"
-    minimax_model: str = "MiniMax-M2.7"
+    minimax_model: str = "MiniMax-M3"
+    # M3 udostępnia okno kontekstu do 1M tokenów po stronie serwera (tiered:
+    # ≤512K i 512K–1M). Warstwa /anthropic historycznie raportuje tylko 200K w
+    # metadanych modelu (bug MiniMax-AI/MiniMax-M2.7#46), więc o duże okno prosimy
+    # na poziomie protokołu nagłówkiem beta Anthropic (patrz services/minimax.py).
+    # False = powrót do domyślnego okna (A/B test lub gdyby nagłówek przeszkadzał).
+    minimax_1m_context: bool = True
     gemini_api_key: str = ""
     supabase_url: str = ""
     supabase_service_key: str = ""
