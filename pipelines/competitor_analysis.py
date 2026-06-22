@@ -3994,7 +3994,12 @@ async def _load_subject_services_by_method(
     # then cache rows for those IDs.
     svc_res = (
         service.client.table("salon_scrape_services")
-        .select("id, name, price_grosze, duration_minutes")
+        # is_package MUSI być w SELECT — _is_package_service (linia ~994) ufa
+        # fladze z DB jako źródłu prawdy i tylko fallbackuje na regex nazwy gdy
+        # kolumny brak. Bez niej method-tier subject pricing przepuszczał pakiety
+        # których nazwa jest spłaszczona (Booksy trzyma "5 zabiegów" w wariancie,
+        # nie w name) → fałszywe +400% (np. Presoterapia 700 zł = pakiet 5-zab).
+        .select("id, name, price_grosze, duration_minutes, is_package")
         .eq("scrape_id", scrape_id)
         .eq("is_active", True)
         .not_.is_("price_grosze", "null")
