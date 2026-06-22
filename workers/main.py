@@ -400,6 +400,18 @@ try:  # pragma: no cover
             "workers.taxonomy_refresh.refresh_inferred_treatments",
             hour={3}, minute={30},
         ),
+        # 03:35 — backfill variant_id for chain-head services (S0078, the
+        #         MISSING nightly job). variant_id is written ONLY by the mig-127
+        #         RPCs (backfill_service_variants / _untagged); nothing in bagent
+        #         called them, so fresh scrapes kept variant_id NULL since
+        #         ~2026-06-13 and the competitor pricing pipeline early-exited to
+        #         empty (competitor_analysis.py ~679). Drains in-tid (0.55) then
+        #         untagged (0.70) until exhausted or cap. Runs after inferred
+        #         (03:30) and before focus (04:00), which reads variant_id.
+        cron(
+            "workers.taxonomy_refresh.refresh_service_variants",
+            hour={3}, minute={35},
+        ),
         # 03:45 — recompute staff_identity_links over last 90 days. The
         #         Postgres RPC scans v_salon_staff_events, pairs lefts↔
         #         joins by normalized name + geo proximity + time window,
