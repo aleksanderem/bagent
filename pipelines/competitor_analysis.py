@@ -4522,12 +4522,16 @@ def _dedup_pricing_rows(rows: list[dict[str, Any]]) -> list[dict[str, Any]]:
         return (
             r.get("report_id"),
             r.get("comparison_tier"),
+            # S0078 — scope (selected vs local_market) to osobne zakładki, nie duplikaty.
+            r.get("comparison_scope"),
             r.get("booksy_treatment_id"),
             r.get("variant_id"),
             r.get("sub_variant_group_id"),
             r.get("sub_variant_label"),
-            # treatment_name fallback when tid is NULL (synthetic taxonomy paths)
-            r.get("treatment_name") if r.get("booksy_treatment_id") is None else None,
+            # S0078 — tier 'identity' jest per-usługa subjectu: różne usługi mogą dzielić
+            # booksy_treatment_id (Botox 1/2/3 okolice), więc nazwa + cena je rozróżniają.
+            r.get("treatment_name"),
+            r.get("subject_price_grosze"),
         )
 
     def row_quality(r: dict[str, Any]) -> tuple:
