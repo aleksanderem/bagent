@@ -180,6 +180,34 @@ def _non_empty(value: Any) -> Any:
     return value
 
 
+def _detect_service_is_package(name: str, variants: list) -> bool:
+    """True gdy usługa to pakiet/multi-pack.
+
+    Booksy trzyma pakiety jako WARIANTY pod jedną usługą — top-level `name` jest
+    spłaszczone (np. "Presoterapia PressEMS") a wariant niesie pełną etykietę
+    ("PressEMS - 5 zabiegów"). detect_package_keyword(name) sam tego nie złapie.
+
+    Reguła all-or-nothing (świadomie konserwatywna dla tej flagi):
+      * NAME to pakiet                                  -> True
+      * są nie-puste etykiety wariantów I WSZYSTKIE to pakiety -> True (czysta
+        usługa-pakiet, np. 5-zab + 10-zab)
+      * usługa MIESZANA (część pakiet, część pojedyncza) -> False — flaga
+        all-or-nothing nie może jej rzetelnie wykluczyć bez utraty pojedynczego
+        wariantu; to domena per-wariant pricingu (docelowy refaktor).
+    """
+    if detect_package_keyword(name or "") is not None:
+        return True
+    labels = [
+        (v or {}).get("label", "")
+        for v in (variants or [])
+        if isinstance(v, dict)
+    ]
+    nonempty = [l for l in labels if l and l.strip()]
+    if not nonempty:
+        return False
+    return all(detect_package_keyword(l) is not None for l in nonempty)
+
+
 def _parse_iso(value: Any) -> str | None:
     """Pass through an ISO-looking datetime string, else None."""
     if not value:
@@ -823,7 +851,20 @@ class SalonJsonIngester:
                     # punkt prawdy dla pricingu; konsumenci filtrują
                     # WHERE NOT is_package zamiast powielać regex. Ten sam kod
                     # ingestu obejmuje subject i wszystkich konkurentów.
-                    "is_package": detect_package_keyword(svc.get("name") or "") is not None,
+                    #
+                    # 2026-06-22: czytaj też variants[].label, nie tylko name.
+                    # Booksy trzyma pakiety jako WARIANTY ("Presoterapia PressEMS"
+                    # → variant "PressEMS - 5 zabiegów"), a top-level `name` jest
+                    # spłaszczone (bez "5 zabiegów") → detect_package_keyword(name)
+                    # zwracał None mimo że to pakiet (29k przecieków). Logika
+                    # "all-variants-package": flaguj gdy NAME to pakiet, ALBO są
+                    # nie-puste etykiety wariantów i WSZYSTKIE to pakiety (czysta
+                    # usługa-pakiet, np. 5-zab + 10-zab). Mieszane (pojedynczy +
+                    # pakiet w jednej usłudze) zostają — to domena per-wariant
+                    # pricingu (docelowy refaktor), nie tej flagi all-or-nothing.
+                    "is_package": _detect_service_is_package(
+                        svc.get("name") or "", variants
+                    ),
 
                     "is_active": _as_bool(svc.get("active")) if svc.get("active") is not None else True,
                     "is_online_service": _as_bool(svc.get("is_online_service")) or False,
