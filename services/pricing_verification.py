@@ -63,6 +63,14 @@ _PACKAGE_PATTERNS = [
     re.compile(r"\babonament\w*\b", re.IGNORECASE),     # abonament
     re.compile(r"\bkarnet\w*\b", re.IGNORECASE),        # karnet
     re.compile(r"\bseri\w+\s+(?:\d+|po)\b", re.IGNORECASE),  # seria po, seria 5
+    # Serie liczbowe z gratisami / pakiety wieloseryjne (2026-06-22): "5 + 1",
+    # "10 + 2" (N zabiegów + M gratis) oraz "5 +", "10 +" ("duża partia 5 +").
+    # Depilacja laserowa serie (3900-8700 PLN) przeciekały do pricingu z
+    # is_package=false bo żaden wzorzec nie łapał "+". Liczbowe "+" jest
+    # jednoznaczne (pakiet), w przeciwieństwie do "pachy + bikini" (kombo
+    # obszarów) które celowo NIE łapiemy tu — łapie je flag extreme-deviation.
+    re.compile(r"\b\d+\s*\+\s*\d+\b"),                  # 5 + 1, 10 + 2
+    re.compile(r"\b\d+\s*\+(?=\s|$)"),                  # 5 +, 10 + (na końcu/spacja)
 ]
 
 
@@ -202,3 +210,34 @@ def should_drop_from_display(verification_status: str) -> bool:
     verified → KEEP
     """
     return verification_status in {"package_mismatch", "low_name_similarity", "duration_mismatch"}
+
+
+# Deviation powyżej tego pułapu = "podlega weryfikacji" dla tierów które nie
+# przechodzą pełnego per-variant verify (treatment/structured/method/sub_variant
+# nie mają pojedynczego centroidu wariantu do embedding-checku, więc dotąd
+# hard-codowały verification_status='verified'). 150% (2.5× ceny) łapie
+# pakiet-vs-single mismatche jak "Depilacja Thunder pachy + bikini" (+703%),
+# "Fotoodmładzanie twarz + szyja" (+1210%), zostawiając sensowne porównania
+# (zwykle ±60%) jako verified. extreme_outlier jest KEEP (UI pokazuje z badge'm
+# "wymaga weryfikacji"), nie DROP — dane zostają, tylko sygnalizujemy niepewność.
+EXTREME_DEVIATION_PCT = 150.0
+
+
+def flag_extreme_deviation(
+    verification_status: str, deviation_pct: float | None
+) -> str:
+    """Podnieś 'verified' → 'extreme_outlier' gdy |deviation| > EXTREME_DEVIATION_PCT.
+
+    Dotyka WYŁĄCZNIE wierszy 'verified' (nie nadpisuje package_mismatch /
+    low_name_similarity / extreme_outlier ustawionych przez pełny verify ani
+    subject_only). Idempotentne. Tier-agnostyczne — wołane jednym passem na
+    pricing_rows przed insertem, więc pokrywa treatment/structured/method/
+    sub_variant bez dublowania logiki w każdym _emit_*.
+    """
+    if (
+        verification_status == "verified"
+        and deviation_pct is not None
+        and abs(deviation_pct) > EXTREME_DEVIATION_PCT
+    ):
+        return "extreme_outlier"
+    return verification_status

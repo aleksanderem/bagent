@@ -47,6 +47,7 @@ from services.pricing_verification import (
     VERIFICATION_THRESHOLD_PCT,
     compute_name_embedding_similarity,
     detect_package_keyword,
+    flag_extreme_deviation,
     should_drop_from_display,
     verify_pricing_comparison,
 )
@@ -713,6 +714,17 @@ async def compute_competitor_analysis(
                 llm_client=_get_hidden_inference_llm(),
             )
             pricing_rows = _dedup_pricing_rows(pricing_rows)
+            # Flag extreme deviations (2026-06-22): treatment/structured/method/
+            # sub_variant tiers don't run the per-variant verify, so dotąd
+            # hard-codowały verification_status='verified' — nawet przy +703%
+            # (pakiet vs single). Jeden pass podnosi 'verified' → 'extreme_outlier'
+            # gdy |deviation| > EXTREME_DEVIATION_PCT, więc UI sygnalizuje
+            # "wymaga weryfikacji" zamiast prezentować jako pewne.
+            for _r in pricing_rows:
+                _r["verification_status"] = flag_extreme_deviation(
+                    _r.get("verification_status", "verified"),
+                    _r.get("deviation_pct"),
+                )
             n_pricing = await service.insert_competitor_pricing_comparisons(
                 pricing_rows
             )
