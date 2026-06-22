@@ -60,6 +60,7 @@ from services.hidden_service_inference import (
     GeminiLLMClient,
     infer_hidden_services_batch,
 )
+from services.similarity_pricing.report_pricing import compute_pricing_comparisons_v2
 from services.supabase import SupabaseService
 from services.taxonomy_inference import infer_and_apply
 
@@ -704,13 +705,15 @@ async def compute_competitor_analysis(
                     ],
                 })
         else:
-            pricing_rows = await _compute_pricing_comparisons(
+            # S0078 (2026-06-22) — wpięty silnik similarity-first + test tożsamości
+            # (services/similarity_pricing/). Zastępuje stary klasyfikacja-first
+            # _compute_pricing_comparisons (tiery variant/method/structured). Stara
+            # funkcja pozostaje w pliku (referencja/rollback). Patrz README modułu.
+            pricing_rows = await compute_pricing_comparisons_v2(
                 service, report_id, subject_data, aligned_competitors,
                 audit_id=audit_id,
                 tracer=tracer,
                 method_classifier=method_classifier,
-                # S0064 — promote scope gate's LLM pair verification (variant
-                # tier). Same lazy singleton as tier-1 (linia ~1487 pattern).
                 llm_client=_get_hidden_inference_llm(),
             )
             pricing_rows = _dedup_pricing_rows(pricing_rows)
