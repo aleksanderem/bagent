@@ -222,20 +222,29 @@ def should_drop_from_display(verification_status: str) -> bool:
 # "wymaga weryfikacji"), nie DROP — dane zostają, tylko sygnalizujemy niepewność.
 EXTREME_DEVIATION_PCT = 150.0
 
+# Statusy "pokazanego porównania z danymi rynkowymi" które podlegają flagowaniu
+# extreme-deviation. NIE obejmuje subject_only* (deviation=None, brak rynku) ani
+# package_mismatch/low_name_similarity/duration_mismatch (już DROP) ani
+# extreme_outlier (już oflagowane). method_targeted/structured_direct dotąd nie
+# przechodziły per-variant verify i prezentowały skrajne deviation bez badge —
+# tier i tak zostaje w comparison_tier, więc podniesienie statusu nic nie traci.
+_FLAGGABLE_STATUSES = {"verified", "method_targeted", "structured_direct"}
+
 
 def flag_extreme_deviation(
     verification_status: str, deviation_pct: float | None
 ) -> str:
-    """Podnieś 'verified' → 'extreme_outlier' gdy |deviation| > EXTREME_DEVIATION_PCT.
+    """Podnieś status pokazanego porównania → 'extreme_outlier' gdy |deviation|
+    > EXTREME_DEVIATION_PCT.
 
-    Dotyka WYŁĄCZNIE wierszy 'verified' (nie nadpisuje package_mismatch /
-    low_name_similarity / extreme_outlier ustawionych przez pełny verify ani
-    subject_only). Idempotentne. Tier-agnostyczne — wołane jednym passem na
+    Dotyka wierszy w _FLAGGABLE_STATUSES (verified / method_targeted /
+    structured_direct) — nie nadpisuje DROP-owanych mismatchy, subject_only ani
+    już oflagowanych. Idempotentne. Tier-agnostyczne — wołane jednym passem na
     pricing_rows przed insertem, więc pokrywa treatment/structured/method/
     sub_variant bez dublowania logiki w każdym _emit_*.
     """
     if (
-        verification_status == "verified"
+        verification_status in _FLAGGABLE_STATUSES
         and deviation_pct is not None
         and abs(deviation_pct) > EXTREME_DEVIATION_PCT
     ):
