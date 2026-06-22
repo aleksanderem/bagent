@@ -1,11 +1,15 @@
-"""Integracja silnika similarity-first z raportem konkurencji.
+"""Integracja silnika similarity-first z raportem konkurencji — DWA SCOPE'Y.
 
-`compute_pricing_comparisons_v2` to drop-in za stary `_compute_pricing_comparisons`
-(competitor_analysis.py). Produkuje wiersze w kontrakcie `competitor_pricing_comparisons`
-(te same kolumny które czyta frontend), ale liczy je nowym silnikiem (fn_find_related_v2
-+ test tożsamości), nie tierami variant/method/structured.
+`compute_pricing_comparisons_v2` to drop-in za stary `_compute_pricing_comparisons`.
+Liczy ceny nowym silnikiem (Qdrant kNN + test tożsamości) w dwóch perspektywach:
 
-Ziarno: jeden wiersz per realna usługa subjectu (nie per variant taksonomii).
+  - 'selected'      — wśród WYBRANYCH konkurentów raportu (wąsko, celnie)
+  - 'local_market'  — w promieniu N km wokół subjectu (szeroka pula = realna cena
+                      rynkowa, rozwiązuje nadmiar 'subject_only' przy małej puli wybranych)
+
+Frontend renderuje je jako dwie zakładki. Oba scope'y używają tego samego
+mechanizmu (qdrant_search z filtrem booksy_id), różniąc się tylko pulą konkurentów.
+Ziarno: jeden wiersz per (usługa subjectu, scope).
 """
 from __future__ import annotations
 
@@ -13,18 +17,20 @@ import logging
 from typing import Any
 
 from .engine import MarketResult, compute_market_price
+from .qdrant_search import search_twins
 
 logger = logging.getLogger(__name__)
 
-# Próg deviation poniżej/powyżej którego rekomendujemy zmianę ceny (w %).
 _ACTION_THRESHOLD_PCT = 8.0
-# Limit bliźniaków per usługa z fn_find_related_v2.
 _FN_LIMIT = 60
 _FN_MIN_SIMILARITY = 0.82
+_DEFAULT_RADIUS_KM = 15
+
+SCOPE_SELECTED = "selected"
+SCOPE_LOCAL = "local_market"
 
 
 def _recommended_action(deviation_pct: float | None) -> str:
-    """raise (subject tańszy → podnieś) / lower (drożej → obniż) / hold."""
     if deviation_pct is None:
         return "hold"
     if deviation_pct > _ACTION_THRESHOLD_PCT:
@@ -35,7 +41,6 @@ def _recommended_action(deviation_pct: float | None) -> str:
 
 
 def _sample_to_jsonb(s: dict[str, Any]) -> dict[str, Any]:
-    """Bliźniak → wpis competitor_samples (drill-down w UI)."""
     return {
         "salon_id": s.get("salon_id"),
         "salon_name": s.get("salon_name") or "",
@@ -48,19 +53,46 @@ def _sample_to_jsonb(s: dict[str, Any]) -> dict[str, Any]:
     }
 
 
+def _geo_competitor_booksy_ids(service: Any, subject_booksy_id: int, radius_km: int) -> list[int]:
+    """booksy_ids salonów w promieniu radius_km (RPC fn_competitors_in_radius)."""
+    try:
+        res = service.client.rpc(
+            "fn_competitors_in_radius",
+            {"p_subject_booksy_id": int(subject_booksy_id), "p_radius_km": radius_km},
+        ).execute()
+        return [int(r["fn_competitors_in_radius"]) for r in (res.data or []) if r.get("fn_competitors_in_radius") is not None]
+    except Exception as e:
+        logger.warning("geo radius RPC failed (booksy=%s, %dkm): %s", subject_booksy_id, radius_km, e)
+        return []
+
+
+def _lookup_salon_names(service: Any, booksy_ids: list[int]) -> dict[int, str]:
+    """booksy_id → salon name (batch, dla competitor_samples drill-down)."""
+    if not booksy_ids:
+        return {}
+    names: dict[int, str] = {}
+    uniq = list({int(b) for b in booksy_ids if b is not None})
+    # batchowanie po 500 (limit IN)
+    for i in range(0, len(uniq), 500):
+        chunk = uniq[i:i + 500]
+        try:
+            res = service.client.table("salons").select("booksy_id,name").in_("booksy_id", chunk).execute()
+            for row in (res.data or []):
+                if row.get("booksy_id") is not None:
+                    names[int(row["booksy_id"])] = row.get("name") or ""
+        except Exception as e:
+            logger.warning("salon_names lookup failed (chunk %d): %s", i, e)
+    return names
+
+
 def _build_row(
-    report_id: int,
-    subject: dict[str, Any],
-    res: MarketResult,
-    package_samples: list[dict[str, Any]],
+    report_id: int, subject: dict[str, Any], res: MarketResult, scope: str,
 ) -> dict[str, Any]:
-    """Zmapuj MarketResult na wiersz competitor_pricing_comparisons (kontrakt UI)."""
     tid = subject.get("booksy_treatment_id")
     treatment_name = subject.get("treatment_name") or subject.get("name") or subject.get("service_name") or "Unknown"
     subj_price = subject.get("price_grosze")
     subj_dur = subject.get("duration_minutes")
 
-    # subject_percentile: pozycja subjectu w rozkładzie rynku (jeśli mamy cenę rynkową)
     subject_percentile: float | None = None
     if res.market_price_grosze and subj_price and res.p25_grosze is not None and res.p75_grosze is not None:
         lo, hi = res.p25_grosze, res.p75_grosze
@@ -71,7 +103,6 @@ def _build_row(
     verification_status = "subject_only" if insufficient else "verified"
     recommended_action = "subject_only" if insufficient else _recommended_action(res.deviation_pct)
 
-    # deviation_pct_per_min: subject zł/min vs rynek zł/min
     deviation_pct_per_min: float | None = None
     if not insufficient and res.zl_per_min_median and subj_price and subj_dur:
         subj_ppm = subj_price / subj_dur if subj_dur else None
@@ -81,14 +112,15 @@ def _build_row(
     return {
         "report_id": report_id,
         "comparison_tier": "identity",
-        "booksy_treatment_id": tid if tid is not None else 0,  # kontrakt NOT NULL
+        "comparison_scope": scope,
+        "booksy_treatment_id": tid if tid is not None else 0,
         "treatment_name": treatment_name,
         "treatment_parent_id": subject.get("treatment_parent_id"),
         "subject_price_grosze": subj_price,
         "subject_is_from_price": subject.get("is_from_price", False),
         "subject_duration_minutes": subj_dur,
         "subject_price_per_min_grosze": round(subj_price / subj_dur) if (subj_price and subj_dur) else None,
-        "market_min_grosze": res.p25_grosze if not insufficient else None,  # robust: p25 jako min wyświetlany
+        "market_min_grosze": res.p25_grosze if not insufficient else None,
         "market_p25_grosze": res.p25_grosze if not insufficient else None,
         "market_median_grosze": res.market_price_grosze,
         "market_p75_grosze": res.p75_grosze if not insufficient else None,
@@ -101,81 +133,27 @@ def _build_row(
         "recommended_action": recommended_action,
         "verification_status": verification_status,
         "competitor_samples": [_sample_to_jsonb(s) for s in res.samples],
-        # PAKIETY do drill-down (§9 README): odfiltrowane z ceny przez oś `package`,
-        # ale zebrane tu w `package_samples`. Dodaj kolumnę JSONB `package_samples`
-        # na competitor_pricing_comparisons i odkomentuj, gdy budujesz widok pakietów:
-        # "package_samples": [_sample_to_jsonb(s) for s in package_samples] or None,
+        # PAKIETY do drill-down (§9 README): kolumna package_samples gdy budujesz widok.
     }
 
 
-async def compute_pricing_comparisons_v2(
-    service: Any,
-    report_id: int,
-    subject_data: dict[str, Any],
-    aligned_competitors: list[tuple[Any, dict[str, Any]]],
-    *,
-    config: dict[str, Any] | None = None,
-    **_ignored: Any,
+def _rows_for_scope(
+    report_id: int, subject_services: list[dict[str, Any]], subject_ids: list[int],
+    competitor_booksy_ids: list[int], scope: str, salon_names: dict[int, str],
+    config: dict[str, Any] | None,
 ) -> list[dict[str, Any]]:
-    """Policz pricing_comparisons nowym silnikiem (similarity + tożsamość).
-
-    Sygnatura zgodna ze starą `_compute_pricing_comparisons` (przyjmuje i ignoruje
-    dodatkowe kwargs: audit_id, tracer, method_classifier, llm_client). Zwraca listę
-    wierszy gotowych do insert_competitor_pricing_comparisons.
-    """
-    subject_services = [
-        s for s in (subject_data.get("services") or [])
-        if s.get("is_active", True) and s.get("price_grosze") and s.get("id") is not None
-    ]
-    competitor_booksy_ids = [
-        cand.booksy_id for cand, _ in aligned_competitors
-        if getattr(cand, "counts_in_aggregates", True)
-    ]
-    if not subject_services or not competitor_booksy_ids:
-        logger.info("similarity pricing v2: brak subject services lub konkurentów — 0 wierszy")
+    """Policz wiersze dla jednego scope (qdrant_search + engine per usługa)."""
+    if not competitor_booksy_ids:
         return []
-
-    subject_ids = [int(s["id"]) for s in subject_services]
-
-    try:
-        res = service.client.rpc(
-            "fn_find_related_competitor_services_v2",
-            {
-                "p_subject_service_ids": subject_ids,
-                "p_competitor_booksy_ids": list(competitor_booksy_ids),
-                "p_limit": _FN_LIMIT,
-                "p_min_similarity": _FN_MIN_SIMILARITY,
-            },
-        ).execute()
-    except Exception as e:
-        logger.warning("similarity pricing v2: RPC fn_find_related_v2 failed: %s", e)
-        return []
-
-    # Grupuj bliźniaków per subject_service_id.
-    clusters: dict[int, list[dict[str, Any]]] = {sid: [] for sid in subject_ids}
-    for row in (res.data or []):
-        sid = row.get("subject_service_id")
-        if sid is None or row.get("price_grosze") is None:
-            continue
-        clusters.setdefault(int(sid), []).append({
-            "service_id": row.get("service_id"),
-            "booksy_id": row.get("booksy_id"),
-            "salon_id": row.get("salon_id"),
-            "salon_name": row.get("salon_name") or "",
-            "service_name": row.get("service_name") or "",
-            "price_grosze": int(row["price_grosze"]),
-            "duration_minutes": row.get("duration_minutes"),
-            "similarity": float(row["similarity"]) if row.get("similarity") is not None else None,
-            "category_name": row.get("category_name"),
-            "is_package": bool(row.get("is_package", False)),
-        })
-
+    clusters = search_twins(
+        subject_ids, competitor_booksy_ids, limit=_FN_LIMIT, min_similarity=_FN_MIN_SIMILARITY
+    )
     rows: list[dict[str, Any]] = []
     for svc in subject_services:
         sid = int(svc["id"])
         raw = clusters.get(sid, [])
-        # Pakiety odłóż osobno (drill-down); test tożsamości i tak je wytnie z ceny.
-        package_samples = [s for s in raw if s.get("is_package")]
+        for s in raw:
+            s["salon_name"] = salon_names.get(s.get("booksy_id"), "")
         subject = {
             "service_name": svc.get("name") or svc.get("treatment_name") or "",
             "price_grosze": svc.get("price_grosze"),
@@ -184,12 +162,52 @@ async def compute_pricing_comparisons_v2(
             "is_package": bool(svc.get("is_package", False)),
         }
         result = compute_market_price(subject, raw, config)
-        rows.append(_build_row(report_id, svc, result, package_samples))
+        rows.append(_build_row(report_id, svc, result, scope))
+    return rows
 
+
+async def compute_pricing_comparisons_v2(
+    service: Any,
+    report_id: int,
+    subject_data: dict[str, Any],
+    aligned_competitors: list[tuple[Any, dict[str, Any]]],
+    *,
+    radius_km: int = _DEFAULT_RADIUS_KM,
+    config: dict[str, Any] | None = None,
+    **_ignored: Any,
+) -> list[dict[str, Any]]:
+    """Policz pricing_comparisons w DWÓCH scope'ach (wybrani + promień N km)."""
+    subject_services = [
+        s for s in (subject_data.get("services") or [])
+        if s.get("is_active", True) and s.get("price_grosze") and s.get("id") is not None
+    ]
+    if not subject_services:
+        return []
+    subject_ids = [int(s["id"]) for s in subject_services]
+    subject_booksy = subject_data.get("booksy_id")
+
+    selected_booksy = [
+        cand.booksy_id for cand, _ in aligned_competitors
+        if getattr(cand, "counts_in_aggregates", True)
+    ]
+    radius_booksy = (
+        _geo_competitor_booksy_ids(service, int(subject_booksy), radius_km)
+        if subject_booksy is not None else []
+    )
+
+    # salon_name lookup raz dla obu scope'ów
+    salon_names = _lookup_salon_names(service, selected_booksy + radius_booksy)
+
+    rows: list[dict[str, Any]] = []
+    rows += _rows_for_scope(report_id, subject_services, subject_ids, selected_booksy, SCOPE_SELECTED, salon_names, config)
+    rows += _rows_for_scope(report_id, subject_services, subject_ids, radius_booksy, SCOPE_LOCAL, salon_names, config)
+
+    n_sel = sum(1 for r in rows if r["comparison_scope"] == SCOPE_SELECTED)
+    n_loc = sum(1 for r in rows if r["comparison_scope"] == SCOPE_LOCAL)
+    n_priced = sum(1 for r in rows if r["market_median_grosze"] is not None)
     logger.info(
-        "similarity pricing v2: %d wierszy (%d sufficient/thin, %d subject_only)",
-        len(rows),
-        sum(1 for r in rows if r["market_median_grosze"] is not None),
-        sum(1 for r in rows if r["market_median_grosze"] is None),
+        "similarity pricing v2: %d wierszy (selected=%d, local_market=%d, z ceną=%d) | "
+        "%d konkur. wybranych, %d w %dkm",
+        len(rows), n_sel, n_loc, n_priced, len(selected_booksy), len(radius_booksy), radius_km,
     )
     return rows
