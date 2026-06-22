@@ -972,6 +972,18 @@ def _has_promo_marker(name: str) -> bool:
     return bool(_PROMO_MARKERS.search(name))
 
 
+def _is_package_service(svc: dict[str, Any], *, name_key: str = "name") -> bool:
+    """Czy usługa to pakiet / multi-pack / seria.
+
+    Flaga is_package (mig 136, ustawiana przy ingest) jest źródłem prawdy;
+    detect_package_keyword zostaje jako fallback dla wierszy bez flagi
+    (sprzed backfillu / brak kolumny w SELECT). Defense-in-depth.
+    """
+    if svc.get("is_package"):
+        return True
+    return detect_package_keyword(svc.get(name_key) or "") is not None
+
+
 def _duration_bucket(duration_minutes: int | None) -> str:
     """Categoryzuje czas trwania usługi do kompatybilnych bucketów dla
     pricing comparison. Empirycznie (Beauty4ever vs Skin&Body Care 2026-05-16):
@@ -1167,7 +1179,7 @@ def _active_services_with_variant(
         # "3x Red Touch", "Onda 4 zabiegi" — pakiety wielokrotne porównane
         # do single zabiegów.
         name = svc.get("name") or ""
-        if detect_package_keyword(name) or _has_promo_marker(name) or svc.get("is_promo"):
+        if _is_package_service(svc) or _has_promo_marker(name) or svc.get("is_promo"):
             skipped_promo_pakiet += 1
             continue
         # IMPORTANT: prefer the raw tid that was active when variant_id was
@@ -2549,7 +2561,7 @@ async def _compute_treatment_tier_rows(
             "x zabieg", "zabiegów",
         )):
             return False
-        if detect_package_keyword(svc.get("name") or ""):
+        if _is_package_service(svc):
             return False
         return True
 
@@ -3770,7 +3782,7 @@ async def _compute_brand_structured_pricing(
             "x zabieg", "zabiegów",
         )):
             return False
-        if detect_package_keyword(svc.get("name") or ""):
+        if _is_package_service(svc):
             return False
         return True
 
@@ -3987,12 +3999,30 @@ async def _load_subject_services_by_method(
         .execute()
     )
     out: dict[int, list[dict[str, Any]]] = {}
+    skipped_pkg = 0
     for row in (cache_res.data or []):
         sid = int(row["service_id"])
         mid = int(row["method_id"])
         svc = services_by_id.get(sid)
-        if svc:
-            out.setdefault(mid, []).append(svc)
+        if not svc:
+            continue
+        # Wyklucz pakiety / multi-pack z method-tier subject pricing. Pakiet typu
+        # "Pakiet Komfort (bikini gł. + pachy + nogi) x5" (3750 zł = 5 zabiegów
+        # łączonej strefy) NIE może udawać pojedynczego zabiegu metody
+        # "depilacja nóg" — inaczej subject_median = 3750 zł vs mediana pojedynczych
+        # ~128 zł daje fałszywe +2830%. Spójne z _active_services_with_variant
+        # (mig 064), które filtruje pakiety na subject-side variant/treatment tierów;
+        # method-tier (tier-4 fallback) wcześniej tego NIE robił.
+        if _is_package_service(svc):
+            skipped_pkg += 1
+            continue
+        out.setdefault(mid, []).append(svc)
+    if skipped_pkg > 0:
+        logger.info(
+            "_load_subject_services_by_method: dropped %d package services from "
+            "method-tier subject pricing (pakiet x5 → fałszywy pojedynczy zabieg)",
+            skipped_pkg,
+        )
     return out
 
 
@@ -4096,7 +4126,7 @@ async def _compute_sub_variant_tier_rows(
             continue
         if svc_meta.get("is_promo"):
             continue
-        if detect_package_keyword(svc_meta.get("service_name") or ""):
+        if _is_package_service(svc_meta, name_key="service_name"):
             continue
         tid = svc_meta.get("service_tid")
         if tid is None:
@@ -4136,7 +4166,7 @@ async def _compute_sub_variant_tier_rows(
         meta = competitor_service_meta.get(sid) or {}
         if not meta.get("is_active", True) or meta.get("is_promo"):
             continue
-        if detect_package_keyword(meta.get("service_name") or ""):
+        if _is_package_service(meta, name_key="service_name"):
             continue
         tid = meta.get("service_tid")
         if tid is None:
@@ -4368,7 +4398,7 @@ def _emit_subject_only_rows_no_variants(
             "x zabieg", "zabiegów",
         )):
             return False
-        if detect_package_keyword(svc.get("name") or ""):
+        if _is_package_service(svc):
             return False
         return True
 
