@@ -45,6 +45,16 @@ STALE_INFERENCE_DAYS = 7        # re-run inference for rows older than this
 FOCUS_BATCH_CAP = 5_000         # ~10 min @ 10/s; trigger refreshes ~daily
 STALE_FOCUS_DAYS = 14           # re-compute focus older than this
 
+# variant_id backfill (added 2026-06-22, S0078). variant_id is written ONLY by
+# the mig-127 RPCs (backfill_service_variants / _untagged); nothing in bagent
+# ever called them, so fresh scrapes kept variant_id NULL and the competitor
+# pricing pipeline early-exited to empty. This nightly job calls them. Caps
+# bound the nightly run; any overflow keeps variant_matched_at NULL and is
+# picked up the next night (the RPCs only stamp rows they actually evaluate).
+VARIANT_BATCH_CAP = 300_000     # in-tid daily inflow + margin (~4 min @ 5k/~4s)
+VARIANT_UNTAGGED_CAP = 100_000  # untagged inflow is much smaller
+VARIANT_BATCH_SIZE = 5_000      # per RPC call (mig 127 statement_timeout=120s)
+
 
 async def refresh_taxonomy_views(ctx: dict[str, Any]) -> str:
     """Refresh mv_booksy_treatments + mv_treatment_name_lookup CONCURRENTLY.
@@ -227,6 +237,77 @@ async def refresh_inferred_treatments(ctx: dict[str, Any]) -> str:
     return msg
 
 
+async def refresh_service_variants(ctx: dict[str, Any]) -> str:
+    """Backfill salon_scrape_services.variant_id for chain-head services.
+
+    The MISSING nightly job (added 2026-06-22, S0078). variant_id is written
+    ONLY by backfill_service_variants / backfill_untagged_services_via_variant
+    (mig 127). Nothing in bagent ever called them — variant_id was populated by
+    ad-hoc manual RPC runs until ~2026-06-12, then stopped, leaving ~1.7M
+    chain-head services with variant_id NULL. Without variant_id the competitor
+    report pricing pipeline early-exits (competitor_analysis.py ~679) and emits
+    an empty priceComparison. This job closes the loop:
+      inline embedding (ingest) -> booksy_treatment_id (inline/inferred)
+      -> variant_id (THIS job) -> competitor pricing comparisons.
+
+    Both RPCs are idempotent + self-scoping: they target chain-head rows with
+    variant_id NULL and a watermark retry (variant_matched_at IS NULL OR
+    < max(treatment_variants.refreshed_at)), stamp variant_matched_at on every
+    evaluation (cost control), and return ROW_COUNT (rows evaluated, not
+    matched). Loop each until it returns 0 or the nightly cap is hit; capped
+    overflow keeps variant_matched_at NULL and is drained the next night.
+    """
+    from services.healthcheck import ping
+    from services.sb_client import make_supabase_client
+    from config import settings
+
+    client = make_supabase_client(settings.supabase_url, settings.supabase_service_key)
+    t_start = time.time()
+
+    # Phase A: in-tid match (booksy_treatment_id present). Search space is
+    # pre-scoped by parent_treatment_id so cross-family mistakes are impossible
+    # — hence the looser 0.55 default. This covers the overwhelming majority
+    # (fresh scrapes carry booksy_treatment_id inline at ingest).
+    in_tid = 0
+    while in_tid < VARIANT_BATCH_CAP:
+        res = await asyncio.to_thread(
+            lambda: client.rpc(
+                "backfill_service_variants",
+                {"p_batch_size": VARIANT_BATCH_SIZE, "p_min_similarity": 0.55},
+            ).execute()
+        )
+        n = res.data if isinstance(res.data, int) else 0
+        if n == 0:
+            break
+        in_tid += n
+
+    # Phase B: untagged catch-up (booksy_treatment_id NULL). Global ANN over all
+    # variants with no taxonomy guard — a wrong match re-tags the whole family,
+    # so the stricter 0.70 default. Sets booksy_treatment_id + variant_id from
+    # the matched variant's parent. Much smaller population.
+    untagged = 0
+    while untagged < VARIANT_UNTAGGED_CAP:
+        res = await asyncio.to_thread(
+            lambda: client.rpc(
+                "backfill_untagged_services_via_variant",
+                {"p_batch_size": VARIANT_BATCH_SIZE, "p_min_similarity": 0.70},
+            ).execute()
+        )
+        n = res.data if isinstance(res.data, int) else 0
+        if n == 0:
+            break
+        untagged += n
+
+    dt = time.time() - t_start
+    msg = (
+        f"refresh_service_variants: in_tid={in_tid}, untagged={untagged} "
+        f"in {dt:.0f}s"
+    )
+    logger.info(msg)
+    await ping("HC_PING_VARIANT_MATCH_REFRESH")
+    return msg
+
+
 async def refresh_salon_focus_distributions(ctx: dict[str, Any]) -> str:
     """Refresh salons.{portfolio_embedding, focus_distribution,
     focus_variant_distribution} dla salonów stale lub nigdy nie liczonych.
@@ -349,5 +430,6 @@ ALL_TAXONOMY_TASKS = [
     refresh_taxonomy_views,
     embed_new_services,
     refresh_inferred_treatments,
+    refresh_service_variants,
     refresh_salon_focus_distributions,
 ]
