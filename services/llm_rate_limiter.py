@@ -69,6 +69,12 @@ _MODEL_CAPS: dict[str, tuple[str, int]] = {
     "gpt-4o": ("LLM_MAX_CONCURRENCY_GPT_4O", 6),
     "gpt-4o-mini": ("LLM_MAX_CONCURRENCY_GPT_4O_MINI", 18),
     "MiniMax-M2.7": ("LLM_MAX_CONCURRENCY_MINIMAX_M2_7", 4),
+    # MiniMax-M3 (default od config.minimax_model). Bez tego wpisu
+    # provider_slot("MiniMax-M3") trafiał w fail-open (linia ~100) i synthesis
+    # raportu konkurencji leciał BEZ globalnego concurrency cap — ryzyko 429
+    # przy równoległych raportach (kolejka cap=4). Cap 4 jak M2.7 (synthesis
+    # heavy + low-volume). M2.7 zostaje jako fallback do A/B / rollback.
+    "MiniMax-M3": ("LLM_MAX_CONCURRENCY_MINIMAX_M3", 4),
 }
 
 
