@@ -47,6 +47,7 @@ if str(REPO_ROOT) not in sys.path:
 from supabase import Client
 
 from services.sb_client import make_supabase_client  # noqa: E402
+from services.pricing_verification import detect_package_keyword  # noqa: E402
 from services.scrape_history import (  # noqa: E402
     CHECKPOINT_EVERY,
     compute_content_hash,
@@ -818,6 +819,11 @@ class SalonJsonIngester:
 
                     "is_promo": is_promo,
                     "promotion_data": promotion_data,
+                    # Pakiet / multi-pack wykryty RAZ z nazwy (mig 136) — jeden
+                    # punkt prawdy dla pricingu; konsumenci filtrują
+                    # WHERE NOT is_package zamiast powielać regex. Ten sam kod
+                    # ingestu obejmuje subject i wszystkich konkurentów.
+                    "is_package": detect_package_keyword(svc.get("name") or "") is not None,
 
                     "is_active": _as_bool(svc.get("active")) if svc.get("active") is not None else True,
                     "is_online_service": _as_bool(svc.get("is_online_service")) or False,
