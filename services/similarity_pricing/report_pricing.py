@@ -54,13 +54,22 @@ def _sample_to_jsonb(s: dict[str, Any]) -> dict[str, Any]:
 
 
 def _geo_competitor_booksy_ids(service: Any, subject_booksy_id: int, radius_km: int) -> list[int]:
-    """booksy_ids salonów w promieniu radius_km (RPC fn_competitors_in_radius)."""
+    """booksy_ids salonów w promieniu radius_km (RPC fn_competitors_in_radius).
+
+    PostgREST RPC zwracający SETOF INTEGER daje listę skalarów [1,2,3]; domyślny
+    limit PostgREST to 1000 — podnosimy, bo gęste miasto ma tysiące salonów.
+    """
     try:
         res = service.client.rpc(
             "fn_competitors_in_radius",
             {"p_subject_booksy_id": int(subject_booksy_id), "p_radius_km": radius_km},
-        ).execute()
-        return [int(r["fn_competitors_in_radius"]) for r in (res.data or []) if r.get("fn_competitors_in_radius") is not None]
+        ).limit(20000).execute()
+        out: list[int] = []
+        for r in (res.data or []):
+            v = r if isinstance(r, int) else (r.get("fn_competitors_in_radius") if isinstance(r, dict) else None)
+            if v is not None:
+                out.append(int(v))
+        return out
     except Exception as e:
         logger.warning("geo radius RPC failed (booksy=%s, %dkm): %s", subject_booksy_id, radius_km, e)
         return []
