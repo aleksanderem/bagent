@@ -21,6 +21,9 @@ class _FakeRPC:
     def __init__(self, data):
         self._data = data
 
+    def limit(self, n):
+        return self
+
     def execute(self):
         return SimpleNamespace(data=self._data)
 
