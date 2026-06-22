@@ -1904,7 +1904,7 @@ class SupabaseService:
                 .select(
                     "id,category_name,name,booksy_treatment_id,booksy_service_id,"
                     "treatment_name,treatment_parent_id,price_grosze,is_from_price,"
-                    "duration_minutes,is_active,is_promo,omnibus_price_grosze,"
+                    "duration_minutes,is_active,is_promo,is_package,omnibus_price_grosze,"
                     "description,description_type,photos,combo_type,variants,"
                     "embedding_applied_at,inferred_treatment_id,variant_id,"
                     "synthetic_treatment_id,taxonomy_source"
