@@ -1,15 +1,13 @@
-"""Integracja silnika similarity-first z raportem konkurencji — DWA SCOPE'Y.
+"""Integracja silnika similarity-first z raportem konkurencji.
 
 `compute_pricing_comparisons_v2` to drop-in za stary `_compute_pricing_comparisons`.
-Liczy ceny nowym silnikiem (Qdrant kNN + test tożsamości) w dwóch perspektywach:
+Liczy ceny nowym silnikiem (Qdrant kNN + test tożsamości).
 
-  - 'selected'      — wśród WYBRANYCH konkurentów raportu (wąsko, celnie)
-  - 'local_market'  — w promieniu N km wokół subjectu (szeroka pula = realna cena
-                      rynkowa, rozwiązuje nadmiar 'subject_only' przy małej puli wybranych)
-
-Frontend renderuje je jako dwie zakładki. Oba scope'y używają tego samego
-mechanizmu (qdrant_search z filtrem booksy_id), różniąc się tylko pulą konkurentów.
-Ziarno: jeden wiersz per (usługa subjectu, scope).
+JEDEN matching, jeden wiersz per usługa. Pula = konkurenci w promieniu N km
+(∪ wybrani konkurenci raportu). Cena rynkowa liczona z całego klastra (rynek
+okolicy — bogaty, wiarygodny). Wybrani konkurenci NIE są osobnym przebiegiem,
+tylko warstwą: każdy bliźniak w `competitor_samples` ma flagę `is_selected`, więc
+UI pokazuje rynek z wyróżnionymi rywalami (jeden widok, bez pustej zakładki).
 """
 from __future__ import annotations
 
@@ -22,12 +20,9 @@ from .qdrant_search import search_twins
 logger = logging.getLogger(__name__)
 
 _ACTION_THRESHOLD_PCT = 8.0
-_FN_LIMIT = 60
+_FN_LIMIT = 80
 _FN_MIN_SIMILARITY = 0.82
 _DEFAULT_RADIUS_KM = 15
-
-SCOPE_SELECTED = "selected"
-SCOPE_LOCAL = "local_market"
 
 
 def _recommended_action(deviation_pct: float | None) -> str:
@@ -50,14 +45,16 @@ def _sample_to_jsonb(s: dict[str, Any]) -> dict[str, Any]:
         "price_grosze": s.get("price_grosze"),
         "duration_minutes": s.get("duration_minutes"),
         "name_similarity": s.get("similarity"),
+        # Wyróżnienie wybranych konkurentów raportu w drill-downie (UI: badge).
+        "is_selected": bool(s.get("is_selected", False)),
     }
 
 
 def _geo_competitor_booksy_ids(service: Any, subject_booksy_id: int, radius_km: int) -> list[int]:
     """booksy_ids salonów w promieniu radius_km (RPC fn_competitors_in_radius).
 
-    PostgREST RPC zwracający SETOF INTEGER daje listę skalarów [1,2,3]; domyślny
-    limit PostgREST to 1000 — podnosimy, bo gęste miasto ma tysiące salonów.
+    PostgREST RPC zwracający SETOF INTEGER daje listę skalarów; domyślny limit 1000
+    — podnosimy, bo gęste miasto ma tysiące salonów.
     """
     try:
         res = service.client.rpc(
@@ -76,12 +73,11 @@ def _geo_competitor_booksy_ids(service: Any, subject_booksy_id: int, radius_km: 
 
 
 def _lookup_salon_names(service: Any, booksy_ids: list[int]) -> dict[int, str]:
-    """booksy_id → salon name (batch, dla competitor_samples drill-down)."""
+    """booksy_id → salon name (batch, dla drill-down)."""
     if not booksy_ids:
         return {}
     names: dict[int, str] = {}
     uniq = list({int(b) for b in booksy_ids if b is not None})
-    # batchowanie po 500 (limit IN)
     for i in range(0, len(uniq), 500):
         chunk = uniq[i:i + 500]
         try:
@@ -95,7 +91,7 @@ def _lookup_salon_names(service: Any, booksy_ids: list[int]) -> dict[int, str]:
 
 
 def _build_row(
-    report_id: int, subject: dict[str, Any], res: MarketResult, scope: str,
+    report_id: int, subject: dict[str, Any], res: MarketResult,
 ) -> dict[str, Any]:
     tid = subject.get("booksy_treatment_id")
     treatment_name = subject.get("treatment_name") or subject.get("name") or subject.get("service_name") or "Unknown"
@@ -121,7 +117,6 @@ def _build_row(
     return {
         "report_id": report_id,
         "comparison_tier": "identity",
-        "comparison_scope": scope,
         "booksy_treatment_id": tid if tid is not None else 0,
         "treatment_name": treatment_name,
         "treatment_parent_id": subject.get("treatment_parent_id"),
@@ -146,35 +141,6 @@ def _build_row(
     }
 
 
-def _rows_for_scope(
-    report_id: int, subject_services: list[dict[str, Any]], subject_ids: list[int],
-    competitor_booksy_ids: list[int], scope: str, salon_names: dict[int, str],
-    config: dict[str, Any] | None,
-) -> list[dict[str, Any]]:
-    """Policz wiersze dla jednego scope (qdrant_search + engine per usługa)."""
-    if not competitor_booksy_ids:
-        return []
-    clusters = search_twins(
-        subject_ids, competitor_booksy_ids, limit=_FN_LIMIT, min_similarity=_FN_MIN_SIMILARITY
-    )
-    rows: list[dict[str, Any]] = []
-    for svc in subject_services:
-        sid = int(svc["id"])
-        raw = clusters.get(sid, [])
-        for s in raw:
-            s["salon_name"] = salon_names.get(s.get("booksy_id"), "")
-        subject = {
-            "service_name": svc.get("name") or svc.get("treatment_name") or "",
-            "price_grosze": svc.get("price_grosze"),
-            "duration_minutes": svc.get("duration_minutes"),
-            "category_name": svc.get("category_name"),
-            "is_package": bool(svc.get("is_package", False)),
-        }
-        result = compute_market_price(subject, raw, config)
-        rows.append(_build_row(report_id, svc, result, scope))
-    return rows
-
-
 async def compute_pricing_comparisons_v2(
     service: Any,
     report_id: int,
@@ -185,7 +151,8 @@ async def compute_pricing_comparisons_v2(
     config: dict[str, Any] | None = None,
     **_ignored: Any,
 ) -> list[dict[str, Any]]:
-    """Policz pricing_comparisons w DWÓCH scope'ach (wybrani + promień N km)."""
+    """Policz pricing_comparisons — JEDEN matching, cena z rynku w promieniu N km,
+    wybrani konkurenci wyróżnieni flagą is_selected w competitor_samples."""
     subject_services = [
         s for s in (subject_data.get("services") or [])
         if s.get("is_active", True) and s.get("price_grosze") and s.get("id") is not None
@@ -195,28 +162,49 @@ async def compute_pricing_comparisons_v2(
     subject_ids = [int(s["id"]) for s in subject_services]
     subject_booksy = subject_data.get("booksy_id")
 
-    selected_booksy = [
+    selected_booksy = {
         cand.booksy_id for cand, _ in aligned_competitors
         if getattr(cand, "counts_in_aggregates", True)
-    ]
+    }
     radius_booksy = (
         _geo_competitor_booksy_ids(service, int(subject_booksy), radius_km)
         if subject_booksy is not None else []
     )
 
-    # salon_name lookup raz dla obu scope'ów
-    salon_names = _lookup_salon_names(service, selected_booksy + radius_booksy)
+    # MATCHING RAZ na sumie pul (wybrani zwykle ⊂ promień, ale gwarantujemy że są).
+    all_booksy = list(set(radius_booksy) | selected_booksy)
+    if not all_booksy:
+        return []
+
+    clusters = search_twins(
+        subject_ids, all_booksy, limit=_FN_LIMIT, min_similarity=_FN_MIN_SIMILARITY
+    )
+    salon_names = _lookup_salon_names(service, all_booksy)
 
     rows: list[dict[str, Any]] = []
-    rows += _rows_for_scope(report_id, subject_services, subject_ids, selected_booksy, SCOPE_SELECTED, salon_names, config)
-    rows += _rows_for_scope(report_id, subject_services, subject_ids, radius_booksy, SCOPE_LOCAL, salon_names, config)
+    for svc in subject_services:
+        sid = int(svc["id"])
+        raw = clusters.get(sid, [])
+        n_selected = 0
+        for s in raw:
+            bid = s.get("booksy_id")
+            s["salon_name"] = salon_names.get(bid, "")
+            s["is_selected"] = bid in selected_booksy
+            if s["is_selected"]:
+                n_selected += 1
+        subject = {
+            "service_name": svc.get("name") or svc.get("treatment_name") or "",
+            "price_grosze": svc.get("price_grosze"),
+            "duration_minutes": svc.get("duration_minutes"),
+            "category_name": svc.get("category_name"),
+            "is_package": bool(svc.get("is_package", False)),
+        }
+        result = compute_market_price(subject, raw, config)
+        rows.append(_build_row(report_id, svc, result))
 
-    n_sel = sum(1 for r in rows if r["comparison_scope"] == SCOPE_SELECTED)
-    n_loc = sum(1 for r in rows if r["comparison_scope"] == SCOPE_LOCAL)
     n_priced = sum(1 for r in rows if r["market_median_grosze"] is not None)
     logger.info(
-        "similarity pricing v2: %d wierszy (selected=%d, local_market=%d, z ceną=%d) | "
-        "%d konkur. wybranych, %d w %dkm",
-        len(rows), n_sel, n_loc, n_priced, len(selected_booksy), len(radius_booksy), radius_km,
+        "similarity pricing v2: %d wierszy (z ceną=%d) | pula %d salonów (%d wybranych, %d w %dkm)",
+        len(rows), n_priced, len(all_booksy), len(selected_booksy), len(radius_booksy), radius_km,
     )
     return rows
