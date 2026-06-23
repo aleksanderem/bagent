@@ -36,6 +36,7 @@ def search_twins(
     subject_service_ids: list[int],
     competitor_booksy_ids: list[int],
     *,
+    subject_embeddings: dict[int, list[float]] | None = None,
     limit: int = 60,
     min_similarity: float = 0.82,
     client: QdrantClient | None = None,
@@ -43,17 +44,18 @@ def search_twins(
     """Dla każdej usługi subject znajdź tożsamych bliźniaków wśród konkurentów.
 
     Args:
-        subject_service_ids: id usług salonu-klienta (= salon_scrape_services.id,
-            równe point id w Qdrant).
+        subject_service_ids: id usług salonu-klienta.
         competitor_booksy_ids: pula konkurentów (wybrani LUB w promieniu N km).
+        subject_embeddings: {service_id: vector} embeddingi subjectów. WAŻNE —
+            subject zwykle pochodzi z AUDIT scrape, którego NIE ma w Qdrant (indeks
+            trzyma tylko chain-head), więc embeddingi trzeba podać z Postgresa.
+            Gdy None, fallback do retrieve z Qdrant (działa tylko dla chain-head).
         limit: max bliźniaków per usługa.
         min_similarity: próg cosine (score_threshold).
 
     Returns:
-        {subject_service_id: [sample]} gdzie sample ma kształt zgodny z tym,
-        czego oczekuje engine.compute_market_price (service_id, booksy_id,
-        service_name, price_grosze, duration_minutes, category_name, is_package,
-        similarity). salon_name dodaje caller (lookup po booksy_id).
+        {subject_service_id: [sample]} w kształcie oczekiwanym przez
+        engine.compute_market_price. salon_name dodaje caller (lookup po booksy_id).
     """
     out: dict[int, list[dict[str, Any]]] = {int(s): [] for s in subject_service_ids}
     if not subject_service_ids or not competitor_booksy_ids:
@@ -61,11 +63,18 @@ def search_twins(
 
     qc = client or get_client()
 
-    # 1. Pobierz embeddingi subjectów (są w tej samej kolekcji — chain-head).
-    subj_points = qc.retrieve(
-        COLLECTION, ids=list(subject_service_ids), with_vectors=True, with_payload=False
-    )
-    subj_vec: dict[int, list[float]] = {int(p.id): p.vector for p in subj_points if p.vector}
+    # 1. Embeddingi subjectów — z Postgresa (preferowane) lub fallback retrieve z Qdrant.
+    if subject_embeddings:
+        subj_vec: dict[int, list[float]] = {
+            int(s): subject_embeddings[int(s)]
+            for s in subject_service_ids
+            if int(s) in subject_embeddings and subject_embeddings[int(s)]
+        }
+    else:
+        subj_points = qc.retrieve(
+            COLLECTION, ids=list(subject_service_ids), with_vectors=True, with_payload=False
+        )
+        subj_vec = {int(p.id): p.vector for p in subj_points if p.vector}
     if not subj_vec:
         return out
 
