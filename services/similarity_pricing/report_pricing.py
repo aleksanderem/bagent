@@ -48,6 +48,9 @@ def _sample_to_jsonb(s: dict[str, Any]) -> dict[str, Any]:
         "name_similarity": s.get("similarity"),
         # Wyróżnienie wybranych konkurentów raportu w drill-downie (UI: badge).
         "is_selected": bool(s.get("is_selected", False)),
+        # Pakiet (UI segment "Pakiety konkurencji" w drill-down modalu); silnik już
+        # wycina pakiety z market_price w layer_unit, frontend filtruje wg viewMode.
+        "is_package": bool(s.get("is_package", False)),
     }
 
 
