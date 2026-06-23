@@ -11,6 +11,7 @@ UI pokazuje rynek z wyróżnionymi rywalami (jeden widok, bez pustej zakładki).
 """
 from __future__ import annotations
 
+import json
 import logging
 from typing import Any
 
@@ -88,6 +89,29 @@ def _lookup_salon_names(service: Any, booksy_ids: list[int]) -> dict[int, str]:
         except Exception as e:
             logger.warning("salon_names lookup failed (chunk %d): %s", i, e)
     return names
+
+
+def _fetch_subject_embeddings(service: Any, subject_ids: list[int]) -> dict[int, list[float]]:
+    """service_id → name_embedding (z Postgresa). Subject z audit scrape nie jest
+    w Qdrant, więc embeddingi do wyszukiwania bierzemy stąd. pgvector przez PostgREST
+    przychodzi jako string '[...]' — parsujemy do listy floatów."""
+    out: dict[int, list[float]] = {}
+    for i in range(0, len(subject_ids), 200):
+        chunk = subject_ids[i:i + 200]
+        try:
+            res = service.client.table("salon_scrape_services").select(
+                "id,name_embedding"
+            ).in_("id", chunk).execute()
+            for row in (res.data or []):
+                emb = row.get("name_embedding")
+                if emb is None or row.get("id") is None:
+                    continue
+                vec = json.loads(emb) if isinstance(emb, str) else emb
+                if vec:
+                    out[int(row["id"])] = vec
+        except Exception as e:
+            logger.warning("subject embeddings fetch failed (chunk %d): %s", i, e)
+    return out
 
 
 def _build_row(
@@ -176,8 +200,13 @@ async def compute_pricing_comparisons_v2(
     if not all_booksy:
         return []
 
+    # Subject pochodzi z AUDIT scrape (nie chain-head) — NIE ma go w Qdrant.
+    # Embeddingi subjectów bierzemy z Postgresa, w Qdrant pytamy tylko o konkurentów.
+    subject_embeddings = _fetch_subject_embeddings(service, subject_ids)
+
     clusters = search_twins(
-        subject_ids, all_booksy, limit=_FN_LIMIT, min_similarity=_FN_MIN_SIMILARITY
+        subject_ids, all_booksy, subject_embeddings=subject_embeddings,
+        limit=_FN_LIMIT, min_similarity=_FN_MIN_SIMILARITY,
     )
     salon_names = _lookup_salon_names(service, all_booksy)
 
