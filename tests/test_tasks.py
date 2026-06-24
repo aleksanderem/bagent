@@ -490,6 +490,53 @@ class TestRunCompetitorReportTask:
         assert isinstance(params["p_error"], str) and params["p_error"]
 
     @pytest.mark.asyncio
+    async def test_completes_queue_slot_unwraps_supabase_service(self):
+        """Regression (2026-06-25): in prod ctx['supabase'] is a SupabaseService
+        wrapper that has NO top-level `.rpc` — only `.client` (the raw Supabase
+        Client). Pre-fix the finally block called `sb_client.rpc(...)` directly
+        on the wrapper → AttributeError, queue row left orphaned until mig 135
+        self-heal kicked in after ~8 min. The unwrap branch must call `.rpc` on
+        the underlying client so the slot is released cleanly on the first try.
+        """
+        from workers.tasks import run_competitor_report_task
+
+        mock_pipeline = AsyncMock(return_value={
+            "report_id": 9, "narrative": "n", "swot_item_count": 0,
+            "recommendation_count": 0, "used_fallback": False,
+        })
+        mock_convex = MagicMock()
+        mock_convex.competitor_report_progress = AsyncMock()
+        mock_convex.competitor_report_complete = AsyncMock()
+        mock_convex.competitor_report_fail = AsyncMock()
+        mock_convex_cls = MagicMock(return_value=mock_convex)
+
+        # Simulate prod SupabaseService — spec=['client'] makes hasattr(svc, 'rpc')
+        # False (matching the real wrapper class, which only exposes `.client`).
+        mock_raw_client = MagicMock()
+        mock_service = MagicMock(spec=['client'])
+        mock_service.client = mock_raw_client
+
+        redis = AsyncMock()
+        redis.get = AsyncMock(return_value=None)
+        ctx = {"redis": redis, "job_id": "job-c4", "supabase": mock_service}
+        request = {"auditId": "a", "userId": "u", "_queue_id": 44}
+
+        with (
+            patch(
+                "pipelines.competitor_report.run_competitor_report_pipeline",
+                mock_pipeline,
+            ),
+            patch("services.convex.ConvexClient", mock_convex_cls),
+        ):
+            await run_competitor_report_task(ctx, request)
+
+        # The finally block unwrapped to the raw client and released the slot.
+        mock_raw_client.rpc.assert_called_once_with(
+            "complete_competitor_report_job",
+            {"p_id": 44, "p_error": None},
+        )
+
+    @pytest.mark.asyncio
     async def test_no_queue_id_skips_completion(self):
         """Back-compat: without _queue_id the completion hook is a no-op.
 
