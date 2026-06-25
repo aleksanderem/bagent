@@ -16,8 +16,18 @@ logger = logging.getLogger(__name__)
 class ConvexClient:
     """Client for calling Convex HTTP endpoints (webhooks)."""
 
-    def __init__(self) -> None:
-        self.base_url = settings.convex_url
+    def __init__(self, base_url: str | None = None) -> None:
+        # base_url overrides the global settings.convex_url so a per-job caller
+        # (the competitor report task) can route webhooks back to the SAME
+        # Convex deployment that started the job — dev (reliable-scorpion-10)
+        # vs prod (keen-mouse-438). Without this, every webhook went to the
+        # single .env CONVEX_URL (prod), so a report started from dev posted
+        # its complete/fail webhook to prod where the audit doesn't exist →
+        # markCompetitorReportReady no-op → report stuck "Generujemy".
+        # Falls back to the global when None, preserving behaviour for the
+        # audit / cennik / summary / competitor-refresh lanes that don't thread
+        # a per-job callback URL.
+        self.base_url = base_url or settings.convex_url
         self.api_key = settings.api_key
 
     def _headers(self) -> dict[str, str]:

@@ -537,6 +537,78 @@ class TestRunCompetitorReportTask:
         )
 
     @pytest.mark.asyncio
+    async def test_targets_convex_at_callback_url_when_provided(self):
+        """Webhook callback routing (migration 148): when the payload carries
+        convexSiteUrl, the task must build ConvexClient(base_url=<that url>) so
+        progress/complete/fail webhooks return to the SAME deployment that
+        started the job (dev vs prod), not the global settings.convex_url."""
+        from workers.tasks import run_competitor_report_task
+
+        mock_pipeline = AsyncMock(return_value={
+            "report_id": 7, "narrative": "n", "swot_item_count": 0,
+            "recommendation_count": 0, "used_fallback": False,
+        })
+        mock_convex = MagicMock()
+        mock_convex.competitor_report_progress = AsyncMock()
+        mock_convex.competitor_report_complete = AsyncMock()
+        mock_convex.competitor_report_fail = AsyncMock()
+        mock_convex_cls = MagicMock(return_value=mock_convex)
+
+        redis = AsyncMock()
+        redis.get = AsyncMock(return_value=None)
+        ctx = {"redis": redis, "job_id": "job-cb"}
+        request = {
+            "auditId": "a",
+            "userId": "u",
+            "convexSiteUrl": "https://reliable-scorpion-10.convex.site",
+        }
+
+        with (
+            patch(
+                "pipelines.competitor_report.run_competitor_report_pipeline",
+                mock_pipeline,
+            ),
+            patch("services.convex.ConvexClient", mock_convex_cls),
+        ):
+            await run_competitor_report_task(ctx, request)
+
+        mock_convex_cls.assert_called_once_with(
+            base_url="https://reliable-scorpion-10.convex.site",
+        )
+
+    @pytest.mark.asyncio
+    async def test_targets_global_convex_when_no_callback_url(self):
+        """Back-compat: a payload without convexSiteUrl (legacy row / old Convex)
+        builds ConvexClient(base_url=None) → falls back to settings.convex_url."""
+        from workers.tasks import run_competitor_report_task
+
+        mock_pipeline = AsyncMock(return_value={
+            "report_id": 7, "narrative": "n", "swot_item_count": 0,
+            "recommendation_count": 0, "used_fallback": False,
+        })
+        mock_convex = MagicMock()
+        mock_convex.competitor_report_progress = AsyncMock()
+        mock_convex.competitor_report_complete = AsyncMock()
+        mock_convex.competitor_report_fail = AsyncMock()
+        mock_convex_cls = MagicMock(return_value=mock_convex)
+
+        redis = AsyncMock()
+        redis.get = AsyncMock(return_value=None)
+        ctx = {"redis": redis, "job_id": "job-cb2"}
+        request = {"auditId": "a", "userId": "u"}  # no convexSiteUrl
+
+        with (
+            patch(
+                "pipelines.competitor_report.run_competitor_report_pipeline",
+                mock_pipeline,
+            ),
+            patch("services.convex.ConvexClient", mock_convex_cls),
+        ):
+            await run_competitor_report_task(ctx, request)
+
+        mock_convex_cls.assert_called_once_with(base_url=None)
+
+    @pytest.mark.asyncio
     async def test_no_queue_id_skips_completion(self):
         """Back-compat: without _queue_id the completion hook is a no-op.
 

@@ -202,6 +202,12 @@ class CompetitorReportRequest(BaseModel):
     # detail can be surfaced for these while analytics stay computed from the
     # full deterministic sample.
     selectedCompetitorIds: list[int] | None = None  # salon_id space
+    # 2026-06-25 — the originating Convex deployment's .convex.site URL
+    # (CONVEX_SITE_URL, auto-injected per deployment). Threaded through the
+    # queue so the worker webhooks back to THIS deployment (dev vs prod)
+    # instead of the single global settings.convex_url. None → worker falls
+    # back to the global (back-compat with the old Convex that didn't send it).
+    convexSiteUrl: str | None = None
 
 
 class VersumSuggestRequest(BaseModel):
@@ -475,6 +481,9 @@ async def start_competitor_report(request: CompetitorReportRequest) -> AnalyzeRe
                 "p_tier": request.tier,
                 "p_selection_mode": request.selectionMode,
                 "p_target_count": request.targetCount,
+                # Webhook callback routing (migration 148): stored on the queue
+                # row, read back by the drain → task → ConvexClient(base_url).
+                "p_convex_site_url": request.convexSiteUrl,
             },
         ).execute()
     except Exception as e:  # noqa: BLE001

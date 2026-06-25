@@ -106,6 +106,12 @@ async def drain_competitor_report_queue(ctx: dict[str, Any]) -> dict[str, int]:
             "tier": job.get("tier", "base"),
             "selectionMode": job.get("selection_mode", "auto"),
             "targetCount": job.get("target_count", 5),
+            # Webhook callback routing (migration 148). claim_competitor_report_jobs
+            # RETURNS SETOF competitor_report_queue, so the new column rides along
+            # in the claimed row with no claim-function change. None for rows
+            # enqueued before the migration / by an old Convex → task falls back
+            # to the global settings.convex_url.
+            "convexSiteUrl": job.get("convex_site_url"),
             "_queue_id": job["id"],
         }
         # _job_id=arq_job_id so the frontend's jobId polling keeps working.

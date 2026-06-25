@@ -103,9 +103,40 @@ def test_competitor_report_enqueues_into_queue_not_arq():
     assert "p_tier" in params
     assert "p_selection_mode" in params
     assert "p_target_count" in params
+    # Webhook callback routing (migration 148): absent in the request body →
+    # None forwarded to the RPC → queue row stores NULL → worker falls back to
+    # the global settings.convex_url.
+    assert params["p_convex_site_url"] is None
 
     # The report path must NOT enqueue directly to arq anymore.
     arq_mock.enqueue_job.assert_not_awaited()
+
+
+def test_competitor_report_forwards_convex_site_url():
+    """The originating Convex deployment's .convex.site URL (migration 148) is
+    threaded into the enqueue RPC so the worker can webhook back to the SAME
+    deployment that started the job (dev vs prod), not the global CONVEX_URL."""
+    from config import settings
+
+    sb = _make_enqueue_sb(101)
+
+    with patch("services.sb_client.make_supabase_client", return_value=sb):
+        response = client.post(
+            "/api/competitor/report",
+            json={
+                "auditId": "a",
+                "userId": "u",
+                "convexSiteUrl": "https://reliable-scorpion-10.convex.site",
+            },
+            headers={"x-api-key": settings.api_key},
+        )
+
+    assert response.status_code == 202
+    _, params = sb.rpc.call_args.args
+    assert (
+        params["p_convex_site_url"]
+        == "https://reliable-scorpion-10.convex.site"
+    )
 
 
 def test_competitor_report_dedup_returns_already_queued():

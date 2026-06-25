@@ -456,9 +456,14 @@ async def run_competitor_report_task(ctx: dict[str, Any], request: dict[str, Any
     # can't fill up permanently. Absent for legacy / direct-enqueue calls —
     # then the completion hook is a strict no-op (back-compat).
     queue_id = request.get("_queue_id")
+    # Webhook callback routing (migration 148): the originating Convex
+    # deployment's .convex.site URL, threaded by the drain from the queue row.
+    # None → ConvexClient falls back to the global settings.convex_url
+    # (back-compat: rows enqueued before the migration, or by an old Convex).
+    convex_site_url = request.get("convexSiteUrl")
 
-    logger.info("[%s] run_competitor_report_task started audit_id=%s tier=%s",
-                job_id, audit_id, tier)
+    logger.info("[%s] run_competitor_report_task started audit_id=%s tier=%s callback=%s",
+                job_id, audit_id, tier, convex_site_url or "<global>")
 
     # P3 (quick 260613-m23): best-effort queue-depth probe on job start so the
     # operator can see backlog when the competitor report (the heaviest task)
@@ -477,7 +482,7 @@ async def run_competitor_report_task(ctx: dict[str, Any], request: dict[str, Any
             job_id, _qe,
         )
 
-    convex = ConvexClient()
+    convex = ConvexClient(base_url=convex_site_url)
 
     # Tracks the queue-slot error text: None on success, a coded string on
     # failure. Released in the finally (beads BEAUTY_AUDIT-1mb) — only when
