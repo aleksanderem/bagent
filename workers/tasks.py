@@ -554,11 +554,24 @@ async def run_competitor_report_task(ctx: dict[str, Any], request: dict[str, Any
         # original exception, so it gets its own try/except and never re-raises.
         if queue_id is not None:
             # The raw supabase Client exposes a synchronous .rpc(...).execute().
-            # Tests inject a mock via ctx["supabase"]; production builds a real
-            # client (SupabaseService is the higher-level wrapper and has no
-            # top-level .rpc, so we use the underlying client directly here).
-            sb_client = ctx.get("supabase")
-            if sb_client is None:
+            # Tests inject a mock via ctx["supabase"]; production injects a
+            # SupabaseService wrapper (workers/main.py) — that wrapper has NO
+            # top-level .rpc, so we must unwrap to its .client attribute.
+            #
+            # Pre-2026-06-25 this code called sb_client.rpc(...) directly on
+            # whatever ctx["supabase"] held; in prod that was SupabaseService →
+            # AttributeError ("'SupabaseService' object has no attribute 'rpc'"),
+            # the queue row stayed orphaned until mig 135 self-heal ran (~8 min),
+            # and the Convex webhook had already fired before this finally block
+            # so the frontend was left stuck on "Generujemy". Unwrap defensively
+            # so test mocks (raw .rpc available), prod (SupabaseService → .client),
+            # and the no-context fallback all converge on the same raw client.
+            raw = ctx.get("supabase")
+            if raw is not None and hasattr(raw, "client") and not hasattr(raw, "rpc"):
+                sb_client = raw.client
+            elif raw is not None and hasattr(raw, "rpc"):
+                sb_client = raw
+            else:
                 from services.sb_client import make_supabase_client
                 from config import settings as _settings
                 sb_client = make_supabase_client(
