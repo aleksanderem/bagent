@@ -80,6 +80,51 @@ class TestDrainCompetitorReportQueue:
             assert kwargs["_job_id"] == f"uuid-{i}"
 
     @pytest.mark.asyncio
+    async def test_drain_threads_convex_site_url_into_payload(self):
+        """Webhook callback routing (migration 148): claim_competitor_report_jobs
+        RETURNS SETOF competitor_report_queue, so the new convex_site_url column
+        rides along in the claimed row. The drain must forward it as
+        payload['convexSiteUrl'] so the task targets ConvexClient at the right
+        deployment. A NULL column (pre-migration / old Convex) → None."""
+        from workers.competitor_report_queue import drain_competitor_report_queue
+
+        rows = [
+            {
+                "id": 20,
+                "audit_id": "aud-dev",
+                "user_id": "u",
+                "tier": "premium",
+                "selection_mode": "auto",
+                "target_count": 15,
+                "arq_job_id": "uuid-dev",
+                "convex_site_url": "https://reliable-scorpion-10.convex.site",
+            },
+            {
+                "id": 21,
+                "audit_id": "aud-legacy",
+                "user_id": "u",
+                "tier": "base",
+                "selection_mode": "auto",
+                "target_count": 5,
+                "arq_job_id": "uuid-legacy",
+                "convex_site_url": None,  # row enqueued before migration 148
+            },
+        ]
+        client = _make_claim_response(rows)
+        redis = AsyncMock()
+        redis.enqueue_job = AsyncMock(return_value=MagicMock())
+        ctx = {"redis": redis}
+
+        with patch(
+            "workers.competitor_report_queue._get_client", return_value=client
+        ):
+            await drain_competitor_report_queue(ctx)
+
+        payloads = [c.args[1] for c in redis.enqueue_job.await_args_list]
+        assert payloads[0]["convexSiteUrl"] == "https://reliable-scorpion-10.convex.site"
+        assert payloads[1]["convexSiteUrl"] is None
+
+    @pytest.mark.asyncio
     async def test_drain_passes_cap_to_claim_rpc(self):
         from workers.competitor_report_queue import (
             COMPETITOR_REPORT_MAX_CONCURRENT,
