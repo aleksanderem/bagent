@@ -118,13 +118,13 @@ async def embed_new_services(ctx: dict[str, Any]) -> str:
 
     from openai import AsyncOpenAI
     from services.sb_client import make_supabase_client
+    from services.embeddings import token_budget_row_batches
     from config import settings
 
     client = make_supabase_client(settings.supabase_url, settings.supabase_service_key)
     oai = AsyncOpenAI()
 
     BATCH_FETCH = 1000
-    BATCH_EMBED = 500
     PARALLELISM = 4
 
     total_done = 0
@@ -165,7 +165,10 @@ async def embed_new_services(ctx: dict[str, Any]) -> str:
         if not rows:
             break
 
-        chunks = [rows[i:i + BATCH_EMBED] for i in range(0, len(rows), BATCH_EMBED)]
+        # Token-budget chunks (not fixed row count) — keeps each OpenAI request
+        # under the 300k cap even if name inputs grow. embed_chunk sends
+        # name[:512], so size each row by that exact text.
+        chunks = token_budget_row_batches(rows, lambda r: r["name"].strip()[:512])
         results = await asyncio.gather(*(embed_chunk(c) for c in chunks))
 
         for payload in results:

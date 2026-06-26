@@ -474,6 +474,20 @@ try:  # pragma: no cover
             "workers.slo_probes.slo_logflare_bounded",
             hour={4, 10, 16, 22}, minute={27},
         ),
+        # Embedding coverage (fresh services) — every 30 min on :03/:33.
+        # P1: catches the 2026-06-25 inline-embedding regression class
+        # (too-large OpenAI batch → HTTP 400 → NULL embedding → stale data).
+        cron(
+            "workers.slo_probes.slo_embedding_coverage_fresh",
+            minute={3, 33},
+        ),
+        # Competitor report subject-only rate — hourly on :37.
+        # P1: catches a freshly generated empty/degenerate pricing report
+        # (~100% "Tylko Ty na rynku"), the user-visible symptom of the above.
+        cron(
+            "workers.slo_probes.slo_competitor_report_subject_only",
+            minute={37},
+        ),
     ]
     # Competitor report queue: drain + zombie reap. These run on the
     # dedicated bagent-report-worker (ReportWorkerSettings), NOT the scrape

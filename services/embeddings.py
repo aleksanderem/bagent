@@ -27,6 +27,7 @@ transient connection errors before raising.
 from __future__ import annotations
 
 import logging
+from typing import Callable, TypeVar
 
 import httpx
 
@@ -50,18 +51,115 @@ logger = logging.getLogger("embeddings")
 # outside this set is treated as a real failure (return None, no fallback).
 _OPENAI_UNAVAILABLE = (RateLimitError, APIConnectionError, APITimeoutError, InternalServerError)
 
+# OpenAI's embeddings endpoint rejects any single request whose combined input
+# exceeds 300_000 tokens with a 400 invalid_request_error (NOT one of the
+# _OPENAI_UNAVAILABLE errors, so it bypasses the sidecar fallback and leaves the
+# whole scrape's rows unembedded). A single large-salon ingest (≈490 services ×
+# rich descriptions) overflows this in ONE call. We sub-batch the request below
+# the cap so the OpenAI-healthy path still returns vectors for every input.
+#
+# Budget is intentionally well under the 300k hard limit: the token count is
+# ESTIMATED from char length (no tiktoken dependency on the hot ingest path) and
+# Polish text tokenizes denser than the rule of thumb, so we leave generous
+# headroom. _MAX_ITEMS_PER_REQUEST mirrors OpenAI's 2048-element array cap.
+_EMBED_TOKEN_BUDGET = 250_000
+_MAX_ITEMS_PER_REQUEST = 2048
+# Conservative chars→tokens divisor (over-estimates tokens → smaller, safer
+# batches). 2.5 is pessimistic for Polish service text vs the ~4 English rule.
+_CHARS_PER_TOKEN_EST = 2.5
+
+
+def _estimated_tokens(text: str) -> int:
+    """Cheap upper-bound token estimate from char length (no tiktoken).
+
+    `+1` so an empty string still costs a token (matches OpenAI billing a
+    minimum per array element) and a batch of empties can't grow unbounded.
+    """
+    return int(len(text) / _CHARS_PER_TOKEN_EST) + 1
+
+
+def _token_budget_batches(inputs: list[str]) -> list[list[str]]:
+    """Split `inputs` into contiguous, order-preserving sub-batches each under
+    BOTH the token budget and the per-request item cap.
+
+    A single input larger than the budget is emitted as its own batch (the cap
+    is a guard against the aggregate request size, not the per-item limit —
+    text-embedding-3-small handles up to ~8k tokens for one item, far under the
+    300k request cap, and the ingest already caps each input at 1500 chars)."""
+    batches: list[list[str]] = []
+    current: list[str] = []
+    current_tokens = 0
+    for text in inputs:
+        t = _estimated_tokens(text)
+        if current and (
+            current_tokens + t > _EMBED_TOKEN_BUDGET
+            or len(current) >= _MAX_ITEMS_PER_REQUEST
+        ):
+            batches.append(current)
+            current = []
+            current_tokens = 0
+        current.append(text)
+        current_tokens += t
+    if current:
+        batches.append(current)
+    return batches
+
+
+_RowT = TypeVar("_RowT")
+
+
+def token_budget_row_batches(
+    rows: list[_RowT], text_of: Callable[[_RowT], str]
+) -> list[list[_RowT]]:
+    """Split `rows` into contiguous, order-preserving sub-batches each under BOTH
+    the token budget and the per-request item cap, sizing each row by the token
+    estimate of its embedding input `text_of(row)`.
+
+    Mirrors `_token_budget_batches` but keeps the caller's row objects (so the
+    id↔vector mapping survives) — for call-sites that batch DB rows rather than
+    bare strings: the nightly catch-up cron (`embed_new_services`) and the
+    `embed_services` backfill. A fixed row-count chunk (e.g. 500) silently
+    overflows OpenAI's 300k-tokens-per-request cap once rows carry rich 1500-char
+    inputs; sizing by token budget guarantees no request exceeds the limit."""
+    batches: list[list[_RowT]] = []
+    current: list[_RowT] = []
+    current_tokens = 0
+    for row in rows:
+        t = _estimated_tokens(text_of(row))
+        if current and (
+            current_tokens + t > _EMBED_TOKEN_BUDGET
+            or len(current) >= _MAX_ITEMS_PER_REQUEST
+        ):
+            batches.append(current)
+            current = []
+            current_tokens = 0
+        current.append(row)
+        current_tokens += t
+    if current:
+        batches.append(current)
+    return batches
+
 
 def _openai_embed(inputs: list[str]) -> list[list[float]]:
-    """Raw OpenAI call — the EXACT call moved out of the ingest inline path
-    (model string + response shape unchanged)."""
+    """Raw OpenAI call — same model string + response shape as the original
+    inline ingest path, but sub-batched under the 300k-tokens-per-request limit.
+
+    Order is preserved: batches are contiguous slices and results are
+    concatenated in batch order, so the returned vectors line up 1:1 with
+    `inputs` exactly as a single call would. A batch failure propagates (the
+    caller's try/except handles fallback / None) — we do NOT swallow it here, so
+    a genuine outage on any sub-batch is still surfaced."""
     from openai import OpenAI
 
     client = OpenAI()
-    resp = client.embeddings.create(
-        model="text-embedding-3-small",
-        input=inputs,
-    )
-    return [list(d.embedding) for d in resp.data]
+    out: list[list[float]] = []
+    for batch in _token_budget_batches(inputs):
+        resp = client.embeddings.create(
+            model="text-embedding-3-small",
+            input=batch,
+        )
+        out.extend(list(d.embedding) for d in resp.data)
+    return out
 
 
 def _sidecar_embed(inputs: list[str]) -> list[list[float]]:
