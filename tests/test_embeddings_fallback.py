@@ -246,3 +246,114 @@ def test_empty_input_returns_none_no_calls(monkeypatch):
     assert result is None
     openai_seam.assert_not_called()
     sidecar_seam.assert_not_called()
+
+
+# ---------------------------------------------------------------------------
+# 300k-token request cap — _openai_embed sub-batches so a large-salon ingest
+# (≈490 services × rich descriptions) never sends one >300k-token request that
+# OpenAI rejects with a 400 invalid_request_error. Regression for the prod
+# incident where such scrapes landed with name_embedding=NULL (the 400 is NOT
+# a _OPENAI_UNAVAILABLE error, so it skipped the sidecar and left rows unembedded).
+# ---------------------------------------------------------------------------
+
+class _FakeEmbeddingDatum:
+    def __init__(self, embedding: list[float]) -> None:
+        self.embedding = embedding
+
+
+class _FakeEmbeddingResponse:
+    def __init__(self, n: int, dim: int = 4) -> None:
+        self.data = [_FakeEmbeddingDatum([float(i)] * dim) for i in range(n)]
+
+
+def test_token_budget_batches_splits_on_token_budget():
+    # Each input ≈ a quarter of the budget → multiple batches, none over budget.
+    chars = int(emb._EMBED_TOKEN_BUDGET / 4 * emb._CHARS_PER_TOKEN_EST)
+    inputs = ["x" * chars for _ in range(10)]
+    batches = emb._token_budget_batches(inputs)
+    # Splits into more than one request, preserves every item, none over budget.
+    assert len(batches) > 1
+    assert sum(len(b) for b in batches) == len(inputs)
+    for b in batches:
+        est = sum(emb._estimated_tokens(t) for t in b)
+        assert est <= emb._EMBED_TOKEN_BUDGET
+
+
+def test_token_budget_batches_caps_item_count(monkeypatch):
+    # Tiny inputs: token budget is irrelevant, the 2048 array cap binds.
+    monkeypatch.setattr(emb, "_MAX_ITEMS_PER_REQUEST", 100, raising=False)
+    inputs = ["a" for _ in range(250)]
+    batches = emb._token_budget_batches(inputs)
+    assert [len(b) for b in batches] == [100, 100, 50]
+
+
+def test_token_budget_oversized_single_input_is_own_batch():
+    huge = "y" * (emb._EMBED_TOKEN_BUDGET * 3)  # one item way over budget
+    inputs = ["small", huge, "small2"]
+    batches = emb._token_budget_batches(inputs)
+    # The oversized item gets its own batch; neighbors are not merged into it.
+    assert [b for b in batches] == [["small"], [huge], ["small2"]]
+
+
+def test_token_budget_row_batches_splits_by_input_text():
+    # Row variant: sizes each row by text_of(row); used by the catch-up cron +
+    # embed_services backfill where a 500-row chunk of 1500-char inputs would
+    # otherwise overflow the 300k cap.
+    chars = int(emb._EMBED_TOKEN_BUDGET / 4 * emb._CHARS_PER_TOKEN_EST)
+    rows = [{"id": i, "t": "x" * chars} for i in range(10)]
+    batches = emb.token_budget_row_batches(rows, lambda r: r["t"])
+    assert len(batches) > 1
+    # Every row preserved, in order, WITH its id intact (the whole reason this
+    # variant exists vs the bare-string one — the id↔vector mapping must survive).
+    flat = [r for b in batches for r in b]
+    assert [r["id"] for r in flat] == list(range(10))
+    for b in batches:
+        est = sum(emb._estimated_tokens(r["t"]) for r in b)
+        assert est <= emb._EMBED_TOKEN_BUDGET
+
+
+def test_token_budget_row_batches_caps_item_count(monkeypatch):
+    # Tiny inputs: token budget irrelevant, the array-size cap binds instead.
+    monkeypatch.setattr(emb, "_MAX_ITEMS_PER_REQUEST", 100, raising=False)
+    rows = [{"id": i, "t": "a"} for i in range(250)]
+    batches = emb.token_budget_row_batches(rows, lambda r: r["t"])
+    assert [len(b) for b in batches] == [100, 100, 50]
+
+
+def test_openai_embed_chunks_large_batch_preserving_order(monkeypatch):
+    """_openai_embed makes >1 embeddings.create call for a big list and
+    concatenates results in input order (1:1 with inputs)."""
+    chars = int(emb._EMBED_TOKEN_BUDGET / 4 * emb._CHARS_PER_TOKEN_EST)
+    inputs = [f"{i}-" + "x" * chars for i in range(10)]  # → several sub-batches
+
+    calls: list[int] = []
+
+    def _fake_create(*, model, input):  # noqa: A002 — mirror SDK kwarg name
+        assert model == "text-embedding-3-small"
+        # No single request may exceed the budget (this is the bug's guard).
+        assert sum(emb._estimated_tokens(t) for t in input) <= emb._EMBED_TOKEN_BUDGET
+        calls.append(len(input))
+        return _FakeEmbeddingResponse(len(input))
+
+    fake_client = MagicMock()
+    fake_client.embeddings.create.side_effect = _fake_create
+    monkeypatch.setattr("openai.OpenAI", MagicMock(return_value=fake_client))
+
+    vecs = emb._openai_embed(inputs)
+
+    assert len(calls) > 1                       # split into multiple sub-requests
+    assert sum(calls) == len(inputs)            # every input embedded exactly once
+    assert len(vecs) == len(inputs) == 10       # one vector per input, order intact
+
+
+def test_openai_embed_small_batch_single_call(monkeypatch):
+    """Small ingests keep the original single-request behavior (no regression)."""
+    inputs = ["Botoks 1 okolica", "Manicure hybrydowy", "Pedicure klasyczny"]
+    fake_client = MagicMock()
+    fake_client.embeddings.create.return_value = _FakeEmbeddingResponse(len(inputs))
+    monkeypatch.setattr("openai.OpenAI", MagicMock(return_value=fake_client))
+
+    vecs = emb._openai_embed(inputs)
+
+    fake_client.embeddings.create.assert_called_once()
+    assert len(vecs) == 3

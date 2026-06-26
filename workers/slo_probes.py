@@ -215,6 +215,101 @@ async def probe_logflare_bounded(client) -> ProbeResult:
     return ProbeResult(ok=True, detail="not_yet_implemented_see_TODO")
 
 
+async def probe_embedding_coverage_fresh(client) -> ProbeResult:
+    """Every freshly-scraped service MUST get an inline embedding (OpenAI
+    name_embedding, or mmlw fallback). When inline embedding silently fails
+    (e.g. a too-large OpenAI batch returning HTTP 400, which bypasses the
+    fallback), services land with BOTH embedding columns NULL — and the
+    chain-head promotion gate then refuses to promote them, so fresh data
+    is "in the DB but locked" and downstream (competitor pricing) goes stale.
+
+    This is the probe that would have caught the 2026-06-25 regression in
+    ~an hour instead of staying silent for days.
+
+    PASS: < 5% of services scraped in the last hour have both embedding
+          columns NULL (i.e. >= 95% embedded inline).
+    FAIL: > 5% missing → inline embedding is failing for some scrapes.
+    Quiet hour (0 fresh services) passes — nothing to embed.
+    """
+    total = (
+        client.table("salon_scrape_services")
+        .select("scrape_id", count="exact")
+        .gte("scraped_at", _iso_ago(seconds=3600))
+        .execute()
+    )
+    total_count = total.count or 0
+    if total_count == 0:
+        return ProbeResult(ok=True, detail="no_fresh_services_last_hour")
+
+    missing = (
+        client.table("salon_scrape_services")
+        .select("scrape_id", count="exact")
+        .gte("scraped_at", _iso_ago(seconds=3600))
+        .is_("name_embedding", "null")
+        .is_("name_embedding_mmlw", "null")
+        .execute()
+    )
+    missing_count = missing.count or 0
+    pct = 100.0 * missing_count / total_count
+    return ProbeResult(
+        ok=pct <= 5.0,
+        detail=f"fresh={total_count} missing_embed={missing_count} pct={pct:.1f}%",
+    )
+
+
+async def probe_competitor_report_subject_only(client) -> ProbeResult:
+    """A healthy competitor pricing report compares the subject against real
+    market twins — typically 20-40% of rows end up 'subject_only' (no twin
+    found for that exact service). A report that is ~100% subject_only means
+    the pricing engine found NO competitors for ANY service — the exact
+    symptom of the 2026-06-25 embedding regression (report 250: 48/48).
+
+    Checks the most-recent completed report as a canary: a freshly generated
+    broken report trips this within the probe interval.
+
+    PASS: latest completed report has <= 90% subject_only rows.
+    FAIL: > 90% → pricing engine produced an empty/degenerate report
+          (subject embeddings missing, competitors absent from Qdrant,
+          or variant_id classification dead).
+    No completed reports / no pricing rows yet → pass (nothing to judge).
+    """
+    rep = (
+        client.table("competitor_reports")
+        .select("id")
+        .eq("status", "completed")
+        .order("id", desc=True)
+        .limit(1)
+        .execute()
+    )
+    if not rep.data:
+        return ProbeResult(ok=True, detail="no_completed_reports")
+    report_id = rep.data[0]["id"]
+
+    total = (
+        client.table("competitor_pricing_comparisons")
+        .select("report_id", count="exact")
+        .eq("report_id", report_id)
+        .execute()
+    )
+    total_count = total.count or 0
+    if total_count == 0:
+        return ProbeResult(ok=True, detail=f"report={report_id} no_pricing_rows")
+
+    subj = (
+        client.table("competitor_pricing_comparisons")
+        .select("report_id", count="exact")
+        .eq("report_id", report_id)
+        .eq("verification_status", "subject_only")
+        .execute()
+    )
+    subj_count = subj.count or 0
+    pct = 100.0 * subj_count / total_count
+    return ProbeResult(
+        ok=pct <= 90.0,
+        detail=f"report={report_id} subject_only={subj_count}/{total_count} pct={pct:.1f}%",
+    )
+
+
 # ---------------------------------------------------------------------------
 # Cron wrappers — each registered in workers/main.py
 # ---------------------------------------------------------------------------
@@ -227,6 +322,8 @@ PROBE_REGISTRY: dict[str, tuple[Callable[[Any], Awaitable[ProbeResult]], str]] =
     "discovery_active":            (probe_discovery_active,            "HC_PING_SLO_DISCOVERY"),
     "storage_budget":              (probe_storage_budget,              "HC_PING_SLO_STORAGE"),
     "logflare_bounded":            (probe_logflare_bounded,            "HC_PING_SLO_LOGFLARE"),
+    "embedding_coverage_fresh":    (probe_embedding_coverage_fresh,    "HC_PING_SLO_EMBEDDING_COVERAGE"),
+    "competitor_report_subject_only": (probe_competitor_report_subject_only, "HC_PING_SLO_COMPETITOR_SUBJECT_ONLY"),
 }
 
 
@@ -294,6 +391,14 @@ async def slo_logflare_bounded(ctx):
     return await _run_probe("logflare_bounded", ctx)
 
 
+async def slo_embedding_coverage_fresh(ctx):
+    return await _run_probe("embedding_coverage_fresh", ctx)
+
+
+async def slo_competitor_report_subject_only(ctx):
+    return await _run_probe("competitor_report_subject_only", ctx)
+
+
 ALL_SLO_TASKS = [
     slo_scrape_pipeline_progressing,
     slo_chain_heads_growing,
@@ -301,6 +406,8 @@ ALL_SLO_TASKS = [
     slo_discovery_active,
     slo_storage_budget,
     slo_logflare_bounded,
+    slo_embedding_coverage_fresh,
+    slo_competitor_report_subject_only,
 ]
 
 

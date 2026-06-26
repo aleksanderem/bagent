@@ -22,10 +22,10 @@ load_dotenv()
 from openai import OpenAI
 from config import settings
 from services.sb_client import make_supabase_client
+from services.embeddings import token_budget_row_batches
 
 
 BATCH_FETCH = 5000   # rows pulled from DB per round
-BATCH_EMBED = 500    # rows per OpenAI request (max 2048)
 PARALLELISM = 6      # concurrent OpenAI requests
 
 # Rich embedding cap — text-embedding-3-small handles up to ~8K tokens.
@@ -99,8 +99,11 @@ def main() -> int:
             return 0
 
         round_idx += 1
-        # Split into chunks for parallel embedding
-        chunks = [rows[i:i + BATCH_EMBED] for i in range(0, len(rows), BATCH_EMBED)]
+        # Split into token-budget-bounded chunks (NOT a fixed row count): a
+        # batch of rich 1500-char inputs × 500 rows ≈ 300k tokens and silently
+        # overflows OpenAI's 300k-per-request cap → HTTP 400 → whole chunk left
+        # unembedded. Token-budget batching guarantees no request exceeds it.
+        chunks = token_budget_row_batches(rows, _build_input)
 
         with concurrent.futures.ThreadPoolExecutor(max_workers=PARALLELISM) as pool:
             results = list(pool.map(lambda c: embed_chunk(oai, c), chunks))
