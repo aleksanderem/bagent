@@ -25,6 +25,15 @@ _FN_LIMIT = 80
 _FN_MIN_SIMILARITY = 0.82
 _DEFAULT_RADIUS_KM = 15
 
+# Adaptacyjny próg podobieństwa. Gdy przy precyzyjnym progu (_FN_MIN_SIMILARITY)
+# mniej niż TRIGGER usług dostaje wiarygodny rynek, salon jest w rzadkim
+# otoczeniu (mało dokładnych twins ≥ progu) — ponawiamy wycenę luźniejszym
+# progiem FALLBACK, żeby nie pokazywać klientowi raportu ~100% „Tylko Ty na
+# rynku" tam, gdzie odpowiedniki istnieją tuż poniżej progu. Gęste/typowe salony
+# nie schodzą poniżej triggera, więc ich precyzja zostaje nietknięta.
+_ADAPTIVE_TRIGGER_VERIFIED_RATE = 0.20
+_ADAPTIVE_FALLBACK_SIMILARITY = 0.75
+
 
 def _recommended_action(deviation_pct: float | None) -> str:
     if deviation_pct is None:
@@ -206,37 +215,62 @@ async def compute_pricing_comparisons_v2(
     # Subject pochodzi z AUDIT scrape (nie chain-head) — NIE ma go w Qdrant.
     # Embeddingi subjectów bierzemy z Postgresa, w Qdrant pytamy tylko o konkurentów.
     subject_embeddings = _fetch_subject_embeddings(service, subject_ids)
-
-    clusters = search_twins(
-        subject_ids, all_booksy, subject_embeddings=subject_embeddings,
-        limit=_FN_LIMIT, min_similarity=_FN_MIN_SIMILARITY,
-    )
     salon_names = _lookup_salon_names(service, all_booksy)
 
-    rows: list[dict[str, Any]] = []
-    for svc in subject_services:
-        sid = int(svc["id"])
-        raw = clusters.get(sid, [])
-        n_selected = 0
-        for s in raw:
-            bid = s.get("booksy_id")
-            s["salon_name"] = salon_names.get(bid, "")
-            s["is_selected"] = bid in selected_booksy
-            if s["is_selected"]:
-                n_selected += 1
-        subject = {
-            "service_name": svc.get("name") or svc.get("treatment_name") or "",
-            "price_grosze": svc.get("price_grosze"),
-            "duration_minutes": svc.get("duration_minutes"),
-            "category_name": svc.get("category_name"),
-            "is_package": bool(svc.get("is_package", False)),
-        }
-        result = compute_market_price(subject, raw, config)
-        rows.append(_build_row(report_id, svc, result))
+    def _price_at(min_similarity: float) -> list[dict[str, Any]]:
+        """Jeden pełny przebieg wyceny przy danym progu podobieństwa twins."""
+        clusters = search_twins(
+            subject_ids, all_booksy, subject_embeddings=subject_embeddings,
+            limit=_FN_LIMIT, min_similarity=min_similarity,
+        )
+        out: list[dict[str, Any]] = []
+        for svc in subject_services:
+            sid = int(svc["id"])
+            raw = clusters.get(sid, [])
+            for s in raw:
+                bid = s.get("booksy_id")
+                s["salon_name"] = salon_names.get(bid, "")
+                s["is_selected"] = bid in selected_booksy
+            subject = {
+                "service_name": svc.get("name") or svc.get("treatment_name") or "",
+                "price_grosze": svc.get("price_grosze"),
+                "duration_minutes": svc.get("duration_minutes"),
+                "category_name": svc.get("category_name"),
+                "is_package": bool(svc.get("is_package", False)),
+            }
+            result = compute_market_price(subject, raw, config)
+            out.append(_build_row(report_id, svc, result))
+        return out
+
+    def _n_verified(rs: list[dict[str, Any]]) -> int:
+        return sum(1 for r in rs if r["verification_status"] == "verified")
+
+    # PASS 1 — precyzyjny próg (dokładne twins). Domyślne zachowanie.
+    rows = _price_at(_FN_MIN_SIMILARITY)
+    n_verified = _n_verified(rows)
+    verified_rate = n_verified / len(subject_services)
+
+    # ADAPTACYJNY FALLBACK — tylko gdy pokrycie skrajnie niskie (rzadkie
+    # otoczenie). Gęste salony nie schodzą poniżej triggera, więc ich precyzja
+    # zostaje. Rzadkie dostają szerszy rynek, oznaczony flagą dla UI.
+    broadened_sim: float | None = None
+    if verified_rate < _ADAPTIVE_TRIGGER_VERIFIED_RATE:
+        rows_b = _price_at(_ADAPTIVE_FALLBACK_SIMILARITY)
+        n_verified_b = _n_verified(rows_b)
+        if n_verified_b > n_verified:
+            for r in rows_b:
+                vd = r.get("verification_details") or {}
+                vd["matching_broadened"] = True
+                vd["min_similarity_used"] = _ADAPTIVE_FALLBACK_SIMILARITY
+                r["verification_details"] = vd
+            rows, n_verified, broadened_sim = rows_b, n_verified_b, _ADAPTIVE_FALLBACK_SIMILARITY
 
     n_priced = sum(1 for r in rows if r["market_median_grosze"] is not None)
     logger.info(
-        "similarity pricing v2: %d wierszy (z ceną=%d) | pula %d salonów (%d wybranych, %d w %dkm)",
-        len(rows), n_priced, len(all_booksy), len(selected_booksy), len(radius_booksy), radius_km,
+        "similarity pricing v2: %d wierszy (z ceną=%d, verified=%d/%d) | pula %d salonów "
+        "(%d wybranych, %d w %dkm)%s",
+        len(rows), n_priced, n_verified, len(subject_services), len(all_booksy),
+        len(selected_booksy), len(radius_booksy), radius_km,
+        f" | ADAPTIVE broadened→{broadened_sim}" if broadened_sim else "",
     )
     return rows

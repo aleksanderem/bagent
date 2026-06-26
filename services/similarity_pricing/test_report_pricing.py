@@ -161,3 +161,48 @@ def test_packages_excluded_from_price(monkeypatch):
     }]}
     rows = _run(compute_pricing_comparisons_v2(service, 181, subject_data, [(_Cand(100), {})]))
     assert rows[0]["sample_size"] == 5  # pakiet wycięty z ceny
+
+
+def test_adaptive_broadens_when_sparse(monkeypatch):
+    # Rzadkie otoczenie: przy precyzyjnym progu 0 twins → 0 verified → fallback
+    # luźniejszym progiem daje 4 salony => verified, oznaczone flagą broadened.
+    fallback_cluster = [_twin(10 + i, 500 + i, "Manicure", 5000 + i * 100, 30, cat="Paznokcie") for i in range(4)]
+
+    def fake(subject_ids, comp_booksy, *, min_similarity, **kw):
+        cl = fallback_cluster if min_similarity <= rp._ADAPTIVE_FALLBACK_SIMILARITY else []
+        return {int(s): [dict(c) for c in cl] for s in subject_ids}
+    monkeypatch.setattr(rp, "search_twins", fake)
+    service = _FakeService(geo_booksy=list(range(500, 510)),
+                           salon_rows=[{"booksy_id": b, "name": f"S{b}"} for b in range(500, 504)])
+    subject_data = {"booksy_id": 163496, "services": [{
+        "id": 1, "name": "Manicure", "price_grosze": 6000, "duration_minutes": 30,
+        "category_name": "Paznokcie", "booksy_treatment_id": 1,
+    }]}
+    rows = _run(compute_pricing_comparisons_v2(service, 250, subject_data, [(_Cand(100), {})]))
+    assert rows[0]["verification_status"] == "verified"          # broaden uratował rzadki salon
+    assert rows[0]["market_median_grosze"] is not None
+    vd = rows[0].get("verification_details") or {}
+    assert vd.get("matching_broadened") is True
+    assert vd.get("min_similarity_used") == rp._ADAPTIVE_FALLBACK_SIMILARITY
+
+
+def test_no_broaden_when_dense(monkeypatch):
+    # Gęste otoczenie: precyzyjny próg już daje verified → ŻADNEGO fallbacku
+    # (search_twins wołane dokładnie raz, na _FN_MIN_SIMILARITY) — precyzja gęstych
+    # raportów zostaje nietknięta.
+    dense = [_twin(10 + i, 500 + i, "Presoterapia", 9000, 40) for i in range(5)]
+    sims_used: list[float] = []
+
+    def fake(subject_ids, comp_booksy, *, min_similarity, **kw):
+        sims_used.append(min_similarity)
+        return {int(s): [dict(c) for c in dense] for s in subject_ids}
+    monkeypatch.setattr(rp, "search_twins", fake)
+    service = _FakeService(geo_booksy=list(range(500, 510)), salon_rows=[])
+    subject_data = {"booksy_id": 163496, "services": [{
+        "id": 1, "name": "Presoterapia", "price_grosze": 15000, "duration_minutes": 40, "booksy_treatment_id": 233,
+    }]}
+    rows = _run(compute_pricing_comparisons_v2(service, 222, subject_data, [(_Cand(100), {})]))
+    assert rows[0]["verification_status"] == "verified"
+    assert sims_used == [rp._FN_MIN_SIMILARITY]                  # tylko jeden przebieg, bez fallbacku
+    vd = rows[0].get("verification_details") or {}
+    assert "matching_broadened" not in vd
