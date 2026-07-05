@@ -145,8 +145,13 @@ async def probe_discovery_active(client) -> ProbeResult:
     (saturated category) write nothing; outright stalled pump writes
     nothing for many consecutive hours.
 
-    PASS: >= 50 new triplets in last 6h (probe interval).
-    FAIL: 0 for 6h → discovery pump stalled.
+    PASS: >= 15 new triplets in last 6h (probe interval).
+    FAIL: below → discovery pump stalled.
+
+    2026-07-05: threshold lowered 50 → 15. The salon universe is ~saturated
+    (coverage ~100% since May), so healthy discovery now trickles at
+    ~40-50/6h and dipped to 49 → false-positive alert. 15 still separates
+    "slow but alive" from "stalled" (a stalled pump writes 0 for hours).
 
     Table is keyed by (booksy_id, category_id, voivodeship_id) composite PK,
     no `id` column. The freshness column is `first_seen_at`.
@@ -158,7 +163,7 @@ async def probe_discovery_active(client) -> ProbeResult:
         .execute()
     )
     n = res.count or 0
-    return ProbeResult(ok=n >= 50, detail=f"new_discovered_last_6h={n}")
+    return ProbeResult(ok=n >= 15, detail=f"new_discovered_last_6h={n}")
 
 
 async def probe_storage_budget(client) -> ProbeResult:
