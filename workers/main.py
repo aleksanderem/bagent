@@ -380,25 +380,21 @@ try:  # pragma: no cover
             minute={45},
         ),
         # ── Taxonomy maintenance (nightly cascade, ~30min total budget) ──
-        # 03:00 — refresh materialized views (mv_booksy_treatments +
-        #         mv_treatment_name_lookup) so new treatments from yesterday's
-        #         scrapes show up in the canonical taxonomy. ~5-15s.
-        cron(
-            "workers.taxonomy_refresh.refresh_taxonomy_views",
-            hour={3}, minute={0},
-        ),
+        # 2026-07-05: refresh_taxonomy_views + refresh_inferred_treatments
+        # MOVED to host-level systemd (booksy-taxonomy-refresh.timer, 03:00 UTC,
+        # docker exec psql). REFRESH mv_booksy_treatments grew past Kong's
+        # proxy timeout (~70s vs ~60s) as salon_scrape_services crossed 44 GB,
+        # so the PostgREST RPC path 504'd nightly (views) / silently died
+        # (inference). Same playbook as weekly-benchmarks in May. Do NOT
+        # re-enable these two crons here without removing the systemd unit —
+        # double-running REFRESH CONCURRENTLY + backfill wastes ~20 min of DB
+        # time nightly. embed_new_services stays: it's chunked HTTP work that
+        # fits comfortably under the proxy timeout.
         # 03:15 — embed new services that landed today via OpenAI
         #         text-embedding-3-small. Capped 50k/night (~$0.015 budget).
         cron(
             "workers.taxonomy_refresh.embed_new_services",
             hour={3}, minute={15},
-        ),
-        # 03:30 — refresh inferred_treatment_id: mark stale rows (>7d) +
-        #         drain backfill until exhausted or 200k cap hit. Catches
-        #         new scrapes + taxonomy evolution. ~10-15 min budget.
-        cron(
-            "workers.taxonomy_refresh.refresh_inferred_treatments",
-            hour={3}, minute={30},
         ),
         # 03:35 — backfill variant_id for chain-head services (S0078, the
         #         MISSING nightly job). variant_id is written ONLY by the mig-127
