@@ -98,6 +98,23 @@ async def refresh_taxonomy_views(ctx: dict[str, Any]) -> str:
 
 
 async def embed_new_services(ctx: dict[str, Any]) -> str:
+    """Cron entrypoint: uruchamia catch-up i GWARANTUJE ping (ok albo /fail).
+
+    2026-07-15: dodane. Wczesniej kazdy wyjatek (kontencja DB, blip OpenAI)
+    konczyl task BEZ zadnego pingu -> HC 'taxonomy-embed-catchup' szedl cicho
+    DOWN na dobe, bez informacji co sie stalo. Teraz porazka = czerwony
+    z powodem, zgodnie ze wzorcem refresh_taxonomy_views w tym pliku.
+    """
+    from services.healthcheck import ping
+    try:
+        return await _embed_new_services_impl(ctx)
+    except Exception as e:
+        logger.exception("embed_new_services failed: %s", e)
+        await ping("HC_PING_TAXONOMY_EMBED_CATCHUP", fail=True)
+        raise
+
+
+async def _embed_new_services_impl(ctx: dict[str, Any]) -> str:
     """Embed up to EMBED_BATCH_CAP services whose embedding_applied_at IS NULL.
 
     Uses OpenAI text-embedding-3-small + bulk_update_service_embeddings RPC

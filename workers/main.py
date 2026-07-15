@@ -390,11 +390,15 @@ try:  # pragma: no cover
         # double-running REFRESH CONCURRENTLY + backfill wastes ~20 min of DB
         # time nightly. embed_new_services stays: it's chunked HTTP work that
         # fits comfortably under the proxy timeout.
-        # 03:15 — embed new services that landed today via OpenAI
+        # 04:30 — embed new services that landed today via OpenAI
         #         text-embedding-3-small. Capped 50k/night (~$0.015 budget).
+        # 2026-07-15: przesuniete 03:15 -> 04:30. Bylo w srodku okna
+        # booksy-taxonomy-refresh (03:00-03:58, inference drain mieli TE SAMA
+        # tabele salon_scrape_services) -> kontencja -> wyjatek -> a funkcja
+        # nie miala fail-pinga, wiec ginela cicho i HC szedl DOWN bez sygnalu.
         cron(
             "workers.taxonomy_refresh.embed_new_services",
-            hour={3}, minute={15},
+            hour={4}, minute={30},
         ),
         # 03:35 — backfill variant_id for chain-head services (S0078, the
         #         MISSING nightly job). variant_id is written ONLY by the mig-127
@@ -413,10 +417,14 @@ try:  # pragma: no cover
         #         joins by normalized name + geo proximity + time window,
         #         scores confidence, upserts. ~1s on current data; capped
         #         at 5min via per-function statement_timeout.
-        cron(
-            "workers.staff_identity_refresh.refresh_staff_identity_links",
-            hour={3}, minute={45},
-        ),
+        # DISABLED 2026-07-13 -- MOVED to host systemd (booksy-staff-refresh.timer,
+        # 03:45 UTC, docker exec psql). fn_refresh_staff_identity_links via
+        # PostgREST/Kong intermittentnie ~60s'owalo -> DB commit OK ale ping nie
+        # lecial -> HC flapping. Do NOT re-enable bez usuniecia systemd unitu.
+        # cron(
+        #     "workers.staff_identity_refresh.refresh_staff_identity_links",
+        #     hour={3}, minute={45},
+        # ),
         # 04:00 — refresh salon focus distributions + portfolio embeddings.
         #         Picks up salons with NULL focus_computed_at (new chain heads
         #         via mig 063 trigger) or older than 14 days. Cap 5000/night

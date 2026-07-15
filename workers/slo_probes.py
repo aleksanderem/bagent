@@ -101,22 +101,24 @@ async def probe_chain_heads_growing(client) -> ProbeResult:
     re-checks salons. Healthy production rate is ~10–500/h depending on
     how much real change Booksy publishes plus the first-cycle re-scrapes.
 
-    PASS: >= 5 new chain heads in last hour.
-    FAIL: 0 in last hour AND > 0 expected (scheduler+worker both alive).
+    PASS: >= 5 new chain heads in the last 3 hours.
+    FAIL: < 5 over 3h == sustained near-zero (real scraper/worker outage).
 
-    The 5/h threshold tolerates quiet periods (e.g. weekend nights with
-    low review activity); a true outage would show 0 for many consecutive
-    hours and HC grace (3h) absorbs the rest.
+    2026-07-14: okno poszerzone 1h->3h. Przy ~100% coverage nowe chain-heady
+    = realne (bursty) zmiany na Booksy + re-scrape cycles; ciche godziny
+    legalnie schodza do 3-4/h (zmierzone 7,3,8,12,4,9,10,11...), co przy progu
+    5/1h dawalo twardy /fail (omija grace) i flapping DOWN. 3h okno separuje
+    prawdziwy stall (0 przez godziny) od pojedynczej cichej godziny.
     """
     res = (
         client.table("salon_scrapes")
         .select("id", count="exact")
         .not_.is_("content_hash", "null")
-        .gte("scraped_at", _iso_ago(seconds=3600))
+        .gte("scraped_at", _iso_ago(seconds=10800))
         .execute()
     )
     n = res.count or 0
-    return ProbeResult(ok=n >= 5, detail=f"new_chain_heads_last_hour={n}")
+    return ProbeResult(ok=n >= 5, detail=f"new_chain_heads_last_3h={n}")
 
 
 async def probe_reviews_ingesting(client) -> ProbeResult:
