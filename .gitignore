@@ -17,3 +17,9 @@ venv/
 uv.lock
 .gitnexus
 i-have-adhd/
+
+# Lokalne backupy / scratch (dev-drift na hostach — nigdy do repo)
+*.bak-*
+*.local-bak-*
+.env.bak*
+tmp_*.json
