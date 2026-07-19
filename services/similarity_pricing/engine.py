@@ -126,6 +126,7 @@ def compute_market_price(
     # co metadane przepuściły. Przed dedup: pełna masa bloku = pewniejszy sygnał.
     s_coherent, meta_c = drop_foreign_blocks(
         s_identity,
+        subject_name=subject.get("service_name"),
         gap=cfg["coherence_gap"],
         s_max=cfg["coherence_s_max"],
         min_block=cfg["coherence_min_block"],

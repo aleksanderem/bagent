@@ -94,6 +94,65 @@ def test_input_not_mutated():
 
 
 # --------------------------------------------------------------------------
+# WETO NAZWY: identyczna nazwa z subjectem = ta sama usługa (artefakt opisu)
+# --------------------------------------------------------------------------
+
+def test_exact_name_match_protected_from_drop():
+    # Blok o nazwie IDENTYCZNEJ z subjectem (inny opis => niskie sim, wysoki peer)
+    # NIE może być odrzucony — to ta sama usługa. Prod: "Manicure hybrydowy" ×6.
+    samples = [
+        _s("Manicure hybrydowy", 0.95, peer=0.96, bid=1),           # oczywisty twin
+        _s("Manicure hybrydowy", 0.83, peer=1.0, bid=2),            # artefakt opisu
+        _s("Manicure Hybrydowy", 0.84, peer=1.0, bid=3),            # różnica wielkości liter
+        _s("manicure  hybrydowy", 0.82, peer=0.99, bid=4),          # różnica spacji
+    ]
+    kept, meta = drop_foreign_blocks(samples, subject_name="Manicure hybrydowy")
+    assert len(kept) == 4, "identyczna nazwa nie może zostać wycięta"
+    assert meta["n_dropped"] == 0
+    assert meta["n_protected_exact_name"] == 3
+
+
+def test_exact_name_veto_does_not_shield_real_foreign_block():
+    # Weto chroni TYLKO identyczną nazwę; obcy blok o innej nazwie nadal wypada.
+    samples = [
+        _s("Manicure hybrydowy", 0.95, peer=0.96, bid=1),
+        _s("Manicure hybrydowy", 0.83, peer=1.0, bid=2),   # chroniony (nazwa)
+        _s("Pedicure hybrydowy", 0.841, peer=0.998, bid=3),  # obcy
+        _s("Pedicure hybrydowy", 0.840, peer=0.997, bid=4),  # obcy
+    ]
+    kept, meta = drop_foreign_blocks(samples, subject_name="Manicure hybrydowy")
+    names = [s["service_name"] for s in kept]
+    assert "Pedicure hybrydowy" not in names
+    assert names.count("Manicure hybrydowy") == 2
+    assert meta["n_dropped"] == 2
+    assert meta["n_protected_exact_name"] == 1
+
+
+def test_name_variants_not_protected_still_geometric():
+    # "... french"/"... bez usunięcia" to INNE nazwy => brak weta, geometria działa.
+    samples = [
+        _s("Manicure hybrydowy", 0.95, peer=0.96, bid=1),
+        _s("Manicure hybrydowy french", 0.83, peer=0.99, bid=2),
+        _s("Manicure hybrydowy french", 0.83, peer=0.99, bid=3),
+    ]
+    kept, meta = drop_foreign_blocks(samples, subject_name="Manicure hybrydowy")
+    assert meta["n_protected_exact_name"] == 0
+    assert meta["n_dropped"] == 2  # warianty nazwy nadal podlegają geometrii
+
+
+def test_no_subject_name_backwards_compatible():
+    # Bez subject_name zachowanie jak dotąd (weto wyłączone).
+    samples = [
+        _s("Manicure hybrydowy", 0.95, peer=0.96, bid=1),
+        _s("Manicure hybrydowy", 0.83, peer=1.0, bid=2),
+        _s("Manicure hybrydowy", 0.83, peer=1.0, bid=3),
+    ]
+    kept, meta = drop_foreign_blocks(samples)  # brak subject_name
+    assert meta["n_protected_exact_name"] == 0
+    assert meta["n_dropped"] == 2
+
+
+# --------------------------------------------------------------------------
 # ZAMROŻONY PRZYPADEK PRODUKCYJNY (2026-07-19): pedicure w klastrze manicure
 # --------------------------------------------------------------------------
 # Wartości sim/peer z prod: pedicure↔pedicure ~0.99-1.0 (identyczne nazwy),

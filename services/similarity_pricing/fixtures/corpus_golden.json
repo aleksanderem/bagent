@@ -2259,8 +2259,8 @@
   "expected": {
    "status": "sufficient",
    "median": 7000,
-   "n_unique_salons": 12,
-   "n_coherence_dropped": 39
+   "n_unique_salons": 17,
+   "n_coherence_dropped": 34
   },
   "baseline_for_context": {
    "status": "sufficient",

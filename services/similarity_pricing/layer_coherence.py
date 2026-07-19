@@ -81,6 +81,11 @@ from __future__ import annotations
 
 from typing import Any
 
+# Normalizator nazw współdzielony z layer_identity (DRY): lowercase, fold
+# akcentów, kolaps spacji, zdjęcie wiodącej numeracji. Ta sama definicja
+# "równości nazwy" w całym silniku.
+from .layer_identity import _normalize_text as _norm_name
+
 # Progi skalibrowane empirycznie (sweep 2026-07-19, patrz docstring modułu).
 # Trzymane jako stałe modułu + nadpisywalne przez config engine'u — spójnie
 # z konwencją pozostałych warstw (meta-pokrętła w DEFAULT_CONFIG).
@@ -96,6 +101,7 @@ DEFAULT_MIN_BLOCK = 2       # min liczba podejrzanych sampli, by uznać BLOK
 def drop_foreign_blocks(
     samples: list[dict[str, Any]],
     *,
+    subject_name: str | None = None,
     gap: float = DEFAULT_GAP,
     s_max: float = DEFAULT_S_MAX,
     min_block: int = DEFAULT_MIN_BLOCK,
@@ -105,15 +111,32 @@ def drop_foreign_blocks(
     Args:
         samples: kept-klaster po teście tożsamości. Wykorzystywane pola sampla:
             similarity (float, wymagane do oceny), peer_max_sim (float|None,
-            brak => abstain), service_name (tylko do meta/diagnostyki).
+            brak => abstain), service_name (nazwa — patrz WETO NAZWY niżej).
+        subject_name: nazwa usługi subjectu. Gdy podana, sample o IDENTYCZNEJ
+            nazwie (po normalizacji) NIGDY nie jest obcym blokiem — patrz niżej.
         gap/s_max/min_block: progi — patrz stałe modułu.
 
     Returns:
         (kept, meta). Nie mutuje wejścia (konwencja modułu: immutable).
         meta trafia do MarketResult.provenance["coherence"] — pełna
         wyjaśnialność każdej decyzji (co odrzucono i dlaczego).
+
+    WETO NAZWY (uniwersalne, bez leksykonu):
+        Embedding = f(nazwa+opis), więc ten sam zabieg z ROZBUDOWANYM opisem u
+        innego salonu potrafi mieć niskie similarity do subjectu (0.82) przy
+        peer_max_sim ~1.0 z bliźniakami dzielącymi ten opis — i geometria
+        chciałaby go wyciąć jako "obcy blok" (artefakt opisu, sweep 2026-07-19:
+        16/103 flag). Ale jeśli nazwa jest DOSŁOWNIE identyczna z subjectem,
+        nie ma czego rozstrzygać — to ta sama usługa, kropka. Równość napisu to
+        najbardziej uniwersalny możliwy sygnał: zero wiedzy o tym, co nazwa
+        znaczy, działa na dowolnym stringu/języku, to NIE leksykon (mani→dłonie).
+        Dlatego sample o znormalizowanej nazwie == subject NIGDY nie wchodzi do
+        podejrzanych. Warianty ("... bez usunięcia", "... french") mają inną
+        nazwę → nadal podlegają geometrii.
     """
-    suspects: list[dict[str, Any]] = []
+    subj_norm = _norm_name(subject_name) if subject_name else None
+    suspects: list[dict[str, Any]] = []       # WSZYSTKIE geometryczne podejrzane
+    exact_suspects: list[dict[str, Any]] = []  # podejrzane o nazwie == subject
     abstained = 0
     for s in samples:
         sim = s.get("similarity")
@@ -123,11 +146,19 @@ def drop_foreign_blocks(
             continue
         if float(pm) - float(sim) > gap and float(sim) < s_max:
             suspects.append(s)
+            if subj_norm is not None and _norm_name(s.get("service_name")) == subj_norm:
+                exact_suspects.append(s)
 
+    protected_exact_name = len(exact_suspects)
+    # BLOK wykrywamy geometrią na WSZYSTKICH podejrzanych (min_block), ale
+    # WETO NAZWY stosujemy przy CIĘCIU: nie wyrzucamy sampli o nazwie == subject.
+    # Dzięki temu identyczne nazwy nie zaniżają liczności bloku (nie przepuszczają
+    # przez to lone-obcych poniżej progu — patrz walidacja uniwersum 2026-07-19).
     if len(suspects) >= min_block:
-        dropped_ids = {id(s) for s in suspects}
+        exact_ids = {id(s) for s in exact_suspects}
+        dropped = [s for s in suspects if id(s) not in exact_ids]
+        dropped_ids = {id(s) for s in dropped}
         kept = [s for s in samples if id(s) not in dropped_ids]
-        dropped = suspects
     else:
         kept, dropped = list(samples), []
 
@@ -137,6 +168,7 @@ def drop_foreign_blocks(
         "min_block": min_block,
         "n_in": len(samples),
         "n_abstained_no_peer_sim": abstained,
+        "n_protected_exact_name": protected_exact_name,
         "n_suspect": len(suspects),
         "n_dropped": len(dropped),
         # Nazwy odrzuconych — WYŁĄCZNIE dla wyjaśnialności (provenance/debug);

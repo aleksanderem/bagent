@@ -37,6 +37,7 @@ import pathlib
 import pytest
 
 from .engine import DEFAULT_CONFIG, compute_market_price
+from .layer_identity import _normalize_text as _norm_name
 
 _FIXTURES = json.loads(
     (pathlib.Path(__file__).parent / "fixtures" / "corpus_golden.json").read_text()
@@ -63,8 +64,16 @@ def test_corpus_golden_outputs(rec):
 
 @pytest.mark.parametrize("rec", _FIXTURES, ids=[r["case"] for r in _FIXTURES])
 def test_corpus_invariant_no_foreign_block_survives(rec):
-    """INWARIANT: po silniku w kept nie ma bloku obcych sampli (geometria)."""
-    res = compute_market_price(_subject(rec), rec["twins"], None)
+    """INWARIANT: po silniku w kept nie ma bloku obcych sampli (geometria).
+
+    WYJĄTEK WETA NAZWY: sample o nazwie identycznej z subjectem to ta sama
+    usługa (inny opis => niskie sim, ale nazwa decyduje) — legalnie zostaje
+    mimo sygnatury geometrycznej. Inwariant liczy TYLKO obce bloki o INNEJ
+    nazwie, spójnie z drop_foreign_blocks.
+    """
+    subj = _subject(rec)
+    subj_norm = _norm_name(subj["service_name"])
+    res = compute_market_price(subj, rec["twins"], None)
     gap = DEFAULT_CONFIG["coherence_gap"]
     s_max = DEFAULT_CONFIG["coherence_s_max"]
     suspects = [
@@ -72,6 +81,7 @@ def test_corpus_invariant_no_foreign_block_survives(rec):
         if s.get("peer_max_sim") is not None and s.get("similarity") is not None
         and float(s["peer_max_sim"]) - float(s["similarity"]) > gap
         and float(s["similarity"]) < s_max
+        and _norm_name(s.get("service_name")) != subj_norm  # weto nazwy
     ]
     assert len(suspects) < DEFAULT_CONFIG["coherence_min_block"], (
         f"obcy blok przeżył: {[(s['service_name'], s['similarity'], s['peer_max_sim']) for s in suspects]}"
