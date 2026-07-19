@@ -396,10 +396,14 @@ try:  # pragma: no cover
         # booksy-taxonomy-refresh (03:00-03:58, inference drain mieli TE SAMA
         # tabele salon_scrape_services) -> kontencja -> wyjatek -> a funkcja
         # nie miala fail-pinga, wiec ginela cicho i HC szedl DOWN bez sygnalu.
-        cron(
-            "workers.taxonomy_refresh.embed_new_services",
-            hour={4}, minute={30},
-        ),
+        # DISABLED 2026-07-19 -- MOVED to host systemd (booksy-embed-catchup.timer).
+        # arq gubil ten dzienny cron (embed 04:30) mimo zywego workera -> HC
+        # taxonomy-embed-catchup flapowal. Storage/logflare (ta sama kadencja)
+        # chodzily, wiec problem specyficzny dla tego taska. Do NOT re-enable.
+        # cron(
+        #     "workers.taxonomy_refresh.embed_new_services",
+        #     hour={4}, minute={30},
+        # ),
         # 03:35 — backfill variant_id for chain-head services (S0078, the
         #         MISSING nightly job). variant_id is written ONLY by the mig-127
         #         RPCs (backfill_service_variants / _untagged); nothing in bagent
@@ -459,10 +463,12 @@ try:  # pragma: no cover
             minute={7},
         ),
         # Reviews ingesting — every 6h on :12 (daily-volume probe).
-        cron(
-            "workers.slo_probes.slo_reviews_ingesting",
-            hour={2, 8, 14, 20}, minute={12},
-        ),
+        # DISABLED 2026-07-19 -- MOVED to host systemd (booksy-reviews-probe.timer).
+        # arq gubil ten 6h cron mimo zywego workera. Do NOT re-enable.
+        # cron(
+        #     "workers.slo_probes.slo_reviews_ingesting",
+        #     hour={2, 8, 14, 20}, minute={12},
+        # ),
         # Discovery active — every 4h on :17.
         cron(
             "workers.slo_probes.slo_discovery_active",
