@@ -23,16 +23,34 @@ Zwięzłe podsumowanie pozycji rynkowej podmiotu. Opisz najważniejszy fakt:
 
 Pisz po polsku, bez emoji, profesjonalnie ale ciepło. Pierwsze zdanie powinno definiować pozycję, drugie niuansować.
 
+## TWARDE REGUŁY JĘZYKA (obowiązują KAŻDE pole tekstowe: positioning_narrative, SWOT, recommendations)
+
+Ten raport czyta właścicielka salonu beauty bez wiedzy technicznej. Pisz tak, jak rozmawiałaby z nią ciepła doradczyni — prosto, krótkimi zdaniami, motywująco (pokaż, co da się poprawić), nigdy strasząc.
+
+1. NIGDY nie podawaj konkretnych kwot w złotówkach (zł, PLN) — ani cen, ani widełek, ani szacowanego przychodu/zysku. Mów relatywnie: «cena wyższa niż u większości salonów w okolicy», «w okolicach typowej ceny», «masz pole, żeby spokojnie podnieść cenę». Liczbę z danych zamień na kierunek i skalę słowami.
+2. NIE używaj progów ani procentów typu «+18%», «−28 pp», «o 30% powyżej». Opisuj kierunek i skalę słowami: «zauważalnie wyżej», «odrobinę poniżej», «wyraźnie więcej niż konkurencja».
+3. NIE używaj żargonu. Zamiast tego pisz po ludzku:
+   - mediana / mediana rynku → «typowa cena w okolicy»,
+   - percentyl → «pozycja wśród konkurentów»,
+   - benchmark → «porównanie z salonami w okolicy»,
+   - SWOT → nie nazywaj tego SWOT-em; po prostu mów o mocnych i słabych stronach, szansach i zagrożeniach,
+   - całkowicie zakazane słowa: embedding, similarity, semantyczne, kohorta, delta, wariancja, percentyl, mediana, benchmark.
+4. Pisz prosto i ciepło. Krótkie zdania. Motywacja, nie straszenie — pokazuj możliwość poprawy, nie problem.
+
+WAŻNE: te reguły dotyczą tylko TEKSTU, który czyta klientka. Pola `sourceDataPoints`, `sourceCompetitorIds`, `category`, `impact`, `effort`, `confidence`, `estimatedRevenueImpactGrosze` zostają bez zmian — to dane techniczne, nie proza.
+
 ### 2. SWOT (4 listy po 2-4 punkty każda)
 
-Każdy punkt to 1-2 zdania w języku polskim, z konkretnymi liczbami z danych. Każdy punkt MUSI mieć `sourceDataPoints` — listę referencji do wierszy w danych:
+Każdy punkt to 1-2 zdania w języku polskim. Opieraj się na danych, ale przekładaj je na słowa (kierunek i skala), BEZ kwot w zł i BEZ procentów (patrz TWARDE REGUŁY JĘZYKA wyżej). Każdy punkt MUSI mieć `sourceDataPoints` — listę referencji do wierszy w danych:
 
 - `{"type": "dimensional_score", "id": <id>}` — gdzie id to dim_id z sekcji DIMENSIONAL_INSIGHTS
 - `{"type": "pricing_comparison", "id": <id>}` — gdzie id to pricing_id z sekcji PRICING_INSIGHTS
 - `{"type": "service_gap", "id": <id>}` — gdzie id to gap_id z sekcji GAP_INSIGHTS
 
+UWAGA: poniższe kryteria mówią, KTÓRE wiersze danych wybrać do każdej kategorii (czytasz kolumny PERCENTYL / better_is_higher / mediana z sekcji danych). To kryteria doboru, NIE sposób pisania — w samym tekście trzymaj się TWARDYCH REGUŁ JĘZYKA (słowa zamiast liczb, kwot i żargonu).
+
 #### strengths (mocne strony — 2-4 punkty)
-Tylko prawdziwe przewagi: percentyl ≥ 70 w wymiarach gdzie better_is_higher=true (lub ≤ 30 gdy better_is_higher=false). Unikalne USP. Konkurencyjne ceny.
+Tylko prawdziwe przewagi: wybierz wymiary, w których podmiot jest wysoko wśród konkurentów (percentyl ≥ 70 gdy better_is_higher=true, lub ≤ 30 gdy better_is_higher=false). Unikalne USP. Konkurencyjne ceny.
 
 #### weaknesses (słabości — 2-4 punkty)
 Wymiary gdzie podmiot jest poniżej mediany rynku. Brakujące usługi pożądane przez rynek. Cenowe outliery w niewłaściwą stronę.
@@ -45,7 +63,7 @@ Ryzyko utraty klientów: za wysokie ceny vs. rynek, zaniedbany kanał digital, n
 
 ### 3. recommendations (5-12 rekomendacji)
 
-Każda rekomendacja to konkretny, wykonywalny krok. Pole `actionTitle` to wezwanie do akcji (np. "Obniż cenę endermologii z 200 do 120 zł"), pole `actionDescription` to 2-3 zdania uzasadnienia z liczbami i kontekstem rynkowym.
+Każda rekomendacja to konkretny, wykonywalny krok. Pole `actionTitle` to wezwanie do akcji (np. «Dostosuj cenę endermologii do typowej w okolicy» — BEZ podawania kwot), pole `actionDescription` to 2-3 zdania uzasadnienia opisujące kierunek i kontekst rynkowy słowami, BEZ kwot w zł i BEZ procentów.
 
 Wymagane pola dla każdej:
 - `actionTitle` (string, ~80 znaków)
@@ -62,11 +80,11 @@ Priorytetyzuj rekomendacje wg impact + confidence. Pierwsza rekomendacja powinna
 
 ## Zasady jakości
 
-1. **Konkretność > ogólniki**. Zamiast "popraw opisy" napisz "Dodaj opisy do 142 usług które ich nie mają — konkurencja ma średnio 85% pokrycia, ty 23%".
-2. **Liczby zawsze z danych**. Każde stwierdzenie ilościowe musi opierać się na konkretnych metrykach z dostarczonych sekcji, nigdy nie zmyślaj.
+1. **Konkretność > ogólniki, ale słowami nie liczbami**. Zamiast «popraw opisy» napisz «Dodaj opisy do usług, które ich nie mają — większość salonów w okolicy opisuje prawie cały cennik, a u Ciebie opis ma dopiero garstka usług». Konkret = nazwa usługi + kierunek + skala słowna, NIE liczba czy procent.
+2. **Opieraj się na danych, ale nie cytuj liczb**. Każde stwierdzenie wynika z metryk z dostarczonych sekcji — ale w tekście przekładaj je na słowa («zauważalnie wyżej», «sporo więcej»), nigdy nie zmyślaj i nigdy nie podawaj surowej liczby ani kwoty.
 3. **Polski język bez emoji**. Profesjonalny ton ale przyjazny, jak doradca biznesowy do właściciela salonu. Pisz WYŁĄCZNIE po polsku — zero wtrąceń w innych językach.
 4. **Traceability obowiązkowa**. Każdy SWOT bullet i każda rekomendacja musi mieć przynajmniej jeden sourceDataPoint. Brak referencji = brak prawdziwości.
-5. **Realistyczne szacunki rewenue Z JAWNYM WZOREM**. Jeśli podajesz `estimatedRevenueImpactGrosze`, w `actionDescription` MUSI pojawić się wzór, z którego liczba wynika (np. "~120 wizyt/rok × 30 zł różnicy ≈ 3 600 zł/rok"), oparty wyłącznie na liczbach z danych (ceny z PRICING_INSIGHTS, skala z reviews/portfolio). Bez możliwego wzoru — POMIŃ pole. Lepiej pominąć niż zmyślić.
+5. **Szacunek wpływu na przychód TYLKO w danych, NIGDY w tekście**. Pole `estimatedRevenueImpactGrosze` możesz wypełnić liczbą wyliczoną z danych (ceny z PRICING_INSIGHTS, skala z reviews/portfolio) — ta liczba NIE jest pokazywana klientce. W `actionDescription` NIE podawaj żadnej kwoty ani wzoru; co najwyżej opisz potencjał słowami («to jedna z usług, na której najwięcej tracisz» / «tu drzemie spory dodatkowy przychód»). Nie masz podstaw do oszacowania → zostaw pole puste. Lepiej pominąć niż zmyślić.
 6. **Cudzysłowy**: w wartościach tekstowych NIE używaj prostego cudzysłowu (") — nazwy usług i cytaty pisz w «...» albo bez cudzysłowów.
 7. **Zero powtórzeń między sekcjami**: wniosek występuje w DOKŁADNIE jednym miejscu — fakt o pozycji w positioning_narrative, ocena w SWOT, działanie w recommendations. Rekomendacja nie restatuje SWOT-a, tylko z niego wynika.
 

@@ -15,6 +15,11 @@ PRZEWAGI KONKURENCYJNE:
 
 WYMAGANIA:
 1. marketNiches: 3-5 nisz rynkowych z opisem i szansą
-2. actionPlan: 5-10 konkretnych działań z timeline (1 tydzień / 1 miesiąc / 3 miesiące), priorytetem i szacowanym wpływem
+2. actionPlan: 5-10 konkretnych działań z timeline (1 tydzień / 1 miesiąc / 3 miesiące), priorytetem i szacowanym wpływem opisanym słowami («duży», «umiarkowany» — BEZ kwot)
 
 Plan działań powinien być realistyczny i natychmiast wdrożalny. Zacznij od quick wins.
+
+TWARDE REGUŁY JĘZYKA (czyta to właścicielka salonu beauty bez wiedzy technicznej — pisz prosto, ciepło, krótkimi zdaniami, motywująco, nie strasząc):
+- NIGDY nie podawaj kwot w złotówkach (zł, PLN) — ani cen, ani widełek, ani szacowanego przychodu/zysku. Mów relatywnie: «wyższa niż u większości salonów w okolicy», «w okolicach typowej ceny», «masz pole, żeby podnieść cenę».
+- NIE używaj progów ani procentów («+18%», «−28 pp»). Opisuj kierunek i skalę słowami.
+- NIE używaj żargonu: zamiast «mediana» pisz «typowa cena», zamiast «percentyl» — «pozycja wśród konkurentów», zamiast «benchmark» — «porównanie z salonami w okolicy». Zakazane słowa: embedding, similarity, semantyczne, kohorta, delta, wariancja, percentyl, mediana, benchmark.

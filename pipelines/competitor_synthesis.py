@@ -819,9 +819,12 @@ async def _run_minimax_synthesis(
         agent_result = await run_agent_loop(
             client=client,
             system_prompt=(
-                "Jesteś strategiem marketingowym specjalizującym się w polskich "
-                "salonach beauty na Booksy.pl. Odpowiadasz po polsku, używasz tylko "
-                "prawdziwych liczb z dostarczonych danych, nigdy nie zmyślasz."
+                "Jesteś ciepłą doradczynią dla polskich salonów beauty na Booksy.pl. "
+                "Piszesz po polsku, prosto i krótkimi zdaniami, jak do właścicielki "
+                "salonu bez wiedzy technicznej. Opierasz się na dostarczonych danych, "
+                "ale NIGDY nie podajesz kwot w zł ani procentów i nie używasz żargonu "
+                "(mediana, percentyl, benchmark) — kierunek i skalę opisujesz słowami. "
+                "Nigdy nie zmyślasz."
             ),
             user_message=context,
             tools=[COMPETITOR_INSIGHTS_TOOL],
@@ -1106,11 +1109,11 @@ def _deterministic_fallback(
             losses += 1
 
     narrative = (
-        f"{salon_name} został porównany z {total_competitors} konkurentami "
-        f"w {len(dimensions)} wymiarach. W {wins} wymiarach salon wypada "
-        f"lepiej od mediany rynku, w {losses} gorzej. Pełna analiza "
-        f"strategiczna jest chwilowo niedostępna — dane konkurencji są "
-        f"gotowe do przeglądu w zakładkach Cennik, Luki i SWOT."
+        f"{salon_name} został porównany z {total_competitors} salonami w okolicy "
+        f"w {len(dimensions)} obszarach. W {wins} z nich wypadasz lepiej niż "
+        f"większość konkurentów, w {losses} jest jeszcze pole do poprawy. Pełna "
+        f"analiza strategiczna jest chwilowo niedostępna — dane konkurencji są "
+        f"gotowe do przeglądu w zakładkach Cennik, Luki i Mocne strony."
     )
     # Clamp to max 800 chars (matches tool schema)
     if len(narrative) > 800:
@@ -1138,20 +1141,18 @@ def _deterministic_fallback(
             if deviation > 0:
                 action_title = f"Rozważ obniżenie ceny: {treatment}"
                 action_desc = (
-                    f"Twoja cena za {treatment} jest {abs(deviation):.0f}% powyżej "
-                    f"mediany rynkowej"
-                    + (f" ({float(median_price) / 100:.0f} zł)" if median_price else "")
-                    + ". Rozważ dostosowanie ceny, aby być bardziej konkurencyjnym, "
-                    f"lub wzmocnij komunikację wartości tej usługi."
+                    f"Cena za {treatment} jest u Ciebie wyższa niż w większości "
+                    f"salonów w okolicy. Rozważ dostosowanie jej do typowej w okolicy, "
+                    f"żeby być bardziej konkurencyjną, lub wyraźniej pokaż, dlaczego "
+                    f"warto zapłacić u Ciebie więcej."
                 )
                 category = "pricing"
             else:
                 action_title = f"Rozważ podniesienie ceny: {treatment}"
                 action_desc = (
-                    f"Twoja cena za {treatment} jest {abs(deviation):.0f}% poniżej "
-                    f"mediany rynkowej"
-                    + (f" ({float(median_price) / 100:.0f} zł)" if median_price else "")
-                    + ". Podniesienie ceny może zwiększyć przychód bez utraty klientów."
+                    f"Cena za {treatment} jest u Ciebie niższa niż w większości "
+                    f"salonów w okolicy. Masz pole, żeby spokojnie ją podnieść — "
+                    f"prawdopodobnie zwiększysz przychód bez utraty klientek."
                 )
                 category = "pricing"
 
@@ -1609,8 +1610,9 @@ def _build_opportunities(
             "area": "Portfolio",
             "title": f"Dodaj usługę: {g.get('treatment_name') or 'Brak nazwy'}",
             "detail": (
-                f"{comp_count} konkurent(ów) ma tę usługę w cenniku, popularność {popularity:.0f}/100. "
-                f"Średnia cena rynku: {avg_price / 100:.0f} zł."
+                f"Tę usługę ma w cenniku kilku konkurentów z okolicy i cieszy się "
+                f"sporym zainteresowaniem klientek. U Ciebie jej brakuje — to gotowy "
+                f"pomysł na poszerzenie oferty."
             ),
             "impactGrosze": estimated_impact,
             "evidenceCount": comp_count,
@@ -1667,9 +1669,9 @@ def _build_opportunities(
             "area": "Cennik",
             "title": f"Podnieś cenę: {p.get('treatment_name') or 'Usługa'}",
             "detail": (
-                f"Twoja cena {subject / 100:.0f} zł jest {abs(deviation):.0f}% poniżej "
-                f"mediany rynku ({median / 100:.0f} zł, próba {sample_size} konkurentów). "
-                f"Modelowane założenie: {sessions_per_month} wizyt/m-c × 60% retencji klientów."
+                f"Za tę usługę bierzesz wyraźnie mniej niż typowy salon w okolicy. "
+                f"Masz pole, żeby spokojnie podnieść cenę — to jedno z miejsc, w których "
+                f"najwięcej tracisz na obecnym cenniku."
             ),
             "impactGrosze": estimated_impact,
             "evidenceCount": sample_size,
@@ -1899,7 +1901,7 @@ def _build_long_strategy(
     q1_outcomes = [
         "Google + Meta Ads działają na płatnym ruchu",
         "Email baza 300+ kontaktów",
-        "CPA < 120 zł",
+        "Niski koszt pozyskania nowej klientki",
     ]
     if pricing_recs:
         q1_outcomes.insert(0, (pricing_recs[0].get("actionTitle") or "Optymalizacja cennika")[:80])
@@ -2069,7 +2071,7 @@ def _build_customer_journey(
             "metric": f"~{estimated_ctr:.0f}%",
             "unit": "CTR",
             "status": "good" if estimated_ctr >= 20 else "ok" if estimated_ctr >= 14 else "bad",
-            "note": f"Ocena {reviews_rank:.1f}/5 napędza klikalność. Średnia branży ~22% (Backlinko 2023).",
+            "note": f"Ocena {reviews_rank:.1f}/5 zachęca klientki do kliknięcia w Twój profil.",
             "_source": "Backlinko Organic CTR Study 2023 (pos 1-3)",
             "_isEstimate": True,
         },
@@ -2082,8 +2084,8 @@ def _build_customer_journey(
             "status": desc_status,
             "note": (
                 "Świetnie — większość usług ma opis i zdjęcie." if desc_pct_int >= 70 else
-                "OK — mediana rynku to ok. 62%. Brakuje opisów części usług." if desc_pct_int >= 40 else
-                "Większość usług bez opisu — tracisz konwersję."
+                "Część usług nie ma opisu — większość salonów w okolicy opisuje więcej. To prosty sposób, żeby zatrzymać klientkę." if desc_pct_int >= 40 else
+                "Większość usług bez opisu — przez to tracisz część rezerwacji."
             ),
             "_source": "Twój cennik (pomiar bezpośredni)",
             "_isEstimate": False,
@@ -2096,9 +2098,9 @@ def _build_customer_journey(
             "unit": "konwersja",
             "status": conv_status,
             "note": (
-                "Booking online + opisy = pełna konwersja." if has_online and desc_pct_int >= 60 else
-                "Średnia branży ~1.8% (WordStream 2024) — booking wieczorny lub opisy by pomogły." if base_conv < 1.5 else
-                "Solidna konwersja, jest jeszcze pole do wzrostu."
+                "Rezerwacja online plus dobre opisy sprawiają, że klientki łatwo umawiają wizytę." if has_online and desc_pct_int >= 60 else
+                "Rezerwacja w godzinach wieczornych albo lepsze opisy pomogłyby zamienić więcej oglądających w rezerwacje." if base_conv < 1.5 else
+                "Klientki dobrze się umawiają — jest jeszcze trochę miejsca na wzrost."
             ),
             "_source": "WordStream Beauty Search Benchmarks 2024",
             "_isEstimate": True,

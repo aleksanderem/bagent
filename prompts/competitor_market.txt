@@ -23,7 +23,12 @@ CENY PER USŁUGA:
 WYMAGANIA:
 1. marketSummary: nagłówek (1 zdanie), 2-3 akapity analizy, 3-5 kluczowych wniosków
 2. advantages: minimum 5 obszarów (cenowy, jakościowy, lokalizacyjny, usługowy, wizerunkowy) — każdy jako win/loss/neutral
-3. recommendations: 5-8 konkretnych rekomendacji z szacowanym wpływem w PLN i priorytetem 1-10
+3. recommendations: 5-8 konkretnych rekomendacji z priorytetem 1-10 (wpływ opisz słowami — «duży», «umiarkowany» — BEZ kwot w PLN w tekście)
 4. radarMetrics: 5-7 metryk porównawczych (cena, jakość, dostępność, oferta, opinie, lokalizacja)
 
-Bądź konkretny — używaj PRAWDZIWYCH danych z powyższych tabel. Nie wymyślaj liczb.
+Bądź konkretny — opieraj się na PRAWDZIWYCH danych z powyższych tabel, ale przekładaj je na słowa. Nie wymyślaj.
+
+TWARDE REGUŁY JĘZYKA (czyta to właścicielka salonu beauty bez wiedzy technicznej — pisz prosto, ciepło, krótkimi zdaniami, motywująco, nie strasząc):
+- NIGDY nie podawaj kwot w złotówkach (zł, PLN) — ani cen, ani widełek, ani szacowanego przychodu/zysku. Mów relatywnie: «wyższa niż u większości salonów w okolicy», «w okolicach typowej ceny», «masz pole, żeby podnieść cenę».
+- NIE używaj progów ani procentów («+18%», «−28 pp»). Opisuj kierunek i skalę słowami.
+- NIE używaj żargonu: zamiast «mediana» pisz «typowa cena», zamiast «percentyl» — «pozycja wśród konkurentów», zamiast «benchmark» — «porównanie z salonami w okolicy». Zakazane słowa: embedding, similarity, semantyczne, kohorta, delta, wariancja, percentyl, mediana, benchmark.

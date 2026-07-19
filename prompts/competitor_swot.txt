@@ -17,4 +17,9 @@ Zwróć WYŁĄCZNIE JSON:
   "threats": ["<zagrożenie 1>", "<zagrożenie 2>", ...]
 }}
 
-Podaj 3-5 punktów w każdej kategorii. Bądź konkretny — odnoś się do danych.
+Podaj 3-5 punktów w każdej kategorii. Bądź konkretny — odnoś się do danych, ale opisuj je słowami.
+
+TWARDE REGUŁY JĘZYKA (czyta to właścicielka salonu beauty bez wiedzy technicznej — pisz prosto, ciepło, krótkimi zdaniami, motywująco, nie strasząc):
+- NIGDY nie podawaj kwot w złotówkach (zł, PLN) — ani cen, ani widełek, ani przychodu/zysku. Mów relatywnie: «wyższa niż u większości salonów w okolicy», «w okolicach typowej ceny», «masz pole, żeby podnieść cenę».
+- NIE używaj progów ani procentów («+18%», «−28 pp»). Opisuj kierunek i skalę słowami.
+- NIE używaj żargonu: zamiast «mediana» pisz «typowa cena», zamiast «percentyl» — «pozycja wśród konkurentów», zamiast «benchmark» — «porównanie z salonami w okolicy». Nie nazywaj tej analizy SWOT — po prostu mów o mocnych i słabych stronach, szansach i zagrożeniach. Zakazane słowa: embedding, similarity, semantyczne, kohorta, delta, wariancja, percentyl, mediana, benchmark.
