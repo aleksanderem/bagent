@@ -210,7 +210,8 @@ def test_provenance_complete_and_input_not_mutated():
 
     res = compute_market_price(subject, samples)
     # provenance ma meta wszystkich warstw + config
-    assert set(res.provenance.keys()) == {"identity", "dedup", "sufficiency", "unit", "config"}
+    # (coherence dołączyła 2026-07-19 — geometryczny strażnik obcych bloków)
+    assert set(res.provenance.keys()) == {"identity", "coherence", "dedup", "sufficiency", "unit", "config"}
     assert res.provenance["config"]["identity_purity_target"] == DEFAULT_CONFIG["identity_purity_target"]
     # wejście nietknięte
     assert samples == samples_snapshot

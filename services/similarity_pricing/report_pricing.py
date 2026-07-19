@@ -85,6 +85,40 @@ def _geo_competitor_booksy_ids(service: Any, subject_booksy_id: int, radius_km: 
         return []
 
 
+def _fetch_peer_max_sims(service: Any, service_ids: list[int]) -> dict[int, float]:
+    """service_id → peer_max_sim (RPC fn_pairwise_max_similarity, mig 151).
+
+    CO/PO CO: zasila COHERENCE GUARD silnika (layer_coherence) — per sample
+    max podobieństwo do INNEGO sampla klastra. Obcy blok (np. "Bikini płytkie"
+    w klastrze "Bikini linią") zdradza się peer_max_sim≈1.0 przy similarity
+    do subjectu ~0.84; warstwa go wycina zanim policzy cenę.
+
+    DLACZEGO TU: engine jest pure (bez I/O) — geometrię liczy Postgres
+    (embeddingi nie opuszczają bazy; 80 sampli = jedno wywołanie, ~ms),
+    a my tylko doklejamy pole do sampli przed compute_market_price.
+
+    ODPORNOŚĆ: RPC brak/failuje albo sample bez embeddingu (wektor zmieciony
+    przez mig 149 po degradacji chain-heada) → puste/częściowe wyniki →
+    layer_coherence robi abstain na brakujących. Świadomie NIE podnosimy
+    wyjątku: lepszy raport bez coherence niż brak raportu.
+    """
+    out: dict[int, float] = {}
+    if len(service_ids) < 2:
+        return out
+    try:
+        res = service.client.rpc(
+            "fn_pairwise_max_similarity",
+            {"p_service_ids": [int(x) for x in service_ids]},
+        ).execute()
+        for row in (res.data or []):
+            sid, pm = row.get("service_id"), row.get("peer_max_sim")
+            if sid is not None and pm is not None:
+                out[int(sid)] = float(pm)
+    except Exception as e:
+        logger.warning("peer_max_sim RPC failed (%d ids): %s", len(service_ids), e)
+    return out
+
+
 def _lookup_salon_names(service: Any, booksy_ids: list[int]) -> dict[int, str]:
     """booksy_id → salon name (batch, dla drill-down)."""
     if not booksy_ids:
@@ -227,10 +261,15 @@ async def compute_pricing_comparisons_v2(
         for svc in subject_services:
             sid = int(svc["id"])
             raw = clusters.get(sid, [])
+            # peer_max_sim dla coherence guard — jedno RPC per klaster subjectu.
+            peer_sims = _fetch_peer_max_sims(service, [x["service_id"] for x in raw if x.get("service_id")])
             for s in raw:
                 bid = s.get("booksy_id")
                 s["salon_name"] = salon_names.get(bid, "")
                 s["is_selected"] = bid in selected_booksy
+                pm = peer_sims.get(s.get("service_id"))
+                if pm is not None:
+                    s["peer_max_sim"] = pm
             subject = {
                 "service_name": svc.get("name") or svc.get("treatment_name") or "",
                 "price_grosze": svc.get("price_grosze"),

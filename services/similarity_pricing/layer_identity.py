@@ -101,6 +101,21 @@ _RE_ML = re.compile(r"(\d+(?:[.,]\d+)?)\s*ml\b")
 _RE_COUNT = re.compile(
     r"\b(\d+)\s*(paznok\w*|okolic\w*|stref\w*|parti\w*|punkt\w*|zabieg\w*|szt\w*|obszar\w*|ampul\w*)"
 )
+# --- 2026-07-19: uniwersalne tokeny numeryczne (sweep wykazał mixing wariantów) ---
+# WOLUMEN stylizacji: "1:1" / "2:1" / "2D" / "3D" / "3/4D" — to TEN SAM wymiar
+# (ilość włosków na rzęsę naturalną: 2D ≡ 2:1), więc normalizujemy do wspólnego
+# klucza "volume" (zakres [lo, hi]); sprzeczny wolumen = twarde weto osi params.
+# Dowód z prod (sweep 2026-07-19): "Uzupełnienie rzęs 2:1" klastrował z
+# 13×"Uzupełnienie rzęs 1:1" (fallback 0.75); "Przedłużanie rzęs 1:1" ↔ "2:1".
+# Wzorce są czysto NUMERYCZNE — działają dla każdej przyszłej notacji x:y / nD,
+# bez słownika zabiegów (filozofia: system działa nie wiedząc, co czyta).
+_RE_RATIO = re.compile(r"\b(\d{1,2})\s*:\s*(\d{1,2})\b")
+_RE_DIM   = re.compile(r"\b(\d{1,2})(?:\s*/\s*(\d{1,2}))?\s*d\b")
+# OKRES ważności/uzupełnienia: "do 3 tyg", "po 4 tygodniach" — różny okres
+# refillu to inna usługa cenowo (dowód: "3:1 do 4 tyg" ↔ "3:1 do 3 tyg" w sweep).
+_RE_WEEKS = re.compile(r"\b(\d{1,2})\s*(?:tyg\w*|tydz\w*)")
+# DŁUGOŚĆ (paznokcie/rzęsy): "długość 1-2", "dlugosc 3" — rozjazd = inny zakres.
+_RE_LENGTH = re.compile(r"dlugosc\w*\s*(\d{1,2})(?:\s*-\s*(\d{1,2}))?")
 
 
 def extract_params(name: str | None) -> dict[str, Any]:
@@ -113,6 +128,13 @@ def extract_params(name: str | None) -> dict[str, Any]:
     Pusty dict = brak rozpoznanych parametrów (oś params się wstrzyma).
     """
     norm = _normalize_text(name)
+    # Fold dla wzorców numerycznych: diakrytyki→ASCII (ł→l), lowercase, ale
+    # ZACHOWUJE ':' '/' '-' — _normalize_text wycina interpunkcję, przez co
+    # "1:1" stawało się "1 1" (nie do odróżnienia od przypadkowych liczb),
+    # a "długość" traciła 'ł' zanim NFKD mógł ją złożyć ("dugosc").
+    raw = (name or "").translate(str.maketrans({"ł": "l", "Ł": "L"}))
+    import unicodedata as _ud
+    raw = "".join(c for c in _ud.normalize("NFKD", raw) if not _ud.combining(c)).lower()
     out: dict[str, Any] = {}
     m = _RE_ML.search(norm)
     if m:
@@ -122,6 +144,26 @@ def extract_params(name: str | None) -> dict[str, Any]:
         # jednostkę skracamy do rdzenia (paznokcie/paznokci -> "paznok")
         unit = c.group(2)[:6]
         out["count"] = (int(c.group(1)), unit)
+    # --- wolumen: ratio x:y i notacja nD sprowadzone do wspólnego zakresu ---
+    # "1:1"→(1,1); "2:1"→(2,2); "3D"→(3,3); "3/4D"→(3,4). Porównanie w
+    # vote_params: zakresy ROZŁĄCZNE => sprzeczność (against); nakładające
+    # się (np. 3D vs 3/4D) => zgodne. Uwaga: ratio ma pierwszeństwo przed nD,
+    # oba obecne — bierzemy ratio (dokładniejsze).
+    r = _RE_RATIO.search(raw)
+    if r:
+        out["volume"] = (int(r.group(1)), int(r.group(1)))
+    else:
+        d = _RE_DIM.search(raw)
+        if d:
+            lo = int(d.group(1)); hi = int(d.group(2)) if d.group(2) else lo
+            out["volume"] = (min(lo, hi), max(lo, hi))
+    w = _RE_WEEKS.search(raw)
+    if w:
+        out["weeks"] = int(w.group(1))
+    ln = _RE_LENGTH.search(raw)
+    if ln:
+        lo = int(ln.group(1)); hi = int(ln.group(2)) if ln.group(2) else lo
+        out["length"] = (min(lo, hi), max(lo, hi))
     return out
 
 
@@ -139,11 +181,17 @@ def vote_params(subject: dict[str, Any], sample: dict[str, Any]) -> str:
     common = set(p_subj) & set(p_samp)
     if not common:
         return "abstain"  # różne typy parametrów — nie porównywalne
-    # jeśli którykolwiek wspólny parametr się różni => inna usługa
+    # jeśli którykolwiek wspólny parametr się różni => inna usługa.
+    # Parametry zakresowe (volume/length: krotki (lo,hi)) porównujemy przez
+    # PRZECIĘCIE zakresów — "3D" i "3/4D" to zgodność, "1:1" i "2:1" konflikt.
     for k in common:
-        if p_subj[k] != p_samp[k]:
+        a, b = p_subj[k], p_samp[k]
+        if k in ("volume", "length"):
+            if a[1] < b[0] or b[1] < a[0]:  # zakresy rozłączne
+                return "against"
+        elif a != b:
             return "against"
-    return "for"  # wszystkie wspólne parametry identyczne
+    return "for"  # wszystkie wspólne parametry zgodne
 
 
 def vote_package(subject: dict[str, Any], sample: dict[str, Any]) -> str:

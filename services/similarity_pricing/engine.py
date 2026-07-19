@@ -5,8 +5,16 @@ nazwach i taksonomiach, a Z TOŻSAMEGO klastra policzyć cenę rynkową. Cena je
 WYNIKIEM, nie kryterium.
 
 Pipeline:
-  raw → DRUGIE PRAWO (adaptive_identity_filter) → A (dedup per salon)
-      → B (wystarczalność) → D (cena)
+  raw → DRUGIE PRAWO (adaptive_identity_filter) → COHERENCE (obce bloki)
+      → A (dedup per salon) → B (wystarczalność) → D (cena)
+
+COHERENCE (2026-07-19): geometryczny strażnik po teście tożsamości — odrzuca
+bloki sampli bliższych SOBIE nawzajem niż subjectowi (peer_max_sim − similarity
+> gap). Łapie to, czego osie metadanych nie widzą (puste kategorie, parametry
+nieczytelne z nazwy): "Bikini płytkie" w klastrze "Bikini linią" (+84.6% na
+medianie), "Pedicure hybrydowy" w "Manicure hybrydowy" (raport #250). Pełne
+uzasadnienie i kalibracja progów: layer_coherence.py. Umiejscowienie: PO
+identity (nie dubluje twardych wet), PRZED dedup (blok widoczny w pełnej masie).
 
 Drugie prawo (warstwa tożsamości) zastąpiło surowy filtr kategorii: testuje
 każdego bliźniaka na wielu osiach (parametry, pakiet, kategoria, czas) i sam
@@ -22,6 +30,7 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 from typing import Any
 
+from .layer_coherence import drop_foreign_blocks
 from .layer_dedup import dedup_by_salon
 from .layer_identity import adaptive_identity_filter
 from .layer_sufficiency import assess_sufficiency
@@ -42,6 +51,12 @@ DEFAULT_CONFIG: dict[str, Any] = {
     #   "sufficiency" — broń liczby salonów (cena z lekko wymieszanego > brak ceny)
     #   "purity"      — broń tożsamości (raczej "za mało danych" niż wymieszana cena)
     "identity_prefer": "sufficiency",
+    # --- coherence guard (obce bloki; kalibracja: sweep 2026-07-19) ---
+    # peer_max_sim − similarity powyżej gap ORAZ similarity < s_max ⇒ podejrzany;
+    # blok ≥ min_block podejrzanych ⇒ odrzucony. Sample bez peer_max_sim = abstain.
+    "coherence_gap": 0.08,
+    "coherence_s_max": 0.90,
+    "coherence_min_block": 2,
 }
 
 
@@ -67,6 +82,7 @@ class MarketResult:
     subject_generic: bool            # czy nazwa subjectu generyczna (waga kategorii)
     n_raw_samples: int               # ile bliźniaków weszło surowo (przed tożsamością)
     n_identity_kept: int             # ile przeszło test tożsamości
+    n_coherence_dropped: int         # ile odrzucił coherence guard (obce bloki)
     n_used_for_price: int            # ile nie-pakietowych policzyło cenę
     samples: list[dict[str, Any]] = field(default_factory=list)  # tożsame po dedup (drill-down UI)
     provenance: dict[str, Any] = field(default_factory=dict)
@@ -105,8 +121,18 @@ def compute_market_price(
         prefer=cfg["identity_prefer"],
     )
 
-    # --- Warstwa A: dedup per salon (na tożsamym zbiorze) ---
-    s_dedup, meta_a = dedup_by_salon(s_identity, strategy=cfg["dedup_strategy"])
+    # --- COHERENCE: obce bloki (geometria embeddingów, patrz layer_coherence) ---
+    # Po identity: twarde weta już zdjęły oczywiste konflikty; tu wycinamy to,
+    # co metadane przepuściły. Przed dedup: pełna masa bloku = pewniejszy sygnał.
+    s_coherent, meta_c = drop_foreign_blocks(
+        s_identity,
+        gap=cfg["coherence_gap"],
+        s_max=cfg["coherence_s_max"],
+        min_block=cfg["coherence_min_block"],
+    )
+
+    # --- Warstwa A: dedup per salon (na tożsamym i spójnym zbiorze) ---
+    s_dedup, meta_a = dedup_by_salon(s_coherent, strategy=cfg["dedup_strategy"])
 
     # --- Warstwa B: wystarczalność (liczba tożsamych unikalnych salonów) ---
     status, meta_b = assess_sufficiency(
@@ -141,10 +167,12 @@ def compute_market_price(
         subject_generic=final_id["subject_generic"],
         n_raw_samples=n_raw,
         n_identity_kept=len(s_identity),
+        n_coherence_dropped=meta_c["n_dropped"],
         n_used_for_price=market_stats["n_used"],
         samples=s_dedup,
         provenance={
             "identity": meta_id,
+            "coherence": meta_c,
             "dedup": meta_a,
             "sufficiency": meta_b,
             "unit": meta_d,

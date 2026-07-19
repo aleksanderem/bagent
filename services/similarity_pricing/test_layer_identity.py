@@ -279,3 +279,63 @@ def test_adaptive_escalates_for_mixed_generic():
     kept_cats = {(k.get("category_name") or "").lower() for k in kept}
     assert not any("podolog" in c or "fryzjer" in c or "rzes" in c for c in kept_cats)
     assert meta["final"]["purity_kept"] >= 0.9
+
+
+# --------------------------------------------------------------------------
+# 2026-07-19 — uniwersalne parametry numeryczne (volume/weeks/length)
+# Dowody z prod (sweep 250 subjectów): mixing wariantów przy fallbacku 0.75:
+# "Uzupełnienie rzęs 2:1" ← 13×"1:1"; "Przedłużanie rzęs 1:1" ↔ "2:1";
+# "Uzupełnienie Rzes 3:1 (Do4tyg)" ← "3:1 (do 3 tyg.)".
+# --------------------------------------------------------------------------
+
+def test_extract_params_volume_ratio_and_dim():
+    assert extract_params("Przedłużanie rzęs 1:1")["volume"] == (1, 1)
+    assert extract_params("Uzupełnienie rzęs 2:1")["volume"] == (2, 2)
+    assert extract_params("Przedłużanie rzęs 3D")["volume"] == (3, 3)
+    assert extract_params("Przedłużanie rzęs 3/4D")["volume"] == (3, 4)
+    assert "volume" not in extract_params("Manicure hybrydowy")
+
+
+def test_vote_params_volume_conflict_is_against():
+    # RZECZYWISTY mixing ze sweepa: 1:1 vs 2:1 => twarde weto (oś strukturalna)
+    a = _s("Przedłużanie rzęs 1:1"); b = _s("Przedłużanie rzęs 2:1", bid=2)
+    assert vote_params(a, b) == "against"
+    votes = identity_votes(a, b)
+    assert is_identity_match(votes, strictness=0.0) is False  # weto niezależne od surowości
+
+
+def test_vote_params_volume_ranges_overlap_is_for():
+    # 3D vs 3/4D — zakresy się przecinają => zgodność, nie konflikt
+    assert vote_params(_s("Rzęsy 3D"), _s("Rzęsy 3/4D", bid=2)) == "for"
+
+
+def test_vote_params_ratio_vs_dim_same_dimension():
+    # 2:1 i 2D to ta sama wartość wolumenu => for; 1:1 vs 3D => against
+    assert vote_params(_s("Uzupełnienie 2:1"), _s("Uzupełnienie 2D", bid=2)) == "for"
+    assert vote_params(_s("Przedłużanie 1:1"), _s("Przedłużanie 3D", bid=2)) == "against"
+
+
+def test_vote_params_weeks_conflict_is_against():
+    # refill "do 3 tyg" vs "do 4 tyg" = inna usługa cenowo (sweep: realny case)
+    assert vote_params(_s("Uzupełnienie rzęs 3:1 do 4 tyg"),
+                       _s("Uzupełnienie rzęs 3:1 (do 3 tyg.)", bid=2)) == "against"
+
+
+def test_vote_params_weeks_equal_with_volume_for():
+    assert vote_params(_s("Uzupełnienie 2:1 do 3 tyg"),
+                       _s("Uzupełnienie 2:1 (3 tyg)", bid=2)) == "for"
+
+
+def test_extract_params_length_range():
+    assert extract_params("Przedłużanie paznokci długość 1-2")["length"] == (1, 2)
+    # rozłączne długości => against
+    assert vote_params(_s("Uzupełnienie żelowe długość 1-2"),
+                       _s("Uzupełnienie żelowe długość 4", bid=2)) == "against"
+
+
+def test_volume_does_not_fire_on_unrelated_numbers():
+    # Liczby bez notacji x:y / nD nie tworzą wolumenu — brak false-veto na
+    # nazwach typu "Strzyżenie dzieci do lat 5" (sweep: legalny klaster).
+    assert "volume" not in extract_params("Strzyżenie dzieci do lat 5")
+    assert vote_params(_s("Strzyżenie dzieci do lat 5"),
+                       _s("Strzyżenie dzieci ( chłopcy ) do lat 5", bid=2)) == "abstain"

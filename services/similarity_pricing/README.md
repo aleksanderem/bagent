@@ -65,7 +65,7 @@ Każda oś głosuje per para (subject, bliźniak): `for` / `against` / `abstain`
 
 | Oś | Rola | Kierunek | Twarde weto? |
 |---|---|---|---|
-| `params` | ilość produktu (ml, liczba okolic/paznokci) | zgodne→for, sprzeczne→against | **TAK** |
+| `params` | tokeny numeryczne nazwy: ml, liczba okolic/paznokci; od 2026-07-19 też **wolumen** (`1:1`/`2:1`/`nD`/`3/4D` → wspólny wymiar, porównanie zakresów), **tygodnie** refillu (`do 3 tyg`), **długość** (`długość 1-2`) | zgodne→for, sprzeczne→against | **TAK** |
 | `package` | pakiet vs pojedyncza | różny→against, zgodny→abstain | **TAK** |
 | `body_area` | zakres obszarów ciała (twarz vs twarz+szyja+dekolt) | różny zestaw→against | **TAK** |
 | `price` | rozrzut ceny rzędu wielkości (zł/min ≥ 4×) | tylko against; **NIGDY for** | nie (miękka, waga 1.5) |
@@ -112,6 +112,35 @@ pełna logika) — nie myli nazw specyficznych z różną kategorią.
   prawdziwych bliźniaków. Stary silnik to ukrywał, mieszając nieporównywalne.
 - **`normalize_unit`** (`layer_unit.py`): wyklucza pakiety, liczy zł/min, cena rynkowa =
   median(zł/min na nie-pakietach) × czas subjectu. Percentyle, deviation.
+
+## 5b. Coherence guard — obce bloki (`layer_coherence.py`, 2026-07-19)
+
+**Problem, który zamyka:** pasmo similarity prawdziwych bliźniaków (0.82–1.0,
+bo embedding = nazwa+opis) NAKŁADA SIĘ na pasmo obcych usług o zbieżnym
+słownictwie (manicure↔pedicure 0.834–0.841). Gdy metadane milczą (puste/
+personalne kategorie, parametry nieczytelne z nazwy), test tożsamości się
+wstrzymuje i obca usługa wchodzi do ceny. Dowody z prod (sweep 250 subjectów,
+2026-07-19): "Bikini płytkie" w klastrze "Bikini linią" (+84.6% na medianie),
+"Pedicure hybrydowy" w "Manicure hybrydowy" (raport #250, wiersze verified);
+20% subjectów z rynkiem miało obcy blok o wpływie ≥10%.
+
+**Zasada (czysta geometria, zero słowników):** obcy blok jest spójny
+WEWNĘTRZNIE (te same usługi u wielu salonów ⇒ wzajemne sim ~1.0), a do
+subjectu ma sim niższe. Sample odpada, gdy `peer_max_sim − similarity > 0.08`
+i `similarity < 0.90`, w bloku ≥2 sztuk. `peer_max_sim` liczy Postgres
+(`fn_pairwise_max_similarity`, mig 151), wstrzykuje `report_pricing` —
+engine pozostaje pure; brak pola = abstain (deploy-order-safe, odporne na
+sweep embeddingów historii z mig 149).
+
+**Umiejscowienie:** po teście tożsamości (nie dubluje twardych wet), przed
+dedup (blok widoczny w pełnej masie). Kalibracja progów: histogram gap na
+6.7k sampli realnych raportów (bliźniaki ≤ +0.05, obce od ~+0.10).
+
+**Regresja na realnych danych:** `run_corpus_regression.py` +
+`compare_snapshots.py` — zamrożony korpus 250 subjectów z prod; subjecty bez
+obcych bloków MUSZĄ dawać wynik identyczny bit-w-bit między wersjami silnika.
+Inwariant produkcyjny: SLO probe `slo-cluster-coherence` (host systemd,
+booksy-coherence-probe.sh) — świeże wiersze raportów nie mogą zawierać bloku.
 
 ## 6. Kategorie neutralne (`layer_neutral.py`)
 
@@ -187,7 +216,8 @@ Stałe osi w `layer_identity.py`: `PRICE_RATIO_AGAINST=4.0`, `CAT_WEIGHT_GENERIC
 
 ## 11. Pliki, testy, narzędzia, ograniczenia
 
-**Pliki:** `engine.py`, `layer_identity.py` (6 osi + drugie prawo), `layer_dedup.py`,
+**Pliki:** `engine.py`, `layer_identity.py` (6 osi + drugie prawo; od 2026-07-19
+osie numeryczne volume/weeks/length — patrz niżej), `layer_coherence.py` (obce bloki), `layer_dedup.py`,
 `layer_sufficiency.py`, `layer_unit.py`, `layer_category.py` (generic detection), `layer_neutral.py`
 (kategorie neutralne). Słownik obszarów: `services/body_area_taxonomy.py` (współdzielony).
 
