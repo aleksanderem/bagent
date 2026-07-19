@@ -229,3 +229,24 @@ def test_identity_strictness_recorded():
     assert isinstance(res.identity_strictness, float)
     assert 0.0 <= res.identity_strictness <= 1.0
     assert 0.0 <= res.identity_purity <= 1.0
+
+
+# --------------------------------------------------------------------------
+# 2026-07-19 — peer_max_sim z WEKTORÓW QDRANTA (compute_peer_max_sims)
+# Krytyczny fix spójności źródeł: twins z Qdranta, peer z tych samych wektorów
+# (Postgres fn_pairwise miał ~7% pokrycia twin-id po mig 149).
+# --------------------------------------------------------------------------
+
+def test_compute_peer_max_sims_from_vectors():
+    from services.similarity_pricing.qdrant_search import compute_peer_max_sims
+    foreign = [1.0, 0.0, 0.0]; twin = [0.0, 1.0, 0.0]
+    vectors = {1: twin, 2: twin, 3: foreign, 4: foreign, 5: foreign}
+    pm = compute_peer_max_sims([1, 2, 3, 4, 5], vectors)
+    assert all(abs(v - 1.0) < 1e-6 for v in pm.values())
+    assert set(pm) == {1, 2, 3, 4, 5}
+
+
+def test_compute_peer_max_sims_skips_missing_vector():
+    from services.similarity_pricing.qdrant_search import compute_peer_max_sims
+    pm = compute_peer_max_sims([1, 2, 3], {1: [1.0, 0.0], 3: [1.0, 0.0]})
+    assert set(pm) == {1, 3} and 2 not in pm

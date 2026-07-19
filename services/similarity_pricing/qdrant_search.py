@@ -11,6 +11,7 @@ payload mniejszy, nazwy zawsze aktualne.
 """
 from __future__ import annotations
 
+import math
 import os
 from typing import Any
 
@@ -18,6 +19,65 @@ from qdrant_client import QdrantClient, models
 
 COLLECTION = "salon_services"
 _client: QdrantClient | None = None
+
+
+def _cosine(a: list[float], b: list[float]) -> float:
+    """Cosine similarity dwóch wektorów. Wektory Qdranta są znormalizowane
+    (cosine collection), więc iloczyn skalarny ≈ cosine, ale liczymy pełny
+    wzór dla odporności."""
+    dot = sum(x * y for x, y in zip(a, b))
+    na = math.sqrt(sum(x * x for x in a))
+    nb = math.sqrt(sum(y * y for y in b))
+    if na == 0.0 or nb == 0.0:
+        return 0.0
+    return dot / (na * nb)
+
+
+def fetch_twin_vectors(
+    service_ids: list[int], client: QdrantClient | None = None
+) -> dict[int, list[float]]:
+    """service_id → wektor z Qdranta (retrieve with_vectors).
+
+    Źródło peer_max_sim dla COHERENCE GUARD — TO SAMO co twins (Qdrant), więc
+    bez rozjazdu z Postgresem: fn_pairwise (mig 151) po mig 149 miał ~7%
+    pokrycia twin-id (embeddingi historii zmiecione), Qdrant trzyma punkty
+    chain-headów → ~100% (zmierzone 2026-07-19). Jedna runda retrieve per
+    klaster subjectu (~80 id, ms). Wektory nie wchodzą do QueryRequest —
+    ta wersja qdrant-client nie przyjmuje tam with_vectors."""
+    if len(service_ids) < 2:
+        return {}
+    try:
+        qc = client or get_client()  # w try: brak QDRANT_URL/klienta = abstain
+        pts = qc.retrieve(COLLECTION, ids=[int(x) for x in service_ids],
+                          with_vectors=True, with_payload=False)
+    except Exception:  # noqa: BLE001 — brak peer = abstain, nie wywala raportu
+        return {}
+    return {int(p.id): p.vector for p in pts if p.vector}
+
+
+def compute_peer_max_sims(
+    service_ids: list[int], vectors: dict[int, list[float]]
+) -> dict[int, float]:
+    """peer_max_sim per usługa = max cosine do INNEJ usługi z listy.
+
+    Czysta funkcja (bez I/O) — testowalna offline. `vectors` z fetch_twin_vectors
+    (Qdrant). Usługi bez wektora są pomijane → warstwa coherence robi abstain.
+    Zasila COHERENCE GUARD (layer_coherence) — patrz jego docstring.
+    """
+    vecs = [(int(sid), vectors[int(sid)]) for sid in service_ids
+            if int(sid) in vectors and vectors[int(sid)]]
+    out: dict[int, float] = {}
+    for i, (sid_a, va) in enumerate(vecs):
+        best = -1.0
+        for j, (sid_b, vb) in enumerate(vecs):
+            if i == j:
+                continue
+            sc = _cosine(va, vb)
+            if sc > best:
+                best = sc
+        if best >= 0.0:
+            out[sid_a] = round(best, 4)
+    return out
 
 
 def get_client() -> QdrantClient:
