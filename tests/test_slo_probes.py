@@ -3,7 +3,8 @@
 Weryfikuje logikę wykrywania regresji 2026-07-20 (scrape_refresh child-inserts
 timeoutują na 109 GB salon_scrape_services → brak alertów → pusty Przegląd).
 Mock klienta zwraca count per kolejne .execute() w kolejności, w jakiej próba
-odpytuje: [stuck_timeout, done_last_2h, queued].
+odpytuje: [timeouts_last_1h, done_last_2h, queued]. Próg systemowy: >20 świeżych
+timeoutów/h = FAIL (pojedyncze gigantyczne salony tolerowane).
 """
 import asyncio
 from types import SimpleNamespace
@@ -49,17 +50,23 @@ def _run(counts):
 
 
 def test_healthy_ingest_passes():
-    # stuck=0, done=5 (są udane ingesty), queued=10 → OK
+    # timeouts_1h=0, done=5 (są udane ingesty), queued=10 → OK
     res = _run([0, 5, 10])
     assert res.ok is True
-    assert "stuck_timeout=0" in res.detail
+    assert "timeouts_last_1h=0" in res.detail
 
 
 def test_statement_timeout_regression_fails():
-    # stuck=6 (joby kręcą się w requeue na timeout) → FAIL, niezależnie od reszty
-    res = _run([6, 0, 6])
+    # 50 świeżych timeoutów/h (>20 próg) → systemowa regresja → FAIL
+    res = _run([50, 0, 30])
     assert res.ok is False
-    assert "stuck_timeout=6" in res.detail
+    assert "timeouts_last_1h=50" in res.detail
+
+
+def test_few_stragglers_below_threshold_pass():
+    # 5 timeoutów/h (pojedyncze gigantyczne salony) < próg 20, są completions → OK
+    res = _run([5, 8, 10])
+    assert res.ok is True
 
 
 def test_no_work_does_not_false_alarm():

@@ -896,12 +896,18 @@ class SalonJsonIngester:
         if self.dry_run:
             return len(rows)
 
-        # Batch-insert in chunks of 500 to keep single requests reasonable.
-        # Collect the returned rows so we know the IDs assigned by BIGSERIAL
-        # — needed for the post-insert embedding payload below.
+        # Batch-insert in chunks. 2026-07-20: obniżone 500→150. salon_scrape_services
+        # urosło do ~109 GB; insert przez PostgREST leci jako rola `authenticator`
+        # ze `statement_timeout=8s`, a 500-wierszowy chunk (× indeksy + trigger
+        # dedup) przekraczał 8s dla dużych salonów → error 57014 → job requeue →
+        # brak diffów → brak alertów competitor-monitoring (pusty „Przegląd").
+        # 150 daje ~4-5× zapasu pod 8s. Regresję pilnuje SLO probe
+        # monitoring_alerts_ingesting. Collect returned rows for BIGSERIAL IDs
+        # (post-insert embedding payload below).
+        _SSS_INSERT_CHUNK = 150
         inserted_rows: list[dict[str, Any]] = []
-        for i in range(0, len(rows), 500):
-            chunk = rows[i : i + 500]
+        for i in range(0, len(rows), _SSS_INSERT_CHUNK):
+            chunk = rows[i : i + _SSS_INSERT_CHUNK]
             res = _retry_http(
                 lambda chunk=chunk: self.client.table("salon_scrape_services").insert(chunk).execute(),
                 op_name="salon_scrape_services.insert",

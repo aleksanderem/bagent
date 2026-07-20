@@ -328,18 +328,24 @@ async def probe_monitoring_alerts_ingesting(client) -> ProbeResult:
     probe_scrape_pipeline_progressing tego NIE łapie: przechodzi, gdy SZERSZA
     kolejka drenuje (done>=30 z innych salonów), podczas gdy watchlist-joby
     kręcą się w requeue z timeoutem. Ta próba celuje w sygnaturę DOKŁADNIE:
-      * joby stuck (attempt>=3) z ``error`` zawierającym „statement timeout",
+      * ŚWIEŻE timeouty w oknie 1h (locked_at) powyżej progu — mierzymy AKTUALNY
+        stan, nie historyczny backlog (21k martwych 'failed' z 2026-07 zostaje z
+        tekstem błędu na zawsze; liczenie all-time dawałoby permanentny FAIL),
       * BRAK udanego ingestu (status='done') w oknie 2h, mimo że coś jest w
         kolejce (queued>0). Gdy kolejka pusta — nie alarmuj (brak pracy != awaria).
     """
-    stuck = (
+    # Powyżej tylu świeżych timeoutów/h = systemowa regresja (a nie pojedyncze
+    # gigantyczne salony ocierające się o 8s). Fix 2026-07-20: chunk insertu
+    # 500→150 + drop 11 nieużywanych indeksów miał to sprowadzić ~0.
+    _TIMEOUT_FAIL_THRESHOLD = 20
+    recent_timeouts = (
         client.table("salon_refresh_queue")
         .select("id", count="exact")
-        .gte("attempt", 3)
         .ilike("error", "%statement timeout%")
+        .gte("locked_at", _iso_ago(seconds=3600))
         .execute()
     )
-    stuck_count = stuck.count or 0
+    recent_timeout_count = recent_timeouts.count or 0
 
     done_recent = (
         client.table("salon_refresh_queue")
@@ -358,11 +364,13 @@ async def probe_monitoring_alerts_ingesting(client) -> ProbeResult:
     )
     queued_count = queued.count or 0
 
-    # FAIL: timeouty obecne, ALBO jest praca w kolejce ale zero completions w 2h.
-    ok = stuck_count == 0 and (done_count > 0 or queued_count == 0)
+    # FAIL: świeże timeouty ponad próg, ALBO praca w kolejce bez completions w 2h.
+    ok = recent_timeout_count <= _TIMEOUT_FAIL_THRESHOLD and (
+        done_count > 0 or queued_count == 0
+    )
     return ProbeResult(
         ok=ok,
-        detail=f"stuck_timeout={stuck_count} done_last_2h={done_count} queued={queued_count}",
+        detail=f"timeouts_last_1h={recent_timeout_count} done_last_2h={done_count} queued={queued_count}",
     )
 
 
