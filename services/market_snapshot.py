@@ -1,28 +1,31 @@
 """Mini raport rynkowy (S0082) — fraza usera → grupy TOŻSAMYCH usług z cenami.
 
-Reużycie silnika similarity_pricing 1:1 zamiast gołego cosine (feedback usera:
-"analiza rynku to śmieciowy odpad tego co robimy w audycie"):
+v3 (2026-07-21, audyt pokrycia): dwufazowo, bo name_embedding = "nazwa. opis"
+i krótka fraza łapała cosine'em tylko ~18% tekstowych trafień (Botoks/Warszawa:
+1174 z 6373 ofert), a prefiltr 3000 salonów ucinał 2/3 obszaru (8811 heads).
 
-  fraza → embed_texts (przestrzeń name_embedding, openai-3-small)
-        → RPC fn_market_service_matches (mig 153: geo/city prefiltr + cosine,
-          surowe wiersze)
-        → peer_max_sim z Qdranta (to samo źródło co raport konkurencji)
-        → grupowanie po ZNORMALIZOWANEJ nazwie (_normalize_text — filozofia
-          weta nazwy; NIE variant_id, bo klasyfikacja to stary, odrzucony
-          paradygmat — patrz similarity_pricing/README §1)
-        → per grupa: compute_market_price z SYNTETYCZNYM subjectem
-          (dominująca nazwa + MEDIANA ceny/czasu grupy) — dzięki medianie
-          oś price (rząd wielkości zł/min) ucina zadatki/konsultacje
-          nazwane identycznie jak zabieg, a osie params/package/body_area
-          i coherence guard czyszczą resztę dokładnie jak w raporcie.
+  FAZA 1 — ANCHORY: fraza → fn_market_service_matches (mig 153; cosine po
+    3000 NAJBLIŻSZYCH salonów — wystarczy, by znaleźć typowe NAZWY usługi,
+    nie musi znaleźć wszystkich egzemplarzy) → grupowanie po znormalizowanej
+    nazwie (transliteracja PL — NFKD gubi "ł").
+  FAZA 2 — EKSPANSJA: dla reprezentantów każdej grupy search_twins w Qdrancie
+    po PEŁNYM obszarze (fn_market_area_booksy_ids, mig 154, INTEGER[] —
+    wzorzec mig 147) w NATURALNEJ przestrzeni silnika service→service
+    (nazwa+opis vs nazwa+opis, próg 0.82 jak fn_find_related_v2/mig 144).
+    To dołapuje "Toksyna botulinowa ..." itp. i cały ogon obszaru.
+  FAZA 3 — SILNIK: per grupa compute_market_price z syntetycznym subjectem
+    (dominująca nazwa + MEDIANY ceny/czasu — oś price tnie zadatki), similarity
+    członków PRZELICZONE jednolicie vs wektor reprezentanta (spójna skala dla
+    coherence guard), peer_max_sim z Qdranta per grupa.
 
-Grupy z 1 salonem nie dostają statystyk (jak subject_only w raporcie) —
-lądują w "other" jako pojedyncze oferty.
+Przypisanie do grup: najpierw tożsamość nazwy (istniejący klucz grupy wygrywa),
+potem najwyższy twin-score. Grupy z <2 salonami po ekspansji → "other".
 """
 
 from __future__ import annotations
 
 import logging
+import math
 import re
 from collections import Counter
 from statistics import median
@@ -33,14 +36,40 @@ from services.similarity_pricing.engine import compute_market_price
 from services.similarity_pricing.qdrant_search import (
     compute_peer_max_sims,
     fetch_twin_vectors,
+    search_twins,
 )
 
 logger = logging.getLogger(__name__)
 
+# Ile grup wariantowych zwracamy (posortowane po sile: n_salons, similarity).
+MAX_GROUPS = 8
+# Ile grup-kandydatów (anchorowych) rozszerzamy w Qdrancie.
+MAX_CANDIDATE_GROUPS = 12
+# Reprezentanci grupy używani jako subjecty ekspansji.
+MAX_REPS_PER_GROUP = 3
+# Max bliźniaków per reprezentant z Qdranta.
+TWINS_LIMIT_PER_REP = 500
+# Próg service→service ekspansji (jak fn_find_related_v2, mig 144).
+TWIN_MIN_SIMILARITY = 0.82
+# Próg fazy anchorowej (fraza→usługa; wyżej niż 0.55, bo anchor ma być pewny).
+ANCHOR_MIN_SIMILARITY = 0.60
+# Minimalna liczba RÓŻNYCH salonów PO ekspansji, żeby grupa dostała statystyki.
+MIN_GROUP_SALONS = 2
+# Ile sampli per grupa w odpowiedzi (drill-down w UI).
+MAX_SAMPLES_PER_GROUP = 30
+# Chunk dla PostgREST .in_() (enrichment).
+_IN_CHUNK = 200
+
+# Konfiguracja silnika dla snapshotu: identycznie jak raport poza progami
+# wystarczalności — snapshot pokazuje też cienkie grupy (2-3 salony).
+_SNAPSHOT_ENGINE_CONFIG: dict[str, Any] = {
+    "min_salons_sufficient": 4,
+    "min_salons_thin": 2,
+}
+
 # Transliteracja polskich diakrytyków do klucza grupowania. CELOWO nie
 # _normalize_text z layer_identity: NFKD nie rozkłada "ł/Ł" (brak combining
-# stroke), więc ascii-ignore GUBI literę ("czoło"→"czoo" ≠ "czolo") i te same
-# usługi pisane z/bez diakrytyków lądowałyby w osobnych grupach.
+# stroke), więc ascii-ignore GUBI literę ("czoło"→"czoo" ≠ "czolo").
 _PL_TRANSLIT = str.maketrans(
     "ąćęłńóśżźĄĆĘŁŃÓŚŻŹ",
     "acelnoszzACELNOSZZ",
@@ -60,24 +89,29 @@ def _group_key(text: str | None) -> str:
     text = text.translate(_PL_TRANSLIT)
     return _RE_SPACES.sub(" ", text).strip().lower()
 
-# Ile grup wariantowych zwracamy (posortowane po sile: n_salons, similarity).
-MAX_GROUPS = 8
-# Minimalna liczba RÓŻNYCH salonów, żeby grupa dostała własny wiersz z engine.
-MIN_GROUP_SALONS = 2
-# Ile sampli per grupa w odpowiedzi (drill-down w UI).
-MAX_SAMPLES_PER_GROUP = 30
 
-# Konfiguracja silnika dla snapshotu: identycznie jak raport poza progami
-# wystarczalności — snapshot pokazuje też cienkie grupy (3-4 salony) jako
-# pełnoprawne, bo user pyta o rynek, nie o rekomendację cenową dla siebie.
-_SNAPSHOT_ENGINE_CONFIG: dict[str, Any] = {
-    "min_salons_sufficient": 4,
-    "min_salons_thin": 2,
-}
+def _cosine(a: list[float] | None, b: list[float] | None) -> float | None:
+    if not a or not b or len(a) != len(b):
+        return None
+    dot = sum(x * y for x, y in zip(a, b))
+    na = math.sqrt(sum(x * x for x in a))
+    nb = math.sqrt(sum(x * x for x in b))
+    if na == 0 or nb == 0:
+        return None
+    return dot / (na * nb)
+
+
+def _haversine_m(lat1: float, lng1: float, lat2: float, lng2: float) -> float:
+    r = 6371000.0
+    p1, p2 = math.radians(lat1), math.radians(lat2)
+    dp = math.radians(lat2 - lat1)
+    dl = math.radians(lng2 - lng1)
+    a = math.sin(dp / 2) ** 2 + math.cos(p1) * math.cos(p2) * math.sin(dl / 2) ** 2
+    return 2 * r * math.asin(math.sqrt(a))
 
 
 def _sample_out(row: dict[str, Any]) -> dict[str, Any]:
-    """Pola sample'a dla frontendu (bez embeddingów/metadanych silnika)."""
+    """Pola sample'a dla frontendu (bez wektorów/metadanych silnika)."""
     return {
         "service_id": row.get("service_id"),
         "salon_ref_id": row.get("salon_ref_id"),
@@ -95,7 +129,6 @@ def _sample_out(row: dict[str, Any]) -> dict[str, Any]:
 
 
 def _dominant(values: list[Any]) -> Any:
-    """Najczęstsza niepusta wartość (nazwa/kategoria reprezentanta grupy)."""
     filtered = [v for v in values if v]
     if not filtered:
         return None
@@ -106,13 +139,11 @@ def _build_group_subject(rows: list[dict[str, Any]]) -> dict[str, Any]:
     """Syntetyczny subject grupy: dominująca nazwa + mediany ceny/czasu.
 
     Mediana ceny jako subject.price_grosze uzbraja oś price silnika
-    (rozjazd rzędu wielkości vs mediana ⇒ against) — to ona wycina
-    zadatki "Botoks 100 zł" z grupy, w której mediana to 1500 zł.
+    (rozjazd rzędu wielkości vs mediana ⇒ against) — wycina zadatki
+    nazwane identycznie jak zabieg.
     """
     prices = [r["price_grosze"] for r in rows if r.get("price_grosze")]
-    durations = [
-        r["duration_minutes"] for r in rows if r.get("duration_minutes")
-    ]
+    durations = [r["duration_minutes"] for r in rows if r.get("duration_minutes")]
     return {
         "service_name": _dominant([r.get("service_name") for r in rows]) or "",
         "price_grosze": int(median(prices)) if prices else None,
@@ -120,6 +151,73 @@ def _build_group_subject(rows: list[dict[str, Any]]) -> dict[str, Any]:
         "category_name": _dominant([r.get("category_name") for r in rows]),
         "is_package": False,
     }
+
+
+def _chunked(seq: list[Any], n: int) -> list[list[Any]]:
+    return [seq[i : i + n] for i in range(0, len(seq), n)]
+
+
+def _enrich_rows(
+    rows: list[dict[str, Any]],
+    supabase_client: Any,
+    *,
+    lat: float | None,
+    lng: float | None,
+) -> None:
+    """Dociągnij metadane salonu (nazwa/miasto/geo) + is_from_price dla wierszy
+    z Qdranta (payload ich nie niesie). Mutuje rows in-place. Best-effort."""
+    need_salon = [r for r in rows if not r.get("salon_name")]
+    booksy_ids = sorted({r["booksy_id"] for r in need_salon if r.get("booksy_id")})
+    salon_meta: dict[int, dict[str, Any]] = {}
+    for chunk in _chunked(booksy_ids, _IN_CHUNK):
+        try:
+            res = (
+                supabase_client.table("salons")
+                .select("id,booksy_id,name,city,latitude,longitude")
+                .in_("booksy_id", chunk)
+                .execute()
+            )
+            for s in res.data or []:
+                salon_meta[s["booksy_id"]] = s
+        except Exception as e:  # noqa: BLE001 — enrichment nie może ubić snapshotu
+            logger.warning("market_snapshot: salon enrichment chunk failed (%s)", e)
+
+    need_from_price = [r for r in rows if "is_from_price" not in r]
+    sss_ids = sorted({r["service_id"] for r in need_from_price if r.get("service_id")})
+    from_price: dict[int, bool] = {}
+    for chunk in _chunked(sss_ids, _IN_CHUNK):
+        try:
+            res = (
+                supabase_client.table("salon_scrape_services")
+                .select("id,is_from_price")
+                .in_("id", chunk)
+                .execute()
+            )
+            for s in res.data or []:
+                from_price[s["id"]] = bool(s.get("is_from_price", False))
+        except Exception as e:  # noqa: BLE001
+            logger.warning("market_snapshot: from_price enrichment chunk failed (%s)", e)
+
+    for r in rows:
+        meta = salon_meta.get(r.get("booksy_id"))
+        if meta:
+            r.setdefault("salon_ref_id", meta.get("id"))
+            r["salon_name"] = r.get("salon_name") or meta.get("name")
+            r.setdefault("city", meta.get("city"))
+            r.setdefault("latitude", meta.get("latitude"))
+            r.setdefault("longitude", meta.get("longitude"))
+        if "is_from_price" not in r:
+            r["is_from_price"] = from_price.get(r.get("service_id"), False)
+        if (
+            r.get("distance_m") is None
+            and lat is not None
+            and lng is not None
+            and r.get("latitude") is not None
+            and r.get("longitude") is not None
+        ):
+            r["distance_m"] = round(
+                _haversine_m(lat, lng, r["latitude"], r["longitude"]), 0
+            )
 
 
 def build_market_snapshot(
@@ -130,7 +228,7 @@ def build_market_snapshot(
     lng: float | None = None,
     radius_km: float = 15.0,
     city: str | None = None,
-    min_similarity: float = 0.55,
+    min_similarity: float = ANCHOR_MIN_SIMILARITY,
 ) -> dict[str, Any]:
     """Zbuduj snapshot rynku dla frazy w obszarze. Synchroniczna (wołać przez
     asyncio.to_thread z endpointu)."""
@@ -139,10 +237,10 @@ def build_market_snapshot(
         raise RuntimeError("embedding providers unavailable")
     vectors, space = embedded
     if space != "openai-3-small":
-        # mmlw fallback = inna przestrzeń niż name_embedding — cosine bez sensu.
         raise RuntimeError(f"embedding space mismatch: {space}")
     vector_str = "[" + ",".join(str(v) for v in vectors[0]) + "]"
 
+    # --- FAZA 1: anchory (fraza→usługa, 3000 najbliższych salonów) ---
     res = supabase_client.rpc(
         "fn_market_service_matches",
         {
@@ -154,39 +252,147 @@ def build_market_snapshot(
             "p_min_similarity": min_similarity,
         },
     ).execute()
-    rows: list[dict[str, Any]] = res.data or []
+    anchors: list[dict[str, Any]] = res.data or []
 
-    if not rows:
-        return {
-            "query": query,
-            "groups": [],
-            "other_samples": [],
-            "total_offers": 0,
-            "total_salons": 0,
-        }
+    empty = {
+        "query": query,
+        "groups": [],
+        "other_samples": [],
+        "total_offers": 0,
+        "total_salons": 0,
+    }
+    if not anchors:
+        return empty
 
-    # peer_max_sim z Qdranta — pokarm coherence guard (abstain gdy brak).
-    ids = [r["service_id"] for r in rows if r.get("service_id") is not None]
+    # --- Pełny obszar (filtr ekspansji) ---
+    area_ids: list[int] = []
     try:
-        peer_sims = compute_peer_max_sims(ids, fetch_twin_vectors(ids))
-        for r in rows:
-            pm = peer_sims.get(r.get("service_id"))
-            if pm is not None:
-                r["peer_max_sim"] = pm
-    except Exception as e:  # noqa: BLE001 — guard abstains bez peer_max_sim
-        logger.warning("market_snapshot: peer_max_sim unavailable (%s)", e)
+        area_res = supabase_client.rpc(
+            "fn_market_area_booksy_ids",
+            {"p_lat": lat, "p_lng": lng, "p_radius_km": radius_km, "p_city": city},
+        ).execute()
+        area_ids = list(area_res.data or [])
+    except Exception as e:  # noqa: BLE001 — bez obszaru ekspansja niemożliwa, anchory zostają
+        logger.warning("market_snapshot: area ids unavailable (%s)", e)
 
-    # Grupowanie po znormalizowanej nazwie (weto nazwy — deterministyczne).
+    # --- Grupowanie anchorów po znormalizowanej nazwie ---
     grouped: dict[str, list[dict[str, Any]]] = {}
-    for r in rows:
-        grouped.setdefault(_group_key(r.get("service_name")), []).append(r)
+    for r in anchors:
+        key = _group_key(r.get("service_name"))
+        if key:
+            grouped.setdefault(key, []).append(r)
 
+    candidate_keys = sorted(
+        grouped.keys(),
+        key=lambda k: (
+            -len({m.get("booksy_id") for m in grouped[k] if m.get("booksy_id")}),
+            -max(float(m.get("similarity") or 0.0) for m in grouped[k]),
+        ),
+    )[:MAX_CANDIDATE_GROUPS]
+
+    # --- FAZA 2: ekspansja bliźniaków po pełnym obszarze (Qdrant, 0.82) ---
+    rep_to_key: dict[int, str] = {}
+    rep_ids: list[int] = []
+    for key in candidate_keys:
+        members = sorted(
+            grouped[key], key=lambda m: -float(m.get("similarity") or 0.0)
+        )
+        for m in members[:MAX_REPS_PER_GROUP]:
+            sid = m.get("service_id")
+            if sid is not None:
+                rep_to_key[int(sid)] = key
+                rep_ids.append(int(sid))
+
+    twins_by_rep: dict[int, list[dict[str, Any]]] = {}
+    if area_ids and rep_ids:
+        try:
+            twins_by_rep = search_twins(
+                rep_ids,
+                area_ids,
+                limit=TWINS_LIMIT_PER_REP,
+                min_similarity=TWIN_MIN_SIMILARITY,
+            )
+        except Exception as e:  # noqa: BLE001 — Qdrant down ⇒ zostają same anchory
+            logger.warning("market_snapshot: twin expansion unavailable (%s)", e)
+
+    # --- Sklejenie puli per grupa; przypisanie: nazwa > najlepszy twin-score ---
+    pool: dict[int, dict[str, Any]] = {}
+    assignment: dict[int, tuple[str, float]] = {}
+
+    for key in candidate_keys:
+        for m in grouped[key]:
+            sid = m.get("service_id")
+            if sid is None:
+                continue
+            pool[int(sid)] = m
+            # Członek anchorowy: tożsamość nazwy = twarde przypisanie.
+            assignment[int(sid)] = (key, 2.0)
+
+    for rep_id, twins in twins_by_rep.items():
+        rep_key = rep_to_key.get(rep_id)
+        if rep_key is None:
+            continue
+        for t in twins:
+            sid = t.get("service_id")
+            if sid is None or not t.get("price_grosze"):
+                continue
+            sid = int(sid)
+            score = float(t.get("similarity") or 0.0)
+            # Tożsamość nazwy wygrywa: bliźniak o nazwie istniejącej grupy
+            # idzie do NIEJ, niezależnie od tego, który rep go znalazł.
+            name_key = _group_key(t.get("service_name"))
+            target_key = name_key if name_key in grouped else rep_key
+            hard = 2.0 if name_key in grouped else score
+            prev = assignment.get(sid)
+            if prev is None or hard > prev[1]:
+                assignment[sid] = (target_key, hard)
+                pool.setdefault(sid, t)
+
+    # --- Spójne similarity + peer_max_sim (wektory z Qdranta) ---
+    all_ids = list(pool.keys())
+    vectors_by_id: dict[int, list[float]] = {}
+    try:
+        vectors_by_id = fetch_twin_vectors(all_ids)
+    except Exception as e:  # noqa: BLE001 — silnik abstains bez peer_max_sim
+        logger.warning("market_snapshot: vectors unavailable (%s)", e)
+
+    members_by_key: dict[str, list[dict[str, Any]]] = {}
+    for sid, (key, _score) in assignment.items():
+        row = pool.get(sid)
+        if row is not None:
+            members_by_key.setdefault(key, []).append(row)
+
+    for key, members in members_by_key.items():
+        # Rep = anchor o najwyższym phrase-sim w grupie (pierwszy z rep_ids tej grupy).
+        rep_id = next((r for r in rep_ids if rep_to_key.get(r) == key), None)
+        rep_vec = vectors_by_id.get(rep_id) if rep_id is not None else None
+        member_ids = [int(m["service_id"]) for m in members if m.get("service_id")]
+        peer_sims = (
+            compute_peer_max_sims(
+                member_ids, {i: vectors_by_id[i] for i in member_ids if i in vectors_by_id}
+            )
+            if len(member_ids) >= 2
+            else {}
+        )
+        for m in members:
+            sid = int(m["service_id"])
+            pm = peer_sims.get(sid)
+            if pm is not None:
+                m["peer_max_sim"] = pm
+            # Jednolita skala similarity: cosine vs wektor reprezentanta
+            # (service→service). Fallback: dotychczasowa wartość.
+            if rep_vec is not None and sid in vectors_by_id:
+                sim = _cosine(rep_vec, vectors_by_id[sid])
+                if sim is not None:
+                    m["similarity"] = round(sim, 4)
+
+    # --- Enrichment metadanych (twins z Qdranta nie mają salon/geo/from_price) ---
+    _enrich_rows(list(pool.values()), supabase_client, lat=lat, lng=lng)
+
+    # --- FAZA 3: silnik per grupa ---
     strong: list[dict[str, Any]] = []
     other_rows: list[dict[str, Any]] = []
-    for key, members in grouped.items():
-        if not key:
-            other_rows.extend(members)
-            continue
+    for key, members in members_by_key.items():
         n_salons = len({m.get("booksy_id") for m in members if m.get("booksy_id")})
         if n_salons < MIN_GROUP_SALONS:
             other_rows.extend(members)
@@ -195,7 +401,6 @@ def build_market_snapshot(
         subject = _build_group_subject(members)
         result = compute_market_price(subject, members, _SNAPSHOT_ENGINE_CONFIG)
         if result.status == "insufficient" or result.market_price_grosze is None:
-            # Silnik nie obronił tożsamej grupy — oferty spadają do "pozostałe".
             other_rows.extend(members)
             continue
 
@@ -205,7 +410,7 @@ def build_market_snapshot(
         strong.append(
             {
                 "label": subject["service_name"],
-                "status": result.status,  # "sufficient" | "thin"
+                "status": result.status,
                 "n_salons": result.n_unique_salons,
                 "n_offers": len(members),
                 "median_grosze": result.market_price_grosze,
@@ -221,12 +426,9 @@ def build_market_snapshot(
             }
         )
 
-    # Sortowanie: najmocniejsze grupy najpierw (salony, potem dopasowanie).
     strong.sort(key=lambda g: (-g["n_salons"], -g["avg_similarity"]))
     groups_out = strong[:MAX_GROUPS]
 
-    # "Pozostałe" — pojedyncze oferty bez tożsamej grupy (dedup po service_id,
-    # sort po similarity, cap żeby response nie puchł).
     seen_ids: set[Any] = set()
     other_unique: list[dict[str, Any]] = []
     for r in sorted(other_rows, key=lambda x: -(x.get("similarity") or 0.0)):
@@ -241,6 +443,8 @@ def build_market_snapshot(
         "query": query,
         "groups": groups_out,
         "other_samples": other_out,
-        "total_offers": len(rows),
-        "total_salons": len({r.get("booksy_id") for r in rows if r.get("booksy_id")}),
+        "total_offers": len(pool),
+        "total_salons": len(
+            {r.get("booksy_id") for r in pool.values() if r.get("booksy_id")}
+        ),
     }
