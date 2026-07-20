@@ -1542,6 +1542,49 @@ async def generate_openai_embeddings(request: EmbeddingRequest) -> dict:
     return {"embeddings": vectors, "space": space}
 
 
+class MarketSnapshotRequest(BaseModel):
+    query: str
+    lat: float | None = None
+    lng: float | None = None
+    radius_km: float = 15.0
+    city: str | None = None
+
+
+@app.post("/api/market/snapshot", dependencies=[Depends(verify_api_key)])
+async def market_snapshot(request: MarketSnapshotRequest) -> dict:
+    """Mini raport rynkowy: fraza + obszar → grupy tożsamych usług z cenami.
+
+    Silnik = similarity_pricing (test tożsamości + coherence + dedup +
+    normalize_unit) — patrz services/market_snapshot.py. Konsument: Convex
+    action market.snapshot.getMarketSnapshot (gate + dzienny limit po stronie
+    Convex; tu tylko liczenie).
+    """
+    import asyncio
+
+    from services.market_snapshot import build_market_snapshot
+    from services.supabase import SupabaseService
+
+    q = request.query.strip()
+    if len(q) < 3:
+        raise HTTPException(status_code=422, detail="query must have >= 3 characters")
+    if request.city is None and (request.lat is None or request.lng is None):
+        raise HTTPException(status_code=422, detail="city or lat+lng required")
+
+    supabase = SupabaseService()
+    try:
+        return await asyncio.to_thread(
+            build_market_snapshot,
+            q,
+            supabase_client=supabase.client,
+            lat=request.lat,
+            lng=request.lng,
+            radius_km=request.radius_km,
+            city=request.city,
+        )
+    except RuntimeError as e:
+        raise HTTPException(status_code=502, detail=str(e)) from e
+
+
 # Legacy /api/optimize/{seo,content,categories,finalize} endpoints removed
 # in 3-BAGENT migration. pipelines/optimize_phases.py is no longer imported
 # and can be deleted in a follow-up cleanup.
