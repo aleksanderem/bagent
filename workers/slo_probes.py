@@ -317,6 +317,55 @@ async def probe_competitor_report_subject_only(client) -> ProbeResult:
     )
 
 
+async def probe_monitoring_alerts_ingesting(client) -> ProbeResult:
+    """Watchlist re-scrape ingest musi się KOŃCZYĆ (nie utykać na statement timeout).
+
+    Łapie regresję 2026-07-20: salon_scrape_services urosło do 109 GB, więc
+    child-inserty scrape_refresh przekraczały 8 s statement_timeout roli
+    PostgREST authenticator (błąd 57014). KAŻDY monitoringowy job requeue'ował
+    (ok=0) → brak diffów → brak alertów competitor-monitoring → PUSTY „Przegląd".
+
+    probe_scrape_pipeline_progressing tego NIE łapie: przechodzi, gdy SZERSZA
+    kolejka drenuje (done>=30 z innych salonów), podczas gdy watchlist-joby
+    kręcą się w requeue z timeoutem. Ta próba celuje w sygnaturę DOKŁADNIE:
+      * joby stuck (attempt>=3) z ``error`` zawierającym „statement timeout",
+      * BRAK udanego ingestu (status='done') w oknie 2h, mimo że coś jest w
+        kolejce (queued>0). Gdy kolejka pusta — nie alarmuj (brak pracy != awaria).
+    """
+    stuck = (
+        client.table("salon_refresh_queue")
+        .select("id", count="exact")
+        .gte("attempt", 3)
+        .ilike("error", "%statement timeout%")
+        .execute()
+    )
+    stuck_count = stuck.count or 0
+
+    done_recent = (
+        client.table("salon_refresh_queue")
+        .select("id", count="exact")
+        .eq("status", "done")
+        .gte("completed_at", _iso_ago(seconds=7200))
+        .execute()
+    )
+    done_count = done_recent.count or 0
+
+    queued = (
+        client.table("salon_refresh_queue")
+        .select("id", count="exact")
+        .eq("status", "queued")
+        .execute()
+    )
+    queued_count = queued.count or 0
+
+    # FAIL: timeouty obecne, ALBO jest praca w kolejce ale zero completions w 2h.
+    ok = stuck_count == 0 and (done_count > 0 or queued_count == 0)
+    return ProbeResult(
+        ok=ok,
+        detail=f"stuck_timeout={stuck_count} done_last_2h={done_count} queued={queued_count}",
+    )
+
+
 # ---------------------------------------------------------------------------
 # Cron wrappers — each registered in workers/main.py
 # ---------------------------------------------------------------------------
@@ -331,6 +380,7 @@ PROBE_REGISTRY: dict[str, tuple[Callable[[Any], Awaitable[ProbeResult]], str]] =
     "logflare_bounded":            (probe_logflare_bounded,            "HC_PING_SLO_LOGFLARE"),
     "embedding_coverage_fresh":    (probe_embedding_coverage_fresh,    "HC_PING_SLO_EMBEDDING_COVERAGE"),
     "competitor_report_subject_only": (probe_competitor_report_subject_only, "HC_PING_SLO_COMPETITOR_SUBJECT_ONLY"),
+    "monitoring_alerts_ingesting": (probe_monitoring_alerts_ingesting, "HC_PING_SLO_MONITORING_ALERTS"),
 }
 
 
@@ -406,6 +456,10 @@ async def slo_competitor_report_subject_only(ctx):
     return await _run_probe("competitor_report_subject_only", ctx)
 
 
+async def slo_monitoring_alerts_ingesting(ctx):
+    return await _run_probe("monitoring_alerts_ingesting", ctx)
+
+
 ALL_SLO_TASKS = [
     slo_scrape_pipeline_progressing,
     slo_chain_heads_growing,
@@ -415,6 +469,7 @@ ALL_SLO_TASKS = [
     slo_logflare_bounded,
     slo_embedding_coverage_fresh,
     slo_competitor_report_subject_only,
+    slo_monitoring_alerts_ingesting,
 ]
 
 
