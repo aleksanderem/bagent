@@ -49,7 +49,7 @@ from services.similarity_pricing.qdrant_search import (
 logger = logging.getLogger(__name__)
 
 # Ile grup wariantowych zwracamy (posortowane po sile: n_salons, similarity).
-MAX_GROUPS = 8
+MAX_GROUPS = 12
 # Ile grup-kandydatów (anchorowych) rozszerzamy w Qdrancie.
 MAX_CANDIDATE_GROUPS = 12
 # Reprezentanci grupy używani jako subjecty ekspansji.
@@ -68,6 +68,12 @@ MAX_SAMPLES_PER_GROUP = 30
 _IN_CHUNK = 200
 # Kanał tid: minimalny udział tid-a wśród anchorów, żeby wszedł do puli.
 TID_MIN_ANCHOR_COUNT = 3
+# Wektory z Qdranta (similarity vs rep + peer_max_sim dla coherence) tylko dla
+# grup do tego rozmiaru i łącznie do tylu id — peer-simy to czysty Python
+# O(n²·1536), a duże grupy z kanału tid są nazwa-identyczne (coherence robi
+# uczciwy abstain bez peer_max_sim).
+VECTORS_MAX_GROUP_SIZE = 150
+VECTORS_MAX_TOTAL_IDS = 2000
 
 # Konfiguracja silnika dla snapshotu: identycznie jak raport poza progami
 # wystarczalności — snapshot pokazuje też cienkie grupy (2-3 salony).
@@ -386,16 +392,19 @@ def build_market_snapshot(
             logger.warning("market_snapshot: twin expansion unavailable (%s)", e)
 
     # --- Sklejenie puli per grupa; przypisanie: nazwa > najlepszy twin-score ---
+    # UWAGA (bugfix v4): pula obejmuje WSZYSTKIE grupy nazwowe (kanał tid
+    # potrafi ich przynieść setki) — candidate_keys steruje wyłącznie tym,
+    # które grupy dostają ekspansję twinów w Qdrancie.
     pool: dict[int, dict[str, Any]] = {}
     assignment: dict[int, tuple[str, float]] = {}
 
-    for key in candidate_keys:
-        for m in grouped[key]:
+    for key, members in grouped.items():
+        for m in members:
             sid = m.get("service_id")
             if sid is None:
                 continue
             pool[int(sid)] = m
-            # Członek anchorowy: tożsamość nazwy = twarde przypisanie.
+            # Tożsamość nazwy = twarde przypisanie.
             assignment[int(sid)] = (key, 2.0)
 
     for rep_id, twins in twins_by_rep.items():
@@ -418,19 +427,29 @@ def build_market_snapshot(
                 assignment[sid] = (target_key, hard)
                 pool.setdefault(sid, t)
 
-    # --- Spójne similarity + peer_max_sim (wektory z Qdranta) ---
-    all_ids = list(pool.keys())
-    vectors_by_id: dict[int, list[float]] = {}
-    try:
-        vectors_by_id = fetch_twin_vectors(all_ids)
-    except Exception as e:  # noqa: BLE001 — silnik abstains bez peer_max_sim
-        logger.warning("market_snapshot: vectors unavailable (%s)", e)
-
     members_by_key: dict[str, list[dict[str, Any]]] = {}
     for sid, (key, _score) in assignment.items():
         row = pool.get(sid)
         if row is not None:
             members_by_key.setdefault(key, []).append(row)
+
+    # --- Spójne similarity + peer_max_sim (wektory z Qdranta, z capem) ---
+    vector_ids: list[int] = []
+    for key, members in members_by_key.items():
+        if len(members) > VECTORS_MAX_GROUP_SIZE:
+            continue
+        for m in members:
+            sid = m.get("service_id")
+            if sid is not None:
+                vector_ids.append(int(sid))
+        if len(vector_ids) >= VECTORS_MAX_TOTAL_IDS:
+            break
+    vectors_by_id: dict[int, list[float]] = {}
+    if vector_ids:
+        try:
+            vectors_by_id = fetch_twin_vectors(vector_ids[:VECTORS_MAX_TOTAL_IDS])
+        except Exception as e:  # noqa: BLE001 — silnik abstains bez peer_max_sim
+            logger.warning("market_snapshot: vectors unavailable (%s)", e)
 
     for key, members in members_by_key.items():
         # Rep = anchor o najwyższym phrase-sim w grupie (pierwszy z rep_ids tej grupy).
@@ -441,7 +460,7 @@ def build_market_snapshot(
             compute_peer_max_sims(
                 member_ids, {i: vectors_by_id[i] for i in member_ids if i in vectors_by_id}
             )
-            if len(member_ids) >= 2
+            if 2 <= len(member_ids) <= VECTORS_MAX_GROUP_SIZE
             else {}
         )
         for m in members:
@@ -498,6 +517,7 @@ def build_market_snapshot(
 
     strong.sort(key=lambda g: (-g["n_salons"], -g["avg_similarity"]))
     groups_out = strong[:MAX_GROUPS]
+    n_groups_total = len(strong)
 
     seen_ids: set[Any] = set()
     other_unique: list[dict[str, Any]] = []
@@ -512,6 +532,7 @@ def build_market_snapshot(
     return {
         "query": query,
         "groups": groups_out,
+        "n_groups_total": n_groups_total,
         "other_samples": other_out,
         "total_offers": len(pool),
         "total_salons": len(
