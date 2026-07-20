@@ -1517,6 +1517,31 @@ async def generate_embeddings(request: EmbeddingRequest) -> dict:
     return {"embeddings": all_embeddings}
 
 
+@app.post("/api/embeddings/openai", dependencies=[Depends(verify_api_key)])
+async def generate_openai_embeddings(request: EmbeddingRequest) -> dict:
+    """Embeddings w przestrzeni salon_scrape_services.name_embedding.
+
+    Reużywa services.embeddings.embed_texts (OpenAI text-embedding-3-small
+    primary, mmlw sidecar fallback) — ten sam path co inline ingest, więc
+    cosine vs name_embedding jest wprost porównywalny. Zwraca `space`, bo
+    fallback mmlw (1024-dim) NIE jest kompatybilny z name_embedding — caller
+    (Convex market snapshot) musi sprawdzić space == "openai-3-small".
+    Endpoint /api/embeddings (wyżej) to Gemini — INNA przestrzeń, nie mieszać.
+    """
+    import asyncio
+
+    from services.embeddings import embed_texts
+
+    if not request.texts:
+        return {"embeddings": [], "space": None}
+
+    result = await asyncio.to_thread(embed_texts, request.texts)
+    if result is None:
+        raise HTTPException(status_code=502, detail="Embedding providers unavailable")
+    vectors, space = result
+    return {"embeddings": vectors, "space": space}
+
+
 # Legacy /api/optimize/{seo,content,categories,finalize} endpoints removed
 # in 3-BAGENT migration. pipelines/optimize_phases.py is no longer imported
 # and can be deleted in a follow-up cleanup.
