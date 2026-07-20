@@ -6,13 +6,20 @@ i krótka fraza łapała cosine'em tylko ~18% tekstowych trafień (Botoks/Warsza
 
   FAZA 1 — ANCHORY: fraza → fn_market_service_matches (mig 153; cosine po
     3000 NAJBLIŻSZYCH salonów — wystarczy, by znaleźć typowe NAZWY usługi,
-    nie musi znaleźć wszystkich egzemplarzy) → grupowanie po znormalizowanej
-    nazwie (transliteracja PL — NFKD gubi "ł").
+    nie musi znaleźć wszystkich egzemplarzy).
+  FAZA 1b — KANAŁ KONCEPTOWY (v4, główny nośnik recallu): fraza →
+    match_treatment_hybrid (mig 045: trigram+cosine po KRÓTKICH kanonicznych
+    nazwach taksonomii Booksy — uczciwa przestrzeń dla krótkiej frazy) +
+    dominujące booksy_treatment_id anchorów → fn_market_tid_services
+    (mig 155): WSZYSTKIE usługi obszaru z tymi tid-ami (natywne tagowanie
+    salonów w Booksy, ~96% pokrycia; ekspansja twinów przy 0.82 dokładała
+    grosze, bo opisy rozjeżdżają nawet identyczne nazwy).
+    Pula = anchory ∪ tid_rows → grupowanie po znormalizowanej nazwie
+    (transliteracja PL — NFKD gubi "ł").
   FAZA 2 — EKSPANSJA: dla reprezentantów każdej grupy search_twins w Qdrancie
     po PEŁNYM obszarze (fn_market_area_booksy_ids, mig 154, INTEGER[] —
-    wzorzec mig 147) w NATURALNEJ przestrzeni silnika service→service
-    (nazwa+opis vs nazwa+opis, próg 0.82 jak fn_find_related_v2/mig 144).
-    To dołapuje "Toksyna botulinowa ..." itp. i cały ogon obszaru.
+    wzorzec mig 147) w przestrzeni service→service (0.82 jak mig 144) —
+    kanał uzupełniający dla nazw poza taksonomią.
   FAZA 3 — SILNIK: per grupa compute_market_price z syntetycznym subjectem
     (dominująca nazwa + MEDIANY ceny/czasu — oś price tnie zadatki), similarity
     członków PRZELICZONE jednolicie vs wektor reprezentanta (spójna skala dla
@@ -59,6 +66,8 @@ MIN_GROUP_SALONS = 2
 MAX_SAMPLES_PER_GROUP = 30
 # Chunk dla PostgREST .in_() (enrichment).
 _IN_CHUNK = 200
+# Kanał tid: minimalny udział tid-a wśród anchorów, żeby wszedł do puli.
+TID_MIN_ANCHOR_COUNT = 3
 
 # Konfiguracja silnika dla snapshotu: identycznie jak raport poza progami
 # wystarczalności — snapshot pokazuje też cienkie grupy (2-3 salony).
@@ -261,8 +270,6 @@ def build_market_snapshot(
         "total_offers": 0,
         "total_salons": 0,
     }
-    if not anchors:
-        return empty
 
     # --- Pełny obszar (filtr ekspansji) ---
     area_ids: list[int] = []
@@ -275,12 +282,75 @@ def build_market_snapshot(
     except Exception as e:  # noqa: BLE001 — bez obszaru ekspansja niemożliwa, anchory zostają
         logger.warning("market_snapshot: area ids unavailable (%s)", e)
 
-    # --- Grupowanie anchorów po znormalizowanej nazwie ---
-    grouped: dict[str, list[dict[str, Any]]] = {}
+    # --- FAZA 1b: kanał konceptowy (Booksy tid — główny nośnik recallu) ---
+    tid_rows: list[dict[str, Any]] = []
+    tids: set[int] = set()
+    try:
+        hyb = supabase_client.rpc(
+            "match_treatment_hybrid",
+            {"p_name": query.strip(), "p_embedding": vector_str},
+        ).execute()
+        for h in hyb.data or []:
+            if h.get("inferred_tid") is not None:
+                tids.add(int(h["inferred_tid"]))
+    except Exception as e:  # noqa: BLE001 — kanał tid jest addytywny
+        logger.warning("market_snapshot: match_treatment_hybrid failed (%s)", e)
+
+    # Dominujące tid-y wśród anchorów (odporne na frazy wielo-konceptowe).
+    anchor_ids = [int(r["service_id"]) for r in anchors if r.get("service_id")]
+    try:
+        tid_counts: Counter = Counter()
+        for chunk in _chunked(anchor_ids, _IN_CHUNK):
+            res_t = (
+                supabase_client.table("salon_scrape_services")
+                .select("id,booksy_treatment_id")
+                .in_("id", chunk)
+                .execute()
+            )
+            for s in res_t.data or []:
+                if s.get("booksy_treatment_id") is not None:
+                    tid_counts[int(s["booksy_treatment_id"])] += 1
+        for tid, n in tid_counts.items():
+            if n >= TID_MIN_ANCHOR_COUNT:
+                tids.add(tid)
+    except Exception as e:  # noqa: BLE001
+        logger.warning("market_snapshot: anchor tid lookup failed (%s)", e)
+
+    if tids:
+        try:
+            res_tid = supabase_client.rpc(
+                "fn_market_tid_services",
+                {
+                    "p_tids": sorted(tids),
+                    "p_lat": lat,
+                    "p_lng": lng,
+                    "p_radius_km": radius_km,
+                    "p_city": city,
+                },
+            ).execute()
+            tid_rows = list(res_tid.data or [])
+        except Exception as e:  # noqa: BLE001
+            logger.warning("market_snapshot: tid services unavailable (%s)", e)
+
+    # --- Pula bazowa (anchory ∪ tid_rows) i grupowanie po nazwie ---
+    base_pool: dict[int, dict[str, Any]] = {}
     for r in anchors:
+        sid = r.get("service_id")
+        if sid is not None:
+            base_pool[int(sid)] = r
+    for r in tid_rows:
+        sid = r.get("service_id")
+        if sid is not None:
+            base_pool.setdefault(int(sid), r)
+
+    grouped: dict[str, list[dict[str, Any]]] = {}
+    for r in base_pool.values():
         key = _group_key(r.get("service_name"))
         if key:
             grouped.setdefault(key, []).append(r)
+
+    if not base_pool:
+        return empty
 
     candidate_keys = sorted(
         grouped.keys(),

@@ -49,10 +49,14 @@ class _FakeSupabase:
         matches: list[dict[str, Any]],
         area_ids: list[int] | None = None,
         tables: dict[str, list[dict[str, Any]]] | None = None,
+        hybrid: list[dict[str, Any]] | None = None,
+        tid_rows: list[dict[str, Any]] | None = None,
     ):
         self._matches = matches
         self._area_ids = area_ids if area_ids is not None else []
         self._tables = tables or {}
+        self._hybrid = hybrid or []
+        self._tid_rows = tid_rows or []
         self.rpc_calls: list[tuple[str, dict[str, Any]]] = []
         self._pending: Any = None
 
@@ -62,6 +66,10 @@ class _FakeSupabase:
             self._pending = _FakeResult(self._matches)
         elif name == "fn_market_area_booksy_ids":
             self._pending = _FakeResult(self._area_ids)
+        elif name == "match_treatment_hybrid":
+            self._pending = _FakeResult(self._hybrid)
+        elif name == "fn_market_tid_services":
+            self._pending = _FakeResult(self._tid_rows)
         else:
             self._pending = _FakeResult([])
         return self
@@ -130,7 +138,9 @@ def _run(
     **kwargs,
 ):
     kwargs.setdefault("city", "Warszawa")
-    fake = _FakeSupabase(rows, area_ids=area_ids, tables=tables)
+    hybrid = kwargs.pop("hybrid", None)
+    tid_rows = kwargs.pop("tid_rows", None)
+    fake = _FakeSupabase(rows, area_ids=area_ids, tables=tables, hybrid=hybrid, tid_rows=tid_rows)
     with (
         patch("services.market_snapshot.embed_texts", return_value=_EMBED_OK),
         patch("services.market_snapshot.search_twins", return_value=twins or {}),
@@ -297,3 +307,31 @@ def test_qdrant_down_falls_back_to_anchors_only():
     ):
         out = build_market_snapshot("Botoks", supabase_client=fake, city="Warszawa")
     assert out["groups"][0]["n_salons"] == 3  # anchory przeżyły awarię Qdranta
+
+
+def test_tid_channel_extends_pool_with_concept_matches():
+    """Kanał tid (match_treatment_hybrid → fn_market_tid_services) dokłada
+    usługi o INNYCH nazwach ("Toksyna botulinowa...") do puli i grup."""
+    rows = [
+        _row(1, 101, "Botoks", 150000),
+        _row(2, 102, "Botoks", 152000),
+    ]
+    tid_rows = [
+        _row(70, 401, "Toksyna botulinowa - 1 okolica", 140000),
+        _row(71, 402, "Toksyna botulinowa - 1 okolica", 160000),
+        _row(72, 403, "Toksyna botulinowa - 1 okolica", 150000),
+    ]
+    for t in tid_rows:
+        t.pop("similarity", None)  # kanał tid nie niesie phrase-sim
+    out, fake = _run(
+        rows,
+        area_ids=[101, 102, 401, 402, 403],
+        hybrid=[{"inferred_tid": 245, "canonical_name": "Botoks", "score": 0.9}],
+        tid_rows=tid_rows,
+    )
+    labels = [g["label"] for g in out["groups"]]
+    assert any("Toksyna" in l for l in labels)  # nowa grupa z kanału tid
+    assert out["total_offers"] == 5
+    called = [c[0] for c in fake.rpc_calls]
+    assert "match_treatment_hybrid" in called
+    assert "fn_market_tid_services" in called
