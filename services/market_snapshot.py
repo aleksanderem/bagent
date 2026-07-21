@@ -48,8 +48,10 @@ from services.similarity_pricing.qdrant_search import (
 
 logger = logging.getLogger(__name__)
 
-# Ile grup wariantowych zwracamy (posortowane po sile: n_salons, similarity).
-MAX_GROUPS = 12
+# Zwracamy WSZYSTKIE grupy (feedback usera: pełny obraz rynku, nie top-N).
+# Safety cap chroni rozmiar odpowiedzi (Convex result limit 8 MiB); realnie
+# suma sampli <= total_offers, więc odpowiedź ~2-3 MB przy 5k ofert.
+MAX_GROUPS = 300
 # Ile grup-kandydatów (anchorowych) rozszerzamy w Qdrancie.
 MAX_CANDIDATE_GROUPS = 12
 # Reprezentanci grupy używani jako subjecty ekspansji.
@@ -63,7 +65,7 @@ ANCHOR_MIN_SIMILARITY = 0.60
 # Minimalna liczba RÓŻNYCH salonów PO ekspansji, żeby grupa dostała statystyki.
 MIN_GROUP_SALONS = 2
 # Ile sampli per grupa w odpowiedzi (drill-down w UI).
-MAX_SAMPLES_PER_GROUP = 30
+MAX_SAMPLES_PER_GROUP = 60
 # Chunk dla PostgREST .in_() (enrichment).
 _IN_CHUNK = 200
 # Kanał tid: minimalny udział tid-a wśród anchorów, żeby wszedł do puli.
@@ -140,9 +142,12 @@ def _sample_out(row: dict[str, Any]) -> dict[str, Any]:
         "is_from_price": bool(row.get("is_from_price", False)),
         "duration_minutes": row.get("duration_minutes"),
         "similarity": round(float(row.get("similarity") or 0.0), 3),
-        # v5 (mig 156): kolory + legenda współdzielonej mapy raportu.
+        # v5 (mig 156): kolory + legenda mapy.
         "primary_category_id": row.get("primary_category_id"),
         "primary_category_name": row.get("primary_category_name"),
+        # v6 (mig 157): drill-down — opis usługi z cennika + adres (sieci!).
+        "description": row.get("description"),
+        "salon_address": row.get("salon_address"),
     }
 
 
@@ -210,7 +215,7 @@ def _enrich_rows(
         try:
             res = (
                 supabase_client.table("salons")
-                .select("id,booksy_id,name,city,latitude,longitude,primary_category_id")
+                .select("id,booksy_id,name,city,latitude,longitude,primary_category_id,address")
                 .in_("booksy_id", chunk)
                 .execute()
             )
@@ -234,16 +239,19 @@ def _enrich_rows(
     need_from_price = [r for r in rows if "is_from_price" not in r]
     sss_ids = sorted({r["service_id"] for r in need_from_price if r.get("service_id")})
     from_price: dict[int, bool] = {}
+    descriptions: dict[int, str | None] = {}
     for chunk in _chunked(sss_ids, _IN_CHUNK):
         try:
             res = (
                 supabase_client.table("salon_scrape_services")
-                .select("id,is_from_price")
+                .select("id,is_from_price,description")
                 .in_("id", chunk)
                 .execute()
             )
             for s in res.data or []:
                 from_price[s["id"]] = bool(s.get("is_from_price", False))
+                desc = s.get("description")
+                descriptions[s["id"]] = desc[:600] if desc else None
         except Exception as e:  # noqa: BLE001
             logger.warning("market_snapshot: from_price enrichment chunk failed (%s)", e)
 
@@ -255,12 +263,15 @@ def _enrich_rows(
             r.setdefault("city", meta.get("city"))
             r.setdefault("latitude", meta.get("latitude"))
             r.setdefault("longitude", meta.get("longitude"))
+            r.setdefault("salon_address", meta.get("address"))
             if r.get("primary_category_id") is None:
                 cat_id = meta.get("primary_category_id")
                 r["primary_category_id"] = cat_id
                 r.setdefault("primary_category_name", category_names.get(cat_id))
         if "is_from_price" not in r:
             r["is_from_price"] = from_price.get(r.get("service_id"), False)
+        if "description" not in r:
+            r["description"] = descriptions.get(r.get("service_id"))
         if (
             r.get("distance_m") is None
             and lat is not None
