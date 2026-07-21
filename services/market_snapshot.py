@@ -140,6 +140,9 @@ def _sample_out(row: dict[str, Any]) -> dict[str, Any]:
         "is_from_price": bool(row.get("is_from_price", False)),
         "duration_minutes": row.get("duration_minutes"),
         "similarity": round(float(row.get("similarity") or 0.0), 3),
+        # v5 (mig 156): kolory + legenda współdzielonej mapy raportu.
+        "primary_category_id": row.get("primary_category_id"),
+        "primary_category_name": row.get("primary_category_name"),
     }
 
 
@@ -207,7 +210,7 @@ def _enrich_rows(
         try:
             res = (
                 supabase_client.table("salons")
-                .select("id,booksy_id,name,city,latitude,longitude")
+                .select("id,booksy_id,name,city,latitude,longitude,primary_category_id")
                 .in_("booksy_id", chunk)
                 .execute()
             )
@@ -215,6 +218,18 @@ def _enrich_rows(
                 salon_meta[s["booksy_id"]] = s
         except Exception as e:  # noqa: BLE001 — enrichment nie może ubić snapshotu
             logger.warning("market_snapshot: salon enrichment chunk failed (%s)", e)
+
+    # Nazwy kategorii do legendy mapy (mała tabela, jeden strzał).
+    category_names: dict[int, str] = {}
+    if salon_meta:
+        try:
+            res_c = (
+                supabase_client.table("business_categories").select("id,name").execute()
+            )
+            for c in res_c.data or []:
+                category_names[c["id"]] = c["name"]
+        except Exception as e:  # noqa: BLE001
+            logger.warning("market_snapshot: categories lookup failed (%s)", e)
 
     need_from_price = [r for r in rows if "is_from_price" not in r]
     sss_ids = sorted({r["service_id"] for r in need_from_price if r.get("service_id")})
@@ -240,6 +255,10 @@ def _enrich_rows(
             r.setdefault("city", meta.get("city"))
             r.setdefault("latitude", meta.get("latitude"))
             r.setdefault("longitude", meta.get("longitude"))
+            if r.get("primary_category_id") is None:
+                cat_id = meta.get("primary_category_id")
+                r["primary_category_id"] = cat_id
+                r.setdefault("primary_category_name", category_names.get(cat_id))
         if "is_from_price" not in r:
             r["is_from_price"] = from_price.get(r.get("service_id"), False)
         if (
