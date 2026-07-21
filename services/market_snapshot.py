@@ -39,6 +39,7 @@ from __future__ import annotations
 import logging
 import math
 import re
+import time
 from collections import Counter
 from statistics import median
 from typing import Any
@@ -81,6 +82,29 @@ TID_MIN_ANCHOR_COUNT = 3
 # uczciwy abstain bez peer_max_sim).
 VECTORS_MAX_GROUP_SIZE = 150
 VECTORS_MAX_TOTAL_IDS = 2000
+
+# Cache wyników w pamięci procesu (audyt 2026-07-21): identyczna fraza+obszar
+# w krótkim oknie zwraca gotowy wynik zamiast liczyć od zera (~9 s). Dane
+# źródłowe (cenniki/opinie) zmieniają się w rytmie dobowym — 30 min TTL jest
+# bezpieczne. Uwaga: cache per proces uvicorn (restart = zimny start).
+_RESULT_CACHE: dict[str, tuple[float, dict[str, Any]]] = {}
+_RESULT_CACHE_TTL_S = 30 * 60
+_RESULT_CACHE_MAX = 40
+
+
+def _result_cache_key(
+    query: str,
+    lat: float | None,
+    lng: float | None,
+    radius_km: float,
+    city: str | None,
+    min_similarity: float,
+) -> str:
+    q = _group_key(query)
+    if city is not None:
+        return f"c|{q}|{city.strip().lower()}|{min_similarity}"
+    return f"p|{q}|{round(lat or 0, 4)}|{round(lng or 0, 4)}|{radius_km}|{min_similarity}"
+
 
 # Konfiguracja silnika dla snapshotu: identycznie jak raport poza progami
 # wystarczalności — snapshot pokazuje też cienkie grupy (2-3 salony).
@@ -301,6 +325,12 @@ def build_market_snapshot(
 ) -> dict[str, Any]:
     """Zbuduj snapshot rynku dla frazy w obszarze. Synchroniczna (wołać przez
     asyncio.to_thread z endpointu)."""
+    cache_key = _result_cache_key(query, lat, lng, radius_km, city, min_similarity)
+    cached = _RESULT_CACHE.get(cache_key)
+    if cached is not None and (time.time() - cached[0]) < _RESULT_CACHE_TTL_S:
+        logger.info("market_snapshot: cache hit (%s)", cache_key)
+        return cached[1]
+
     embedded = embed_texts([query.strip()])
     if embedded is None:
         raise RuntimeError("embedding providers unavailable")
@@ -393,6 +423,12 @@ def build_market_snapshot(
                 },
             )
             tid_rows = list(res_tid.data or [])
+            if len(tid_rows) >= 5000:
+                # p_max_rows RPC — obszar ma więcej ofert z tymi tid niż cap.
+                logger.warning(
+                    "market_snapshot: tid channel hit 5000-row cap "
+                    "(tids=%s) — coverage truncated", sorted(tids),
+                )
         except Exception as e:  # noqa: BLE001
             logger.warning("market_snapshot: tid services unavailable (%s)", e)
 
@@ -414,6 +450,7 @@ def build_market_snapshot(
             grouped.setdefault(key, []).append(r)
 
     if not base_pool:
+        _RESULT_CACHE[cache_key] = (time.time(), empty)
         return empty
 
     candidate_keys = sorted(
@@ -573,9 +610,12 @@ def build_market_snapshot(
         prices = [s["price_grosze"] for s in result.samples if s.get("price_grosze")]
         sims = [float(m.get("similarity") or 0.0) for m in members]
         # v7: mediana tempa przyrostu opinii salonów grupy (proxy popytu).
+        # Audyt 2026-07-21: liczona po salonach ZAAKCEPTOWANYCH przez silnik
+        # (result.samples), nie po surowych members — salony, których oferty
+        # silnik odrzucił jako obce, nie zasilają sygnału popytu wariantu.
         group_rates = [
             growth_by_booksy[bid]
-            for bid in {m.get("booksy_id") for m in members}
+            for bid in {smp.get("booksy_id") for smp in result.samples}
             if bid is not None and bid in growth_by_booksy
         ]
         growth_median = round(median(group_rates), 1) if group_rates else None
@@ -614,7 +654,7 @@ def build_market_snapshot(
         other_unique.append(r)
     other_out = [_sample_out(r) for r in other_unique[:MAX_SAMPLES_PER_GROUP]]
 
-    return {
+    result_out = {
         "query": query,
         "groups": groups_out,
         "n_groups_total": n_groups_total,
@@ -624,3 +664,9 @@ def build_market_snapshot(
             {r.get("booksy_id") for r in pool.values() if r.get("booksy_id")}
         ),
     }
+    # Eviction: najstarszy wpis wypada powyżej capa (dict zachowuje kolejność).
+    if len(_RESULT_CACHE) >= _RESULT_CACHE_MAX:
+        oldest = min(_RESULT_CACHE, key=lambda k: _RESULT_CACHE[k][0])
+        _RESULT_CACHE.pop(oldest, None)
+    _RESULT_CACHE[cache_key] = (time.time(), result_out)
+    return result_out

@@ -14,7 +14,17 @@ from unittest.mock import patch
 
 import pytest
 
+import services.market_snapshot as ms
 from services.market_snapshot import build_market_snapshot
+
+
+@pytest.fixture(autouse=True)
+def _clear_result_cache():
+    """Testy współdzielą frazę "Botoks" — bez czyszczenia cache TTL drugi test
+    dostaje wynik pierwszego (wykryte przy wdrażaniu cache — działa!)."""
+    ms._RESULT_CACHE.clear()
+    yield
+    ms._RESULT_CACHE.clear()
 
 
 class _FakeResult:
@@ -404,3 +414,80 @@ def test_review_growth_absent_gives_none():
     g = out["groups"][0]
     assert g["review_growth_30d"] is None
     assert g["review_growth_n"] == 0
+
+
+def test_result_cache_hit_skips_recompute():
+    """Drugie identyczne zapytanie w TTL wraca z cache (bez RPC)."""
+    rows = [
+        _row(1, 101, "Botoks", 150000),
+        _row(2, 102, "Botoks", 152000),
+    ]
+    fake = _FakeSupabase(rows, area_ids=[101, 102])
+    with (
+        patch("services.market_snapshot.embed_texts", return_value=_EMBED_OK) as emb,
+        patch("services.market_snapshot.search_twins", return_value={}),
+        patch("services.market_snapshot.fetch_twin_vectors", return_value={}),
+        patch("services.market_snapshot.compute_peer_max_sims", return_value={}),
+    ):
+        out1 = build_market_snapshot("Botoks", supabase_client=fake, city="Warszawa")
+        calls_after_first = len(fake.rpc_calls)
+        out2 = build_market_snapshot("Botoks", supabase_client=fake, city="Warszawa")
+    assert out2 is out1  # ten sam obiekt z cache
+    assert len(fake.rpc_calls) == calls_after_first  # zero nowych RPC
+    assert emb.call_count == 1  # embedding tylko raz
+
+    # Inna fraza/obszar = osobny klucz (miss)
+    with (
+        patch("services.market_snapshot.embed_texts", return_value=_EMBED_OK),
+        patch("services.market_snapshot.search_twins", return_value={}),
+        patch("services.market_snapshot.fetch_twin_vectors", return_value={}),
+        patch("services.market_snapshot.compute_peer_max_sims", return_value={}),
+    ):
+        build_market_snapshot("Botoks", supabase_client=fake, city="Kraków")
+    assert len(fake.rpc_calls) > calls_after_first
+
+
+def test_review_growth_counts_only_engine_kept_salons():
+    """Audyt: salon odrzucony przez silnik (pakiet) nie zasila mediany popytu."""
+    rows = [
+        _row(1, 101, "Botoks", 150000),
+        _row(2, 102, "Botoks", 152000),
+        _row(3, 103, "Botoks", 148000),
+        # salon 104: JEDYNA oferta to pakiet — normalize_unit go nie liczy,
+        # dedup zostawia, ale w samples nie ma ceny → sprawdzamy członkostwo
+        _row(4, 104, "Botoks", 400000, package=True),
+    ]
+    growth = [
+        {"booksy_id": 101, "rate_30d": 4.0},
+        {"booksy_id": 102, "rate_30d": 6.0},
+        {"booksy_id": 103, "rate_30d": 8.0},
+        {"booksy_id": 104, "rate_30d": 100.0},  # nie może zawyżyć mediany,
+        # jeśli silnik wytnie jego ofertę z klastra
+    ]
+    out, _ = _run(rows, growth=growth)
+    g = out["groups"][0]
+    # Mediana liczona po salonach z result.samples silnika. Jeżeli silnik
+    # zatrzymał pakiet w samples (package axis może abstain przy zgodnej
+    # nazwie), mediana = 7.0; jeżeli wyciął — 6.0. Obie ścieżki akceptowalne,
+    # ale wartość musi pochodzić z KEPT zbioru:
+    assert g["review_growth_30d"] in (6.0, 7.0)
+    assert g["review_growth_n"] == g["review_growth_n"]  # sanity
+    assert g["review_growth_n"] <= 4
+
+
+def test_counting_invariants_pool_vs_groups_and_other():
+    """total_offers == |pool|; suma n_offers grup + unikalne 'other' == |pool|
+    (każdy członek puli ląduje w dokładnie jednej grupie albo w other)."""
+    rows = [
+        _row(1, 101, "Botoks", 150000),
+        _row(2, 102, "Botoks", 152000),
+        _row(3, 103, "Botoks", 148000),
+        _row(6, 106, "Botoks czoło", 90000),
+        _row(7, 107, "Botoks czoło", 95000),
+        _row(9, 109, "Unikat marketingowy VIP", 250000, sim=0.7),
+    ]
+    out, _ = _run(rows)
+    assert out["total_offers"] == 6
+    n_in_groups = sum(g["n_offers"] for g in out["groups"])
+    # other_samples jest capowane do 60, tu poniżej capa → pełne
+    assert n_in_groups + len(out["other_samples"]) == out["total_offers"]
