@@ -335,3 +335,37 @@ def test_tid_channel_extends_pool_with_concept_matches():
     called = [c[0] for c in fake.rpc_calls]
     assert "match_treatment_hybrid" in called
     assert "fn_market_tid_services" in called
+
+
+def test_rpc_retry_on_statement_timeout():
+    """57014 (PostgREST statement timeout) → jeden retry; inne błędy propagują."""
+    from services.market_snapshot import _rpc_with_retry
+
+    class _TimeoutOnce:
+        def __init__(self):
+            self.calls = 0
+
+        def rpc(self, name, params):
+            return self
+
+        def execute(self):
+            self.calls += 1
+            if self.calls == 1:
+                err = Exception({"message": "canceling statement due to statement timeout", "code": "57014"})
+                raise err
+            return _FakeResult([{"ok": True}])
+
+    c = _TimeoutOnce()
+    res = _rpc_with_retry(c, "fn_x", {})
+    assert c.calls == 2
+    assert res.data == [{"ok": True}]
+
+    class _OtherError:
+        def rpc(self, name, params):
+            return self
+
+        def execute(self):
+            raise ValueError("boom")
+
+    with pytest.raises(ValueError):
+        _rpc_with_retry(_OtherError(), "fn_x", {})

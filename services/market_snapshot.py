@@ -172,6 +172,25 @@ def _chunked(seq: list[Any], n: int) -> list[list[Any]]:
     return [seq[i : i + n] for i in range(0, len(seq), n)]
 
 
+def _rpc_with_retry(supabase_client: Any, name: str, params: dict[str, Any]) -> Any:
+    """RPC z jednym retry na statement timeout (PostgREST 57014, limit 8s).
+
+    Zimny cache (TOAST/indeksy obszaru) potrafi przekroczyć limit przy
+    pierwszym strzale; drugi idzie po rozgrzanym cache (pomiar prod: warm
+    ~1-2s). Inne błędy propagują od razu.
+    """
+    try:
+        return supabase_client.rpc(name, params).execute()
+    except Exception as e:  # noqa: BLE001 — filtrujemy po kodzie niżej
+        code = getattr(e, "code", None)
+        if code is None and e.args and isinstance(e.args[0], dict):
+            code = e.args[0].get("code")
+        if code != "57014":
+            raise
+        logger.warning("market_snapshot: %s statement timeout — retry (warm cache)", name)
+        return supabase_client.rpc(name, params).execute()
+
+
 def _enrich_rows(
     rows: list[dict[str, Any]],
     supabase_client: Any,
@@ -256,7 +275,8 @@ def build_market_snapshot(
     vector_str = "[" + ",".join(str(v) for v in vectors[0]) + "]"
 
     # --- FAZA 1: anchory (fraza→usługa, 3000 najbliższych salonów) ---
-    res = supabase_client.rpc(
+    res = _rpc_with_retry(
+        supabase_client,
         "fn_market_service_matches",
         {
             "p_query_embedding": vector_str,
@@ -266,7 +286,7 @@ def build_market_snapshot(
             "p_city": city,
             "p_min_similarity": min_similarity,
         },
-    ).execute()
+    )
     anchors: list[dict[str, Any]] = res.data or []
 
     empty = {
@@ -280,10 +300,11 @@ def build_market_snapshot(
     # --- Pełny obszar (filtr ekspansji) ---
     area_ids: list[int] = []
     try:
-        area_res = supabase_client.rpc(
+        area_res = _rpc_with_retry(
+            supabase_client,
             "fn_market_area_booksy_ids",
             {"p_lat": lat, "p_lng": lng, "p_radius_km": radius_km, "p_city": city},
-        ).execute()
+        )
         area_ids = list(area_res.data or [])
     except Exception as e:  # noqa: BLE001 — bez obszaru ekspansja niemożliwa, anchory zostają
         logger.warning("market_snapshot: area ids unavailable (%s)", e)
@@ -292,10 +313,11 @@ def build_market_snapshot(
     tid_rows: list[dict[str, Any]] = []
     tids: set[int] = set()
     try:
-        hyb = supabase_client.rpc(
+        hyb = _rpc_with_retry(
+            supabase_client,
             "match_treatment_hybrid",
             {"p_name": query.strip(), "p_embedding": vector_str},
-        ).execute()
+        )
         for h in hyb.data or []:
             if h.get("inferred_tid") is not None:
                 tids.add(int(h["inferred_tid"]))
@@ -324,7 +346,8 @@ def build_market_snapshot(
 
     if tids:
         try:
-            res_tid = supabase_client.rpc(
+            res_tid = _rpc_with_retry(
+                supabase_client,
                 "fn_market_tid_services",
                 {
                     "p_tids": sorted(tids),
@@ -333,7 +356,7 @@ def build_market_snapshot(
                     "p_radius_km": radius_km,
                     "p_city": city,
                 },
-            ).execute()
+            )
             tid_rows = list(res_tid.data or [])
         except Exception as e:  # noqa: BLE001
             logger.warning("market_snapshot: tid services unavailable (%s)", e)
