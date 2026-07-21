@@ -51,12 +51,14 @@ class _FakeSupabase:
         tables: dict[str, list[dict[str, Any]]] | None = None,
         hybrid: list[dict[str, Any]] | None = None,
         tid_rows: list[dict[str, Any]] | None = None,
+        growth: list[dict[str, Any]] | None = None,
     ):
         self._matches = matches
         self._area_ids = area_ids if area_ids is not None else []
         self._tables = tables or {}
         self._hybrid = hybrid or []
         self._tid_rows = tid_rows or []
+        self._growth = growth or []
         self.rpc_calls: list[tuple[str, dict[str, Any]]] = []
         self._pending: Any = None
 
@@ -70,6 +72,8 @@ class _FakeSupabase:
             self._pending = _FakeResult(self._hybrid)
         elif name == "fn_market_tid_services":
             self._pending = _FakeResult(self._tid_rows)
+        elif name == "fn_market_salon_review_growth":
+            self._pending = _FakeResult(self._growth)
         else:
             self._pending = _FakeResult([])
         return self
@@ -140,7 +144,8 @@ def _run(
     kwargs.setdefault("city", "Warszawa")
     hybrid = kwargs.pop("hybrid", None)
     tid_rows = kwargs.pop("tid_rows", None)
-    fake = _FakeSupabase(rows, area_ids=area_ids, tables=tables, hybrid=hybrid, tid_rows=tid_rows)
+    growth = kwargs.pop("growth", None)
+    fake = _FakeSupabase(rows, area_ids=area_ids, tables=tables, hybrid=hybrid, tid_rows=tid_rows, growth=growth)
     with (
         patch("services.market_snapshot.embed_texts", return_value=_EMBED_OK),
         patch("services.market_snapshot.search_twins", return_value=twins or {}),
@@ -369,3 +374,33 @@ def test_rpc_retry_on_statement_timeout():
 
     with pytest.raises(ValueError):
         _rpc_with_retry(_OtherError(), "fn_x", {})
+
+
+def test_review_growth_median_per_group():
+    """v7: mediana tempa przyrostu opinii salonów grupy jako proxy popytu."""
+    rows = [
+        _row(1, 101, "Botoks", 150000),
+        _row(2, 102, "Botoks", 152000),
+        _row(3, 103, "Botoks", 148000),
+    ]
+    growth = [
+        {"booksy_id": 101, "rate_30d": 4.0, "days_span": 30.0, "reviews_now": 100},
+        {"booksy_id": 102, "rate_30d": 10.0, "days_span": 28.0, "reviews_now": 300},
+        # 103 bez historii — nie wchodzi do mediany
+    ]
+    out, fake = _run(rows, growth=growth)
+    g = out["groups"][0]
+    assert g["review_growth_30d"] == 7.0  # mediana z {4, 10}
+    assert g["review_growth_n"] == 2
+    assert any(c[0] == "fn_market_salon_review_growth" for c in fake.rpc_calls)
+
+
+def test_review_growth_absent_gives_none():
+    rows = [
+        _row(1, 101, "Botoks", 150000),
+        _row(2, 102, "Botoks", 152000),
+    ]
+    out, _ = _run(rows)
+    g = out["groups"][0]
+    assert g["review_growth_30d"] is None
+    assert g["review_growth_n"] == 0

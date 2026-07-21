@@ -27,6 +27,11 @@ i krótka fraza łapała cosine'em tylko ~18% tekstowych trafień (Botoks/Warsza
 
 Przypisanie do grup: najpierw tożsamość nazwy (istniejący klucz grupy wygrywa),
 potem najwyższy twin-score. Grupy z <2 salonami po ekspansji → "other".
+
+v7 (sygnał POPYTU): per grupa liczymy medianę tempa przyrostu opinii /30 dni
+salonów oferujących wariant (fn_market_salon_review_growth, mig 158) —
+Booksy nie daje opinii per usługa, więc to proxy: wariant obecny w ofercie
+salonów, do których klienci realnie chodzą (rosną opinie) = żywy popyt.
 """
 
 from __future__ import annotations
@@ -531,6 +536,24 @@ def build_market_snapshot(
     # --- Enrichment metadanych (twins z Qdranta nie mają salon/geo/from_price) ---
     _enrich_rows(list(pool.values()), supabase_client, lat=lat, lng=lng)
 
+    # --- v7: tempo przyrostu opinii per salon (proxy popytu wariantów) ---
+    growth_by_booksy: dict[int, float] = {}
+    pool_booksy_ids = sorted({r.get("booksy_id") for r in pool.values() if r.get("booksy_id")})
+    if pool_booksy_ids:
+        try:
+            res_g = _rpc_with_retry(
+                supabase_client,
+                "fn_market_salon_review_growth",
+                {"p_booksy_ids": pool_booksy_ids},
+            )
+            for row in res_g.data or []:
+                bid = row.get("booksy_id")
+                rate = row.get("rate_30d")
+                if bid is not None and rate is not None:
+                    growth_by_booksy[int(bid)] = float(rate)
+        except Exception as e:  # noqa: BLE001 — popyt jest addytywny, brak = None
+            logger.warning("market_snapshot: review growth unavailable (%s)", e)
+
     # --- FAZA 3: silnik per grupa ---
     strong: list[dict[str, Any]] = []
     other_rows: list[dict[str, Any]] = []
@@ -549,6 +572,13 @@ def build_market_snapshot(
         kept = result.samples[:MAX_SAMPLES_PER_GROUP]
         prices = [s["price_grosze"] for s in result.samples if s.get("price_grosze")]
         sims = [float(m.get("similarity") or 0.0) for m in members]
+        # v7: mediana tempa przyrostu opinii salonów grupy (proxy popytu).
+        group_rates = [
+            growth_by_booksy[bid]
+            for bid in {m.get("booksy_id") for m in members}
+            if bid is not None and bid in growth_by_booksy
+        ]
+        growth_median = round(median(group_rates), 1) if group_rates else None
         strong.append(
             {
                 "label": subject["service_name"],
@@ -564,6 +594,8 @@ def build_market_snapshot(
                 "avg_similarity": round(sum(sims) / len(sims), 3) if sims else 0.0,
                 "n_dropped_by_engine": result.n_raw_samples - result.n_identity_kept
                 + result.n_coherence_dropped,
+                "review_growth_30d": growth_median,
+                "review_growth_n": len(group_rates),
                 "samples": [_sample_out(s) for s in kept],
             }
         )
