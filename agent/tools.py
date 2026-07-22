@@ -17,7 +17,7 @@ NAMING_TOOL: dict = {
                     "type": "object",
                     "properties": {
                         "name": {"type": "string", "description": "Oryginalna nazwa usługi"},
-                        "improved": {"type": "string", "description": "Ulepszona nazwa (max 80 znaków). Gdy alreadyOptimal=true, powinna być równa oryginalnej nazwie."},
+                        "improved": {"type": "string", "description": "Ulepszona nazwa. MUSI zachować wszystkie informacje merytoryczne z oryginału — usuwaj tylko śmieci (emoji, CAPS LOCK), nigdy treść. Gdy alreadyOptimal=true, powinna być równa oryginalnej nazwie."},
                         "causedByIssueIndex": {
                             "type": "integer",
                             "description": (
@@ -68,7 +68,7 @@ DESCRIPTION_TOOL: dict = {
                     "type": "object",
                     "properties": {
                         "serviceName": {"type": "string", "description": "Nazwa usługi"},
-                        "newDescription": {"type": "string", "description": "Nowy opis (50-150 znaków). Gdy alreadyOptimal=true, może być równy oryginalnemu opisowi."},
+                        "newDescription": {"type": "string", "description": "Nowy opis — MUSI zachować całą treść merytoryczną oryginału (efekty, przebieg, przeciwwskazania); poprawiaj styl, nie skracaj. Gdy alreadyOptimal=true, może być równy oryginalnemu opisowi."},
                         "causedByIssueIndex": {
                             "type": "integer",
                             "description": (
@@ -235,8 +235,8 @@ OPTIMIZED_SERVICES_TOOL: dict = {
                     "properties": {
                         "originalName": {"type": "string", "description": "Oryginalna nazwa usługi (bez zmian)"},
                         "categoryName": {"type": "string", "description": "Kategoria (oryginalna lub nowa)"},
-                        "newName": {"type": "string", "description": "Nowa/poprawiona nazwa (max 80 znaków)"},
-                        "newDescription": {"type": "string", "description": "Nowy opis (50-200 znaków, korzyść klienta)"},
+                        "newName": {"type": "string", "description": "Nowa/poprawiona nazwa — zachowaj wszystkie informacje z oryginału, usuwaj tylko śmieci"},
+                        "newDescription": {"type": "string", "description": "Nowy opis — zachowaj całą treść merytoryczną oryginału, korzyść klienta; nie skracaj"},
                         "tags": {"type": "array", "items": {"type": "string"}, "description": "Max 2 tagi: Bestseller, Nowość, Premium, Promocja"},
                         "sortOrder": {"type": "number"}
                     },

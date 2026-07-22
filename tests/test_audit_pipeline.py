@@ -235,8 +235,9 @@ class TestCalculateAuditStats:
     def test_fixed_prices(self) -> None:
         data = _make_simple_data()
         stats = calculate_audit_stats(data)
-        # "120 zł", "80 zł", "100 zł", "120 zł" are fixed; "od 200 zł" is not
-        assert stats["servicesWithFixedPrice"] == 4
+        # "120 zł", "80 zł", "100 zł", "120 zł" fixed; "od 200 zł" liczy się
+        # od 2026-07-22 przez WARIANTY (wszystkie z konkretną ceną 200/350 zł)
+        assert stats["servicesWithFixedPrice"] == 5
 
     def test_images_counted(self) -> None:
         data = _make_simple_data()
@@ -373,3 +374,66 @@ class TestIsFixedPrice:
 
     def test_from_prefix(self) -> None:
         assert is_fixed_price("from 50 EUR") is False
+
+
+class TestNoContentTruncation:
+    """Incydent 2026-07-22: zoptymalizowany cennik przycinał opisy i nazwy.
+
+    Źródła: input agenta ucięty do 150 znaków opisu, prompt '50-150 znaków',
+    walidator z twardym limitem 80 znaków nazwy. Te testy pilnują, żeby
+    treść nie była gubiona mechanicznie.
+    """
+
+    def test_full_description_not_truncated_in_pricelist_text(self) -> None:
+        long_desc = "Zabieg laserowy CO2. " * 25  # ~525 znaków
+        data = FakeScrapedData(
+            salonName="S", salonAddress=None, totalServices=1,
+            categories=[FakeCategory(name="Laser", services=[
+                FakeService(name="Laser CO2", price="500 zł", description=long_desc),
+            ])],
+        )
+        text = build_full_pricelist_text(data)
+        assert long_desc.strip() in text  # pełny opis, zero '...'
+        assert "..." not in text
+
+    def test_pathological_description_capped_with_marker(self) -> None:
+        data = FakeScrapedData(
+            salonName="S", salonAddress=None, totalServices=1,
+            categories=[FakeCategory(name="X", services=[
+                FakeService(name="U", price="1 zł", description="a" * 2000),
+            ])],
+        )
+        text = build_full_pricelist_text(data)
+        assert "[OPIS UCIĘTY W PODGLĄDZIE]" in text
+        assert "a" * 1200 in text
+
+    def test_variants_serialized_in_pricelist_text(self) -> None:
+        data = _make_simple_data()
+        text = build_full_pricelist_text(data)
+        assert 'WARIANT: "Krótkie" | 200 zł | 90 min' in text
+        assert 'WARIANT: "Długie" | 350 zł | 150 min' in text
+
+    def test_long_original_name_cleaned_stays_long_accepted(self) -> None:
+        before = "✦ DEPILACJA LASEROWA THUNDER — pakiet 6 zabiegów: bikini głębokie + pachy + łydki ✦"
+        after = "Depilacja laserowa Thunder — pakiet 6 zabiegów: bikini głębokie + pachy + łydki + przedramiona"
+        assert len(after) > 80  # stary limit by to odrzucił
+        assert validate_name_transformation(before, after) is True
+
+    def test_stats_count_variant_duration_and_price(self) -> None:
+        data = FakeScrapedData(
+            salonName="S", salonAddress=None, totalServices=1,
+            categories=[FakeCategory(name="X", services=[
+                FakeService(
+                    name="Koloryzacja", price="od 200 zł", duration=None,
+                    variants=[
+                        FakeVariant(label="Krótkie", price="200 zł", duration="90 min"),
+                        FakeVariant(label="Długie", price="350 zł", duration="150 min"),
+                    ],
+                ),
+            ])],
+        )
+        stats = calculate_audit_stats(data)
+        # Usługa wariantowa: czas i konkretne ceny są w wariantach — liczy się
+        # jako kompletna, nie jako "brak czasu/ceny".
+        assert stats["servicesWithDuration"] == 1
+        assert stats["servicesWithFixedPrice"] == 1

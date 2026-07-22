@@ -16,8 +16,8 @@ ZASADY KRYTYCZNE:
 - NIGDY nie zmieniaj CENY (zachowaj oryginalną)
 - NIGDY nie zmieniaj CZASU TRWANIA (zachowaj oryginalny)
 - NIGDY nie zmieniaj WARIANTÓW (zachowaj oryginalne)
-- Nazwa: max 80 znaków, separator " - " dla wzbogacenia
-- Opis: 50-200 znaków, korzyść dla klienta, bez cen w tekście
+- Nazwa: zachowaj WSZYSTKIE informacje z oryginału (zabieg, obszar, technologia); usuwaj tylko śmieci. Separator " - " dla wzbogacenia krótkich nazw
+- Opis: zachowaj CAŁĄ treść merytoryczną oryginału (nie skracaj!), korzyść dla klienta, bez cen w tekście
 - Tagi: max 2 na usługę (Bestseller, Nowość, Premium, Promocja)
 
 WYBRANE OPCJE OPTYMALIZACJI: {selected_options}

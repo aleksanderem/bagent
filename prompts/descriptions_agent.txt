@@ -9,13 +9,14 @@ KONTEKST — PROBLEMY ZIDENTYFIKOWANE W RAPORCIE:
 Dla każdej transformacji ze zmianą wskaż causedByIssueIndex — indeks problemu z powyższej listy, który ta zmiana rozwiązuje. Jeśli zmiana jest ogólnym cleanupem (np. przepisanie opisu bez konkretnego raportowanego problemu, tylko dla jakości), POMIŃ pole causedByIssueIndex.
 
 ZASADY:
-- Każdy opis 50-150 znaków
-- Opisz korzyść dla klienta, nie procedurę
+- ZAKAZ SKRACANIA TREŚCI (KRYTYCZNE): nowy opis musi zachować WSZYSTKIE merytoryczne informacje z oryginału — efekty, przebieg zabiegu, wskazania/przeciwwskazania, użyte produkty/technologie. Możesz poprawiać styl, strukturę i ortografię, ale utrata treści = błąd. Długi, bogaty opis pozostaje długi.
+- Opis bez treści lub bardzo ubogi (poniżej ~50 znaków) — napisz nowy, pełny opis z korzyścią dla klienta
+- Opisz korzyść dla klienta, nie samą procedurę
 - Profesjonalny ton, bez żargonu, bez CAPS LOCK
 - Usuń informacje o cenach z opisów (ceny są osobno w cenniku)
 
 ZASADA POKRYCIA (KRYTYCZNA): Musisz ocenić KAŻDĄ usługę z cennika. Dla każdej:
-- Jeśli opis jest już optymalny (zwięzły, korzyść klienta, profesjonalny ton, bez ceny i CAPS LOCK, w zakresie 50-150 znaków), zwróć go z polem `alreadyOptimal: true` i `newDescription` równym oryginalnemu opisowi. Pole `causedByIssueIndex` pomiń.
+- Jeśli opis jest już optymalny (korzyść klienta, profesjonalny ton, bez ceny i CAPS LOCK — długość NIE jest kryterium, długie kompletne opisy są dobre), zwróć go z polem `alreadyOptimal: true` i `newDescription` równym oryginalnemu opisowi. Pole `causedByIssueIndex` pomiń.
 - Jeśli opis wymaga poprawy lub usługa nie ma żadnego opisu, zwróć nowy opis z `alreadyOptimal: false` (lub po prostu pomiń to pole) i wypełnij `newDescription` nową treścią. Dodaj `causedByIssueIndex` jeśli zmiana rozwiązuje konkretny problem z raportu.
 
 Wszystkie usługi muszą pojawić się w twoich tool calls — suma `alreadyOptimal: true` i faktycznych poprawek powinna równać się liczbie usług w cenniku. Wywołuj narzędzie wielokrotnie z partiami po 20-30 usług.

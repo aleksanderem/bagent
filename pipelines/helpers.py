@@ -193,8 +193,11 @@ def validate_name_transformation(before: str, after: str) -> bool:
     # Rule 1: min 3 chars
     if after_len < 3:
         return False
-    # Rule 2: max 80 chars
-    if after_len > 80:
+    # Rule 2: cap na WZROST, nie bezwzględny limit. Stary twardy limit 80
+    # znaków zmuszał agenta do CIĘCIA długich informacyjnych nazw (utrata
+    # treści — incydent 2026-07-22). Długa oryginalna nazwa po cleaningu ma
+    # prawo zostać długa; blokujemy tylko rozdmuchane wzbogacanie.
+    if after_len > max(80, before_len + 30):
         return False
     # Rule 3: reject empty marketing garbage
     garbage_patterns = [
@@ -240,6 +243,13 @@ def build_full_pricelist_text(data: Any) -> str:
     """Build full pricelist text for AI analysis prompts.
 
     data should have .salonName, .categories[].name, .categories[].services[]
+
+    PE\u0141NE opisy (bez [:150] \u2014 agent opis\u00f3w przepisywa\u0142 tre\u015b\u0107 widz\u0105c tylko
+    pocz\u0105tek orygina\u0142u, co GUBI\u0141O reszt\u0119 opisu w zoptymalizowanym cenniku;
+    incydent 2026-07-22). Bezpiecznik 1200 znak\u00f3w z jawnym markerem tylko
+    na patologiczne przypadki. WARIANTY us\u0142ug serializowane pod us\u0142ug\u0105 \u2014
+    wcze\u015bniej analiza w og\u00f3le ich nie widzia\u0142a (ceny/czasy wariant\u00f3w by\u0142y
+    niewidzialne dla scoringu i agent\u00f3w).
     """
     text = f"SALON: {data.salonName or 'Nieznany'}\n\n"
     for cat in data.categories:
@@ -249,9 +259,19 @@ def build_full_pricelist_text(data: Any) -> str:
             if s.duration:
                 text += f" | {s.duration}"
             if s.description:
-                desc = s.description[:150] + "..." if len(s.description) > 150 else s.description
+                desc = s.description
+                if len(desc) > 1200:
+                    desc = desc[:1200] + " [OPIS UCI\u0118TY W PODGL\u0104DZIE]"
                 text += f" | OPIS: {desc}"
             text += "\n"
+            for v in (getattr(s, "variants", None) or []):
+                v_label = getattr(v, "label", None) or getattr(v, "name", None) or "wariant"
+                v_price = getattr(v, "price", None)
+                v_dur = getattr(v, "duration", None)
+                text += f'  \u00b7 WARIANT: "{v_label}" | {v_price if v_price is not None else "-"}'
+                if v_dur:
+                    text += f" | {v_dur}"
+                text += "\n"
     return text
 
 
@@ -348,12 +368,27 @@ def calculate_audit_stats(data: Any) -> dict[str, Any]:
     services_with_description = sum(
         1 for s in all_services if (getattr(s, "description", None) or "").strip()
     )
-    services_with_duration = sum(
-        1 for s in all_services if (getattr(s, "duration", None) or "").strip()
-    )
-    services_with_fixed_price = sum(
-        1 for s in all_services if getattr(s, "price", None) and is_fixed_price(s.price)
-    )
+    # Warianty liczą się do kompletności: usługa wariantowa często nie ma
+    # czasu/ceny na poziomie usługi (są w wariantach) — bez tego scoring
+    # fałszywie karał salony z wariantami za "brak czasu/ceny".
+    def _svc_has_duration(s: Any) -> bool:
+        if (getattr(s, "duration", None) or "").strip():
+            return True
+        return any(
+            (getattr(v, "duration", None) or "").strip()
+            for v in (getattr(s, "variants", None) or [])
+        )
+
+    def _svc_has_fixed_price(s: Any) -> bool:
+        if getattr(s, "price", None) and is_fixed_price(s.price):
+            return True
+        variants = getattr(s, "variants", None) or []
+        return len(variants) > 0 and all(
+            getattr(v, "price", None) and is_fixed_price(v.price) for v in variants
+        )
+
+    services_with_duration = sum(1 for s in all_services if _svc_has_duration(s))
+    services_with_fixed_price = sum(1 for s in all_services if _svc_has_fixed_price(s))
     services_with_image = sum(
         1 for s in all_services if (getattr(s, "imageUrl", None) or "").strip()
     )

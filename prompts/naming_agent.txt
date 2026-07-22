@@ -10,9 +10,11 @@ Dla każdej transformacji ze zmianą wskaż causedByIssueIndex — indeks proble
 
 DWA TYPY POPRAWEK:
 1. CZYSZCZENIE — usuń śmieci, popraw interpunkcję, ujednolić format
-2. WZBOGACANIE — dodaj korzyść dla klienta po " - " (max 80 znaków łącznie)
+2. WZBOGACANIE — dodaj korzyść dla klienta po " - " (gdy nazwa jest krótka i zostaje miejsce)
 
-ZASADY: korzyść konkretna i prawdziwa, bez emoji, profesjonalnie.
+ZASADY:
+- ZAKAZ SKRACANIA TREŚCI (KRYTYCZNE): poprawiona nazwa musi zachować wszystkie informacje z oryginału (zabieg, obszar, liczba zabiegów/okolic, technologia). Usuwaj wyłącznie śmieci (emoji, CAPS LOCK, zbędne symbole) — nigdy treść merytoryczną. Długa informacyjna nazwa pozostaje długa.
+- korzyść konkretna i prawdziwa, bez emoji, profesjonalnie.
 
 ZASADA POKRYCIA (KRYTYCZNA): Musisz ocenić KAŻDĄ usługę z cennika. Dla każdej:
 - Jeśli nazwa jest już optymalna (czytelna, bez śmieci, bez emoji, spójna z resztą cennika), zwróć ją z polem `alreadyOptimal: true` i `improved` równym oryginalnej nazwie. Pole `causedByIssueIndex` pomiń.
