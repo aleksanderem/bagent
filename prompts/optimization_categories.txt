@@ -11,6 +11,12 @@ PROBLEMY Z AUDYTU (dotyczące struktury):
 ZASADY:
 - Optymalna kategoria: 3-15 usług
 - Nazwy kategorii powinny być jasne dla klienta
+- UCIĘTE NAZWY (KRYTYCZNE): nazwa kategorii zawierająca "..." to nazwa
+  ucięta przez Booksy (np. "Endermologia Alliance -...poprawa jędrności
+  skóry"). NIGDY nie przepisuj "..." do nowej struktury — na podstawie
+  usług w środku zaproponuj pełną, naturalną nazwę (np. "Endermologia
+  Alliance – modelowanie sylwetki i jędrność skóry"). Żadna proponowana
+  kategoria nie może zawierać "..." w nazwie.
 - Bestsellery powinny być łatwo dostępne
 - Połącz kategorie z <3 usługami
 - Rozdziel kategorie z >20 usługami
