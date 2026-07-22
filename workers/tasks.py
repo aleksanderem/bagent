@@ -113,7 +113,7 @@ async def run_report_task(ctx: dict[str, Any], request: dict[str, Any]) -> dict[
     inline_scrape = request.get("scrapedData")
 
     logger.info("[%s] run_report_task started for audit_id=%s", job_id, audit_id)
-    convex = ConvexClient()
+    convex = ConvexClient(base_url=request.get("convexSiteUrl"))
 
     try:
         # ── Load scraped data: prefer inline payload, fall back to Supabase ──
@@ -229,7 +229,7 @@ async def run_free_report_task(ctx: dict[str, Any], request: dict[str, Any]) -> 
     inline_scrape = request.get("scrapedData")
 
     logger.info("[%s] run_free_report_task started for audit_id=%s", job_id, audit_id)
-    convex = ConvexClient()
+    convex = ConvexClient(base_url=request.get("convexSiteUrl"))
 
     try:
         if inline_scrape:
@@ -325,7 +325,7 @@ async def run_cennik_task(ctx: dict[str, Any], request: dict[str, Any]) -> dict[
     audit_id = request["auditId"]
 
     logger.info("[%s] run_cennik_task started for audit_id=%s", job_id, audit_id)
-    convex = ConvexClient()
+    convex = ConvexClient(base_url=request.get("convexSiteUrl"))
 
     try:
         async def on_progress(progress: int, message: str) -> None:
@@ -388,7 +388,7 @@ async def run_summary_task(ctx: dict[str, Any], request: dict[str, Any]) -> dict
 
     logger.info("[%s] run_summary_task started for audit_id=%s competitors=%d",
                 job_id, audit_id, len(selected_competitor_ids))
-    convex = ConvexClient()
+    convex = ConvexClient(base_url=request.get("convexSiteUrl"))
 
     try:
         async def on_progress(progress: int, message: str) -> None:

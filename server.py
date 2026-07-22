@@ -139,6 +139,9 @@ class ReportRequest(BaseModel):
     userId: str
     sourceUrl: str | None = None
     scrapedData: dict | None = None  # optional inline payload for dev testing
+    # Deployment wolajacego (dev/prod) — webhooki wracaja tam, skad przyszedl job.
+    # None -> globalny settings.convex_url (prod). Wzorzec: competitor report.
+    convexSiteUrl: str | None = None
 
 
 class FreeReportRequest(ReportRequest):
@@ -155,6 +158,7 @@ class CennikRequest(BaseModel):
     """BAGENT #2 — generate new pricelist from report + original scrape."""
     auditId: str
     userId: str
+    convexSiteUrl: str | None = None
 
 
 class SummaryRequest(BaseModel):
@@ -162,6 +166,7 @@ class SummaryRequest(BaseModel):
     auditId: str
     userId: str
     selectedCompetitorIds: list[int] = []
+    convexSiteUrl: str | None = None
 
 
 class CompetitorRefreshRequest(BaseModel):
