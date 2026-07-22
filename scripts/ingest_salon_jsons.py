@@ -125,6 +125,45 @@ def _normalize_name(name: str | None) -> str | None:
     return re.sub(r"\s+", " ", cleaned).strip() or None
 
 
+def _recover_full_name(svc: dict) -> str:
+    """Odzyskaj PEŁNĄ nazwę usługi uciętą przez Booksy (incydent 2026-07-22).
+
+    Booksy customer_api server-side ucina długie `service.name` (końcówka
+    "…" albo środek "redukc...i modelowanie") — ale pełna wersja jest obok:
+    w `variants[].label` (dla usług jednowariantowych label == pełna nazwa)
+    i/lub w pierwszej linii `description`. Guardy: kandydat musi zaczynać
+    się prefiksem i kończyć sufiksem uciętej nazwy oraz być od niej dłuższy
+    — false positive praktycznie niemożliwy, a przy braku dopasowania
+    zostaje oryginał (bez regresu).
+    """
+    name = (svc.get("name") or "").strip()
+    if "..." not in name and "…" not in name:
+        return name
+    normalized = name.replace("…", "...")
+    parts = normalized.split("...")
+    prefix = parts[0].strip()
+    suffix = parts[-1].strip() if len(parts) > 1 else ""
+    if len(prefix) < 8:  # zbyt krótki prefiks = za słaby anchor
+        return name
+
+    candidates: list[str] = []
+    for v in svc.get("variants") or []:
+        if isinstance(v, dict) and isinstance(v.get("label"), str):
+            candidates.append(v["label"].strip())
+    desc = svc.get("description")
+    if isinstance(desc, str) and desc.strip():
+        candidates.append(desc.strip().splitlines()[0].strip())
+
+    for cand in candidates:
+        if (
+            len(cand) > len(prefix) + len(suffix)
+            and cand.startswith(prefix)
+            and (not suffix or cand.endswith(suffix))
+        ):
+            return cand
+    return name
+
+
 def _as_int(value: Any) -> int | None:
     """Coerce to int or None without exceptions."""
     if value is None or isinstance(value, bool):
@@ -807,6 +846,8 @@ class SalonJsonIngester:
                 suggest_tokens = suggest.get("input") if isinstance(suggest, dict) else None
                 suggest_context = suggest.get("contexts") if isinstance(suggest, dict) else None
 
+                full_name = _recover_full_name(svc)
+
                 row: dict[str, Any] = {
                     "scrape_id": scrape_id,
                     "booksy_id": booksy_id,
@@ -817,8 +858,8 @@ class SalonJsonIngester:
                     "category_id": cat_id,
                     "category_sort_order": cat_sort,
 
-                    "name": svc.get("name") or "",
-                    "normalized_name": _normalize_name(svc.get("name")),
+                    "name": full_name,
+                    "normalized_name": _normalize_name(full_name),
                     "description": _non_empty(svc.get("description")),
 
                     "canonical_id": canonical_id,
