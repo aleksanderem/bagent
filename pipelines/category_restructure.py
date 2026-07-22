@@ -194,4 +194,85 @@ async def restructure_categories(
         # ale status "failed" jedzie do raportu (FINDINGS P0-2).
         return category_mapping, category_changes, "failed"
 
+    # ── Bezpiecznik: nazwy kategorii ucięte przez Booksy (2026-07-22) ──
+    # Prompt zakazuje "..." w strukturze, ale agent może zostawić kategorię
+    # BEZ mapowania — wtedy ucięta nazwa źródłowa przechodzi dalej. Jedna
+    # tania poprawka JSON tylko dla pozostałych złamanych nazw; guardy:
+    # niepuste, bez "...", rozsądna długość — inaczej zostaje oryginał.
+    try:
+        await _fix_truncated_category_names(
+            client, transformed_pricelist, category_mapping, category_changes, audit_id,
+        )
+    except Exception as e:  # noqa: BLE001
+        logger.warning(
+            "[%s][category_restructure] truncated-name fixup failed (non-fatal): %s",
+            audit_id, e,
+        )
+
     return category_mapping, category_changes, "ok"
+
+
+async def _fix_truncated_category_names(
+    client: Any,
+    transformed_pricelist: dict[str, Any],
+    category_mapping: dict[str, str],
+    category_changes: list[dict[str, Any]],
+    audit_id: str,
+) -> None:
+    """Nadaj pełne nazwy kategoriom, których finalna nazwa nadal zawiera "...".
+
+    Booksy server-side ucina długie service_categories[].name i pełna wersja
+    NIE istnieje w żadnym API (renderują "..." nawet na własnej stronie) —
+    jedyna droga to nazwać kategorię od nowa na podstawie usług w środku.
+    """
+    broken: list[dict[str, Any]] = []
+    for cat in transformed_pricelist.get("categories", []):
+        orig = cat.get("name", "") or ""
+        final = category_mapping.get(orig, orig)
+        if "..." in final or "…" in final:
+            svc_names = [s.get("name", "") for s in (cat.get("services") or [])][:12]
+            broken.append({"original": orig, "current": final, "services": svc_names})
+    if not broken:
+        return
+
+    listing = "\n".join(
+        f"- UCIĘTA NAZWA: «{b['current']}»\n  USŁUGI: " + "; ".join(b["services"])
+        for b in broken
+    )
+    prompt = (
+        "Nazwy kategorii cennika salonu beauty zostały ucięte przez Booksy "
+        "(fragment «...» w środku lub na końcu). Na podstawie usług w każdej "
+        "kategorii zaproponuj PEŁNĄ, naturalną polską nazwę (bez «...», do "
+        "~60 znaków, styl jak w cenniku premium).\n\n"
+        f"{listing}\n\n"
+        'Zwróć JSON: {"names": [{"current": "ucięta nazwa", "full": "pełna nazwa"}]} '
+        "— jedna pozycja na każdą kategorię z listy."
+    )
+    result = await client.generate_json(prompt)
+    fixed = 0
+    by_current = {b["current"]: b for b in broken}
+    for item in result.get("names", []) if isinstance(result, dict) else []:
+        if not isinstance(item, dict):
+            continue
+        current = str(item.get("current", "")).strip()
+        full = str(item.get("full", "")).strip()
+        b = by_current.get(current)
+        if (
+            b is not None
+            and full
+            and "..." not in full
+            and "…" not in full
+            and 5 <= len(full) <= 90
+        ):
+            category_mapping[b["original"]] = full
+            category_changes.append({
+                "type": "category",
+                "before": b["original"],
+                "after": full,
+                "reason": "Pełna nazwa zamiast uciętej przez Booksy",
+            })
+            fixed += 1
+    logger.info(
+        "[%s][category_restructure] truncated-name fixup: %d/%d naprawionych",
+        audit_id, fixed, len(broken),
+    )
