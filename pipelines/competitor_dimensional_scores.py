@@ -288,6 +288,7 @@ def compute_digital_maturity_scores(
     has_online_vouchers: bool | None,
     pos_pay_by_app: bool | None,
     partner_system: str | None = None,
+    pos_market_pay: bool | None = None,
 ) -> dict[str, float]:
     """Compute digital maturity flags + composite score.
 
@@ -299,7 +300,11 @@ def compute_digital_maturity_scores(
       online booking. Force TRUE dla każdego non-native partner_system,
       bo każdy aktywny salon z synchronizacją do Booksy ma własny booking.
     - has_online_vouchers: boolean (Booksy-specific feature, nie skalujemy)
-    - pos_pay_by_app: boolean (Booksy POS, nie skalujemy)
+    - pos_pay_by_app: "płatność w aplikacji" — Booksy wystawia DWIE flagi
+      (`pos_pay_by_app_enabled` i `pos_market_pay_enabled`); salon może mieć
+      włączoną tylko jedną. Traktujemy je jako OR — jeśli klient może zapłacić
+      w aplikacji którąkolwiek drogą, funkcja JEST (wcześniej liczyliśmy tylko
+      pierwszą, co dawało fałszywe 0% dla salonów z pos_market_pay).
     - digital_maturity_score: sum of the three booleans above (0-3 integer)
     """
     # Dla partner_system != native (np. "versum", "fresha", "treatwell")
@@ -312,7 +317,7 @@ def compute_digital_maturity_scores(
 
     o_serv = _bool_to_float(effective_online)
     o_vouch = _bool_to_float(has_online_vouchers)
-    pos_pay = _bool_to_float(pos_pay_by_app)
+    pos_pay = _bool_to_float(bool(pos_pay_by_app) or bool(pos_market_pay))
     return {
         "has_online_services": o_serv,
         "has_online_vouchers": o_vouch,
@@ -503,6 +508,7 @@ def compute_all_dimensions_for_salon(salon_data: dict[str, Any]) -> dict[str, fl
             has_online_vouchers=scrape.get("has_online_vouchers"),
             pos_pay_by_app=scrape.get("pos_pay_by_app"),
             partner_system=scrape.get("partner_system"),
+            pos_market_pay=scrape.get("pos_market_pay"),
         )
     )
     result.update(
