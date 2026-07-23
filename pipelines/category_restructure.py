@@ -212,6 +212,52 @@ async def restructure_categories(
     return category_mapping, category_changes, "ok"
 
 
+def _recover_category_name_from_services(
+    truncated: str, cat: dict[str, Any]
+) -> str | None:
+    """Znajdź pełną nazwę uciętej kategorii w tekstach jej usług.
+
+    Ten sam kontrakt guardów co odzysk nazw usług (prefix>=8, kandydat
+    zawiera prefiks i dalej sufiks, dłuższy od prefix+suffix) — ale
+    dopasowanie może być FRAGMENTEM zdania (pełna nazwa wpleciona w opis).
+    """
+    n = truncated.replace("…", "...")
+    parts = n.split("...")
+    prefix = parts[0].strip()
+    suffix = parts[-1].strip() if len(parts) > 1 else ""
+    if len(prefix) < 8:
+        return None
+
+    candidates: list[str] = []
+    for s in cat.get("services") or []:
+        if s.get("name"):
+            candidates.append(str(s["name"]).strip())
+        for v in s.get("variants") or []:
+            label = v.get("label") if isinstance(v, dict) else None
+            if label:
+                candidates.append(str(label).strip())
+        desc = s.get("description") or ""
+        candidates.extend(
+            line.strip() for line in str(desc).splitlines()[:3] if line.strip()
+        )
+
+    for cand in candidates:
+        idx = cand.find(prefix)
+        if idx < 0:
+            continue
+        tail = cand[idx:]
+        if suffix:
+            end = tail.find(suffix)
+            if end < 0:
+                continue
+            full = tail[: end + len(suffix)].strip()
+        else:
+            full = tail.strip()
+        if len(full) > len(prefix) + len(suffix) and "..." not in full:
+            return full
+    return None
+
+
 async def _fix_truncated_category_names(
     client: Any,
     transformed_pricelist: dict[str, Any],
@@ -229,9 +275,26 @@ async def _fix_truncated_category_names(
     for cat in transformed_pricelist.get("categories", []):
         orig = cat.get("name", "") or ""
         final = category_mapping.get(orig, orig)
-        if "..." in final or "…" in final:
-            svc_names = [s.get("name", "") for s in (cat.get("services") or [])][:12]
-            broken.append({"original": orig, "current": final, "services": svc_names})
+        if "..." not in final and "…" not in final:
+            continue
+
+        # Krok 1 — odzysk DOSŁOWNY: pełna nazwa kategorii bywa powtórzona
+        # w tekstach usług w środku (nazwy, labelki wariantów, początek
+        # opisów). Prawdziwe słowa salonu > parafraza LLM (2/14 przypadków
+        # u Beauty4ever, ale za darmo i wierne).
+        exact = _recover_category_name_from_services(final, cat)
+        if exact is not None:
+            category_mapping[orig] = exact
+            category_changes.append({
+                "type": "category",
+                "before": orig,
+                "after": exact,
+                "reason": "Pełna nazwa odzyskana z opisów usług (ucięta przez Booksy)",
+            })
+            continue
+
+        svc_names = [s.get("name", "") for s in (cat.get("services") or [])][:12]
+        broken.append({"original": orig, "current": final, "services": svc_names})
     if not broken:
         return
 
