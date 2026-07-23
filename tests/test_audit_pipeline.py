@@ -437,3 +437,44 @@ class TestNoContentTruncation:
         # jako kompletna, nie jako "brak czasu/ceny".
         assert stats["servicesWithDuration"] == 1
         assert stats["servicesWithFixedPrice"] == 1
+
+
+class TestTruncationAwareness:
+    """Audyt krzyczy o nazwach uciętych przez Booksy (limit ~50 zn., 2026-07-23)."""
+
+    def _data_with_truncated(self) -> FakeScrapedData:
+        return FakeScrapedData(
+            salonName="S", salonAddress=None, totalServices=2,
+            categories=[
+                FakeCategory(
+                    name="Endermologia Alliance -...poprawa jędrności skóry",
+                    services=[
+                        FakeService(name="Endermologia 1 zabieg", price="200 zł"),
+                        FakeService(name="Masaż twarzy Kobido dłu...", price="150 zł"),
+                    ],
+                ),
+                FakeCategory(name="Manicure", services=[FakeService(name="Hybryda", price="100 zł")]),
+            ],
+        )
+
+    def test_stats_count_truncated_names(self) -> None:
+        stats = calculate_audit_stats(self._data_with_truncated())
+        assert stats["truncatedCategoryNames"] == 1
+        assert stats["truncatedServiceNames"] == 1
+
+    def test_truncation_issues_injected(self) -> None:
+        from pipelines.report import _build_truncation_issues
+        data = self._data_with_truncated()
+        issues = _build_truncation_issues(data, calculate_audit_stats(data))
+        assert len(issues) == 2
+        by_dim = {i["dimension"]: i for i in issues}
+        assert by_dim["structure"]["severity"] == "major"
+        assert "48 znaków" in by_dim["structure"]["fix"]
+        assert by_dim["structure"]["example"].startswith("Endermologia Alliance")
+        assert by_dim["naming"]["affectedCount"] == 1
+        assert "50 znak" in by_dim["naming"]["fix"] or "~50" in by_dim["naming"]["fix"]
+
+    def test_no_issues_when_clean(self) -> None:
+        from pipelines.report import _build_truncation_issues
+        data = _make_simple_data()
+        assert _build_truncation_issues(data, calculate_audit_stats(data)) == []

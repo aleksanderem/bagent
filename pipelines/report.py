@@ -147,6 +147,69 @@ def _apply_transformations_to_scraped(
     }
 
 
+def _build_truncation_issues(scraped_data: Any, stats: dict[str, Any]) -> list[dict[str, Any]]:
+    """Deterministyczne issue o nazwach uciętych przez Booksy (limit ~50 zn.).
+
+    Zwraca 0-2 issue (kategorie / usługi) w tym samym kształcie co scorery:
+    {severity, dimension, issue, impact, affectedCount, example, fix}.
+    """
+    issues: list[dict[str, Any]] = []
+    trunc_cats = [
+        c.name for c in scraped_data.categories
+        if "..." in (c.name or "") or "…" in (c.name or "")
+    ]
+    if trunc_cats:
+        issues.append({
+            "severity": "major",
+            "dimension": "structure",
+            "issue": (
+                f"Booksy uciął nazwy {len(trunc_cats)} kategorii — w Twoim profilu "
+                "wyświetlają się złamane, z «...» w środku"
+            ),
+            "impact": (
+                "Booksy ma twardy limit ~50 znaków na nazwę kategorii i sam ucina "
+                "dłuższe — pełna wersja PRZEPADA (widać «...» nawet na Twoim "
+                "profilu). Wygląda to nieprofesjonalnie i gubi informację, "
+                "po której klientka wybiera zabieg."
+            ),
+            "affectedCount": len(trunc_cats),
+            "example": trunc_cats[0],
+            "fix": (
+                "Nadaj kategoriom nazwy do 48 znaków: najważniejsza informacja "
+                "na początku (technologia/zabieg), doprecyzowanie efektów "
+                "przenieś do opisów usług. Zoptymalizowany cennik poniżej "
+                "proponuje gotowe nazwy mieszczące się w limicie."
+            ),
+        })
+    n_trunc_svc = stats.get("truncatedServiceNames", 0)
+    if n_trunc_svc:
+        example = next(
+            (s.name for cat in scraped_data.categories for s in cat.services
+             if "..." in (s.name or "") or "…" in (s.name or "")),
+            "",
+        )
+        issues.append({
+            "severity": "major",
+            "dimension": "naming",
+            "issue": (
+                f"{n_trunc_svc} usług ma nazwy ucięte przez Booksy (limit ~50 "
+                "znaków) — tak długie, że nie dało się ich odtworzyć"
+            ),
+            "impact": (
+                "Booksy ucina długie nazwy usług na listach — klientka widzi "
+                "urwany tekst z «...» i nie wie, co obejmuje zabieg. To obniża "
+                "konwersję i widoczność w wyszukiwarce Booksy."
+            ),
+            "affectedCount": n_trunc_svc,
+            "example": example,
+            "fix": (
+                "Umieszczaj kluczową informację (zabieg + obszar) w pierwszych "
+                "~50 znakach nazwy, a szczegóły i efekty w opisie usługi."
+            ),
+        })
+    return issues
+
+
 ProgressCallback = Callable[[int, str], Awaitable[None]]
 
 
@@ -285,6 +348,15 @@ async def run_audit_pipeline(
         + desc_scoring["issues"]
         + structure_result.get("issues", [])
     )
+
+    # ── Deterministyczne issue: nazwy ucięte przez Booksy (2026-07-23) ──
+    # Booksy server-side ucina nazwy do ~50 znaków ("..." na końcu/środku).
+    # Usługi: parser odzyskuje pełne nazwy z variants[].label/opisu — tu
+    # zostają tylko NIEODZYSKIWALNE. Kategorie: limit 50 zn. jest twardy,
+    # pełna wersja nie istnieje w żadnym API. Audyt musi o tym KRZYCZEĆ
+    # i rekomendować nazwy mieszczące się w limicie.
+    all_issues.extend(_build_truncation_issues(scraped_data, stats))
+
     severity_order = {"critical": 0, "major": 1, "minor": 2}
     all_issues.sort(key=lambda i: severity_order.get(i.get("severity", "minor"), 2))
 

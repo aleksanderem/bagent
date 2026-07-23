@@ -14,9 +14,13 @@ ZASADY:
 - UCIĘTE NAZWY (KRYTYCZNE): nazwa kategorii zawierająca "..." to nazwa
   ucięta przez Booksy (np. "Endermologia Alliance -...poprawa jędrności
   skóry"). NIGDY nie przepisuj "..." do nowej struktury — na podstawie
-  usług w środku zaproponuj pełną, naturalną nazwę (np. "Endermologia
-  Alliance – modelowanie sylwetki i jędrność skóry"). Żadna proponowana
-  kategoria nie może zawierać "..." w nazwie.
+  usług w środku zaproponuj naturalną nazwę. Żadna proponowana kategoria
+  nie może zawierać "..." w nazwie.
+- LIMIT BOOKSY (KRYTYCZNE): Booksy ma twardy limit ~50 znaków na nazwę
+  kategorii i UCINA dłuższe przy zapisie. KAŻDA proponowana nazwa
+  kategorii musi mieć MAKSYMALNIE 48 znaków — najważniejsza informacja
+  (technologia/zabieg) na początku, np. "Endermologia Alliance – jędrna
+  sylwetka" zamiast wersji 66-znakowej, którą Booksy i tak utnie.
 - Bestsellery powinny być łatwo dostępne
 - Połącz kategorie z <3 usługami
 - Rozdziel kategorie z >20 usługami

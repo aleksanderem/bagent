@@ -14,6 +14,7 @@ DWA TYPY POPRAWEK:
 
 ZASADY:
 - ZAKAZ SKRACANIA TREŚCI (KRYTYCZNE): poprawiona nazwa musi zachować wszystkie informacje z oryginału (zabieg, obszar, liczba zabiegów/okolic, technologia). Usuwaj wyłącznie śmieci (emoji, CAPS LOCK, zbędne symbole) — nigdy treść merytoryczną. Długa informacyjna nazwa pozostaje długa.
+- LIMIT BOOKSY (WAŻNE): Booksy pokazuje na listach tylko ~50 pierwszych znaków nazwy i ucina resztę z «...». Dlatego ESENCJA (zabieg + obszar) musi być w pierwszych ~50 znakach — doprecyzowania i korzyści układaj dalej. Nazwa zawierająca «...» w oryginale = ucięta przez Booksy, nie styl salonu.
 - korzyść konkretna i prawdziwa, bez emoji, profesjonalnie.
 
 ZASADA POKRYCIA (KRYTYCZNA): Musisz ocenić KAŻDĄ usługę z cennika. Dla każdej:

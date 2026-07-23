@@ -365,6 +365,16 @@ def calculate_audit_stats(data: Any) -> dict[str, Any]:
     services_without_variants = total_services - services_with_variants
     total_price_points = services_without_variants + total_variants
 
+    # Nazwy ucięte przez Booksy (limit ~50 znaków, "..." na końcu lub w
+    # środku). Usługi: po recovery w parserach zostają tylko nieodzyskiwalne.
+    # Kategorie: limit 50 zn. jest twardy (pełna wersja NIE istnieje w API).
+    def _is_truncated(text: str | None) -> bool:
+        t = text or ""
+        return "..." in t or "…" in t
+
+    truncated_service_names = sum(1 for s in all_services if _is_truncated(getattr(s, "name", None)))
+    truncated_category_names = sum(1 for c in data.categories if _is_truncated(getattr(c, "name", None)))
+
     services_with_description = sum(
         1 for s in all_services if (getattr(s, "description", None) or "").strip()
     )
@@ -433,6 +443,8 @@ def calculate_audit_stats(data: Any) -> dict[str, Any]:
         "totalServices": total_services,
         "totalVariants": total_variants,
         "totalPricePoints": total_price_points,
+        "truncatedServiceNames": truncated_service_names,
+        "truncatedCategoryNames": truncated_category_names,
         "servicesWithVariants": services_with_variants,
         "totalCategories": total_categories,
         "servicesWithDescription": services_with_description,

@@ -281,9 +281,12 @@ async def _fix_truncated_category_names(
         # Krok 1 — odzysk DOSŁOWNY: pełna nazwa kategorii bywa powtórzona
         # w tekstach usług w środku (nazwy, labelki wariantów, początek
         # opisów). Prawdziwe słowa salonu > parafraza LLM (2/14 przypadków
-        # u Beauty4ever, ale za darmo i wierne).
+        # u Beauty4ever, ale za darmo i wierne). UWAGA limit Booksy: nazwa
+        # kategorii > 50 znaków zostanie znowu ucięta przy zapisie w panelu
+        # — taką odzyskaną wersję przekazujemy LLM-owi jako KONTEKST, a
+        # propozycja musi zmieścić się w limicie.
         exact = _recover_category_name_from_services(final, cat)
-        if exact is not None:
+        if exact is not None and len(exact) <= 50:
             category_mapping[orig] = exact
             category_changes.append({
                 "type": "category",
@@ -294,21 +297,30 @@ async def _fix_truncated_category_names(
             continue
 
         svc_names = [s.get("name", "") for s in (cat.get("services") or [])][:12]
-        broken.append({"original": orig, "current": final, "services": svc_names})
+        broken.append({
+            "original": orig,
+            "current": final,
+            "services": svc_names,
+            "known_full": exact,  # None gdy nieodzyskana
+        })
     if not broken:
         return
 
     listing = "\n".join(
-        f"- UCIĘTA NAZWA: «{b['current']}»\n  USŁUGI: " + "; ".join(b["services"])
+        f"- UCIĘTA NAZWA: «{b['current']}»"
+        + (f"\n  PEŁNE BRZMIENIE (za długie na limit): «{b['known_full']}»" if b.get("known_full") else "")
+        + "\n  USŁUGI: " + "; ".join(b["services"])
         for b in broken
     )
     prompt = (
         "Nazwy kategorii cennika salonu beauty zostały ucięte przez Booksy "
-        "(fragment «...» w środku lub na końcu). Na podstawie usług w każdej "
-        "kategorii zaproponuj PEŁNĄ, naturalną polską nazwę (bez «...», do "
-        "~60 znaków, styl jak w cenniku premium).\n\n"
+        "(fragment «...» w środku lub na końcu). Booksy ma TWARDY limit "
+        "~50 znaków na nazwę kategorii — dłuższe utnie ponownie przy zapisie. "
+        "Na podstawie usług w każdej kategorii (i pełnego brzmienia, jeśli "
+        "podane) zaproponuj naturalną polską nazwę: bez «...», MAKSYMALNIE "
+        "48 znaków, najważniejsza informacja na początku.\n\n"
         f"{listing}\n\n"
-        'Zwróć JSON: {"names": [{"current": "ucięta nazwa", "full": "pełna nazwa"}]} '
+        'Zwróć JSON: {"names": [{"current": "ucięta nazwa", "full": "nowa nazwa"}]} '
         "— jedna pozycja na każdą kategorię z listy."
     )
     result = await client.generate_json(prompt)
@@ -325,7 +337,8 @@ async def _fix_truncated_category_names(
             and full
             and "..." not in full
             and "…" not in full
-            and 5 <= len(full) <= 90
+            # twardy limit Booksy: 50 znaków na nazwę kategorii (2026-07-23)
+            and 5 <= len(full) <= 50
         ):
             category_mapping[b["original"]] = full
             category_changes.append({
