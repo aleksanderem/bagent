@@ -36,6 +36,7 @@ from typing import Any
 
 from config import settings
 from services.sb_client import make_supabase_client
+from services.email_renderer import render_email_html
 from services.wintact import WintactClient, WintactError
 
 logger = logging.getLogger("bagent.workers.outreach_deployer")
@@ -65,19 +66,24 @@ async def deploy_approved_templates(ctx: dict[str, Any]) -> dict[str, int]:
     async with WintactClient() as wc:
         for row in rows.data:
             try:
-                # Use body_html if pre-rendered, else fall back to markdown.
-                body = row.get("body_html") or row.get("body_md") or ""
-                name = (
-                    f"{row['funnel']}_{row['step_key']}_"
-                    f"{row['vertical']}_{row.get('variant_label', 'A')}"
-                )
+                # body_html jeśli pre-rendered; markdown renderujemy do HTML
+                # (Notifuse chce compiled_preview jako HTML, nie markdown).
+                body_html = row.get("body_html")
+                if not body_html:
+                    body_html = render_email_html(
+                        body_md=row.get("body_md") or "",
+                        subject=row["subject"],
+                        preview_text=row.get("preview_text"),
+                    )
                 resp = await wc.create_template(
-                    name=name,
+                    template_id=row["step_key"],
+                    name=row["step_key"],
                     subject=row["subject"],
-                    body=body,
+                    html=body_html,
                     preview_text=row.get("preview_text"),
                 )
-                wintact_id = resp.get("id") or resp.get("template_id")
+                tpl = resp.get("template") or resp
+                wintact_id = tpl.get("id") or tpl.get("template_id")
                 if not wintact_id:
                     raise WintactError(
                         f"wintact /templates.create returned no id: {resp}"
@@ -90,7 +96,7 @@ async def deploy_approved_templates(ctx: dict[str, Any]) -> dict[str, int]:
                 deployed += 1
                 logger.info(
                     "Deployed template %s → wintact id %s",
-                    name, wintact_id,
+                    row["step_key"], wintact_id,
                 )
             except Exception as exc:  # noqa: BLE001
                 errors += 1

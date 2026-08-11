@@ -187,19 +187,33 @@ class WintactClient:
 
     async def create_template(
         self,
+        template_id: str,
         name: str,
         subject: str,
-        body: str,
+        html: str,
         *,
         preview_text: str | None = None,
+        category: str = "marketing",
     ) -> dict[str, Any]:
-        payload: dict[str, Any] = {
-            "name": name,
+        """Create per Notifuse contract: id (slug ≤32), channel+category,
+        email{subject, compiled_preview, visual_editor_tree}. Wysyłka i tak
+        idzie przez /transactional.send z gotowym HTML (orchestrator), więc
+        pusty tree MJML jest OK — template w wintact to kopia referencyjna.
+        Zweryfikowane curl smoke 2026-08-11 (HTTP 200)."""
+        email: dict[str, Any] = {
             "subject": subject,
-            "body": body,
+            "compiled_preview": html,
+            "visual_editor_tree": {"type": "mjml", "children": []},
         }
         if preview_text:
-            payload["preview_text"] = preview_text
+            email["subject_preview"] = preview_text
+        payload: dict[str, Any] = {
+            "id": template_id[:32],
+            "name": name[:32],
+            "channel": "email",
+            "category": category,
+            "email": email,
+        }
         return await self._post("/templates.create", payload)
 
     async def update_template(
