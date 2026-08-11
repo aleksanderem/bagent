@@ -149,7 +149,7 @@ class WintactClient:
         """Bulk import — efektywniejsze od pojedynczych upsert dla seed
         51k salonów. Wintact internal limit 1k contacts per call (verify
         empirycznie)."""
-        return await self._post("/contacts.batchImport", {"contacts": contacts})
+        return await self._post("/contacts.import", {"contacts": contacts})
 
     async def get_contact_by_email(self, email: str) -> dict[str, Any] | None:
         try:
@@ -205,11 +205,20 @@ class WintactClient:
         email{subject, compiled_preview, visual_editor_tree}. Wysyłka i tak
         idzie przez /transactional.send z gotowym HTML (orchestrator), więc
         pusty tree MJML jest OK — template w wintact to kopia referencyjna.
-        Zweryfikowane curl smoke 2026-08-11 (HTTP 200)."""
+        Drzewo MUSI nieść treść: send-path kompiluje visual_editor_tree,
+        nie compiled_preview (internal/service/automation_node_executor.go)."""
+        styles = "".join(re.findall(r"<style[^>]*>.*?</style>", html, re.S))
+        m = re.search(r"<body[^>]*>(.*)</body>", html, re.S)
+        inner = m.group(1) if m else html
+        tree = {"id": "root", "type": "mjml", "attributes": {}, "children": [
+            {"id": "body", "type": "mj-body",
+             "attributes": {"width": "640px"}, "children": [
+                 {"id": "raw1", "type": "mj-raw", "attributes": {},
+                  "content": styles + inner, "children": []}]}]}
         email: dict[str, Any] = {
             "subject": subject,
             "compiled_preview": html,
-            "visual_editor_tree": {"type": "mjml", "children": []},
+            "visual_editor_tree": tree,
         }
         if preview_text:
             email["subject_preview"] = preview_text
