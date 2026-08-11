@@ -140,8 +140,28 @@ class WintactClient:
         if external_id:
             payload["external_id"] = external_id
         if attributes:
-            payload["attributes"] = attributes
-        return await self._post("/contacts.upsert", payload)
+            # Notifuse trzyma custom_* jako pola TOP-LEVEL kontaktu
+            payload.update(attributes)
+        return await self._post("/contacts.upsert", {"contact": payload})
+
+    async def upsert_custom_event(
+        self,
+        email: str,
+        event_name: str,
+        *,
+        external_id: str,
+        properties: dict[str, Any] | None = None,
+    ) -> dict[str, Any]:
+        """customEvents.upsert — natywny trigger automatyzacji Notifuse.
+        external_id = klucz idempotencji (u nas outreach_events.external_key)."""
+        payload: dict[str, Any] = {
+            "email": email,
+            "event_name": event_name,
+            "external_id": external_id,
+        }
+        if properties:
+            payload["properties"] = properties
+        return await self._post("/customEvents.upsert", payload)
 
     async def batch_import_contacts(
         self, contacts: list[dict[str, Any]],

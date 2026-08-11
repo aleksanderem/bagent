@@ -248,6 +248,7 @@ from .campaign_tasks import ALL_CAMPAIGN_TASKS
 # Iter 8 — outreach automation (wintact deployment + send loop + state machine).
 from .outreach_deployer import ALL_OUTREACH_DEPLOYER_TASKS
 from .outreach_orchestrator import ALL_OUTREACH_ORCHESTRATOR_TASKS
+from .outreach_event_detector import ALL_OUTREACH_EVENT_DETECTOR_TASKS
 from .state_transition_processor import ALL_OUTREACH_STATE_TASKS
 # Taxonomy maintenance — nightly mv refresh + service embedding + inference backfill.
 from .taxonomy_refresh import ALL_TAXONOMY_TASKS
@@ -357,6 +358,13 @@ try:  # pragma: no cover
         # Iter 8 — outreach orchestrator: enrol every 5 min, send loop
         # every minute (capped at 25 sends per minute by wintact rate
         # limit; orchestrator slices accordingly).
+        # Event-driven outreach (F1): nocna detekcja zmian cen konkurencji
+        # → outreach_events (cap/dedup) → wintact customEvents. Bez aktywnej
+        # automatyzacji w wintact NIC nie wysyła.
+        cron(
+            "workers.outreach_event_detector.detect_and_emit_price_events",
+            hour={5}, minute={40},
+        ),
         cron(
             "workers.outreach_orchestrator.enroll_due_contacts",
             minute={i for i in range(0, 60, 5)},
@@ -542,6 +550,7 @@ class WorkerSettings:
         *ALL_CAMPAIGN_TASKS,
         *ALL_OUTREACH_DEPLOYER_TASKS,
         *ALL_OUTREACH_ORCHESTRATOR_TASKS,
+        *ALL_OUTREACH_EVENT_DETECTOR_TASKS,
         *ALL_OUTREACH_STATE_TASKS,
         *ALL_TAXONOMY_TASKS,
         *ALL_STAFF_IDENTITY_TASKS,
