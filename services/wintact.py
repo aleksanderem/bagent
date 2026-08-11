@@ -21,6 +21,7 @@ Rate cap:  25 sends/min (Mailgun EU) — enforced w outreach_orchestrator
 from __future__ import annotations
 
 import asyncio
+import re
 import logging
 from typing import Any
 
@@ -170,12 +171,17 @@ class WintactClient:
         self, name: str, *, description: str = "", is_public: bool = False,
         is_double_optin: bool = False,
     ) -> dict[str, Any]:
-        return await self._post("/lists.create", {
-            "name": name,
-            "description": description,
+        """Notifuse wymaga `id` — i w odróżnieniu od templates STRICT
+        alphanumeric (underscore = 400 'id must be alphanumeric').
+        Zweryfikowane curl smoke 2026-08-11. Sanityzujemy z name."""
+        list_id = re.sub(r"[^a-zA-Z0-9]", "", name)[:32] or "list"
+        resp = await self._post("/lists.create", {
+            "id": list_id,
+            "name": name[:32],
             "is_public": is_public,
             "is_double_optin": is_double_optin,
         })
+        return resp.get("list") or resp
 
     async def list_lists(self) -> list[dict[str, Any]]:
         result = await self._get("/lists.list")
