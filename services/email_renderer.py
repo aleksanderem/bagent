@@ -185,6 +185,19 @@ class _EmailHtmlRenderer(mistune.HTMLRenderer):
         )
 
 
+_LIQUID_TAG = re.compile(r"(\{\{.*?\}\}|\{%.*?%\})", re.S)
+
+
+def _unescape_liquid(rendered: str) -> str:
+    """Markdown→HTML eskapuje encje także WEWNĄTRZ tagów liquid
+    ({% if x &gt; 0 %}) — silnik Notifuse nie sparsuje &gt; i po cichu
+    renderuje warunkowaną treść zamiast ją ukryć (zweryfikowane sondą
+    templates.compile 2026-08-12). Przywracamy znaki wyłącznie w obrębie
+    {{ }} / {% %}; escape reszty treści zostaje nietknięty."""
+    import html as _html
+    return _LIQUID_TAG.sub(lambda m: _html.unescape(m.group(1)), rendered)
+
+
 def render_email_html(
     *,
     body_md: str,
@@ -218,7 +231,7 @@ def render_email_html(
     # contact-level. We replace it now.
     out = out.replace("{{utm_campaign}}", _safe_escape(utm_campaign))
 
-    return out
+    return _unescape_liquid(out)
 
 
 def _safe_escape(s: str) -> str:
