@@ -44,6 +44,30 @@ def _external_key(row: dict[str, Any]) -> str:
     return f"price:{row['contact_id']}:{row['competitor_booksy_id']}:{day}"
 
 
+def _pl_count(n: int, one: str, few: str, many: str) -> str:
+    """Polska liczba mnoga: 1 usługa / 3 usługi / 5 usług (12-14 → many)."""
+    n = int(n or 0)
+    if n == 1:
+        return f"{n} {one}"
+    if n % 10 in (2, 3, 4) and n % 100 not in (12, 13, 14):
+        return f"{n} {few}"
+    return f"{n} {many}"
+
+
+def _km_label(km: float | None) -> str:
+    if km is None:
+        return ""
+    if km < 1:
+        return f"{max(10, int(round(km * 100)) * 10)} m"
+    return f"{km:.1f}".replace(".", ",").rstrip(",0").replace(",", ",") + " km" if km % 1 else f"{int(km)} km"
+
+
+def _zl(v: float | None) -> str:
+    if v is None:
+        return ""
+    return (f"{v:.2f}".rstrip("0").rstrip(".") or "0").replace(".", ",") + " zł"
+
+
 def _payload(row: dict[str, Any]) -> dict[str, Any]:
     return {
         "event_type": EVENT_NAME_PRICE,
@@ -57,6 +81,16 @@ def _payload(row: dict[str, Any]) -> dict[str, Any]:
         "changed_services": row.get("changed_services"),
         "area_competitors_with_changes": row.get("area_competitors_with_changes"),
         "detected_at": str(row.get("detected_ts") or ""),
+        # Etykiety gotowe do wklejenia w zdanie — odmiana i format po stronie
+        # Pythona, nie szablonu (liquid nie zna polskiej fleksji):
+        "distance_label": _km_label(
+            float(row["competitor_km"]) if row.get("competitor_km") is not None else None),
+        "changed_services_label": _pl_count(
+            row.get("changed_services") or 0, "usługi", "usług", "usług"),
+        "area_salons_label": _pl_count(
+            row.get("area_competitors_with_changes") or 0, "salon", "salony", "salonów"),
+        "old_price_label": _zl(round((row.get("old_price_grosze") or 0) / 100, 2)),
+        "new_price_label": _zl(round((row.get("new_price_grosze") or 0) / 100, 2)),
     }
 
 
