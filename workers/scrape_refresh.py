@@ -208,6 +208,9 @@ def _build_monitoring_alerts(
             if meta is not None:
                 # Convex expects metadataJson as a JSON string (per spec).
                 alert["metadataJson"] = json.dumps(meta, ensure_ascii=False)
+            # Deployment docelowy wiersza (mirror zapisuje swoj CONVEX_SITE_URL,
+            # mig 164). Klucz techniczny — zdejmowany przed POST-em.
+            alert["_convex_site_url"] = row.get("convex_site_url")
             alerts.append(alert)
 
     salon_display = (schedule_rows[0].get("salon_name") or salon_name_fallback or "Salon")
@@ -378,7 +381,7 @@ async def _maybe_trigger_monitoring_diff(
     try:
         sched_res = (
             client.table("monitoring_refresh_schedule")
-            .select("watchlist_id, user_id, salon_ref_id, salon_name")
+            .select("watchlist_id, user_id, salon_ref_id, salon_name, convex_site_url")
             .eq("booksy_id", booksy_id)
             .eq("enabled", True)
             .execute()
@@ -463,36 +466,47 @@ async def _maybe_trigger_monitoring_diff(
 
 
 async def _post_monitoring_alerts(alerts: list[dict]) -> None:
-    """POST {alerts: [...]} do {convex_url}/api/competitor/alert/ingest.
+    """POST {alerts: [...]} do {site_url}/api/competitor/alert/ingest.
 
+    Alerty sa grupowane po deploymencie Convexa, ktory mirror'owal dany wiersz
+    watchlisty (monitoring_refresh_schedule.convex_site_url, mig 164) — Convex
+    ID sa per-deployment, wiec POST do zlego deploymentu = 500
+    ArgumentValidationError i utrata alertu (incydent 13.06-14.08.2026).
+    Wiersze bez URL-a leca na globalny CONVEX_URL (fallback).
     Endpoint (zdefiniowany w convex/http.ts) sprawdza x-api-key header.
     """
-    convex_url = settings.convex_url or os.environ.get("CONVEX_URL") or ""
-    if not convex_url:
-        logger.warning("[monitoring] CONVEX_URL not configured — skipping %d alerts", len(alerts))
-        return
+    fallback_url = settings.convex_url or os.environ.get("CONVEX_URL") or ""
 
-    url = f"{convex_url.rstrip('/')}/api/competitor/alert/ingest"
+    by_target: dict[str, list[dict]] = {}
+    for alert in alerts:
+        target = (alert.pop("_convex_site_url", None) or fallback_url or "").rstrip("/")
+        if not target:
+            logger.warning("[monitoring] brak convex_site_url i CONVEX_URL — alert odrzucony")
+            continue
+        by_target.setdefault(target, []).append(alert)
+
     headers = {
         "Content-Type": "application/json",
         "x-api-key": settings.api_key,
     }
-    payload = {"alerts": alerts}
 
-    try:
-        async with httpx.AsyncClient(timeout=15.0) as ac:
-            r = await ac.post(url, json=payload, headers=headers)
-            if r.status_code >= 300:
-                logger.warning(
-                    "[monitoring] alert ingest POST %s -> %s body=%s",
-                    url, r.status_code, r.text[:200],
-                )
-            else:
-                logger.info(
-                    "[monitoring] alert ingest ok: %d alerts posted", len(alerts),
-                )
-    except httpx.HTTPError as e:
-        logger.warning("[monitoring] alert ingest POST raised %s", e)
+    for target, batch in by_target.items():
+        url = f"{target}/api/competitor/alert/ingest"
+        try:
+            async with httpx.AsyncClient(timeout=15.0) as ac:
+                r = await ac.post(url, json={"alerts": batch}, headers=headers)
+                if r.status_code >= 300:
+                    logger.warning(
+                        "[monitoring] alert ingest POST %s -> %s body=%s",
+                        url, r.status_code, r.text[:200],
+                    )
+                else:
+                    logger.info(
+                        "[monitoring] alert ingest ok: %d alerts posted to %s",
+                        len(batch), target,
+                    )
+        except httpx.HTTPError as e:
+            logger.warning("[monitoring] alert ingest POST %s raised %s", url, e)
 
 
 # ---------------------------------------------------------------------------
