@@ -433,3 +433,61 @@ class TestPromotionAlerts:
         types = {a["type"] for a in alerts}
         assert "promotion_ended" in types
         assert "promotion_started" not in types
+
+
+class TestPriceTextBasis:
+    """Regresja 2026-08-17: tasowanie variants[0] zmieniało price_grosze bez
+    zmiany ceny widocznej — alerty "700,00 zł+ → 700,00 zł+"."""
+
+    def _schedule_rows(self):
+        return [{"user_id": "u1", "watchlist_id": "w1", "salon_ref_id": 1,
+                 "salon_name": "Salon X", "convex_site_url": None}]
+
+    def test_no_alert_when_displayed_price_identical(self):
+        alerts = _build_monitoring_alerts(
+            schedule_rows=self._schedule_rows(),
+            pair_row=None,
+            service_diffs=[{
+                "status": "price_changed",
+                "service_name": "Stymulator Aquashine",
+                "prev_price": "700,00 zł+", "current_price": "700,00 zł+",
+                "prev_price_grosze": 70000, "current_price_grosze": 85000,
+            }],
+            promoted_current=None,
+            salon_name_fallback="Salon X",
+        )
+        assert alerts == []
+
+    def test_direction_follows_displayed_price_not_variant_grosze(self):
+        alerts = _build_monitoring_alerts(
+            schedule_rows=self._schedule_rows(),
+            pair_row=None,
+            service_diffs=[{
+                "status": "price_changed",
+                "service_name": "Revolax Deep",
+                "prev_price": "800,00 zł+", "current_price": "900,00 zł+",
+                # grosze kłamią w drugą stronę (przetasowane warianty)
+                "prev_price_grosze": 95000, "current_price_grosze": 80000,
+            }],
+            promoted_current=None,
+            salon_name_fallback="Salon X",
+        )
+        assert len(alerts) == 1
+        assert alerts[0]["type"] == "price_increase"
+        assert "800,00 zł+ → 900,00 zł+" in alerts[0]["body"]
+
+    def test_grosze_fallback_when_text_missing(self):
+        alerts = _build_monitoring_alerts(
+            schedule_rows=self._schedule_rows(),
+            pair_row=None,
+            service_diffs=[{
+                "status": "price_changed",
+                "service_name": "Masaż",
+                "prev_price": None, "current_price": None,
+                "prev_price_grosze": 10000, "current_price_grosze": 12000,
+            }],
+            promoted_current=None,
+            salon_name_fallback="Salon X",
+        )
+        assert len(alerts) == 1
+        assert alerts[0]["type"] == "price_increase"
