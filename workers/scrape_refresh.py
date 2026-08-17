@@ -33,6 +33,7 @@ import asyncio
 import json
 import logging
 import os
+import re
 from typing import Any
 
 import httpx
@@ -142,6 +143,26 @@ async def _maybe_trigger_competitor_refresh(booksy_id: int) -> None:
 # ---------------------------------------------------------------------------
 
 
+def _parse_price_text_grosze(price_text: str | None) -> int | None:
+    """Grosze z tekstowej ceny Booksy ("2 200,00 zł+", "od 50 zł", "700,00 zł").
+
+    To jest cena, którą realnie widzi właścicielka salonu. price_grosze w
+    salon_scrape_services bierze variants[0].price, a Booksy tasuje kolejność
+    wariantów między skanami — stąd fałszywe "zmiany cen" 700→700 (incydent
+    2026-08-17: 25/108 alertów cenowych z identyczną ceną po obu stronach).
+    """
+    if not price_text:
+        return None
+    m = re.search(r"(\d[\d\s\u00a0]*(?:[.,]\d{1,2})?)", price_text)
+    if not m:
+        return None
+    raw = m.group(1).replace(" ", "").replace("\u00a0", "").replace(",", ".")
+    try:
+        return int(round(float(raw) * 100))
+    except ValueError:
+        return None
+
+
 def _format_price_display(price_text: str | None, price_grosze: int | None) -> str:
     """Prefer Booksy's raw text ("od 50 zł", "100 zł"); fallback to grosze."""
     if price_text:
@@ -248,8 +269,15 @@ def _build_monitoring_alerts(
                 meta={"service_name": service_name, "price": price_display},
             )
         elif status == "price_changed":
-            prev_g = sd.get("prev_price_grosze")
-            cur_g = sd.get("current_price_grosze")
+            # Podstawa porównania: cena z TEKSTU (to widzi klientka); grosze
+            # (variants[0]) tylko jako fallback. Tasowanie wariantów zmienia
+            # grosze bez zmiany ceny od — wtedy alertu ma nie być wcale.
+            prev_g = _parse_price_text_grosze(sd.get("prev_price"))
+            if prev_g is None:
+                prev_g = sd.get("prev_price_grosze")
+            cur_g = _parse_price_text_grosze(sd.get("current_price"))
+            if cur_g is None:
+                cur_g = sd.get("current_price_grosze")
             prev_disp = _format_price_display(sd.get("prev_price"), prev_g)
             cur_disp = _format_price_display(sd.get("current_price"), cur_g)
             if prev_g is not None and cur_g is not None and cur_g > prev_g:
