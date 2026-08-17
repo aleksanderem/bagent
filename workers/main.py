@@ -478,15 +478,22 @@ try:  # pragma: no cover
         #     hour={2, 8, 14, 20}, minute={12},
         # ),
         # Discovery active — every 4h on :17.
-        cron(
-            "workers.slo_probes.slo_discovery_active",
-            hour={1, 5, 9, 13, 17, 21}, minute={17},
-        ),
+        # DISABLED 2026-08-17 -- MOVED to host systemd (booksy-discovery-probe.timer).
+        # arq gubil ten 4h cron mimo zywego workera: od 08-13 pingowal 1-3 z 6
+        # slotow na dobe, check trzymal sie na "up" tylko dzieki grace.
+        # Do NOT re-enable.
+        # cron(
+        #     "workers.slo_probes.slo_discovery_active",
+        #     hour={1, 5, 9, 13, 17, 21}, minute={17},
+        # ),
         # Storage budget — every 6h on :22.
-        cron(
-            "workers.slo_probes.slo_storage_budget",
-            hour={3, 9, 15, 21}, minute={22},
-        ),
+        # DISABLED 2026-08-17 -- MOVED to host systemd (booksy-storage-probe.timer).
+        # arq gubil ten 6h cron mimo zywego workera: cisza od 08-16 15:22
+        # (dwa pudla slotow pod rzad, zero fail-pingow). Do NOT re-enable.
+        # cron(
+        #     "workers.slo_probes.slo_storage_budget",
+        #     hour={3, 9, 15, 21}, minute={22},
+        # ),
         # Logflare bounded — every 6h on :27.
         cron(
             "workers.slo_probes.slo_logflare_bounded",
