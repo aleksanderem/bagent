@@ -270,14 +270,19 @@ def _build_monitoring_alerts(
             )
         elif status == "price_changed":
             # Podstawa porównania: cena z TEKSTU (to widzi klientka); grosze
-            # (variants[0]) tylko jako fallback. Tasowanie wariantów zmienia
-            # grosze bez zmiany ceny od — wtedy alertu ma nie być wcale.
-            prev_g = _parse_price_text_grosze(sd.get("prev_price"))
-            if prev_g is None:
+            # (variants[0]) tylko jako fallback — i to WSPÓLNY dla obu stron
+            # pary. Mieszana podstawa (tekst vs variants[0], gdy Booksy zgubi
+            # service_price po jednej stronie) dawała fałszywe zmiany.
+            prev_t = _parse_price_text_grosze(sd.get("prev_price"))
+            cur_t = _parse_price_text_grosze(sd.get("current_price"))
+            if prev_t is not None and cur_t is not None:
+                prev_g, cur_g = prev_t, cur_t
+            elif prev_t is None and cur_t is None:
                 prev_g = sd.get("prev_price_grosze")
-            cur_g = _parse_price_text_grosze(sd.get("current_price"))
-            if cur_g is None:
                 cur_g = sd.get("current_price_grosze")
+            else:
+                # Jedna strona tekst, druga nie — para nieporównywalna.
+                prev_g = cur_g = None
             prev_disp = _format_price_display(sd.get("prev_price"), prev_g)
             cur_disp = _format_price_display(sd.get("current_price"), cur_g)
             if prev_g is not None and cur_g is not None and cur_g > prev_g:
