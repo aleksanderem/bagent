@@ -491,3 +491,21 @@ class TestPriceTextBasis:
         )
         assert len(alerts) == 1
         assert alerts[0]["type"] == "price_increase"
+
+
+    def test_mixed_basis_pair_is_incomparable(self):
+        """Audyt 2026-08-18: tekst po jednej stronie pary + grosze po drugiej
+        to dwie różne podstawy — nie wolno emitować zmiany ceny."""
+        alerts = _build_monitoring_alerts(
+            schedule_rows=self._schedule_rows(),
+            pair_row=None,
+            service_diffs=[{
+                "status": "price_changed",
+                "service_name": "Lifting",
+                "prev_price": "700,00 zł+", "current_price": None,
+                "prev_price_grosze": 70000, "current_price_grosze": 85000,
+            }],
+            promoted_current=None,
+            salon_name_fallback="Salon X",
+        )
+        assert alerts == []

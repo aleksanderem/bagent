@@ -135,34 +135,41 @@ async def _load_latest_scrape_for_booksy_id(
 async def _detect_price_changes(
     supabase_client: Any, booksy_ids: list[int],
 ) -> list[dict[str, Any]]:
-    """Run the salon_scrape_services window-function query via RPC to find
-    prices that moved more than 5% in the last 14 days for the tracked
-    competitors.
+    """Per-competitor price diffs between the two latest scrapes.
 
-    The query itself lives in a Postgres function `detect_competitor_price_changes`
-    which is a migration deliverable for Comp Etap 7 — until that migration
-    lands, this helper falls back to returning an empty list so the refresh
-    pipeline still completes successfully and the infrastructure can be
-    smoke-tested end to end.
+    Audyt 2026-08-18: dawna ścieżka wołała RPC `detect_competitor_price_changes`,
+    które nigdy nie powstało — wyjątek był połykany i `key_metrics.price_changes`
+    w snapshotach premium było trwale puste. Teraz liczymy z
+    `fn_salon_service_diffs` (mig 165/166: cena efektywna ze wspólną podstawą
+    pary — odporna na tasowanie wariantów przez Booksy).
     """
-    if not booksy_ids:
-        return []
-    try:
-        result = supabase_client.rpc(
-            "detect_competitor_price_changes",
-            {"p_booksy_ids": booksy_ids},
-        ).execute()
-        data = result.data or []
-        if isinstance(data, list):
-            return data
-        return []
-    except Exception as e:
-        # Best-effort — the RPC may not exist yet in every environment.
-        logger.info(
-            "detect_competitor_price_changes RPC unavailable (%s) — "
-            "skipping price-change detection for this run", e,
-        )
-        return []
+    out: list[dict[str, Any]] = []
+    for bid in booksy_ids:
+        try:
+            result = supabase_client.rpc(
+                "fn_salon_service_diffs", {"p_booksy_id": bid},
+            ).execute()
+            rows = result.data or []
+        except Exception as e:
+            logger.warning(
+                "fn_salon_service_diffs failed for booksy_id=%s: %s", bid, e,
+            )
+            continue
+        for r in rows:
+            if r.get("status") != "price_changed":
+                continue
+            prev_g = r.get("prev_price_grosze")
+            cur_g = r.get("current_price_grosze")
+            if not prev_g or cur_g is None:
+                continue
+            out.append({
+                "booksy_id": bid,
+                "service_name": r.get("service_name"),
+                "old_price_grosze": prev_g,
+                "new_price_grosze": cur_g,
+                "pct_change": round((cur_g - prev_g) / prev_g * 100.0, 1),
+            })
+    return out
 
 
 async def run_refresh(
