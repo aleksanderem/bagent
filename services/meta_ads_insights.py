@@ -66,9 +66,11 @@ _INSIGHTS_SCHEMA: dict[str, Any] = {
             "type": "array",
             "description": (
                 "Max 3 kreacje najdłużej emitowane (dni emisji = ich stawka na "
-                "tę kreację). whyItWorks: OBSERWACJA o samej kreacji konkurenta "
-                "— jaki zabieg promuje, jaki mechanizm/obietnica, jak długo leci. "
-                "Opis tego co robi konkurent, NIE rada dla czytelnika."
+                "tę kreację). whyItWorks: SUCHY OPIS kreacji konkurenta — jaki "
+                "zabieg, jaka oferta/cena/CTA w tekście, ile dni leci. Same "
+                "elementy kreacji, BEZ ogonków 'co może przyciągać/zwiększać' i "
+                "bez rad. Np. 'Reklamuje Icoone®, pierwszy zabieg za 150 zł, "
+                "emisja 61 dni'."
             ),
             "items": {
                 "type": "object",
@@ -129,9 +131,11 @@ _SYSTEM_PROMPT = (
     "3. Każde zdanie w 'moves' MUSI opierać się na konkretnej liczbie z "
     "kontekstu (dni emisji, kwota, %, liczba opinii, liczba kreacji). Bez "
     "danych — nie piszesz zdania. Zero ogólników typu 'stawia na jakość'.\n"
-    "3b. Podajesz sam FAKT i kończysz. ZAKAZ spekulacyjnych ogonków: 'co może "
-    "sugerować…', 'co wskazuje na…', 'co może przyciągać…', 'prawdopodobnie…', "
-    "'być może…'. Nie zgadujesz intencji ani skutków — relacjonujesz ruch.\n"
+    "3b. W KAŻDYM polu (summary, winners, moves) podajesz sam FAKT i kończysz. "
+    "ZAKAZ spekulacyjnych ogonków w całym outputcie: 'co może sugerować…', 'co "
+    "wskazuje na…', 'co może przyciągać…', 'co może zwiększać…', "
+    "'prawdopodobnie…', 'być może…'. Nie zgadujesz intencji ani skutków — "
+    "relacjonujesz to, co konkurent zrobił.\n"
     "4. Heurystyka: DNI EMISJI = jak mocno konkurent stawia na daną kreację "
     "(nikt nie płaci tygodniami za reklamę, której nie przedłuża). OPINIE ≈ "
     "wykonane zabiegi (czy reklamowany zabieg realnie się sprzedaje).\n\n"
