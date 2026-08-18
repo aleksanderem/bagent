@@ -310,6 +310,11 @@ async def _scan_salon(
     )
     if not started and not stopped_ids:
         return []
+    # Baseline: pierwszy skan salonu zapisuje stan bez alertów — inaczej
+    # świeżo dodany salon generowałby falę "nowa reklama" o kampaniach
+    # startowanych tygodnie temu.
+    if not existing:
+        return []
 
     schedule_rows = _watchlist_rows_for(sb, salon_ref_id)
     if not schedule_rows:
