@@ -56,15 +56,19 @@ _INSIGHTS_SCHEMA: dict[str, Any] = {
         "summary": {
             "type": "string",
             "description": (
-                "2-3 zdania po polsku: jaką strategię reklamową prowadzi ten "
-                "salon (ton, oferta, częstotliwość, na co stawia)."
+                "2-3 zdania po polsku, CZAS TERAŹNIEJSZY, opisujące CO ROBI ten "
+                "konkurent: na jakich zabiegach koncentruje reklamy, jak długo je "
+                "utrzymuje, jak rusza cenami i promocjami. Sam opis zachowania — "
+                "ZERO porad dla czytelnika."
             ),
         },
         "winners": {
             "type": "array",
             "description": (
-                "Max 3 najskuteczniejsze kreacje (najdłużej emitowane). "
-                "whyItWorks: konkretnie CO w tekście działa, nie ogólniki."
+                "Max 3 kreacje najdłużej emitowane (dni emisji = ich stawka na "
+                "tę kreację). whyItWorks: OBSERWACJA o samej kreacji konkurenta "
+                "— jaki zabieg promuje, jaki mechanizm/obietnica, jak długo leci. "
+                "Opis tego co robi konkurent, NIE rada dla czytelnika."
             ),
             "items": {
                 "type": "object",
@@ -78,7 +82,7 @@ _INSIGHTS_SCHEMA: dict[str, Any] = {
         },
         "treatments": {
             "type": "array",
-            "description": "Zabiegi/usługi promowane w reklamach, z liczbą kreacji.",
+            "description": "Zabiegi/usługi, które konkurent promuje w reklamach, z liczbą kreacji.",
             "items": {
                 "type": "object",
                 "additionalProperties": False,
@@ -89,65 +93,49 @@ _INSIGHTS_SCHEMA: dict[str, Any] = {
                 "required": ["name", "adCount"],
             },
         },
-        "hooks": {
+        "moves": {
             "type": "array",
             "description": (
-                "Mechanizmy przyciągające uwagę używane w kreacjach, po polsku "
-                "(np. 'pytanie o problem skórny', 'obietnica efektu w 1 wizycie')."
-            ),
-            "items": {"type": "string"},
-        },
-        "dos": {
-            "type": "array",
-            "description": (
-                "Co WARTO zawrzeć we własnych kreacjach, wnioskując z tego co "
-                "u konkurenta działa. Konkretne, wykonalne, po polsku."
-            ),
-            "items": {"type": "string"},
-        },
-        "donts": {
-            "type": "array",
-            "description": (
-                "Czego unikać (co u konkurenta NIE działa — krótkie emisje) "
-                "oraz luki: czego konkurent nie robi, a można to wykorzystać."
-            ),
-            "items": {"type": "string"},
-        },
-        "marketSignals": {
-            "type": "array",
-            "description": (
-                "Sygnały z KRZYŻOWANIA reklam z rynkiem: czy reklamowany zabieg "
-                "zbiera opinie (opinie ≈ wykonane zabiegi = reklama konwertuje), "
-                "ruchy cen po startach kampanii, promocje wspierające kreacje. "
-                "Tylko wnioski poparte danymi z kontekstu, z liczbami."
+                "NAJWAŻNIEJSZE. Obserwacje krzyżujące reklamy z RUCHAMI konkurenta "
+                "(ceny, promocje, opinie) — każda to twarde zdanie o tym, co "
+                "konkurent zrobił, z LICZBAMI z kontekstu. Przykłady dobrej formy: "
+                "'Reklamuje Hydrafacial od 32 dni i w tym czasie zebrał 4 nowe "
+                "opinie za ten zabieg', 'Równolegle z kampanią podniósł cenę "
+                "depilacji laserowej ze 150 na 190 zł', 'Uruchomił promocję na "
+                "Geneo wspierającą 5 aktywnych kreacji tego zabiegu'. Jeśli brak "
+                "ruchu — powiedz to wprost ('Mimo 28 dni emisji nie zmienił cen "
+                "reklamowanych zabiegów'). NIGDY porada dla czytelnika."
             ),
             "items": {"type": "string"},
         },
     },
-    "required": [
-        "summary", "winners", "treatments", "hooks", "dos", "donts", "marketSignals"
-    ],
+    "required": ["summary", "winners", "treatments", "moves"],
 }
 
 _SYSTEM_PROMPT = (
-    "Jesteś strategiem reklamowym dla polskich salonów beauty. Analizujesz "
-    "kreacje Meta Ads KONKURENTA, żeby właścicielka salonu wiedziała, co "
-    "działa na jej rynku i jak pisać własne reklamy.\n\n"
-    "Kluczowa heurystyka: DNI EMISJI ≈ skuteczność. Nikt nie płaci tygodniami "
-    "za reklamę, która nie konwertuje — kreacje z najdłuższą emisją traktuj "
-    "jako zwycięskie, a szybko wyłączone (kilka dni, o ile nie są świeże) "
-    "jako nieudane eksperymenty.\n\n"
-    "Pisz po polsku, konkretnie, bez marketingowego lania wody. W winners "
-    "wskazuj cytaty/elementy tekstu, które robią robotę. W dos/donts dawaj "
-    "wskazówki wykonalne od ręki (struktura, hook, oferta, CTA, emoji), "
-    "nie ogólniki typu 'bądź autentyczny'.\n\n"
-    "Dostajesz też KONTEKST RYNKOWY salonu (ruchy cen z historii skanów, "
-    "aktywne promocje, opinie per zabieg — opinie to proxy WYKONANYCH "
-    "zabiegów). Krzyżuj go z reklamami: reklamowany zabieg zbierający opinie "
-    "= ekspozycja konwertuje na zabiegi; reklamowany zabieg bez opinii = "
-    "kampania nie domyka; podwyżka ceny po długiej emisji = salon monetyzuje "
-    "popyt z reklamy. Takie skrzyżowane obserwacje umieszczaj w marketSignals "
-    "(zawsze z liczbami z kontekstu) i uwzględniaj w winners/dos/donts."
+    "Jesteś analitykiem wywiadu konkurencyjnego dla polskich salonów beauty. "
+    "Twoje zadanie: OPISAĆ, CO ROBI KONKURENT — na podstawie jego reklam Meta "
+    "ORAZ jego ruchów na rynku (ceny, promocje, opinie). To jest raport "
+    "obserwacyjny o konkurencie, NIE poradnik dla czytelnika.\n\n"
+    "ŻELAZNE ZASADY:\n"
+    "1. Piszesz WYŁĄCZNIE o tym, co konkurent robi/zrobił. Podmiotem każdego "
+    "zdania jest konkurent ('reklamuje…', 'podniósł…', 'utrzymuje…', "
+    "'zebrał…'). Czytelnik NIE istnieje w tych zdaniach.\n"
+    "2. ABSOLUTNY ZAKAZ porad, rekomendacji i trybu rozkazującego. Zabronione "
+    "słowa i frazy: 'zastosuj', 'wprowadź', 'warto', 'powinieneś', 'rozważ', "
+    "'zadbaj', 'wykorzystaj', 'stwórz', 'dodaj', 'skup się', 'pamiętaj', "
+    "'atrakcyjne ceny/oferty', 'buduj', 'postaw na'. Za doradzanie czytelnikowi "
+    "jest OSOBNY moduł (Strategia) — tu tego NIE robisz.\n"
+    "3. Każde zdanie w 'moves' MUSI opierać się na konkretnej liczbie z "
+    "kontekstu (dni emisji, kwota, %, liczba opinii, liczba kreacji). Bez "
+    "danych — nie piszesz zdania. Zero ogólników typu 'stawia na jakość'.\n"
+    "4. Heurystyka: DNI EMISJI = jak mocno konkurent stawia na daną kreację "
+    "(nikt nie płaci tygodniami za reklamę, której nie przedłuża). OPINIE ≈ "
+    "wykonane zabiegi (czy reklamowany zabieg realnie się sprzedaje).\n\n"
+    "Dostajesz KONTEKST RYNKOWY (ruchy cen z historii skanów, aktywne "
+    "promocje, opinie per zabieg). To jest rdzeń analizy — krzyżuj go z "
+    "reklamami i wkładaj do 'moves'. Reklama bez ruchów rynkowych to połowa "
+    "obrazu; Twoja wartość to połączenie jednego z drugim."
 )
 
 
