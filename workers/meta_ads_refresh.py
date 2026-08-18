@@ -189,6 +189,78 @@ async def _resolve_pending(sb: Client, http: httpx.AsyncClient) -> None:
         )
 
 
+async def _refresh_insights(sb: Client, salon_ref_id: int, salon_name: str) -> None:
+    """AI-wnioski z kreacji (mig 171) — regeneracja tylko przy zmianie zestawu.
+
+    Nieudana generacja nie psuje skanu — łapiemy i logujemy.
+    """
+    from datetime import date
+
+    from services.meta_ads_insights import MODEL, ads_fingerprint, generate_insights
+
+    rows = (
+        sb.table("salon_meta_ads")
+        .select(
+            "ad_archive_id, started_running_on, creative_text, platforms, "
+            "is_active, first_seen_at, ended_seen_at"
+        )
+        .eq("salon_ref_id", salon_ref_id)
+        .execute()
+        .data
+        or []
+    )
+    if not rows:
+        return
+    today = date.today()
+
+    def days_running(r: dict[str, Any]) -> int:
+        start_raw = r.get("started_running_on") or (r.get("first_seen_at") or "")[:10]
+        end_raw = (r.get("ended_seen_at") or "")[:10] or today.isoformat()
+        try:
+            days = (date.fromisoformat(end_raw) - date.fromisoformat(start_raw)).days
+        except ValueError:
+            return 1
+        return max(1, days)
+
+    ads = [
+        {
+            "adArchiveId": str(r["ad_archive_id"]),
+            "startedRunningOn": r.get("started_running_on"),
+            "creativeText": r.get("creative_text"),
+            "platforms": r.get("platforms"),
+            "isActive": bool(r.get("is_active")),
+            "daysRunning": days_running(r),
+        }
+        for r in rows
+    ]
+    fingerprint = ads_fingerprint(ads)
+    existing = (
+        sb.table("salon_meta_ads_insights")
+        .select("ads_fingerprint")
+        .eq("salon_ref_id", salon_ref_id)
+        .execute()
+        .data
+        or []
+    )
+    if existing and existing[0]["ads_fingerprint"] == fingerprint:
+        return
+    try:
+        insights = await generate_insights(salon_name, ads)
+    except Exception as exc:  # noqa: BLE001
+        logger.warning("[meta-ads] insights salon %s padły: %s", salon_ref_id, exc)
+        return
+    sb.table("salon_meta_ads_insights").upsert(
+        {
+            "salon_ref_id": salon_ref_id,
+            "ads_fingerprint": fingerprint,
+            "insights": insights,
+            "model": MODEL,
+            "generated_at": datetime.now(timezone.utc).isoformat(),
+        }
+    ).execute()
+    logger.info("[meta-ads] insights salon %s zregenerowane", salon_ref_id)
+
+
 def _hosted_image_url(ad: dict[str, Any]) -> str | None:
     """Pełny URL hostowanej miniatury z creativeImagePath bextracta."""
     path = ad.get("creativeImagePath")
@@ -400,6 +472,10 @@ async def meta_ads_refresh_cron(ctx: dict[str, Any]) -> dict[str, Any]:
                     "[meta-ads] skan salon_ref_id=%s padł: %s",
                     page_row["salon_ref_id"], exc,
                 )
+                continue
+            await _refresh_insights(
+                sb, page_row["salon_ref_id"], page_row.get("page_name") or "Salon"
+            )
 
     if all_alerts:
         await _post_monitoring_alerts(all_alerts)
