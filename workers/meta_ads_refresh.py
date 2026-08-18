@@ -236,6 +236,7 @@ async def _ingest_history(
                 "creative_image_url": _hosted_image_url(a),
                 "is_active": False,
                 "ended_seen_at": a.get("endedRunningOn"),
+                **_creative_fields(a),
                 "raw": a.get("raw"),
             }
             for a in fresh
