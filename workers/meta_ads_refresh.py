@@ -196,12 +196,17 @@ async def _refresh_insights(sb: Client, salon_ref_id: int, salon_name: str) -> N
     """
     from datetime import date
 
-    from services.meta_ads_insights import MODEL, ads_fingerprint, generate_insights
+    from services.meta_ads_insights import (
+        MODEL,
+        ads_fingerprint,
+        build_market_context,
+        generate_insights,
+    )
 
     rows = (
         sb.table("salon_meta_ads")
         .select(
-            "ad_archive_id, started_running_on, creative_text, platforms, "
+            "ad_archive_id, booksy_id, started_running_on, creative_text, platforms, "
             "is_active, first_seen_at, ended_seen_at"
         )
         .eq("salon_ref_id", salon_ref_id)
@@ -211,6 +216,7 @@ async def _refresh_insights(sb: Client, salon_ref_id: int, salon_name: str) -> N
     )
     if not rows:
         return
+    booksy_id = rows[0]["booksy_id"]
     today = date.today()
 
     def days_running(r: dict[str, Any]) -> int:
@@ -236,16 +242,26 @@ async def _refresh_insights(sb: Client, salon_ref_id: int, salon_name: str) -> N
     fingerprint = ads_fingerprint(ads)
     existing = (
         sb.table("salon_meta_ads_insights")
-        .select("ads_fingerprint")
+        .select("ads_fingerprint, generated_at")
         .eq("salon_ref_id", salon_ref_id)
         .execute()
         .data
         or []
     )
     if existing and existing[0]["ads_fingerprint"] == fingerprint:
-        return
+        # Kontekst rynkowy (ceny/opinie) żyje niezależnie od zestawu reklam —
+        # po tygodniu odświeżamy wnioski nawet bez zmiany fingerprinta.
+        try:
+            generated = datetime.fromisoformat(
+                str(existing[0]["generated_at"]).replace("Z", "+00:00")
+            )
+        except ValueError:
+            generated = None
+        if generated and (datetime.now(timezone.utc) - generated).days < 7:
+            return
+    market_context = build_market_context(sb, booksy_id, salon_ref_id)
     try:
-        insights = await generate_insights(salon_name, ads)
+        insights = await generate_insights(salon_name, ads, market_context)
     except Exception as exc:  # noqa: BLE001
         logger.warning("[meta-ads] insights salon %s padły: %s", salon_ref_id, exc)
         return
