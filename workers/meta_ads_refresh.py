@@ -91,7 +91,7 @@ async def _fetch_ads_api(http: httpx.AsyncClient, page_id: int, token: str) -> l
             "search_page_ids": str(page_id),
             "ad_reached_countries": '["PL"]',
             "ad_active_status": "ACTIVE",
-            "fields": "id,ad_creative_bodies,ad_delivery_start_time,publisher_platforms",
+            "fields": "id,ad_creative_bodies,ad_delivery_start_time,publisher_platforms,eu_total_reach",
             "limit": "100",
             "access_token": token,
         },
@@ -108,6 +108,7 @@ async def _fetch_ads_api(http: httpx.AsyncClient, page_id: int, token: str) -> l
                 "startedRunningOn": (r.get("ad_delivery_start_time") or "")[:10] or None,
                 "creativeText": bodies[0] if bodies else None,
                 "platforms": r.get("publisher_platforms") or [],
+                "euTotalReach": r.get("eu_total_reach"),
                 "raw": {"source": "api"},
             }
         )
@@ -188,6 +189,14 @@ async def _resolve_pending(sb: Client, http: httpx.AsyncClient) -> None:
         )
 
 
+def _hosted_image_url(ad: dict[str, Any]) -> str | None:
+    """Pełny URL hostowanej miniatury z creativeImagePath bextracta."""
+    path = ad.get("creativeImagePath")
+    if not path:
+        return None
+    return f"{settings.bextract_api_url.rstrip('/')}{path}"
+
+
 def _watchlist_rows_for(sb: Client, salon_ref_id: int) -> list[dict[str, Any]]:
     """Wiersze harmonogramu (user_id/watchlist_id/convex_site_url) dla alertów.
 
@@ -265,7 +274,7 @@ async def _scan_salon(
 
     existing = (
         sb.table("salon_meta_ads")
-        .select("ad_archive_id, is_active")
+        .select("ad_archive_id, is_active, creative_image_url, eu_total_reach")
         .eq("salon_ref_id", salon_ref_id)
         .execute()
         .data
@@ -273,6 +282,7 @@ async def _scan_salon(
     )
     known = {row["ad_archive_id"] for row in existing}
     active_known = {row["ad_archive_id"] for row in existing if row["is_active"]}
+    existing_by_id = {row["ad_archive_id"]: row for row in existing}
 
     started = [a for a in ads if int(a["adArchiveId"]) not in known]
     stopped_ids = active_known - seen_ids
@@ -288,6 +298,8 @@ async def _scan_salon(
                     "started_running_on": a.get("startedRunningOn"),
                     "creative_text": a.get("creativeText"),
                     "platforms": a.get("platforms") or None,
+                    "creative_image_url": _hosted_image_url(a),
+                    "eu_total_reach": a.get("euTotalReach"),
                     "raw": a.get("raw"),
                 }
                 for a in started
@@ -297,6 +309,22 @@ async def _scan_salon(
         sb.table("salon_meta_ads").update({"last_seen_at": now_iso}).eq(
             "salon_ref_id", salon_ref_id
         ).in_("ad_archive_id", list(seen_ids)).execute()
+    # Refresh znanych reklam: backfill miniatury (starsze wiersze sprzed mig 170)
+    # oraz zasięg UE, który ROŚNIE w czasie — aktualizujemy przy każdym skanie.
+    for a in ads:
+        ad_id = int(a["adArchiveId"]) if str(a.get("adArchiveId", "")).isdigit() else None
+        row = existing_by_id.get(ad_id) if ad_id else None
+        if not row:
+            continue
+        patch: dict[str, Any] = {}
+        image_url = _hosted_image_url(a)
+        if image_url and not row.get("creative_image_url"):
+            patch["creative_image_url"] = image_url
+        reach = a.get("euTotalReach")
+        if reach is not None and reach != row.get("eu_total_reach"):
+            patch["eu_total_reach"] = reach
+        if patch:
+            sb.table("salon_meta_ads").update(patch).eq("ad_archive_id", ad_id).execute()
     if stopped_ids:
         sb.table("salon_meta_ads").update(
             {"is_active": False, "ended_seen_at": now_iso}
