@@ -274,7 +274,9 @@ async def _scan_salon(
 
     existing = (
         sb.table("salon_meta_ads")
-        .select("ad_archive_id, is_active, creative_image_url, eu_total_reach")
+        .select(
+            "ad_archive_id, is_active, creative_image_url, eu_total_reach, platforms, started_running_on"
+        )
         .eq("salon_ref_id", salon_ref_id)
         .execute()
         .data
@@ -323,6 +325,14 @@ async def _scan_salon(
         reach = a.get("euTotalReach")
         if reach is not None and reach != row.get("eu_total_reach"):
             patch["eu_total_reach"] = reach
+        # Parser embedded (bextract) dostarcza platformy i pewniejszą datę
+        # startu niż wcześniejszy DOM-owy — dociągamy braki/rozjazdy.
+        platforms = a.get("platforms") or None
+        if platforms and platforms != row.get("platforms"):
+            patch["platforms"] = platforms
+        started = a.get("startedRunningOn")
+        if started and started != row.get("started_running_on"):
+            patch["started_running_on"] = started
         if patch:
             sb.table("salon_meta_ads").update(patch).eq("ad_archive_id", ad_id).execute()
     if stopped_ids:
