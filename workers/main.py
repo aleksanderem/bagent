@@ -274,6 +274,11 @@ try:  # pragma: no cover
         ),
         # Top up the queue once an hour at minute 5 (stagger off other crons).
         cron("workers.scrape_refresh.schedule_refresh_cron", minute={5}),
+        # Meta Ad Library: nightly skan reklam konkurencji (06:15 — poza oknem
+        # nocnych jobów 03:00–05:40, patrz reference_monitoring_stack). Starty
+        # i stopy reklam wchodzą do strumienia alertów monitoringu, zestawiane
+        # ze zmianami cenników w feedzie i digestach.
+        cron("workers.meta_ads_refresh.meta_ads_refresh_cron", hour={6}, minute={15}),
         # Reap stuck jobs every 10 minutes.
         cron("workers.scrape_refresh.reap_stuck_jobs", minute={i for i in range(2, 60, 10)}),
         # beads BEAUTY_AUDIT-1mb — competitor report queue drain + zombie reap
