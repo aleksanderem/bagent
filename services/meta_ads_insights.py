@@ -1,9 +1,10 @@
 """AI-wnioski z kreacji reklamowych konkurencji (zakładka Reklamy).
 
 Wejście: reklamy jednego salonu z salon_meta_ads (tekst kreacji, dni emisji,
-platformy, status). Wyjście: strukturalny JSON dla panelu — zwycięskie
-kreacje z uzasadnieniem, promowane zabiegi, mechanizmy (hooki), co warto
-zawrzeć we własnych kreacjach i czego unikać / jakie luki zostawia konkurent.
+platformy, status) + kontekst rynkowy (ruchy cen, promocje, opinie). Wyjście:
+strukturalny JSON dla panelu — ANALIZA ZACHOWANIA KONKURENTA: summary, winners
+(najdłużej emitowane kreacje), treatments, moves (reklamy krzyżowane z ruchami
+cen/promocji/opinii). ZERO porad dla klienta — od tego jest moduł Strategia.
 
 Proxy skuteczności: DNI EMISJI. Reklamodawca nie utrzymuje nieskutecznej
 reklamy tygodniami — kreacje emitowane najdłużej „zarabiają na siebie".
@@ -20,6 +21,7 @@ import hashlib
 import json
 import logging
 import os
+import re
 from typing import Any
 
 from services.llm_rate_limiter import provider_slot
@@ -311,4 +313,30 @@ async def generate_insights(
     parsed["winners"] = [
         w for w in parsed.get("winners", []) if str(w.get("adArchiveId")) in valid_ids
     ][:3]
+
+    # Deterministyczny strażnik anty-slop: gpt-4o-mini mimo zakazu czasem
+    # dokleja spekulacyjny ogonek ("…, co może sugerować…"). Ucinamy go
+    # twardo, żeby output ZAWSZE był suchym faktem.
+    parsed["summary"] = _strip_speculation(parsed.get("summary", ""))
+    parsed["moves"] = [_strip_speculation(m) for m in parsed.get("moves", [])]
+    for w in parsed["winners"]:
+        w["whyItWorks"] = _strip_speculation(w.get("whyItWorks", ""))
     return parsed
+
+
+# Spekulacyjne klauzule doklejane przez model — ucinamy od przecinka/spacji
+# przed nimi do końca zdania.
+_SPECULATION_RE = re.compile(
+    r"[,;]?\s*(?:co\s+(?:może|mogłoby|wskazuje|sugeruje|oznacza|świadczy|"
+    r"pokazuje|potwierdza)|prawdopodobnie|być może|zapewne)\b.*?(?=[.!?]|$)",
+    re.IGNORECASE | re.DOTALL,
+)
+
+
+def _strip_speculation(text: str) -> str:
+    """Usuwa spekulacyjne ogonki, zostawiając sam fakt i kropkę."""
+    cleaned = _SPECULATION_RE.sub("", text).strip()
+    cleaned = re.sub(r"\s+([.!?])", r"\1", cleaned)
+    if cleaned and cleaned[-1] not in ".!?":
+        cleaned += "."
+    return cleaned
