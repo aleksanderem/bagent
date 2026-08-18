@@ -343,6 +343,19 @@ def _hosted_image_url(ad: dict[str, Any]) -> str | None:
     return f"{settings.bextract_api_url.rstrip('/')}{path}"
 
 
+def _creative_fields(a: dict[str, Any]) -> dict[str, Any]:
+    """Szczegóły kreacji do podglądu (mig 173): nagłówek, CTA, warianty, wideo."""
+    return {
+        "creative_title": a.get("creativeTitle"),
+        "cta_text": a.get("ctaText"),
+        "cta_type": a.get("ctaType"),
+        "link_url": a.get("linkUrl"),
+        "variants": a.get("variants") or None,
+        "video_url": a.get("videoUrl"),
+        "is_video": bool(a.get("isVideo")),
+    }
+
+
 def _watchlist_rows_for(sb: Client, salon_ref_id: int) -> list[dict[str, Any]]:
     """Wiersze harmonogramu (user_id/watchlist_id/convex_site_url) dla alertów.
 
@@ -421,7 +434,8 @@ async def _scan_salon(
     existing = (
         sb.table("salon_meta_ads")
         .select(
-            "ad_archive_id, is_active, creative_image_url, eu_total_reach, platforms, started_running_on"
+            "ad_archive_id, is_active, creative_image_url, eu_total_reach, platforms, "
+            "started_running_on, creative_title, cta_type, variants"
         )
         .eq("salon_ref_id", salon_ref_id)
         .execute()
@@ -448,6 +462,7 @@ async def _scan_salon(
                     "platforms": a.get("platforms") or None,
                     "creative_image_url": _hosted_image_url(a),
                     "eu_total_reach": a.get("euTotalReach"),
+                    **_creative_fields(a),
                     "raw": a.get("raw"),
                 }
                 for a in started
@@ -479,6 +494,12 @@ async def _scan_salon(
         started = a.get("startedRunningOn")
         if started and started != row.get("started_running_on"):
             patch["started_running_on"] = started
+        # Wideo wygasa (fbcdn) — odświeżamy URL przy każdym skanie.
+        if a.get("videoUrl"):
+            patch["video_url"] = a["videoUrl"]
+        # Szczegóły kreacji (mig 173): backfill dla wierszy sprzed migracji.
+        if a.get("creativeTitle") and not row.get("creative_title"):
+            patch.update(_creative_fields(a))
         if patch:
             sb.table("salon_meta_ads").update(patch).eq("ad_archive_id", ad_id).execute()
     if stopped_ids:
