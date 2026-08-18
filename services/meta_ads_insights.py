@@ -24,6 +24,7 @@ import os
 import re
 from typing import Any
 
+from config import settings
 from services.llm_rate_limiter import provider_slot
 
 logger = logging.getLogger(__name__)
@@ -281,14 +282,49 @@ def build_context(
     return "\n".join(lines)
 
 
-async def generate_insights(
-    salon_name: str, ads: list[dict[str, Any]], market_context: str = ""
-) -> dict[str, Any]:
-    """Jedno wywołanie gpt-4o-mini → zwalidowany JSON wniosków."""
+# Kontrakt JSON dokładany do promptu M3 (M3 nie ma sztywnych Structured
+# Outputs jak gpt-4o-mini — kształt wymuszamy opisem + json_repair).
+_JSON_CONTRACT = (
+    "\n\nZwróć WYŁĄCZNIE JSON o DOKŁADNIE takim kształcie (bez markdown):\n"
+    '{"summary": "…", '
+    '"winners": [{"adArchiveId": "…", "whyItWorks": "…"}], '
+    '"treatments": [{"name": "…", "adCount": 1}], '
+    '"moves": ["…"]}\n'
+    "winners: max 3, adArchiveId TYLKO z podanych reklam. moves: twarde fakty "
+    "z liczbami. Wszystko po polsku."
+)
+
+_MINIMAX_CLIENT: "Any | None | bool" = None
+
+
+def _get_minimax_client() -> Any:
+    """Leniwy MiniMax M3 — None gdy brak klucza/klienta (wtedy fallback OpenAI)."""
+    global _MINIMAX_CLIENT
+    if _MINIMAX_CLIENT is None:
+        if not settings.minimax_api_key:
+            logger.warning("[meta-ads-insights] brak MINIMAX_API_KEY — fallback OpenAI")
+            _MINIMAX_CLIENT = False
+            return None
+        try:
+            from services.minimax import MiniMaxClient
+
+            _MINIMAX_CLIENT = MiniMaxClient(
+                settings.minimax_api_key,
+                settings.minimax_base_url,
+                settings.minimax_model,
+            )
+        except Exception as e:  # noqa: BLE001
+            logger.warning("[meta-ads-insights] MiniMax init failed: %s", e)
+            _MINIMAX_CLIENT = False
+            return None
+    return _MINIMAX_CLIENT if _MINIMAX_CLIENT else None
+
+
+async def _generate_via_openai(context: str) -> dict[str, Any]:
+    """Fallback: gpt-4o-mini + Structured Outputs (sztywny schemat)."""
     client = _get_openai_client()
     if client is None:
         raise RuntimeError("OpenAI client unavailable (no OPENAI_API_KEY)")
-
     async with provider_slot(MODEL):
         response = await client.chat.completions.create(
             model=MODEL,
@@ -296,7 +332,7 @@ async def generate_insights(
             max_tokens=2500,
             messages=[
                 {"role": "system", "content": _SYSTEM_PROMPT},
-                {"role": "user", "content": build_context(salon_name, ads, market_context)},
+                {"role": "user", "content": context},
             ],
             response_format={
                 "type": "json_schema",
@@ -307,20 +343,49 @@ async def generate_insights(
                 },
             },
         )
-    parsed = json.loads(response.choices[0].message.content or "{}")
+    return json.loads(response.choices[0].message.content or "{}")
+
+
+async def generate_insights(
+    salon_name: str, ads: list[dict[str, Any]], market_context: str = ""
+) -> dict[str, Any]:
+    """MiniMax M3 (primary, reasoning) → gpt-4o-mini (fallback) → guard.
+
+    M3 daje lepsze analitycznie krzyżowanie reklam z ruchami; gpt-4o-mini
+    ratuje, gdy M3 padnie lub zwróci niepoprawny JSON mimo json_repair.
+    """
+    context = build_context(salon_name, ads, market_context)
+    parsed: dict[str, Any] | None = None
+
+    mm = _get_minimax_client()
+    if mm is not None:
+        try:
+            async with provider_slot(settings.minimax_model):
+                parsed = await mm.generate_json(
+                    context + _JSON_CONTRACT, system=_SYSTEM_PROMPT, max_tokens=3000
+                )
+        except Exception as exc:  # noqa: BLE001
+            logger.warning(
+                "[meta-ads-insights] M3 padł (%s) — fallback gpt-4o-mini", exc
+            )
+    if not parsed or "summary" not in parsed:
+        parsed = await _generate_via_openai(context)
+
     # Winners tylko z realnymi id z wejścia — model nie może ich wymyślić.
     valid_ids = {str(a["adArchiveId"]) for a in ads}
     parsed["winners"] = [
-        w for w in parsed.get("winners", []) if str(w.get("adArchiveId")) in valid_ids
+        w
+        for w in parsed.get("winners", [])
+        if isinstance(w, dict) and str(w.get("adArchiveId")) in valid_ids
     ][:3]
 
-    # Deterministyczny strażnik anty-slop: gpt-4o-mini mimo zakazu czasem
-    # dokleja spekulacyjny ogonek ("…, co może sugerować…"). Ucinamy go
-    # twardo, żeby output ZAWSZE był suchym faktem.
-    parsed["summary"] = _strip_speculation(parsed.get("summary", ""))
-    parsed["moves"] = [_strip_speculation(m) for m in parsed.get("moves", [])]
+    # Deterministyczny strażnik anty-slop: żaden model nie ma prawa przemycić
+    # spekulacyjnego ogonka ("…, co może sugerować…") — ucinamy twardo.
+    parsed["summary"] = _strip_speculation(str(parsed.get("summary", "")))
+    parsed["moves"] = [_strip_speculation(str(m)) for m in parsed.get("moves", [])]
+    parsed["treatments"] = parsed.get("treatments", [])
     for w in parsed["winners"]:
-        w["whyItWorks"] = _strip_speculation(w.get("whyItWorks", ""))
+        w["whyItWorks"] = _strip_speculation(str(w.get("whyItWorks", "")))
     return parsed
 
 
