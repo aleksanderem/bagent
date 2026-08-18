@@ -71,12 +71,14 @@ async def _resolve_page(http: httpx.AsyncClient, facebook_url: str) -> dict[str,
     return resp.json()
 
 
-async def _fetch_ads_scraper(http: httpx.AsyncClient, page_id: int) -> list[dict[str, Any]]:
+async def _fetch_ads_scraper(
+    http: httpx.AsyncClient, page_id: int, status: str = "active"
+) -> list[dict[str, Any]]:
     resp = await http.get(
         f"{settings.bextract_api_url}/api/meta-ads",
-        params={"page_id": str(page_id)},
+        params={"page_id": str(page_id), "status": status},
         headers=_bextract_headers(),
-        timeout=180.0,
+        timeout=240.0,
     )
     resp.raise_for_status()
     data = resp.json()
@@ -187,6 +189,59 @@ async def _resolve_pending(sb: Client, http: httpx.AsyncClient) -> None:
             row["facebook_url"],
             patch.get("page_id") or patch.get("resolve_status"),
         )
+
+
+async def _ingest_history(
+    sb: Client, http: httpx.AsyncClient, page_row: dict[str, Any]
+) -> None:
+    """Zakończone kampanie z widoku inactive (DSA: do roku wstecz).
+
+    Wyłącznie dosypuje NOWE wiersze is_active=false z realnym końcem emisji —
+    nigdy nie dotyka aktywnych ani nie generuje alertów. Widoki active/inactive
+    mają rozłączne ad_archive_id (reprezentanci kolacji), więc diff aktywnych
+    zostaje w _scan_salon na widoku active.
+    """
+    salon_ref_id = page_row["salon_ref_id"]
+    ads = await _fetch_ads_scraper(http, page_row["page_id"], status="inactive")
+    ended = [
+        a for a in ads
+        if not a.get("isActive") and str(a.get("adArchiveId", "")).isdigit()
+    ]
+    if not ended:
+        return
+    known = {
+        row["ad_archive_id"]
+        for row in (
+            sb.table("salon_meta_ads")
+            .select("ad_archive_id")
+            .eq("salon_ref_id", salon_ref_id)
+            .execute()
+            .data
+            or []
+        )
+    }
+    fresh = [a for a in ended if int(a["adArchiveId"]) not in known]
+    if not fresh:
+        return
+    sb.table("salon_meta_ads").insert(
+        [
+            {
+                "ad_archive_id": int(a["adArchiveId"]),
+                "salon_ref_id": salon_ref_id,
+                "booksy_id": page_row["booksy_id"],
+                "page_id": page_row["page_id"],
+                "started_running_on": a.get("startedRunningOn"),
+                "creative_text": a.get("creativeText"),
+                "platforms": a.get("platforms") or None,
+                "creative_image_url": _hosted_image_url(a),
+                "is_active": False,
+                "ended_seen_at": a.get("endedRunningOn"),
+                "raw": a.get("raw"),
+            }
+            for a in fresh
+        ]
+    ).execute()
+    logger.info("[meta-ads] salon %s: +%d historycznych kampanii", salon_ref_id, len(fresh))
 
 
 async def _refresh_insights(sb: Client, salon_ref_id: int, salon_name: str) -> None:
@@ -489,6 +544,13 @@ async def meta_ads_refresh_cron(ctx: dict[str, Any]) -> dict[str, Any]:
                     page_row["salon_ref_id"], exc,
                 )
                 continue
+            try:
+                await _ingest_history(sb, http, page_row)
+            except Exception as exc:  # noqa: BLE001 — historia jest bonusem
+                logger.warning(
+                    "[meta-ads] historia salon_ref_id=%s padła: %s",
+                    page_row["salon_ref_id"], exc,
+                )
             await _refresh_insights(
                 sb, page_row["salon_ref_id"], page_row.get("page_name") or "Salon"
             )
