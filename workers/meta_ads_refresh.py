@@ -320,12 +320,15 @@ async def _refresh_insights(sb: Client, salon_ref_id: int, salon_name: str) -> N
     except Exception as exc:  # noqa: BLE001
         logger.warning("[meta-ads] insights salon %s padły: %s", salon_ref_id, exc)
         return
+    # Realny model ze ścieżki generacji (M3 primary / gpt-4o-mini fallback);
+    # nie trzymamy go w blobie insights.
+    used_model = insights.pop("_model", MODEL) or MODEL
     sb.table("salon_meta_ads_insights").upsert(
         {
             "salon_ref_id": salon_ref_id,
             "ads_fingerprint": fingerprint,
             "insights": insights,
-            "model": MODEL,
+            "model": used_model,
             "generated_at": datetime.now(timezone.utc).isoformat(),
         }
     ).execute()

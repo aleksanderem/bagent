@@ -356,6 +356,7 @@ async def generate_insights(
     """
     context = build_context(salon_name, ads, market_context)
     parsed: dict[str, Any] | None = None
+    used_model = ""
 
     mm = _get_minimax_client()
     if mm is not None:
@@ -364,12 +365,16 @@ async def generate_insights(
                 parsed = await mm.generate_json(
                     context + _JSON_CONTRACT, system=_SYSTEM_PROMPT, max_tokens=3000
                 )
+                used_model = settings.minimax_model
         except Exception as exc:  # noqa: BLE001
             logger.warning(
                 "[meta-ads-insights] M3 padł (%s) — fallback gpt-4o-mini", exc
             )
     if not parsed or "summary" not in parsed:
         parsed = await _generate_via_openai(context)
+        used_model = MODEL
+    # Realny model do telemetrii (worker czyta i usuwa z blobu).
+    parsed["_model"] = used_model
 
     # Winners tylko z realnymi id z wejścia — model nie może ich wymyślić.
     valid_ids = {str(a["adArchiveId"]) for a in ads}
