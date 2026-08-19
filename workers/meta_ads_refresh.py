@@ -263,7 +263,8 @@ async def _refresh_insights(sb: Client, salon_ref_id: int, salon_name: str) -> N
         sb.table("salon_meta_ads")
         .select(
             "ad_archive_id, booksy_id, started_running_on, creative_text, platforms, "
-            "is_active, first_seen_at, ended_seen_at"
+            "is_active, first_seen_at, ended_seen_at, creative_title, cta_text, "
+            "cta_type, variants, is_video, is_lead_form, form_fields"
         )
         .eq("salon_ref_id", salon_ref_id)
         .execute()
@@ -289,6 +290,13 @@ async def _refresh_insights(sb: Client, salon_ref_id: int, salon_name: str) -> N
             "adArchiveId": str(r["ad_archive_id"]),
             "startedRunningOn": r.get("started_running_on"),
             "creativeText": r.get("creative_text"),
+            "creativeTitle": r.get("creative_title"),
+            "ctaText": r.get("cta_text"),
+            "ctaType": r.get("cta_type"),
+            "variants": r.get("variants") or [],
+            "isVideo": bool(r.get("is_video")),
+            "isLeadForm": bool(r.get("is_lead_form")),
+            "formFields": r.get("form_fields") or [],
             "platforms": r.get("platforms"),
             "isActive": bool(r.get("is_active")),
             "daysRunning": days_running(r),

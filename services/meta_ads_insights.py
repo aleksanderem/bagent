@@ -101,20 +101,75 @@ _INSIGHTS_SCHEMA: dict[str, Any] = {
         "moves": {
             "type": "array",
             "description": (
-                "NAJWAŻNIEJSZE. Obserwacje krzyżujące reklamy z RUCHAMI konkurenta "
-                "(ceny, promocje, opinie) — każda to twarde zdanie o tym, co "
-                "konkurent zrobił, z LICZBAMI z kontekstu. Przykłady dobrej formy: "
-                "'Reklamuje Hydrafacial od 32 dni i w tym czasie zebrał 4 nowe "
-                "opinie za ten zabieg', 'Równolegle z kampanią podniósł cenę "
-                "depilacji laserowej ze 150 na 190 zł', 'Uruchomił promocję na "
-                "Geneo wspierającą 5 aktywnych kreacji tego zabiegu'. Jeśli brak "
-                "ruchu — powiedz to wprost ('Mimo 28 dni emisji nie zmienił cen "
-                "reklamowanych zabiegów'). NIGDY porada dla czytelnika."
+                "Obserwacje krzyżujące reklamy z RUCHAMI konkurenta (ceny, "
+                "promocje, opinie) — twarde zdanie z LICZBAMI. Np. 'Reklamuje "
+                "Hydrafacial od 32 dni i zebrał 4 nowe opinie za ten zabieg', "
+                "'Równolegle z kampanią podniósł cenę depilacji ze 150 na 190 zł'. "
+                "Jeśli brak ruchu — powiedz wprost. NIGDY porada dla czytelnika."
+            ),
+            "items": {"type": "string"},
+        },
+        "creatives": {
+            "type": "array",
+            "description": (
+                "Obserwacje o kreacjach: format (wideo vs obraz i proporcje), "
+                "ile wariantów tekstu testuje, jak długo utrzymuje kreacje, "
+                "co pokazuje wizualnie. Konkret z liczbami."
+            ),
+            "items": {"type": "string"},
+        },
+        "hooks": {
+            "type": "array",
+            "description": (
+                "Hooki — mechanizmy przyciągające uwagę w pierwszych zdaniach "
+                "kreacji (np. 'pytanie o problem skórny', 'cena-kotwica 150 zł', "
+                "'obietnica efektu w 1 wizycie'). Nazwij mechanizm + przykład."
+            ),
+            "items": {"type": "string"},
+        },
+        "communicationStyle": {
+            "type": "array",
+            "description": (
+                "Styl komunikacji: ton (ekspercki/emocjonalny/bezpośredni), "
+                "forma zwrotu (Ty/Pani/my), użycie emoji, długość zdań, "
+                "słownictwo. Obserwacje o tym, JAK konkurent mówi."
+            ),
+            "items": {"type": "string"},
+        },
+        "narrative": {
+            "type": "array",
+            "description": (
+                "Sposób prowadzenia narracji: jak buduje przekaz — schemat "
+                "problem→rozwiązanie, before/after, dowód społeczny, pilność. "
+                "Opisz strukturę opowieści w kreacjach."
+            ),
+            "items": {"type": "string"},
+        },
+        "cta": {
+            "type": "array",
+            "description": (
+                "CTA: jakich przycisków używa (np. 'Dowiedz się więcej', "
+                "'Wyślij wiadomość'), dokąd kieruje (formularz lead / Messenger / "
+                "rezerwacja), jak spójnie. Konkret."
+            ),
+            "items": {"type": "string"},
+        },
+        "forms": {
+            "type": "array",
+            "description": (
+                "Formularze lead: ile reklam zbiera kontakty, jakie pola "
+                "(standardowe: imię/telefon/email vs custom pytania), ile pól, "
+                "jak złożony (krótki vs rozbudowany), czy ma pytania "
+                "kwalifikujące (np. wybór obszaru zabiegu). Puste, gdy brak "
+                "reklam lead."
             ),
             "items": {"type": "string"},
         },
     },
-    "required": ["summary", "winners", "treatments", "moves"],
+    "required": [
+        "summary", "winners", "treatments", "moves",
+        "creatives", "hooks", "communicationStyle", "narrative", "cta", "forms",
+    ],
 }
 
 _SYSTEM_PROMPT = (
@@ -143,9 +198,17 @@ _SYSTEM_PROMPT = (
     "(nikt nie płaci tygodniami za reklamę, której nie przedłuża). OPINIE ≈ "
     "wykonane zabiegi (czy reklamowany zabieg realnie się sprzedaje).\n\n"
     "Dostajesz KONTEKST RYNKOWY (ruchy cen z historii skanów, aktywne "
-    "promocje, opinie per zabieg). To jest rdzeń analizy — krzyżuj go z "
-    "reklamami i wkładaj do 'moves'. Reklama bez ruchów rynkowych to połowa "
-    "obrazu; Twoja wartość to połączenie jednego z drugim."
+    "promocje, opinie per zabieg) ORAZ pełny detal kreacji (nagłówek, CTA, "
+    "format wideo/obraz, warianty tekstu, pola formularza lead).\n\n"
+    "Rozkładasz konkurenta na wymiary — każdy jako 2-5 krótkich obserwacji:\n"
+    "- moves: reklamy skrzyżowane z ruchami cen/promocji/opinii (rdzeń);\n"
+    "- creatives: format, liczba wariantów, długość emisji, co pokazują;\n"
+    "- hooks: mechanizmy z pierwszych zdań (pytanie o problem, cena-kotwica…);\n"
+    "- communicationStyle: ton, forma zwrotu, emoji, słownictwo;\n"
+    "- narrative: struktura przekazu (problem→rozwiązanie, before/after…);\n"
+    "- cta: przyciski i dokąd kierują (formularz/Messenger/rezerwacja);\n"
+    "- forms: ile reklam lead, jakie i ile pól, złożoność, pytania kwalifikujące.\n"
+    "Każda obserwacja to fakt o konkurencie z liczbą — nie porada."
 )
 
 
@@ -264,19 +327,42 @@ def build_market_context(sb: Any, booksy_id: int, salon_ref_id: int) -> str:
 def build_context(
     salon_name: str, ads: list[dict[str, Any]], market_context: str = ""
 ) -> str:
-    """Kontekst dla modelu: reklamy posortowane od najdłużej emitowanych."""
-    lines = [f"Salon konkurenta: {salon_name}", f"Liczba reklam: {len(ads)}", ""]
+    """Kontekst dla modelu: reklamy posortowane od najdłużej emitowanych,
+    z pełnym detalem kreacji (nagłówek, CTA, format, warianty, formularz)."""
+    video_count = sum(1 for a in ads if a.get("isVideo"))
+    lead_ads = [a for a in ads if a.get("isLeadForm")]
+    lines = [
+        f"Salon konkurenta: {salon_name}",
+        f"Liczba reklam: {len(ads)} (wideo: {video_count}, statyczne: {len(ads) - video_count})",
+        f"Reklamy lead (formularz kontaktowy): {len(lead_ads)}",
+        "",
+    ]
     for a in sorted(ads, key=lambda x: -int(x["daysRunning"])):
         status = "AKTYWNA" if a.get("isActive") else "ZAKOŃCZONA"
         platforms = ",".join(a.get("platforms") or []) or "?"
+        fmt = "WIDEO" if a.get("isVideo") else "OBRAZ"
         text = (a.get("creativeText") or "(bez tekstu)").strip()
-        if len(text) > 420:
-            text = text[:420] + "…"
-        lines.append(
-            f"[id={a['adArchiveId']}] {status}, {a['daysRunning']} dni emisji, "
-            f"start {a.get('startedRunningOn') or '?'}, platformy: {platforms}\n"
-            f"TEKST: {text}\n"
-        )
+        if len(text) > 400:
+            text = text[:400] + "…"
+        variants = a.get("variants") or []
+        parts = [
+            f"[id={a['adArchiveId']}] {status}, {fmt}, {a['daysRunning']} dni emisji, "
+            f"start {a.get('startedRunningOn') or '?'}, platformy: {platforms}",
+        ]
+        if a.get("creativeTitle"):
+            parts.append(f"NAGŁÓWEK: {a['creativeTitle']}")
+        parts.append(f"TEKST: {text}")
+        if a.get("ctaText") or a.get("ctaType"):
+            parts.append(f"CTA: {a.get('ctaText') or ''} ({a.get('ctaType') or '?'})")
+        if variants:
+            sample = " | ".join(str(v)[:80] for v in variants[:4])
+            parts.append(f"WARIANTY TEKSTU ({len(variants)}): {sample}")
+        if a.get("isLeadForm") and a.get("formFields"):
+            ff = a["formFields"]
+            parts.append(
+                f"FORMULARZ LEAD ({len(ff)} elementów): " + " | ".join(str(f)[:60] for f in ff)
+            )
+        lines.append("\n".join(parts) + "\n")
     if market_context:
         lines.append(market_context)
     return "\n".join(lines)
@@ -289,9 +375,11 @@ _JSON_CONTRACT = (
     '{"summary": "…", '
     '"winners": [{"adArchiveId": "…", "whyItWorks": "…"}], '
     '"treatments": [{"name": "…", "adCount": 1}], '
-    '"moves": ["…"]}\n'
-    "winners: max 3, adArchiveId TYLKO z podanych reklam. moves: twarde fakty "
-    "z liczbami. Wszystko po polsku."
+    '"moves": ["…"], "creatives": ["…"], "hooks": ["…"], '
+    '"communicationStyle": ["…"], "narrative": ["…"], "cta": ["…"], '
+    '"forms": ["…"]}\n'
+    "winners: max 3, adArchiveId TYLKO z podanych reklam. Każda tablica: "
+    "2-5 krótkich, konkretnych obserwacji z liczbami. Wszystko po polsku."
 )
 
 _MINIMAX_CLIENT: "Any | None | bool" = None
@@ -387,8 +475,9 @@ async def generate_insights(
     # Deterministyczny strażnik anty-slop: żaden model nie ma prawa przemycić
     # spekulacyjnego ogonka ("…, co może sugerować…") — ucinamy twardo.
     parsed["summary"] = _strip_speculation(str(parsed.get("summary", "")))
-    parsed["moves"] = [_strip_speculation(str(m)) for m in parsed.get("moves", [])]
     parsed["treatments"] = parsed.get("treatments", [])
+    for key in ("moves", "creatives", "hooks", "communicationStyle", "narrative", "cta", "forms"):
+        parsed[key] = [_strip_speculation(str(x)) for x in (parsed.get(key) or []) if str(x).strip()]
     for w in parsed["winners"]:
         w["whyItWorks"] = _strip_speculation(str(w.get("whyItWorks", "")))
     return parsed
