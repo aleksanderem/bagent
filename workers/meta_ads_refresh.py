@@ -438,7 +438,7 @@ async def _scan_salon(
         sb.table("salon_meta_ads")
         .select(
             "ad_archive_id, is_active, creative_image_url, eu_total_reach, platforms, "
-            "started_running_on, creative_title, cta_type, variants"
+            "started_running_on, creative_title, cta_type, variants, form_fields"
         )
         .eq("salon_ref_id", salon_ref_id)
         .execute()
@@ -503,6 +503,11 @@ async def _scan_salon(
         # Szczegóły kreacji (mig 173): backfill dla wierszy sprzed migracji.
         if a.get("creativeTitle") and not row.get("creative_title"):
             patch.update(_creative_fields(a))
+        # Lead-fields (mig 174): backfill niezależnie, bo starsze wiersze mają
+        # już creative_title, ale jeszcze nie form_fields.
+        elif a.get("formFields") and not row.get("form_fields"):
+            patch["is_lead_form"] = bool(a.get("isLeadForm"))
+            patch["form_fields"] = a["formFields"]
         if patch:
             sb.table("salon_meta_ads").update(patch).eq("ad_archive_id", ad_id).execute()
     if stopped_ids:
