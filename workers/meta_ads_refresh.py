@@ -354,6 +354,8 @@ def _creative_fields(a: dict[str, Any]) -> dict[str, Any]:
         "variants": a.get("variants") or None,
         "video_url": a.get("videoUrl"),
         "is_video": bool(a.get("isVideo")),
+        "is_lead_form": bool(a.get("isLeadForm")),
+        "form_fields": a.get("formFields") or None,
     }
 
 
