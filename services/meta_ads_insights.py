@@ -417,7 +417,7 @@ async def _generate_via_openai(context: str) -> dict[str, Any]:
         response = await client.chat.completions.create(
             model=MODEL,
             temperature=0.3,
-            max_tokens=2500,
+            max_tokens=4000,
             messages=[
                 {"role": "system", "content": _SYSTEM_PROMPT},
                 {"role": "user", "content": context},
@@ -451,7 +451,7 @@ async def generate_insights(
         try:
             async with provider_slot(settings.minimax_model):
                 parsed = await mm.generate_json(
-                    context + _JSON_CONTRACT, system=_SYSTEM_PROMPT, max_tokens=3000
+                    context + _JSON_CONTRACT, system=_SYSTEM_PROMPT, max_tokens=6000
                 )
                 used_model = settings.minimax_model
         except Exception as exc:  # noqa: BLE001
