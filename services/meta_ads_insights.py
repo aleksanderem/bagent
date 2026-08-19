@@ -497,6 +497,8 @@ def _strip_speculation(text: str) -> str:
     cleaned = _SPECULATION_RE.sub("", text).strip()
     # M3 czasem skraca "Salon" do "Sal" ("…Sal zebrał 9 opinii…").
     cleaned = re.sub(r"\bSal\b", "Salon", cleaned)
+    # M3 literuje "Konkurent" jako "Konkument".
+    cleaned = re.sub(r"\bKonkument", "Konkurent", cleaned)
     cleaned = re.sub(r"\s+([.!?])", r"\1", cleaned)
     if cleaned and cleaned[-1] not in ".!?":
         cleaned += "."
