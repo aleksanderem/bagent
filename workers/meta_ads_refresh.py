@@ -503,11 +503,17 @@ async def _scan_salon(
         # Szczegóły kreacji (mig 173): backfill dla wierszy sprzed migracji.
         if a.get("creativeTitle") and not row.get("creative_title"):
             patch.update(_creative_fields(a))
-        # Lead-fields (mig 174): backfill niezależnie, bo starsze wiersze mają
-        # już creative_title, ale jeszcze nie form_fields.
-        elif a.get("formFields") and not row.get("form_fields"):
-            patch["is_lead_form"] = bool(a.get("isLeadForm"))
-            patch["form_fields"] = a["formFields"]
+        # Warianty i formularz odświeżamy ZAWSZE, bo klasyfikacja
+        # (warianty vs pola formularza lead) bywa ulepszana — dane mają
+        # odzwierciedlać najnowszą logikę scrapera, nie zamrożony stan.
+        else:
+            new_variants = a.get("variants") or None
+            new_ff = a.get("formFields") or None
+            if new_variants != row.get("variants"):
+                patch["variants"] = new_variants
+            if new_ff != row.get("form_fields"):
+                patch["form_fields"] = new_ff
+                patch["is_lead_form"] = bool(a.get("isLeadForm"))
         if patch:
             sb.table("salon_meta_ads").update(patch).eq("ad_archive_id", ad_id).execute()
     if stopped_ids:
