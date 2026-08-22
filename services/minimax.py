@@ -39,6 +39,16 @@ class MiniMaxClient:
         )
         self.model = model
 
+
+    def _thinking_kwargs(self) -> dict:
+        """MiniMax-M3 wymaga jawnego thinking={"type":"adaptive"} — inaczej odpowiada
+        bez rozumowania (dokumentacja: Anthropic SDK > Thinking Control). Dla M2.x
+        parametr jest przyjmowany, ale myślenia nie da się wyłączyć."""
+        mode = (settings.minimax_thinking or "").strip()
+        if not mode or not self.model.startswith("MiniMax-M3"):
+            return {}
+        return {"thinking": {"type": mode}}
+
     async def create_message(
         self,
         system: str,
@@ -58,6 +68,7 @@ class MiniMaxClient:
             "system": system,
             "messages": messages,
         }
+        kwargs.update(self._thinking_kwargs())
         if tools:
             kwargs["tools"] = tools
         return await self.client.messages.create(**kwargs)
@@ -85,6 +96,7 @@ class MiniMaxClient:
             model=self.model,
             max_tokens=max_tokens,
             temperature=0.3,
+            **self._thinking_kwargs(),
             system=sys,
             messages=[{"role": "user", "content": prompt}],
         )
@@ -117,6 +129,7 @@ class MiniMaxClient:
             "max_tokens": max_tokens,
             "temperature": 0.3,
             "messages": [{"role": "user", "content": prompt}],
+            **self._thinking_kwargs(),
         }
         if system:
             kwargs["system"] = system
