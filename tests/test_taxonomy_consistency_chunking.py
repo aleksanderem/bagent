@@ -15,6 +15,19 @@ that returns deterministic per-chunk decisions, and we assert:
   * accumulated decisions length == N (one per cluster)
   * each cluster_id appears exactly once
   * downstream _apply_decision is invoked once per cluster
+
+CONTRACT CHANGE 2026-06-14 (BEAUTY_AUDIT-8j8): a chunk missing only a FEW
+cluster_ids no longer aborts the report — those clusters are re-asked and,
+failing that, get a deterministic salon_synthetic stand-in
+(`test_small_shortfall_recovers_via_rescue`; full rescue coverage in
+tests/test_taxonomy_consistency_missing_clusters.py).
+
+The abort is NOT gone, only narrowed: an empty or heavily truncated first
+response — more than tc._MAX_MISSING_FRACTION_FOR_RESCUE of the chunk
+undecided — is a provider failure and still raises, which is what
+`test_chunk_failure_aborts_pipeline` below pins. Without that gate a
+provider outage would produce a "successful" report standing entirely on
+stand-in decisions.
 """
 
 from __future__ import annotations
@@ -181,16 +194,13 @@ async def test_chunking_arithmetic(
     assert stats["rerouted"] == n_clusters
 
 
-@pytest.mark.asyncio
-async def test_chunk_failure_aborts_pipeline(
-    env_openai_provider: None,
-    monkeypatch: pytest.MonkeyPatch,
-) -> None:
-    """If any single chunk returns wrong count, RuntimeError bubbles up
-    immediately (no partial-result accumulation)."""
-    monkeypatch.setenv("TAXONOMY_CONSISTENCY_CHUNK_SIZE", "10")
-    n_clusters = 35  # 4 chunks: 10, 10, 10, 5
-
+async def _run_with_client(
+    client: Any,
+    n_clusters: int,
+    applied: dict[int, dict[str, Any]],
+) -> dict[str, int]:
+    """Drive apply_intra_salon_consistency against `client` with no
+    network/DB, recording the decision each cluster ends up with."""
     fake_mixed = [
         ((f"Brand{i}", "laser", ("nogi",)),
          [{"id": i, "name": f"svc{i}", "category_name": "test",
@@ -199,27 +209,9 @@ async def test_chunk_failure_aborts_pipeline(
         for i in range(n_clusters)
     ]
 
-    truncate_after = 2  # third chunk returns wrong count
-
-    class _TruncatingClient:
-        def __init__(self) -> None:
-            self.call_idx = 0
-
-        async def call_decisions_tool(
-            self, **kwargs
-        ) -> tuple[list[dict[str, Any]], dict[str, Any]]:
-            import re
-            ids = [int(m) for m in re.findall(
-                r"### KLASTER #(\d+)", kwargs["user_prompt"])]
-            self.call_idx += 1
-            usage = {"input": 0, "output": 0, "model": "fake-oai-trunc"}
-            if self.call_idx > truncate_after:
-                # Simulate provider truncation: return only 2 decisions
-                # for a chunk that asked for 10.
-                return [_decision_for(ids[0]), _decision_for(ids[1])], usage
-            return [_decision_for(cid) for cid in ids], usage
-
-    bad_client = _TruncatingClient()
+    async def _fake_apply_decision(**kwargs):
+        applied[kwargs["cid"]] = kwargs["decision"]
+        return 1
 
     async def _fake_match(*args, **kwargs):
         return []
@@ -227,26 +219,142 @@ async def test_chunk_failure_aborts_pipeline(
     with patch.object(tc, "build_clusters",
                       return_value={i: [{"id": i}] for i in range(n_clusters)}), \
          patch.object(tc, "find_mixed_clusters", return_value=fake_mixed), \
-         patch.object(tc, "_apply_decision",
-                      side_effect=AsyncMock(return_value=1)), \
+         patch.object(tc, "_apply_decision", side_effect=_fake_apply_decision), \
          patch("services.hidden_service_inference.match_taxonomy_candidates",
                side_effect=_fake_match), \
          patch("services.openai_taxonomy_client.OpenAITaxonomyClient",
-               return_value=bad_client), \
+               return_value=client), \
          patch("config.settings") as _settings:
         _settings.openai_api_key = "sk-test-fake"
-        with pytest.raises(RuntimeError, match="decisions, expected"):
-            await tc.apply_intra_salon_consistency(
-                services=[],
-                supabase=AsyncMock(),
-                minimax=AsyncMock(),
-                audit_id=None,
-                label="test",
-                trace_collector=None,
-                dry_run=True,
+        return await tc.apply_intra_salon_consistency(
+            services=[],
+            supabase=AsyncMock(),
+            minimax=AsyncMock(),
+            audit_id=None,
+            label="test",
+            trace_collector=None,
+            dry_run=True,
+        )
+
+
+class _TruncatingClient:
+    """Provider that cuts every response down to `keep` decisions from
+    call `truncate_after`+1 onwards — the response-truncation shape that
+    killed the Beauty4ever regen."""
+
+    def __init__(self, *, truncate_after: int, keep: int) -> None:
+        self.truncate_after = truncate_after
+        self.keep = keep
+        self.call_idx = 0
+        self.clusters_per_call: list[int] = []
+
+    async def call_decisions_tool(
+        self, **kwargs
+    ) -> tuple[list[dict[str, Any]], dict[str, Any]]:
+        import re
+        ids = [int(m) for m in re.findall(
+            r"### KLASTER #(\d+)", kwargs["user_prompt"])]
+        self.call_idx += 1
+        self.clusters_per_call.append(len(ids))
+        usage = {"input": 0, "output": 0, "model": "fake-oai-trunc"}
+        if self.call_idx > self.truncate_after:
+            return [_decision_for(cid) for cid in ids[:self.keep]], usage
+        return [_decision_for(cid) for cid in ids], usage
+
+
+@pytest.mark.asyncio
+async def test_chunk_failure_aborts_pipeline(
+    env_openai_provider: None,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """A heavily truncated chunk response still aborts the whole report.
+
+    This is the pre-BEAUTY_AUDIT-8j8 guarantee, kept: the rescue path is
+    for a model skipping a cluster or two, NOT for a provider that
+    answers 2 of 10. Losing this assertion is how a provider outage turns
+    into a "successful" report built on deterministic stand-ins.
+    """
+    monkeypatch.setenv("TAXONOMY_CONSISTENCY_CHUNK_SIZE", "10")
+    monkeypatch.setenv("TAXONOMY_CONSISTENCY_MISSING_RETRIES", "2")
+    n_clusters = 35  # 4 chunks: 10, 10, 10, 5
+
+    # Calls 1-2 answer in full; from call 3 on, at most 2 decisions come
+    # back per call → chunk 3 is short 8 of 10 = 80% > the 50% threshold.
+    bad_client = _TruncatingClient(truncate_after=2, keep=2)
+    applied: dict[int, dict[str, Any]] = {}
+
+    with pytest.raises(RuntimeError) as exc:
+        await _run_with_client(bad_client, n_clusters, applied)
+
+    msg = str(exc.value)
+    assert "Pass 5" in msg, msg
+    assert "rescue" in msg and "threshold" in msg, msg
+    assert "provider failure" in msg, msg
+    # No re-ask was attempted for a chunk this broken — it failed on the
+    # FIRST response, one call per chunk at most.
+    assert bad_client.call_idx <= 4, bad_client.clusters_per_call
+
+
+@pytest.mark.asyncio
+async def test_empty_first_response_aborts_pipeline(
+    env_openai_provider: None,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """decisions=[] is a failed provider call, not 10 skipped clusters."""
+    monkeypatch.setenv("TAXONOMY_CONSISTENCY_CHUNK_SIZE", "10")
+    monkeypatch.setenv("TAXONOMY_CONSISTENCY_MISSING_RETRIES", "2")
+
+    empty_client = _TruncatingClient(truncate_after=0, keep=0)
+    applied: dict[int, dict[str, Any]] = {}
+
+    with pytest.raises(RuntimeError) as exc:
+        await _run_with_client(empty_client, 10, applied)
+
+    msg = str(exc.value)
+    assert "returned 0 decision(s) for 10 clusters" in msg, msg
+    assert not applied, "nothing may be applied when the chunk aborts"
+    assert empty_client.call_idx == 1, "empty response must not be re-asked"
+
+
+@pytest.mark.asyncio
+async def test_small_shortfall_recovers_via_rescue(
+    env_openai_provider: None,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """1 missing cluster out of 10 stays inside the rescue path: re-asked,
+    and on a model that never answers, given a deterministic stand-in —
+    the run completes and counts the stand-in in stats."""
+    monkeypatch.setenv("TAXONOMY_CONSISTENCY_CHUNK_SIZE", "10")
+    monkeypatch.setenv("TAXONOMY_CONSISTENCY_MISSING_RETRIES", "2")
+
+    class _SkipsOneClient:
+        def __init__(self, skip_id: int) -> None:
+            self.skip_id = skip_id
+            self.calls = 0
+
+        async def call_decisions_tool(
+            self, **kwargs
+        ) -> tuple[list[dict[str, Any]], dict[str, Any]]:
+            import re
+            ids = [int(m) for m in re.findall(
+                r"### KLASTER #(\d+)", kwargs["user_prompt"])]
+            self.calls += 1
+            usage = {"input": 0, "output": 0, "model": "fake-oai-skip"}
+            return (
+                [_decision_for(cid) for cid in ids if cid != self.skip_id],
+                usage,
             )
-    # We must have failed on chunk #3 (call_idx 3 after increment) —
-    # i.e. retry doubled it, but bad behavior persists across retries
-    # so 2 retry attempts * 2 chunks before + 2 retries of bad chunk
-    # is acceptable. Key invariant: we did NOT make all 4 chunk calls.
-    assert bad_client.call_idx >= truncate_after + 1
+
+    client = _SkipsOneClient(skip_id=7)
+    applied: dict[int, dict[str, Any]] = {}
+
+    stats = await _run_with_client(client, 10, applied)
+
+    assert sorted(applied) == list(range(1, 11))
+    assert stats["rerouted"] == 10
+    assert stats["fallback_decisions"] == 1
+    assert "zastępcza" in applied[7]["reasoning"]
+    assert applied[7]["type"] == "salon_synthetic"
+    assert applied[7]["canonical_name"].strip()
+    # 1 initial call + 2 bounded re-asks for the single missing cluster.
+    assert client.calls == 3
