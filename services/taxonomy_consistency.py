@@ -513,6 +513,93 @@ def _validate_decisions(
 
 
 # ---------------------------------------------------------------------------
+# Reference-service embedding hydration
+# ---------------------------------------------------------------------------
+
+async def _hydrate_reference_embeddings(
+    mixed: list[tuple[tuple[str | None, str, tuple[str, ...]], list[dict[str, Any]]]],
+    *,
+    supabase,
+    label: str,
+) -> int:
+    """Batch-load `name_embedding` for the ONE reference service of every
+    mixed cluster, in a SINGLE `get_service_embeddings` call.
+
+    Why this exists (BEAUTY_AUDIT-tfyb, measured 2026-08-22): the candidate
+    list in the Pass 5 prompt is gated on `members[0]['name_embedding']`, but
+    nothing upstream of Pass 5 ever puts that key on a service dict —
+    `SupabaseService._load_services_for_scrape` deliberately selects only
+    `embedding_applied_at` (1536 floats × thousands of rows is heavy on the
+    wire), `_resolve_service_taxonomy` keeps its `emb_map` local to the Rule
+    1-4 router, and the tier-row hydration in `_compute_treatment_tier_rows`
+    runs in Etap 5 — AFTER Pass 5. Result on prod: 201/201 (r34) and 150/150
+    (r181) clusters shipped `kandydaci Booksy (area-compatible, top-15):`
+    with an empty list, so every booksy_tid Pass 5 chose came from model
+    memory and the method/area gate in the system prompt had nothing to gate.
+
+    Cost is one reference service per cluster (~150-200 vectors per report),
+    not one per service.
+
+    Contract:
+      * ONE query for all clusters (ids deduped) — never N queries in a loop.
+      * A dict that ALREADY carries an embedding is never overwritten (the
+        dev endpoint `/api/dev/trace-taxonomy` may pass services inline).
+      * A service with no embedding row in Supabase, or a failed query,
+        leaves the dict untouched — the cluster then takes the pre-existing
+        no-candidates path instead of raising.
+
+    Returns the number of service dicts that received an embedding.
+    """
+    refs_by_id: dict[int, list[dict[str, Any]]] = {}
+    for _key, members in mixed:
+        if not members:
+            continue
+        ref_svc = members[0]
+        if ref_svc.get("name_embedding"):
+            continue
+        raw_id = ref_svc.get("id")
+        if raw_id is None:
+            continue
+        try:
+            sid = int(raw_id)
+        except (TypeError, ValueError):
+            continue
+        # Same id can head two clusters only if the caller passed the same
+        # service twice; the list keeps both dicts, the key dedupes the query.
+        refs_by_id.setdefault(sid, []).append(ref_svc)
+
+    if not refs_by_id:
+        return 0
+
+    try:
+        emb_map = await supabase.get_service_embeddings(list(refs_by_id))
+    except Exception:
+        logger.warning(
+            "apply_intra_salon_consistency [%s]: embedding hydration for %d "
+            "cluster reference services FAILED — Pass 5 prompts will carry "
+            "no Booksy candidates (model-memory tids)",
+            label, len(refs_by_id), exc_info=True,
+        )
+        return 0
+
+    hydrated = 0
+    for sid, ref_svcs in refs_by_id.items():
+        emb = emb_map.get(sid)
+        if not emb:
+            continue
+        for ref_svc in ref_svcs:
+            ref_svc["name_embedding"] = emb
+            hydrated += 1
+
+    logger.info(
+        "apply_intra_salon_consistency [%s]: hydrated %d/%d cluster "
+        "reference embeddings in 1 batch query",
+        label, hydrated, len(refs_by_id),
+    )
+    return hydrated
+
+
+# ---------------------------------------------------------------------------
 # Main entry
 # ---------------------------------------------------------------------------
 
@@ -564,6 +651,11 @@ async def apply_intra_salon_consistency(
     # heavily) and apply the body-area filter again.
     from services.body_area_taxonomy import filter_candidates_by_area
     from services.hidden_service_inference import match_taxonomy_candidates
+
+    # ONE batch query for the reference service of every mixed cluster —
+    # without it `emb` below is always falsy and every cluster goes to the
+    # LLM with an empty candidate list (BEAUTY_AUDIT-tfyb).
+    await _hydrate_reference_embeddings(mixed, supabase=supabase, label=label)
 
     cluster_payloads: list[tuple[
         int,
