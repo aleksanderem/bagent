@@ -28,7 +28,21 @@ heavier consistency reasoning — thinking blocks + larger context
 window pay off when the prompt holds 10-30 services and their
 current decisions side-by-side.
 
-NO graceful fallbacks. MiniMax error = raise (Bugsink alerts).
+LLM/transport errors = raise (Bugsink alerts). The ONE graceful path
+is a model skipping decisions for individual clusters (pure
+non-determinism — job 577ed580 died on cluster_id=181 while the same
+prompt shape succeeded in neighbouring reports): those clusters are
+re-asked in isolation and, if the model keeps skipping them, get a
+deterministic salon_synthetic stand-in. Every use of that rescue path
+logs at WARNING so silent quality degradation stays visible.
+
+That rescue is deliberately NARROW. A chunk whose first response is
+empty, or misses more than _MAX_MISSING_FRACTION_FOR_RESCUE of its
+clusters, is a provider failure — it stays a hard RuntimeError instead
+of producing a report built on stand-ins. And when stand-ins DO get
+used, the run reports them twice: `fallback_decisions` in the returned
+stats, and ONE aggregate logger.error per run (Bugsink alerts from
+ERROR up, so the per-cluster WARNINGs alone would never raise a flag).
 """
 
 from __future__ import annotations
@@ -300,6 +314,71 @@ def _synthesize_fallback_canonical(
     return " ".join(parts)
 
 
+_FALLBACK_REASONING = (
+    "Decyzja zastępcza (pass 5 rescue) — model nie zwrócił decyzji dla "
+    "tego klastra po {attempts} próbach."
+)
+
+# Rescue covers model non-determinism (a skipped cluster or two out of a
+# 30-cluster chunk); a first response that is empty or misses MORE than half
+# the chunk is a broken provider call, not skipped clusters, so it must stay a
+# hard failure rather than quietly turn the whole chunk into stand-in decisions.
+_MAX_MISSING_FRACTION_FOR_RESCUE = 0.5
+
+
+def _index_decisions_by_cluster_id(
+    decisions: list[dict[str, Any]],
+) -> dict[int, dict[str, Any]]:
+    """Index raw LLM decisions by `cluster_id`, first one wins.
+
+    Entries without a usable int `cluster_id` cannot be attached to any
+    cluster, so they are dropped here; the affected cluster then counts
+    as missing and goes through the retry/fallback rescue path instead
+    of crashing the whole report.
+    """
+    indexed: dict[int, dict[str, Any]] = {}
+    for d in decisions:
+        if not isinstance(d, dict):
+            continue
+        cid = d.get("cluster_id")
+        if not isinstance(cid, int):
+            continue
+        indexed.setdefault(cid, d)
+    return indexed
+
+
+def _build_fallback_decision(
+    cluster_id: int,
+    key: tuple[str | None, str, tuple[str, ...]],
+    attempts: int,
+) -> dict[str, Any]:
+    """Deterministic stand-in decision for a cluster the model kept
+    skipping.
+
+    Keeps the semantics of `_synthesize_fallback_canonical`: one
+    salon-defined synthetic category derived from the cluster key, so
+    every member of the cluster still lands in ONE bucket (the whole
+    point of Pass 5) without inventing a Booksy tid the model never
+    voted for.
+
+    Raises ValueError/TypeError when no canonical name can be
+    synthesized — the caller turns that into a hard fail carrying the
+    list of unrecoverable cluster_ids.
+    """
+    canonical = _synthesize_fallback_canonical(key)
+    if not isinstance(canonical, str) or not canonical.strip():
+        raise ValueError(
+            f"no canonical_name could be synthesized for "
+            f"cluster_id={cluster_id} (key={key!r})"
+        )
+    return {
+        "cluster_id": cluster_id,
+        "type": "salon_synthetic",
+        "canonical_name": canonical.strip(),
+        "reasoning": _FALLBACK_REASONING.format(attempts=attempts),
+    }
+
+
 def _extract_tool_decisions(msg, expected_count: int) -> list[dict[str, Any]]:
     """Pull `submit_taxonomy_decisions` tool_use input from a MiniMax
     Message response. Raises on missing/malformed tool call — no
@@ -376,7 +455,12 @@ async def apply_intra_salon_consistency(
     """
     clusters = build_clusters(services)
     if not clusters:
-        return {"clusters_total": 0, "clusters_mixed": 0, "rerouted": 0}
+        return {
+            "clusters_total": 0,
+            "clusters_mixed": 0,
+            "rerouted": 0,
+            "fallback_decisions": 0,
+        }
 
     mixed = find_mixed_clusters(clusters)
     if not mixed:
@@ -388,6 +472,7 @@ async def apply_intra_salon_consistency(
             "clusters_total": len(clusters),
             "clusters_mixed": 0,
             "rerouted": 0,
+            "fallback_decisions": 0,
         }
 
     logger.info(
@@ -507,11 +592,125 @@ async def apply_intra_salon_consistency(
     if concurrency < 1:
         concurrency = 7
     sem = asyncio.Semaphore(concurrency)
+
+    # Missing-decision rescue (2026-06-14, BEAUTY_AUDIT-8j8): gpt-4o
+    # occasionally omits a cluster_id from an otherwise well-formed tool
+    # call (report 34 / job 577ed580 died on cluster_id=181 while the
+    # same shape passed in reports 36 and 181). That is model
+    # non-determinism, not a data problem, so a second ask limited to
+    # the skipped clusters usually returns the full set. Bounded — never
+    # an unbounded loop. 0 disables retries and goes straight to the
+    # deterministic fallback decision.
+    try:
+        missing_retries = int(
+            os.environ.get("TAXONOMY_CONSISTENCY_MISSING_RETRIES", "2")
+        )
+    except ValueError:
+        missing_retries = 2
+    if missing_retries < 0:
+        missing_retries = 0
+
     logger.info(
         "apply_intra_salon_consistency [%s]: dispatching %d chunks in "
         "parallel (concurrency=%d, provider=%s)",
         label, len(chunks), concurrency, provider,
     )
+
+    async def _dispatch(
+        chunk_idx: int,
+        subset: list[tuple[
+            int,
+            tuple[str | None, str, tuple[str, ...]],
+            list[dict[str, Any]],
+            list[dict[str, Any]],
+        ]],
+        attempt: int,
+    ) -> list[dict[str, Any]]:
+        """One LLM call for `subset` — the whole chunk on attempt 1, only
+        the clusters the model skipped on later attempts. Returns raw
+        (unvalidated) decisions."""
+        subset_prompt = _build_user_prompt(subset)
+        logger.info(
+            "apply_intra_salon_consistency [%s]: chunk %d/%d "
+            "(%d clusters, attempt %d) — provider=%s, prompt %d chars",
+            label, chunk_idx, len(chunks), len(subset), attempt, provider,
+            len(subset_prompt),
+        )
+        call_usage: dict[str, Any] | None = None
+        if provider == "openai":
+            async def _call_oai(
+                _prompt: str = subset_prompt,
+            ) -> tuple[list[dict[str, Any]], dict[str, Any]]:
+                return await oai_client.call_decisions_tool(
+                    system_prompt=_SYSTEM_PROMPT,
+                    user_prompt=_prompt,
+                    tool_schema=_TAXONOMY_DECISIONS_TOOL,
+                    max_tokens=16384,
+                )
+            # Global per-MODEL concurrency cap (cross-report, INNER), keyed
+            # by the pass5 model (oai_model, default gpt-4o). The per-report
+            # `sem` above is the OUTER acquire; this slot is the INNER
+            # acquire — single direction (outer per-report, inner global) on
+            # every chunk = no lock-ordering cycle, no deadlock. Caps total
+            # in-flight gpt-4o process-wide (its own bucket, separate from
+            # gpt-4o-mini) so N concurrent reports can't fan out to N*chunks
+            # calls and trip OpenAI RPM/TPM -> 429 backoff (LT2 measured
+            # ~18x pass5 blowup).
+            async with provider_slot(oai_model):
+                raw, call_usage = await with_retry(
+                    _call_oai, max_attempts=2, base_delay=2.0,
+                )
+        else:
+            # Legacy MiniMax path (kept for A/B). Use tool_use API to
+            # force structured output.
+            async def _call_mm(_prompt: str = subset_prompt):
+                return await minimax.create_message(
+                    system=_SYSTEM_PROMPT,
+                    messages=[{"role": "user", "content": _prompt}],
+                    tools=[_TAXONOMY_DECISIONS_TOOL],
+                    max_tokens=32768,
+                    temperature=0.2,
+                )
+            msg = await with_retry(
+                _call_mm, max_attempts=2, base_delay=2.0,
+            )
+            raw = _extract_tool_decisions(
+                msg, expected_count=len(subset),
+            )
+            # MiniMax (Anthropic-compatible) returns usage on response.
+            usage_obj = getattr(msg, "usage", None)
+            if usage_obj is not None:
+                call_usage = {
+                    "input": int(getattr(usage_obj, "input_tokens", 0) or 0),
+                    "output": int(getattr(usage_obj, "output_tokens", 0) or 0),
+                    "model": minimax.model,
+                }
+        # Persist token usage to pipeline_traces (mig 121). Best-effort
+        # — observability MUST NOT crash the pipeline.
+        if tracer is not None and call_usage is not None:
+            try:
+                tracer.add(
+                    "agent.tokens",
+                    {
+                        "step_name": "taxonomy.pass5_consistency",
+                        "chunk_idx": chunk_idx,
+                        "chunk_total": len(chunks),
+                        "cluster_count": len(subset),
+                        "attempt": attempt,
+                        "provider": provider,
+                        "model": call_usage.get("model"),
+                        "input_tokens": call_usage.get("input"),
+                        "output_tokens": call_usage.get("output"),
+                    },
+                    tokens_used=call_usage,
+                )
+            except Exception:
+                logger.exception(
+                    "agent.tokens trace add failed for Pass 5 chunk %d/%d "
+                    "(attempt %d)",
+                    chunk_idx, len(chunks), attempt,
+                )
+        return raw
 
     async def _process_chunk(
         chunk_idx: int,
@@ -521,91 +720,117 @@ async def apply_intra_salon_consistency(
             list[dict[str, Any]],
             list[dict[str, Any]],
         ]],
-    ) -> list[dict[str, Any]]:
+    ) -> tuple[list[dict[str, Any]], list[int]]:
+        """Returns (validated decisions, cluster_ids that fell back to a
+        deterministic stand-in decision)."""
         async with sem:
-            chunk_prompt = _build_user_prompt(chunk)
-            logger.info(
-                "apply_intra_salon_consistency [%s]: chunk %d/%d "
-                "(%d clusters) — provider=%s, prompt %d chars",
-                label, chunk_idx, len(chunks), len(chunk), provider,
-                len(chunk_prompt),
-            )
-            chunk_usage: dict[str, Any] | None = None
-            if provider == "openai":
-                async def _call_oai(
-                    _prompt: str = chunk_prompt,
-                ) -> tuple[list[dict[str, Any]], dict[str, Any]]:
-                    return await oai_client.call_decisions_tool(
-                        system_prompt=_SYSTEM_PROMPT,
-                        user_prompt=_prompt,
-                        tool_schema=_TAXONOMY_DECISIONS_TOOL,
-                        max_tokens=16384,
-                    )
-                # Global per-MODEL concurrency cap (cross-report, INNER), keyed
-                # by the pass5 model (oai_model, default gpt-4o). The per-report
-                # `sem` above is the OUTER acquire; this slot is the INNER
-                # acquire — single direction (outer per-report, inner global) on
-                # every chunk = no lock-ordering cycle, no deadlock. Caps total
-                # in-flight gpt-4o process-wide (its own bucket, separate from
-                # gpt-4o-mini) so N concurrent reports can't fan out to N*chunks
-                # calls and trip OpenAI RPM/TPM -> 429 backoff (LT2 measured
-                # ~18x pass5 blowup).
-                async with provider_slot(oai_model):
-                    chunk_raw, chunk_usage = await with_retry(
-                        _call_oai, max_attempts=2, base_delay=2.0,
-                    )
-            else:
-                # Legacy MiniMax path (kept for A/B). Use tool_use API to
-                # force structured output.
-                async def _call_mm(_prompt: str = chunk_prompt):
-                    return await minimax.create_message(
-                        system=_SYSTEM_PROMPT,
-                        messages=[{"role": "user", "content": _prompt}],
-                        tools=[_TAXONOMY_DECISIONS_TOOL],
-                        max_tokens=32768,
-                        temperature=0.2,
-                    )
-                msg = await with_retry(
-                    _call_mm, max_attempts=2, base_delay=2.0,
+            expected_ids = [cid for cid, _k, _m, _c in chunk]
+            attempt = 1
+            first_raw = await _dispatch(chunk_idx, chunk, attempt)
+            by_cid = _index_decisions_by_cluster_id(first_raw)
+            missing = [cid for cid in expected_ids if cid not in by_cid]
+
+            # Gate before the rescue: an empty first response, or one that
+            # leaves more than _MAX_MISSING_FRACTION_FOR_RESCUE of the chunk
+            # undecided, means the provider call failed — raise like Pass 5
+            # did before the rescue existed, instead of degrading the whole
+            # chunk to stand-ins that no alert would ever surface.
+            if not first_raw or (
+                len(missing) > _MAX_MISSING_FRACTION_FOR_RESCUE * len(chunk)
+            ):
+                raise RuntimeError(
+                    f"Pass 5 [{label}] chunk {chunk_idx}/{len(chunks)}: "
+                    f"provider returned {len(first_raw)} decision(s) for "
+                    f"{len(chunk)} clusters, {len(missing)} undecided "
+                    f"(cluster_id={missing}) — shortfall above the "
+                    f"{_MAX_MISSING_FRACTION_FOR_RESCUE:.0%} rescue "
+                    f"threshold, treated as provider failure (empty or "
+                    f"truncated response), NOT as skipped clusters"
                 )
-                chunk_raw = _extract_tool_decisions(
-                    msg, expected_count=len(chunk),
+
+            # Rescue step 1 — re-ask ONLY for the skipped clusters. The
+            # prompt keeps the original cluster_ids, so answers merge
+            # straight back in.
+            while missing and attempt <= missing_retries:
+                attempt += 1
+                logger.warning(
+                    "apply_intra_salon_consistency [%s]: chunk %d/%d — model "
+                    "pominął %d z %d klastrów %s; ponawiam TYLKO dla "
+                    "brakujących (próba %d z %d)",
+                    label, chunk_idx, len(chunks), len(missing), len(chunk),
+                    missing, attempt, missing_retries + 1,
                 )
-                # MiniMax (Anthropic-compatible) returns usage on response.
-                usage_obj = getattr(msg, "usage", None)
-                if usage_obj is not None:
-                    chunk_usage = {
-                        "input": int(getattr(usage_obj, "input_tokens", 0) or 0),
-                        "output": int(getattr(usage_obj, "output_tokens", 0) or 0),
-                        "model": minimax.model,
-                    }
-            # Persist token usage to pipeline_traces (mig 121). Best-effort
-            # — observability MUST NOT crash the pipeline.
-            if tracer is not None and chunk_usage is not None:
-                try:
-                    tracer.add(
-                        "agent.tokens",
-                        {
-                            "step_name": "taxonomy.pass5_consistency",
-                            "chunk_idx": chunk_idx,
-                            "chunk_total": len(chunks),
-                            "cluster_count": len(chunk),
-                            "provider": provider,
-                            "model": chunk_usage.get("model"),
-                            "input_tokens": chunk_usage.get("input"),
-                            "output_tokens": chunk_usage.get("output"),
-                        },
-                        tokens_used=chunk_usage,
+                retry_ids = set(missing)
+                retry_subset = [p for p in chunk if p[0] in retry_ids]
+                for cid, d in _index_decisions_by_cluster_id(
+                    await _dispatch(chunk_idx, retry_subset, attempt),
+                ).items():
+                    by_cid.setdefault(cid, d)
+                recovered = [cid for cid in missing if cid in by_cid]
+                if recovered:
+                    logger.warning(
+                        "apply_intra_salon_consistency [%s]: chunk %d/%d — "
+                        "próba %d odzyskała %d klastrów %s",
+                        label, chunk_idx, len(chunks), attempt,
+                        len(recovered), recovered,
                     )
-                except Exception:
-                    logger.exception(
-                        "agent.tokens trace add failed for Pass 5 chunk %d/%d",
-                        chunk_idx, len(chunks),
+                missing = [cid for cid in expected_ids if cid not in by_cid]
+
+            # Rescue step 2 — deterministic stand-in decision for what the
+            # model never answered. Hard fail only when even that cannot
+            # be built, and then the error names every missing cluster.
+            fallback_cids: list[int] = []
+            if missing:
+                unrecoverable: list[int] = []
+                for cid, key, _members, _cands in chunk:
+                    if cid in by_cid:
+                        continue
+                    try:
+                        fallback = _build_fallback_decision(cid, key, attempt)
+                    except (ValueError, TypeError):
+                        unrecoverable.append(cid)
+                        logger.exception(
+                            "apply_intra_salon_consistency [%s]: chunk %d/%d "
+                            "— cluster_id=%d has no decision and no fallback "
+                            "could be synthesized (key=%r)",
+                            label, chunk_idx, len(chunks), cid, key,
+                        )
+                        continue
+                    by_cid[cid] = fallback
+                    fallback_cids.append(cid)
+                    logger.warning(
+                        "apply_intra_salon_consistency [%s]: chunk %d/%d — "
+                        "cluster_id=%d bez decyzji po %d próbach, używam "
+                        "decyzji zastępczej salon_synthetic canonical=%r "
+                        "(degradacja jakości Pass 5)",
+                        label, chunk_idx, len(chunks), cid, attempt,
+                        fallback["canonical_name"],
                     )
+                if unrecoverable:
+                    raise RuntimeError(
+                        f"Pass 5 [{label}] chunk {chunk_idx}/{len(chunks)}: "
+                        f"LLM skipped cluster_id={missing} after {attempt} "
+                        f"attempt(s) and no fallback decision could be built "
+                        f"for cluster_id={unrecoverable}"
+                    )
+
+            extra_ids = sorted(set(by_cid) - set(expected_ids))
+            if extra_ids:
+                logger.warning(
+                    "apply_intra_salon_consistency [%s]: chunk %d/%d — model "
+                    "zwrócił decyzje dla nieistniejących klastrów %s; "
+                    "ignoruję",
+                    label, chunk_idx, len(chunks), extra_ids,
+                )
+
             # Per-chunk validation — any failure bubbles up immediately
             # via gather, no partial-result accumulation downstream.
-            return _validate_decisions(
-                chunk_raw, expected_count=len(chunk),
+            return (
+                _validate_decisions(
+                    [by_cid[cid] for cid in expected_ids],
+                    expected_count=len(chunk),
+                ),
+                fallback_cids,
             )
 
     non_empty_chunks = [
@@ -617,8 +842,26 @@ async def apply_intra_salon_consistency(
         *[_process_chunk(idx, chunk) for idx, chunk in non_empty_chunks],
     )
     decisions: list[dict[str, Any]] = []
-    for chunk_validated in chunk_results:
+    fallback_cluster_ids: list[int] = []
+    for chunk_validated, chunk_fallbacks in chunk_results:
         decisions.extend(chunk_validated)
+        fallback_cluster_ids.extend(chunk_fallbacks)
+
+    # ONE aggregate ERROR per run (never per cluster) — the per-cluster
+    # WARNINGs above stay as they are, but Bugsink only alerts from ERROR up,
+    # so without this line a report standing on stand-in decisions would look
+    # like a clean success.
+    fallback_decisions = len(fallback_cluster_ids)
+    if fallback_decisions:
+        logger.error(
+            "apply_intra_salon_consistency [%s]: DEGRADACJA Pass 5 — %d z %d "
+            "klastrów (%.0f%%) dostało decyzję zastępczą zamiast decyzji "
+            "modelu (cluster_id=%s); raport powstał na częściowo "
+            "deterministycznej taksonomii",
+            label, fallback_decisions, len(cluster_payloads),
+            100.0 * fallback_decisions / len(cluster_payloads),
+            sorted(fallback_cluster_ids),
+        )
 
     logger.info(
         "apply_intra_salon_consistency [%s]: all %d chunks processed, "
@@ -641,14 +884,24 @@ async def apply_intra_salon_consistency(
                 f"Decision missing cluster_id or non-int: {d!r}"
             )
         decisions_by_cid[cid_raw] = d
+
+    # Defence in depth — _process_chunk already re-asks for skipped
+    # clusters and substitutes a deterministic decision, so this should
+    # never fire. If it does, the message names EVERY missing cluster so
+    # the failure is diagnosable from one log line.
+    still_missing = [
+        cid for cid, _k, _m, _c in cluster_payloads
+        if cid not in decisions_by_cid
+    ]
+    if still_missing:
+        raise RuntimeError(
+            f"LLM skipped cluster_id={still_missing} — every cluster MUST "
+            f"have a decision"
+        )
+
     rerouted = 0
     for cid, key, members, _cands in cluster_payloads:
-        decision = decisions_by_cid.get(cid)
-        if decision is None:
-            raise RuntimeError(
-                f"LLM skipped cluster_id={cid} — every cluster MUST "
-                f"have a decision"
-            )
+        decision = decisions_by_cid[cid]
         # If LLM returned salon_synthetic without canonical_name
         # (schema violation), generate a deterministic fallback from
         # the cluster key instead of crashing. Log so the regression
@@ -675,6 +928,7 @@ async def apply_intra_salon_consistency(
         "clusters_total": len(clusters),
         "clusters_mixed": len(mixed),
         "rerouted": rerouted,
+        "fallback_decisions": fallback_decisions,
     }
 
 
