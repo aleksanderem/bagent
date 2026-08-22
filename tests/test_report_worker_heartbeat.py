@@ -25,6 +25,8 @@ from unittest.mock import AsyncMock, patch
 
 import pytest
 
+from workers.error_log import unwrapped
+
 
 def _cron_function_names(cron_jobs) -> set[str]:
     """Names of the coroutine each CronJob actually fires.
@@ -64,7 +66,7 @@ class TestReportWorkerRegistration:
     def test_report_worker_registers_its_heartbeat(self):
         from workers.main import ReportWorkerSettings, report_worker_heartbeat
 
-        assert report_worker_heartbeat in ReportWorkerSettings.functions
+        assert report_worker_heartbeat in unwrapped(ReportWorkerSettings.functions)
 
     def test_report_worker_does_not_register_scrape_heartbeat(self):
         # The scrape heartbeat is the scrape worker's concern. Keeping it off
@@ -72,7 +74,7 @@ class TestReportWorkerRegistration:
         # anyway — REPORT_CRONS never fired it).
         from workers.main import ReportWorkerSettings, worker_heartbeat
 
-        assert worker_heartbeat not in ReportWorkerSettings.functions
+        assert worker_heartbeat not in unwrapped(ReportWorkerSettings.functions)
 
 
 class TestCronWiring:

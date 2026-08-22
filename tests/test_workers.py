@@ -19,6 +19,8 @@ from unittest.mock import AsyncMock
 
 import pytest
 
+from workers.error_log import unwrapped
+
 
 class TestWorkerSettingsShape:
     def test_settings_has_smoke_test_in_functions(self):
@@ -27,7 +29,7 @@ class TestWorkerSettingsShape:
         # Foundation iteration: only the smoke_test task is registered. The
         # 7 production pipelines (audit/competitor/optimization) move into
         # the functions list during issue #21.
-        assert smoke_test in WorkerSettings.functions
+        assert smoke_test in unwrapped(WorkerSettings.functions)
 
     def test_settings_has_lifecycle_hooks(self):
         from workers.main import WorkerSettings

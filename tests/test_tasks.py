@@ -18,6 +18,8 @@ from unittest.mock import AsyncMock, MagicMock, patch
 
 import pytest
 
+from workers.error_log import unwrapped
+
 
 # ---------------------------------------------------------------------------
 # Cancel flag helpers
@@ -114,7 +116,7 @@ class TestAllTasksRegistry:
         from workers.tasks import ALL_TASKS
 
         for task in ALL_TASKS:
-            assert task in WorkerSettings.functions, (
+            assert task in unwrapped(WorkerSettings.functions), (
                 f"{task.__name__} not registered in WorkerSettings.functions"
             )
 
@@ -654,6 +656,6 @@ class TestCompetitorQueueTasksRegistered:
         from workers.main import WorkerSettings
 
         for task in ALL_COMPETITOR_QUEUE_TASKS:
-            assert task in WorkerSettings.functions, (
+            assert task in unwrapped(WorkerSettings.functions), (
                 f"{task.__name__} not registered in WorkerSettings.functions"
             )

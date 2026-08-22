@@ -237,6 +237,9 @@ async def smoke_test(ctx: dict[str, Any], message: str = "hello") -> dict[str, A
 # slow job still works, short enough that result store doesn't bloat.
 
 from .tasks import ALL_TASKS
+# BEAUTY_AUDIT-n3zw — every registered task is wrapped so failures land in
+# Supabase bagent_error_log (arq's on_job_end has no access to the exception).
+from .error_log import wrap_all, wrap_crons
 # Issue #23 — scrape orchestrator tasks (queue drain + scheduler + reaper).
 from .scrape_refresh import ALL_SCRAPE_TASKS
 # beads BEAUTY_AUDIT-1mb — competitor report queue (capped drain + reaper).
@@ -552,7 +555,7 @@ except Exception:  # noqa: BLE001
 
 class WorkerSettings:
     # Production tasks from tasks.py + smoke_test for liveness verification.
-    functions = [
+    functions = wrap_all([
         smoke_test,
         worker_heartbeat,
         *ALL_TASKS,
@@ -567,8 +570,8 @@ class WorkerSettings:
         *ALL_TAXONOMY_TASKS,
         *ALL_STAFF_IDENTITY_TASKS,
         *ALL_SLO_TASKS,
-    ]
-    cron_jobs = SCRAPE_CRONS
+    ])
+    cron_jobs = wrap_crons(SCRAPE_CRONS)
     redis_settings = redis_settings
     on_startup = startup
     on_shutdown = shutdown
@@ -612,7 +615,7 @@ class ReportWorkerSettings:
     not deregistration, is what isolates the load). Shares Redis + Supabase with
     the scrape worker — DB contention is mitigated, not eliminated.
     """
-    functions = [
+    functions = wrap_all([
         smoke_test,
         # This worker fires its OWN heartbeat (report_worker_heartbeat via
         # REPORT_CRONS), NOT the scrape worker's. The scrape heartbeat stays
@@ -620,8 +623,8 @@ class ReportWorkerSettings:
         report_worker_heartbeat,
         *ALL_TASKS,
         *ALL_COMPETITOR_QUEUE_TASKS,
-    ]
-    cron_jobs = REPORT_CRONS
+    ])
+    cron_jobs = wrap_crons(REPORT_CRONS)
     redis_settings = redis_settings
     on_startup = startup
     on_shutdown = shutdown
