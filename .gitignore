@@ -23,3 +23,6 @@ i-have-adhd/
 *.local-bak-*
 .env.bak*
 tmp_*.json
+
+# bd: lokalny wskaznik na wspolny tracker (sciezka zalezy od maszyny)
+.beads/redirect
