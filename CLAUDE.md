@@ -411,3 +411,8 @@ This project is indexed by GitNexus as **bagent** (466 symbols, 1159 relationshi
 | Index, status, clean, wiki CLI commands | `.claude/skills/gitnexus/gitnexus-cli/SKILL.md` |
 
 <!-- gitnexus:end -->
+
+## Tracker zadań (bd)
+Wspólny tracker projektu żyje w BEAUTY_AUDIT (`.beads/redirect` wskazuje tam automatycznie).
+Nowe znalezisko = `bd create --title="..." --type=bug --priority=1 --label repo:bagent`.
+Protokół zespołowy: `../BEAUTY_AUDIT/docs/beads-multiagent.md`.
