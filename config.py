@@ -13,6 +13,9 @@ class Settings(BaseSettings):
     # na poziomie protokołu nagłówkiem beta Anthropic (patrz services/minimax.py).
     # False = powrót do domyślnego okna (A/B test lub gdyby nagłówek przeszkadzał).
     minimax_1m_context: bool = True
+    # MiniMax-M3: myślenie jest DOMYŚLNIE WYŁĄCZONE po stronie API (w M2.x zawsze włączone).
+    # "adaptive" = włącz (zalecane dla pass5/syntezy), "disabled" = wyłącz, "" = nie wysyłaj.
+    minimax_thinking: str = ""  # "" = nie wysylaj (stan dzisiejszy); "adaptive" wlacza po pomiarze kosztu/czasu
     gemini_api_key: str = ""
     supabase_url: str = ""
     supabase_service_key: str = ""
