@@ -39,7 +39,22 @@ _DEFAULT_RADIUS_KM = 15
 # w praktyce salon z 20-50% pokrycia też traci połowę raportu. Fallback i tak
 # przyjmuje wynik TYLKO gdy poprawia (n_verified_b > n_verified), więc gęste
 # salony niczego nie tracą — kończą na precyzyjnym 0.82 jak dotąd.
-_ADAPTIVE_TRIGGER_VERIFIED_RATE = 0.50
+# 2026-08-24 (BEAUTY_AUDIT-bgp3, druga iteracja): 0.50 -> 0.80. Pierwszy żywy
+# raport po podniesieniu progu z 0.20 na 0.50 (nr 259, JETSET CLINIC) wyszedł z
+# verified_rate 54/101 = 0.535 i znowu minął się z ratunkiem — o 3.5 punktu.
+# Ten sam mechanizm co przy raporcie 250 (0.204 vs próg 0.20), tylko piętro
+# wyżej: podnoszenie progu o krok PRZESUWA granicę, zamiast ją usunąć.
+# Pomiar na 259 (chain-head e91df2f5, ten sam którego użyła produkcja):
+#   próg 0.82 -> 47/101 "Tylko Ty" (47%), 54 z ceną
+#   próg 0.75 -> 23/101 (23%),           78 z ceną   <- kryterium odbioru <=25%
+#   próg 0.70 -> 16/101 (16%),           85 z ceną
+# Fallback przyjmuje wynik TYLKO gdy zwiększa liczbę verified, więc ilościowo
+# nie da się pogorszyć — próg triggera jest wyłącznie oszczędnością czasu
+# (drugi przebieg wyceny to ~85 s przy raporcie trwającym ~3 min). Przy 0.80
+# luźniejsze dopasowanie staje się domyślne dla większości raportów, a
+# precyzyjne 0.82 zostaje dla salonów o pokryciu powyżej 80% — świadoma zmiana
+# charakteru silnika z "precyzyjny z ratunkiem" na "luźny z wyjątkiem".
+_ADAPTIVE_TRIGGER_VERIFIED_RATE = 0.80
 _ADAPTIVE_FALLBACK_SIMILARITY = 0.75
 
 
