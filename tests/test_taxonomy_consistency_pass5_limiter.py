@@ -82,11 +82,17 @@ async def test_pass5_openai_acquires_provider_slot_once_per_call(
     env_openai_provider: None,
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
-    """N=31 clusters, chunk_size=30 -> 2 chunks -> 2 LLM calls. The global
+    """N=33 clusters, chunk_size=30 -> 2 chunks -> 2 LLM calls. The global
     provider_slot("openai") must be entered exactly once per LLM call, naming
     the openai provider, and decisions must be byte-identical to the existing
-    chunking behavior (every cluster decided exactly once)."""
-    n_clusters = 31
+    chunking behavior (every cluster decided exactly once).
+
+    N was 31 until BEAUTY_AUDIT-kfgx made a 1-2 cluster remainder merge
+    into the previous chunk (31 now dispatches as ONE call). 33 keeps the
+    two-chunk shape this test needs — the remainder of 3 is above
+    tc._MAX_MERGEABLE_TAIL_CLUSTERS, so it stays its own chunk.
+    """
+    n_clusters = 33
     monkeypatch.setenv("TAXONOMY_CONSISTENCY_CHUNK_SIZE", "30")
 
     fake_clusters = {
@@ -141,7 +147,7 @@ async def test_pass5_openai_acquires_provider_slot_once_per_call(
             dry_run=True,
         )
 
-    # 31 clusters / chunk_size 30 -> 2 chunks -> 2 LLM calls.
+    # 33 clusters / chunk_size 30 -> 2 chunks (30 + 3) -> 2 LLM calls.
     assert len(fake_oai.calls) == 2, (
         f"expected 2 LLM calls, got {len(fake_oai.calls)}"
     )
