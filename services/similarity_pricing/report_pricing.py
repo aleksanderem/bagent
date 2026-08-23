@@ -39,13 +39,21 @@ _DEFAULT_RADIUS_KM = 15
 # w praktyce salon z 20-50% pokrycia też traci połowę raportu. Fallback i tak
 # przyjmuje wynik TYLKO gdy poprawia (n_verified_b > n_verified), więc gęste
 # salony niczego nie tracą — kończą na precyzyjnym 0.82 jak dotąd.
-# 2026-08-24 (BEAUTY_AUDIT-bgp3): trigger podniesiony 0.50 -> 0.80. Żywy test
-# na prod po wdrożeniu 0.50 (raport 259, JETSET CLINIC, salon bez wcześniejszej
-# kontaminacji) minął się z progiem tak samo jak raport 250: verified_rate
-# 54/101 = 0.535 — o 3.5 punktu ZA WYSOKO, fallback się nie odpalił, subject_only
-# wyszło 51.7% zamiast ≤25%. Przy 0.75 similarity ten sam salon dostaje 78
-# zweryfikowanych zamiast 54 (rate 0.772). Fallback nadal bezpieczny — przyjmuje
-# wynik TYLKO gdy poprawia (n_verified_b > n_verified).
+# 2026-08-24 (BEAUTY_AUDIT-bgp3, druga iteracja): 0.50 -> 0.80. Pierwszy żywy
+# raport po podniesieniu progu z 0.20 na 0.50 (nr 259, JETSET CLINIC) wyszedł z
+# verified_rate 54/101 = 0.535 i znowu minął się z ratunkiem — o 3.5 punktu.
+# Ten sam mechanizm co przy raporcie 250 (0.204 vs próg 0.20), tylko piętro
+# wyżej: podnoszenie progu o krok PRZESUWA granicę, zamiast ją usunąć.
+# Pomiar na 259 (chain-head e91df2f5, ten sam którego użyła produkcja):
+#   próg 0.82 -> 47/101 "Tylko Ty" (47%), 54 z ceną
+#   próg 0.75 -> 23/101 (23%),           78 z ceną   <- kryterium odbioru <=25%
+#   próg 0.70 -> 16/101 (16%),           85 z ceną
+# Fallback przyjmuje wynik TYLKO gdy zwiększa liczbę verified, więc ilościowo
+# nie da się pogorszyć — próg triggera jest wyłącznie oszczędnością czasu
+# (drugi przebieg wyceny to ~85 s przy raporcie trwającym ~3 min). Przy 0.80
+# luźniejsze dopasowanie staje się domyślne dla większości raportów, a
+# precyzyjne 0.82 zostaje dla salonów o pokryciu powyżej 80% — świadoma zmiana
+# charakteru silnika z "precyzyjny z ratunkiem" na "luźny z wyjątkiem".
 _ADAPTIVE_TRIGGER_VERIFIED_RATE = 0.80
 _ADAPTIVE_FALLBACK_SIMILARITY = 0.75
 
@@ -219,7 +227,24 @@ def _build_row(
     report_id: int, subject: dict[str, Any], res: MarketResult,
 ) -> dict[str, Any]:
     tid = subject.get("booksy_treatment_id")
-    treatment_name = subject.get("treatment_name") or subject.get("name") or subject.get("service_name") or "Unknown"
+    # 2026-08-24 (BEAUTY_AUDIT-twvf): kolejność ODWRÓCONA — nazwa USŁUGI przed
+    # nazwą szuflady Booksy. Szuflada (`treatment_name` z taksonomii Booksy) nie
+    # jest jednostką ceny ani jednostką usługi:
+    #   pomiar na 1500 skanach — 46% szuflad zawiera >1 usługę salonu, a rozrzut
+    #   ceny w nich rośnie monotonicznie z ich liczbą (1,00x przy jednej usłudze,
+    #   2,20x przy 4-6, 6,44x przy 13+). Rozkład tego rozrzutu jest GŁADKO
+    #   MALEJĄCY, bez doliny — nie istnieje próg "szuflada jeszcze opisuje jedną
+    #   usługę / już nie". Najsilniejszy predyktor: ile kategorii cennika obejmuje
+    #   szuflada (1 kategoria → 1,50x, 4+ → 5,83x).
+    # Skutki brania szuflady jako nazwy były DWA, oba z tej jednej linii:
+    #   (a) wiersz raportu nazywał się szufladą, nie usługą;
+    #   (b) _dedup_pricing_rows (competitor_analysis.py) ma treatment_name W KLUCZU,
+    #       więc dwie usługi z tą samą szufladą i tą samą ceną dostawały identyczny
+    #       klucz i jedna z nich znikała. Pomiar na raporcie 259: silnik wyliczył
+    #       101 wierszy, do bazy trafiło 87.
+    # Nazwa usługi jest unikalna w obrębie cennika salonu, więc jako składnik
+    # klucza rozróżnia usługi bez żadnego progu ani heurystyki.
+    treatment_name = subject.get("name") or subject.get("service_name") or subject.get("treatment_name") or "Unknown"
     subj_price = subject.get("price_grosze")
     subj_dur = subject.get("duration_minutes")
 

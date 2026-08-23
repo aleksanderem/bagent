@@ -365,6 +365,71 @@ def test_adaptive_broadens_at_medium_coverage(monkeypatch):
     assert (rows[0].get("verification_details") or {}).get("matching_broadened") is True
 
 
-def test_trigger_covers_the_gap_that_missed_report_250():
-    """Sam próg: 0.204 (raport 250) musi mieścić się poniżej triggera."""
-    assert rp._ADAPTIVE_TRIGGER_VERIFIED_RATE > 45 / 221
+def test_trigger_covers_real_reports_that_missed_the_rescue():
+    """Progi z ŻYWYCH raportów, które minęły się z ratunkiem, muszą być pokryte.
+
+    Każdy z tych przypadków wyszedł na produkcji z pustym porównaniem cen mimo
+    istniejącego rynku, bo verified_rate wypadł tuż NAD ówczesnym progiem:
+      * raport 250 (klinika med-est): 45/221 = 0.204 przy progu 0.20
+      * raport 259 (JETSET CLINIC):   54/101 = 0.535 przy progu 0.50
+    Podnoszenie progu o krok przesuwało granicę zamiast ją usunąć — stąd 0.80.
+    Nowy przypadek tego typu DOPISZ TUTAJ, zamiast tylko bumpować stałą.
+    """
+    zywe_przypadki = [
+        ("raport 250 (klinika med-est)", 45 / 221),
+        ("raport 259 (JETSET CLINIC)", 54 / 101),
+    ]
+    for opis, rate in zywe_przypadki:
+        assert rp._ADAPTIVE_TRIGGER_VERIFIED_RATE > rate, (
+            f"{opis}: rate {rate:.3f} nie zmieściłby się pod progiem "
+            f"{rp._ADAPTIVE_TRIGGER_VERIFIED_RATE} — ratunek znów by nie ruszył"
+        )
+
+
+def test_dense_report_still_skips_the_rescue():
+    """Salon z naprawdę wysokim pokryciem nie płaci za drugi przebieg wyceny.
+
+    Próg 0.80 ma zostawiać precyzyjne 0.82 tam, gdzie raport i tak jest pełny.
+    Bez tego testu kolejne podniesienie progu przeszłoby niezauważone aż do
+    "zawsze dwa przebiegi", co podwaja czas etapu wyceny dla wszystkich.
+    """
+    assert rp._ADAPTIVE_TRIGGER_VERIFIED_RATE < 1.0
+    assert rp._ADAPTIVE_TRIGGER_VERIFIED_RATE < 90 / 100
+
+
+# ── Regresja BEAUTY_AUDIT-twvf: wiersz = usługa, nie szuflada Booksy ──
+
+def test_row_is_named_after_service_not_booksy_bucket(monkeypatch):
+    """Dwie usługi w jednej szufladzie i w tej samej cenie = dwa odrębne wiersze.
+
+    Reguła jest strukturalna, nie zależy od żadnej konkretnej usługi: szuflada
+    Booksy (`treatment_name`) grupuje usługi luźniej niż cennik salonu — pomiar
+    na 1500 skanach pokazał, że 46% szuflad zawiera więcej niż jedną usługę, a
+    rozkład rozrzutu ceny w nich nie ma doliny, więc nie da się wyznaczyć progu
+    "ta szuflada jeszcze opisuje jedną usługę".
+
+    Bez tego testu wraca podwójna wada: wiersz nazwany szufladą ORAZ zlanie się
+    obu usług w jedną pozycję, bo `_dedup_pricing_rows` trzyma `treatment_name`
+    w kluczu deduplikacji.
+    """
+    cluster = [_twin(10 + i, 500 + i, "Zabieg", 20000, 30) for i in range(5)]
+    _patch_search(monkeypatch, cluster)
+    service = _FakeService(geo_booksy=list(range(500, 510)), salon_rows=[])
+    subject_data = {"booksy_id": 163496, "services": [
+        # ta sama szuflada, ta sama cena, różne usługi
+        {"id": 1, "name": "Usługa A", "treatment_name": "Wspólna szuflada",
+         "price_grosze": 30000, "duration_minutes": 30, "booksy_treatment_id": 245},
+        {"id": 2, "name": "Usługa B", "treatment_name": "Wspólna szuflada",
+         "price_grosze": 30000, "duration_minutes": 30, "booksy_treatment_id": 245},
+    ]}
+    rows = _run(compute_pricing_comparisons_v2(service, 250, subject_data, [(_Cand(100), {})]))
+
+    nazwy = sorted(r["treatment_name"] for r in rows)
+    assert nazwy == ["Usługa A", "Usługa B"], (
+        f"wiersze powinny nazywać się usługami, dostałem {nazwy}"
+    )
+    # klucz dedupu (competitor_analysis._dedup_pricing_rows) zawiera treatment_name
+    # + subject_price_grosze — przy nazwie szuflady oba wiersze miałyby ten sam
+    # klucz i jeden by zniknął przed zapisem do bazy.
+    klucze = {(r["treatment_name"], r["subject_price_grosze"]) for r in rows}
+    assert len(klucze) == 2, f"wiersze zlewają się w kluczu dedupu: {klucze}"
