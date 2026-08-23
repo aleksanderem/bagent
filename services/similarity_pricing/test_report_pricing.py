@@ -322,3 +322,49 @@ def test_raises_when_chain_head_services_also_lack_embeddings(monkeypatch):
     }]}
     with pytest.raises(RuntimeError, match="name_embedding"):
         _run(compute_pricing_comparisons_v2(service, 181, subject_data, [(_Cand(100), {})]))
+
+
+# ── Regresja BEAUTY_AUDIT-bgp3: średnie pokrycie też zasługuje na fallback ──
+
+def test_adaptive_broadens_at_medium_coverage(monkeypatch):
+    """Salon z 20% pokrycia dostaje szerszy rynek, nie tylko salon z 0%.
+
+    Raport 250 (klinika med-est, Warszawa) wyszedł z verified_rate 45/221 =
+    0.204 — o 0.4 punktu ZA WYSOKO na próg 0.20, więc fallback się nie odpalił
+    i klientka dostała 72% wierszy "Tylko Ty", choć przy progu 0.75 rynek
+    istniał. Ten test odwzorowuje tamten układ: 5 usług, z czego jedna ma
+    twins przy progu precyzyjnym (rate = 0.20, czyli DOKŁADNIE stary próg).
+
+    Przy triggerze 0.20 fallback nie ruszał (0.20 < 0.20 jest fałszem).
+    Przy 0.50 rusza i podnosi pokrycie.
+    """
+    precise_only = {1}          # tylko usługa 1 ma odpowiedniki przy 0.82
+    cluster = [_twin(10 + i, 500 + i, "Mezoterapia", 30000, 60, cat="Twarz") for i in range(5)]
+    sims_used: list[float] = []
+
+    def fake(subject_ids, comp_booksy, *, min_similarity, **kw):
+        sims_used.append(min_similarity)
+        if min_similarity <= rp._ADAPTIVE_FALLBACK_SIMILARITY:
+            return {int(s): [dict(c) for c in cluster] for s in subject_ids}
+        return {int(s): ([dict(c) for c in cluster] if int(s) in precise_only else [])
+                for s in subject_ids}
+
+    monkeypatch.setattr(rp, "search_twins", fake)
+    service = _FakeService(geo_booksy=list(range(500, 510)), salon_rows=[])
+    subject_data = {"booksy_id": 163496, "services": [
+        {"id": i, "name": "Mezoterapia", "price_grosze": 45000,
+         "duration_minutes": 60, "booksy_treatment_id": 233}
+        for i in range(1, 6)
+    ]}
+    rows = _run(compute_pricing_comparisons_v2(service, 250, subject_data, [(_Cand(100), {})]))
+
+    assert len(sims_used) == 2, f"fallback nie ruszył przy 20% pokrycia: {sims_used}"
+    assert sims_used[1] == rp._ADAPTIVE_FALLBACK_SIMILARITY
+    verified = [r for r in rows if r["verification_status"] == "verified"]
+    assert len(verified) == 5, f"po fallbacku powinno być 5 wierszy z ceną, jest {len(verified)}"
+    assert (rows[0].get("verification_details") or {}).get("matching_broadened") is True
+
+
+def test_trigger_covers_the_gap_that_missed_report_250():
+    """Sam próg: 0.204 (raport 250) musi mieścić się poniżej triggera."""
+    assert rp._ADAPTIVE_TRIGGER_VERIFIED_RATE > 45 / 221

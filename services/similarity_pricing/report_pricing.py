@@ -31,7 +31,15 @@ _DEFAULT_RADIUS_KM = 15
 # progiem FALLBACK, żeby nie pokazywać klientowi raportu ~100% „Tylko Ty na
 # rynku" tam, gdzie odpowiedniki istnieją tuż poniżej progu. Gęste/typowe salony
 # nie schodzą poniżej triggera, więc ich precyzja zostaje nietknięta.
-_ADAPTIVE_TRIGGER_VERIFIED_RATE = 0.20
+# 2026-08-23 (BEAUTY_AUDIT-bgp3): trigger podniesiony 0.20 -> 0.50. Pomiar na
+# raporcie 250 (klinika med-est, Warszawa, 221 usług): verified_rate wyszedł
+# 45/221 = 0.204 — o 0.4 punktu ZA WYSOKO, żeby fallback się odpalił. Raport
+# wyszedł z 72% wierszy "Tylko Ty" mimo że przy progu 0.75 dostaje 73 zamiast
+# 45 wierszy z ceną. Próg 0.20 zakładał, że salon poniżej niego jest w pustce;
+# w praktyce salon z 20-50% pokrycia też traci połowę raportu. Fallback i tak
+# przyjmuje wynik TYLKO gdy poprawia (n_verified_b > n_verified), więc gęste
+# salony niczego nie tracą — kończą na precyzyjnym 0.82 jak dotąd.
+_ADAPTIVE_TRIGGER_VERIFIED_RATE = 0.50
 _ADAPTIVE_FALLBACK_SIMILARITY = 0.75
 
 

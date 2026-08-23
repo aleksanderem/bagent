@@ -89,7 +89,11 @@ from .layer_identity import _normalize_text as _norm_name
 # Progi skalibrowane empirycznie (sweep 2026-07-19, patrz docstring modułu).
 # Trzymane jako stałe modułu + nadpisywalne przez config engine'u — spójnie
 # z konwencją pozostałych warstw (meta-pokrętła w DEFAULT_CONFIG).
-DEFAULT_GAP = 0.08          # peer_max_sim - similarity powyżej tego = podejrzany
+DEFAULT_GAP = 0.15          # peer_max_sim - similarity powyżej tego = podejrzany
+# 2026-08-23 (BEAUTY_AUDIT-bgp3): 0.08 -> 0.15. Pełne uzasadnienie i wyniki sweepa
+# przy DEFAULT_CONFIG["coherence_gap"] w engine.py — ta stała MUSI mieć tę samą
+# wartość: engine nadpisuje ją configiem, ale wywołania bez configu (testy, SLO
+# probe cluster-coherence) czytają stąd. Rozjazd = probe mierzy inny próg niż prod.
 DEFAULT_S_MAX = 0.90        # similarity >= s_max nigdy nie jest odrzucane
 DEFAULT_MIN_BLOCK = 2       # min liczba podejrzanych sampli, by uznać BLOK
                             # (pojedynczy sample bez "brata" w klastrze ma niskie
