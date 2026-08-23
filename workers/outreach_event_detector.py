@@ -95,6 +95,35 @@ def _payload(row: dict[str, Any]) -> dict[str, Any]:
 
 
 async def detect_and_emit_price_events(ctx: dict[str, Any]) -> dict[str, int]:
+    """Cron entrypoint: uruchamia detekcję i GWARANTUJE ping (ok albo /fail).
+
+    2026-08-23 (BEAUTY_AUDIT-t35q): dodane. Wcześniej ten cron nie miał
+    ŻADNEGO pingu — ani sukcesu, ani porażki. Padał 11 nocy z rzędu
+    (2026-08-12..08-23) na statement timeout RPC i nie zapalił nic poza linią
+    w logu; wykrył to dopiero skaner logów dyżurnego, nie monitoring. Arq nie
+    ponawia zwykłego wyjątku, a cron leci raz na dobę (5:40), więc każdy
+    stracony przebieg to cały dzień ciszy — musi być głośno. Wzorzec jak
+    refresh_service_variants / embed_new_services w workers/taxonomy_refresh.py.
+
+    Bez ustawionego HC_PING_OUTREACH_PRICE_EVENTS ping jest no-opem, więc kod
+    działa też zanim check powstanie w Healthchecks.
+    """
+    from services.healthcheck import ping
+
+    try:
+        result = await _detect_and_emit_price_events_impl(ctx)
+    except Exception as e:
+        logger.exception("detect_and_emit_price_events failed: %s", e)
+        await ping("HC_PING_OUTREACH_PRICE_EVENTS", fail=True)
+        raise
+    # Ping sukcesu jest TYLKO tutaj (implementacja nie pinguje nigdzie), więc
+    # spokojna noc bez zdarzeń — wczesny return z pustego RPC — też melduje się
+    # jako udany przebieg, zamiast wyglądać na awarię po upływie grace.
+    await ping("HC_PING_OUTREACH_PRICE_EVENTS")
+    return result
+
+
+async def _detect_and_emit_price_events_impl(ctx: dict[str, Any]) -> dict[str, int]:
     """Cron nightly: detekcja → księga → (cap/dedup) → Wintact."""
     sb = make_supabase_client(settings.supabase_url, settings.supabase_service_key)
 
