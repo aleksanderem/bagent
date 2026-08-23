@@ -787,7 +787,6 @@ async def _run_minimax_synthesis(
     `tracer` (optional TraceWriter): persists agent.tokens to pipeline_traces
     via mig 121. Best-effort — never crashes the synthesis.
     """
-    import anthropic
     import httpx
 
     from agent.runner import run_agent_loop
@@ -803,10 +802,14 @@ async def _run_minimax_synthesis(
     #  - timeout=240s (bigger prompt + interleaved thinking + tool_use)
     #  - max_retries=2 (allow 2 retries with SDK-level exponential backoff;
     #    total worst case ~12 min but synthesis quality is worth the wait)
-    client.client = anthropic.AsyncAnthropic(
-        base_url=settings.minimax_base_url,
-        api_key=settings.minimax_api_key,
-        default_headers={"Authorization": f"Bearer {settings.minimax_api_key}"},
+    #
+    # `.copy()` (publiczne API SDK, alias `with_options`) klonuje klienta
+    # ZACHOWUJĄC default_headers ustawione przez MiniMaxClient — w tym betę
+    # okna 1M (`anthropic-beta`, przełącznik MINIMAX_1M_CONTEXT). Budowanie tu
+    # drugiego AsyncAnthropic od zera gubiło ten nagłówek i puszczało syntezę
+    # na innym oknie kontekstu niż reszta systemu. Jedno źródło prawdy dla
+    # nagłówków zostaje w services/minimax.py.
+    client.client = client.client.copy(
         timeout=httpx.Timeout(240.0, connect=15.0),
         max_retries=2,
     )
@@ -956,6 +959,44 @@ def _sanitize_competitor_ids(
     return out
 
 
+def _schema_max_items(*property_path: str) -> int | None:
+    """`maxItems` dla listy w input_schema narzędzia COMPETITOR_INSIGHTS_TOOL.
+
+    Ścieżka to nazwy właściwości schodzące przez kolejne `properties`
+    (np. `("swot", "strengths")`). Zwraca None, gdy schemat nie podaje limitu
+    dla danej listy — wtedy wołający NIE przycina. Dzięki temu limit ma jedno
+    źródło prawdy: definicję narzędzia, którą widzi też model.
+    """
+    node: Any = COMPETITOR_INSIGHTS_TOOL.get("input_schema")
+    for key in property_path:
+        if not isinstance(node, dict):
+            return None
+        props = node.get("properties")
+        if not isinstance(props, dict):
+            return None
+        node = props.get(key)
+    if not isinstance(node, dict):
+        return None
+    limit = node.get("maxItems")
+    if isinstance(limit, int) and not isinstance(limit, bool) and limit > 0:
+        return limit
+    return None
+
+
+def _dedup_key(text: str) -> str:
+    """Klucz deduplikacji: strip + casefold (ten sam wniosek zapisany innym
+    układem wielkości liter / spacji to nadal ten sam wniosek)."""
+    return text.strip().casefold()
+
+
+def _trim_to_limit(items: list[Any], limit: int | None) -> list[Any]:
+    """Prefiks listy do `limit` (None = bez przycinania). Kolejność modelu
+    jest informacją — bierzemy początek, nie losową próbkę."""
+    if limit is None or len(items) <= limit:
+        return items
+    return items[:limit]
+
+
 def _sanitize_insights(
     insights: dict[str, Any],
     *,
@@ -965,6 +1006,14 @@ def _sanitize_insights(
     """Drop invalid source references and coerce types so the DB insert
     can't fail on bad IDs. If a SWOT bullet ends up with zero valid refs,
     the bullet is dropped entirely (traceability is mandatory).
+
+    Model potrafi wywołać `submit_competitor_insights` kilka razy, a scalanie
+    wywołań (_extract_insights_from_agent_result) omija limity `maxItems`,
+    których pilnuje schemat pojedynczego wywołania — zmierzone na produkcyjnym
+    API: 10 mocnych stron przy maksimum 5. Dlatego każda lista jest tu
+    deduplikowana i przycinana do limitu ODCZYTANEGO ZE SCHEMATU, dopiero PO
+    odsianiu pozycji bez ważnych referencji (żeby limitu nie zjadały bullety,
+    które i tak wylatują).
     """
     sanitized_swot: dict[str, list[dict[str, Any]]] = {
         "strengths": [],
@@ -973,11 +1022,16 @@ def _sanitize_insights(
         "threats": [],
     }
     for key in sanitized_swot.keys():
+        seen_bullets: set[str] = set()
         for bullet in insights["swot"].get(key, []) or []:
             if not isinstance(bullet, dict):
                 continue
             text = (bullet.get("text") or "").strip()
             if not text:
+                continue
+            bullet_key = _dedup_key(text)
+            if bullet_key in seen_bullets:
+                logger.debug("Dropping duplicate SWOT bullet: %s", text[:60])
                 continue
             refs = _sanitize_source_data_points(
                 bullet.get("sourceDataPoints"), valid_ids,
@@ -987,15 +1041,24 @@ def _sanitize_insights(
                 # intentional stricter contract than the prompt asks for.
                 logger.debug("Dropping SWOT bullet with no valid refs: %s", text[:60])
                 continue
+            seen_bullets.add(bullet_key)
             sanitized_swot[key].append({"text": text, "sourceDataPoints": refs})
+        sanitized_swot[key] = _trim_to_limit(
+            sanitized_swot[key], _schema_max_items("swot", key),
+        )
 
     sanitized_recs: list[dict[str, Any]] = []
+    seen_recs: set[str] = set()
     for rec in insights.get("recommendations") or []:
         if not isinstance(rec, dict):
             continue
         action_title = (rec.get("actionTitle") or "").strip()
         action_desc = (rec.get("actionDescription") or "").strip()
         if not action_title or not action_desc:
+            continue
+        rec_key = _dedup_key(action_title)
+        if rec_key in seen_recs:
+            logger.debug("Dropping duplicate recommendation: %s", action_title[:60])
             continue
         category = rec.get("category") or "content"
         if category not in ("pricing", "content", "services", "operations", "social"):
@@ -1031,6 +1094,7 @@ def _sanitize_insights(
             rec.get("sourceCompetitorIds"), valid_competitor_ids,
         )
 
+        seen_recs.add(rec_key)
         sanitized_recs.append({
             "actionTitle": action_title[:200],
             "actionDescription": action_desc[:800],
@@ -1043,6 +1107,10 @@ def _sanitize_insights(
             "sourceDataPoints": refs,
         })
 
+    sanitized_recs = _trim_to_limit(
+        sanitized_recs, _schema_max_items("recommendations"),
+    )
+
     narrative = (insights.get("positioning_narrative") or "").strip()
     if len(narrative) > 800:
         narrative = narrative[:800]
@@ -1050,6 +1118,9 @@ def _sanitize_insights(
     # FINDINGS P1-5: liczniki dropów — degradacja nie może być niewidoczna.
     # Raport z 1-punktowym SWOT-em po cichym wycięciu 3 punktów wygląda jak
     # "model mało znalazł"; licznik pozwala UI/ops odróżnić te przypadki.
+    # Licznik obejmuje trzy przyczyny naraz: brak ważnych referencji, duplikat
+    # oraz nadmiar ponad limit ze schematu (przyczynę pojedynczej pozycji
+    # rozróżnia logger.debug wyżej).
     raw_swot_count = sum(
         len(insights["swot"].get(k, []) or []) for k in sanitized_swot.keys()
     )
