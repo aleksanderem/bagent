@@ -7,10 +7,9 @@ się, gdy silnik similarity zmieni liczbę próbek (stare 10/5/3 były
 kalibrowane pod pricing z 8100 próbek; silnik similarity daje 500–1000 i
 dawał 15/15 'excluded' — BEAUTY_AUDIT-xi18).
 
-Uniwersum = usługi subjecta, dla których KTOKOLWIEK z wybranych ma
-odpowiednik ≥ BUCKET_MIN_SIMILARITY. Normalizuje przez unikalność menu:
-klinika med-est z autorskimi zabiegami ma małe uniwersum, salon paznokci
-duże — udziały zostają porównywalne.
+Mianownik = CAŁE menu klientki (usługi subjecta z embeddingiem), nie suma
+pokryć wybranych: „uniwersum" premiowało słabe pule (1 salon pokrywa 3/221,
+reszta 0 → 3/3 = 'direct'; 15 salonów po te same 4 usługi → 15× 'direct').
 """
 from __future__ import annotations
 
@@ -25,10 +24,10 @@ from services.similarity_pricing.report_pricing import _ADAPTIVE_FALLBACK_SIMILA
 # samples — za luźny: na raporcie 181 daje 14/15 'direct').
 BUCKET_MIN_SIMILARITY = _ADAPTIVE_FALLBACK_SIMILARITY
 
-# Udział pokrytych usług w uniwersum porównywalnych.
-DIRECT_SHARE = 0.50        # pokrywa co najmniej połowę tego, co da się porównać
-CLUSTER_SHARE = 0.25
-ASPIRATIONAL_SHARE = 0.10
+# Udział pokrytych usług w CAŁYM menu subjecta.
+DIRECT_SHARE = 0.20        # oferuje odpowiednik co piątej usługi klientki
+CLUSTER_SHARE = 0.10
+ASPIRATIONAL_SHARE = 0.03
 # Minimum dowodu: poniżej tylu wspólnych usług udział jest szumem
 # (1 z 2 = 50% ≠ bezpośredni konkurent).
 MIN_COVERED = 3
@@ -70,10 +69,10 @@ def coverage_by_salon(
     return out
 
 
-def bucket_for_coverage(covered: int, universe: int) -> str:
-    if universe <= 0 or covered < MIN_COVERED:
+def bucket_for_coverage(covered: int, subject_total: int) -> str:
+    if subject_total <= 0 or covered < MIN_COVERED:
         return "excluded"
-    share = covered / universe
+    share = covered / subject_total
     if share >= DIRECT_SHARE:
         return "direct"
     if share >= CLUSTER_SHARE:
@@ -85,15 +84,16 @@ def bucket_for_coverage(covered: int, universe: int) -> str:
 
 def assign_coverage_buckets(
     coverage: dict[int, set[int]],
+    subject_total: int,
 ) -> dict[int, CoverageAssignment]:
-    """Koszyk per salon wg udziału w uniwersum (suma pokryć wszystkich)."""
-    universe = len(set().union(*coverage.values())) if coverage else 0
+    """Koszyk per salon wg udziału pokrytych usług w menu subjecta
+    (`subject_total` = liczba usług subjecta z embeddingiem)."""
     out: dict[int, CoverageAssignment] = {}
     for salon_id, services in coverage.items():
         covered = len(services)
-        share = covered / universe if universe else 0.0
+        share = covered / subject_total if subject_total else 0.0
         out[salon_id] = CoverageAssignment(
             covered=covered, share=round(share, 4),
-            bucket=bucket_for_coverage(covered, universe),
+            bucket=bucket_for_coverage(covered, subject_total),
         )
     return out

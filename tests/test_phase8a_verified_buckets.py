@@ -40,9 +40,30 @@ def test_bucket_for_coverage_relative_thresholds():
 
 
 def test_bucket_is_scale_invariant():
-    """Ten sam udział → ten sam koszyk niezależnie od liczby próbek silnika."""
-    assert bucket_for_coverage(6, 10) == bucket_for_coverage(600, 1000) == "direct"
-    assert bucket_for_coverage(3, 10) == bucket_for_coverage(300, 1000) == "cluster"
+    """Ten sam udział → ten sam koszyk niezależnie od wielkości menu."""
+    assert bucket_for_coverage(4, 20) == bucket_for_coverage(400, 2000) == "direct"
+    assert bucket_for_coverage(3, 30) == bucket_for_coverage(300, 3000) == "cluster"
+
+
+def test_bucket_boundary_just_below_direct():
+    """19.9% vs 20%: brzeg progu direct."""
+    assert bucket_for_coverage(40, 200) == "direct"
+    assert bucket_for_coverage(39, 200) == "cluster"
+    assert bucket_for_coverage(20, 200) == "cluster"
+    assert bucket_for_coverage(19, 200) == "aspirational"
+    assert bucket_for_coverage(6, 200) == "aspirational"
+    assert bucket_for_coverage(5, 200) == "excluded"
+
+
+def test_denominator_is_whole_subject_menu_not_union():
+    """Kontrprzykłady z bramki: 1 salon pokrywa 3/221 (reszta 0) i 15 salonów
+    po te same 4/221 — przy mianowniku 'uniwersum' wszystko szło do 'direct'."""
+    cov = {1: {10, 11, 12}, **{i: set() for i in range(2, 16)}}
+    assert {a.bucket for a in assign_coverage_buckets(cov, 221).values()} == {"excluded"}
+    cov = {i: {1, 2, 3, 4} for i in range(1, 16)}
+    out = assign_coverage_buckets(cov, 221)
+    assert {a.bucket for a in out.values()} == {"excluded"}
+    assert all(a.share == round(4 / 221, 4) for a in out.values())
 
 
 def test_no_false_direct_without_shared_services():
@@ -62,13 +83,13 @@ def test_coverage_by_salon_maps_booksy_to_salon_id_and_applies_threshold():
     assert cov == {3822: {1, 2}, 552: set(), 3278: set()}
 
 
-def test_assign_coverage_buckets_universe_is_union():
-    cov = {3822: set(range(10)), 552: set(range(5)), 3278: {0, 1, 2, 10, 11}}
-    out = assign_coverage_buckets(cov)
-    # uniwersum = 12 usług; 10/12 direct, 5/12 cluster, 5/12 cluster
+def test_assign_coverage_buckets_by_subject_total():
+    cov = {3822: set(range(10)), 552: set(range(5)), 3278: {0, 1, 2}}
+    out = assign_coverage_buckets(cov, 40)
+    # menu = 40 usług; 10/40=25% direct, 5/40=12.5% cluster, 3/40=7.5% aspirational
     assert out[3822].bucket == "direct" and out[3822].covered == 10
-    assert out[552].bucket == "cluster" and out[3278].bucket == "cluster"
-    assert out[3822].share == round(10 / 12, 4)
+    assert out[552].bucket == "cluster" and out[3278].bucket == "aspirational"
+    assert out[3822].share == 0.25
 
 
 # ── integracja z competitor_matches ─────────────────────────────────────────
@@ -127,9 +148,9 @@ def test_full_coverage_keeps_direct(monkeypatch):
 
 
 def test_relative_buckets_per_competitor(monkeypatch):
-    # uniwersum = 20 (salon 239352 pokrywa wszystko); 116829: 6/20=30% → cluster;
+    # menu = 20 usług; 239352: 20/20 → direct; 116829: 3/20=15% → cluster;
     # 21173: 0 → excluded, poza agregatami.
-    svc, _ = _run(monkeypatch, {239352: set(range(1, 21)), 116829: set(range(1, 7)), 21173: set()})
+    svc, _ = _run(monkeypatch, {239352: set(range(1, 21)), 116829: {1, 2, 3}, 21173: set()})
     _, updates = svc.update_competitor_matches_verify_buckets.await_args.args
     by_id = {u["id"]: u for u in updates}
     assert by_id[2840]["bucket"] == "direct"
@@ -151,5 +172,13 @@ def test_wrong_id_space_skips_rebucket(monkeypatch):
     przestrzeń ID, hx85) → bezpiecznik, bez degradacji do 'excluded'."""
     foreign = [{"id": 1, "competitor_salon_id": 777, "bucket": "direct"}]
     svc, out = _run(monkeypatch, {b: set(range(1, 21)) for b in BY_BOOKSY}, matches=foreign)
+    assert out == {}
+    svc.update_competitor_matches_verify_buckets.assert_not_called()
+
+
+def test_all_zero_coverage_skips_rebucket(monkeypatch):
+    """Wszyscy wybrani z 0 pokryć (wybrani poza Qdrantem / search padł) →
+    ERROR i pominięcie, NIE 15/15 'excluded'."""
+    svc, out = _run(monkeypatch, {b: set() for b in BY_BOOKSY})
     assert out == {}
     svc.update_competitor_matches_verify_buckets.assert_not_called()

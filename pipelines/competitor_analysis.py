@@ -6449,13 +6449,14 @@ async def _aggregate_verified_match_counts(
     Osobne wyszukiwanie bliźniaków w puli SAMYCH wybranych konkurentów
     (exact, bez crowd-outu przez 9k salonów z promienia 15 km, który w
     wycenie zostawia wybranym 1–4 wiersze). Koszyk zależy od UDZIAŁU
-    pokrytych usług w tym, co pokrywa ktokolwiek z wybranych — patrz
+    pokrytych usług w CAŁYM menu subjecta — patrz
     ``pipelines.competitor_buckets``. Zwraca {competitor_salon_id:
     verified_match_count} (liczba pokrytych usług subjecta).
 
     Bezpieczniki (błąd w logu, re-bucket POMINIĘTY zamiast degradować
     wszystkich do 'excluded'): brak embeddingów subjecta (stare audit
-    scrape'y sprzed inline-embeddingu), pusty przekrój pokrycia z
+    scrape'y sprzed inline-embeddingu), zero pokryć u wszystkich (Qdrant
+    bez wybranych / awaria searchu), pusty przekrój pokrycia z
     competitor_matches raportu (pomylona przestrzeń ID, BEAUTY_AUDIT-hx85).
     """
     subject_services = [
@@ -6480,12 +6481,24 @@ async def _aggregate_verified_match_counts(
         )
         return {}
 
-    clusters = search_twins(
+    # Sync klient Qdrant, ~15 s dla 221 usług — poza event loopem.
+    clusters = await asyncio.to_thread(
+        search_twins,
         subject_ids, list(selected), subject_embeddings=subject_embeddings,
         limit=_BUCKET_SEARCH_LIMIT, min_similarity=BUCKET_MIN_SIMILARITY, exact=True,
     )
     coverage = coverage_by_salon(clusters, selected, BUCKET_MIN_SIMILARITY)
-    assignments = assign_coverage_buckets(coverage)
+    subject_total = len(subject_embeddings)
+    covered_ids = {sid for sid, svcs in coverage.items() if svcs}
+    if not covered_ids:
+        logger.error(
+            "Faza 8a: 0 pokryć u WSZYSTKICH %d wybranych (raport %s, %d usług "
+            "subjecta, sim>=%.2f) — wybrani nie są w Qdrant albo search padł. "
+            "Pomijam re-bucket zamiast degradować wszystkich do 'excluded'.",
+            len(selected), report_id, subject_total, BUCKET_MIN_SIMILARITY,
+        )
+        return {}
+    assignments = assign_coverage_buckets(coverage, subject_total)
 
     existing_matches = await service.get_competitor_matches(report_id)
     bucket_pre_verify: dict[int, str] = {}
@@ -6498,8 +6511,7 @@ async def _aggregate_verified_match_counts(
         except (TypeError, ValueError):
             continue
 
-    covered_ids = {sid for sid, a in assignments.items() if a.covered > 0}
-    if bucket_pre_verify and covered_ids and not (covered_ids & bucket_pre_verify.keys()):
+    if bucket_pre_verify and not (covered_ids & bucket_pre_verify.keys()):
         logger.error(
             "Faza 8a: pokrycie (%d salonów) nie przecina się z competitor_matches "
             "raportu %s (%d konkurentów) — podejrzenie pomylonej przestrzeni ID. "
@@ -6529,17 +6541,17 @@ async def _aggregate_verified_match_counts(
 
     await service.update_competitor_matches_verify_buckets(report_id, updates)
 
-    universe = len(set().union(*coverage.values())) if coverage else 0
     logger.info(
         "Faza 8a: re-bucketed %d competitors (direct=%d, cluster=%d, "
-        "aspirational=%d, excluded=%d) — pokrycie %d usług subjecta (z %d) "
+        "aspirational=%d, excluded=%d) — max pokrycie %d z %d usług subjecta "
         "przy sim>=%.2f, exact search po %d wybranych",
         len(updates),
         sum(1 for u in updates if u["bucket"] == "direct"),
         sum(1 for u in updates if u["bucket"] == "cluster"),
         sum(1 for u in updates if u["bucket"] == "aspirational"),
         sum(1 for u in updates if u["bucket"] == "excluded"),
-        universe, len(subject_ids), BUCKET_MIN_SIMILARITY, len(selected),
+        max((a.covered for a in assignments.values()), default=0), subject_total,
+        BUCKET_MIN_SIMILARITY, len(selected),
     )
     return {sid: a.covered for sid, a in assignments.items()}
 
