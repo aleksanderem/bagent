@@ -2485,11 +2485,26 @@ async def test_run_aborted_inside_pricing_never_marks_completed(
     """Job ubity w trakcie wyceny (arq job-timeout → CancelledError) nie
     zostawia po sobie 'completed'.
 
-    Test charakteryzujący: pinuje kontrakt "anulowany przebieg nie firmuje
-    raportu jako gotowego". NIE twierdzi, że wiersz dostaje 'failed' — przy
-    anulowaniu przed Step 8 nagłówek zostaje w 'processing', bo żaden kod
-    pipeline'u już się nie wykona. Domknięcie tej dziury (oznaczanie przerwania
-    na ścieżce wyjątku) to osobne zadanie.
+    Test charakteryzujący: pinuje kontrakt TEJ WARSTWY — compute_competitor_
+    analysis wywołane bezpośrednio, z pominięciem workers/tasks.py —
+    "anulowany przebieg nie firmuje raportu jako gotowego". Świadomie NIE
+    twierdzi, że wiersz dostaje 'failed' na TYM poziomie: przy anulowaniu
+    przed Step 8 ta funkcja zostawia nagłówek w 'processing', bo żaden
+    dalszy kod pipeline'u się nie wykona — to POPRAWNE dla tej bramki, jej
+    zadaniem nigdy nie było oznaczanie failed.
+
+    Faktyczna dziura (klientka wisząca na "Generujemy raport..." bez końca,
+    bez błędu, bez retry) jest domknięta JEDEN poziom wyżej:
+    workers/tasks.py::run_competitor_report_task łapie asyncio.CancelledError
+    osobno od _CancelledByUser i w bloku finally wywołuje
+    services.supabase.SupabaseService.fail_competitor_report_by_audit_id
+    SYNCHRONICZNIE (przeżywa dalej propagujące się anulowanie, w
+    przeciwieństwie do await) — flipuje wiersz na 'failed' TYLKO jeśli wciąż
+    jest 'processing' (WHERE-guard, nigdy nie nadpisuje 'completed'). Patrz
+    beads BEAUTY_AUDIT-mol-03q i tests/test_tasks.py::TestFailCompetitorReport
+    ByAuditId + TestRunCompetitorReportTask (testy CancelledError). Ten test
+    tutaj zostaje przy 'processing' celowo — weryfikuje bramkę przed Step 8,
+    nie tę naprawę.
     """
     async def _die(*args, **kwargs):  # noqa: ANN001, ANN002
         raise asyncio.CancelledError()

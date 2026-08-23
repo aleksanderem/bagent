@@ -14,6 +14,7 @@ webhook called, exception re-raised so arq marks the job failed).
 
 from __future__ import annotations
 
+import asyncio
 from unittest.mock import AsyncMock, MagicMock, patch
 
 import pytest
@@ -648,6 +649,204 @@ class TestRunCompetitorReportTask:
         # No completion RPC when _queue_id is absent.
         for call in mock_sb.rpc.call_args_list:
             assert call.args[0] != "complete_competitor_report_job"
+
+    # --- arq CancelledError self-healing (beads BEAUTY_AUDIT-mol-03q) ----
+    #
+    # Diagnosis (BEAUTY_AUDIT-mol-qf9): pm2 restarts bagent-report-worker
+    # (kill_timeout 30s) while a competitor report is still generating
+    # (5-8 min). arq throws asyncio.CancelledError into the task.
+    # asyncio.CancelledError inherits from BaseException, so pre-fix it slid
+    # through BOTH `except _CancelledByUser` and `except Exception` without
+    # being caught anywhere — error_text stayed None, and the finally
+    # block's `complete_competitor_report_job` call with p_error=None read
+    # as a successful completion: it released the queue slot as 'done' and
+    # skipped the requeue-with-backoff path (only fires on non-empty
+    # p_error with attempt<3). The competitor_reports row was stuck in
+    # 'processing' forever with no error and no retry.
+
+    @pytest.mark.asyncio
+    async def test_arq_cancelled_error_reports_nonempty_error_and_reraises(self):
+        """(a) CancelledError from the pipeline must produce a non-empty
+        p_error for complete_competitor_report_job (so the queue's
+        requeue-with-backoff can actually fire instead of reading as
+        silent success), and (c) the CancelledError must still propagate
+        out of the task so arq itself marks the job failed and graceful
+        worker shutdown is not disrupted by a swallowed exception."""
+        from workers.tasks import run_competitor_report_task
+
+        async def cancelled_pipeline(**kwargs):
+            raise asyncio.CancelledError()
+
+        mock_convex = MagicMock()
+        mock_convex.competitor_report_progress = AsyncMock()
+        mock_convex.competitor_report_complete = AsyncMock()
+        mock_convex.competitor_report_fail = AsyncMock()
+        mock_convex_cls = MagicMock(return_value=mock_convex)
+
+        mock_sb = MagicMock()  # SupabaseService instance (sync methods)
+        redis = AsyncMock()
+        redis.get = AsyncMock(return_value=None)
+        ctx = {"redis": redis, "job_id": "job-cancel-arq", "supabase": mock_sb}
+        request = {"auditId": "audit-cancel-arq", "userId": "u", "_queue_id": 99}
+
+        with (
+            patch(
+                "pipelines.competitor_report.run_competitor_report_pipeline",
+                side_effect=cancelled_pipeline,
+            ),
+            patch("services.convex.ConvexClient", mock_convex_cls),
+        ):
+            # (c) CancelledError propagates — NOT swallowed as a normal
+            # Exception, NOT silently converted to a return value.
+            with pytest.raises(asyncio.CancelledError):
+                await run_competitor_report_task(ctx, request)
+
+        # (a) non-empty p_error reached the queue-completion RPC — the
+        # requeue-with-backoff path in competitor_report_queue.py can only
+        # fire on a non-empty, non-None p_error.
+        assert mock_sb.rpc.call_count == 1
+        name, params = mock_sb.rpc.call_args.args
+        assert name == "complete_competitor_report_job"
+        assert params["p_id"] == 99
+        assert isinstance(params["p_error"], str) and params["p_error"]
+
+        # The independent self-healing write was also attempted with the
+        # same non-empty error (guarded internally by status='processing' —
+        # see TestFailCompetitorReportByAuditId below for that guard).
+        mock_sb.fail_competitor_report_by_audit_id.assert_called_once()
+        fail_args = mock_sb.fail_competitor_report_by_audit_id.call_args.args
+        assert fail_args[0] == "audit-cancel-arq"
+        assert isinstance(fail_args[1], str) and fail_args[1]
+
+    @pytest.mark.asyncio
+    async def test_arq_cancelled_error_still_catches_cancelled_by_user_separately(self):
+        """Regression guard: adding `except asyncio.CancelledError` must not
+        swallow or shadow the existing user-initiated cancel path
+        (_CancelledByUser), which has its own distinct error code/message
+        and its own cancel-flag cleanup."""
+        from workers.tasks import _CancelledByUser, run_competitor_report_task
+
+        async def pipeline_with_progress(**kwargs):
+            await kwargs["on_progress"](10, "starting")
+            return {"report_id": 1}
+
+        mock_convex = MagicMock()
+        mock_convex.competitor_report_progress = AsyncMock()
+        mock_convex.competitor_report_complete = AsyncMock()
+        mock_convex.competitor_report_fail = AsyncMock()
+        mock_convex_cls = MagicMock(return_value=mock_convex)
+
+        redis = AsyncMock()
+        redis.get = AsyncMock(return_value="1")  # cancel flag IS set
+        redis.set = AsyncMock()
+        redis.delete = AsyncMock()
+        ctx = {"redis": redis, "job_id": "job-user-cancel"}
+        request = {"auditId": "audit-user-cancel", "userId": "u"}
+
+        with (
+            patch(
+                "pipelines.competitor_report.run_competitor_report_pipeline",
+                side_effect=pipeline_with_progress,
+            ),
+            patch("services.convex.ConvexClient", mock_convex_cls),
+        ):
+            with pytest.raises(_CancelledByUser):
+                await run_competitor_report_task(ctx, request)
+
+        mock_convex.competitor_report_fail.assert_awaited_once_with(
+            "audit-user-cancel", "[CANCELLED] Anulowane przez użytkownika",
+        )
+
+
+class TestFailCompetitorReportByAuditId:
+    """Unit tests for services.supabase.SupabaseService
+    .fail_competitor_report_by_audit_id (beads BEAUTY_AUDIT-mol-03q).
+
+    Bypasses SupabaseService.__init__ (which needs real Supabase
+    credentials to build a client) and injects a MagicMock in its place —
+    same technique used to keep this a fast unit test with no network I/O.
+    """
+
+    def _make_service_with_mock_client(self):
+        from services.supabase import SupabaseService
+
+        service = SupabaseService.__new__(SupabaseService)
+        service.client = MagicMock()
+        return service
+
+    def test_flips_processing_row_to_failed_and_merges_metadata(self):
+        service = self._make_service_with_mock_client()
+        mock_table = service.client.table.return_value
+
+        select_chain = (
+            mock_table.select.return_value.eq.return_value.eq.return_value.limit.return_value
+        )
+        select_chain.execute.return_value = MagicMock(
+            data=[{"metadata": {"existing": "keep-me"}}],
+        )
+        update_chain = mock_table.update.return_value.eq.return_value.eq.return_value
+        update_chain.execute.return_value = MagicMock(data=[{"id": 1}])
+
+        result = service.fail_competitor_report_by_audit_id(
+            "audit-1", "[AI_TIMEOUT] worker killed mid-run",
+        )
+
+        assert result is True
+        # Read filtered by convex_audit_id AND status='processing'
+        select_eq1 = mock_table.select.return_value.eq
+        select_eq1.assert_called_with("convex_audit_id", "audit-1")
+        select_eq2 = mock_table.select.return_value.eq.return_value.eq
+        select_eq2.assert_called_with("status", "processing")
+
+        update_payload = mock_table.update.call_args.args[0]
+        assert update_payload["status"] == "failed"
+        # Existing metadata preserved, not replaced
+        assert update_payload["metadata"]["existing"] == "keep-me"
+        assert update_payload["metadata"]["error"] == "[AI_TIMEOUT] worker killed mid-run"
+        assert "aborted_stage" in update_payload["metadata"]
+        # Write re-applies the SAME guard as the read
+        update_eq1 = mock_table.update.return_value.eq
+        update_eq1.assert_called_with("convex_audit_id", "audit-1")
+        update_eq2 = mock_table.update.return_value.eq.return_value.eq
+        update_eq2.assert_called_with("status", "processing")
+
+    def test_leaves_non_processing_row_untouched(self):
+        """(b) The guard is `WHERE status = 'processing'` — a report that
+        already finished ('completed' from an earlier successful run, or
+        already 'failed' via another path) must NEVER be clobbered. The
+        guard is enforced server-side inside the SELECT itself, so a
+        status mismatch is simulated here as Postgres would produce it:
+        zero matching rows — NOT by fetching the row and branching on its
+        status in Python."""
+        service = self._make_service_with_mock_client()
+        mock_table = service.client.table.return_value
+
+        select_chain = (
+            mock_table.select.return_value.eq.return_value.eq.return_value.limit.return_value
+        )
+        select_chain.execute.return_value = MagicMock(data=[])  # no 'processing' row matched
+
+        result = service.fail_competitor_report_by_audit_id(
+            "audit-2", "[INTERNAL] boom",
+        )
+
+        assert result is False
+        # Nothing changes: the UPDATE is never even issued.
+        mock_table.update.assert_not_called()
+
+    def test_supabase_error_is_swallowed_not_raised(self):
+        """Best-effort by design — a Supabase/network error here must never
+        crash the finally block or mask the original exception."""
+        service = self._make_service_with_mock_client()
+        mock_table = service.client.table.return_value
+        select_chain = (
+            mock_table.select.return_value.eq.return_value.eq.return_value.limit.return_value
+        )
+        select_chain.execute.side_effect = ConnectionError("supabase down")
+
+        result = service.fail_competitor_report_by_audit_id("audit-3", "[DB_UNAVAILABLE] x")
+
+        assert result is False
 
 
 class TestCompetitorQueueTasksRegistered:

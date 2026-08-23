@@ -1621,6 +1621,67 @@ class SupabaseService:
             "id", report_id,
         ).execute()
 
+    def fail_competitor_report_by_audit_id(self, convex_audit_id: str, reason: str) -> bool:
+        """Self-healing write for BEAUTY_AUDIT-mol-03q (arq worker restart /
+        kill_timeout killing a competitor-report job mid-run via
+        asyncio.CancelledError).
+
+        Deliberately a plain `def`, NOT `async def` like every other method
+        on this class. It must be callable WITHOUT `await` from a `finally:`
+        block whose enclosing task is itself in the middle of being
+        cancelled — an `await` there can be cancelled again before it
+        completes, but a bare synchronous call, once started, always runs
+        to completion (asyncio only delivers cancellation at await points).
+        See workers/tasks.py::run_competitor_report_task's finally block for
+        the call site; it is the guaranteed write, independent of the
+        best-effort Convex `competitor_report_fail` webhook.
+
+        Sets status='failed' and merges `aborted_stage` + `error` into the
+        existing metadata (kept, not replaced). The WHERE guard —
+        `convex_audit_id = X AND status = 'processing'` — is applied on
+        BOTH the read and the write, so this can NEVER clobber a report
+        that already finished ('completed') or was already failed by
+        another path; in that case the SELECT matches zero rows and the
+        method is a no-op that returns False.
+
+        Returns True if a row was actually flipped to 'failed', False
+        otherwise (already completed/failed, unknown convex_audit_id, or a
+        Supabase error — never raises).
+        """
+        try:
+            existing = (
+                self.client.table("competitor_reports")
+                .select("metadata")
+                .eq("convex_audit_id", convex_audit_id)
+                .eq("status", "processing")
+                .limit(1)
+                .execute()
+            )
+            rows = existing.data or []
+            if not rows:
+                return False
+            current_meta = rows[0].get("metadata")
+            current_meta = current_meta if isinstance(current_meta, dict) else {}
+            new_meta = {
+                **current_meta,
+                "aborted_stage": "worker_cancelled",
+                "error": reason,
+            }
+            result = (
+                self.client.table("competitor_reports")
+                .update({"status": "failed", "metadata": new_meta})
+                .eq("convex_audit_id", convex_audit_id)
+                .eq("status", "processing")
+                .execute()
+            )
+            return bool(result.data)
+        except Exception as e:  # noqa: BLE001
+            logger.warning(
+                "fail_competitor_report_by_audit_id convex_audit_id=%s failed: %s",
+                convex_audit_id, e,
+            )
+            return False
+
     # ---- Competitor analysis read helpers (Comp Etap 4) -----------------
 
     async def get_subject_full_data(self, convex_audit_id: str) -> dict[str, Any]:
