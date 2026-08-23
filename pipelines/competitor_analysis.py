@@ -685,6 +685,15 @@ async def compute_competitor_analysis(
         )
         method_classifier = None
 
+    # Dowód wykonania etapu wyceny w TYM przebiegu (BEAUTY_AUDIT-xng).
+    # None = etap się nie domknął i nic nie zapisał; int = tyle wierszy zapisał
+    # ten run. Tę liczbę czyta bramka przed Step 8. Celowo trzymamy ją w
+    # pamięci procesu zamiast pytać competitor_pricing_comparisons — tam mogą
+    # leżeć wiersze z POPRZEDNIEGO przebiegu (raport 181: nagłówek 'completed'
+    # nad 221 wierszami sprzed doby), więc odczyt z tabeli nie odróżnia
+    # "policzone teraz" od "zostało po starym runie".
+    n_pricing: int | None = None
+
     await progress(45, "Pricing comparisons per treatment_id...")
     async with _phase_timer(tracer, "pricing.comparisons"):
         # Early-exit (quick 260613-rne; warunek przepisany 2026-08-23,
@@ -918,6 +927,33 @@ async def compute_competitor_analysis(
             "Etap 4: found %d subject promos, %d competitor promos",
             n_promos_subject, n_promos_competitors,
         )
+
+    # ── Bramka przed Step 8 (BEAUTY_AUDIT-xng) ──
+    # 'completed' wolno postawić TYLKO wtedy, gdy etap wyceny domknął się w tym
+    # przebiegu i coś zapisał. Bez tej bramki run, który nic nie policzył,
+    # stawiał nagłówek "gotowe" nad zawartością, której sam nie wyprodukował —
+    # a `delete_competitor_report_children` połyka błędy kasowania per tabela
+    # (services/supabase.py:1330-1341), więc pod tym nagłówkiem mogą wciąż stać
+    # wiersze z poprzedniego przebiegu. Klientka widzi raport oznaczony jako
+    # gotowy, wypełniony nieaktualnymi cenami.
+    if not n_pricing:
+        _abort_reason = (
+            "pricing stage persisted no rows in this run "
+            f"(rows={0 if n_pricing is None else n_pricing}, "
+            f"stage_completed={n_pricing is not None}) — refusing to mark "
+            "the report completed"
+        )
+        logger.error("Etap 4: %s (report_id=%s)", _abort_reason, report_id)
+        await service.update_competitor_report_status(
+            report_id,
+            "failed",
+            metadata_extras={
+                "error": _abort_reason,
+                "aborted_stage": "pricing.comparisons",
+                "pricing_rows_this_run": 0 if n_pricing is None else n_pricing,
+            },
+        )
+        raise RuntimeError(_abort_reason)
 
     # ── Step 8: Mark completed ──
     await progress(95, "Finalizacja raportu...")

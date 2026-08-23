@@ -2373,3 +2373,147 @@ async def test_subject_the_engine_can_price_takes_unchanged_path(
         f"subject with variants must not emit subject_only_early_exit; "
         f"got {early_exit}"
     )
+
+
+# ===========================================================================
+# Bramka statusu przed Step 8 (BEAUTY_AUDIT-xng)
+# ===========================================================================
+# Raport 181 z load-testu 2026-06-13 miał nagłówek `status='completed'` nad 221
+# wierszami porównań cenowych sprzed doby — przebieg, który je "firmował", nie
+# policzył ani jednego z nich. Bramka przed Step 8 pyta o licznik wierszy
+# zapisanych W TYM przebiegu (zmienna w pamięci procesu, nie odczyt z
+# competitor_pricing_comparisons — tam leżą też wiersze ze starych runów).
+# ===========================================================================
+
+
+def _stub_pipeline_side_effects(
+    monkeypatch: pytest.MonkeyPatch,
+    *,
+    pricing_return=None,
+    pricing_side_effect=None,
+):
+    """Stuby wspólne dla testów bramki: focus-bundles, embeddingi, router
+    taksonomii, TraceWriter i silnik wyceny. Oddaje (moduł, stub embeddingów)."""
+    import pipelines.competitor_analysis as ca
+
+    _stub_focus_bundles_for_router(monkeypatch)
+    embed = _stub_embed_batch(monkeypatch)
+    monkeypatch.setenv("ROUTER_PER_SALON_TIMEOUT_S", "1")
+
+    async def _fake_route(supabase, services, label="salon", **kwargs):  # noqa: ANN001
+        return 0
+
+    monkeypatch.setattr(
+        ca, "_apply_llm_taxonomy_to_null_tid_services", _fake_route,
+    )
+    monkeypatch.setattr(ca, "TraceWriter", lambda *a, **k: _FakeTracer())  # noqa: ANN001, ANN002
+
+    if pricing_side_effect is not None:
+        spy = AsyncMock(side_effect=pricing_side_effect)
+    else:
+        spy = AsyncMock(return_value=list(pricing_return or []))
+    monkeypatch.setattr(ca, "compute_pricing_comparisons_v2", spy)
+    return ca, embed, spy
+
+
+def _statuses_written(mock: AsyncMock) -> list[str]:
+    return [c.args[1] for c in mock.update_competitor_report_status.call_args_list]
+
+
+@pytest.mark.asyncio
+async def test_run_that_persisted_no_pricing_rows_is_failed_not_completed(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """Przebieg, który nie zapisał ANI JEDNEGO wiersza wyceny, kończy się
+    statusem 'failed' z powodem w metadanych — nigdy 'completed'.
+
+    Ustawienie: usługi subjecta mają cenę, ale nie mają `id` (silnik v2 je
+    pomija → wchodzi early-exit) ani `duration_minutes` (helper subject_only
+    też je odrzuca) → run oddaje inserta pustą listę. Mock inserta liczy
+    PRAWDZIWĄ długość listy zamiast stałej z fixture'a, więc licznik jest
+    wiarygodny.
+    """
+    import copy
+
+    ca, embed, pricing_spy = _stub_pipeline_side_effects(monkeypatch)
+
+    mock = _mock_supabase_for_e2e()
+    subject_data = copy.deepcopy(await mock.get_subject_full_data())
+    assert all(svc.get("id") is None for svc in subject_data["services"]), (
+        "test zakłada subjecta bez `id` — inaczej wchodzi ciężki silnik v2"
+    )
+    assert all(
+        svc.get("duration_minutes") is None for svc in subject_data["services"]
+    ), "bez czasu trwania helper subject_only nie wyemituje wiersza"
+    mock.get_subject_full_data = AsyncMock(return_value=subject_data)
+    mock.insert_competitor_pricing_comparisons = AsyncMock(
+        side_effect=lambda rows: len(rows),
+    )
+
+    with pytest.raises(RuntimeError) as exc:
+        await asyncio.wait_for(
+            ca.compute_competitor_analysis(
+                audit_id="test_audit", tier="base", selection_mode="auto",
+                supabase=mock, convex_user_id="user_1",
+            ),
+            timeout=10,
+        )
+    embed.assert_used()
+
+    assert pricing_spy.await_count == 0, (
+        "ten subject wchodzi w early-exit, nie w silnik v2"
+    )
+    mock.insert_competitor_pricing_comparisons.assert_awaited_once()
+    assert mock.insert_competitor_pricing_comparisons.call_args[0][0] == [], (
+        "test ma sens tylko wtedy, gdy run naprawdę nic nie zapisał"
+    )
+
+    assert "refusing to mark the report completed" in str(exc.value)
+    assert _statuses_written(mock) == ["failed"], (
+        "run bez policzonej wyceny nie może postawić 'completed'"
+    )
+    meta = mock.update_competitor_report_status.call_args.kwargs["metadata_extras"]
+    assert meta["aborted_stage"] == "pricing.comparisons"
+    assert meta["pricing_rows_this_run"] == 0
+    assert "pricing stage persisted no rows in this run" in meta["error"]
+
+
+@pytest.mark.asyncio
+async def test_run_aborted_inside_pricing_never_marks_completed(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """Job ubity w trakcie wyceny (arq job-timeout → CancelledError) nie
+    zostawia po sobie 'completed'.
+
+    Test charakteryzujący: pinuje kontrakt "anulowany przebieg nie firmuje
+    raportu jako gotowego". NIE twierdzi, że wiersz dostaje 'failed' — przy
+    anulowaniu przed Step 8 nagłówek zostaje w 'processing', bo żaden kod
+    pipeline'u już się nie wykona. Domknięcie tej dziury (oznaczanie przerwania
+    na ścieżce wyjątku) to osobne zadanie.
+    """
+    async def _die(*args, **kwargs):  # noqa: ANN001, ANN002
+        raise asyncio.CancelledError()
+
+    ca, embed, _spy = _stub_pipeline_side_effects(
+        monkeypatch, pricing_side_effect=_die,
+    )
+
+    import copy
+
+    mock = _mock_supabase_for_e2e()
+    subject_data = copy.deepcopy(await mock.get_subject_full_data())
+    for idx, svc in enumerate(subject_data["services"]):
+        svc["id"] = 5000 + idx  # żeby run wszedł w silnik, a nie w early-exit
+        svc["duration_minutes"] = 30
+    mock.get_subject_full_data = AsyncMock(return_value=subject_data)
+
+    with pytest.raises(asyncio.CancelledError):
+        await ca.compute_competitor_analysis(
+            audit_id="test_audit", tier="base", selection_mode="auto",
+            supabase=mock, convex_user_id="user_1",
+        )
+    embed.assert_used()
+
+    assert "completed" not in _statuses_written(mock), (
+        "przerwany przebieg nie może zostawić raportu oznaczonego jako gotowy"
+    )
