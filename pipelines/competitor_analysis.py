@@ -6722,7 +6722,24 @@ async def _aggregate_verified_match_counts(
             "counts_in_aggregates": a.bucket != "excluded",
         })
 
-    await service.update_competitor_matches_verify_buckets(report_id, updates)
+    try:
+        await service.update_competitor_matches_verify_buckets(report_id, updates)
+    except Exception:
+        # BEAUTY_AUDIT-63ky: update_competitor_matches_verify_buckets nie
+        # łapie wyjątku z PATCH-a PostgREST (docstring: "Raises on first
+        # failure — no partial updates") — np. CHECK na kolumnie 'bucket'
+        # odrzuca wartość, której produkcyjny schemat jeszcze nie dopuszcza.
+        # Bez tego safeguardu wyjątek uciekał z tej funkcji i wysadzał CAŁY
+        # raport konkurencji, nie tylko re-bucketing. Traktujemy to jak
+        # trzy inne tryby awarii w tej funkcji (brak embeddingów, zero
+        # pokryć, przekrój pusty): re-bucket pominięty, raport idzie dalej.
+        logger.error(
+            "Faza 8a: zapis re-bucketingu odrzucony przez bazę (raport %s, "
+            "%d aktualizacji) — pomijam re-bucket, poprzednie koszyki "
+            "zostają.",
+            report_id, len(updates), exc_info=True,
+        )
+        return {}
 
     logger.info(
         "Faza 8a: re-bucketed %d competitors (direct=%d, cluster=%d, "

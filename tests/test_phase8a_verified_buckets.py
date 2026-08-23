@@ -195,6 +195,33 @@ def test_second_run_preserves_original_bucket_pre_verify(monkeypatch):
     assert all(u["bucket_pre_verify"] == "direct" for u in updates)
 
 
+def test_db_check_rejection_skips_rebucket_without_blowing_up_report(monkeypatch):
+    """BEAUTY_AUDIT-63ky: update_competitor_matches_verify_buckets dokumentuje
+    'Raises on first failure — no partial updates' i faktycznie nie łapie
+    wyjątku z PATCH-a PostgREST (np. CHECK na kolumnie 'bucket' odrzuca
+    wartość spoza aktualnie dopuszczonego zbioru na prod). Bez safeguardu
+    ten wyjątek uciekał z _aggregate_verified_match_counts i wysadzał CAŁY
+    raport konkurencji — nie tylko re-bucketing. Oczekiwanie: funkcja łapie
+    wyjątek, zwraca {} (jak trzy inne bezpieczniki w tej funkcji) zamiast
+    propagować dalej."""
+    monkeypatch.setattr(ca, "search_twins", _fake_search({b: set(range(1, 21)) for b in BY_BOOKSY}))
+
+    async def _fallback(service, subject_services, subject_ids, booksy_id):
+        return subject_services, subject_ids, {i: [0.1] for i in subject_ids}
+
+    monkeypatch.setattr(ca, "_fetch_subject_embeddings_with_chain_head_fallback", _fallback)
+    svc = _service(_matches())
+    svc.update_competitor_matches_verify_buckets = AsyncMock(
+        side_effect=Exception('new row for relation "competitor_matches" '
+                               'violates check constraint "bucket_check"'),
+    )
+    out = asyncio.run(
+        _aggregate_verified_match_counts(svc, 250, _subject(), _aligned())
+    )
+    assert out == {}
+    svc.update_competitor_matches_verify_buckets.assert_awaited_once()
+
+
 def test_missing_subject_embeddings_skips_rebucket(monkeypatch):
     """Stare audit scrape'y (raporty 34/181) nie mają name_embedding, i chain-head
     fallback też nic nie znajduje (tu monkeypatchowany na pusto wprost) — zamiast
