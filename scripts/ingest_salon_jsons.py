@@ -478,10 +478,37 @@ class SalonJsonIngester:
         newest data was from 2026-08-15, and every "refresh the stale ones"
         selector skipped it, so the staleness kept itself alive.
 
-        Best-effort. By this point the scrape, its services and the audit row
-        are all committed and the file's content_hash makes a re-run a no-op,
-        so raising here would fail a run whose data actually landed. A missed
-        bump only makes the salon look older than it is — the safe direction.
+        Best-effort: by this point the scrape row and the audit row are
+        committed (services too, unless this was an 'unchanged' run, which
+        deliberately skips the service write and keeps the previous chain
+        head's rows), so raising here would fail a run whose data landed.
+
+        What swallowing costs is NOT "the salon looks a bit older than it is".
+        A missed bump can be PERMANENT. Step 6 of ``ingest_file`` writes the
+        payload's content_hash into ``json_ingestion_log`` BEFORE this bump,
+        and ``_hashes_already_ingested`` looks that column up globally (no
+        salon scoping) — ``ingestion/live_scrape.write_scrape_to_supabase``
+        calls it first and returns ``skipped=True`` without ever entering
+        ``ingest_file``. So once this UPDATE has failed, every later refresh
+        whose JSON hashes to the same value short-circuits on that hash, this
+        method is never reached again, and last_scraped_at stays frozen. Note
+        ``_retry_http`` only retries a short list of transient HTTP/2 errors —
+        any other failure here gets no retry at all.
+
+        Worst case is a salon discovery inserted with last_scraped_at NULL
+        whose first ingest lost the bump: NULL is exactly the "needs full
+        scrape" marker ``enqueue_discovered_salons`` drains, so the salon is
+        re-fetched from Booksy every cron tick, skipped on the hash every
+        time, and never marked. The loop ends only by accident, never by
+        detection: a content change on Booksy (new hash), a manual UPDATE, a
+        deleted_at, or the enqueue helper itself losing interest — migration
+        033 skips rows already queued and stops re-enqueuing a salon that
+        discovery has not seen for 30 days (and was created over 7 days ago).
+        Until one of those happens, the error log below is the only signal
+        that it is running.
+
+        The ordering (audit row before bump) is kept deliberately — moving it
+        is a separate change with its own risk, tracked on its own.
         """
         if self.dry_run:
             return
@@ -1520,9 +1547,13 @@ class SalonJsonIngester:
 
         # 8. Only now is the salon genuinely fresh. An 'unchanged' run counts:
         # the content was re-confirmed against Booksy, which is exactly what
-        # the marker claims. Every earlier failure raised IngestError and never
-        # reached this line, so the marker keeps pointing at the last scrape
-        # that actually stored something.
+        # the marker claims. Steps 1-6 abort the whole ingest when they fail,
+        # so a run that stored nothing never reaches this line. Step 7 is the
+        # deliberate exception: a failed _promote_chain_head is caught and
+        # only logged above, and we DO bump here — the new scrape row, its
+        # services and the audit row are all committed, just the chain-head
+        # pointer is stale, and the next ingest self-heals it. So the marker
+        # means "this salon's data landed", not "the chain is consistent".
         self._mark_salon_scraped(salon_id, scraped_at)
 
         return counts
