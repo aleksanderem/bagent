@@ -25,6 +25,7 @@ import numpy as np
 import pytest
 
 import pipelines.competitor_selection as selection_mod
+import services.taxonomy_inference as taxonomy_inference_mod
 from services.focus_score import SalonFocusBundle
 from pipelines.competitor_analysis import (
     _active_services_with_treatment,
@@ -1173,6 +1174,13 @@ def _mock_supabase_for_e2e() -> AsyncMock:
     # Use a plain MagicMock so the chain returns regular mocks instead of
     # coroutines (a bare AsyncMock child would make .table() awaitable).
     mock.client = MagicMock()
+    # RPC-e wolane wprost przez klienta (m.in. match_treatment_hybrid z
+    # services/taxonomy_inference) dostaja jawnie PUSTY wynik. Bez tego
+    # `.rpc().execute()` oddawal goly MagicMock, `int(row.get("inferred_tid"))`
+    # wybuchal TypeError i wpadal w `except Exception` — inferencja i tak byla
+    # no-opem, tylko przez polkniety blad zamiast przez zadeklarowany brak
+    # dopasowania. Teraz sciezka jest jawna: embedding jest, dopasowania nie ma.
+    mock.client.rpc.return_value.execute.return_value = MagicMock(data=[])
 
     # select_competitors calls these — minimal viable subject + 2 candidates
     mock.get_subject_salon_for_audit = AsyncMock(return_value={
@@ -1294,7 +1302,16 @@ def _mock_supabase_for_e2e() -> AsyncMock:
 async def test_compute_competitor_analysis_end_to_end_with_mocks(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
-    """Integration test — verify orchestration calls every expected write."""
+    """Integration test — verify orchestration calls every expected write.
+
+    Nazwa mowi "with_mocks", wiec zamockowana musi byc TAKZE warstwa
+    embeddingow. Do BEAUTY_AUDIT-x67b nie byla: `infer_and_apply` schodzilo do
+    `services.taxonomy_inference._embed_batch`, ktore wolalo prawdziwe
+    text-embedding-3-small w api.openai.com — a gdy klucza nie bylo, cicho
+    wracalo None i szlo zupelnie inna sciezka. Test byl zielony w obie strony i
+    nie mowil, ktora sciezka wykonal. Patch nizej wybiera sciezke swiadomie:
+    embeddingi SA (deterministyczne, offline), a RPC dopasowania nie znajduje.
+    """
     # select_competitors reaches into service.client for portfolio embeddings
     # (mig 087) via _fetch_subject_focus_bundle / _fetch_candidate_focus_
     # bundles_batch, which the AsyncMock-based supabase can't provide offline.
@@ -1331,6 +1348,18 @@ async def test_compute_competitor_analysis_end_to_end_with_mocks(
         selection_mod, "_fetch_candidate_focus_bundles_batch", _candidate_bundles,
     )
 
+    # Jedyny seam w tym tescie, ktory dotykal sieci. Zerowy wektor wystarczy —
+    # RPC dopasowania i tak jest zamockowany, a chodzi o to, zeby `_call_infer_rpc`
+    # dostal embedding (sciezka produkcyjna po hard gate z 2026-05-15), a nie
+    # None (sciezka "nigdy nie powinna sie zdarzyc").
+    embed_calls: list[list[str]] = []
+
+    async def _fake_embed_batch(names: list[str]) -> list[list[float]]:
+        embed_calls.append(list(names))
+        return [[0.0] * 1536 for _ in names]
+
+    monkeypatch.setattr(taxonomy_inference_mod, "_embed_batch", _fake_embed_batch)
+
     mock = _mock_supabase_for_e2e()
     progress_calls = []
 
@@ -1359,6 +1388,10 @@ async def test_compute_competitor_analysis_end_to_end_with_mocks(
     assert status_args[0][1] == "completed"
     # Progress should reach 100
     assert progress_calls[-1][0] == 100
+    # Patch embeddingow nie moze byc martwy: gdyby pipeline przestal wolac
+    # `_embed_batch`, test bez tej asercji dalej bylby zielony i znowu nie
+    # wiadomo byloby, ktora sciezka taksonomii sie wykonala.
+    assert embed_calls, "warstwa embeddingow nie zostala uzyta — patch jest martwy"
 
 
 # ---------------------------------------------------------------------------
