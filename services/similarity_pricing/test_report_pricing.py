@@ -365,6 +365,33 @@ def test_adaptive_broadens_at_medium_coverage(monkeypatch):
     assert (rows[0].get("verification_details") or {}).get("matching_broadened") is True
 
 
-def test_trigger_covers_the_gap_that_missed_report_250():
-    """Sam próg: 0.204 (raport 250) musi mieścić się poniżej triggera."""
-    assert rp._ADAPTIVE_TRIGGER_VERIFIED_RATE > 45 / 221
+def test_trigger_covers_real_reports_that_missed_the_rescue():
+    """Progi z ŻYWYCH raportów, które minęły się z ratunkiem, muszą być pokryte.
+
+    Każdy z tych przypadków wyszedł na produkcji z pustym porównaniem cen mimo
+    istniejącego rynku, bo verified_rate wypadł tuż NAD ówczesnym progiem:
+      * raport 250 (klinika med-est): 45/221 = 0.204 przy progu 0.20
+      * raport 259 (JETSET CLINIC):   54/101 = 0.535 przy progu 0.50
+    Podnoszenie progu o krok przesuwało granicę zamiast ją usunąć — stąd 0.80.
+    Nowy przypadek tego typu DOPISZ TUTAJ, zamiast tylko bumpować stałą.
+    """
+    zywe_przypadki = [
+        ("raport 250 (klinika med-est)", 45 / 221),
+        ("raport 259 (JETSET CLINIC)", 54 / 101),
+    ]
+    for opis, rate in zywe_przypadki:
+        assert rp._ADAPTIVE_TRIGGER_VERIFIED_RATE > rate, (
+            f"{opis}: rate {rate:.3f} nie zmieściłby się pod progiem "
+            f"{rp._ADAPTIVE_TRIGGER_VERIFIED_RATE} — ratunek znów by nie ruszył"
+        )
+
+
+def test_dense_report_still_skips_the_rescue():
+    """Salon z naprawdę wysokim pokryciem nie płaci za drugi przebieg wyceny.
+
+    Próg 0.80 ma zostawiać precyzyjne 0.82 tam, gdzie raport i tak jest pełny.
+    Bez tego testu kolejne podniesienie progu przeszłoby niezauważone aż do
+    "zawsze dwa przebiegi", co podwaja czas etapu wyceny dla wszystkich.
+    """
+    assert rp._ADAPTIVE_TRIGGER_VERIFIED_RATE < 1.0
+    assert rp._ADAPTIVE_TRIGGER_VERIFIED_RATE < 90 / 100
