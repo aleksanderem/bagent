@@ -39,6 +39,7 @@ from workers import error_log  # noqa: E402
 
 BOOM_PATTERN = "/__errlog_test/boom/{thing_id}"
 HTTP_400_PATTERN = "/__errlog_test/client_error/{thing_id}"
+SECRET_PATTERN = "/__errlog_test/webhook/{secret}"
 
 
 @pytest.fixture
@@ -86,6 +87,10 @@ async def _raise_value_error(thing_id: str):
     raise ValueError(f"boom for {thing_id}")
 
 
+async def _raise_value_error_for_secret(secret: str):
+    raise ValueError("webhook boom")
+
+
 async def _raise_http_400(thing_id: str):
     raise HTTPException(status_code=400, detail="nie ten identyfikator")
 
@@ -115,6 +120,81 @@ def test_unhandled_route_error_returns_500_and_logs_route_pattern(
     # the grouping key.
     assert row["request_payload"]["kwargs"]["path"] == "/__errlog_test/boom/12345"
     assert row["request_payload"]["kwargs"]["method"] == "GET"
+
+
+def test_secret_in_the_path_is_not_written_to_the_log(
+    captured_client, temp_routes, http_client
+):
+    """A secret carried IN THE PATH must never reach bagent_error_log.
+
+    `/api/wintact/webhook/{secret}` is a real route and its secret defaults to
+    `settings.api_key` — the main bagent API key. Writing request.url.path
+    verbatim parked that key in Supabase in plain text.
+    """
+    _, rows = captured_client
+    temp_routes(SECRET_PATTERN, _raise_value_error_for_secret)
+
+    response = http_client.get("/__errlog_test/webhook/super-tajny-klucz-42")
+
+    assert response.status_code == 500
+    assert len(rows) == 1
+    payload = rows[0]["request_payload"]["kwargs"]
+    assert payload["path"] == "/__errlog_test/webhook/***"
+    assert "super-tajny-klucz-42" not in str(rows[0]), (
+        "sekret ze sciezki wyciekl do wiersza bagent_error_log"
+    )
+
+
+def test_secret_containing_a_hash_is_still_masked(
+    captured_client, temp_routes, http_client
+):
+    """`request.url.path` cuts everything from the first `#` as a URL fragment.
+
+    A secret like `abc#def` would then be absent from that string, the mask
+    would miss it, and `/webhook/abc` — the secret's prefix — would land in the
+    log. Reading `scope["path"]` keeps the raw value intact.
+    """
+    _, rows = captured_client
+    temp_routes(SECRET_PATTERN, _raise_value_error_for_secret)
+
+    http_client.get("/__errlog_test/webhook/abc%23def")
+
+    assert len(rows) == 1
+    assert rows[0]["request_payload"]["kwargs"]["path"] == "/__errlog_test/webhook/***"
+    assert "abc" not in str(rows[0]["request_payload"]), (
+        "prefiks sekretu sprzed # wyciekl do wiersza"
+    )
+
+
+def test_sensitive_query_values_are_masked_but_plain_ones_survive(
+    captured_client, temp_routes, http_client
+):
+    """Same masking on the query string, and only on the risky keys.
+
+    No route reads a credential from the query today — this pins the behaviour
+    before one does. A plain `salon_id` must stay readable, otherwise the row
+    stops being useful for debugging.
+    """
+    _, rows = captured_client
+    temp_routes(BOOM_PATTERN, _raise_value_error)
+
+    http_client.get("/__errlog_test/boom/12345?api_key=sk-live-abc&salon_id=77")
+
+    assert len(rows) == 1
+    query = rows[0]["request_payload"]["kwargs"]["query"]
+    assert "api_key=%2A%2A%2A" in query or "api_key=***" in query
+    assert "sk-live-abc" not in str(rows[0])
+    assert "salon_id=77" in query
+
+
+def test_plain_path_id_is_not_masked(captured_client, temp_routes, http_client):
+    """Masking is by parameter NAME — a legitimate id must survive untouched."""
+    _, rows = captured_client
+    temp_routes(BOOM_PATTERN, _raise_value_error)
+
+    http_client.get("/__errlog_test/boom/12345")
+
+    assert rows[0]["request_payload"]["kwargs"]["path"] == "/__errlog_test/boom/12345"
 
 
 def test_two_ids_on_one_route_share_a_single_pipeline_value(
