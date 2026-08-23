@@ -35,8 +35,84 @@ WINTACT_BASE_URL = "https://wintact.io/api"
 WINTACT_WORKSPACE_ID = "booksyaudit"
 
 
+# Kody, pod którymi Wintact (fork Notifuse) melduje "ten obiekt już u nas
+# jest": 409 byłoby poprawne, ale /templates.create odbija 400, a
+# /lists.create potrafi 500. Sam kod NIGDY nie wystarcza — treść musi to
+# potwierdzić, inaczej zwykłe 400/500 uznalibyśmy za sukces.
+CONFLICT_STATUS_CODES = frozenset({400, 409, 422, 500})
+
+# Dopasowanie po fragmencie, bez wielkości liter — treść komunikatu po
+# stronie Wintacta bywa przeredagowana między wersjami.
+CONFLICT_MESSAGE_MARKERS = (
+    "already exists",
+    "already exist",
+    "duplicate",
+    "already taken",
+    "already in use",
+)
+
+
 class WintactError(RuntimeError):
-    """Raised when wintact API call fails after retries."""
+    """Raised when wintact API call fails after retries.
+
+    ``status_code``/``body`` są wypełniane dla odpowiedzi HTTP, żeby
+    caller mógł odróżnić konflikt (obiekt już istnieje) od realnej awarii
+    bez parsowania sformatowanego stringa."""
+
+    def __init__(
+        self,
+        message: str,
+        *,
+        status_code: int | None = None,
+        body: str = "",
+    ) -> None:
+        super().__init__(message)
+        self.status_code = status_code
+        self.body = body
+
+    @property
+    def is_conflict(self) -> bool:
+        return is_conflict_error(self)
+
+
+def is_conflict_error(exc: BaseException) -> bool:
+    """True gdy błąd znaczy "ten obiekt już u nas jest".
+
+    Wymaga OBU sygnałów: ZNANEGO kodu HTTP z listy konfliktowej ORAZ
+    fragmentu komunikatu z ``CONFLICT_MESSAGE_MARKERS``.
+
+    Brak kodu (``status_code is None``) to BRAK DOWODU, nie konflikt.
+    ``_request`` rzuca właśnie tak po trzech nieudanych podejściach do
+    429/5xx i po błędach sieci — żądanie mogło nigdy nie dojść, a w
+    tekście siedzi cudzy komunikat (np. "failed after 3 retries: HTTP
+    502: duplicate request blocked"). Uznanie tego za konflikt zapisałoby
+    "wdrożone" dla obiektu, którego w Wintakcie nie ma."""
+    status = getattr(exc, "status_code", None)
+    if status is None or status not in CONFLICT_STATUS_CODES:
+        return False
+    haystack = f"{exc} {getattr(exc, 'body', '')}".casefold()
+    return any(marker in haystack for marker in CONFLICT_MESSAGE_MARKERS)
+
+
+def short_error(exc: BaseException) -> str:
+    """Jednolinijkowy, ucięty opis błędu — do logu i do pól, które czyta
+    człowiek. Ciała odpowiedzi 4xx/5xx bywają wielolinijkowym JSON-em albo
+    HTML-em; wklejone w całości zasypują notatkę operatora."""
+    return " ".join(str(exc).split())[:200]
+
+
+def sanitize_list_id(name: str) -> str:
+    """Notifuse wymaga STRICT alphanumeric id dla list (underscore = 400
+    'id must be alphanumeric'). Zweryfikowane curl smoke 2026-08-11."""
+    return re.sub(r"[^a-zA-Z0-9]", "", name)[:32] or "list"
+
+
+def extract_template_id(resp: dict[str, Any]) -> str | None:
+    """/templates.create zwraca {"template": {...}} albo płaski obiekt."""
+    tpl = resp.get("template") or resp
+    if not isinstance(tpl, dict):
+        return None
+    return tpl.get("id") or tpl.get("template_id")
 
 
 class WintactClient:
@@ -108,7 +184,9 @@ class WintactClient:
                 continue
             # 4xx (non-retry) — surface immediately
             raise WintactError(
-                f"Wintact {method} {path} HTTP {r.status_code}: {r.text[:300]}"
+                f"Wintact {method} {path} HTTP {r.status_code}: {r.text[:300]}",
+                status_code=r.status_code,
+                body=r.text[:300],
             )
         raise WintactError(
             f"Wintact {method} {path} failed after 3 retries: {last_error}"
@@ -194,7 +272,7 @@ class WintactClient:
         """Notifuse wymaga `id` — i w odróżnieniu od templates STRICT
         alphanumeric (underscore = 400 'id must be alphanumeric').
         Zweryfikowane curl smoke 2026-08-11. Sanityzujemy z name."""
-        list_id = re.sub(r"[^a-zA-Z0-9]", "", name)[:32] or "list"
+        list_id = sanitize_list_id(name)
         resp = await self._post("/lists.create", {
             "id": list_id,
             "name": name[:32],
@@ -206,6 +284,66 @@ class WintactClient:
     async def list_lists(self) -> list[dict[str, Any]]:
         result = await self._get("/lists.list")
         return result.get("lists", []) or []
+
+    async def find_list(self, list_id: str) -> dict[str, Any] | None:
+        """Czy lista o tym id już u nich jest? Notifuse nie ma /lists.get,
+        więc pytamy /lists.list. Gdy sam odczyt padnie — zwracamy None
+        (brak dowodu), NIE udajemy że listy nie ma ani że jest."""
+        try:
+            lists = await self.list_lists()
+        except WintactError as exc:
+            logger.debug(
+                "wintact /lists.list niedostępne przy weryfikacji %s: %s",
+                list_id, short_error(exc),
+            )
+            return None
+        for item in lists:
+            if str(item.get("id") or "") == list_id:
+                return item
+        return None
+
+    async def upsert_list(
+        self, name: str, *, description: str = "", is_public: bool = False,
+        is_double_optin: bool = False,
+    ) -> dict[str, Any]:
+        """Create-or-recognise. Zwraca {"id", "mode", "raw"}, gdzie mode to
+        ``created`` albo ``existing``.
+
+        /lists.create odbija duplikat 500 "Failed to create list" — kod i
+        treść nie odróżniają go od realnej awarii Wintacta. Dlatego po
+        KAŻDYM błędzie sprawdzamy fakt: czy lista o tym id jest na
+        /lists.list. Jest → wdrożone (idempotentny sukces). Nie ma i
+        komunikat nie mówi o duplikacie → realny błąd leci dalej."""
+        wanted_id = sanitize_list_id(name)
+        try:
+            raw = await self.create_list(
+                name, description=description, is_public=is_public,
+                is_double_optin=is_double_optin,
+            )
+            return {
+                "id": raw.get("id") or raw.get("list_id") or wanted_id,
+                "mode": "created",
+                "raw": raw,
+            }
+        except WintactError as exc:
+            existing = await self.find_list(wanted_id)
+            if existing is not None:
+                logger.warning(
+                    "wintact list %s już istnieje (%s) — zapisuję istniejącą, nie tworzę drugi raz",
+                    wanted_id, short_error(exc),
+                )
+                return {
+                    "id": existing.get("id") or wanted_id,
+                    "mode": "existing",
+                    "raw": existing,
+                }
+            if is_conflict_error(exc):
+                logger.warning(
+                    "wintact list %s zgłoszona jako duplikat (%s) — traktuję jako wdrożoną",
+                    wanted_id, short_error(exc),
+                )
+                return {"id": wanted_id, "mode": "existing", "raw": {}}
+            raise
 
     # ---------------------------------------------------------------
     # Templates (approved drafts deployowane do wintact)
@@ -227,6 +365,27 @@ class WintactClient:
         pusty tree MJML jest OK — template w wintact to kopia referencyjna.
         Drzewo MUSI nieść treść: send-path kompiluje visual_editor_tree,
         nie compiled_preview (internal/service/automation_node_executor.go)."""
+        return await self._post(
+            "/templates.create",
+            self._template_payload(
+                template_id, name, subject, html,
+                preview_text=preview_text, category=category,
+            ),
+        )
+
+    @staticmethod
+    def _template_payload(
+        template_id: str,
+        name: str,
+        subject: str,
+        html: str,
+        *,
+        preview_text: str | None = None,
+        category: str = "marketing",
+    ) -> dict[str, Any]:
+        """Jedno źródło kształtu szablonu dla create i update — inaczej
+        update wysyłałby inny kontrakt niż ten zweryfikowany curl smokiem
+        i konflikt kończyłby się drugim błędem zamiast naprawą treści."""
         styles = "".join(re.findall(r"<style[^>]*>.*?</style>", html, re.S))
         m = re.search(r"<body[^>]*>(.*)</body>", html, re.S)
         inner = m.group(1) if m else html
@@ -242,35 +401,130 @@ class WintactClient:
         }
         if preview_text:
             email["subject_preview"] = preview_text
-        payload: dict[str, Any] = {
+        return {
             "id": template_id[:32],
             "name": name[:32],
             "channel": "email",
             "category": category,
             "email": email,
         }
-        return await self._post("/templates.create", payload)
 
     async def update_template(
         self,
         template_id: str,
+        name: str,
+        subject: str,
+        html: str,
         *,
-        subject: str | None = None,
-        body: str | None = None,
         preview_text: str | None = None,
+        category: str = "marketing",
     ) -> dict[str, Any]:
-        payload: dict[str, Any] = {"id": template_id}
-        if subject is not None:
-            payload["subject"] = subject
-        if body is not None:
-            payload["body"] = body
-        if preview_text is not None:
-            payload["preview_text"] = preview_text
-        return await self._post("/templates.update", payload)
+        """Podmiana treści istniejącego szablonu — ten sam kontrakt co
+        create (Notifuse traktuje /templates.update jak pełny zapis, nie
+        patch pojedynczych pól)."""
+        return await self._post(
+            "/templates.update",
+            self._template_payload(
+                template_id, name, subject, html,
+                preview_text=preview_text, category=category,
+            ),
+        )
+
+    async def upsert_template(
+        self,
+        template_id: str,
+        name: str,
+        subject: str,
+        html: str,
+        *,
+        preview_text: str | None = None,
+        category: str = "marketing",
+    ) -> dict[str, Any]:
+        """Create-or-update. Zwraca {"id", "mode", "raw"}, gdzie mode to
+        ``created`` | ``updated`` | ``existing``.
+
+        Notifuse nie ma upsertu — /templates.create na istniejącym id
+        odbija 400 "Template id already exists". To NIE jest awaria:
+        szablon u nich jest, więc podnosimy treść przez /templates.update.
+
+        Gdy i update odpadnie, NIE wolno zwrócić sukcesu na słowo: kontrakt
+        /templates.update nie jest zweryfikowany na żywym Wintakcie, więc
+        jego porażka nie mówi nic o tym, czy szablon tam faktycznie jest.
+        Caller zapisuje po nas approval_status='deployed', a orchestrator
+        wysyła do prospektów wszystko, co jest 'deployed' — sukces bez
+        pokrycia oznacza wysyłkę szablonu ze starą albo nieistniejącą
+        treścią. Dlatego pytamy o FAKT: /templates.list. Jest → ``existing``
+        (stara treść, ale realny szablon). Nie ma albo lista niedostępna →
+        wyjątek, wiersz zostaje w 'approved' i wróci w kolejnym cyklu."""
+        wanted_id = template_id[:32]
+        try:
+            raw = await self.create_template(
+                template_id, name, subject, html,
+                preview_text=preview_text, category=category,
+            )
+            return {
+                "id": extract_template_id(raw) or wanted_id,
+                "mode": "created",
+                "raw": raw,
+            }
+        except WintactError as exc:
+            if not is_conflict_error(exc):
+                raise
+            conflict = exc
+
+        try:
+            raw = await self.update_template(
+                template_id, name, subject, html,
+                preview_text=preview_text, category=category,
+            )
+            return {
+                "id": extract_template_id(raw) or wanted_id,
+                "mode": "updated",
+                "raw": raw,
+            }
+        except WintactError as upd_exc:
+            existing = await self.find_template(wanted_id)
+            if existing is None:
+                raise WintactError(
+                    f"Wintact template {wanted_id}: /templates.create zgłosiło konflikt, "
+                    f"/templates.update padło ({short_error(upd_exc)}), a /templates.list "
+                    f"nie potwierdza, że szablon tam jest — NIE oznaczam jako wdrożony",
+                    status_code=upd_exc.status_code,
+                    body=upd_exc.body,
+                ) from upd_exc
+            logger.warning(
+                "wintact template %s jest w wintakcie (potwierdzone /templates.list po "
+                "konflikcie: %s), ale /templates.update padło (%s) — zapisuję jako "
+                "wdrożony ze STARĄ treścią",
+                wanted_id, short_error(conflict), short_error(upd_exc),
+            )
+            return {
+                "id": existing.get("id") or wanted_id,
+                "mode": "existing",
+                "raw": existing,
+            }
 
     async def list_templates(self) -> list[dict[str, Any]]:
         result = await self._get("/templates.list")
         return result.get("templates", []) or []
+
+    async def find_template(self, template_id: str) -> dict[str, Any] | None:
+        """Czy szablon o tym id jest u nich NAPRAWDĘ? Notifuse nie ma
+        /templates.get, więc pytamy /templates.list — to jedyny dowód,
+        jakim dysponujemy. Gdy sam odczyt padnie, zwracamy None (brak
+        dowodu), NIE udajemy że szablon tam jest."""
+        try:
+            templates = await self.list_templates()
+        except WintactError as exc:
+            logger.warning(
+                "wintact /templates.list niedostępne przy weryfikacji %s: %s",
+                template_id, short_error(exc),
+            )
+            return None
+        for item in templates:
+            if str(item.get("id") or "") == template_id:
+                return item
+        return None
 
     async def compile_template(
         self,
