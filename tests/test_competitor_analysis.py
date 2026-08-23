@@ -2065,16 +2065,16 @@ async def test_pipeline_tracer_none_safe_full_run(
 
 
 # ===========================================================================
-# quick 260613-rne — early-exit subject_only when subject has NO variant_id
+# quick 260613-rne — early-exit subject_only when the pricing engine has
+# nothing to price
 # ===========================================================================
 #
 # Subject with tid+price services but ZERO variant_id (load test 2026-06-13
 # report 36, subject j5796vaa: 282 qualified) used to run tier-1/3/5 for
 # 280-450s and return 0 rows (each tier's own _active_services_with_variant
-# guard returns []). The early-exit detects the empty subject-variant set
-# BEFORE the heavy block and emits tier-1-shaped subject_only rows directly,
-# skipping the expensive tiers. Subject WITH >=1 variant must take the
-# heavy path (zero-diff parity).
+# guard returns []). The early-exit detects that BEFORE the heavy block and
+# emits tier-1-shaped subject_only rows directly, skipping the expensive
+# tiers. A subject the engine CAN work on must take the heavy path.
 #
 # 2026-08-23 (BEAUTY_AUDIT-5srf): the spy follows the heavy path, and since
 # S0078 that path is `compute_pricing_comparisons_v2` — the similarity-first
@@ -2082,6 +2082,13 @@ async def test_pipeline_tracer_none_safe_full_run(
 # `_compute_pricing_comparisons` still lives in the module as a
 # reference/rollback copy but is no longer awaited by the pipeline, so
 # spying on it made this test assert on a function nothing calls.
+#
+# 2026-08-23 (BEAUTY_AUDIT-cbnt): the gate no longer asks about variant_id at
+# all — v2 doesn't read that column (report_pricing.py:201-204 filters on
+# is_active + price_grosze + id), so keying the early-exit on variants cut 220
+# perfectly good services off the engine on prod report 250. Both tests below
+# were rewritten around what v2 actually needs. Full regression coverage lives
+# in tests/test_competitor_pricing_gate.py.
 # ===========================================================================
 
 
@@ -2140,11 +2147,12 @@ async def _run_pipeline_with_pricing_spy(
 
 
 @pytest.mark.asyncio
-async def test_subject_only_early_exit_when_no_variants(
+async def test_subject_only_early_exit_when_engine_has_nothing_to_price(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
-    """Subject without ANY variant_id but with eligible (priced + duration)
-    services → early-exit: the heavy pricing engine is NEVER
+    """Subject whose services carry no DB `id` (so compute_pricing_comparisons
+    _v2 would return [] on sight) but ARE eligible for a subject_only row
+    (priced + duration) → early-exit: the heavy pricing engine is NEVER
     awaited, a subject_only_early_exit trace is emitted, and the insert
     receives non-empty tier-1-shaped subject_only rows. Pipeline still
     completes (report_id 999).
@@ -2152,13 +2160,18 @@ async def test_subject_only_early_exit_when_no_variants(
     (The default _mock_supabase_for_e2e subject service has
     duration_minutes=None, which tier-1 _eligible — and our early-exit
     helper — reject. We stamp a duration so the service qualifies for a
-    subject_only row while leaving variant_id absent so the guard fires.)"""
+    subject_only row. The missing `id` is what keeps it out of v2, and is
+    asserted below so the reason stays explicit rather than incidental.)"""
     import copy
 
     base_mock = _mock_supabase_for_e2e()
     subject_data = copy.deepcopy(await base_mock.get_subject_full_data())
     for svc in subject_data["services"]:
-        svc["duration_minutes"] = 30  # eligible; still no variant_id
+        svc["duration_minutes"] = 30  # eligible for a subject_only row
+
+    # Load-bearing: v2 skips every service without an `id`, so the engine has
+    # literally nothing to work with and the early-exit is the right branch.
+    assert all(svc.get("id") is None for svc in subject_data["services"])
 
     tracer, pricing_spy, mock = await _run_pipeline_with_pricing_spy(
         monkeypatch, subject_full_data=subject_data,
@@ -2166,7 +2179,8 @@ async def test_subject_only_early_exit_when_no_variants(
 
     # Heavy tiers skipped — the proof of the 280-450s saving.
     assert pricing_spy.await_count == 0, (
-        "subject without variants must NOT enter compute_pricing_comparisons_v2"
+        "subject the engine cannot price must NOT enter "
+        "compute_pricing_comparisons_v2"
     )
 
     # subject_only_early_exit trace emitted with the expected shape.
@@ -2179,8 +2193,8 @@ async def test_subject_only_early_exit_when_no_variants(
         f"expected one subject_only_early_exit trace; got {early}"
     )
     data = early_exit[0]["data"]
-    assert data["skip_reason"] == "subject_has_no_variants"
-    assert data["services_with_variant"] == 0
+    assert data["skip_reason"] == "subject_has_no_priced_services"
+    assert data["services_eligible_for_v2"] == 0
     assert data["total_services"] >= 1
     for tier in ("variant", "treatment", "structured", "method", "sub_variant"):
         assert tier in data["tiers_skipped"]
@@ -2201,28 +2215,34 @@ async def test_subject_only_early_exit_when_no_variants(
 
 
 @pytest.mark.asyncio
-async def test_subject_with_variants_takes_unchanged_path(
+async def test_subject_the_engine_can_price_takes_unchanged_path(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
-    """Subject with >=1 variant_id → the early-exit does NOT fire: the heavy
-    compute_pricing_comparisons_v2 path is awaited exactly once and no
-    subject_only_early_exit trace is emitted (zero-diff parity)."""
+    """Subject with services v2 can work on (active, priced, with an `id`) →
+    the early-exit does NOT fire: the heavy compute_pricing_comparisons_v2
+    path is awaited exactly once and no subject_only_early_exit trace is
+    emitted (zero-diff parity)."""
     import copy
 
-    # Clone the default salon fixtures and stamp a variant_id on the subject
-    # service AND on one competitor's matching (tid, variant) — so
-    # _active_services_with_variant(subject) is non-empty.
+    # Clone the default salon fixtures and stamp what v2's own subject filter
+    # requires — an `id` on a priced, active service. The variant_id is
+    # stamped too, but only as noise: since BEAUTY_AUDIT-cbnt the gate no
+    # longer looks at it, and the sibling test in
+    # tests/test_competitor_pricing_gate.py pins the reverse case (no
+    # variants at all, engine still entered).
     base_mock = _mock_supabase_for_e2e()
     subject_data = await base_mock.get_subject_full_data()
     subject_data = copy.deepcopy(subject_data)
-    for svc in subject_data["services"]:
+    for idx, svc in enumerate(subject_data["services"]):
+        svc["id"] = 5000 + idx
         svc["variant_id"] = 7
         svc["duration_minutes"] = 30  # tier needs a duration bucket
 
     competitor_map = await base_mock.get_competitor_full_data()
     competitor_map = copy.deepcopy(competitor_map)
     first_comp_id = next(iter(competitor_map))
-    for svc in competitor_map[first_comp_id]["services"]:
+    for idx, svc in enumerate(competitor_map[first_comp_id]["services"]):
+        svc["id"] = 6000 + idx
         svc["variant_id"] = 7
         svc["duration_minutes"] = 30
 
