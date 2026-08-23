@@ -8,9 +8,11 @@ Two task types registered:
   22 categories × 16 voivodeships every Sunday at 03:00 UTC. Each
   combo is scheduled as a separate task so a single bad combo doesn't
   hold up the others.
-* ``enqueue_discovered_to_refresh_queue`` — runs hourly: pushes new
-  discoveries from ``discovered_salons`` into ``salon_refresh_queue``
-  via the SQL helper, in batches of 1000.
+* ``enqueue_discovered_to_refresh_queue`` — runs every 30 s (cron in
+  workers/main.py: ``minute=*``, ``second={0,30}``): pushes salons that
+  have never been scraped into ``salon_refresh_queue`` via the SQL
+  helper, in batches of 1000. They live in ``salons`` — the separate
+  ``discovered_salons`` table was folded into it by migration 026.
 """
 
 from __future__ import annotations
@@ -467,10 +469,34 @@ async def bootstrap_discovery_pump(ctx: dict[str, Any]) -> dict[str, Any]:
 
 
 async def enqueue_discovered_to_refresh_queue(ctx: dict[str, Any]) -> dict[str, int]:
-    """Hourly: bulk-enqueue new discoveries into salon_refresh_queue
-    (tier 3, low priority). The SQL helper marks each row enqueued_at
-    so we don't re-enqueue. Cap per tick at 1000 so we never blow up
-    the queue with a single sweep's output."""
+    """Every 30 s: bulk-enqueue new discoveries into salon_refresh_queue
+    (tier 3, low priority). Cap per tick at 1000 so we never blow up
+    the queue with a single sweep's output. Cadence is set in
+    workers/main.py (`minute=*`, `second={0,30}`), NOT hourly — the tick
+    below is half a minute, which is what makes the wasted-call arithmetic
+    in the last paragraph matter.
+
+    There is no `enqueued_at` marker anywhere — the helper
+    (`enqueue_discovered_salons`, migration 033) dedupes by LEFT JOINing
+    salon_refresh_queue on booksy_id with `q.status IN ('queued','running')`
+    and keeping only `q.id IS NULL` rows: "skip salons that already have a
+    LIVE job". A salon whose job has since finished or failed is therefore
+    eligible again, and what actually stops the re-enqueue loop is
+    `s.last_scraped_at IS NULL` — once the scrape lands, the row drops out of
+    the candidate set for good.
+
+    The same WHERE also skips `deleted_at IS NOT NULL` and requires the salon
+    to be either seen by discovery in the last 30 days
+    (`discovered_salon_categories.last_seen_at`) or created in the last 7 —
+    that second arm exists so legacy imports Booksy has since deleted stop
+    burning bextract calls every tick.
+
+    A SECOND dedup layer sits inside `enqueue_salon_refresh` itself
+    (migration 034, "defense in depth"): it returns NULL for a deleted salon
+    and for one that already has a queued/running job. `PERFORM` discards
+    that NULL while the loop counts the row anyway, so the number returned
+    here — and the "enqueued N" log line — is an upper bound, not a count of
+    actual inserts."""
     client = _get_client()
     res = client.rpc("enqueue_discovered_salons", {"p_limit": 1000}).execute()
     enqueued = int(res.data or 0)
