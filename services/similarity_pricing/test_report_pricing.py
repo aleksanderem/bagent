@@ -395,3 +395,41 @@ def test_dense_report_still_skips_the_rescue():
     """
     assert rp._ADAPTIVE_TRIGGER_VERIFIED_RATE < 1.0
     assert rp._ADAPTIVE_TRIGGER_VERIFIED_RATE < 90 / 100
+
+
+# ── Regresja BEAUTY_AUDIT-twvf: wiersz = usługa, nie szuflada Booksy ──
+
+def test_row_is_named_after_service_not_booksy_bucket(monkeypatch):
+    """Dwie usługi w jednej szufladzie i w tej samej cenie = dwa odrębne wiersze.
+
+    Reguła jest strukturalna, nie zależy od żadnej konkretnej usługi: szuflada
+    Booksy (`treatment_name`) grupuje usługi luźniej niż cennik salonu — pomiar
+    na 1500 skanach pokazał, że 46% szuflad zawiera więcej niż jedną usługę, a
+    rozkład rozrzutu ceny w nich nie ma doliny, więc nie da się wyznaczyć progu
+    "ta szuflada jeszcze opisuje jedną usługę".
+
+    Bez tego testu wraca podwójna wada: wiersz nazwany szufladą ORAZ zlanie się
+    obu usług w jedną pozycję, bo `_dedup_pricing_rows` trzyma `treatment_name`
+    w kluczu deduplikacji.
+    """
+    cluster = [_twin(10 + i, 500 + i, "Zabieg", 20000, 30) for i in range(5)]
+    _patch_search(monkeypatch, cluster)
+    service = _FakeService(geo_booksy=list(range(500, 510)), salon_rows=[])
+    subject_data = {"booksy_id": 163496, "services": [
+        # ta sama szuflada, ta sama cena, różne usługi
+        {"id": 1, "name": "Usługa A", "treatment_name": "Wspólna szuflada",
+         "price_grosze": 30000, "duration_minutes": 30, "booksy_treatment_id": 245},
+        {"id": 2, "name": "Usługa B", "treatment_name": "Wspólna szuflada",
+         "price_grosze": 30000, "duration_minutes": 30, "booksy_treatment_id": 245},
+    ]}
+    rows = _run(compute_pricing_comparisons_v2(service, 250, subject_data, [(_Cand(100), {})]))
+
+    nazwy = sorted(r["treatment_name"] for r in rows)
+    assert nazwy == ["Usługa A", "Usługa B"], (
+        f"wiersze powinny nazywać się usługami, dostałem {nazwy}"
+    )
+    # klucz dedupu (competitor_analysis._dedup_pricing_rows) zawiera treatment_name
+    # + subject_price_grosze — przy nazwie szuflady oba wiersze miałyby ten sam
+    # klucz i jeden by zniknął przed zapisem do bazy.
+    klucze = {(r["treatment_name"], r["subject_price_grosze"]) for r in rows}
+    assert len(klucze) == 2, f"wiersze zlewają się w kluczu dedupu: {klucze}"
