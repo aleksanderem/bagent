@@ -1434,10 +1434,14 @@ async def test_compute_competitor_analysis_end_to_end_with_mocks(
     mock.insert_competitor_pricing_comparisons.assert_called_once()
     mock.insert_competitor_service_gaps.assert_called_once()
     mock.insert_competitor_dimensional_scores.assert_called_once()
+    # BEAUTY_AUDIT-dqir: Etap 4 alone never writes 'completed' any more —
+    # that terminal write moved to pipelines/competitor_report.py, AFTER
+    # Etap 5 (synthesis) succeeds. compute_competitor_analysis on its own
+    # persists etap4_stats/report_data but leaves the row 'processing'.
     mock.update_competitor_report_status.assert_called_once()
     status_args = mock.update_competitor_report_status.call_args
     assert status_args[0][0] == 999
-    assert status_args[0][1] == "completed"
+    assert status_args[0][1] == "processing"
     # Progress should reach 100
     assert progress_calls[-1][0] == 100
     # Patch embeddingow nie moze byc martwy: gdyby pipeline przestal wolac
@@ -1591,7 +1595,10 @@ async def test_router_timeout_salon_does_not_hang_pipeline(
     mock.update_competitor_report_status.assert_called_once()
     status_args = mock.update_competitor_report_status.call_args
     assert status_args[0][0] == 999
-    assert status_args[0][1] == "completed"
+    # BEAUTY_AUDIT-dqir: compute_competitor_analysis (Etap 4) alone leaves
+    # the row 'processing' — terminal 'completed' now happens only after
+    # Etap 5 synthesis, in pipelines/competitor_report.py.
+    assert status_args[0][1] == "processing"
     assert progress_calls[-1][0] == 100
     embed.assert_used()
 
@@ -1639,7 +1646,10 @@ async def test_router_exception_salon_is_caught_others_continue(
     assert report_id == 999
     status_args = mock.update_competitor_report_status.call_args
     assert status_args[0][0] == 999
-    assert status_args[0][1] == "completed"
+    # BEAUTY_AUDIT-dqir: compute_competitor_analysis (Etap 4) alone leaves
+    # the row 'processing' — terminal 'completed' now happens only after
+    # Etap 5 synthesis, in pipelines/competitor_report.py.
+    assert status_args[0][1] == "processing"
     assert progress_calls[-1][0] == 100
     embed.assert_used()
 
@@ -1686,7 +1696,10 @@ async def test_router_normal_salon_unchanged_no_skip_warning(
 
     assert report_id == 999
     status_args = mock.update_competitor_report_status.call_args
-    assert status_args[0][1] == "completed"
+    # BEAUTY_AUDIT-dqir: compute_competitor_analysis (Etap 4) alone leaves
+    # the row 'processing' — terminal 'completed' now happens only after
+    # Etap 5 synthesis, in pipelines/competitor_report.py.
+    assert status_args[0][1] == "processing"
     assert progress_calls[-1][0] == 100
     # Happy path: no salon was skipped.
     skip_warnings = [
@@ -2315,7 +2328,10 @@ async def test_subject_only_early_exit_when_engine_has_nothing_to_price(
     # Rest of the pipeline ran on the subject_only rows → completed.
     status_args = mock.update_competitor_report_status.call_args
     assert status_args[0][0] == 999
-    assert status_args[0][1] == "completed"
+    # BEAUTY_AUDIT-dqir: compute_competitor_analysis (Etap 4) alone leaves
+    # the row 'processing' — terminal 'completed' now happens only after
+    # Etap 5 synthesis, in pipelines/competitor_report.py.
+    assert status_args[0][1] == "processing"
 
 
 @pytest.mark.asyncio

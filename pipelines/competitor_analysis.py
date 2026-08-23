@@ -13,10 +13,20 @@ Pipeline steps:
      fallback for services with NULL booksy_treatment_id)
   5. Compute service_gaps (missing + unique_usp)
   6. Compute ~28 dimensional_scores with market distribution per dimension
-  7. Update competitor_reports.status → 'completed'
+  7. Persist etap4_stats + activePromotions + hiddenServices, status stays
+     'processing'
 
 AI synthesis (positioning narrative, SWOT, recommendations) is a separate
-Etap 5 pipeline that reads the tables populated here.
+Etap 5 pipeline that reads the tables populated here. The terminal
+'completed' write happens ONLY after that pipeline (synthesize_competitor_
+insights) succeeds — see pipelines/competitor_report.py. BEAUTY_AUDIT-dqir:
+this module used to flip status to 'completed' right here, before Etap 5
+had even started, so a run that crashed during synthesis left a 'completed'
+report with no narrative/SWOT/recommendations. If this function raises
+below (or a caller's synthesis step raises), the row is left in
+'processing' and the existing self-healing write in
+workers/tasks.py::run_competitor_report_task (finally block,
+fail_competitor_report_by_audit_id) flips it to 'failed'.
 
 See docs/plans/2026-04-08-competitor-report-pipeline.md sections
 "Pipeline steps (Comp Etap 2-5)" and "Dimensional scores — pełna lista".
@@ -955,11 +965,26 @@ async def compute_competitor_analysis(
         )
         raise RuntimeError(_abort_reason)
 
-    # ── Step 8: Mark completed ──
-    await progress(95, "Finalizacja raportu...")
+    # ── Step 8: Persist etap4_stats + report_data, status stays 'processing' ──
+    # BEAUTY_AUDIT-dqir: this used to write status='completed' right here,
+    # before Etap 5 (AI synthesis — positioning narrative, SWOT,
+    # recommendations, pipelines/competitor_synthesis.py) had even started.
+    # A run that crashed or was killed during synthesis left the row
+    # permanently 'completed' with an empty report_data — the client saw a
+    # "ready" report missing its narrative. The terminal 'completed' write
+    # now happens in pipelines/competitor_report.py, ONLY after
+    # synthesize_competitor_insights returns successfully. Passing
+    # status="processing" here is a no-op on the status column (the row is
+    # already 'processing' since create_competitor_report) — the call exists
+    # to persist etap4_stats/activePromotions/hiddenServices without
+    # prematurely flipping the terminal flag. If synthesis raises, the row
+    # is left 'processing' and workers/tasks.py's existing self-healing
+    # write (fail_competitor_report_by_audit_id, guarded on
+    # status='processing') flips it to 'failed'.
+    await progress(95, "Finalizacja etapu deterministycznego...")
     await service.update_competitor_report_status(
         report_id,
-        "completed",
+        "processing",
         metadata_extras={
             "etap4_stats": {
                 "competitor_matches": n_matches,

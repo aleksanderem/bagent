@@ -156,10 +156,16 @@ async def test_pipeline_threads_job_id_to_compute_and_synthesis() -> None:
         "recommendation_count": 0, "used_fallback": False,
     })
 
+    # AsyncMock, not MagicMock: BEAUTY_AUDIT-dqir made
+    # run_competitor_report_pipeline await
+    # service.update_competitor_report_status(report_id, "completed") itself
+    # (after synthesis succeeds) rather than leaving status writes entirely
+    # to the mocked compute/synthesize functions — a plain MagicMock's
+    # attribute access returns a non-awaitable MagicMock and raises TypeError.
     with patch.object(cr, "compute_competitor_analysis", mock_compute), \
          patch.object(cr, "synthesize_competitor_insights", mock_synth):
         await cr.run_competitor_report_pipeline(
-            audit_id="a", job_id="job-2", supabase=MagicMock(),
+            audit_id="a", job_id="job-2", supabase=AsyncMock(),
         )
 
     assert mock_compute.await_args.kwargs["job_id"] == "job-2"
