@@ -53,6 +53,65 @@ from services.supabase import SupabaseService
 
 
 # ---------------------------------------------------------------------------
+# Seam sieciowy taksonomii (BEAUTY_AUDIT-elbp)
+# ---------------------------------------------------------------------------
+# Kazdy test, ktory uruchamia `compute_competitor_analysis`, przechodzi przez
+# `infer_and_apply` w services/taxonomy_inference, a to schodzi do
+# `_embed_batch` — czyli do text-embedding-3-small w api.openai.com.
+#
+# Do BEAUTY_AUDIT-elbp zamockowany byl TYLKO test e2e. Reszta byla zielona
+# wylacznie dlatego, ze w srodowisku nie bylo OPENAI_API_KEY:
+# `_get_openai_client()` oddawal None, `_embed_batch` zwracalo None, pipeline
+# szedl cichym fallbackiem na trigramy (services/taxonomy_inference.py:80-82).
+# Gdy klucz BYL — te same testy schodzily do sieci. Asercje nie odrozniaja
+# jednej sciezki od drugiej, wiec zielony wynik nie mowil, co zostalo
+# przetestowane. Naprawa: wybieramy sciezke JAWNIE, patchem ponizej.
+#
+# Kontrakt: kto instaluje patch, ten na koncu testu wola `assert_used()`.
+# Bez tego przesuniecie seamu (zmiana nazwy, inlining, nowy klient) cicho
+# rozbroiloby mock, a testy dalej bylyby zielone — czyli dokladnie ta sama
+# choroba, tylko o poziom nizej.
+
+#: Wymiar text-embedding-3-small — ten sam, ktorego oczekuje `_call_infer_rpc`.
+_EMBED_DIM = 1536
+
+
+class _EmbedBatchStub:
+    """Deterministyczny, offline'owy zamiennik `_embed_batch`.
+
+    Wektor zerowy wystarczy: samo dopasowanie liczy RPC `match_treatment_hybrid`,
+    ktore w mocku Supabase (`_mock_supabase_for_e2e`) oddaje jawnie pusty wynik.
+    Chodzi o to, by `_call_infer_rpc` dostal EMBEDDING — sciezke produkcyjna po
+    hard gate z 2026-05-15 — a nie None, czyli sciezke "nigdy nie powinna sie
+    zdarzyc". Embedding jest, dopasowania nie ma.
+    """
+
+    def __init__(self) -> None:
+        self.calls: list[list[str]] = []
+
+    async def __call__(self, names: list[str]) -> list[list[float]]:
+        self.calls.append(list(names))
+        return [[0.0] * _EMBED_DIM for _ in names]
+
+    def assert_used(self) -> None:
+        """Dowod, ze patch nie jest martwy."""
+        assert self.calls, (
+            "warstwa embeddingow nie zostala uzyta — patch "
+            "services.taxonomy_inference._embed_batch jest martwy (seam sie "
+            "przesunal albo pipeline przestal wolac taksonomie). Bez tej "
+            "asercji zielony wynik znaczylby tylko tyle, ze w srodowisku nie "
+            "bylo OPENAI_API_KEY."
+        )
+
+
+def _stub_embed_batch(monkeypatch: pytest.MonkeyPatch) -> _EmbedBatchStub:
+    """Instaluje stub embeddingow i oddaje go testowi do `assert_used()`."""
+    stub = _EmbedBatchStub()
+    monkeypatch.setattr(taxonomy_inference_mod, "_embed_batch", stub)
+    return stub
+
+
+# ---------------------------------------------------------------------------
 # compute_content_quality_scores
 # ---------------------------------------------------------------------------
 
@@ -1348,17 +1407,10 @@ async def test_compute_competitor_analysis_end_to_end_with_mocks(
         selection_mod, "_fetch_candidate_focus_bundles_batch", _candidate_bundles,
     )
 
-    # Jedyny seam w tym tescie, ktory dotykal sieci. Zerowy wektor wystarczy —
-    # RPC dopasowania i tak jest zamockowany, a chodzi o to, zeby `_call_infer_rpc`
-    # dostal embedding (sciezka produkcyjna po hard gate z 2026-05-15), a nie
-    # None (sciezka "nigdy nie powinna sie zdarzyc").
-    embed_calls: list[list[str]] = []
-
-    async def _fake_embed_batch(names: list[str]) -> list[list[float]]:
-        embed_calls.append(list(names))
-        return [[0.0] * 1536 for _ in names]
-
-    monkeypatch.setattr(taxonomy_inference_mod, "_embed_batch", _fake_embed_batch)
+    # Jedyny seam w tym tescie, ktory dotykal sieci — patrz `_EmbedBatchStub`
+    # na gorze pliku (od BEAUTY_AUDIT-elbp wspolny dla wszystkich testow
+    # uruchamiajacych pipeline, wczesniej tylko tutaj, inline).
+    embed = _stub_embed_batch(monkeypatch)
 
     mock = _mock_supabase_for_e2e()
     progress_calls = []
@@ -1391,7 +1443,7 @@ async def test_compute_competitor_analysis_end_to_end_with_mocks(
     # Patch embeddingow nie moze byc martwy: gdyby pipeline przestal wolac
     # `_embed_batch`, test bez tej asercji dalej bylby zielony i znowu nie
     # wiadomo byloby, ktora sciezka taksonomii sie wykonala.
-    assert embed_calls, "warstwa embeddingow nie zostala uzyta — patch jest martwy"
+    embed.assert_used()
 
 
 # ---------------------------------------------------------------------------
@@ -1496,6 +1548,7 @@ async def test_router_timeout_salon_does_not_hang_pipeline(
     import pipelines.competitor_analysis as ca
 
     _stub_focus_bundles_for_router(monkeypatch)
+    embed = _stub_embed_batch(monkeypatch)
     # Tiny per-salon cap so the subject's 2s sleep blows the timeout fast.
     monkeypatch.setenv("ROUTER_PER_SALON_TIMEOUT_S", "1")
 
@@ -1540,6 +1593,7 @@ async def test_router_timeout_salon_does_not_hang_pipeline(
     assert status_args[0][0] == 999
     assert status_args[0][1] == "completed"
     assert progress_calls[-1][0] == 100
+    embed.assert_used()
 
 
 @pytest.mark.asyncio
@@ -1552,6 +1606,7 @@ async def test_router_exception_salon_is_caught_others_continue(
     import pipelines.competitor_analysis as ca
 
     _stub_focus_bundles_for_router(monkeypatch)
+    embed = _stub_embed_batch(monkeypatch)
     monkeypatch.setenv("ROUTER_PER_SALON_TIMEOUT_S", "1")
 
     async def _fake_route(supabase, services, label="salon", **kwargs):  # noqa: ANN001
@@ -1586,6 +1641,7 @@ async def test_router_exception_salon_is_caught_others_continue(
     assert status_args[0][0] == 999
     assert status_args[0][1] == "completed"
     assert progress_calls[-1][0] == 100
+    embed.assert_used()
 
 
 @pytest.mark.asyncio
@@ -1599,6 +1655,7 @@ async def test_router_normal_salon_unchanged_no_skip_warning(
     import pipelines.competitor_analysis as ca
 
     _stub_focus_bundles_for_router(monkeypatch)
+    embed = _stub_embed_batch(monkeypatch)
     monkeypatch.setenv("ROUTER_PER_SALON_TIMEOUT_S", "1")
 
     async def _fake_route(supabase, services, label="salon", **kwargs):  # noqa: ANN001
@@ -1639,6 +1696,7 @@ async def test_router_normal_salon_unchanged_no_skip_warning(
     assert skip_warnings == [], (
         f"normal-path routing must not log skip warnings, got: {skip_warnings}"
     )
+    embed.assert_used()
 
 
 # ===========================================================================
@@ -1698,6 +1756,7 @@ async def test_competitor_drop_emits_data_load_trace(
     import pipelines.competitor_analysis as ca
 
     _stub_focus_bundles_for_router(monkeypatch)
+    embed = _stub_embed_batch(monkeypatch)
     monkeypatch.setenv("ROUTER_PER_SALON_TIMEOUT_S", "1")
 
     async def _fake_route(supabase, services, label="salon", **kwargs):  # noqa: ANN001
@@ -1739,6 +1798,7 @@ async def test_competitor_drop_emits_data_load_trace(
     assert data["dropped_count"] == 1
     assert 3000 in data["dropped_booksy_ids"]
     assert data["candidate_count"] >= 2
+    embed.assert_used()
 
 
 # ---------------------------------------------------------------------------
@@ -1918,12 +1978,14 @@ async def _run_pipeline_capturing_tracer(
     monkeypatch: pytest.MonkeyPatch,
     *,
     competitor_data_map=None,
-) -> _FakeTracer:
+) -> tuple[_FakeTracer, _EmbedBatchStub]:
     """Run compute_competitor_analysis end-to-end with mocks, capturing the
-    pipeline's tracer. Returns the _FakeTracer for assertions."""
+    pipeline's tracer. Returns (tracer, embed_stub) — tracer do asercji,
+    stub embeddingow do `assert_used()`, zeby patch nie mogl umrzec po cichu."""
     import pipelines.competitor_analysis as ca
 
     _stub_focus_bundles_for_router(monkeypatch)
+    embed = _stub_embed_batch(monkeypatch)
     monkeypatch.setenv("ROUTER_PER_SALON_TIMEOUT_S", "1")
 
     async def _fake_route(supabase, services, label="salon", **kwargs):  # noqa: ANN001
@@ -1953,14 +2015,15 @@ async def _run_pipeline_capturing_tracer(
         ),
         timeout=10,
     )
-    return captured["tracer"]
+    return captured["tracer"], embed
 
 
 @pytest.mark.asyncio
 async def test_phase_timers_selection_and_loads_emitted(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
-    tracer = await _run_pipeline_capturing_tracer(monkeypatch)
+    tracer, embed = await _run_pipeline_capturing_tracer(monkeypatch)
+    embed.assert_used()
     timers = tracer.of("phase.timer")
     phases = {t["data"]["phase"] for t in timers}
     for expected in (
@@ -1991,6 +2054,7 @@ async def test_semaphore_wait_traced_when_slow(
     import pipelines.competitor_analysis as ca
 
     _stub_focus_bundles_for_router(monkeypatch)
+    embed = _stub_embed_batch(monkeypatch)
     monkeypatch.setenv("ROUTER_PER_SALON_TIMEOUT_S", "5")
     # Force serial routing so salons queue on the semaphore.
     monkeypatch.setenv("TAXONOMY_ROUTER_CONCURRENCY", "1")
@@ -2028,6 +2092,7 @@ async def test_semaphore_wait_traced_when_slow(
     waits = captured["tracer"].of("concurrency.semaphore_wait")
     assert waits, "expected at least one concurrency.semaphore_wait trace"
     assert all(w["data"]["gate"] == "taxonomy_router" for w in waits)
+    embed.assert_used()
 
 
 # ---------------------------------------------------------------------------
@@ -2075,6 +2140,7 @@ async def test_pipeline_tracer_none_safe_full_run(
     import pipelines.competitor_analysis as ca
 
     _stub_focus_bundles_for_router(monkeypatch)
+    embed = _stub_embed_batch(monkeypatch)
     monkeypatch.setenv("ROUTER_PER_SALON_TIMEOUT_S", "1")
 
     async def _fake_route(supabase, services, label="salon", **kwargs):  # noqa: ANN001
@@ -2095,6 +2161,7 @@ async def test_pipeline_tracer_none_safe_full_run(
         timeout=10,
     )
     assert report_id == 999
+    embed.assert_used()
 
 
 # ===========================================================================
@@ -2134,7 +2201,9 @@ async def _run_pipeline_with_pricing_spy(
 ):
     """Like _run_pipeline_capturing_tracer but also spies
     ca.compute_pricing_comparisons_v2 (AsyncMock) so a test can assert whether
-    the heavy pricing block was entered. Returns (tracer, spy, mock).
+    the heavy pricing block was entered. Returns (tracer, spy, mock, embed_stub)
+    — ostatni element to stub `_embed_batch`, na ktorym test wola
+    `assert_used()`, zeby patch nie mogl umrzec po cichu.
 
     subject_full_data / competitor_data_map override the default mock's
     get_subject_full_data / get_competitor_full_data so a test can inject a
@@ -2142,6 +2211,7 @@ async def _run_pipeline_with_pricing_spy(
     import pipelines.competitor_analysis as ca
 
     _stub_focus_bundles_for_router(monkeypatch)
+    embed = _stub_embed_batch(monkeypatch)
     monkeypatch.setenv("ROUTER_PER_SALON_TIMEOUT_S", "1")
 
     async def _fake_route(supabase, services, label="salon", **kwargs):  # noqa: ANN001
@@ -2176,7 +2246,7 @@ async def _run_pipeline_with_pricing_spy(
         ),
         timeout=10,
     )
-    return captured["tracer"], pricing_spy, mock
+    return captured["tracer"], pricing_spy, mock, embed
 
 
 @pytest.mark.asyncio
@@ -2206,9 +2276,10 @@ async def test_subject_only_early_exit_when_engine_has_nothing_to_price(
     # literally nothing to work with and the early-exit is the right branch.
     assert all(svc.get("id") is None for svc in subject_data["services"])
 
-    tracer, pricing_spy, mock = await _run_pipeline_with_pricing_spy(
+    tracer, pricing_spy, mock, embed = await _run_pipeline_with_pricing_spy(
         monkeypatch, subject_full_data=subject_data,
     )
+    embed.assert_used()
 
     # Heavy tiers skipped — the proof of the 280-450s saving.
     assert pricing_spy.await_count == 0, (
@@ -2279,12 +2350,13 @@ async def test_subject_the_engine_can_price_takes_unchanged_path(
         svc["variant_id"] = 7
         svc["duration_minutes"] = 30
 
-    tracer, pricing_spy, _mock = await _run_pipeline_with_pricing_spy(
+    tracer, pricing_spy, _mock, embed = await _run_pipeline_with_pricing_spy(
         monkeypatch,
         subject_full_data=subject_data,
         competitor_data_map=competitor_map,
         pricing_return=[],
     )
+    embed.assert_used()
 
     # Existing heavy path entered exactly once — unchanged behaviour.
     assert pricing_spy.await_count == 1, (
