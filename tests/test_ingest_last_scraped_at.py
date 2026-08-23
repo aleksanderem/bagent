@@ -10,8 +10,13 @@ from 2026-08-15, so every "refresh the stale ones" selector skipped it and the
 staleness kept itself alive.
 
 The write is now split: step 1 upserts identity only, and `_mark_salon_scraped`
-moves the marker at the very end, once the whole file has landed. An
-'unchanged' run counts as landed — the content was re-confirmed against Booksy.
+moves the marker in step 6 — after the child writes have landed, but BEFORE
+the audit log and the chain-head promotion. That ordering is deliberate
+(BEAUTY_AUDIT-vrsf): step 7 records the content_hash, and once a hash is in
+`json_ingestion_log` every later refresh of the same bytes short-circuits in
+`ingestion/live_scrape` without ever entering `ingest_file`. Bumping after the
+hash meant a failed bump could never be retried. An 'unchanged' run still
+counts as landed — the content was re-confirmed against Booksy.
 
 The ingester runs against a per-table MagicMock client (no Supabase).
 `embed_texts` is monkeypatched to None so the inline-embedding block issues no
@@ -135,8 +140,27 @@ def _make_client(
         .is_.return_value.is_.return_value.execute.return_value
     ) = _ns(count=0)
 
+    # json_ingestion_log models PERSISTENCE, not just the call: a row counts as
+    # written only once execute() returns. That distinction is the whole test —
+    # `_hashes_already_ingested` reads committed rows, so an insert that raised
+    # must leave nothing behind.
     ingestion_log = MagicMock()
-    ingestion_log.insert.return_value.execute.return_value = _ns(data=[{"id": 1}])
+    ingestion_log.persisted_hashes = []
+    ingestion_log.fail_insert = False
+
+    def _log_insert(row):
+        handle = MagicMock()
+
+        def _execute():
+            if ingestion_log.fail_insert:
+                raise RuntimeError("boom")
+            ingestion_log.persisted_hashes.append(row["content_hash"])
+            return _ns(data=[{"id": 1}])
+
+        handle.execute.side_effect = _execute
+        return handle
+
+    ingestion_log.insert.side_effect = _log_insert
 
     tables = {
         "salons": salons,
@@ -171,6 +195,17 @@ def _bumps(tables: dict[str, MagicMock]) -> list[dict]:
 
 def _upsert_payload(tables: dict[str, MagicMock]) -> dict:
     return tables["salons"].upsert.call_args.args[0]
+
+
+def _logged_hashes(tables: dict[str, MagicMock]) -> list[str]:
+    """content_hash values COMMITTED to json_ingestion_log.
+
+    This is the column `_hashes_already_ingested` looks up (globally, with no
+    salon scoping) and `ingestion/live_scrape` uses to skip a file without ever
+    entering `ingest_file`. A hash in here after a failed run means that run is
+    never repeated.
+    """
+    return list(tables["json_ingestion_log"].persisted_hashes)
 
 
 # ---------------------------------------------------------------------------
@@ -231,12 +266,85 @@ def test_failed_child_insert_leaves_last_scraped_at_untouched(tmp_path):
     tables["salon_scrapes"].delete.return_value.eq.assert_called_once_with("id", SCRAPE_ID)
 
 
-def test_failed_audit_log_leaves_last_scraped_at_untouched(tmp_path):
-    """Same for the later failure point: the audit row never landed, so the
-    file will be retried and the marker must still show the last good scrape."""
+def test_failed_bump_aborts_the_ingest_without_recording_the_hash(tmp_path):
+    """The permanent-freeze case (beads BEAUTY_AUDIT-vrsf).
+
+    `_hashes_already_ingested` looks content_hash up in json_ingestion_log
+    globally, and `ingestion/live_scrape` skips the file on a hit without ever
+    entering `ingest_file`. So a hash written while the marker bump was failing
+    used to lock the salon out of every future retry — worst of all for a
+    freshly discovered salon whose last_scraped_at is still NULL, which the
+    enqueue helper re-fetches from Booksy forever.
+
+    Bumping BEFORE the audit row is what breaks the loop: a failed bump leaves
+    no hash behind, so the next cycle repeats the whole file.
+    """
     payload = _payload()
     client, tables = _make_client()
-    tables["json_ingestion_log"].insert.return_value.execute.side_effect = RuntimeError("boom")
+    tables["salons"].update.return_value.eq.return_value.execute.side_effect = RuntimeError("boom")
+    ing = SalonJsonIngester(client=client, batch_tag=None, dry_run=False)
+    path, content_hash = _write_file(tmp_path, payload)
+
+    with pytest.raises(IngestError) as exc:
+        ing.ingest_file(path, content_hash)
+
+    assert "last_scraped_at bump" in str(exc.value)
+    # THE point of the fix: nothing short-circuits the next attempt.
+    assert _logged_hashes(tables) == []
+
+
+def test_failed_bump_unwinds_the_new_scrape(tmp_path):
+    """A bump failure has to roll back exactly like the audit-log failure does:
+    the new salon_scrapes row is ours and nothing references it any more."""
+    payload = _payload()
+    client, tables = _make_client()
+    tables["salons"].update.return_value.eq.return_value.execute.side_effect = RuntimeError("boom")
+    ing = SalonJsonIngester(client=client, batch_tag=None, dry_run=False)
+    path, content_hash = _write_file(tmp_path, payload)
+
+    with pytest.raises(IngestError):
+        ing.ingest_file(path, content_hash)
+
+    tables["salon_scrapes"].delete.return_value.eq.assert_called_once_with("id", SCRAPE_ID)
+
+
+def test_failed_bump_on_unchanged_run_leaves_the_pre_existing_head_alone(tmp_path):
+    """Same unwind condition as the audit log: an 'unchanged' run did not
+    insert a scrape row, so there is nothing of ours to delete — the chain head
+    predates this run and we don't own it."""
+    payload = _payload()
+    client, tables = _make_client(chain_head=_chain_head(compute_content_hash(payload)))
+    tables["salons"].update.return_value.eq.return_value.execute.side_effect = RuntimeError("boom")
+    ing = SalonJsonIngester(client=client, batch_tag=None, dry_run=False)
+    path, content_hash = _write_file(tmp_path, payload)
+
+    with pytest.raises(IngestError):
+        ing.ingest_file(path, content_hash)
+
+    assert tables["salon_scrapes"].delete.call_count == 0
+    assert _logged_hashes(tables) == []
+
+
+def test_failed_audit_log_keeps_the_bump_and_records_no_hash(tmp_path):
+    """The reverse order of failure — and it is self-healing, which is why the
+    bump is allowed to go first.
+
+    Before BEAUTY_AUDIT-vrsf this test asserted the opposite (`_bumps == []`),
+    because the audit row was written first and a bump after it never ran. Now
+    the bump has already landed when `_log_ingestion` blows up. That is safe:
+    the content_hash never reached json_ingestion_log, so the next ingest of
+    the same file runs the whole thing again and writes the audit row then.
+    The marker does sit ahead of the audit trail until then, and one selector
+    does read it: `enqueue_discovered_salons` (migration 033) drains on
+    `last_scraped_at IS NULL`, so a freshly discovered salon drops out of that
+    queue. Recovery falls to the refresh queue (five requeues with backoff)
+    and then to tier 3, which dates the salon by `salons.created_at`
+    (migration 050) and picks it up after seven days. Bounded — unlike the
+    pre-fix trap, which had no exit at all.
+    """
+    payload = _payload()
+    client, tables = _make_client()
+    tables["json_ingestion_log"].fail_insert = True
     ing = SalonJsonIngester(client=client, batch_tag=None, dry_run=False)
     path, content_hash = _write_file(tmp_path, payload)
 
@@ -245,7 +353,8 @@ def test_failed_audit_log_leaves_last_scraped_at_untouched(tmp_path):
 
     assert "audit log" in str(exc.value)
     assert "last_scraped_at" not in _upsert_payload(tables)
-    assert _bumps(tables) == []
+    assert _bumps(tables) == [{"last_scraped_at": SCRAPED_AT}]
+    assert _logged_hashes(tables) == []
     tables["salon_scrapes"].delete.return_value.eq.assert_called_once_with("id", SCRAPE_ID)
 
 
