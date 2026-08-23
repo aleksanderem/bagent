@@ -100,6 +100,7 @@ def search_twins(
     limit: int = 60,
     min_similarity: float = 0.82,
     client: QdrantClient | None = None,
+    exact: bool = False,
 ) -> dict[int, list[dict[str, Any]]]:
     """Dla każdej usługi subject znajdź tożsamych bliźniaków wśród konkurentów.
 
@@ -112,6 +113,12 @@ def search_twins(
             Gdy None, fallback do retrieve z Qdrant (działa tylko dla chain-head).
         limit: max bliźniaków per usługa.
         min_similarity: próg cosine (score_threshold).
+        exact: brute-force zamiast HNSW. Kolekcja NIE MA indeksu payload na
+            booksy_id (payload_schema={}), więc filtrowany HNSW dla MAŁEJ puli
+            (np. 15 wybranych konkurentów) gubi CAŁE salony: pomiar na raporcie
+            250 — 10/15 salonów z 0 bliźniakami przy 0.55, exact=True daje
+            143–174 bliźniaków każdemu (BEAUTY_AUDIT-xi18). Dla puli ≤ ~100
+            salonów koszt exact jest pomijalny (221 zapytań ≈ 18 s).
 
     Returns:
         {subject_service_id: [sample]} w kształcie oczekiwanym przez
@@ -147,6 +154,7 @@ def search_twins(
         models.QueryRequest(
             query=subj_vec[sid], filter=flt, limit=limit,
             score_threshold=min_similarity, with_payload=True,
+            params=models.SearchParams(exact=True) if exact else None,
         )
         for sid in order
     ]
@@ -161,7 +169,11 @@ def search_twins(
             out[sid].append({
                 "service_id": int(pt.id),
                 "booksy_id": pl.get("booksy_id"),
-                "salon_id": pl.get("booksy_id"),  # salon_name dołoży caller
+                # salons.id (wewnętrzny PK) dokłada caller po lookupie booksy_id→id.
+                # NIGDY nie aliasuj tu booksy_id: to INNA przestrzeń identyfikatorów
+                # (Faza 8a porównuje salon_id z competitor_matches.competitor_salon_id;
+                # regresja 2026-06-23..08-20, BEAUTY_AUDIT-hx85).
+                "salon_id": None,
                 "salon_name": "",
                 "service_name": pl.get("service_name") or "",
                 "price_grosze": pl.get("price_grosze"),

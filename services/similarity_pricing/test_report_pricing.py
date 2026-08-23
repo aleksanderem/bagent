@@ -87,7 +87,7 @@ def test_one_row_per_service_market_from_full_cluster(monkeypatch):
     cluster.append(_twin(20, 100, "Presoterapia", 10000, 40))  # wybrany
     _patch_search(monkeypatch, cluster)
     service = _FakeService(geo_booksy=list(range(500, 510)), salon_rows=[
-        {"booksy_id": b, "name": f"Salon {b}"} for b in [100, 500, 501, 502, 503]
+        {"id": 7000 + b, "booksy_id": b, "name": f"Salon {b}"} for b in [100, 500, 501, 502, 503]
     ])
     subject_data = {"booksy_id": 163496, "services": [{
         "id": 1, "name": "Presoterapia", "price_grosze": 15000, "duration_minutes": 40,
@@ -103,6 +103,8 @@ def test_one_row_per_service_market_from_full_cluster(monkeypatch):
     selected = [s for s in r["competitor_samples"] if s["is_selected"]]
     assert len(selected) == 1 and selected[0]["booksy_id"] == 100
     assert all(s["salon_name"] for s in r["competitor_samples"])
+    # hx85: salon_id = salons.id (z lookupu), NIE booksy_id
+    assert all(s["salon_id"] == 7000 + s["booksy_id"] for s in r["competitor_samples"])
 
 
 def test_matching_runs_once_on_union(monkeypatch):

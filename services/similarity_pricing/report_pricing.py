@@ -85,22 +85,31 @@ def _geo_competitor_booksy_ids(service: Any, subject_booksy_id: int, radius_km: 
         return []
 
 
-def _lookup_salon_names(service: Any, booksy_ids: list[int]) -> dict[int, str]:
-    """booksy_id → salon name (batch, dla drill-down)."""
+def _lookup_salons(service: Any, booksy_ids: list[int]) -> dict[int, dict[str, Any]]:
+    """booksy_id → {"id": salons.id, "name": nazwa} (batch, dla drill-down i Fazy 8a).
+
+    Dwie przestrzenie identyfikatorów: ``booksy_id`` (zewnętrzny numer Booksy,
+    klucz w Qdrancie i w geo RPC) oraz ``salons.id`` (wewnętrzny PK, klucz w
+    ``competitor_matches.competitor_salon_id``). Próbki z Qdranta mają tylko
+    booksy_id — salon_id domapowujemy TU, żeby Faza 8a porównywała PK z PK.
+    """
     if not booksy_ids:
         return {}
-    names: dict[int, str] = {}
+    out: dict[int, dict[str, Any]] = {}
     uniq = list({int(b) for b in booksy_ids if b is not None})
     for i in range(0, len(uniq), 500):
         chunk = uniq[i:i + 500]
         try:
-            res = service.client.table("salons").select("booksy_id,name").in_("booksy_id", chunk).execute()
+            res = service.client.table("salons").select("id,booksy_id,name").in_("booksy_id", chunk).execute()
             for row in (res.data or []):
                 if row.get("booksy_id") is not None:
-                    names[int(row["booksy_id"])] = row.get("name") or ""
+                    out[int(row["booksy_id"])] = {
+                        "id": int(row["id"]) if row.get("id") is not None else None,
+                        "name": row.get("name") or "",
+                    }
         except Exception as e:
-            logger.warning("salon_names lookup failed (chunk %d): %s", i, e)
-    return names
+            logger.warning("salons lookup failed (chunk %d): %s", i, e)
+    return out
 
 
 def _fetch_subject_embeddings(service: Any, subject_ids: list[int]) -> dict[int, list[float]]:
@@ -215,7 +224,7 @@ async def compute_pricing_comparisons_v2(
     # Subject pochodzi z AUDIT scrape (nie chain-head) — NIE ma go w Qdrant.
     # Embeddingi subjectów bierzemy z Postgresa, w Qdrant pytamy tylko o konkurentów.
     subject_embeddings = _fetch_subject_embeddings(service, subject_ids)
-    salon_names = _lookup_salon_names(service, all_booksy)
+    salons_by_booksy = _lookup_salons(service, all_booksy)
 
     def _price_at(min_similarity: float) -> list[dict[str, Any]]:
         """Jeden pełny przebieg wyceny przy danym progu podobieństwa twins."""
@@ -235,7 +244,9 @@ async def compute_pricing_comparisons_v2(
             peer_sims = compute_peer_max_sims(twin_ids, peer_vecs)
             for s in raw:
                 bid = s.get("booksy_id")
-                s["salon_name"] = salon_names.get(bid, "")
+                info = salons_by_booksy.get(bid) or {}
+                s["salon_name"] = info.get("name", "")
+                s["salon_id"] = info.get("id")  # salons.id, NIE booksy_id (hx85)
                 s["is_selected"] = bid in selected_booksy
                 pm = peer_sims.get(s.get("service_id"))
                 if pm is not None:

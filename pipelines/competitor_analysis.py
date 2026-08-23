@@ -60,11 +60,26 @@ from services.hidden_service_inference import (
     GeminiLLMClient,
     infer_hidden_services_batch,
 )
-from services.similarity_pricing.report_pricing import compute_pricing_comparisons_v2
+from pipelines.competitor_buckets import (
+    BUCKET_MIN_SIMILARITY,
+    EMPTY_ASSIGNMENT,
+    assign_coverage_buckets,
+    coverage_by_salon,
+)
+from services.similarity_pricing.qdrant_search import search_twins
+from services.similarity_pricing.report_pricing import (
+    _fetch_subject_embeddings,
+    compute_pricing_comparisons_v2,
+)
 from services.supabase import SupabaseService
 from services.taxonomy_inference import infer_and_apply
 
 from config import settings
+
+# Faza 8a: max bliźniaków per usługa subjecta w puli wybranych (≤ ~15 salonów,
+# liczy się tylko 'czy salon ma odpowiednik', więc limit musi przewyższać liczbę
+# salonów × warianty tej samej usługi).
+_BUCKET_SEARCH_LIMIT = 600
 
 logger = logging.getLogger(__name__)
 
@@ -745,14 +760,15 @@ async def compute_competitor_analysis(
         except Exception as _fe:
             logger.warning("Etap 4: classifier cache flush failed: %s", _fe)
 
-    # ── Step 4.5 (Faza 8a 2026-05-17): aggregate LLM-verified matches
-    # per competitor + re-bucket. Replaces the composite_score_v2 signal
-    # ("they look similar") with ground truth ("they actually offer the
-    # same services in the same scope"). Low-verified competitors are
-    # marked as 'aspirational' or 'excluded' so the rich UI surfaces a
-    # cleaner final list of true competition. ──
-    await progress(56, "Re-bucketing konkurentów wg verified matches...")
-    await _aggregate_verified_match_counts(service, report_id, pricing_rows)
+    # ── Step 4.5 (Faza 8a 2026-05-17, przebudowa 2026-08-23 xi18): re-bucket
+    # wg POKRYCIA menu subjecta przez każdego wybranego konkurenta (osobne,
+    # dokładne wyszukiwanie w puli wybranych). Zastępuje sygnał
+    # composite_score_v2 ("wyglądają podobnie") dowodem ("oferują te same
+    # usługi"). Słabo pokrywający → 'aspirational'/'excluded'. ──
+    await progress(56, "Re-bucketing konkurentów wg pokrycia usług...")
+    await _aggregate_verified_match_counts(
+        service, report_id, subject_data, aligned_competitors,
+    )
 
     # ── Step 5: Service gaps ──
     await progress(60, "Service gap analysis (missing + unique USP)...")
@@ -6422,78 +6438,68 @@ def _compute_dimensional_scores(
 # Faza 8a — verified-match-count aggregation (2026-05-17)
 # ─────────────────────────────────────────────────────────────────────────────
 
-# Re-bucketing thresholds. Counts are over DISTINCT subject-tids where the
-# competitor offered at least one LLM-verified comparable service. We do
-# not double-count multiple samples from the same competitor under one tid.
-_VERIFIED_BUCKET_DIRECT_MIN = 10
-_VERIFIED_BUCKET_CLUSTER_MIN = 5
-_VERIFIED_BUCKET_ASPIRATIONAL_MIN = 3
-
-
 async def _aggregate_verified_match_counts(
     service: "SupabaseService",
     report_id: int,
-    pricing_rows: list[dict[str, Any]],
+    subject_data: dict[str, Any],
+    aligned_competitors: list[tuple[Any, dict[str, Any]]],
 ) -> dict[int, int]:
-    """Aggregate Faza 7 LLM verdicts per competitor for this report and
-    re-bucket competitor_matches. Returns {competitor_salon_id:
-    verified_match_count} for downstream logging.
+    """Faza 8a: re-bucket konkurentów raportu wg POKRYCIA menu subjecta.
 
-    Counts DISTINCT (competitor_salon_id, booksy_treatment_id OR
-    synthetic_treatment_id) tuples where any sample for that competitor
-    in that tid had llm_verified=true. We don't reward a competitor for
-    having three matches under one tid — what matters is how many of
-    MY treatment categories they actually offer comparable services in.
+    Osobne wyszukiwanie bliźniaków w puli SAMYCH wybranych konkurentów
+    (exact, bez crowd-outu przez 9k salonów z promienia 15 km, który w
+    wycenie zostawia wybranym 1–4 wiersze). Koszyk zależy od UDZIAŁU
+    pokrytych usług w CAŁYM menu subjecta — patrz
+    ``pipelines.competitor_buckets``. Zwraca {competitor_salon_id:
+    verified_match_count} (liczba pokrytych usług subjecta).
+
+    Bezpieczniki (błąd w logu, re-bucket POMINIĘTY zamiast degradować
+    wszystkich do 'excluded'): brak embeddingów subjecta (stare audit
+    scrape'y sprzed inline-embeddingu), zero pokryć u wszystkich (Qdrant
+    bez wybranych / awaria searchu), pusty przekrój pokrycia z
+    competitor_matches raportu (pomylona przestrzeń ID, BEAUTY_AUDIT-hx85).
     """
-    if not pricing_rows:
-        return {}
-
-    counts: dict[int, set[tuple[str, int]]] = {}
-    for row in pricing_rows:
-        tid_kind = "synthetic" if row.get("synthetic_treatment_id") else "booksy"
-        tid_value = (
-            row.get("synthetic_treatment_id")
-            or row.get("booksy_treatment_id")
-        )
-        if tid_value is None:
-            continue
-        samples = row.get("competitor_samples") or []
-        for sample in samples:
-            if not isinstance(sample, dict):
-                continue
-            # Treat missing llm_verified as True (legacy / tier=variant
-            # samples auto-pass). False is only set explicitly by the
-            # Faza 7 verifier when LLM rejected.
-            verified = sample.get("llm_verified", True)
-            if verified is False:
-                continue
-            comp_salon_id = sample.get("salon_id")
-            if comp_salon_id is None:
-                continue
-            try:
-                comp_salon_id = int(comp_salon_id)
-            except (TypeError, ValueError):
-                continue
-            counts.setdefault(comp_salon_id, set()).add(
-                (tid_kind, int(tid_value))
-            )
-
-    # Convert sets → scalar counts for persistence.
-    verified_counts: dict[int, int] = {
-        sid: len(tids) for sid, tids in counts.items()
+    subject_services = [
+        s for s in (subject_data.get("services") or [])
+        if s.get("is_active", True) and s.get("price_grosze") and s.get("id") is not None
+    ]
+    selected = {
+        int(cand.booksy_id): int(cand.salon_id)
+        for cand, _ in aligned_competitors
+        if getattr(cand, "booksy_id", None) and getattr(cand, "salon_id", None) is not None
     }
+    if not subject_services or not selected:
+        return {}
 
-    if not verified_counts:
-        logger.warning(
-            "Faza 8a: zero verified matches across %d pricing rows — "
-            "either LLM verify produced no keepers or competitor_samples "
-            "were stripped. Skipping re-bucket.",
-            len(pricing_rows),
+    subject_ids = [int(s["id"]) for s in subject_services]
+    subject_embeddings = _fetch_subject_embeddings(service, subject_ids)
+    if not subject_embeddings:
+        logger.error(
+            "Faza 8a: 0/%d usług subjecta ma name_embedding (raport %s) — "
+            "scrape sprzed inline-embeddingu? Pomijam re-bucket.",
+            len(subject_ids), report_id,
         )
         return {}
 
-    # Load current bucket assignments so we can persist bucket_pre_verify
-    # for audit. Fetch as a single batched call.
+    # Sync klient Qdrant, ~15 s dla 221 usług — poza event loopem.
+    clusters = await asyncio.to_thread(
+        search_twins,
+        subject_ids, list(selected), subject_embeddings=subject_embeddings,
+        limit=_BUCKET_SEARCH_LIMIT, min_similarity=BUCKET_MIN_SIMILARITY, exact=True,
+    )
+    coverage = coverage_by_salon(clusters, selected, BUCKET_MIN_SIMILARITY)
+    subject_total = len(subject_embeddings)
+    covered_ids = {sid for sid, svcs in coverage.items() if svcs}
+    if not covered_ids:
+        logger.error(
+            "Faza 8a: 0 pokryć u WSZYSTKICH %d wybranych (raport %s, %d usług "
+            "subjecta, sim>=%.2f) — wybrani nie są w Qdrant albo search padł. "
+            "Pomijam re-bucket zamiast degradować wszystkich do 'excluded'.",
+            len(selected), report_id, subject_total, BUCKET_MIN_SIMILARITY,
+        )
+        return {}
+    assignments = assign_coverage_buckets(coverage, subject_total)
+
     existing_matches = await service.get_competitor_matches(report_id)
     bucket_pre_verify: dict[int, str] = {}
     for m in existing_matches:
@@ -6505,9 +6511,16 @@ async def _aggregate_verified_match_counts(
         except (TypeError, ValueError):
             continue
 
-    # Compute new bucket per competitor + collect update batch.
+    if bucket_pre_verify and not (covered_ids & bucket_pre_verify.keys()):
+        logger.error(
+            "Faza 8a: pokrycie (%d salonów) nie przecina się z competitor_matches "
+            "raportu %s (%d konkurentów) — podejrzenie pomylonej przestrzeni ID. "
+            "Pomijam re-bucket zamiast degradować wszystkich do 'excluded'.",
+            len(covered_ids), report_id, len(bucket_pre_verify),
+        )
+        return {}
+
     updates: list[dict[str, Any]] = []
-    dropped_low_verified = 0
     for m in existing_matches:
         sid_raw = m.get("competitor_salon_id")
         if sid_raw is None:
@@ -6516,43 +6529,31 @@ async def _aggregate_verified_match_counts(
             sid = int(sid_raw)
         except (TypeError, ValueError):
             continue
-        vcount = verified_counts.get(sid, 0)
-        if vcount >= _VERIFIED_BUCKET_DIRECT_MIN:
-            new_bucket = "direct"
-        elif vcount >= _VERIFIED_BUCKET_CLUSTER_MIN:
-            new_bucket = "cluster"
-        elif vcount >= _VERIFIED_BUCKET_ASPIRATIONAL_MIN:
-            new_bucket = "aspirational"
-        else:
-            new_bucket = "excluded"
-            dropped_low_verified += 1
+        a = assignments.get(sid, EMPTY_ASSIGNMENT)
         updates.append({
             "id": m.get("id"),
-            "verified_match_count": vcount,
+            "verified_match_count": a.covered,
             "bucket_pre_verify": bucket_pre_verify.get(sid),
-            "bucket": new_bucket,
-            # counts_in_aggregates collapses to True only when the
-            # competitor is real enough to feed the pricing matrix.
-            # 'excluded' competitors are kept in DB but flagged out of
-            # all aggregate stats and out of competitorProfiles.
-            "counts_in_aggregates": new_bucket != "excluded",
+            "bucket": a.bucket,
+            # 'excluded' zostaje w DB, ale wypada z agregatów i competitorProfiles.
+            "counts_in_aggregates": a.bucket != "excluded",
         })
 
-    # Persist via dedicated method on SupabaseService (PATCH per row).
     await service.update_competitor_matches_verify_buckets(report_id, updates)
 
     logger.info(
         "Faza 8a: re-bucketed %d competitors (direct=%d, cluster=%d, "
-        "aspirational=%d, excluded=%d) using verified_match_count from "
-        "%d pricing rows",
+        "aspirational=%d, excluded=%d) — max pokrycie %d z %d usług subjecta "
+        "przy sim>=%.2f, exact search po %d wybranych",
         len(updates),
         sum(1 for u in updates if u["bucket"] == "direct"),
         sum(1 for u in updates if u["bucket"] == "cluster"),
         sum(1 for u in updates if u["bucket"] == "aspirational"),
-        dropped_low_verified,
-        len(pricing_rows),
+        sum(1 for u in updates if u["bucket"] == "excluded"),
+        max((a.covered for a in assignments.values()), default=0), subject_total,
+        BUCKET_MIN_SIMILARITY, len(selected),
     )
-    return verified_counts
+    return {sid: a.covered for sid, a in assignments.items()}
 
 
 # ─────────────────────────────────────────────────────────────────────────────
