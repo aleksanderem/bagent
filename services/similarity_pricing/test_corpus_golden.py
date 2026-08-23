@@ -24,6 +24,32 @@ bramkuje services/similarity_pricing/). Dobór przypadków:
   * 2 przypadki CZYSTE (zero coherence-drop) — stabilność bit-w-bit silnika
                                 na danych bez obcych bloków.
 
+AKTUALIZACJA OCZEKIWAŃ 2026-08-23 (BEAUTY_AUDIT-bgp3, coherence_gap 0.08 -> 0.15).
+Zmieniło się 5 z 8 przypadków, KAŻDY sprawdzony ręcznie przed przypięciem — wszystkie
+w stronę większego pokrycia bez wpuszczenia obcych próbek:
+  * "Bikini linią"          thin -> sufficient, 3 -> 7 salonów, mediana 48 -> 100 zł.
+                            Dochodzą wyłącznie linie bikini ("Bikini (do linii
+                            bielizny)", "Linia bikini-wosk", "Bikini (łono+ wzdłuż
+                            linii bielizny)"). Obcy blok 52×"Bikini płytkie", przed
+                            którym ten przypadek stoi na straży, DALEJ jest wycinany
+                            (56 dropów). Poprzednie 48 zł liczyło się z 3 próbek —
+                            mediana z tak cienkiego klastra była zniekształcona.
+  * "Uzupelnienie rzęs 2:1" insufficient -> thin, 0 -> 3 salony, mediana 212 zł.
+                            Wchodzą TYLKO próbki 2:1 (2×"Uzupełnianie rzęs 2:1",
+                            1×"uzupełnienie rzęs 2:1"). Mixing wolumenu z 13×"1:1",
+                            przed którym stoi ten przypadek, odsiewa oś params —
+                            niezależnie od strażnika.
+  * "Farbowanie (Farbka) Rzęs" thin -> sufficient, mediana 50 -> 46 zł. To był
+                            UDOKUMENTOWANY TRADE-OFF opisany niżej: strażnik ścinał
+                            de-facto tożsame sample. Trade-off się poprawił dokładnie
+                            tak, jak przewidywał komentarz — status rośnie, mediana
+                            stoi.
+  * "Fotoodmładzanie Twarz Plus Szyja" thin -> sufficient (4 -> 8 salonów).
+  * "Henna brwi"            status i mediana BEZ ZMIAN (70 zł), ale dropów 34 -> 5 —
+                            ten sam wynik mniejszym cięciem.
+Trzy przypadki czyste (zero coherence-drop) nie drgnęły — silnik bit-w-bit stabilny
+tam, gdzie nie ma obcych bloków.
+
 INWARIANT (uniwersalny, bez semantyki): w kept-klastrze ŻADEN sample nie może
 mieć sygnatury obcego bloku (peer_max_sim − similarity > gap przy sim < s_max
 w bloku ≥ min_block) — to samo sprawdza produkcyjnie SLO probe

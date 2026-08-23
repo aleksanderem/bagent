@@ -913,10 +913,10 @@
    }
   ],
   "expected": {
-   "status": "thin",
-   "median": 61650,
-   "n_unique_salons": 4,
-   "n_coherence_dropped": 15
+   "status": "sufficient",
+   "median": 44983,
+   "n_unique_salons": 8,
+   "n_coherence_dropped": 11
   },
   "baseline_for_context": {
    "status": "sufficient",
@@ -1441,10 +1441,10 @@
    }
   ],
   "expected": {
-   "status": "thin",
-   "median": 5000,
-   "n_unique_salons": 3,
-   "n_coherence_dropped": 39
+   "status": "sufficient",
+   "median": 4600,
+   "n_unique_salons": 6,
+   "n_coherence_dropped": 36
   },
   "baseline_for_context": {
    "status": "sufficient",
@@ -2259,8 +2259,8 @@
   "expected": {
    "status": "sufficient",
    "median": 7000,
-   "n_unique_salons": 17,
-   "n_coherence_dropped": 34
+   "n_unique_salons": 39,
+   "n_coherence_dropped": 5
   },
   "baseline_for_context": {
    "status": "sufficient",
@@ -3097,10 +3097,10 @@
    }
   ],
   "expected": {
-   "status": "thin",
-   "median": 4800,
-   "n_unique_salons": 3,
-   "n_coherence_dropped": 60
+   "status": "sufficient",
+   "median": 10000,
+   "n_unique_salons": 7,
+   "n_coherence_dropped": 56
   },
   "baseline_for_context": {
    "status": "sufficient",
@@ -3469,10 +3469,10 @@
    }
   ],
   "expected": {
-   "status": "insufficient",
-   "median": null,
-   "n_unique_salons": 0,
-   "n_coherence_dropped": 6
+   "status": "thin",
+   "median": 21250,
+   "n_unique_salons": 3,
+   "n_coherence_dropped": 3
   },
   "baseline_for_context": {
    "status": "sufficient",

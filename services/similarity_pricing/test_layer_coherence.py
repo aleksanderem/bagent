@@ -9,7 +9,7 @@ raport #250 miał ten mixing w wierszach verified).
 from __future__ import annotations
 
 from .engine import compute_market_price
-from .layer_coherence import drop_foreign_blocks
+from .layer_coherence import DEFAULT_GAP, drop_foreign_blocks
 
 
 def _s(name, sim, peer=None, bid=1, sid=None, price=10000, dur=60, cat=None):
@@ -27,19 +27,27 @@ def _s(name, sim, peer=None, bid=1, sid=None, price=10000, dur=60, cat=None):
 # --------------------------------------------------------------------------
 
 def test_foreign_block_dropped():
-    # Blok 3 sampli: wzajemnie ~identyczne (peer 0.99+), do subjectu 0.84
-    # => gap ~0.15 > 0.08, sim < 0.90 => odrzucone.
+    # Blok 3 sampli: wzajemnie ~identyczne (peer wysokie), do subjectu wyraźnie
+    # niżej => gap pewnie POWYŻEJ progu, sim < s_max => odrzucone.
+    #
+    # Dane liczone względem DEFAULT_GAP, nie wpisane na sztywno: test ma pilnować
+    # MECHANIZMU (sygnatura obcego bloku), a nie konkretnej kalibracji progu.
+    # Wersja sprzed 2026-08-23 miała "Obcy 3" z gapem 0.149 — przy podniesieniu
+    # progu do 0.15 (BEAUTY_AUDIT-bgp3) test padał na przypadku granicznym, choć
+    # sam mechanizm działał bez zarzutu.
+    obcy_peer = 0.99
+    obcy_sim = obcy_peer - (DEFAULT_GAP + 0.05)   # gap pewnie powyżej progu
     samples = [
         _s("Twin A", 0.95, peer=0.96, bid=1),
         _s("Twin B", 0.93, peer=0.96, bid=2),
-        _s("Obcy 1", 0.84, peer=0.995, bid=3),
-        _s("Obcy 2", 0.84, peer=0.995, bid=4),
-        _s("Obcy 3", 0.841, peer=0.99, bid=5),
+        _s("Obcy 1", obcy_sim, peer=obcy_peer, bid=3),
+        _s("Obcy 2", obcy_sim, peer=obcy_peer, bid=4),
+        _s("Obcy 3", obcy_sim + 0.001, peer=obcy_peer, bid=5),
     ]
     kept, meta = drop_foreign_blocks(samples)
     assert [s["service_name"] for s in kept] == ["Twin A", "Twin B"]
     assert meta["n_dropped"] == 3
-    assert meta["dropped_gap_range"][0] > 0.08
+    assert meta["dropped_gap_range"][0] > DEFAULT_GAP
 
 
 def test_true_twins_kept_gap_near_zero():
@@ -206,3 +214,42 @@ def test_prod_case_without_peer_sims_documents_old_behaviour():
     res = compute_market_price(subject, stripped, None)
     assert any("edicure" in s["service_name"] for s in res.samples)
     assert res.n_coherence_dropped == 0
+
+
+# --------------------------------------------------------------------------
+# Regresja BEAUTY_AUDIT-bgp3 — gęsty rynek nie może zginąć w całości
+# --------------------------------------------------------------------------
+
+def test_dense_market_survives_guard():
+    """Wiele salonów z tą SAMĄ usługą nie jest obcym blokiem.
+
+    Odwzorowuje przypadek z prod (raport 250, "Depilacja laserowa - baki"):
+    67 salonów w promieniu oferuje ten sam zabieg, więc ich nazwy są wzajemnie
+    niemal identyczne (peer_max_sim ~0.95), a do podmiotu — którego nazwa niesie
+    dodatkowo model urządzenia i płeć — podobieństwo spada do ~0.84. Przy gap
+    0.08 sygnatura "podobniejsze do siebie niż do mnie" spełniała się dla całego
+    rynku i strażnik zostawiał ZERO próbek. To odwrotność jego celu: im lepsze
+    pokrycie rynkowe, tym pewniej klaster ginął.
+
+    Test pilnuje, żeby przy produkcyjnej konfiguracji taki klaster przeżył.
+    Blok naprawdę obcy (gap znacznie powyżej progu) dalej ma ginąć — tego
+    pilnuje test_foreign_block_dropped powyżej.
+    """
+    dense = [_s(f"Depilacja laserowa - baki ({i})", 0.84 + i * 0.002, peer=0.95, bid=i)
+             for i in range(8)]
+    kept, meta = drop_foreign_blocks(dense)
+    assert len(kept) == 8, f"gęsty rynek wycięty przez strażnika: zostało {len(kept)}/8"
+    assert meta["n_dropped"] == 0
+
+
+def test_dense_market_would_die_at_old_gap():
+    """Kontrola negatywna: ten sam klaster przy STARYM gapie 0.08 ginął w całości.
+
+    Gdyby ten test zaczął przechodzić bez zmiany danych, znaczyłoby to, że
+    sygnatura obcego bloku przestała działać w ogóle — a nie że próg jest lepiej
+    dobrany.
+    """
+    dense = [_s(f"Depilacja laserowa - baki ({i})", 0.84 + i * 0.002, peer=0.95, bid=i)
+             for i in range(8)]
+    kept, _ = drop_foreign_blocks(dense, gap=0.08)
+    assert kept == [], "przy gapie 0.08 cały gęsty rynek powinien ginąć (stan sprzed bgp3)"
