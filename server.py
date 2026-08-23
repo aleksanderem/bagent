@@ -11,9 +11,9 @@ import uuid
 from pathlib import Path
 
 from arq.connections import ArqRedis
-from fastapi import BackgroundTasks, Depends, FastAPI, HTTPException, Header
+from fastapi import BackgroundTasks, Depends, FastAPI, HTTPException, Header, Request
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import HTMLResponse
+from fastapi.responses import HTMLResponse, JSONResponse
 from pydantic import BaseModel
 from sse_starlette.sse import EventSourceResponse
 
@@ -94,6 +94,72 @@ app.add_middleware(
     allow_credentials=False,
     max_age=600,
 )
+
+
+# ---------------------------------------------------------------------------
+# Unhandled route exceptions → bagent_error_log (BEAUTY_AUDIT-mol-cdi).
+#
+# `log_task_errors` (workers/error_log.py) wraps arq tasks, so it only ever
+# runs inside the worker processes (bagent-worker, bagent-report-worker).
+# This uvicorn process is a different pm2 process and had NO writer at all:
+# a route blowing up produced a bare 500 and left no row in Supabase.
+#
+# Registered on `Exception`, which Starlette hands to ServerErrorMiddleware
+# (the outermost layer). StarletteHTTPException and RequestValidationError
+# keep their own handlers inside ExceptionMiddleware and never reach here, so
+# 4xx responses need no filtering.
+#
+# BackgroundTasks (log_click, _process_wintact_event) ARE covered, contrary to
+# what the placement suggests: they run after the response body is sent but
+# still INSIDE ServerErrorMiddleware, so a task blowing up unwinds to here and
+# lands a row (verified against a live uvicorn). The client keeps its 200 — the
+# response is long gone by then, and the row is the only trace of the failure.
+#
+# Genuinely NOT covered: explicit HTTPException(500/502/503) raised by routes
+# (missing GEMINI_API_KEY, queue unavailable, …). Those are StarletteHTTPException
+# and take the 4xx path below, so no row is written for them.
+# ---------------------------------------------------------------------------
+
+
+@app.exception_handler(Exception)
+async def log_unhandled_http_error(request: Request, exc: Exception) -> JSONResponse:
+    """Record the failure, then answer 500 ourselves.
+
+    ServerErrorMiddleware re-raises `exc` after this returns (so uvicorn still
+    logs it), but only AFTER sending whatever Response we hand back — returning
+    None would break the response instead of producing one.
+    """
+    try:
+        from workers.error_log import record_task_error
+
+        # Set by record_task_error on a successful write, so a failure already
+        # logged deeper in the stack is not counted twice.
+        if not getattr(exc, "_bagent_error_logged", False):
+            # The route PATTERN, never the concrete URL: `/r/{token}` must stay
+            # one bagent_pipeline value, not one per visitor. FastAPI's APIRoute
+            # puts itself in the scope (base Starlette 1.0 no longer does), and
+            # scope is mutated in place by the router before the endpoint runs,
+            # so it is already there by the time we unwind to here.
+            route = request.scope.get("route")
+            route_pattern = getattr(route, "path", None) or request.url.path
+            await record_task_error(
+                f"http:{route_pattern}",
+                exc,
+                kwargs={
+                    "method": request.method,
+                    "path": request.url.path,
+                    "query": request.url.query,
+                },
+            )
+    except Exception:  # noqa: BLE001 — logging must never replace the 500
+        logger.exception("bagent_error_log: HTTP error handler failed to record")
+
+    # Same STATUS as Starlette's default handler; the body changes shape
+    # (text/plain "Internal Server Error" → JSON {"detail": ...}). Safe because
+    # Convex's withBagentRetry branches only on response.ok and puts the body
+    # in a log message, never parses it — checked across every bagent caller.
+    return JSONResponse({"detail": "Internal Server Error"}, status_code=500)
+
 
 store = JobStore()
 
@@ -2163,7 +2229,7 @@ async def run_competitor_report_job(
 # By logging click → matching against later salon_scrapes diffs we get
 # real "ad click → booking" attribution.
 
-from fastapi import Request
+# Request is imported at the top of the module (needed by the error handler).
 from fastapi.responses import RedirectResponse
 
 
