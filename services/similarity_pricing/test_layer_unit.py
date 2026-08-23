@@ -2,6 +2,9 @@
 
 Scenariusze:
   - klaster z pakietami → n_packages_excluded poprawne, cena z pojedynczych
+  - klaster z próbkami price_grosze=0 → n_zero_price_excluded poprawne,
+    mediana liczona bez zer (BEAUTY_AUDIT-8dyt); subject z ceną 0 nie jest
+    filtrowany
   - normalizacja zł/min → market_price = median(zł/min) * duration_subject
   - subject bez duration → fallback do median_raw
   - wszystkie pakiety → market_price_grosze=None, n_used=0
@@ -108,6 +111,94 @@ class TestPackageExclusion:
         assert meta["used_per_minute"] is True
         assert stats["zl_per_min_median"] == pytest.approx(200.0, rel=0.01)
         assert stats["market_price_grosze"] == 8000
+
+
+# ---------------------------------------------------------------------------
+# Test 1b: klaster z próbkami price_grosze=0 — wykluczenie cen zerowych
+# (BEAUTY_AUDIT-8dyt: cena 0 w Booksy = "cena od / zapytaj", nie darmowy
+#  zabieg — wchodząc do mediany fałszywie by ją zaniżyła)
+# ---------------------------------------------------------------------------
+
+class TestZeroPriceExclusion:
+    def test_n_zero_price_excluded_and_n_used(self):
+        """2 samples z ceną 0 + 5 prawidłowych: n_zero_price_excluded=2, n_used=5."""
+        samples = [
+            make_sample(1, price_grosze=0,     duration_minutes=60),
+            make_sample(2, price_grosze=0,     duration_minutes=None),
+            make_sample(3, price_grosze=9900,  duration_minutes=60),
+            make_sample(4, price_grosze=10000, duration_minutes=60),
+            make_sample(5, price_grosze=11000, duration_minutes=55),
+            make_sample(6, price_grosze=8500,  duration_minutes=30),
+            make_sample(7, price_grosze=12000, duration_minutes=60),
+        ]
+        subject = make_subject(price_grosze=15000, duration_minutes=40)
+        stats, meta = normalize_unit(subject, samples)
+
+        assert meta["n_zero_price_excluded"] == 2
+        assert meta["n_in"] == 7
+        assert meta["n_packages_excluded"] == 0
+        assert stats["n_used"] == 5
+
+    def test_zero_price_does_not_affect_median(self):
+        """Cena rynkowa liczona TYLKO z 5 prawidłowych sampli (bez zer).
+
+        Bez fixu próbki 0 zł wchodziłyby do raw_prices/zł-per-min i
+        ciągnęłyby medianę w dół. Oczekiwany wynik identyczny jak dla
+        klastra bez pakietów w TestPackageExclusion (ten sam zestaw 5
+        prawidłowych sampli): market_price_grosze == 8000.
+        """
+        samples = [
+            make_sample(1, price_grosze=0,     duration_minutes=60),
+            make_sample(2, price_grosze=0,     duration_minutes=45),
+            make_sample(3, price_grosze=9900,  duration_minutes=60),
+            make_sample(4, price_grosze=10000, duration_minutes=60),
+            make_sample(5, price_grosze=11000, duration_minutes=55),
+            make_sample(6, price_grosze=8500,  duration_minutes=30),
+            make_sample(7, price_grosze=12000, duration_minutes=60),
+        ]
+        subject = make_subject(price_grosze=15000, duration_minutes=40)
+        stats, meta = normalize_unit(subject, samples)
+
+        # zł/min: 9900/60=165, 10000/60=166.67, 11000/55=200,
+        #         8500/30=283.33, 12000/60=200 → median = 200 gr/min
+        assert meta["used_per_minute"] is True
+        assert stats["zl_per_min_median"] == pytest.approx(200.0, rel=0.01)
+        assert stats["market_price_grosze"] == 8000
+        # Próbki zerowe NIE wpadły do n_zero_duration (wykluczone wcześniej).
+        assert meta["n_zero_duration"] == 0
+
+    def test_missing_price_key_treated_as_zero_and_excluded(self):
+        """Brak klucza price_grosze traktowany jak 0 → wykluczony."""
+        samples = [
+            {
+                "service_id": 99,
+                "booksy_id": 199,
+                "salon_name": "Salon bez ceny",
+                "service_name": "Presoterapia",
+                "duration_minutes": 60,
+                "similarity": 0.85,
+                "category_name": "Pielęgnacja ciała",
+            },
+            make_sample(1, price_grosze=9900, duration_minutes=60),
+        ]
+        subject = make_subject(price_grosze=15000, duration_minutes=40)
+        stats, meta = normalize_unit(subject, samples)
+
+        assert meta["n_zero_price_excluded"] == 1
+        assert stats["n_used"] == 1
+
+    def test_subject_zero_price_not_filtered(self):
+        """Subject z ceną 0 NIE jest filtrowany — poza zakresem tej warstwy."""
+        samples = [
+            make_sample(1, price_grosze=9900, duration_minutes=60),
+        ]
+        subject = make_subject(price_grosze=0, duration_minutes=40)
+        stats, meta = normalize_unit(subject, samples)
+
+        # market_price liczony normalnie z sampli; deviation_pct liczony
+        # dla subject_price=0 bez wyjątku (subject nigdy nie jest filtrowany).
+        assert stats["market_price_grosze"] is not None
+        assert stats["deviation_pct"] == pytest.approx(-100.0, abs=0.01)
 
 
 # ---------------------------------------------------------------------------
@@ -514,7 +605,10 @@ class TestEdgeCases:
         samples = [make_sample(1, price_grosze=9900, duration_minutes=60)]
         subject = make_subject(price_grosze=15000, duration_minutes=40)
         stats, meta = normalize_unit(subject, samples)
-        required_meta = {"n_in", "n_packages_excluded", "n_zero_duration", "used_per_minute"}
+        required_meta = {
+            "n_in", "n_packages_excluded", "n_zero_price_excluded",
+            "n_zero_duration", "used_per_minute",
+        }
         assert required_meta == set(meta.keys())
 
     def test_stats_keys_complete(self):
