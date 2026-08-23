@@ -258,6 +258,25 @@ async def refresh_inferred_treatments(ctx: dict[str, Any]) -> str:
 
 
 async def refresh_service_variants(ctx: dict[str, Any]) -> str:
+    """Cron entrypoint: runs the backfill and GUARANTEES a ping (ok or /fail).
+
+    Without this wrapper any exception ended the task with no ping at all, so
+    the 'variant-match-refresh' check went silently DOWN with no reason
+    attached — the same gap already closed for embed_new_services and
+    refresh_taxonomy_views in this file (BEAUTY_AUDIT-xnb9). The cron runs once
+    a day and arq does not retry a plain exception, so a lost run costs a full
+    day; it has to be loud.
+    """
+    from services.healthcheck import ping
+    try:
+        return await _refresh_service_variants_impl(ctx)
+    except Exception as e:
+        logger.exception("refresh_service_variants failed: %s", e)
+        await ping("HC_PING_VARIANT_MATCH_REFRESH", fail=True)
+        raise
+
+
+async def _refresh_service_variants_impl(ctx: dict[str, Any]) -> str:
     """Backfill salon_scrape_services.variant_id for chain-head services.
 
     The MISSING nightly job (added 2026-06-22, S0078). variant_id is written
@@ -281,7 +300,22 @@ async def refresh_service_variants(ctx: dict[str, Any]) -> str:
     from services.sb_client import make_supabase_client
     from config import settings
 
-    client = make_supabase_client(settings.supabase_url, settings.supabase_service_key)
+    # Both RPCs carry statement_timeout=120s (mig 127), so the module-default
+    # 30s httpx read timeout gives up while Postgres is still working: a chunk
+    # that needs more than 30s ALWAYS dies on ReadTimeout, no matter how healthy
+    # the database is (BEAUTY_AUDIT-xnb9 — phase B died at 233s into the run).
+    # 140s sits above the server's own limit, so a genuine statement timeout
+    # comes back as a Postgres error instead of a client-side guess, and stays
+    # under Kong's ~150s proxy read_timeout. Same KIND of override as
+    # refresh_taxonomy_views above, but a different number: that RPC has
+    # statement_timeout=10min, so its 120s cap is a budget; here 120s is the
+    # server's own limit, so the client has to sit just above it. Every other
+    # supabase call in the worker keeps its fail-fast default.
+    client = make_supabase_client(
+        settings.supabase_url,
+        settings.supabase_service_key,
+        timeout=httpx.Timeout(140.0, connect=10.0),
+    )
     t_start = time.time()
 
     # Phase A: in-tid match (booksy_treatment_id present). Search space is
