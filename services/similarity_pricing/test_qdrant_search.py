@@ -39,3 +39,19 @@ def test_subject_is_not_its_own_twin():
     client = _FakeQdrant([_pt(1, 1), _pt(2, 2)])
     out = search_twins([1], [1, 2], subject_embeddings={1: [0.1]}, client=client)
     assert [s["service_id"] for s in out[1]] == [2]
+
+
+class _RecordingQdrant(_FakeQdrant):
+    def query_batch_points(self, collection, requests):
+        self.requests = requests
+        return super().query_batch_points(collection, requests)
+
+
+def test_exact_flag_sets_search_params():
+    """Bez indeksu payload na booksy_id filtrowany HNSW gubi całe salony dla
+    małej puli — Faza 8a wymusza exact (BEAUTY_AUDIT-xi18)."""
+    client = _RecordingQdrant([_pt(10, 239352)])
+    search_twins([1], [239352], subject_embeddings={1: [0.1]}, client=client)
+    assert all(r.params is None for r in client.requests)
+    search_twins([1], [239352], subject_embeddings={1: [0.1]}, client=client, exact=True)
+    assert all(r.params is not None and r.params.exact is True for r in client.requests)
