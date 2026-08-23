@@ -368,7 +368,20 @@ class SalonJsonIngester:
     # -- salons (upsert registry) -------------------------------------------
 
     def _upsert_salon(self, business: dict, scraped_at: str) -> int:
-        """UPSERT into salons by booksy_id. Returns salons.id (internal PK)."""
+        """UPSERT the salon's identity into salons by booksy_id. Returns salons.id.
+
+        Deliberately does NOT write ``last_scraped_at``. That column answers
+        "when did this salon last have genuinely fresh data", and this write
+        happens FIRST — before services, reviews and the audit log. Moving the
+        marker here made a run that died on the child inserts still advertise
+        the salon as freshly scraped. ``_mark_salon_scraped`` moves it at the
+        end of ``ingest_file`` instead.
+
+        ``updated_at`` stays here on purpose: the identity fields (name,
+        address, reviews_count, photos) really do change in this write, and
+        they stay changed even if the rest of the file fails. Nothing selects
+        salons for a re-scrape by ``updated_at``.
+        """
         booksy_id = _as_int(business.get("id"))
         if booksy_id is None:
             raise IngestError("business.id missing")
@@ -414,15 +427,29 @@ class SalonJsonIngester:
             "top_service_names": top_service_names,
             "promoted": bool(business.get("promoted")),
             "is_recommended": bool(business.get("is_recommended")),
-            "last_scraped_at": scraped_at,
             "updated_at": scraped_at,
         }
 
         if self.dry_run:
             return -1
 
+        # A first-ever INSERT has to spell out the NULL: salons.last_scraped_at
+        # DEFAULTs to now(), and NULL is the "never fully scraped" marker that
+        # discovery and enqueue_discovered_salons read to queue the salon. On
+        # the UPDATE branch the column is absent from the payload, so a failing
+        # ingest keeps the previous, truthful timestamp instead of being reset.
+        known = _retry_http(
+            lambda: self.client.table("salons")
+                .select("booksy_id")
+                .eq("booksy_id", booksy_id)
+                .limit(1)
+                .execute(),
+            op_name="salons.exists",
+        )
+        payload = row if known.data else {**row, "last_scraped_at": None}
+
         res = _retry_http(
-            lambda: self.client.table("salons").upsert(row, on_conflict="booksy_id").execute(),
+            lambda: self.client.table("salons").upsert(payload, on_conflict="booksy_id").execute(),
             op_name="salons.upsert",
         )
         if not res.data:
@@ -439,6 +466,39 @@ class SalonJsonIngester:
                 raise IngestError(f"Failed to upsert salon booksy_id={booksy_id}")
             return int(sel.data[0]["id"])
         return int(res.data[0]["id"])
+
+    def _mark_salon_scraped(self, salon_id: int, scraped_at: str) -> None:
+        """Move salons.last_scraped_at forward — the salon IS fresh now.
+
+        Called once, at the very end of ``ingest_file``, so the marker tracks
+        the outcome of the whole file rather than the registry write that opens
+        it. Before the split, an ingest that upserted the salon and then blew
+        up on the child inserts (scrape unwound, nothing new stored) still
+        bumped the marker: booksy_id=103321 advertised 2026-08-23 while its
+        newest data was from 2026-08-15, and every "refresh the stale ones"
+        selector skipped it, so the staleness kept itself alive.
+
+        Best-effort. By this point the scrape, its services and the audit row
+        are all committed and the file's content_hash makes a re-run a no-op,
+        so raising here would fail a run whose data actually landed. A missed
+        bump only makes the salon look older than it is — the safe direction.
+        """
+        if self.dry_run:
+            return
+        try:
+            _retry_http(
+                lambda: self.client.table("salons")
+                    .update({"last_scraped_at": scraped_at})
+                    .eq("id", salon_id)
+                    .execute(),
+                op_name="salons.mark_scraped",
+            )
+        except Exception as e:  # noqa: BLE001
+            logger.error(
+                "salons.last_scraped_at bump failed for salon_id=%s — data landed "
+                "but the marker stays at its old value: %s",
+                salon_id, e,
+            )
 
     # -- salon_scrapes (append OR dedup against chain head) -----------------
 
@@ -1366,7 +1426,9 @@ class SalonJsonIngester:
         file_mtime_iso = datetime.fromtimestamp(file_path.stat().st_mtime, tz=timezone.utc).isoformat()
         file_size = len(raw_bytes)
 
-        # 1. salons upsert (idempotent in itself — safe even on partial failure)
+        # 1. salons upsert — identity only (idempotent in itself — safe even on
+        # partial failure). last_scraped_at is NOT touched here; it moves in
+        # step 8, once the whole file has landed.
         salon_id = self._upsert_salon(business, scraped_at)
 
         # 2. salon_scrapes — may be an INSERT (new/changed content) or an
@@ -1455,6 +1517,13 @@ class SalonJsonIngester:
                     prev_head.get("id") if prev_head else None,
                     dedup_action, e,
                 )
+
+        # 8. Only now is the salon genuinely fresh. An 'unchanged' run counts:
+        # the content was re-confirmed against Booksy, which is exactly what
+        # the marker claims. Every earlier failure raised IngestError and never
+        # reached this line, so the marker keeps pointing at the last scrape
+        # that actually stored something.
+        self._mark_salon_scraped(salon_id, scraped_at)
 
         return counts
 
