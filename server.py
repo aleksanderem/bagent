@@ -9,6 +9,7 @@ import logging
 import re
 import uuid
 from pathlib import Path
+from urllib.parse import parse_qsl, urlencode
 
 from arq.connections import ArqRedis
 from fastapi import BackgroundTasks, Depends, FastAPI, HTTPException, Header, Request
@@ -121,6 +122,51 @@ app.add_middleware(
 # ---------------------------------------------------------------------------
 
 
+_SENSITIVE_PARAM_HINTS = ("secret", "token", "key", "password", "passwd", "auth", "sig")
+
+_REDACTED = "***"
+
+
+def _is_sensitive_param(name: str) -> bool:
+    lowered = name.lower()
+    return any(hint in lowered for hint in _SENSITIVE_PARAM_HINTS)
+
+
+def _redacted_request_fields(request: Request) -> dict[str, str]:
+    """Concrete path + query with credential-bearing values replaced by ***.
+
+    `/api/wintact/webhook/{secret}` carries the secret IN THE PATH and its
+    default value is `settings.api_key` — the main bagent API key. Writing
+    `request.url.path` verbatim would park that key in bagent_error_log as
+    plain text, readable by anyone with Supabase access. Query strings get the
+    same treatment: no route reads a credential from the query today, but it is
+    the same class of leak one route away.
+
+    Values are masked by name (secret/token/key/…), so a legitimate id like
+    `{job_id}` survives and the row stays useful for debugging.
+
+    Read from `scope["path"]`, NOT `request.url.path`: the latter is parsed by
+    urlsplit, which cuts everything from the first `#` as a URL fragment. A
+    secret containing `#` therefore no longer appears in that string, the
+    replace below silently misses it, and its prefix lands in the log unmasked.
+    """
+    path = request.scope.get("path") or request.url.path
+    for name, value in (request.scope.get("path_params") or {}).items():
+        text = str(value)
+        if text and _is_sensitive_param(name):
+            path = path.replace(text, _REDACTED)
+
+    query = request.url.query
+    if query:
+        query = urlencode(
+            [
+                (k, _REDACTED if _is_sensitive_param(k) else v)
+                for k, v in parse_qsl(query, keep_blank_values=True)
+            ]
+        )
+    return {"path": path, "query": query}
+
+
 @app.exception_handler(Exception)
 async def log_unhandled_http_error(request: Request, exc: Exception) -> JSONResponse:
     """Record the failure, then answer 500 ourselves.
@@ -141,15 +187,15 @@ async def log_unhandled_http_error(request: Request, exc: Exception) -> JSONResp
             # scope is mutated in place by the router before the endpoint runs,
             # so it is already there by the time we unwind to here.
             route = request.scope.get("route")
-            route_pattern = getattr(route, "path", None) or request.url.path
+            fields = _redacted_request_fields(request)
+            # Fallback is the REDACTED path: an exception thrown before routing
+            # (middleware layer) has no route in the scope, and the raw path can
+            # carry a secret — same leak, different column.
+            route_pattern = getattr(route, "path", None) or fields["path"]
             await record_task_error(
                 f"http:{route_pattern}",
                 exc,
-                kwargs={
-                    "method": request.method,
-                    "path": request.url.path,
-                    "query": request.url.query,
-                },
+                kwargs={"method": request.method, **fields},
             )
     except Exception:  # noqa: BLE001 — logging must never replace the 500
         logger.exception("bagent_error_log: HTTP error handler failed to record")
