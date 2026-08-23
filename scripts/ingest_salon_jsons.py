@@ -953,12 +953,41 @@ class SalonJsonIngester:
                 lambda chunk=chunk: self.client.table("salon_scrape_services").insert(chunk).execute(),
                 op_name="salon_scrape_services.insert",
             )
-            if not res.data:
-                raise IngestError(
-                    f"Failed to insert salon_scrape_services chunk "
-                    f"(booksy_id={booksy_id}, chunk_start={i})"
+            returned = res.data or []
+            # 2026-08-23: krótszy zwrot NIE jest błędem. Na tabeli siedzi trigger
+            # BEFORE INSERT `trg_salon_scrape_services_dedup`: przy kolizji klucza
+            # (scrape_id, name, price_grosze, duration_minutes, is_active) robi
+            # UPDATE wiersza kanonicznego i RETURN NULL, więc PostgREST oddaje 201
+            # z krótszą (czasem PUSTĄ) tablicą `data` — mimo że zapis się udał.
+            # Stary per-chunk `raise` czytał to jako awarię i rolbackował CAŁY
+            # scrape: booksy_id=103321 (301 usług → chunki 0/150/300, ogonowy
+            # chunk = 1 zduplikowany wiersz) stał 8 dni na danych z 2026-08-15,
+            # a worker co godzinę powtarzał ten sam rollback. Guard przeniesiony
+            # niżej na poziom agregatu — patrz `if rows and not inserted_rows`.
+            if len(returned) < len(chunk):
+                logger.warning(
+                    "salon_scrape_services chunk short-returned "
+                    "(booksy_id=%s, chunk_start=%d): sent=%d returned=%d "
+                    "skipped_by_dedup=%d — trigger zmergował duplikaty, kontynuuję",
+                    booksy_id, i, len(chunk), len(returned), len(chunk) - len(returned),
                 )
-            inserted_rows.extend(res.data)
+            inserted_rows.extend(returned)
+
+        # Guard agregatowy: pojedynczy pusty chunk to dedup, ale ZERO wstawionych
+        # wierszy przy niepustym payloadzie to realnie zepsuty zapis — wtedy
+        # ingest nadal musi wywalić (caller rolbackuje scrape przez _unwind_scrape).
+        if rows and not inserted_rows:
+            raise IngestError(
+                f"Failed to insert salon_scrape_services "
+                f"(booksy_id={booksy_id}): sent {len(rows)} rows, 0 returned"
+            )
+        if len(inserted_rows) < len(rows) / 2:
+            logger.error(
+                "salon_scrape_services: wstawiono mniej niż połowę payloadu "
+                "(booksy_id=%s): sent=%d returned=%d — dedup na taką skalę jest "
+                "podejrzany, sprawdź scrape zanim raporty pójdą na niepełnych danych",
+                booksy_id, len(rows), len(inserted_rows),
+            )
 
         # Inline embedding — vectorize every newly inserted row so hybrid
         # taxonomy match can run against fresh data without waiting for
@@ -1015,10 +1044,19 @@ class SalonJsonIngester:
         # Radiofrekwencja). Tier-3 pricing matching cross-salon na sub-variant
         # labelu wymaga tej tabeli.
         try:
-            self._insert_service_variants(inserted_rows, rows)
+            self._insert_service_variants(inserted_rows, rows, booksy_id=booksy_id)
         except Exception as e:  # noqa: BLE001
+            # UWAGA: nic tego nie odbudowuje. salon_scrape_service_variants
+            # zapisuje WYŁĄCZNIE ten ingest; nie ma na nią backfill crona
+            # (workers/taxonomy_refresh.refresh_service_variants uzupełnia
+            # salon_scrape_services.variant_id, a nie wiersze tej tabeli).
+            # Skutek: services/supabase.get_sub_variants_for_services nie zobaczy
+            # sub-wariantów tego salonu (tier-3 pricing matching) aż do
+            # następnego UDANEGO ingestu tego booksy_id.
             logger.warning(
-                "sub-variants ingest step failed for booksy_id=%s: %s — backfill cron will catch up",
+                "sub-variants ingest step failed for booksy_id=%s: %s — "
+                "salon_scrape_service_variants zostaje bez sub-wariantów tego "
+                "salonu do następnego udanego ingestu (nie ma backfillu)",
                 booksy_id, e,
             )
 
@@ -1026,21 +1064,65 @@ class SalonJsonIngester:
 
     # -- salon_scrape_service_variants (append, derived from variants JSONB) --
 
+    @staticmethod
+    def _service_pairing_key(row: dict[str, Any]) -> tuple:
+        """Klucz parujący wiersz zwrócony z bazy z wierszem payloadu.
+
+        Główny: `booksy_service_id` — jednoznaczny identyfikator usługi w Booksy,
+        obecny po obu stronach. Gdy go brak (stare/uszkodzone JSON-y bez
+        `service.id`), fallback na krotkę klucza dedupu triggera
+        `trg_salon_scrape_services_dedup`, czyli (name, price_grosze,
+        duration_minutes, is_active) — scrape_id pomijamy, bo w obrębie jednego
+        `_insert_services` jest stały.
+        """
+        booksy_service_id = row.get("booksy_service_id")
+        if booksy_service_id is not None:
+            return ("booksy_service_id", booksy_service_id)
+        return (
+            "dedup",
+            row.get("name"),
+            row.get("price_grosze"),
+            row.get("duration_minutes"),
+            row.get("is_active"),
+        )
+
     def _insert_service_variants(
         self,
         inserted_service_rows: list[dict[str, Any]],
         source_rows: list[dict[str, Any]],
+        booksy_id: int | None = None,
     ) -> int:
         """Expand variants JSONB do salon_scrape_service_variants rows.
 
         `inserted_service_rows` = rows returned przez supabase insert (with ids).
         `source_rows` = original payload (zachowuje variants list w "variants" key).
-        Order powinien być identyczny — supabase returns rows w order they were sent.
+
+        2026-08-23: parujemy PO KLUCZU, nie po pozycji. Trigger BEFORE INSERT
+        `trg_salon_scrape_services_dedup` przy kolizji robi UPDATE wiersza
+        kanonicznego i RETURN NULL, więc zwrot bywa krótszy od payloadu.
+        Poprzednie `zip()` po pozycji przypisywałoby sub-warianty do CUDZEJ
+        usługi od pierwszego zdedupowanego wiersza w dół, a poprzedzający je
+        warunek `len(...) != len(...)` kasował po cichu CAŁY snapshot
+        sub-wariantów salonu. Wiersze źródłowe bez dopasowania pomijamy — ich
+        wiersza nie ma w bazie, bo trigger zmergował go w kanoniczny.
         """
-        if not inserted_service_rows or len(inserted_service_rows) != len(source_rows):
+        if not inserted_service_rows:
             return 0
+
+        # Każdy zwrócony wiersz można skonsumować raz — druga kopia tego samego
+        # klucza w payloadzie to właśnie wiersz, który trigger zmergował.
+        pending_by_key: dict[tuple, list[dict[str, Any]]] = {}
+        for inserted in inserted_service_rows:
+            pending_by_key.setdefault(self._service_pairing_key(inserted), []).append(inserted)
+
         variant_rows: list[dict[str, Any]] = []
-        for inserted, source in zip(inserted_service_rows, source_rows):
+        unmatched_sources = 0
+        for source in source_rows:
+            candidates = pending_by_key.get(self._service_pairing_key(source))
+            if not candidates:
+                unmatched_sources += 1
+                continue
+            inserted = candidates.pop(0)
             sid = inserted.get("id")
             variants = source.get("variants") or []
             if sid is None or not isinstance(variants, list):
@@ -1061,6 +1143,15 @@ class SalonJsonIngester:
                     "promotion_data": v.get("promotion") if isinstance(v.get("promotion"), dict) else None,
                     "sort_order": idx,
                 })
+
+        if unmatched_sources:
+            logger.warning(
+                "sub-variants: %d z %d wierszy usług bez odpowiednika w zwrocie "
+                "insertu (booksy_id=%s) — trigger dedup zmergował je w wiersze "
+                "kanoniczne, ich sub-warianty pomijam",
+                unmatched_sources, len(source_rows), booksy_id,
+            )
+
         if not variant_rows:
             return 0
         if self.dry_run:
