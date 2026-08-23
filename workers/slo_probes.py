@@ -269,13 +269,18 @@ async def probe_competitor_report_subject_only(client) -> ProbeResult:
     market twins — typically 20-40% of rows end up 'subject_only' (no twin
     found for that exact service). A report that is ~100% subject_only means
     the pricing engine found NO competitors for ANY service — the exact
-    symptom of the 2026-06-25 embedding regression (report 250: 48/48).
+    symptom of the 2026-06-25 embedding regression, w której kanarkowy raport
+    miał WSZYSTKIE wiersze subject_only (ostatni pomiar 2026-08-23: raport 222
+    → 24/24). Liczby konkretnego raportu podajemy tylko z datą pomiaru: wiersze
+    potomne podmieniają się przy każdym przeliczeniu, więc „48/48" bez daty po
+    kilku tygodniach jest już nieprawdą.
 
     PASS: kanarek ma <= 90% wierszy subject_only.
     FAIL: > 90% → silnik wyceny wyprodukował pusty/zdegenerowany raport
           (brak embeddingów podmiotu, konkurenci nieobecni w Qdrancie
           albo martwa klasyfikacja variant_id).
-    Brak ukończonych raportów / brak wierszy wyceny → pass (nie ma czego oceniać).
+    Brak JAKIEGOKOLWIEK ukończonego raportu / brak wierszy wyceny → pass
+    (nie ma czego oceniać).
 
     KANARKIEM JEST NAJŚWIEŻSZY RAPORT, NIE TEN O NAJWYŻSZYM id
     ------------------------------------------------------------
@@ -301,65 +306,50 @@ async def probe_competitor_report_subject_only(client) -> ProbeResult:
     dotknięcie nagłówka bez przeliczania wyceny. Nie psuje to sondy (to nadal
     ukończony raport z realnymi wierszami wyceny), a dotyczy wyłącznie tier
     ``premium``, który nie jest jeszcze sprzedawany.
-    """
-    # ESCAPE NA ZASTÓJ: po ilu godzinach bez nowego raportu przestajemy sądzić.
-    # Cisza z braku ruchu nie może być nieodróżnialna od awarii — ale odwrotnie
-    # niż w sondach kolejkowych: tutaj brak ruchu oznacza, że jedyny dowód, jaki
-    # mamy, jest coraz starszy, a sonda krzyczałaby o stanie silnika sprzed
-    # tygodni.
-    #
-    # Dlaczego 72 h, a nie 6 czy 24:
-    #   * Raporty konkurencji NIE powstają z harmonogramu — wyłącznie na żądanie
-    #     (zakup / regeneracja). ``workers/competitor_report_queue.py`` drenuje
-    #     kolejkę co minutę, ale wiersze wpadają do niej tylko z endpointu, a w
-    #     ``convex/crons.ts`` nie ma ANI JEDNEGO crona generującego raport
-    #     (``refresh-premium-competitor-reports`` pisze snapshoty premium, nie
-    #     wiersze wyceny). Ruch idzie więc za sprzedażą, nie za zegarem.
-    #   * Wolumen historyczny: ~250 raportów (najwyższe id) od migracji 008,
-    #     czyli rzędu pojedynczych sztuk na dobę ŚREDNIO — ale bursty, z całymi
-    #     dobami bez ani jednego. Okno 6 h czy 24 h uciszałoby sondę w każdy
-    #     spokojny weekend.
-    #   * Sonda leci co godzinę (``workers/main.py``, ``minute={37}``), więc
-    #     zdegenerowany raport alarmuje przez ~72 kolejne przebiegi. To aż nadto
-    #     czasu na reakcję człowieka, a jednocześnie nie pozwala sondzie wisieć
-    #     na dowodzie sprzed tygodnia.
-    _STALE_AFTER_SECONDS = 72 * 3600
 
+    BRAK ŚWIEŻYCH DANYCH NIE JEST SYGNAŁEM ZDROWIA
+    ----------------------------------------------
+    2026-08-23 (BEAUTY_AUDIT-swtf). Wersja z rxoq odsiewała kanarka warunkiem
+    ``updated_at >= now() - 72h`` i na pustym wyniku zwracała PASS z detalem
+    ``stale_no_recent_report``. To gasiło alert ZEGAREM, nie naprawą: raporty
+    konkurencji nie powstają z harmonogramu, tylko na zamówienie klientki
+    (``workers/competitor_report_queue.py`` drenuje kolejkę co minutę, ale
+    wiersze wpadają do niej wyłącznie z endpointu — w ``convex/crons.ts`` nie
+    ma ANI JEDNEGO crona generującego raport). Trzy spokojne dni bez zamówienia
+    wystarczały, żeby zdegenerowany kanarek wypadł z okna i sonda zrobiła się
+    zielona przy dalej zepsutej wycenie — objaw wyglądałby jak naprawa.
+    Konkretnie: raport 222 (updated_at 2026-08-23 02:32 UTC, 24/24 subject_only)
+    wypadłby z okna ~2026-08-26 02:32 UTC.
+
+    Dlatego okno nie decyduje już o tym, CZY jest co oceniać — oceniamy
+    najświeższy ukończony raport niezależnie od jego wieku. Ścieżka „brak
+    danych" (PASS, informacyjna) zostaje wyłącznie dla przypadku, w którym w
+    bazie nie ma ANI JEDNEGO ukończonego raportu.
+
+    Świadomie przyjęta konsekwencja: po realnej naprawie silnika wyceny alert
+    zgaśnie dopiero, gdy powstanie NOWY zdrowy raport. Sonda mierzy stan
+    DANYCH, nie stan kodu — dopóki jedyny dowód, jaki mamy, jest zdegenerowany,
+    nie mamy podstaw twierdzić, że wycena działa.
+
+    Z rxoq zostaje wybór kanarka po ``updated_at`` oraz jawny wiek dowodu w
+    detalu (``age=``) — dzięki niemu w Healthchecks widać, czy alarm stoi na
+    świeżym przebiegu, czy na dowodzie sprzed tygodni.
+    """
     rep = (
         client.table("competitor_reports")
         .select("id, updated_at")
         .eq("status", "completed")
-        .gte("updated_at", _iso_ago(seconds=_STALE_AFTER_SECONDS))
         .order("updated_at", desc=True)
         .limit(1)
         .execute()
     )
     if not rep.data:
-        # Nic świeżego. Rozróżniamy „nigdy nic nie było" od „ostatni raport jest
-        # za stary, żeby coś mówić o dzisiejszym silniku" — obie sytuacje to
-        # PASS, ale druga musi podać wiek, żeby cisza w Healthchecks była
-        # czytelna, a nie tylko zielona.
-        newest = (
-            client.table("competitor_reports")
-            .select("id, updated_at")
-            .eq("status", "completed")
-            .order("updated_at", desc=True)
-            .limit(1)
-            .execute()
-        )
-        if not newest.data:
-            return ProbeResult(ok=True, detail="no_completed_reports")
-        newest_row = newest.data[0]
-        age_h = _age_hours(newest_row.get("updated_at"))
-        age_txt = f"{age_h:.0f}h" if age_h is not None else "?"
-        return ProbeResult(
-            ok=True,
-            detail=(
-                f"stale_no_recent_report newest_report={newest_row['id']} "
-                f"age={age_txt} window={_STALE_AFTER_SECONDS // 3600}h"
-            ),
-        )
+        # Jedyna ścieżka „nie ma czego oceniać": pusta tabela ukończonych
+        # raportów. Cisza z braku ruchu NIE trafia już tutaj.
+        return ProbeResult(ok=True, detail="no_completed_reports")
     report_id = rep.data[0]["id"]
+    age_h = _age_hours(rep.data[0].get("updated_at"))
+    age_txt = f"{age_h:.0f}h" if age_h is not None else "?"
 
     total = (
         client.table("competitor_pricing_comparisons")
@@ -369,7 +359,9 @@ async def probe_competitor_report_subject_only(client) -> ProbeResult:
     )
     total_count = total.count or 0
     if total_count == 0:
-        return ProbeResult(ok=True, detail=f"report={report_id} no_pricing_rows")
+        return ProbeResult(
+            ok=True, detail=f"report={report_id} no_pricing_rows age={age_txt}"
+        )
 
     subj = (
         client.table("competitor_pricing_comparisons")
@@ -382,7 +374,10 @@ async def probe_competitor_report_subject_only(client) -> ProbeResult:
     pct = 100.0 * subj_count / total_count
     return ProbeResult(
         ok=pct <= 90.0,
-        detail=f"report={report_id} subject_only={subj_count}/{total_count} pct={pct:.1f}%",
+        detail=(
+            f"report={report_id} subject_only={subj_count}/{total_count} "
+            f"pct={pct:.1f}% age={age_txt}"
+        ),
     )
 
 
