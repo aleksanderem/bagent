@@ -161,7 +161,11 @@ def search_twins(
             out[sid].append({
                 "service_id": int(pt.id),
                 "booksy_id": pl.get("booksy_id"),
-                "salon_id": pl.get("booksy_id"),  # salon_name dołoży caller
+                # salons.id (wewnętrzny PK) dokłada caller po lookupie booksy_id→id.
+                # NIGDY nie aliasuj tu booksy_id: to INNA przestrzeń identyfikatorów
+                # (Faza 8a porównuje salon_id z competitor_matches.competitor_salon_id;
+                # regresja 2026-06-23..08-20, BEAUTY_AUDIT-hx85).
+                "salon_id": None,
                 "salon_name": "",
                 "service_name": pl.get("service_name") or "",
                 "price_grosze": pl.get("price_grosze"),

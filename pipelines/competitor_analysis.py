@@ -6430,24 +6430,16 @@ _VERIFIED_BUCKET_CLUSTER_MIN = 5
 _VERIFIED_BUCKET_ASPIRATIONAL_MIN = 3
 
 
-async def _aggregate_verified_match_counts(
-    service: "SupabaseService",
-    report_id: int,
-    pricing_rows: list[dict[str, Any]],
-) -> dict[int, int]:
-    """Aggregate Faza 7 LLM verdicts per competitor for this report and
-    re-bucket competitor_matches. Returns {competitor_salon_id:
-    verified_match_count} for downstream logging.
+def _count_verified_tids(pricing_rows: list[dict[str, Any]]) -> dict[int, int]:
+    """Faza 8a, część czysta: {salons.id konkurenta: liczba MOICH kategorii
+    (booksy_treatment_id / synthetic_treatment_id), w których ma choć jedną
+    próbkę nieodrzuconą przez LLM}.
 
-    Counts DISTINCT (competitor_salon_id, booksy_treatment_id OR
-    synthetic_treatment_id) tuples where any sample for that competitor
-    in that tid had llm_verified=true. We don't reward a competitor for
-    having three matches under one tid — what matters is how many of
-    MY treatment categories they actually offer comparable services in.
+    ``sample["salon_id"]`` MUSI być wewnętrznym ``salons.id`` (ta sama
+    przestrzeń co ``competitor_matches.competitor_salon_id``). Próbka z
+    booksy_id w tym polu nigdy nie trafi w konkurenta — patrz
+    ``report_pricing._lookup_salons`` (BEAUTY_AUDIT-hx85).
     """
-    if not pricing_rows:
-        return {}
-
     counts: dict[int, set[tuple[str, int]]] = {}
     for row in pricing_rows:
         tid_kind = "synthetic" if row.get("synthetic_treatment_id") else "booksy"
@@ -6477,11 +6469,38 @@ async def _aggregate_verified_match_counts(
             counts.setdefault(comp_salon_id, set()).add(
                 (tid_kind, int(tid_value))
             )
+    return {sid: len(tids) for sid, tids in counts.items()}
 
-    # Convert sets → scalar counts for persistence.
-    verified_counts: dict[int, int] = {
-        sid: len(tids) for sid, tids in counts.items()
-    }
+
+def _bucket_for_verified_count(vcount: int) -> str:
+    if vcount >= _VERIFIED_BUCKET_DIRECT_MIN:
+        return "direct"
+    if vcount >= _VERIFIED_BUCKET_CLUSTER_MIN:
+        return "cluster"
+    if vcount >= _VERIFIED_BUCKET_ASPIRATIONAL_MIN:
+        return "aspirational"
+    return "excluded"
+
+
+async def _aggregate_verified_match_counts(
+    service: "SupabaseService",
+    report_id: int,
+    pricing_rows: list[dict[str, Any]],
+) -> dict[int, int]:
+    """Aggregate Faza 7 LLM verdicts per competitor for this report and
+    re-bucket competitor_matches. Returns {competitor_salon_id:
+    verified_match_count} for downstream logging.
+
+    Counts DISTINCT (competitor_salon_id, booksy_treatment_id OR
+    synthetic_treatment_id) tuples where any sample for that competitor
+    in that tid had llm_verified=true. We don't reward a competitor for
+    having three matches under one tid — what matters is how many of
+    MY treatment categories they actually offer comparable services in.
+    """
+    if not pricing_rows:
+        return {}
+
+    verified_counts = _count_verified_tids(pricing_rows)
 
     if not verified_counts:
         logger.warning(
@@ -6505,6 +6524,20 @@ async def _aggregate_verified_match_counts(
         except (TypeError, ValueError):
             continue
 
+    # DRUGI BEZPIECZNIK (hx85): liczniki muszą przecinać się z konkurentami
+    # TEGO raportu. Pusty przekrój = próbki niosą identyfikatory z innej
+    # przestrzeni (np. booksy_id zamiast salons.id) albo z innego raportu —
+    # re-bucket zdegradowałby WSZYSTKICH do 'excluded'. Błąd w logu, pomijamy.
+    if bucket_pre_verify and not (verified_counts.keys() & bucket_pre_verify.keys()):
+        logger.error(
+            "Faza 8a: verified_counts (%d salonów) nie przecinają się z "
+            "competitor_matches raportu %s (%d konkurentów) — podejrzenie "
+            "pomylonej przestrzeni ID w competitor_samples.salon_id. "
+            "Pomijam re-bucket zamiast degradować wszystkich do 'excluded'.",
+            len(verified_counts), report_id, len(bucket_pre_verify),
+        )
+        return {}
+
     # Compute new bucket per competitor + collect update batch.
     updates: list[dict[str, Any]] = []
     dropped_low_verified = 0
@@ -6517,14 +6550,8 @@ async def _aggregate_verified_match_counts(
         except (TypeError, ValueError):
             continue
         vcount = verified_counts.get(sid, 0)
-        if vcount >= _VERIFIED_BUCKET_DIRECT_MIN:
-            new_bucket = "direct"
-        elif vcount >= _VERIFIED_BUCKET_CLUSTER_MIN:
-            new_bucket = "cluster"
-        elif vcount >= _VERIFIED_BUCKET_ASPIRATIONAL_MIN:
-            new_bucket = "aspirational"
-        else:
-            new_bucket = "excluded"
+        new_bucket = _bucket_for_verified_count(vcount)
+        if new_bucket == "excluded":
             dropped_low_verified += 1
         updates.append({
             "id": m.get("id"),
