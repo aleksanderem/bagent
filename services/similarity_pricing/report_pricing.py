@@ -227,7 +227,24 @@ def _build_row(
     report_id: int, subject: dict[str, Any], res: MarketResult,
 ) -> dict[str, Any]:
     tid = subject.get("booksy_treatment_id")
-    treatment_name = subject.get("treatment_name") or subject.get("name") or subject.get("service_name") or "Unknown"
+    # 2026-08-24 (BEAUTY_AUDIT-twvf): kolejność ODWRÓCONA — nazwa USŁUGI przed
+    # nazwą szuflady Booksy. Szuflada (`treatment_name` z taksonomii Booksy) nie
+    # jest jednostką ceny ani jednostką usługi:
+    #   pomiar na 1500 skanach — 46% szuflad zawiera >1 usługę salonu, a rozrzut
+    #   ceny w nich rośnie monotonicznie z ich liczbą (1,00x przy jednej usłudze,
+    #   2,20x przy 4-6, 6,44x przy 13+). Rozkład tego rozrzutu jest GŁADKO
+    #   MALEJĄCY, bez doliny — nie istnieje próg "szuflada jeszcze opisuje jedną
+    #   usługę / już nie". Najsilniejszy predyktor: ile kategorii cennika obejmuje
+    #   szuflada (1 kategoria → 1,50x, 4+ → 5,83x).
+    # Skutki brania szuflady jako nazwy były DWA, oba z tej jednej linii:
+    #   (a) wiersz raportu nazywał się szufladą, nie usługą;
+    #   (b) _dedup_pricing_rows (competitor_analysis.py) ma treatment_name W KLUCZU,
+    #       więc dwie usługi z tą samą szufladą i tą samą ceną dostawały identyczny
+    #       klucz i jedna z nich znikała. Pomiar na raporcie 259: silnik wyliczył
+    #       101 wierszy, do bazy trafiło 87.
+    # Nazwa usługi jest unikalna w obrębie cennika salonu, więc jako składnik
+    # klucza rozróżnia usługi bez żadnego progu ani heurystyki.
+    treatment_name = subject.get("name") or subject.get("service_name") or subject.get("treatment_name") or "Unknown"
     subj_price = subject.get("price_grosze")
     subj_dur = subject.get("duration_minutes")
 
