@@ -527,3 +527,88 @@ async def test_empty_response_for_smallest_full_chunk_still_aborts(
     assert "provider failure" in msg, msg
     assert not applied, "nothing may be applied when the chunk aborts"
     assert len(client.calls) == 1, "empty response must not be re-asked"
+
+
+# ---------------------------------------------------------------------------
+# BEAUTY_AUDIT-p24v — the env override may not silently disarm the gate.
+#
+# The provider-failure gate only runs on chunks of at least
+# tc._MIN_CHUNK_FOR_PROVIDER_FAILURE_GATE clusters. A configured chunk_size
+# of 1 or 2 therefore means NO chunk ever reaches it (tail merging adds at
+# most _MAX_MERGEABLE_TAIL_CLUSTERS, and only to the last chunk), so an
+# empty-but-well-formed provider response would quietly produce a report
+# built entirely on stand-in decisions. The value is now floored at the
+# gate threshold and the log says what the setting would have cost.
+# ---------------------------------------------------------------------------
+
+
+@pytest.mark.parametrize("raw", ["1", "2"])
+def test_chunk_size_below_gate_is_floored_and_logged(
+    raw: str,
+    caplog: pytest.LogCaptureFixture,
+) -> None:
+    """1 and 2 are raised to the gate threshold, loudly."""
+    with caplog.at_level("WARNING", logger=tc.logger.name):
+        resolved = tc._resolve_chunk_size(raw)
+
+    assert resolved == tc._MIN_CHUNK_FOR_PROVIDER_FAILURE_GATE
+    warning = "\n".join(
+        r.getMessage() for r in caplog.records if r.levelname == "WARNING"
+    )
+    assert "TAXONOMY_CONSISTENCY_CHUNK_SIZE" in warning, warning
+    # The message must name the consequence, not just the correction.
+    assert "bramkę awarii" in warning, warning
+    assert "zastępczych" in warning, warning
+
+
+@pytest.mark.parametrize("raw", ["3", "30"])
+def test_chunk_size_at_or_above_gate_is_silent(
+    raw: str,
+    caplog: pytest.LogCaptureFixture,
+) -> None:
+    """Exactly at the threshold — and above it — nothing is corrected, so
+    nothing may be logged. Without this a `<=` slip would keep returning the
+    right number while crying wolf on a perfectly legal setting."""
+    with caplog.at_level("WARNING", logger=tc.logger.name):
+        resolved = tc._resolve_chunk_size(raw)
+
+    assert resolved == int(raw)
+    assert not [r for r in caplog.records if r.levelname == "WARNING"], (
+        "a legal chunk_size must not produce a warning"
+    )
+
+
+@pytest.mark.parametrize("raw,expected", [
+    (None, 30),        # unset — documented default
+    ("30", 30),        # explicit default
+    ("25", 25),        # legitimate tuning stays untouched
+    ("3", 3),          # exactly at the threshold — allowed
+    ("abc", 30),       # not a number — config typo, fall back
+    ("0", 30),         # non-positive — config typo, fall back
+    ("-5", 30),
+])
+def test_chunk_size_resolution(raw: str | None, expected: int) -> None:
+    assert tc._resolve_chunk_size(raw) == expected
+
+
+@pytest.mark.asyncio
+async def test_chunk_size_1_still_aborts_on_empty_response(
+    env_openai_provider: None,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """End-to-end proof of the floor: with CHUNK_SIZE=1 and three mixed
+    clusters the provider-failure gate still fires. Before p24v this
+    dispatched three 1-cluster chunks, none of which could reach the gate,
+    and an empty response ended as three stand-in decisions."""
+    monkeypatch.setenv("TAXONOMY_CONSISTENCY_CHUNK_SIZE", "1")
+    monkeypatch.setenv("TAXONOMY_CONSISTENCY_MISSING_RETRIES", "2")
+
+    client = _SkipsIdsClient(skip_ids={1, 2, 3})
+    applied: dict[int, dict[str, Any]] = {}
+
+    with pytest.raises(RuntimeError) as exc:
+        await _run_with_client(client, 3, applied)
+
+    assert "returned 0 decision(s) for 3 clusters" in str(exc.value)
+    assert not applied, "no stand-in decision may survive a provider failure"
+    assert len(client.calls) == 1, "one chunk of 3, not three chunks of 1"

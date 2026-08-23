@@ -353,6 +353,55 @@ _MAX_MISSING_FRACTION_FOR_RESCUE = 0.5
 _MAX_MERGEABLE_TAIL_CLUSTERS = 2
 _MIN_CHUNK_FOR_PROVIDER_FAILURE_GATE = 3
 
+# Domyślny rozmiar porcji — patrz komentarz przy dispatchu (chunking 2026-05-24).
+_DEFAULT_CHUNK_SIZE = 30
+
+
+def _resolve_chunk_size(raw: str | None) -> int:
+    """TAXONOMY_CONSISTENCY_CHUNK_SIZE → rozmiar porcji, nigdy poniżej progu bramki.
+
+    Porcje mniejsze niż `_MIN_CHUNK_FOR_PROVIDER_FAILURE_GATE` nie uruchamiają
+    bramki awarii dostawcy ani razu (warunek `len(chunk) >= próg` przy dispatchu),
+    więc poprawna-ale-pusta odpowiedź modelu kończy się raportem zbudowanym na
+    decyzjach zastępczych i nikt się o tym nie dowiaduje. Ustawienie 1 lub 2
+    wyłącza więc zabezpieczenie w całości — podnosimy do progu i mówimy o tym
+    w logu (BEAUTY_AUDIT-p24v).
+
+    Wartość niebędąca liczbą albo niedodatnia to nie „mała porcja", tylko
+    literówka w konfiguracji — wraca wartość domyślna, tak jak dotąd.
+    """
+    if raw is None:
+        return _DEFAULT_CHUNK_SIZE
+    try:
+        value = int(raw)
+    except ValueError:
+        logger.warning(
+            "TAXONOMY_CONSISTENCY_CHUNK_SIZE=%r nie jest liczbą — używam "
+            "domyślnego rozmiaru porcji %d",
+            raw, _DEFAULT_CHUNK_SIZE,
+        )
+        return _DEFAULT_CHUNK_SIZE
+    if value < 1:
+        logger.warning(
+            "TAXONOMY_CONSISTENCY_CHUNK_SIZE=%d jest niedodatni — używam "
+            "domyślnego rozmiaru porcji %d",
+            value, _DEFAULT_CHUNK_SIZE,
+        )
+        return _DEFAULT_CHUNK_SIZE
+    if value < _MIN_CHUNK_FOR_PROVIDER_FAILURE_GATE:
+        logger.warning(
+            "TAXONOMY_CONSISTENCY_CHUNK_SIZE=%d wyłączyłby bramkę awarii "
+            "dostawcy: porcje poniżej %d klastrów nigdy jej nie uruchamiają, "
+            "więc pusta — ale poprawna — odpowiedź modelu nie przerwałaby "
+            "przebiegu i raport dojechałby do klientki na samych decyzjach "
+            "zastępczych (alert o degradacji owszem poleci, ale już po "
+            "fakcie). Podnoszę do %d",
+            value, _MIN_CHUNK_FOR_PROVIDER_FAILURE_GATE,
+            _MIN_CHUNK_FOR_PROVIDER_FAILURE_GATE,
+        )
+        return _MIN_CHUNK_FOR_PROVIDER_FAILURE_GATE
+    return value
+
 
 def _index_decisions_by_cluster_id(
     decisions: list[dict[str, Any]],
@@ -554,12 +603,12 @@ async def apply_intra_salon_consistency(
     # Default chunk size 30 — far below any provider truncation limit
     # while keeping prompt overhead reasonable. Override via env
     # TAXONOMY_CONSISTENCY_CHUNK_SIZE for tuning.
-    try:
-        chunk_size = int(os.environ.get("TAXONOMY_CONSISTENCY_CHUNK_SIZE", "30"))
-    except ValueError:
-        chunk_size = 30
-    if chunk_size < 1:
-        chunk_size = 30
+    # Dolna granica pilnowana przez _resolve_chunk_size: porcja mniejsza niż
+    # _MIN_CHUNK_FOR_PROVIDER_FAILURE_GATE wyłącza bramkę awarii dostawcy
+    # (BEAUTY_AUDIT-p24v).
+    chunk_size = _resolve_chunk_size(
+        os.environ.get("TAXONOMY_CONSISTENCY_CHUNK_SIZE")
+    )
     chunks: list[list[tuple[
         int,
         tuple[str | None, str, tuple[str, ...]],
