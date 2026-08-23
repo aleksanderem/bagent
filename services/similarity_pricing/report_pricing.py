@@ -39,7 +39,14 @@ _DEFAULT_RADIUS_KM = 15
 # w praktyce salon z 20-50% pokrycia też traci połowę raportu. Fallback i tak
 # przyjmuje wynik TYLKO gdy poprawia (n_verified_b > n_verified), więc gęste
 # salony niczego nie tracą — kończą na precyzyjnym 0.82 jak dotąd.
-_ADAPTIVE_TRIGGER_VERIFIED_RATE = 0.50
+# 2026-08-24 (BEAUTY_AUDIT-bgp3): trigger podniesiony 0.50 -> 0.80. Żywy test
+# na prod po wdrożeniu 0.50 (raport 259, JETSET CLINIC, salon bez wcześniejszej
+# kontaminacji) minął się z progiem tak samo jak raport 250: verified_rate
+# 54/101 = 0.535 — o 3.5 punktu ZA WYSOKO, fallback się nie odpalił, subject_only
+# wyszło 51.7% zamiast ≤25%. Przy 0.75 similarity ten sam salon dostaje 78
+# zweryfikowanych zamiast 54 (rate 0.772). Fallback nadal bezpieczny — przyjmuje
+# wynik TYLKO gdy poprawia (n_verified_b > n_verified).
+_ADAPTIVE_TRIGGER_VERIFIED_RATE = 0.80
 _ADAPTIVE_FALLBACK_SIMILARITY = 0.75
 
 
