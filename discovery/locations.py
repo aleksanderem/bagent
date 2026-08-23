@@ -103,7 +103,24 @@ async def _fetch_listing_by_location(
     headers = {"x-api-key": settings.bextract_api_key}
     backoff = 5.0
     for attempt in range(1, 5):
-        r = await http.get(url, params=params, headers=headers, timeout=60.0)
+        # A dropped connection surfaces as an httpx exception, not a response —
+        # so it used to bypass the is_transient branch below and abort the whole
+        # combo walk from inside _walk_location's recursion. Same failure mode
+        # bextract reports as HTTP 500 "socket hang up", which we already retry.
+        try:
+            r = await http.get(url, params=params, headers=headers, timeout=60.0)
+        except httpx.TransportError as e:  # covers RemoteProtocolError, timeouts, connect errors
+            if attempt < 4:
+                logger.warning(
+                    "[locations] bextract transport error (attempt %d), backing off %.0fs: %s",
+                    attempt, backoff, e,
+                )
+                await asyncio.sleep(backoff)
+                backoff *= 2
+                continue
+            raise RuntimeError(
+                f"bextract transport error after 4 attempts for cat={category_id} loc={location_id}: {e}"
+            ) from e
         if r.status_code == 200:
             return r.json()
         body = r.text[:300]
