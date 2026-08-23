@@ -283,6 +283,12 @@ async def compute_competitor_analysis(
     # P2 (quick 260613-m23): separate timers for the two heavy data loads.
     async with _phase_timer(tracer, "load.subject"):
         subject_data = await service.get_subject_full_data(audit_id)
+    # Skąd przyszedł subject i co ma w środku — jedno spojrzenie zamiast
+    # śledztwa po bazie (BEAUTY_AUDIT-cbnt). Liczby liczone z pamięci, z tego
+    # co get_subject_full_data już przywiozło; zero dodatkowych zapytań.
+    # Ta linia opisuje scrape AUDYTOWY — podmianę na chain-head (Etap 4,
+    # "scrape-consistency") loguje osobna linia niżej.
+    _log_subject_services_fingerprint(subject_data, source="audit scrape")
 
     competitor_booksy_ids = [c.booksy_id for c in candidates]
     # Keep only candidates whose data loaded successfully; align bucket metadata
@@ -681,18 +687,32 @@ async def compute_competitor_analysis(
 
     await progress(45, "Pricing comparisons per treatment_id...")
     async with _phase_timer(tracer, "pricing.comparisons"):
-        # Early-exit (quick 260613-rne): subject has services with tid+price
-        # but ZERO variant_id (load test 2026-06-13 report 36, subject
-        # j5796vaa: 282 qualified, variant_id=0). Without variants
-        # _compute_pricing_comparisons would still return [] (its own internal
-        # _active_services_with_variant guard, ~1220) — but only AFTER grinding
-        # tier-1/3/5 for 280-450s. Detect the empty subject-variant set HERE
-        # and emit tier-1-shaped subject_only rows directly (one per _tid_key
-        # group), skipping the heavy tiers. The rest of the pipeline
-        # (insert/aggregate/gaps/dims/synthesis) operates on pricing_rows
-        # regardless of which branch produced them.
+        # Early-exit (quick 260613-rne; warunek przepisany 2026-08-23,
+        # BEAUTY_AUDIT-cbnt): jeżeli silnik cenowy i tak nie miałby czego
+        # policzyć, nie ma po co go budzić — emitujemy wiersze subject_only
+        # (jeden per grupa _tid_key, kształt tier-1) i pomijamy ciężkie tiery.
+        # Reszta pipeline'u (insert/aggregate/gaps/dims/synthesis) pracuje na
+        # pricing_rows niezależnie od tego, która gałąź je wyprodukowała.
+        #
+        # Dlaczego stary warunek był martwy: pytał `_active_services_with_
+        # variant`, czyli o `variant_id`. To wymóg STAREJ, klasyfikacja-first
+        # `_compute_pricing_comparisons` (grupuje po (tid, variant_id) i ma
+        # własny guard wariantowy w środku — jej ta zmiana nie dotyczy, bo
+        # pipeline jej nie woła). Od S0078 w gałęzi `else` stoi
+        # `compute_pricing_comparisons_v2`, która słowa `variant_id` nie zna:
+        # filtruje subjecta wyłącznie po is_active + price_grosze + id
+        # (services/similarity_pricing/report_pricing.py:201-204). Skutek na
+        # produkcji (raport 250, subject booksy 98814): 229 usług, 220
+        # aktywnych z ceną, ale tylko 25 z wariantem — a że promocje, pakiety
+        # i konsultacje bez ceny wypadają w filtrze wariantowym, guard schodził
+        # do zera i odcinał 220 dobrych usług od silnika, któremu warianty są
+        # niepotrzebne. Klientka dostawała 24 puste wiersze "tylko Ty na
+        # rynku" zamiast 203 z cenami rynkowymi.
+        #
+        # Nowy warunek pyta dokładnie o to, czego wymaga v2 — patrz
+        # `_v2_eligible_subject_services`.
         _subject_services = subject_data.get("services") or []
-        _subject_qualified = _active_services_with_variant(_subject_services)
+        _subject_qualified = _v2_eligible_subject_services(_subject_services)
         if not _subject_qualified:
             pricing_rows = _emit_subject_only_rows_no_variants(
                 report_id, _subject_services,
@@ -702,18 +722,19 @@ async def compute_competitor_analysis(
                 pricing_rows
             )
             logger.info(
-                "Etap 4: early-exit subject_only — %d usług, %d subject_only "
-                "rows (subject bez wariantów; tiery variant/treatment/"
-                "structured/method/sub_variant pominięte)",
+                "Etap 4: early-exit subject_only — %d usług, 0 aktywnych z "
+                "ceną i id (silnik v2 nie miałby czego liczyć), %d "
+                "subject_only rows; tiery variant/treatment/structured/"
+                "method/sub_variant pominięte",
                 len(_subject_services), n_pricing,
             )
             if tracer is not None:
                 tracer.add("pricing.computed", {
                     "pricing_type": "subject_only_early_exit",
                     "row_count": n_pricing,
-                    "skip_reason": "subject_has_no_variants",
+                    "skip_reason": "subject_has_no_priced_services",
                     "total_services": len(_subject_services),
-                    "services_with_variant": 0,
+                    "services_eligible_for_v2": 0,
                     "tiers_skipped": [
                         "variant", "treatment", "structured",
                         "method", "sub_variant",
@@ -1175,6 +1196,82 @@ async def _apply_promote_scope_gates(
 
     info["strong"] = strong
     return info
+
+
+def _log_subject_services_fingerprint(
+    subject_data: dict[str, Any], *, source: str,
+) -> None:
+    """Jedna linia INFO opisująca usługi subjecta: z którego scrape'u przyszły
+    i co realnie mają w środku.
+
+    Po co: gdy raport konkurencji wychodzi cienki, pierwsze pytanie brzmi
+    „subject wszedł z chain-heada czy ze scrape'u audytowego, i czy jego usługi
+    w ogóle nadają się do liczenia cen". Bez tej linii odpowiedź wymagała
+    zapytań do bazy po fakcie. Liczymy WYŁĄCZNIE z tego, co już jest w pamięci
+    — żadnego dodatkowego ruchu do Supabase.
+
+    Uczciwość zamiast zgadywania: pełnego wektora `name_embedding` nie ma w
+    tych wierszach (SupabaseService._load_services_for_scrape świadomie go nie
+    ciągnie po drucie), sygnałem obecności embeddingu jest `embedding_applied_
+    at`. Gdy kolumny nie ma w danych, logujemy „n/d", a nie zero.
+    """
+    services = subject_data.get("services") or []
+    scrape_id = (subject_data.get("scrape") or {}).get("id") or "n/d"
+
+    def _count(field: str) -> Any:
+        if not any(field in svc for svc in services):
+            return "n/d"
+        return sum(1 for svc in services if svc.get(field) is not None)
+
+    active_priced = sum(
+        1 for svc in services
+        if svc.get("is_active", True)
+        and isinstance(svc.get("price_grosze"), (int, float))
+        and svc["price_grosze"] > 0
+    )
+    logger.info(
+        "Etap 4 subject (%s): scrape=%s, usług=%d, z embeddingiem=%s, "
+        "z variant_id=%s, aktywnych z ceną=%d, kwalifikuje do silnika v2=%d",
+        source, scrape_id, len(services),
+        _count("embedding_applied_at"), _count("variant_id"),
+        active_priced, len(_v2_eligible_subject_services(services)),
+    )
+
+
+def _v2_eligible_subject_services(
+    services: list[dict[str, Any]],
+) -> list[dict[str, Any]]:
+    """Usługi subjecta, na których `compute_pricing_comparisons_v2` naprawdę
+    ma na czym pracować — kopia JEJ filtru wejściowego, nie żaden nasz wariant.
+
+    Oryginał: services/similarity_pricing/report_pricing.py:201-204
+        [s for s in subject_data["services"]
+         if s.get("is_active", True) and s.get("price_grosze")
+         and s.get("id") is not None]
+    Gdy ta lista jest pusta, v2 kończy natychmiast `return []` — i tylko o to
+    pyta bramka early-exit w Etapie 4.
+
+    Jedyny świadomy rozjazd z oryginałem: cenę sprawdzamy liczbowo (`> 0`),
+    a nie prawdziwościowo, więc ujemna cena odpada u nas, a u v2 by przeszła.
+    Kierunek jest bezpieczny — cokolwiek przepuścimy, v2 też przepuści.
+    Przypięte w tests/test_competitor_pricing_gate.py.
+
+    UWAGA: to NIE jest `_active_services_with_variant` (niżej). Tamta jest
+    filtrem starego, klasyfikacja-first `_compute_pricing_comparisons` i pyta
+    dodatkowo o `variant_id` — bo tamten silnik grupuje po (tid, variant_id).
+    v2 słowa `variant_id` w ogóle nie zna.
+    """
+    out: list[dict[str, Any]] = []
+    for svc in services:
+        if not svc.get("is_active", True):
+            continue
+        price = svc.get("price_grosze")
+        if not isinstance(price, (int, float)) or price <= 0:
+            continue
+        if svc.get("id") is None:
+            continue
+        out.append(svc)
+    return out
 
 
 def _active_services_with_variant(
