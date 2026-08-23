@@ -2220,7 +2220,8 @@ class SupabaseService:
                 self.client.table("competitor_matches")
                 .select(
                     "id,competitor_salon_id,composite_score,bucket,"
-                    "counts_in_aggregates,similarity_scores,distance_km,sort_order"
+                    "counts_in_aggregates,similarity_scores,distance_km,sort_order,"
+                    "verified_match_count,bucket_pre_verify"
                 )
                 .eq("report_id", report_id)
                 .order("sort_order", desc=False)
