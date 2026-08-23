@@ -271,25 +271,94 @@ async def probe_competitor_report_subject_only(client) -> ProbeResult:
     the pricing engine found NO competitors for ANY service — the exact
     symptom of the 2026-06-25 embedding regression (report 250: 48/48).
 
-    Checks the most-recent completed report as a canary: a freshly generated
-    broken report trips this within the probe interval.
+    PASS: kanarek ma <= 90% wierszy subject_only.
+    FAIL: > 90% → silnik wyceny wyprodukował pusty/zdegenerowany raport
+          (brak embeddingów podmiotu, konkurenci nieobecni w Qdrancie
+          albo martwa klasyfikacja variant_id).
+    Brak ukończonych raportów / brak wierszy wyceny → pass (nie ma czego oceniać).
 
-    PASS: latest completed report has <= 90% subject_only rows.
-    FAIL: > 90% → pricing engine produced an empty/degenerate report
-          (subject embeddings missing, competitors absent from Qdrant,
-          or variant_id classification dead).
-    No completed reports / no pricing rows yet → pass (nothing to judge).
+    KANARKIEM JEST NAJŚWIEŻSZY RAPORT, NIE TEN O NAJWYŻSZYM id
+    ------------------------------------------------------------
+    2026-08-23 (BEAUTY_AUDIT-rxoq). Poprzednia wersja brała
+    ``.order("id", desc=True)`` i miała dwie wady naraz:
+
+    * LEPKI KANAREK — zdegenerowany raport o najwyższym id trzymałby sondę w
+      DOWN w nieskończoność, także PO naprawie silnika wyceny. Przeliczenie
+      tego samego raportu w miejscu nie zdejmuje alertu (id się nie zmienia),
+      a naprawa dowolnego raportu o niższym id tym bardziej nie.
+    * MIERZY NIE TO, CO MYŚLIMY — raporty przeliczają się W MIEJSCU:
+      ``SupabaseService.save_competitor_report`` upsertuje nagłówek po
+      ``convex_audit_id`` i podmienia wiersze potomne (delete + insert), więc
+      „najwyższe id" to NIE „ostatni przebieg". Pomiar 2026-08-23: updated_at
+      raportu 250 = 02:19:20, raportu 222 = 02:32:44 — 222 przeliczono PÓŹNIEJ,
+      a sonda i tak patrzyła na 250.
+
+    Sortujemy więc po ``updated_at``, który trigger
+    ``trg_competitor_reports_updated_at`` (migracja 008) ustawia przy KAŻDYM
+    zapisie nagłówka — i przy pierwszym zapisie, i przy przeliczeniu w miejscu.
+    Znana, tolerowana nieścisłość: ``updated_at`` bumpuje też zapis samego
+    ``next_refresh_at`` z ``pipelines/competitor_report_refresh.py``, czyli
+    dotknięcie nagłówka bez przeliczania wyceny. Nie psuje to sondy (to nadal
+    ukończony raport z realnymi wierszami wyceny), a dotyczy wyłącznie tier
+    ``premium``, który nie jest jeszcze sprzedawany.
     """
+    # ESCAPE NA ZASTÓJ: po ilu godzinach bez nowego raportu przestajemy sądzić.
+    # Cisza z braku ruchu nie może być nieodróżnialna od awarii — ale odwrotnie
+    # niż w sondach kolejkowych: tutaj brak ruchu oznacza, że jedyny dowód, jaki
+    # mamy, jest coraz starszy, a sonda krzyczałaby o stanie silnika sprzed
+    # tygodni.
+    #
+    # Dlaczego 72 h, a nie 6 czy 24:
+    #   * Raporty konkurencji NIE powstają z harmonogramu — wyłącznie na żądanie
+    #     (zakup / regeneracja). ``workers/competitor_report_queue.py`` drenuje
+    #     kolejkę co minutę, ale wiersze wpadają do niej tylko z endpointu, a w
+    #     ``convex/crons.ts`` nie ma ANI JEDNEGO crona generującego raport
+    #     (``refresh-premium-competitor-reports`` pisze snapshoty premium, nie
+    #     wiersze wyceny). Ruch idzie więc za sprzedażą, nie za zegarem.
+    #   * Wolumen historyczny: ~250 raportów (najwyższe id) od migracji 008,
+    #     czyli rzędu pojedynczych sztuk na dobę ŚREDNIO — ale bursty, z całymi
+    #     dobami bez ani jednego. Okno 6 h czy 24 h uciszałoby sondę w każdy
+    #     spokojny weekend.
+    #   * Sonda leci co godzinę (``workers/main.py``, ``minute={37}``), więc
+    #     zdegenerowany raport alarmuje przez ~72 kolejne przebiegi. To aż nadto
+    #     czasu na reakcję człowieka, a jednocześnie nie pozwala sondzie wisieć
+    #     na dowodzie sprzed tygodnia.
+    _STALE_AFTER_SECONDS = 72 * 3600
+
     rep = (
         client.table("competitor_reports")
-        .select("id")
+        .select("id, updated_at")
         .eq("status", "completed")
-        .order("id", desc=True)
+        .gte("updated_at", _iso_ago(seconds=_STALE_AFTER_SECONDS))
+        .order("updated_at", desc=True)
         .limit(1)
         .execute()
     )
     if not rep.data:
-        return ProbeResult(ok=True, detail="no_completed_reports")
+        # Nic świeżego. Rozróżniamy „nigdy nic nie było" od „ostatni raport jest
+        # za stary, żeby coś mówić o dzisiejszym silniku" — obie sytuacje to
+        # PASS, ale druga musi podać wiek, żeby cisza w Healthchecks była
+        # czytelna, a nie tylko zielona.
+        newest = (
+            client.table("competitor_reports")
+            .select("id, updated_at")
+            .eq("status", "completed")
+            .order("updated_at", desc=True)
+            .limit(1)
+            .execute()
+        )
+        if not newest.data:
+            return ProbeResult(ok=True, detail="no_completed_reports")
+        newest_row = newest.data[0]
+        age_h = _age_hours(newest_row.get("updated_at"))
+        age_txt = f"{age_h:.0f}h" if age_h is not None else "?"
+        return ProbeResult(
+            ok=True,
+            detail=(
+                f"stale_no_recent_report newest_report={newest_row['id']} "
+                f"age={age_txt} window={_STALE_AFTER_SECONDS // 3600}h"
+            ),
+        )
     report_id = rep.data[0]["id"]
 
     total = (
@@ -489,6 +558,26 @@ ALL_SLO_TASKS = [
 def _iso_ago(*, seconds: int) -> str:
     from datetime import datetime, timedelta, timezone
     return (datetime.now(timezone.utc) - timedelta(seconds=seconds)).isoformat()
+
+
+def _age_hours(iso_ts: str | None) -> float | None:
+    """Wiek znacznika czasu z PostgREST w godzinach.
+
+    Zwraca None, gdy wartości nie da się sparsować — detal sondy pokazuje
+    wtedy '?' zamiast zmyślać liczbę. Kolumna jest TIMESTAMPTZ, więc PostgREST
+    oddaje ją z offsetem; wariant naiwny (bez strefy) traktujemy jako UTC,
+    bo cała baza stoi na UTC.
+    """
+    if not iso_ts:
+        return None
+    from datetime import datetime, timezone
+    try:
+        ts = datetime.fromisoformat(str(iso_ts).replace("Z", "+00:00"))
+    except (TypeError, ValueError):
+        return None
+    if ts.tzinfo is None:
+        ts = ts.replace(tzinfo=timezone.utc)
+    return (datetime.now(timezone.utc) - ts).total_seconds() / 3600.0
 
 
 def _parse_pretty_size_to_mb(s: str | None) -> float | None:
