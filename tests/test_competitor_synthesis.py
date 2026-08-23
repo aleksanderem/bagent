@@ -551,6 +551,126 @@ class TestSanitizeInsights:
 
 
 # ---------------------------------------------------------------------------
+# _sanitize_insights(require_refs=False) — awaryjna ścieżka OpenAI
+# ---------------------------------------------------------------------------
+#
+# BEAUTY_AUDIT-4s5z. Schemat `_INSIGHTS_SCHEMA` w services/openai_synthesis.py
+# jest wołany w trybie `strict: True` i NIE MA pola `sourceDataPoints` — model
+# fizycznie nie może zwrócić referencji, a normalizacja dokłada puste listy.
+# Twardy sanitizer wycinał wtedy CAŁY SWOT i WSZYSTKIE rekomendacje (zmierzone
+# na produkcji: swotDropped=4, recommendationsDropped=1) — klientka dostawała
+# płatny raport z samą narracją. Ścieżka OpenAI ma więc `require_refs=False`.
+
+
+def _openai_shaped_insights() -> dict:
+    """Payload w kształcie tego, co realnie zwraca `synthesize_via_openai`:
+    bullety i rekomendacje mają WYŁĄCZNIE `text`/pola opisowe, a referencje są
+    pustymi listami dołożonymi przez `setdefault` w normalizacji."""
+    return {
+        "positioning_narrative": "Salon plasuje sie powyzej mediany rynku.",
+        "swot": {
+            "strengths": [{"text": "Wysokie oceny klientek", "sourceDataPoints": []}],
+            "weaknesses": [{"text": "Braki w opisach uslug", "sourceDataPoints": []}],
+            "opportunities": [{"text": "Wolne wieczorne sloty", "sourceDataPoints": []}],
+            "threats": [{"text": "Tansza konkurencja obok", "sourceDataPoints": []}],
+        },
+        "recommendations": [
+            {
+                "actionTitle": "Podnies ceny najpopularniejszych zabiegow",
+                "actionDescription": "Ceny sa ponizej mediany rynku lokalnego.",
+                "category": "pricing",
+                "impact": "high",
+                "effort": "low",
+                "confidence": 0.7,
+                "sourceCompetitorIds": [],
+                "sourceDataPoints": [],
+                "estimatedRevenueImpactGrosze": None,
+            },
+        ],
+    }
+
+
+_VALID_IDS = {
+    "dimensional_score": {1001},
+    "pricing_comparison": {456},
+    "service_gap": {301},
+}
+
+
+class TestSanitizeInsightsRequireRefsFalse:
+    def test_openai_shaped_payload_survives_sanitizer(self) -> None:
+        """REGRESJA: bullety bez referencji NIE MOGĄ znikać na ścieżce OpenAI."""
+        out = _sanitize_insights(
+            _openai_shaped_insights(),
+            valid_ids=_VALID_IDS,
+            valid_competitor_ids={9411},
+            require_refs=False,
+        )
+        assert [len(out["swot"][k]) for k in
+                ("strengths", "weaknesses", "opportunities", "threats")] == [1, 1, 1, 1], (
+            f"SWOT wycięty mimo require_refs=False: {out['swot']}"
+        )
+        assert len(out["recommendations"]) == 1, (
+            f"rekomendacje wycięte mimo require_refs=False: {out['recommendations']}"
+        )
+        assert out["recommendations"][0]["actionTitle"].startswith("Podnies ceny")
+        assert out["swot"]["strengths"][0]["sourceDataPoints"] == []
+
+    def test_sanitizer_dropped_counters_report_zero(self) -> None:
+        """Liczniki muszą mówić prawdę: nic nie wyleciało, więc zera."""
+        out = _sanitize_insights(
+            _openai_shaped_insights(),
+            valid_ids=_VALID_IDS,
+            valid_competitor_ids={9411},
+            require_refs=False,
+        )
+        assert out["sanitizerDropped"] == {
+            "swotDropped": 0, "recommendationsDropped": 0,
+        }
+
+    def test_default_still_drops_bullets_without_refs(self) -> None:
+        """Ścieżka MiniMaxa (domyślna) zachowuje dotychczasową surowość."""
+        out = _sanitize_insights(
+            _openai_shaped_insights(),
+            valid_ids=_VALID_IDS,
+            valid_competitor_ids={9411},
+        )
+        assert all(out["swot"][k] == [] for k in out["swot"]), (
+            f"require_refs=True przestało odsiewać SWOT: {out['swot']}"
+        )
+        assert out["recommendations"] == []
+        assert out["sanitizerDropped"] == {
+            "swotDropped": 4, "recommendationsDropped": 1,
+        }
+
+    def test_hallucinated_ids_still_dropped_when_refs_not_required(self) -> None:
+        """Miękkie ma być TYLKO to, że pusta lista nie kasuje bulletu —
+        halucynowane ID dalej wylatują."""
+        insights = _openai_shaped_insights()
+        insights["swot"]["strengths"][0]["sourceDataPoints"] = [
+            {"type": "dimensional_score", "id": 99999},   # halucynacja
+            {"type": "pricing_comparison", "id": 456},    # prawdziwe
+        ]
+        insights["recommendations"][0]["sourceDataPoints"] = [
+            {"type": "service_gap", "id": 88888},         # halucynacja
+        ]
+        insights["recommendations"][0]["sourceCompetitorIds"] = [9411, 9999]
+        out = _sanitize_insights(
+            insights,
+            valid_ids=_VALID_IDS,
+            valid_competitor_ids={9411},
+            require_refs=False,
+        )
+        assert out["swot"]["strengths"][0]["sourceDataPoints"] == [
+            {"type": "pricing_comparison", "id": 456},
+        ]
+        # Rekomendacja zostaje (miękko), ale bez halucynowanej referencji.
+        assert len(out["recommendations"]) == 1
+        assert out["recommendations"][0]["sourceDataPoints"] == []
+        assert out["recommendations"][0]["sourceCompetitorIds"] == [9411]
+
+
+# ---------------------------------------------------------------------------
 # _deterministic_fallback
 # ---------------------------------------------------------------------------
 
@@ -770,7 +890,16 @@ async def test_synthesize_falls_back_on_minimax_failure(
     sample_pricing, sample_gaps, sample_dimensions,
 ) -> None:
     """When MiniMax throws, the pipeline must use the deterministic fallback
-    and still persist a valid report."""
+    and still persist a valid report.
+
+    Warstwa OpenAI jest tu wywalana JAWNIE. Wcześniej test polegał na tym, że
+    `OPENAI_API_KEY` nie ma w środowisku — a `tests/test_api.py` importuje
+    `server`, który woła `load_dotenv()` i wstrzykuje prawdziwy klucz z `.env`.
+    W pełnym przebiegu ten test STRZELAŁ WIĘC DO SIECI (zadanie x67b), a zielony
+    był tylko dlatego, że sanitizer wycinał całą prawdziwą odpowiedź OpenAI do
+    zera. Po BEAUTY_AUDIT-4s5z ta odpowiedź już nie ginie, więc zależność
+    musi być jawna.
+    """
     mock_supabase = _mk_mock_supabase(
         sample_report, sample_subject_context, sample_matches,
         sample_pricing, sample_gaps, sample_dimensions,
@@ -780,6 +909,9 @@ async def test_synthesize_falls_back_on_minimax_failure(
     with patch(
         "pipelines.competitor_synthesis._run_minimax_synthesis",
         new=AsyncMock(side_effect=RuntimeError("MiniMax timeout")),
+    ), patch(
+        "services.openai_synthesis.synthesize_via_openai",
+        new=AsyncMock(side_effect=RuntimeError("OpenAI unavailable")),
     ):
         result = await synthesize_competitor_insights(
             report_id=27,
@@ -930,6 +1062,54 @@ async def test_synthesis_attempt_minimax_fail_then_openai_success(
     assert "boom" in attempts[0]["data"]["error"]
     assert attempts[1]["data"]["model"] == "openai"
     assert attempts[1]["data"]["success"] is True
+
+
+@pytest.mark.asyncio
+async def test_openai_fallback_persists_nonempty_swot_and_recommendations(
+    sample_report, sample_subject_context, sample_matches,
+    sample_pricing, sample_gaps, sample_dimensions,
+) -> None:
+    """BEAUTY_AUDIT-4s5z, definicja "działa": MiniMax pada, OpenAI zwraca
+    bullety BEZ referencji (bo jego schemat `strict: True` nie ma pola
+    `sourceDataPoints`) — a raport i tak ma SWOT i rekomendacje.
+
+    Ten test pilnuje WYWOŁANIA (`require_refs=False` w ścieżce awaryjnej), nie
+    samej funkcji sanitizera. Bez tego argumentu klientka dostaje płatny raport
+    z samą narracją pozycjonowania."""
+    mock_supabase = _mk_mock_supabase(
+        sample_report, sample_subject_context, sample_matches,
+        sample_pricing, sample_gaps, sample_dimensions,
+    )
+    with patch(
+        "pipelines.competitor_synthesis._run_minimax_synthesis",
+        new=AsyncMock(side_effect=RuntimeError("minimax boom")),
+    ), patch(
+        "services.openai_synthesis.synthesize_via_openai",
+        new=AsyncMock(return_value=_openai_shaped_insights()),
+    ):
+        result = await synthesize_competitor_insights(
+            report_id=27, supabase=mock_supabase,
+        )
+
+    assert result["used_fallback"] is True
+    assert result["swot_item_count"] == 4, (
+        f"SWOT wycięty na ścieżce awaryjnej: {result}"
+    )
+
+    _, payload = mock_supabase.update_competitor_report_data.call_args[0]
+    assert payload["synthesisSource"] == "openai_gpt_4o_mini"
+    assert payload["sanitizerDropped"] == {
+        "swotDropped": 0, "recommendationsDropped": 0,
+    }
+    assert all(payload["swot"][k] for k in
+               ("strengths", "weaknesses", "opportunities", "threats"))
+
+    rows = mock_supabase.insert_competitor_recommendations.call_args[0][0]
+    assert len(rows) == 1, f"rekomendacje wycięte na ścieżce awaryjnej: {rows}"
+    assert rows[0]["action_title"].startswith("Podnies ceny")
+    # Pusty ref jest OK dla zapisu — kolumna jest NOT NULL, nie "niepusta".
+    assert rows[0]["source_data_points"] == []
+    assert rows[0]["source_competitor_ids"] == []
 
 
 @pytest.mark.asyncio

@@ -169,8 +169,10 @@ async def synthesize_via_openai(
 
     Raises on missing API key or API failure (caller falls back to deterministic).
     Adds empty `sourceDataPoints` to SWOT bullets and empty `sourceCompetitorIds`
-    / `sourceDataPoints` to recommendations so the downstream sanitizer doesn't
-    complain about missing keys.
+    / `sourceDataPoints` to recommendations, żeby kształt dictu zgadzał się
+    z MiniMaxem. Te puste listy nie dają traceability i nie chronią przed
+    sanitizerem — wołający MUSI użyć `_sanitize_insights(..., require_refs=False)`,
+    inaczej cały SWOT i wszystkie rekomendacje z tej ścieżki zostaną wycięte.
 
     `tracer` (optional TraceWriter): persists agent.tokens via mig 121.
     """
@@ -204,8 +206,16 @@ async def synthesize_via_openai(
     raw = response.choices[0].message.content or "{}"
     parsed = json.loads(raw)
 
-    # Normalize to MiniMax dict shape — fill sourceDataPoints/sourceCompetitorIds
-    # as empty lists so _sanitize_insights doesn't drop bullets.
+    # Normalize to MiniMax dict shape — dołóż sourceDataPoints /
+    # sourceCompetitorIds / estimatedRevenueImpactGrosze, żeby dalszy kod nie
+    # musiał rozróżniać "klucz nie istnieje" od "pusta lista".
+    #
+    # UWAGA: te puste listy NIE chronią przed dropem w _sanitize_insights —
+    # przeciwnie, to dokładnie one uruchamiały jego warunek `if not refs`.
+    # Ochroną jest `require_refs=False` przekazywane przez wołającego
+    # (pipelines/competitor_synthesis.py, ścieżka awaryjna) — bo _INSIGHTS_SCHEMA
+    # leci w trybie `strict: True` bez pola `sourceDataPoints` i model FIZYCZNIE
+    # nie ma jak zwrócić referencji. Zob. BEAUTY_AUDIT-4s5z.
     for key in ("strengths", "weaknesses", "opportunities", "threats"):
         for bullet in parsed.get("swot", {}).get(key, []) or []:
             bullet.setdefault("sourceDataPoints", [])
