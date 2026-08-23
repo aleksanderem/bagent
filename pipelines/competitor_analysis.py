@@ -68,7 +68,7 @@ from pipelines.competitor_buckets import (
 )
 from services.similarity_pricing.qdrant_search import search_twins
 from services.similarity_pricing.report_pricing import (
-    _fetch_subject_embeddings,
+    _fetch_subject_embeddings_with_chain_head_fallback,
     compute_pricing_comparisons_v2,
 )
 from services.supabase import SupabaseService
@@ -6587,10 +6587,14 @@ async def _aggregate_verified_match_counts(
     verified_match_count} (liczba pokrytych usług subjecta).
 
     Bezpieczniki (błąd w logu, re-bucket POMINIĘTY zamiast degradować
-    wszystkich do 'excluded'): brak embeddingów subjecta (stare audit
-    scrape'y sprzed inline-embeddingu), zero pokryć u wszystkich (Qdrant
-    bez wybranych / awaria searchu), pusty przekrój pokrycia z
-    competitor_matches raportu (pomylona przestrzeń ID, BEAUTY_AUDIT-hx85).
+    wszystkich do 'excluded'): brak embeddingów subjecta NIGDZIE — ani na
+    audit scrape (stare/świeże scrape'y sprzed inline-embeddingu lub przed
+    catch-upem crona), ani na chain-head scrape tego samego salonu, którego
+    próbujemy jako fallback (BEAUTY_AUDIT-gqul, patrz
+    _fetch_subject_embeddings_with_chain_head_fallback) — zero pokryć u
+    wszystkich (Qdrant bez wybranych / awaria searchu), pusty przekrój
+    pokrycia z competitor_matches raportu (pomylona przestrzeń ID,
+    BEAUTY_AUDIT-hx85).
     """
     subject_services = [
         s for s in (subject_data.get("services") or [])
@@ -6605,11 +6609,23 @@ async def _aggregate_verified_match_counts(
         return {}
 
     subject_ids = [int(s["id"]) for s in subject_services]
-    subject_embeddings = _fetch_subject_embeddings(service, subject_ids)
+    # Fallback na chain-head scrape TEGO SAMEGO salonu, gdy audit scrape nie ma
+    # jeszcze wektorów (świeży audyt przed catch-upem crona itd.) — patrz
+    # compute_pricing_comparisons_v2 dla pełnego uzasadnienia (BEAUTY_AUDIT-gqul).
+    # Tu, w przeciwieństwie do wyceny, brak wektorów NIGDZIE nie produkuje
+    # fałszywie-kompletnego raportu — pomija tylko jeden krok weryfikacji
+    # (bucket_pre_verify zostaje), więc log+skip (nie wyjątek) zostaje właściwą
+    # reakcją nawet po nieudanym fallbacku.
+    subject_services, subject_ids, subject_embeddings = (
+        await _fetch_subject_embeddings_with_chain_head_fallback(
+            service, subject_services, subject_ids, subject_data.get("booksy_id"),
+        )
+    )
     if not subject_embeddings:
         logger.error(
-            "Faza 8a: 0/%d usług subjecta ma name_embedding (raport %s) — "
-            "scrape sprzed inline-embeddingu? Pomijam re-bucket.",
+            "Faza 8a: 0/%d usług subjecta ma name_embedding (raport %s), i "
+            "chain-head fallback też pusty (scrape sprzed inline-embeddingu, "
+            "brak chain-head scrape'a, albo błąd ingestu) — pomijam re-bucket.",
             len(subject_ids), report_id,
         )
         return {}

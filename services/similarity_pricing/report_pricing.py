@@ -135,6 +135,71 @@ def _fetch_subject_embeddings(service: Any, subject_ids: list[int]) -> dict[int,
     return out
 
 
+async def _fetch_subject_embeddings_with_chain_head_fallback(
+    service: Any,
+    subject_services: list[dict[str, Any]],
+    subject_ids: list[int],
+    subject_booksy_id: int | None,
+) -> tuple[list[dict[str, Any]], list[int], dict[int, list[float]]]:
+    """Embeddingi subjecta, z fallbackiem na chain-head scrape tego samego salonu.
+
+    `_fetch_subject_embeddings` na usługach z AUDIT scrape'a zwraca pusty
+    słownik, gdy podmiot audytu nie ma jeszcze wektorów nazw usług — świeży
+    audyt przed catch-upem nocnego crona (`reference_variant_classification_cron`),
+    wyczerpana kwota OpenAI, albo błąd ingestu. Bez fallbacku `search_twins`
+    dostaje pusty `subject_embeddings`, każdy wiersz wyceny ląduje jako
+    `verification_status='subject_only'`, a raport wygląda na kompletny —
+    cicha awaria (BEAUTY_AUDIT-gqul).
+
+    Zamiast poddawać się od razu, próbujemy usług CHAIN-HEAD tego samego
+    salonu (`SupabaseService.get_chain_head_services`) — inline embedding przy
+    ingest (`_insert_services`) ustawia im wektor zawsze, nocny cron to tylko
+    catch-up dla przypadków, które przez to przeszły. Chain-head ma INNE `id`
+    usług niż audit scrape, więc lista usług i embeddingi muszą wymienić się
+    RAZEM — inaczej `search_twins` dostaje embeddingi kluczowane inaczej niż
+    `subject_ids`, które przeszukuje, i traktuje je jako brakujące.
+
+    Zwraca (subject_services, subject_ids, subject_embeddings) — oryginalne
+    wejście, gdy audit scrape ma wektory; chain-head trójkę, gdy fallback się
+    udał. Pusty `subject_embeddings` w wyniku oznacza, że NIC nie ma wektorów
+    (ani audit, ani chain-head) — wywołujący decyduje, jak twardo zareagować.
+    """
+    subject_embeddings = _fetch_subject_embeddings(service, subject_ids)
+    if subject_embeddings or subject_booksy_id is None:
+        return subject_services, subject_ids, subject_embeddings
+
+    try:
+        ch_scrape_id, ch_services = await service.get_chain_head_services(
+            int(subject_booksy_id)
+        )
+    except Exception as e:
+        logger.warning(
+            "chain-head fallback: get_chain_head_services failed (booksy_id=%s): %s",
+            subject_booksy_id, e,
+        )
+        return subject_services, subject_ids, subject_embeddings
+
+    ch_subject_services = [
+        s for s in ch_services
+        if s.get("is_active", True) and s.get("price_grosze") and s.get("id") is not None
+    ]
+    if not ch_subject_services:
+        return subject_services, subject_ids, subject_embeddings
+
+    ch_ids = [int(s["id"]) for s in ch_subject_services]
+    ch_embeddings = _fetch_subject_embeddings(service, ch_ids)
+    if not ch_embeddings:
+        return subject_services, subject_ids, subject_embeddings
+
+    logger.warning(
+        "chain-head fallback: subject audit-scrape ma 0/%d name_embedding "
+        "(booksy_id=%s) — użyto chain-head scrape %s (%d/%d usług z wektorem)",
+        len(subject_ids), subject_booksy_id, ch_scrape_id,
+        len(ch_embeddings), len(ch_ids),
+    )
+    return ch_subject_services, ch_ids, ch_embeddings
+
+
 def _build_row(
     report_id: int, subject: dict[str, Any], res: MarketResult,
 ) -> dict[str, Any]:
@@ -223,7 +288,27 @@ async def compute_pricing_comparisons_v2(
 
     # Subject pochodzi z AUDIT scrape (nie chain-head) — NIE ma go w Qdrant.
     # Embeddingi subjectów bierzemy z Postgresa, w Qdrant pytamy tylko o konkurentów.
-    subject_embeddings = _fetch_subject_embeddings(service, subject_ids)
+    # Gdy audit scrape nie ma jeszcze wektorów, próbujemy chain-head scrape'a
+    # tego samego salonu zanim się poddamy (BEAUTY_AUDIT-gqul).
+    subject_services, subject_ids, subject_embeddings = (
+        await _fetch_subject_embeddings_with_chain_head_fallback(
+            service, subject_services, subject_ids, subject_booksy,
+        )
+    )
+    if not subject_embeddings:
+        # Ta ścieżka jest user-facing: bez wektorów podmiotu KAŻDY wiersz
+        # wyceny ląduje jako verification_status='subject_only' (subject_only
+        # → brak market_median_grosze), raport generuje się do końca i z
+        # zewnątrz wygląda na kompletny — cicha awaria, zero błędu w bagencie,
+        # zero statusu w Convex. Wolimy głośno przerwać etap wyceny.
+        raise RuntimeError(
+            f"similarity pricing v2: subject (booksy_id={subject_booksy}) nie ma "
+            "ANI JEDNEGO name_embedding — ani na audit scrape, ani na chain-head "
+            "scrape tego salonu. Wycena bez wektorów podmiotu wygenerowałaby "
+            "raport z samymi wierszami 'subject_only' (bez cen rynkowych) bez "
+            "żadnego sygnału błędu — przerywam etap zamiast produkować cichy "
+            "pusty raport."
+        )
     salons_by_booksy = _lookup_salons(service, all_booksy)
 
     def _price_at(min_similarity: float) -> list[dict[str, Any]]:
