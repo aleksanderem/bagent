@@ -54,7 +54,19 @@ DEFAULT_CONFIG: dict[str, Any] = {
     # --- coherence guard (obce bloki; kalibracja: sweep 2026-07-19) ---
     # peer_max_sim − similarity powyżej gap ORAZ similarity < s_max ⇒ podejrzany;
     # blok ≥ min_block podejrzanych ⇒ odrzucony. Sample bez peer_max_sim = abstain.
-    "coherence_gap": 0.08,
+    # 2026-08-23 (BEAUTY_AUDIT-bgp3): gap podniesiony 0.08 -> 0.15. Pomiar na
+    # raporcie 250 (221 usług, próg twins 0.75): przy 0.08 strażnik wycinał
+    # 3052 próbki w 142 usługach i ZABIJAŁ 73 usługi, które miały gotowy rynek —
+    # dokładnie tyle, ile przepuszczał. Skrajny przypadek: "Depilacja laserowa -
+    # baki" ma 67 salonów w promieniu, zostawało ZERO. Sweep: gap .08 -> 148
+    # wierszy "Tylko Ty" (67%), .12 -> 115 (52%), .15 -> 105 (48%), strażnik
+    # wyłączony -> 77 (35%). Wybrano .15: zabiera 2/3 nadmiarowego cięcia i
+    # zostawia margines nad "bez strażnika". Jakość 43 wierszy dochodzących przy
+    # .15 sprawdzona ręcznie (brodawki, bikini brazylijskie, Virtue RF, drenaż
+    # limfatyczny) — dopasowania trafne. Kalibracja 2026-07-19 dobierała gap przy
+    # progu twins 0.82; przy 0.75 okno podejrzenia [próg, s_max] obejmuje niemal
+    # cały zakres podobieństw, stąd hurtowe cięcie.
+    "coherence_gap": 0.15,
     "coherence_s_max": 0.90,
     "coherence_min_block": 2,
 }
