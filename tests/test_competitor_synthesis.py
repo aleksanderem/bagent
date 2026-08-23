@@ -1109,11 +1109,18 @@ async def test_run_minimax_synthesis_acquires_minimax_slot(
     run_loop_mock = AsyncMock(return_value=_mk_synthesis_agent_result())
     monkeypatch.setattr("agent.runner.run_agent_loop", run_loop_mock)
 
-    # Stub MiniMaxClient so the ctor + `client.client = AsyncAnthropic(...)`
-    # override in _run_minimax_synthesis is harmless (no real network client).
+    # Stub MiniMaxClient so the ctor + timeout/retry override in
+    # _run_minimax_synthesis is harmless (no real network client). Podmiana
+    # klonuje istniejącego klienta (`client.client.copy(...)`), żeby nie zgubić
+    # nagłówków z MiniMaxClient — stub musi więc wystawić `.copy()`.
+    # Dziedziczenie nagłówków sprawdza tests/test_competitor_synthesis_limits.py.
+    fake_inner = SimpleNamespace()
+    fake_inner.copy = lambda **kwargs: fake_inner
     monkeypatch.setattr(
         "services.minimax.MiniMaxClient",
-        lambda *a, **k: SimpleNamespace(client=None, model=settings.minimax_model),
+        lambda *a, **k: SimpleNamespace(
+            client=fake_inner, model=settings.minimax_model
+        ),
     )
 
     slot_entries: list[str] = []
