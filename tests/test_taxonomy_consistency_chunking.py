@@ -28,6 +28,17 @@ undecided — is a provider failure and still raises, which is what
 `test_chunk_failure_aborts_pipeline` below pins. Without that gate a
 provider outage would produce a "successful" report standing entirely on
 stand-in decisions.
+
+CONTRACT CHANGE 2026-08-23 (BEAUTY_AUDIT-kfgx): that fraction gate was
+unreachable-by-design on a tiny chunk — one skipped cluster out of one is
+a 100% shortfall — so 31 mixed clusters at chunk_size=30 left a
+one-cluster tail and died with the pre-8j8 message. Now a remainder of at
+most tc._MAX_MERGEABLE_TAIL_CLUSTERS joins the previous chunk (largest
+chunk 30 -> 32, bounded), and a chunk below
+tc._MIN_CHUNK_FOR_PROVIDER_FAILURE_GATE — only reachable when the salon
+has 1-2 mixed clusters in total — skips the gate and takes the rescue.
+From 3 clusters up the gate is byte-for-byte the old behaviour, pinned by
+`test_empty_response_for_smallest_full_chunk_still_aborts`.
 """
 
 from __future__ import annotations
@@ -112,7 +123,11 @@ def env_openai_provider(monkeypatch: pytest.MonkeyPatch) -> None:
     [
         (1, 30, 1),     # single chunk, way under limit
         (30, 30, 1),    # exactly one chunk
-        (31, 30, 2),    # one over, splits
+        # BEAUTY_AUDIT-kfgx: a 1-cluster remainder is NOT dispatched on
+        # its own any more — it joins the previous chunk (31 in one call).
+        (31, 30, 1),    # tail of 1 merged back
+        (32, 30, 1),    # tail of 2 merged back — the widest chunk allowed
+        (33, 30, 2),    # tail of 3 is too big to merge: 30 + 3
         (60, 30, 2),    # two even chunks
         (192, 30, 7),   # the Beauty4ever failure case: ceil(192/30)
         (100, 25, 4),   # custom chunk size via env
@@ -358,3 +373,157 @@ async def test_small_shortfall_recovers_via_rescue(
     assert applied[7]["canonical_name"].strip()
     # 1 initial call + 2 bounded re-asks for the single missing cluster.
     assert client.calls == 3
+
+
+# ---------------------------------------------------------------------------
+# BEAUTY_AUDIT-kfgx — a 1-2 cluster chunk must not be able to kill a report.
+#
+# The 8j8 rescue is expressed as a FRACTION of the chunk, and a fraction
+# cannot describe "the model skipped one cluster" when the chunk holds one
+# cluster: that is a 100% shortfall, so the provider-failure gate fired and
+# the report died with the exact pre-8j8 message. 31 mixed clusters at the
+# default chunk_size=30 left such a tail and reproduced it.
+#
+# Two guards, tested separately because neither covers the other's case:
+#   * a remainder of <= _MAX_MERGEABLE_TAIL_CLUSTERS joins the previous
+#     chunk, so the tiny chunk never gets dispatched (tests below);
+#   * a salon with only 1-2 mixed clusters in total has no previous chunk,
+#     so for chunks under _MIN_CHUNK_FOR_PROVIDER_FAILURE_GATE the fraction
+#     gate is skipped and the 8j8 rescue runs instead.
+# The gate itself is untouched from 3 clusters up.
+# ---------------------------------------------------------------------------
+
+
+class _SkipsIdsClient:
+    """Answers every requested cluster except the ones in `skip_ids`."""
+
+    def __init__(self, skip_ids: set[int]) -> None:
+        self.skip_ids = skip_ids
+        self.calls: list[list[int]] = []
+
+    async def call_decisions_tool(
+        self, **kwargs
+    ) -> tuple[list[dict[str, Any]], dict[str, Any]]:
+        import re
+        ids = [int(m) for m in re.findall(
+            r"### KLASTER #(\d+)", kwargs["user_prompt"])]
+        self.calls.append(ids)
+        usage = {"input": 0, "output": 0, "model": "fake-oai-skip-ids"}
+        return (
+            [_decision_for(cid) for cid in ids if cid not in self.skip_ids],
+            usage,
+        )
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize("n_clusters,expected_sizes", [
+    (31, [31]),          # tail of 1 merged — the reported repro
+    (32, [32]),          # tail of 2 merged — widest chunk the cap allows
+    (33, [30, 3]),       # tail of 3 stays its own chunk
+    (60, [30, 30]),      # no remainder — untouched
+    (61, [30, 31]),      # tail of 1 merged into the SECOND chunk
+    (91, [30, 30, 31]),  # tail merges into the last full chunk only
+])
+async def test_small_tail_never_dispatched_alone(
+    n_clusters: int,
+    expected_sizes: list[int],
+    env_openai_provider: None,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """No chunk of 1-2 clusters is ever sent, and merging stays bounded:
+    the widest chunk is chunk_size + _MAX_MERGEABLE_TAIL_CLUSTERS (32),
+    never 2*chunk_size-1."""
+    monkeypatch.setenv("TAXONOMY_CONSISTENCY_CHUNK_SIZE", "30")
+
+    client = _FakeOAIClient()
+    applied: dict[int, dict[str, Any]] = {}
+    stats = await _run_with_client(client, n_clusters, applied)
+
+    assert client.calls == expected_sizes, client.calls
+    assert max(client.calls) <= 30 + tc._MAX_MERGEABLE_TAIL_CLUSTERS
+    assert min(client.calls) > tc._MAX_MERGEABLE_TAIL_CLUSTERS
+    assert sorted(applied) == list(range(1, n_clusters + 1))
+    assert stats["fallback_decisions"] == 0
+
+
+@pytest.mark.asyncio
+async def test_tail_cluster_skipped_no_longer_kills_report(
+    env_openai_provider: None,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """The reported failure, end to end: 31 mixed clusters at chunk_size
+    30 with the model skipping the cluster that used to land in the
+    one-cluster tail. Before the merge this raised "provider returned 0
+    decision(s) for 1 clusters"; now it is an ordinary 1-of-31 shortfall
+    that the 8j8 rescue absorbs."""
+    monkeypatch.setenv("TAXONOMY_CONSISTENCY_CHUNK_SIZE", "30")
+    monkeypatch.setenv("TAXONOMY_CONSISTENCY_MISSING_RETRIES", "2")
+
+    client = _SkipsIdsClient(skip_ids={31})
+    applied: dict[int, dict[str, Any]] = {}
+
+    stats = await _run_with_client(client, 31, applied)
+
+    assert sorted(applied) == list(range(1, 32))
+    assert stats["rerouted"] == 31
+    assert stats["fallback_decisions"] == 1
+    assert applied[31]["type"] == "salon_synthetic"
+    assert "zastępcza" in applied[31]["reasoning"]
+    # First call carries all 31; the rest are the bounded re-asks for #31.
+    assert client.calls[0] == list(range(1, 32))
+    assert all(c == [31] for c in client.calls[1:])
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize("n_clusters", [1, 2])
+async def test_tiny_total_chunk_falls_back_instead_of_aborting(
+    n_clusters: int,
+    env_openai_provider: None,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """A salon with only 1-2 mixed clusters has no previous chunk to merge
+    into, so the chunk really is that small. An empty response there is
+    indistinguishable from "the model skipped its clusters", so it takes
+    the 8j8 rescue (re-ask, then deterministic stand-in) instead of
+    aborting the report."""
+    monkeypatch.setenv("TAXONOMY_CONSISTENCY_CHUNK_SIZE", "30")
+    monkeypatch.setenv("TAXONOMY_CONSISTENCY_MISSING_RETRIES", "2")
+
+    client = _SkipsIdsClient(skip_ids=set(range(1, n_clusters + 1)))
+    applied: dict[int, dict[str, Any]] = {}
+
+    stats = await _run_with_client(client, n_clusters, applied)
+
+    assert sorted(applied) == list(range(1, n_clusters + 1))
+    assert stats["fallback_decisions"] == n_clusters
+    for cid in range(1, n_clusters + 1):
+        assert applied[cid]["type"] == "salon_synthetic"
+        assert applied[cid]["canonical_name"].strip()
+        assert "zastępcza" in applied[cid]["reasoning"]
+    # Re-asked before giving up: 1 initial + 2 bounded retries.
+    assert len(client.calls) == 3
+
+
+@pytest.mark.asyncio
+async def test_empty_response_for_smallest_full_chunk_still_aborts(
+    env_openai_provider: None,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """The provider-failure gate must NOT be lost at the boundary: three
+    clusters is the smallest chunk that still hard-fails on an empty
+    first response."""
+    monkeypatch.setenv("TAXONOMY_CONSISTENCY_CHUNK_SIZE", "30")
+    monkeypatch.setenv("TAXONOMY_CONSISTENCY_MISSING_RETRIES", "2")
+    assert tc._MIN_CHUNK_FOR_PROVIDER_FAILURE_GATE == 3
+
+    client = _SkipsIdsClient(skip_ids={1, 2, 3})
+    applied: dict[int, dict[str, Any]] = {}
+
+    with pytest.raises(RuntimeError) as exc:
+        await _run_with_client(client, 3, applied)
+
+    msg = str(exc.value)
+    assert "returned 0 decision(s) for 3 clusters" in msg, msg
+    assert "provider failure" in msg, msg
+    assert not applied, "nothing may be applied when the chunk aborts"
+    assert len(client.calls) == 1, "empty response must not be re-asked"

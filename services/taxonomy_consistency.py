@@ -39,10 +39,16 @@ logs at WARNING so silent quality degradation stays visible.
 That rescue is deliberately NARROW. A chunk whose first response is
 empty, or misses more than _MAX_MISSING_FRACTION_FOR_RESCUE of its
 clusters, is a provider failure — it stays a hard RuntimeError instead
-of producing a report built on stand-ins. And when stand-ins DO get
-used, the run reports them twice: `fallback_decisions` in the returned
-stats, and ONE aggregate logger.error per run (Bugsink alerts from
-ERROR up, so the per-cluster WARNINGs alone would never raise a flag).
+of producing a report built on stand-ins. That gate applies from
+_MIN_CHUNK_FOR_PROVIDER_FAILURE_GATE clusters up; on a 1-2 cluster
+chunk a single skip is already a 100% shortfall, so the fraction says
+nothing about the provider and the rescue runs instead. Such a tiny
+chunk is also avoided upfront — a remainder of at most
+_MAX_MERGEABLE_TAIL_CLUSTERS joins the previous chunk rather than
+becoming its own. And when stand-ins DO get used, the run reports them
+twice: `fallback_decisions` in the returned stats, and ONE aggregate
+logger.error per run (Bugsink alerts from ERROR up, so the per-cluster
+WARNINGs alone would never raise a flag).
 """
 
 from __future__ import annotations
@@ -325,6 +331,28 @@ _FALLBACK_REASONING = (
 # hard failure rather than quietly turn the whole chunk into stand-in decisions.
 _MAX_MISSING_FRACTION_FOR_RESCUE = 0.5
 
+# A 1-2 cluster chunk cannot express "a skipped cluster or two" as a
+# fraction: one skip out of one cluster is a 100% shortfall, so the gate
+# above fired on exactly the non-determinism the rescue exists for
+# (BEAUTY_AUDIT-kfgx — 31 mixed clusters at chunk_size=30 left a
+# one-cluster tail and the whole report died with "provider returned 0
+# decision(s) for 1 clusters", the original 8j8 symptom).
+#
+# Two independent guards, because neither covers the other's case:
+#   1. _MAX_MERGEABLE_TAIL_CLUSTERS — a remainder this small is appended
+#      to the PREVIOUS chunk rather than dispatched on its own, so the
+#      tiny chunk never exists when there is a previous chunk to join.
+#      Capped at 2 so the largest chunk grows by at most 2 (30 -> 32),
+#      not to 2*chunk_size-1.
+#   2. _MIN_CHUNK_FOR_PROVIDER_FAILURE_GATE — a salon with only 1-2 mixed
+#      clusters IN TOTAL has no previous chunk to merge into, so for
+#      chunks below this size the fraction gate is skipped entirely and
+#      an unanswered cluster goes through re-ask + deterministic stand-in
+#      like any other skipped cluster. From 3 clusters up the gate is
+#      unchanged: an empty or >50%-short first response still raises.
+_MAX_MERGEABLE_TAIL_CLUSTERS = 2
+_MIN_CHUNK_FOR_PROVIDER_FAILURE_GATE = 3
+
 
 def _index_decisions_by_cluster_id(
     decisions: list[dict[str, Any]],
@@ -541,6 +569,22 @@ async def apply_intra_salon_consistency(
         cluster_payloads[i : i + chunk_size]
         for i in range(0, len(cluster_payloads), chunk_size)
     ]
+    # Tail merge (2026-08-23, BEAUTY_AUDIT-kfgx) — see
+    # _MAX_MERGEABLE_TAIL_CLUSTERS. A remainder of 1-2 clusters joins the
+    # PREVIOUS chunk instead of forming a chunk too small for the rescue
+    # fraction gate to be reachable. Bounded: the largest chunk grows to
+    # chunk_size + _MAX_MERGEABLE_TAIL_CLUSTERS (30 -> 32), never to
+    # 2*chunk_size - 1.
+    if len(chunks) > 1 and len(chunks[-1]) <= _MAX_MERGEABLE_TAIL_CLUSTERS:
+        merged_tail = chunks[-2] + chunks[-1]
+        logger.info(
+            "apply_intra_salon_consistency [%s]: tail of %d cluster(s) "
+            "merged into the previous chunk (now %d clusters) — a chunk "
+            "that small cannot reach the %.0f%% rescue threshold",
+            label, len(chunks[-1]), len(merged_tail),
+            _MAX_MISSING_FRACTION_FOR_RESCUE * 100,
+        )
+        chunks = chunks[:-2] + [merged_tail]
     logger.info(
         "apply_intra_salon_consistency [%s]: chunking %d clusters into "
         "%d chunks of %d",
@@ -735,8 +779,14 @@ async def apply_intra_salon_consistency(
             # undecided, means the provider call failed — raise like Pass 5
             # did before the rescue existed, instead of degrading the whole
             # chunk to stand-ins that no alert would ever surface.
-            if not first_raw or (
-                len(missing) > _MAX_MISSING_FRACTION_FOR_RESCUE * len(chunk)
+            #
+            # Only for chunks of _MIN_CHUNK_FOR_PROVIDER_FAILURE_GATE or
+            # more clusters: below that the fraction cannot tell a broken
+            # provider apart from one skipped cluster, so it fired on the
+            # very non-determinism the rescue handles (BEAUTY_AUDIT-kfgx).
+            if len(chunk) >= _MIN_CHUNK_FOR_PROVIDER_FAILURE_GATE and (
+                not first_raw
+                or len(missing) > _MAX_MISSING_FRACTION_FOR_RESCUE * len(chunk)
             ):
                 raise RuntimeError(
                     f"Pass 5 [{label}] chunk {chunk_idx}/{len(chunks)}: "

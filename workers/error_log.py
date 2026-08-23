@@ -1,4 +1,6 @@
-"""Central writer for `bagent_error_log` (Supabase mig 014 + 094).
+"""Central writer for `bagent_error_log` (Supabase mig 014, whose
+`bagent_pipeline` CHECK was a 3-value enum; mig 094 widened it to 12 values
+and mig 178 dropped the enum entirely for a plain length check).
 
 WHY: the table was EMPTY since creation (BEAUTY_AUDIT-n3zw). The only
 writer in bagent lived on the `pipeline_traces` flush-failure path, which
@@ -8,6 +10,13 @@ never failures of the job itself. arq's `on_job_end` hook does not expose
 the exception, so the one central point we have is the task registration
 list in `workers/main.py` — every task is wrapped with `log_task_errors`
 before being handed to arq.
+
+Two entry points, one per process family: `log_task_errors` covers the arq
+workers, and server.py's `@app.exception_handler(Exception)` covers the
+uvicorn HTTP process (BEAUTY_AUDIT-mol-cdi), calling `record_task_error`
+directly with a `http:<route pattern>` name. `record_task_error` marks the
+exception with `_bagent_error_logged` after a successful write so the two
+paths cannot double-count the same failure.
 
 Best-effort by design: a failure to write the log row must NEVER mask or
 alter the original exception (arq still retries / fails the job as before).
@@ -25,9 +34,12 @@ from typing import Any, Awaitable, Callable, Optional
 
 logger = logging.getLogger(__name__)
 
-# Allowed values of bagent_error_log.bagent_pipeline (CHECK in mig 094).
-# Task names outside this map are written verbatim — they will be rejected
-# by the CHECK until the constraint is relaxed; the rejection is logged.
+# Legacy bagent_pipeline values, kept because Convex's withBagentRetry writes
+# the same short names ('report'/'cennik'/'summary') for the audit pipelines
+# and dashboards group on them. NOT an allowlist: since mig 178 the column's
+# only CHECK is `length(bagent_pipeline) BETWEEN 1 AND 128`, so a task name
+# outside this map is written verbatim and accepted (mig 094's 12-value
+# enum, which used to reject anything outside it, no longer exists).
 _PIPELINE_BY_TASK: dict[str, str] = {
     "run_report_task": "report",
     "run_free_report_task": "report",
@@ -169,6 +181,7 @@ async def record_task_error(
     try:
         row = build_error_row(task_name, exc, ctx=ctx, args=args, kwargs=kwargs)
         await asyncio.wait_for(asyncio.to_thread(_insert_row_sync, row), WRITE_TIMEOUT_S)
+        exc._bagent_error_logged = True  # type: ignore[attr-defined] — read by server.py's HTTP handler
         logger.info("bagent_error_log: recorded %s failure (audit=%s)", task_name, row["convex_audit_id"])
         return True
     except asyncio.TimeoutError:
