@@ -99,6 +99,12 @@ def _subject(n_services: int = 20) -> dict:
                          for i in range(1, n_services + 1)]}
 
 
+def _subject_with_booksy_id(n_services: int = 20, booksy_id: int = 999999) -> dict:
+    d = _subject(n_services)
+    d["booksy_id"] = booksy_id
+    return d
+
+
 def _aligned():
     return [(SimpleNamespace(booksy_id=b, salon_id=s), {}) for s, b in SALONS.items()]
 
@@ -112,6 +118,9 @@ def _service(matches):
     svc = MagicMock()
     svc.get_competitor_matches = AsyncMock(return_value=matches)
     svc.update_competitor_matches_verify_buckets = AsyncMock()
+    # Domyślnie brak chain-head (fallback nie ma na czym stanąć) — testy, którym
+    # zależy na fallbacku, nadpisują to jawnie.
+    svc.get_chain_head_services = AsyncMock(return_value=(None, []))
     return svc
 
 
@@ -129,10 +138,12 @@ def _fake_search(per_booksy_services: dict[int, set[int]]):
 
 def _run(monkeypatch, per_booksy, matches=None, embeddings=None):
     monkeypatch.setattr(ca, "search_twins", _fake_search(per_booksy))
-    monkeypatch.setattr(
-        ca, "_fetch_subject_embeddings",
-        lambda service, ids: {i: [0.1] for i in ids} if embeddings is None else embeddings,
-    )
+
+    async def _fallback(service, subject_services, subject_ids, booksy_id):
+        emb = {i: [0.1] for i in subject_ids} if embeddings is None else embeddings
+        return subject_services, subject_ids, emb
+
+    monkeypatch.setattr(ca, "_fetch_subject_embeddings_with_chain_head_fallback", _fallback)
     svc = _service(_matches() if matches is None else matches)
     out = asyncio.run(_aggregate_verified_match_counts(svc, 250, _subject(), _aligned()))
     return svc, out
@@ -160,11 +171,50 @@ def test_relative_buckets_per_competitor(monkeypatch):
 
 
 def test_missing_subject_embeddings_skips_rebucket(monkeypatch):
-    """Stare audit scrape'y (raporty 34/181) nie mają name_embedding — zamiast
-    15/15 'excluded' re-bucket jest pominięty, stan sprzed zostaje."""
+    """Stare audit scrape'y (raporty 34/181) nie mają name_embedding, i chain-head
+    fallback też nic nie znajduje (tu monkeypatchowany na pusto wprost) — zamiast
+    15/15 'excluded' re-bucket jest pominięty, stan sprzed zostaje. Brak wektorów
+    NIGDZIE tutaj nie eskaluje do wyjątku (w przeciwieństwie do wyceny,
+    compute_pricing_comparisons_v2) — pominięty re-bucket nie produkuje
+    fałszywie-kompletnego raportu, tylko zostawia bucket sprzed weryfikacji."""
     svc, out = _run(monkeypatch, {b: set(range(1, 21)) for b in BY_BOOKSY}, embeddings={})
     assert out == {}
     svc.update_competitor_matches_verify_buckets.assert_not_called()
+
+
+def test_chain_head_fallback_lets_rebucket_proceed(monkeypatch):
+    """Subject audit-scrape bez wektorów (świeży audyt przed catch-upem crona)
+    -> chain-head scrape TEGO SAMEGO salonu MA wektory -> re-bucket PROCEEDS
+    zamiast być pominięty (BEAUTY_AUDIT-gqul). W przeciwieństwie do _run() ten
+    test NIE monkeypatchuje _fetch_subject_embeddings_with_chain_head_fallback
+    — woła prawdziwą funkcję z report_pricing, żeby sprawdzić realne okablowanie
+    do service.get_chain_head_services."""
+    chain_ids = list(range(901, 921))
+    monkeypatch.setattr(
+        ca, "search_twins", _fake_search({b: set(chain_ids) for b in BY_BOOKSY}),
+    )
+
+    def _fetch(service, ids):
+        # Audit ids (1..20) puste; chain-head ids (901..920) z wektorem —
+        # symuluje realny Postgres, gdzie tylko chain-head ma name_embedding.
+        if any(i >= 900 for i in ids):
+            return {i: [0.1] for i in ids}
+        return {}
+
+    import services.similarity_pricing.report_pricing as rp
+    monkeypatch.setattr(rp, "_fetch_subject_embeddings", _fetch)
+
+    chain_head_services = [
+        {"id": i, "price_grosze": 10000, "is_active": True} for i in chain_ids
+    ]
+    svc = _service(_matches())
+    svc.get_chain_head_services = AsyncMock(return_value=("chain-scrape-99", chain_head_services))
+
+    out = asyncio.run(
+        _aggregate_verified_match_counts(svc, 250, _subject_with_booksy_id(), _aligned())
+    )
+    assert out == {3822: 20, 552: 20, 3278: 20}
+    svc.update_competitor_matches_verify_buckets.assert_awaited()
 
 
 def test_wrong_id_space_skips_rebucket(monkeypatch):
