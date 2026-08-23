@@ -27,6 +27,7 @@ from __future__ import annotations
 
 import asyncio
 import logging
+import re
 import time
 from dataclasses import dataclass, field
 from typing import Any
@@ -64,6 +65,13 @@ MAX_DEPTH = 4
 
 # Per-call result cap.
 PER_PAGE = 100
+
+# bextract opakowuje blad Booksy'ego we WLASNE HTTP 500 — kod upstreamu zostaje
+# tylko w tresci: {"error":"Booksy API 503: Service Unavailable (listing)"}.
+# Bez tego wzorca 500 wygladal jak blad trwaly i drabinka ponowien nie ruszala.
+# Lapiemy wylacznie kody przeciazenia/rate-limitu (429, 500-504); 4xx z tej
+# samej otoczki (401/404) i realny crash bextracta maja padac od razu.
+_UPSTREAM_TRANSIENT_RE = re.compile(r"Booksy API (429|50[0-4])\b")
 
 
 @dataclass
@@ -130,10 +138,14 @@ async def _fetch_listing_by_location(
         #     occasionally drops the upstream connection mid-request and
         #     bextract surfaces it as 500. Re-trying with fresh connection
         #     usually succeeds.
+        #   * 500 with an upstream Booksy status in the body ("Booksy API 503:
+        #     Service Unavailable") — same class of hiccup, but bextract keeps
+        #     the code in the payload instead of propagating it as a status.
         is_transient = (
             "429" in body
             or r.status_code in (429, 503, 502, 504)
             or (r.status_code == 500 and any(s in body.lower() for s in ("terminated", "timeout", "econnreset", "socket hang up")))
+            or (r.status_code == 500 and _UPSTREAM_TRANSIENT_RE.search(body) is not None)
         )
         if is_transient and attempt < 4:
             logger.warning(

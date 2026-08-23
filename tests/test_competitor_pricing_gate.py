@@ -98,9 +98,12 @@ async def test_subject_without_variant_ids_still_reaches_v2(
     # Ani jedna usługa nie ma variant_id — stara bramka zjechałaby do zera.
     assert all("variant_id" not in s for s in subject_data["services"])
 
-    tracer, pricing_spy, _mock = await _run_pipeline_with_pricing_spy(
+    tracer, pricing_spy, _mock, embed = await _run_pipeline_with_pricing_spy(
         monkeypatch, subject_full_data=subject_data, pricing_return=[],
     )
+    # Warstwa embeddingow taksonomii jedzie na deterministycznym stubie, nie na
+    # pustym srodowisku — i patch nie jest martwy (BEAUTY_AUDIT-elbp).
+    embed.assert_used()
 
     assert pricing_spy.await_count == 1, (
         "subject z usługami aktywnymi i z ceną musi wejść do "
@@ -140,9 +143,11 @@ async def test_subject_without_priced_services_takes_early_exit(
         _svc(id=5003, name="Laser (wycofany)", price_grosze=30000, is_active=False),
     ])
 
-    tracer, pricing_spy, _mock = await _run_pipeline_with_pricing_spy(
+    tracer, pricing_spy, _mock, embed = await _run_pipeline_with_pricing_spy(
         monkeypatch, subject_full_data=subject_data,
     )
+    # Jak wyzej: sciezka embeddingow wybrana jawnie, patch zywy.
+    embed.assert_used()
 
     assert pricing_spy.await_count == 0, (
         "subject bez usług aktywnych z ceną nie ma po co wchodzić do v2"

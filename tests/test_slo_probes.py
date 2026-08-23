@@ -6,10 +6,14 @@ salon_scrape_services → brak diffów → brak alertów → pusty Przegląd). P
 systemowy: >20 świeżych timeoutów/h = FAIL (pojedyncze gigantyczne salony
 tolerowane).
 
-`probe_competitor_report_subject_only` weryfikuje WYBÓR KANARKA
-(BEAUTY_AUDIT-rxoq): kanarkiem ma być NAJŚWIEŻSZY ukończony raport, a nie ten
-o najwyższym id, plus escape na zastój („brak świeżego raportu w oknie" =
-PASS z jawnym detalem, nie cisza nieodróżnialna od awarii).
+`probe_competitor_report_subject_only` weryfikuje dwie rzeczy naraz:
+
+* WYBÓR KANARKA (BEAUTY_AUDIT-rxoq) — kanarkiem ma być NAJŚWIEŻSZY ukończony
+  raport, a nie ten o najwyższym id.
+* ŻE ZEGAR NIE GASI ALERTU (BEAUTY_AUDIT-swtf) — wiek kanarka nie decyduje o
+  werdykcie. Raporty konkurencji powstają wyłącznie na zamówienie, więc okno
+  czasowe gasiłoby alarm po kilku spokojnych dniach bez żadnej naprawy. Jedyna
+  ścieżka „nie ma czego oceniać" to PUSTA tabela ukończonych raportów.
 
 Atrapa klienta ma dwa tryby, bo obie sondy potrzebują czego innego —
 szczegóły przy klasie `_FakeQuery`.
@@ -218,22 +222,55 @@ def test_canary_is_freshest_report_not_highest_id():
     assert "pct=20.0%" in res.detail
 
 
-def test_stale_reports_pass_with_explicit_detail():
-    """Zastój (brak raportu w oknie) = PASS z jawnym detalem, nie cicha zieleń.
+def test_stale_degenerate_report_still_fails():
+    """(a) Stary kanarek z objawem = CZERWONA. Zegar nie jest naprawą.
 
-    Bez tego escape'u zdegenerowany raport sprzed tygodni trzymałby sondę w
-    DOWN w nieskończoność, mimo że nic nie mówi o dzisiejszym silniku.
+    BEAUTY_AUDIT-swtf. Wersja z oknem 72 h robiła się tutaj zielona z detalem
+    ``stale_no_recent_report``, mimo że wycena była dalej zepsuta — wystarczyły
+    trzy doby bez zamówienia raportu.
     """
-    reports = [{"id": 250, "status": "completed", "updated_at": _ts_ago(200)}]
-    pricing = _pricing_rows(250, 24, 24)
+    reports = [{"id": 222, "status": "completed", "updated_at": _ts_ago(200)}]
+    pricing = _pricing_rows(222, 24, 24)
+
+    res = _run_subject_only(reports, pricing)
+
+    assert res.ok is False
+    assert "report=222 subject_only=24/24 pct=100.0%" in res.detail
+    assert "age=200h" in res.detail
+    assert "stale_no_recent_report" not in res.detail
+
+
+def test_stale_healthy_report_passes():
+    """(b) Stary kanarek BEZ objawu = zielona, z jawnym wiekiem dowodu.
+
+    Wiek nie jest sam w sobie awarią — ma być widoczny w detalu, żeby dyżurny
+    wiedział, jak stary jest dowód, na którym stoi werdykt.
+    """
+    reports = [{"id": 222, "status": "completed", "updated_at": _ts_ago(200)}]
+    pricing = _pricing_rows(222, 20, 4)
 
     res = _run_subject_only(reports, pricing)
 
     assert res.ok is True
-    assert "stale_no_recent_report" in res.detail
-    assert "newest_report=250" in res.detail
+    assert "report=222 subject_only=4/20 pct=20.0%" in res.detail
     assert "age=200h" in res.detail
-    assert "window=72h" in res.detail
+
+
+def test_alert_survives_the_72h_boundary():
+    """Ten sam zepsuty kanarek po obu stronach dawnego okna 72 h → dalej FAIL.
+
+    Dokładnie scenariusz z bd swtf: raport 222 (24/24 subject_only) około
+    2026-08-26 02:32 UTC przekraczał 72 h od ostatniego przeliczenia i sonda
+    gasła sama z siebie. Werdykt nie może zależeć od tego, po której stronie
+    granicy stoi zegar.
+    """
+    for age_h in (71.0, 73.0, 24 * 30.0):
+        reports = [{"id": 222, "status": "completed", "updated_at": _ts_ago(age_h)}]
+        pricing = _pricing_rows(222, 24, 24)
+
+        res = _run_subject_only(reports, pricing)
+
+        assert res.ok is False, f"sonda zgasła dla kanarka w wieku {age_h}h: {res.detail}"
 
 
 def test_fresh_degenerate_report_still_fails():
@@ -248,15 +285,17 @@ def test_fresh_degenerate_report_still_fails():
 
 
 def test_production_state_2026_08_23_keeps_alerting():
-    """Naprawa NIE wycisza dzisiejszego alertu — i o to chodzi.
+    """KRYTERIUM ODWROTNE: żadna z napraw nie wycisza dzisiejszego alertu.
 
-    Oba raporty (250 i 222) mają 24/24 subject_only. Po zmianie kanarkiem jest
-    222 (przeliczony później), więc sonda dalej świeci na czerwono, dopóki
-    silnik wyceny jest zepsuty.
+    Stan produkcji odwzorowany BEZWZGLĘDNYMI znacznikami czasu, nie względnymi:
+    raport 250 przeliczony 02:19:20 UTC, raport 222 o 02:32:44 UTC, oba 24/24
+    subject_only. Kanarkiem jest 222 (przeliczony później) — i ma nim zostać
+    także wtedy, gdy ten test uruchomi się w grudniu. Wersja z oknem 72 h
+    zwracała tu PASS już od 2026-08-26 02:32 UTC.
     """
     reports = [
-        {"id": 250, "status": "completed", "updated_at": _ts_ago(13.0)},
-        {"id": 222, "status": "completed", "updated_at": _ts_ago(12.75)},
+        {"id": 250, "status": "completed", "updated_at": "2026-08-23T02:19:20+00:00"},
+        {"id": 222, "status": "completed", "updated_at": "2026-08-23T02:32:44+00:00"},
     ]
     pricing = _pricing_rows(250, 24, 24) + _pricing_rows(222, 24, 24)
 
@@ -267,10 +306,22 @@ def test_production_state_2026_08_23_keeps_alerting():
 
 
 def test_no_completed_reports_passes():
-    """Raport w trakcie generowania nie jest kanarkiem — nie ma czego oceniać."""
+    """(c) Raport w trakcie generowania nie jest kanarkiem — nie ma czego oceniać.
+
+    JEDYNA ścieżka „brak danych" po swtf: zero ukończonych raportów. Nie jest
+    to ani fałszywa czerwień, ani cicha zieleń — detal nazywa stan wprost.
+    """
     reports = [{"id": 1, "status": "processing", "updated_at": _ts_ago(1)}]
 
     res = _run_subject_only(reports, [])
+
+    assert res.ok is True
+    assert res.detail == "no_completed_reports"
+
+
+def test_empty_reports_table_passes():
+    """(c) Pusta tabela raportów — świeża baza, nic jeszcze nie policzone."""
+    res = _run_subject_only([], [])
 
     assert res.ok is True
     assert res.detail == "no_completed_reports"
