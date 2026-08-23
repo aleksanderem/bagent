@@ -6675,15 +6675,24 @@ async def _aggregate_verified_match_counts(
     assignments = assign_coverage_buckets(coverage, subject_total)
 
     existing_matches = await service.get_competitor_matches(report_id)
+    # BEAUTY_AUDIT-ripy: na pierwszym przebiegu Fazy 8a kolumna
+    # bucket_pre_verify jest jeszcze NULL, więc 'bucket' faktycznie trzyma
+    # przed-weryfikacyjną klasyfikację composite_score_v2 — bierzemy ją.
+    # Na KOLEJNYM przebiegu 'bucket' trzyma już wynik POprzedniej weryfikacji,
+    # więc gdyby użyć go znów, pierwotny zamiar (opisany w migracji 081 jako
+    # "Preserved for audit + debugging") ginie bezpowrotnie. Dlatego wartość
+    # już zapisaną w bucket_pre_verify traktujemy jako źródło prawdy i tylko
+    # gdy jej brak (pierwszy przebieg) sięgamy po bieżący 'bucket'.
     bucket_pre_verify: dict[int, str] = {}
     for m in existing_matches:
         sid = m.get("competitor_salon_id")
         if sid is None:
             continue
         try:
-            bucket_pre_verify[int(sid)] = m.get("bucket") or "unknown"
+            sid_int = int(sid)
         except (TypeError, ValueError):
             continue
+        bucket_pre_verify[sid_int] = m.get("bucket_pre_verify") or m.get("bucket") or "unknown"
 
     if bucket_pre_verify and not (covered_ids & bucket_pre_verify.keys()):
         logger.error(

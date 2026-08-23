@@ -170,6 +170,31 @@ def test_relative_buckets_per_competitor(monkeypatch):
     assert by_id[2842]["verified_match_count"] == 0
 
 
+def test_second_run_preserves_original_bucket_pre_verify(monkeypatch):
+    """BEAUTY_AUDIT-ripy: drugi przebieg Fazy 8a dla tego samego raportu NIE
+    wolno nadpisać bucket_pre_verify wynikiem PIERWSZEGO przebiegu. 'bucket' w
+    existing_matches na drugim przebiegu to już rezultat POprzedniej
+    weryfikacji (np. 'excluded') — gdyby go użyć znów jako 'pre_verify',
+    pierwotny zamiar (composite_score_v2 sprzed weryfikacji, tu 'direct')
+    ginie bezpowrotnie."""
+    matches_after_first_run = [
+        {"id": 2840 + i, "competitor_salon_id": sid, "bucket": "excluded",
+         "bucket_pre_verify": "direct"}
+        for i, sid in enumerate(SALONS)
+    ]
+    svc, out = _run(
+        monkeypatch, {b: set(range(1, 21)) for b in BY_BOOKSY},
+        matches=matches_after_first_run,
+    )
+    assert out == {3822: 20, 552: 20, 3278: 20}
+    _, updates = svc.update_competitor_matches_verify_buckets.await_args.args
+    # Drugi przebieg poprawnie re-bucketuje na 'direct' (pełne pokrycie)...
+    assert {u["bucket"] for u in updates} == {"direct"}
+    # ...ale bucket_pre_verify zostaje tym z PIERWSZEGO przebiegu, nie
+    # bieżącym (post-weryfikacyjnym) 'excluded' z existing_matches.
+    assert all(u["bucket_pre_verify"] == "direct" for u in updates)
+
+
 def test_missing_subject_embeddings_skips_rebucket(monkeypatch):
     """Stare audit scrape'y (raporty 34/181) nie mają name_embedding, i chain-head
     fallback też nic nie znajduje (tu monkeypatchowany na pusto wprost) — zamiast
