@@ -362,10 +362,17 @@ async def synthesize_competitor_insights(
             try:
                 from services.openai_synthesis import synthesize_via_openai
                 insights = await synthesize_via_openai(context, tracer=synth_tracer)
+                # BEAUTY_AUDIT-4s5z: miękki sanitizer tylko tutaj. Schemat
+                # OpenAI (services/openai_synthesis.py) leci w trybie
+                # `strict: True` BEZ pola `sourceDataPoints`, więc model nie
+                # ma jak zwrócić referencji — twardy wymóg traceability
+                # wycinał tu 100% SWOT-u i rekomendacji. Halucynowane ID
+                # dalej są odsiewane (patrz docstring _sanitize_insights).
                 insights = _sanitize_insights(
                     insights,
                     valid_ids=valid_ids,
                     valid_competitor_ids=valid_competitor_ids,
+                    require_refs=False,
                 )
                 used_fallback = True
                 fallback_source = "openai_gpt_4o_mini"
@@ -1002,10 +1009,21 @@ def _sanitize_insights(
     *,
     valid_ids: dict[str, set[int]],
     valid_competitor_ids: set[int],
+    require_refs: bool = True,
 ) -> dict[str, Any]:
     """Drop invalid source references and coerce types so the DB insert
     can't fail on bad IDs. If a SWOT bullet ends up with zero valid refs,
     the bullet is dropped entirely (traceability is mandatory).
+
+    `require_refs=False` wyłącza WYŁĄCZNIE ten ostatni warunek — pusta lista
+    referencji przestaje kasować bullet. Halucynowane ID dalej wylatują, bo
+    `_sanitize_source_data_points` działa niezależnie od tej flagi.
+    Używa tego tylko awaryjna ścieżka OpenAI (BEAUTY_AUDIT-4s5z): jej schemat
+    `strict: True` nie ma pola `sourceDataPoints`, więc model FIZYCZNIE nie
+    zwraca żadnych ID i twardy wymóg traceability nie chroni tam przed niczym —
+    kosztuje za to całą treść raportu (zmierzone: SWOT 0 punktów, 0 rekomendacji).
+    Ścieżka MiniMaxa zostaje twarda (domyślka), bo jej prompt i schemat ID
+    wymagają.
 
     Model potrafi wywołać `submit_competitor_insights` kilka razy, a scalanie
     wywołań (_extract_insights_from_agent_result) omija limity `maxItems`,
@@ -1036,7 +1054,7 @@ def _sanitize_insights(
             refs = _sanitize_source_data_points(
                 bullet.get("sourceDataPoints"), valid_ids,
             )
-            if not refs:
+            if require_refs and not refs:
                 # Drop bullets that lost all traceability — this is an
                 # intentional stricter contract than the prompt asks for.
                 logger.debug("Dropping SWOT bullet with no valid refs: %s", text[:60])
@@ -1085,7 +1103,7 @@ def _sanitize_insights(
         refs = _sanitize_source_data_points(
             rec.get("sourceDataPoints"), valid_ids,
         )
-        if not refs:
+        if require_refs and not refs:
             logger.debug(
                 "Dropping recommendation with no valid refs: %s", action_title[:60],
             )
@@ -1118,9 +1136,11 @@ def _sanitize_insights(
     # FINDINGS P1-5: liczniki dropów — degradacja nie może być niewidoczna.
     # Raport z 1-punktowym SWOT-em po cichym wycięciu 3 punktów wygląda jak
     # "model mało znalazł"; licznik pozwala UI/ops odróżnić te przypadki.
-    # Licznik obejmuje trzy przyczyny naraz: brak ważnych referencji, duplikat
-    # oraz nadmiar ponad limit ze schematu (przyczynę pojedynczej pozycji
-    # rozróżnia logger.debug wyżej).
+    # Licznik obejmuje cztery przyczyny naraz: pusty tekst, brak ważnych
+    # referencji (tylko przy require_refs=True), duplikat oraz nadmiar ponad
+    # limit ze schematu (przyczynę pojedynczej pozycji rozróżnia logger.debug
+    # wyżej). Liczy różnicę wejście-wyjście, więc pozostaje prawdziwy także
+    # przy require_refs=False — wtedy po prostu nie ma dropów "bez referencji".
     raw_swot_count = sum(
         len(insights["swot"].get(k, []) or []) for k in sanitized_swot.keys()
     )
