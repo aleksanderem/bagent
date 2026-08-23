@@ -7,6 +7,8 @@ import asyncio
 from types import SimpleNamespace
 from typing import Any
 
+import pytest
+
 import services.similarity_pricing.report_pricing as rp
 from .report_pricing import compute_pricing_comparisons_v2
 
@@ -31,21 +33,56 @@ class _FakeRPC:
 class _FakeTable:
     def __init__(self, rows):
         self._rows = rows
+        self._filter_col = None
+        self._filter_ids = None
 
     def select(self, *a, **k):
         return self
 
-    def in_(self, *a, **k):
+    def in_(self, col, ids):
+        self._filter_col = col
+        self._filter_ids = set(ids)
         return self
 
     def execute(self):
-        return SimpleNamespace(data=self._rows)
+        if self._filter_ids is None:
+            return SimpleNamespace(data=self._rows)
+        return SimpleNamespace(
+            data=[r for r in self._rows if r.get(self._filter_col) in self._filter_ids]
+        )
+
+
+class _FakeEmbeddingTable:
+    """Tabela `salon_scrape_services` (kolumna `id,name_embedding`).
+
+    Auto-generuje wektor dla KAŻDEGO odpytanego id, chyba że jest w
+    `missing_ids` — to symuluje wiersz z NULL `name_embedding` (świeży
+    audyt/scrape sprzed nocnego crona, patrz BEAUTY_AUDIT-gqul).
+    """
+    def __init__(self, missing_ids: set[int] | None = None):
+        self._missing = missing_ids or set()
+        self._filter_ids: list[int] = []
+
+    def select(self, *a, **k):
+        return self
+
+    def in_(self, col, ids):
+        self._filter_ids = list(ids)
+        return self
+
+    def execute(self):
+        rows = [
+            {"id": i, "name_embedding": [0.1, 0.2, 0.3]}
+            for i in self._filter_ids if i not in self._missing
+        ]
+        return SimpleNamespace(data=rows)
 
 
 class _FakeClient:
-    def __init__(self, geo_booksy, salon_rows):
+    def __init__(self, geo_booksy, salon_rows, missing_embedding_ids=None):
         self._geo = geo_booksy
         self._salons = salon_rows
+        self._embeddings = _FakeEmbeddingTable(missing_embedding_ids)
         self.rpc_called_with = None
 
     def rpc(self, name, params):
@@ -53,12 +90,19 @@ class _FakeClient:
         return _FakeRPC(list(self._geo))
 
     def table(self, name):
+        if name == "salon_scrape_services":
+            return self._embeddings
         return _FakeTable(self._salons)
 
 
 class _FakeService:
-    def __init__(self, geo_booksy, salon_rows):
-        self.client = _FakeClient(geo_booksy, salon_rows)
+    def __init__(self, geo_booksy, salon_rows, missing_embedding_ids=None, chain_head=None):
+        self.client = _FakeClient(geo_booksy, salon_rows, missing_embedding_ids)
+        # (chain_head_scrape_id, services) — domyślnie pusto (brak chain-head).
+        self._chain_head = chain_head if chain_head is not None else (None, [])
+
+    async def get_chain_head_services(self, booksy_id):
+        return self._chain_head
 
 
 def _twin(sid, bid, name, price, dur, cat="Drenaż", pkg=False, sim=0.86):
@@ -208,3 +252,73 @@ def test_no_broaden_when_dense(monkeypatch):
     assert sims_used == [rp._FN_MIN_SIMILARITY]                  # tylko jeden przebieg, bez fallbacku
     vd = rows[0].get("verification_details") or {}
     assert "matching_broadened" not in vd
+
+
+# ── chain-head fallback dla brakujących embeddingów subjecta (BEAUTY_AUDIT-gqul) ──
+# Świeży audyt przed catch-upem nocnego crona / wyczerpana kwota OpenAI / błąd
+# ingestu -> subject audit-scrape service ma NULL name_embedding. Zamiast cicho
+# lądować w samych wierszach subject_only, próbujemy chain-head scrape'a tego
+# samego salonu (te wektory inline embedding przy ingest ustawia zawsze).
+
+def test_chain_head_fallback_when_subject_has_no_embeddings(monkeypatch):
+    """Subject (audit scrape, id=1) bez wektora -> chain-head (id=999) MA
+    wektor -> wycena liczy się na chain-head usłudze zamiast lądować w
+    subject_only."""
+    cluster = [_twin(10 + i, 500 + i, "Presoterapia", 9000 + i * 200, 40) for i in range(5)]
+    _patch_search(monkeypatch, cluster)
+    service = _FakeService(
+        geo_booksy=list(range(500, 510)), salon_rows=[],
+        missing_embedding_ids={1},
+        chain_head=("chain-scrape-99", [{
+            "id": 999, "name": "Presoterapia", "price_grosze": 14500,
+            "duration_minutes": 40, "category_name": "Drenaż",
+            "is_active": True, "booksy_treatment_id": 233,
+        }]),
+    )
+    subject_data = {"booksy_id": 163496, "services": [{
+        "id": 1, "name": "Presoterapia", "price_grosze": 15000, "duration_minutes": 40,
+        "category_name": "Drenaż", "is_package": False, "booksy_treatment_id": 233,
+    }]}
+    rows = _run(compute_pricing_comparisons_v2(service, 181, subject_data, [(_Cand(100), {})]))
+    assert len(rows) == 1
+    r = rows[0]
+    assert r["verification_status"] == "verified"
+    assert r["market_median_grosze"] is not None
+    # Wiersz policzony z usługi CHAIN-HEAD (id=999, 14500 gr) — nie audit (15000 gr) —
+    # dowód, że subject_services/subject_ids zamieniły się RAZEM z embeddingami.
+    assert r["subject_price_grosze"] == 14500
+
+
+def test_raises_when_chain_head_has_no_services(monkeypatch):
+    """Subject bez wektora, chain-head w ogóle nie istnieje (salon bez żadnego
+    chain-head scrape'a) -> głośny błąd, NIE cichy raport samych subject_only."""
+    _patch_search(monkeypatch, [])
+    service = _FakeService(
+        geo_booksy=[500], salon_rows=[], missing_embedding_ids={1},
+    )  # chain_head domyślnie (None, [])
+    subject_data = {"booksy_id": 163496, "services": [{
+        "id": 1, "name": "Presoterapia", "price_grosze": 15000, "duration_minutes": 40,
+        "booksy_treatment_id": 233,
+    }]}
+    with pytest.raises(RuntimeError, match="name_embedding"):
+        _run(compute_pricing_comparisons_v2(service, 181, subject_data, [(_Cand(100), {})]))
+
+
+def test_raises_when_chain_head_services_also_lack_embeddings(monkeypatch):
+    """Subject bez wektora, chain-head MA usługi, ale one też są bez wektora
+    (ingest padł na obu scrape'ach) -> nadal głośny błąd, nie subject_only."""
+    _patch_search(monkeypatch, [])
+    service = _FakeService(
+        geo_booksy=[500], salon_rows=[],
+        missing_embedding_ids={1, 999},
+        chain_head=("chain-scrape-99", [{
+            "id": 999, "name": "Presoterapia", "price_grosze": 14500,
+            "duration_minutes": 40, "is_active": True,
+        }]),
+    )
+    subject_data = {"booksy_id": 163496, "services": [{
+        "id": 1, "name": "Presoterapia", "price_grosze": 15000, "duration_minutes": 40,
+        "booksy_treatment_id": 233,
+    }]}
+    with pytest.raises(RuntimeError, match="name_embedding"):
+        _run(compute_pricing_comparisons_v2(service, 181, subject_data, [(_Cand(100), {})]))
