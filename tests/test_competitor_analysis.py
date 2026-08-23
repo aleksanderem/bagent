@@ -2074,7 +2074,14 @@ async def test_pipeline_tracer_none_safe_full_run(
 # guard returns []). The early-exit detects the empty subject-variant set
 # BEFORE the heavy block and emits tier-1-shaped subject_only rows directly,
 # skipping the expensive tiers. Subject WITH >=1 variant must take the
-# unchanged path through _compute_pricing_comparisons (zero-diff parity).
+# heavy path (zero-diff parity).
+#
+# 2026-08-23 (BEAUTY_AUDIT-5srf): the spy follows the heavy path, and since
+# S0078 that path is `compute_pricing_comparisons_v2` — the similarity-first
+# engine wired in at competitor_analysis.py:727. The old
+# `_compute_pricing_comparisons` still lives in the module as a
+# reference/rollback copy but is no longer awaited by the pipeline, so
+# spying on it made this test assert on a function nothing calls.
 # ===========================================================================
 
 
@@ -2086,7 +2093,7 @@ async def _run_pipeline_with_pricing_spy(
     pricing_return=None,
 ):
     """Like _run_pipeline_capturing_tracer but also spies
-    ca._compute_pricing_comparisons (AsyncMock) so a test can assert whether
+    ca.compute_pricing_comparisons_v2 (AsyncMock) so a test can assert whether
     the heavy pricing block was entered. Returns (tracer, spy, mock).
 
     subject_full_data / competitor_data_map override the default mock's
@@ -2105,7 +2112,7 @@ async def _run_pipeline_with_pricing_spy(
     )
 
     pricing_spy = AsyncMock(return_value=list(pricing_return or []))
-    monkeypatch.setattr(ca, "_compute_pricing_comparisons", pricing_spy)
+    monkeypatch.setattr(ca, "compute_pricing_comparisons_v2", pricing_spy)
 
     captured: dict[str, _FakeTracer] = {}
 
@@ -2137,7 +2144,7 @@ async def test_subject_only_early_exit_when_no_variants(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
     """Subject without ANY variant_id but with eligible (priced + duration)
-    services → early-exit: heavy _compute_pricing_comparisons is NEVER
+    services → early-exit: the heavy pricing engine is NEVER
     awaited, a subject_only_early_exit trace is emitted, and the insert
     receives non-empty tier-1-shaped subject_only rows. Pipeline still
     completes (report_id 999).
@@ -2159,7 +2166,7 @@ async def test_subject_only_early_exit_when_no_variants(
 
     # Heavy tiers skipped — the proof of the 280-450s saving.
     assert pricing_spy.await_count == 0, (
-        "subject without variants must NOT enter _compute_pricing_comparisons"
+        "subject without variants must NOT enter compute_pricing_comparisons_v2"
     )
 
     # subject_only_early_exit trace emitted with the expected shape.
@@ -2197,8 +2204,8 @@ async def test_subject_only_early_exit_when_no_variants(
 async def test_subject_with_variants_takes_unchanged_path(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
-    """Subject with >=1 variant_id → the early-exit does NOT fire: the existing
-    _compute_pricing_comparisons path is awaited exactly once and no
+    """Subject with >=1 variant_id → the early-exit does NOT fire: the heavy
+    compute_pricing_comparisons_v2 path is awaited exactly once and no
     subject_only_early_exit trace is emitted (zero-diff parity)."""
     import copy
 
@@ -2228,8 +2235,8 @@ async def test_subject_with_variants_takes_unchanged_path(
 
     # Existing heavy path entered exactly once — unchanged behaviour.
     assert pricing_spy.await_count == 1, (
-        "subject with a variant must take the existing "
-        "_compute_pricing_comparisons path"
+        "subject with a variant must take the heavy "
+        "compute_pricing_comparisons_v2 path"
     )
 
     # Early-exit must NOT have fired.
