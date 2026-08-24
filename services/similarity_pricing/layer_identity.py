@@ -17,6 +17,11 @@ Osie i ich siła (waga) — dobrane wg tego JAK MOCNO oś rozróżnia tożsamoś
                     RÓŻNA usługa — najsilniejszy dyskryminator. Zgodne = silne 'for'.
   package  (±1.0) — pakiet vs pojedyncza to różna usługa. Różny status = 'against';
                     zgodny = 'abstain' (zgodność pakietu to stan domyślny, nie dowód).
+  device_brand (±1.0) — marka/urządzenie w nazwie (Onda vs Thunder). Różna marka
+                    obecna po OBU stronach = 'against' (hard veto, inny sprzęt to
+                    inna usługa); brak markera po którejś stronie = 'abstain'
+                    (nazwa generyczna, nie dowód obcości); zgodna marka = 'abstain'
+                    (nie dowodzi tożsamości, tak jak zgodny body_area/package).
   category (±0.6) — kategoria właściciela. SŁABSZA, bo właściciele niespójnie
                     kategoryzują to samo (presoterapia w "Pielęgnacji ciała" i
                     "Modelowaniu sylwetki" to wciąż presoterapia). Zgodna = 'for',
@@ -37,6 +42,7 @@ import unicodedata
 from typing import Any
 
 from ..body_area_taxonomy import extract_body_areas
+from ..brand_marker import extract_brand_marker
 from .layer_category import is_generic_name
 from .layer_neutral import is_neutral_category
 
@@ -47,6 +53,7 @@ AXIS_WEIGHTS: dict[str, float] = {
     "params": 1.0,
     "package": 1.0,
     "body_area": 1.0,   # różny zakres obszarów = inna usługa (twarz vs twarz+szyja+dekolt)
+    "device_brand": 1.0,  # różna marka/urządzenie (Onda vs Thunder) = inna usługa; hard veto
     "price": 1.5,       # rozrzut ceny rzędu wielkości — mocny sygnał innej usługi
     "category": 0.6,
     "duration": 0.5,
@@ -303,12 +310,31 @@ def vote_body_area(subject: dict[str, Any], sample: dict[str, Any]) -> str:
     return "against"      # różny zestaw obszarów = inna usługa
 
 
+def vote_device_brand(subject: dict[str, Any], sample: dict[str, Any]) -> str:
+    """Różna marka/urządzenie w nazwie => 'against' (hard veto — inny sprzęt to
+    inna usługa, tak jak różny zakres obszarów ciała). Brak markera po
+    KTÓREJKOLWIEK stronie => 'abstain' (nazwa generyczna, np. "depilacja
+    laserowa" bez marki — to NIE dowód obcości, tylko brak sygnału). Oba
+    markery obecne i TAKIE SAME => 'abstain', NIE 'for' — zgodna marka sama w
+    sobie nie dowodzi tożsamości (dwie usługi na tym samym Thunderze mogą się
+    różnić obszarem/parametrem), analogicznie do vote_body_area/vote_package.
+    """
+    b_subj = extract_brand_marker(subject.get("service_name") or "", subject.get("category_name") or "")
+    b_samp = extract_brand_marker(sample.get("service_name") or "", sample.get("category_name") or "")
+    if b_subj is None or b_samp is None:
+        return "abstain"
+    if b_subj != b_samp:
+        return "against"
+    return "abstain"
+
+
 def identity_votes(subject: dict[str, Any], sample: dict[str, Any]) -> dict[str, str]:
     """Zbierz głosy wszystkich osi dla pary (subject, sample)."""
     return {
         "params": vote_params(subject, sample),
         "package": vote_package(subject, sample),
         "body_area": vote_body_area(subject, sample),
+        "device_brand": vote_device_brand(subject, sample),
         "price": vote_price(subject, sample),
         "category": vote_category(subject, sample),
         "duration": vote_duration(subject, sample),
@@ -348,9 +374,10 @@ def _cutoff_for_strictness(strictness: float) -> float:
 
 # Osie STRUKTURALNE — sprzeczność na nich to twarde weto (definitywnie inna usługa,
 # niezależnie od surowości): różna ilość produktu (ml/liczba), pakiet vs pojedyncza,
-# różny zakres obszarów ciała (twarz vs twarz+szyja+dekolt). Cena, kategoria i czas
-# to osie MIĘKKIE (głosy ważone, podlegają surowości).
-_HARD_VETO_AXES = ("params", "package", "body_area")
+# różny zakres obszarów ciała (twarz vs twarz+szyja+dekolt), różna marka/urządzenie
+# (Onda vs Thunder). Cena, kategoria i czas to osie MIĘKKIE (głosy ważone, podlegają
+# surowości).
+_HARD_VETO_AXES = ("params", "package", "body_area", "device_brand")
 
 
 def is_identity_match(

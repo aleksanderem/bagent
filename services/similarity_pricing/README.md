@@ -141,6 +141,10 @@ dedup (blok widoczny w pełnej masie). Kalibracja progów: histogram gap na
 obcych bloków MUSZĄ dawać wynik identyczny bit-w-bit między wersjami silnika.
 Inwariant produkcyjny: SLO probe `slo-cluster-coherence` (host systemd,
 booksy-coherence-probe.sh) — świeże wiersze raportów nie mogą zawierać bloku.
+Nie mylić z `fixtures/corpus_golden.json` + `test_corpus_golden.py` — to
+osobna, mniejsza bramka (8 pinned case'ów, pytest), o INNYM schemacie wejścia;
+`run_corpus_regression.py` odrzuca ją teraz jawnym błędem, gdyby ktoś podał ją
+jako `--corpus`.
 
 ## 6. Kategorie neutralne (`layer_neutral.py`)
 

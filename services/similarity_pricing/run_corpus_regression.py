@@ -22,6 +22,12 @@ Selekcja twins odtwarza logikę report_pricing per subject: primary 0.82,
 fallback 0.75 gdy <3 twins (uproszczenie per-subject globalnego triggera
 verified_rate<0.20 — udokumentowane; identyczne w obu snapshotach, więc
 nie wpływa na diff).
+
+UWAGA: `fixtures/corpus_golden.json` (8 zamrożonych golden case'ów, inny schemat:
+{case, subject, twins, expected}) NIE jest wejściem dla tego skryptu — to
+fixture dla `test_corpus_golden.py` (pytest, pinned assertions). Podanie go
+jako --corpus kończy się teraz kontrolowanym błędem zamiast cichego "skip"
+dla wszystkich rekordów.
 """
 from __future__ import annotations
 
@@ -43,6 +49,25 @@ def main() -> None:
     from services.similarity_pricing.engine import compute_market_price  # noqa: WPS433
 
     corpus = json.load(open(args.corpus))
+
+    # Fail-fast na złym schemacie wejścia (BEAUTY_AUDIT-f3rv): jeśli korpus jest
+    # niepusty a ŻADEN rekord nie ma klucza "twins_082", to nie jest korpus
+    # build_corpus.py — leciałoby dalej i cicho produkowało sam "skip: no_data"
+    # dla wszystkich rekordów (compare_snapshots.py wtedy fałszywie raportuje
+    # "IDENTICAL: N", mimo że nic nie zostało policzone). Legalny per-rekord
+    # skip (error / twins_082=None w PRAWDZIWYM korpusie) nie jest tu łapany —
+    # to sprawdza tylko brak klucza we WSZYSTKICH rekordach naraz.
+    if corpus and not any("twins_082" in rec for rec in corpus):
+        sys.exit(
+            "Zły schemat korpusu: żaden rekord nie ma klucza 'twins_082'.\n"
+            "To NIE jest korpus zbudowany przez build_corpus.py "
+            "(oczekiwany schemat: {subject, twins_082, twins_075, error?}).\n"
+            "Jeśli to fixtures/corpus_golden.json — to wejście dla innego testu, "
+            "nie dla tego skryptu. Użyj zamiast tego:\n"
+            "  uv run pytest services/similarity_pricing/test_corpus_golden.py\n"
+            "(8 pinned golden case'ów)."
+        )
+
     snap = []
     for rec in corpus:
         sub = rec["subject"]
