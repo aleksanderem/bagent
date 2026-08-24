@@ -366,6 +366,30 @@ async def compute_pricing_comparisons_v2(
             subject_ids, all_booksy, subject_embeddings=subject_embeddings,
             limit=_FN_LIMIT, min_similarity=min_similarity,
         )
+        # CROWD-OUT FIX (BEAUTY_AUDIT-0dmq, xi18): powyższy search bierze TOP
+        # _FN_LIMIT bliźniaków z całej puli ~9k salonów w promieniu — wybrani
+        # konkurenci (zwykle ~15) giną w tłumie. Pomiar (raport 250, exact
+        # search): przy wspólnym searchu wybrani mieli 1-4 próbki z 221
+        # wierszy; osobny search WYŁĄCZNIE po wybranych przy tym samym progu
+        # dawał im 13/9/8/5/5/4/3/3/2/2/1/1/1/1/0. Ten sam wzorzec co Faza 8a
+        # (_aggregate_verified_match_counts w pipelines/competitor_analysis.py)
+        # — exact=True, bo kolekcja nie ma indeksu payload na booksy_id, więc
+        # filtrowany HNSW dla małej puli gubi całe salony. Dogrywamy wynik do
+        # `clusters` PRZED pętlą per-usługa, dedup po service_id, żeby
+        # is_selected niżej widziało bliźniaków, których pierwszy search
+        # zgubił w top-80 z 9k. Pomijamy całkowicie gdy brak wybranych.
+        if selected_booksy:
+            selected_clusters = search_twins(
+                subject_ids, list(selected_booksy), subject_embeddings=subject_embeddings,
+                limit=_FN_LIMIT, min_similarity=min_similarity, exact=True,
+            )
+            for sid, extra in selected_clusters.items():
+                existing = clusters.setdefault(sid, [])
+                seen_service_ids = {x.get("service_id") for x in existing}
+                for x in extra:
+                    if x.get("service_id") not in seen_service_ids:
+                        existing.append(x)
+                        seen_service_ids.add(x.get("service_id"))
         out: list[dict[str, Any]] = []
         for svc in subject_services:
             sid = int(svc["id"])

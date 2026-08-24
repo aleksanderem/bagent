@@ -120,7 +120,13 @@ def _run(coro):
 def _patch_search(monkeypatch, cluster, capture=None):
     def fake(subject_ids, comp_booksy, **kw):
         if capture is not None:
-            capture["booksy"] = list(comp_booksy)
+            # BEAUTY_AUDIT-0dmq: _price_at woła search_twins DWA razy, gdy są
+            # wybrani (main pool + scoped selected pool). "booksy" zostaje
+            # aliasem PIERWSZEGO wywołania (main pool) dla zgodności z
+            # testami napisanymi przed drugim searchem; "calls" trzyma
+            # wszystkie pule po kolei dla testów, które chcą zobaczyć obie.
+            capture.setdefault("calls", []).append(list(comp_booksy))
+            capture["booksy"] = capture["calls"][0]
         return {int(s): [dict(c) for c in cluster] for s in subject_ids}
     monkeypatch.setattr(rp, "search_twins", fake)
 
@@ -281,7 +287,10 @@ def test_no_broaden_when_dense(monkeypatch):
     }]}
     rows = _run(compute_pricing_comparisons_v2(service, 222, subject_data, [(_Cand(100), {})]))
     assert rows[0]["verification_status"] == "verified"
-    assert sims_used == [rp._FN_MIN_SIMILARITY]                  # tylko jeden przebieg, bez fallbacku
+    # tylko JEDEN PRZEBIEG (bez adaptacyjnego fallbacku) — ale przebieg ten
+    # dziś woła search_twins dwa razy: rynek 15km + scoped search po wybranych
+    # (BEAUTY_AUDIT-0dmq), oba na tym samym precyzyjnym progu.
+    assert sims_used == [rp._FN_MIN_SIMILARITY, rp._FN_MIN_SIMILARITY]
     vd = rows[0].get("verification_details") or {}
     assert "matching_broadened" not in vd
 
@@ -390,8 +399,11 @@ def test_adaptive_broadens_at_medium_coverage(monkeypatch):
     ]}
     rows = _run(compute_pricing_comparisons_v2(service, 250, subject_data, [(_Cand(100), {})]))
 
-    assert len(sims_used) == 2, f"fallback nie ruszył przy 20% pokrycia: {sims_used}"
-    assert sims_used[1] == rp._ADAPTIVE_FALLBACK_SIMILARITY
+    # 2 przebiegi (precyzyjny + fallback) × 2 wywołania każdy (rynek 15km +
+    # scoped search po wybranych, BEAUTY_AUDIT-0dmq) = 4 wpisy.
+    assert len(sims_used) == 4, f"fallback nie ruszył przy 20% pokrycia: {sims_used}"
+    assert sims_used[:2] == [rp._FN_MIN_SIMILARITY, rp._FN_MIN_SIMILARITY]
+    assert sims_used[2:] == [rp._ADAPTIVE_FALLBACK_SIMILARITY, rp._ADAPTIVE_FALLBACK_SIMILARITY]
     verified = [r for r in rows if r["verification_status"] == "verified"]
     assert len(verified) == 5, f"po fallbacku powinno być 5 wierszy z ceną, jest {len(verified)}"
     assert (rows[0].get("verification_details") or {}).get("matching_broadened") is True
@@ -465,3 +477,110 @@ def test_row_is_named_after_service_not_booksy_bucket(monkeypatch):
     # klucz i jeden by zniknął przed zapisem do bazy.
     klucze = {(r["treatment_name"], r["subject_price_grosze"]) for r in rows}
     assert len(klucze) == 2, f"wiersze zlewają się w kluczu dedupu: {klucze}"
+
+
+# ── crowd-out fix (BEAUTY_AUDIT-0dmq): wybrani giną w top-80 z ~9k salonów ──
+# promienia. _price_at dogrywa DRUGI, scoped (exact=True) search WYŁĄCZNIE po
+# wybranych i merguje wynik do klastra głównego przed pętlą per-usługa, dedup
+# po service_id — patrz komentarz w report_pricing._price_at.
+
+def test_selected_competitors_rescued_by_second_search(monkeypatch):
+    """Główny search (top-80 z tłumu) nie zawiera ŻADNEGO z 3 wybranych;
+    scoped search po wybranych ich odzyskuje — muszą wyjść w finalnej próbce
+    z is_selected=True."""
+    selected_ids = {100, 101, 102}
+    # 80 "tłumu" z promienia — celowo BEZ żadnego z wybranych (crowd-out).
+    crowd_cluster = [
+        _twin(10 + i, 500 + i, "Manicure", 5000 + i * 5, 30, cat="Paznokcie")
+        for i in range(80)
+    ]
+    selected_cluster = [
+        _twin(900 + i, bid, "Manicure", 5100, 30, cat="Paznokcie")
+        for i, bid in enumerate(sorted(selected_ids))
+    ]
+
+    def fake(subject_ids, comp_booksy, *, min_similarity, exact=False, **kw):
+        if set(comp_booksy) == selected_ids:
+            assert exact is True, "scoped search po wybranych musi iść exact=True"
+            return {int(s): [dict(c) for c in selected_cluster] for s in subject_ids}
+        return {int(s): [dict(c) for c in crowd_cluster] for s in subject_ids}
+
+    monkeypatch.setattr(rp, "search_twins", fake)
+    service = _FakeService(
+        geo_booksy=list(range(500, 580)),
+        salon_rows=[{"booksy_id": b, "name": f"S{b}"} for b in list(range(500, 580)) + sorted(selected_ids)],
+    )
+    subject_data = {"booksy_id": 163496, "services": [{
+        "id": 1, "name": "Manicure", "price_grosze": 5000, "duration_minutes": 30,
+        "category_name": "Paznokcie", "booksy_treatment_id": 1,
+    }]}
+    aligned = [(_Cand(b), {}) for b in sorted(selected_ids)]
+    rows = _run(compute_pricing_comparisons_v2(service, 250, subject_data, aligned))
+
+    assert len(rows) == 1
+    samples = rows[0]["competitor_samples"]
+    sample_booksy = {s["booksy_id"] for s in samples}
+    assert selected_ids <= sample_booksy, (
+        f"wybrani zginęli w próbce mimo scoped searcha: brak {selected_ids - sample_booksy}"
+    )
+    selected_samples = [s for s in samples if s["booksy_id"] in selected_ids]
+    assert len(selected_samples) == 3
+    assert all(s["is_selected"] is True for s in selected_samples), selected_samples
+
+
+def test_selected_already_in_top80_no_duplicate(monkeypatch):
+    """Wybrany konkurent JEST już w top-80 głównego searcha — scoped search po
+    wybranych zwraca go ponownie, ale merge musi go zdedupować po
+    service_id, nie zdublować."""
+    selected_bid = 100
+    crowd_cluster = [_twin(10 + i, 500 + i, "Manicure", 5000, 30, cat="Paznokcie") for i in range(4)]
+    # wybrany (service_id=20, booksy=100) już obecny w top-80 głównego searcha
+    crowd_cluster.append(_twin(20, selected_bid, "Manicure", 5100, 30, cat="Paznokcie"))
+
+    def fake(subject_ids, comp_booksy, *, min_similarity, exact=False, **kw):
+        if set(comp_booksy) == {selected_bid}:
+            # scoped search zwraca TĘ SAMĄ usługę wybranego (id=20)
+            return {int(s): [_twin(20, selected_bid, "Manicure", 5100, 30, cat="Paznokcie")]
+                    for s in subject_ids}
+        return {int(s): [dict(c) for c in crowd_cluster] for s in subject_ids}
+
+    monkeypatch.setattr(rp, "search_twins", fake)
+    service = _FakeService(geo_booksy=list(range(500, 504)), salon_rows=[])
+    subject_data = {"booksy_id": 163496, "services": [{
+        "id": 1, "name": "Manicure", "price_grosze": 5000, "duration_minutes": 30,
+        "category_name": "Paznokcie", "booksy_treatment_id": 1,
+    }]}
+    rows = _run(compute_pricing_comparisons_v2(service, 250, subject_data, [(_Cand(selected_bid), {})]))
+
+    assert len(rows) == 1
+    samples = rows[0]["competitor_samples"]
+    service_ids = [s["service_id"] for s in samples]
+    assert service_ids.count(20) == 1, f"wybrany zdublowany po merge: {service_ids}"
+    selected_samples = [s for s in samples if s["booksy_id"] == selected_bid]
+    assert len(selected_samples) == 1
+    assert selected_samples[0]["is_selected"] is True
+
+
+def test_no_second_search_when_no_selected(monkeypatch):
+    """Brak wybranych konkurentów raportu => scoped search WCALE się nie
+    odpala — nie marnujemy zapytania do Qdranta (weryfikacja przez licznik
+    wywołań mocka)."""
+    dense = [_twin(10 + i, 500 + i, "Presoterapia", 9000, 40) for i in range(5)]
+    call_count = {"n": 0}
+
+    def fake(subject_ids, comp_booksy, **kw):
+        call_count["n"] += 1
+        return {int(s): [dict(c) for c in dense] for s in subject_ids}
+
+    monkeypatch.setattr(rp, "search_twins", fake)
+    service = _FakeService(geo_booksy=list(range(500, 510)), salon_rows=[])
+    subject_data = {"booksy_id": 163496, "services": [{
+        "id": 1, "name": "Presoterapia", "price_grosze": 15000, "duration_minutes": 40,
+        "booksy_treatment_id": 233,
+    }]}
+    rows = _run(compute_pricing_comparisons_v2(service, 222, subject_data, []))  # brak wybranych
+
+    assert rows[0]["verification_status"] == "verified"
+    assert call_count["n"] == 1, (
+        f"scoped search po wybranych odpalił się mimo braku wybranych: {call_count['n']} wywołań"
+    )
