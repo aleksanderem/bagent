@@ -8,6 +8,12 @@ Progress scaling:
   - Etap 4 runs from 0 to 70% (compute + persistence of matches/pricing/gaps/dims)
   - Etap 5 runs from 70% to 100% (AI narrative + SWOT + recommendations)
 
+BEAUTY_AUDIT-dqir: competitor_reports.status is flipped to 'completed' ONLY
+here, after Etap 5 has returned successfully — not inside Etap 4. A run
+whose synthesis step fails or gets killed raises out of this function with
+the row still 'processing'; the caller's exception handling
+(workers/tasks.py::run_competitor_report_task) is what flips it to 'failed'.
+
 Returns a summary dict with report_id + stats used by the completion webhook.
 """
 
@@ -113,6 +119,21 @@ async def run_competitor_report_pipeline(
         user_selected_salon_ids=must_include_salon_ids,
         job_id=job_id,
     )
+
+    # BEAUTY_AUDIT-dqir: terminal 'completed' write lives HERE — after Etap 5
+    # (AI synthesis) has already persisted narrative/SWOT/recommendations —
+    # not at the end of Etap 4 (compute_competitor_analysis used to do that;
+    # see the Step 8 comment there). If synthesize_competitor_insights raises
+    # above, this line never runs, the row is left 'processing', and
+    # workers/tasks.py's existing self-healing write
+    # (fail_competitor_report_by_audit_id, guarded on status='processing')
+    # flips it to 'failed'. No new status value — the CHECK constraint on
+    # competitor_reports.status only knows pending/processing/completed/failed.
+    logger.info(
+        "[%s] Etap 5 complete — report_id=%s, marking report completed",
+        job_id, report_id,
+    )
+    await service.update_competitor_report_status(report_id, "completed")
 
     return {
         "report_id": report_id,

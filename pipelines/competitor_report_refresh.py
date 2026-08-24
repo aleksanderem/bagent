@@ -293,10 +293,15 @@ async def run_refresh(
             continue
 
         services = scrape.get("services") or []
+        # 'excluded' -> 'alternative' translation mirrors competitor_synthesis.py
+        # ::_build_competitor_profiles (see _BUCKET_FALLBACK usage there). The
+        # frontend's TIER_CONFIG has no 'excluded' key — see BEAUTY_AUDIT-df2f.
+        raw_bucket = m.get("bucket")
+        bucket_value = "alternative" if raw_bucket == "excluded" else raw_bucket
         competitor_metrics.append({
             "salon_id": competitor_salon_id,
             "booksy_id": booksy_id,
-            "bucket": m.get("bucket"),
+            "bucket": bucket_value,
             "counts_in_aggregates": bool(m.get("counts_in_aggregates", True)),
             "salon_name": scrape.get("salon_name"),
             "scraped_at": scrape.get("scraped_at"),

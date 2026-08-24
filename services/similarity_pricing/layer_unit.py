@@ -1,11 +1,15 @@
 """Warstwa D — normalizacja jednostki / pakietu.
 
-Problem: mediana ceny klastra kłamie z dwóch powodów:
+Problem: mediana ceny klastra kłamie z trzech powodów:
   1. Pakiety: "Presoterapia 5 zabiegów 700zł" zawyża klaster obok
      "Presoterapia 150zł". Flaga is_package pozwala je wykluczyć.
   2. Różny czas: presoterapia bywa 25/30/55/60 min — porównanie
      surowych cen myli. Normalizujemy do zł/min i mnożymy przez czas
      subjectu.
+  3. Cena 0 zł: w Booksy price_grosze=0 zwykle oznacza "cena od / zapytaj",
+     nie darmowy zabieg — takie próbki fałszywie zaniżają medianę rynkową
+     i sztucznie zawyżają deviation_pct subjectu. Wykluczamy je z liczenia
+     mediany (dotyczy tylko samples/konkurentów — subject nie jest filtrowany).
 
 Funkcja jest czysta (immutable — nie mutuje wejścia) i używa wyłącznie
 stdlib (statistics). Grosze (int) są jednostką; zaokrąglenia jawnie
@@ -26,6 +30,11 @@ def normalize_unit(
     Kroki:
       1. Wyklucz samples z is_package=True (pakiety zaburzają cenę
          pojedynczej usługi). Brak klucza is_package traktujemy jako False.
+         Wyklucz też samples z price_grosze<=0 (cena 0 w Booksy zwykle
+         znaczy "cena od / zapytaj", nie darmowy zabieg — wchodząc do
+         mediany fałszywie by ją zaniżyła). Brak klucza price_grosze
+         traktujemy jako 0 (wykluczony). Subject NIE jest filtrowany —
+         cena 0 subjectu to osobny problem, poza zakresem tej warstwy.
       2. Z pozostałych policz: median_raw (median price_grosze), oraz zł/min
          (price_grosze/duration_minutes) dla sampli z duration>0.
       3. market_price_grosze = median(zł/min) * subject.duration_minutes
@@ -66,10 +75,11 @@ def normalize_unit(
         }
 
         meta = {
-          "n_in":               int,   # liczba sampli na wejściu
-          "n_packages_excluded": int,  # ile pakietów wykluczone
-          "n_zero_duration":    int,   # ile sampli z duration=0/None
-          "used_per_minute":    bool,  # True gdy użyto normalizacji zł/min
+          "n_in":                  int,   # liczba sampli na wejściu
+          "n_packages_excluded":   int,   # ile pakietów wykluczone
+          "n_zero_price_excluded": int,   # ile sampli z price_grosze<=0 wykluczone
+          "n_zero_duration":       int,   # ile sampli z duration=0/None
+          "used_per_minute":       bool,  # True gdy użyto normalizacji zł/min
         }
 
     Raises:
@@ -84,12 +94,15 @@ def normalize_unit(
     """
     n_in = len(samples)
 
-    # --- Krok 1: wykluczenie pakietów ---
+    # --- Krok 1: wykluczenie pakietów i próbek z ceną 0 ---
     non_packages: list[dict[str, Any]] = []
     n_packages_excluded = 0
+    n_zero_price_excluded = 0
     for s in samples:
         if s.get("is_package", False):
             n_packages_excluded += 1
+        elif (s.get("price_grosze") or 0) <= 0:
+            n_zero_price_excluded += 1
         else:
             non_packages.append(s)
 
@@ -110,6 +123,7 @@ def normalize_unit(
         meta: dict[str, Any] = {
             "n_in": n_in,
             "n_packages_excluded": n_packages_excluded,
+            "n_zero_price_excluded": n_zero_price_excluded,
             "n_zero_duration": 0,
             "used_per_minute": False,
         }
@@ -179,6 +193,7 @@ def normalize_unit(
     meta = {
         "n_in": n_in,
         "n_packages_excluded": n_packages_excluded,
+        "n_zero_price_excluded": n_zero_price_excluded,
         "n_zero_duration": n_zero_duration,
         "used_per_minute": used_per_minute,
     }

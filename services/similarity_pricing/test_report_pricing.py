@@ -163,6 +163,45 @@ def test_matching_runs_once_on_union(monkeypatch):
     assert set(cap["booksy"]) == {500, 501, 502, 100}
 
 
+# ── LUKA (BEAUTY_AUDIT-23o3, diagnoza mol-ns5s → naprawa mol-93tn) ──
+# counts_in_aggregates jest respektowane TYLKO przy budowaniu selected_booksy
+# (linia "if getattr(cand, 'counts_in_aggregates', True)" w
+# compute_pricing_comparisons_v2). radius_booksy pochodzi z RPC
+# fn_competitors_in_radius, który o tej fladze nic nie wie (przeczytane repo
+# BEAUTY_AUDIT, supabase/migrations/146+147_*.sql — filtruje wyłącznie po
+# is_chain_head/odległości, zero odwołania do competitor_matches). Union
+# `set(radius_booksy) | selected_booksy` przywraca wykluczonego kandydata,
+# jeśli tylko mieści się geograficznie w promieniu — co jest niemal pewne dla
+# "wybranych konkurentów", bo są z definicji blisko subjectu. Test niżej
+# koduje ZAMIERZONE zachowanie (wykluczony kandydat nie wraca do puli wyceny
+# żadną drogą); dziś silnik go nie spełnia. Naprawa (SQL i/lub Python) NIE
+# jest w zakresie tego zadania — zgłoszona jako BEAUTY_AUDIT-2fv6.
+
+@pytest.mark.xfail(
+    reason="BEAUTY_AUDIT-2fv6: counts_in_aggregates=False filtruje tylko "
+           "selected_booksy; radius_booksy (fn_competitors_in_radius) o tej "
+           "fladze nic nie wie, union przywraca wykluczonego kandydata.",
+    strict=True,
+)
+def test_counts_in_aggregates_false_still_enters_geo_pool(monkeypatch):
+    cap: dict[str, Any] = {}
+    _patch_search(monkeypatch, [], capture=cap)
+    # 501 jawnie wykluczony z agregatów dla TEGO subjectu (np. wykryty
+    # duplikat innego już policzonego konkurenta), ale geograficznie mieści
+    # się w promieniu 15km — RPC go nie wie że jest wykluczony.
+    excluded = _Cand(501)
+    excluded.counts_in_aggregates = False
+    service = _FakeService(geo_booksy=[500, 501, 502], salon_rows=[])
+    subject_data = {"booksy_id": 163496, "services": [{
+        "id": 1, "name": "X", "price_grosze": 10000, "duration_minutes": 30, "booksy_treatment_id": 1,
+    }]}
+    _run(compute_pricing_comparisons_v2(service, 181, subject_data, [(excluded, {})]))
+    assert 501 not in cap["booksy"], (
+        "kandydat counts_in_aggregates=False wrócił do puli wyceny przez geo-radius "
+        f"(pula faktyczna: {sorted(cap['booksy'])})"
+    )
+
+
 def test_geo_rpc_called_with_radius(monkeypatch):
     _patch_search(monkeypatch, [])
     service = _FakeService(geo_booksy=[], salon_rows=[])

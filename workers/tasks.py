@@ -542,6 +542,47 @@ async def run_competitor_report_task(ctx: dict[str, Any], request: dict[str, Any
         except Exception:  # noqa: BLE001
             pass
         raise
+    except asyncio.CancelledError as e:
+        # beads BEAUTY_AUDIT-mol-03q: arq's OWN cancellation (worker
+        # restart/shutdown mid-run — pm2 kill_timeout 30s while the pipeline
+        # is still running, typically 5-8 min for a competitor report) is a
+        # DIFFERENT signal than _CancelledByUser above (the Redis
+        # bagent:cancel:{job_id} flag set by the user-facing cancel
+        # endpoint). asyncio.CancelledError inherits from BaseException, not
+        # Exception, so pre-fix it passed through both the _CancelledByUser
+        # branch and the `except Exception` branch below untouched —
+        # error_text stayed None, and the finally block's
+        # complete_competitor_report_job call with p_error=None read as
+        # SUCCESS: it released the queue slot as 'done' and skipped
+        # requeue-with-backoff (that path only fires when p_error is
+        # non-empty and attempt<3). The competitor_reports row was left in
+        # 'processing' forever — reconcileCompetitorReportSync on the Convex
+        # side only looks at (completed, failed), so the client stayed
+        # stuck on "Generujemy raport..." with no error and no retry.
+        #
+        # Deliberately NOT `except BaseException` — that would also swallow
+        # KeyboardInterrupt/SystemExit and break graceful worker shutdown.
+        # Only asyncio.CancelledError is our signal here.
+        error_text = coded_message(e)
+        logger.error(
+            "[%s] run_competitor_report_task cancelled by arq (worker "
+            "restart/kill_timeout mid-run, NOT user-initiated): %s",
+            job_id, error_text,
+        )
+        # Best-effort: tell Convex right away so the frontend can react
+        # sooner than the next reconciler tick. asyncio.shield protects this
+        # await from being re-cancelled by the SAME cancellation that's
+        # propagating through this task — a plain `await` here would not
+        # survive it. If it still fails (or is cancelled anyway), that's
+        # acceptable: the finally block below does the authoritative,
+        # guaranteed-synchronous write to Supabase
+        # (fail_competitor_report_by_audit_id), which is what actually
+        # unblocks the client independent of this webhook's success.
+        try:
+            await asyncio.shield(convex.competitor_report_fail(audit_id, error_text))
+        except (Exception, asyncio.CancelledError):  # noqa: BLE001
+            pass
+        raise
     except Exception as e:
         error_text = coded_message(e)
         logger.error("[%s] run_competitor_report_task failed: %s", job_id, e, exc_info=True)
@@ -574,14 +615,18 @@ async def run_competitor_report_task(ctx: dict[str, Any], request: dict[str, Any
             raw = ctx.get("supabase")
             if raw is not None and hasattr(raw, "client") and not hasattr(raw, "rpc"):
                 sb_client = raw.client
+                supabase_service = raw
             elif raw is not None and hasattr(raw, "rpc"):
                 sb_client = raw
+                supabase_service = raw
             else:
                 from services.sb_client import make_supabase_client
                 from config import settings as _settings
                 sb_client = make_supabase_client(
                     _settings.supabase_url, _settings.supabase_service_key,
                 )
+                from services.supabase import SupabaseService
+                supabase_service = SupabaseService()
             try:
                 sb_client.rpc(
                     "complete_competitor_report_job",
@@ -591,6 +636,31 @@ async def run_competitor_report_task(ctx: dict[str, Any], request: dict[str, Any
                 logger.warning(
                     "[%s] complete_competitor_report_job failed: %s", job_id, ce,
                 )
+
+            # beads BEAUTY_AUDIT-mol-03q: independent self-healing write —
+            # NOT the Convex webhook path (that's best-effort and may itself
+            # have been cancelled above). Synchronous (no `await`) so it
+            # survives a CancelledError still propagating through this
+            # coroutine — an `await` here could be cancelled again before
+            # the write lands; a bare synchronous call, once started, always
+            # runs to completion. Only fires on a failure path (error_text
+            # is set on the _CancelledByUser, asyncio.CancelledError, and
+            # generic Exception branches above; stays None on success, so
+            # this never touches a report that's still legitimately
+            # 'processing'). The method's own `WHERE status = 'processing'`
+            # guard makes every call here a safe no-op whenever the
+            # pipeline already wrote 'completed' or 'failed' itself — it can
+            # never clobber a report that finished fine.
+            if error_text is not None:
+                try:
+                    supabase_service.fail_competitor_report_by_audit_id(
+                        audit_id, error_text,
+                    )
+                except Exception as fe:  # noqa: BLE001
+                    logger.warning(
+                        "[%s] fail_competitor_report_by_audit_id failed: %s",
+                        job_id, fe,
+                    )
 
 
 # ---------------------------------------------------------------------------
