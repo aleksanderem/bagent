@@ -369,21 +369,21 @@ try:  # pragma: no cover
         # Event-driven outreach (F1): nocna detekcja zmian cen konkurencji
         # → outreach_events (cap/dedup) → wintact customEvents. Bez aktywnej
         # automatyzacji w wintact NIC nie wysyła.
-        # DISABLED 2026-08-24 -- fn_detect_competitor_price_events wywolywana przez
-        # PostgREST (outreach_event_detector.py:130) pada na 57014 (statement_timeout
-        # 8s roli authenticator) 12+ nocy z rzedu (2026-08-12 do dzis). Mig 181
-        # przyspieszyla funkcje z ~35 min do ~2.2 min, ale to nadal >>8s -- ALTER
-        # FUNCTION SET statement_timeout (wzorzec mig 049) zmierzono i NIE dziala
-        # przez PostgREST. Zero wplywu na klienta: wyjatek leci na pierwszej linii
-        # ciala funkcji, przed jakimkolwiek zapisem; automatyzacja Wintact i tak
-        # nieaktywna (docstring modulu linia 20). Docelowy fix: przeniesienie
-        # wywolania z PostgREST na docker exec psql + tabela staging (wzorzec
-        # refresh_booksy_treatments, patrz linie 398-408) -- decyzja architektoniczna,
-        # poza zakresem tej naprawy. Do NOT re-enable bez tej migracji.
-        # cron(
-        #     "workers.outreach_event_detector.detect_and_emit_price_events",
-        #     hour={5}, minute={40},
-        # ),
+        # 2026-08-24 (BEAUTY_AUDIT-s7c2) RE-ENABLED po naprawie architektonicznej.
+        # Poprzednio ten cron wolal fn_detect_competitor_price_events przez
+        # PostgREST (sb.rpc) i padal na 57014 (statement_timeout 8s roli
+        # authenticator) 12+ nocy z rzedu (2026-08-12..08-24) -- mig 181 przyspieszyla
+        # funkcje z ~35 min do ~2.2 min, ale to nadal >>8s, wiec byl WYLACZONY.
+        # Fix: mig 182 (repo web) dodaje price_events_staging + fn_refresh_price_events_staging(),
+        # wolana z hosta przez docker exec psql (ops/systemd/booksy-price-events-refresh.*,
+        # timer 05:00 UTC -- ten sam wzorzec co refresh_booksy_treatments, patrz
+        # linie ~398-408). Ten cron (05:40, 40 min marginesu po timerze) TERAZ
+        # TYLKO CZYTA gotowy staging przez PostgREST (outreach_event_detector.py:
+        # _detect_and_emit_price_events_impl) -- mieści się w 8s bez trudu.
+        cron(
+            "workers.outreach_event_detector.detect_and_emit_price_events",
+            hour={5}, minute={40},
+        ),
         cron(
             "workers.outreach_orchestrator.enroll_due_contacts",
             minute={i for i in range(0, 60, 5)},

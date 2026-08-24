@@ -2,8 +2,18 @@
 docs/outreach-assets/EVENT_DRIVEN_PLAN.md w repo BEAUTY_AUDIT).
 
 Przepływ (pilot: zmiany cen konkurencji):
-  1. RPC ``fn_detect_competitor_price_events`` (mig 163) — jeden najmocniejszy
-     event per kontakt (staged temp tables po stronie Postgresa, ~5 min).
+  1. SELECT z ``price_events_staging`` (mig 182 w repo web) — jeden
+     najmocniejszy event per kontakt. Tabela jest odświeżana raz na noc przez
+     ``fn_refresh_price_events_staging()`` (to samo ciało co
+     ``fn_detect_competitor_price_events``, mig 163/181, ~2,2 min), wołaną z
+     hosta przez ``docker exec psql`` (ops/systemd/booksy-price-events-refresh.*,
+     timer 05:00 UTC) — NIE przez ten worker i NIE przez PostgREST. Powód:
+     nawet po optymalizacji mig 181 funkcja detekcyjna trwa ~2,2 min, czyli
+     wielokrotnie więcej niż statement_timeout=8s roli `authenticator`, przez
+     którą łączy się PostgREST — bezpośrednie wołanie przez sb.rpc(...) padało
+     12+ nocy z rzędu na 57014 (BEAUTY_AUDIT-mol-m092). Ten worker TYLKO CZYTA
+     staging zwykłym SELECT-em (mieści się w 8s bez trudu); logika
+     frequency-cap/dedup/Wintact-upsert poniżej bez zmian.
   2. Frequency-cap: kontakt z ``outreach_events.emitted_at`` młodszym niż
      EVENT_FREQUENCY_CAP_DAYS dostaje wpis ``suppressed_reason='frequency_cap'``
      zamiast emisji. Księga w Supabase jest źródłem prawdy dla capu — Wintact
@@ -124,10 +134,17 @@ async def detect_and_emit_price_events(ctx: dict[str, Any]) -> dict[str, int]:
 
 
 async def _detect_and_emit_price_events_impl(ctx: dict[str, Any]) -> dict[str, int]:
-    """Cron nightly: detekcja → księga → (cap/dedup) → Wintact."""
+    """Cron nightly: czytaj staging (odświeżony przez systemd o 05:00 UTC) →
+    księga → (cap/dedup) → Wintact.
+
+    Krok 1 NIE liczy nic sam — czyta wynik ostatniego przebiegu
+    fn_refresh_price_events_staging() z price_events_staging (mig 182).
+    Świeżość danych zależy od timera booksy-price-events-refresh na tytanie,
+    nie od tego crona.
+    """
     sb = make_supabase_client(settings.supabase_url, settings.supabase_service_key)
 
-    rows = sb.rpc("fn_detect_competitor_price_events", {}).execute().data or []
+    rows = sb.table("price_events_staging").select("*").execute().data or []
     if not rows:
         return {"detected": 0, "emitted": 0, "suppressed": 0, "errors": 0}
 
