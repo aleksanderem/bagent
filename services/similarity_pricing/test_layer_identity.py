@@ -344,33 +344,68 @@ def test_volume_does_not_fire_on_unrelated_numbers():
 
 
 # --------------------------------------------------------------------------
-# LUKA (BEAUTY_AUDIT-23o3, diagnoza mol-ns5s → naprawa mol-93tn): żadna z 6
-# osi nie zna MARKI/URZĄDZENIA. services/brand_marker.py::extract_brand_marker
+# NAPRAWA (BEAUTY_AUDIT-x0x7, diagnoza mol-kzzq → naprawa mol-k4et): 7. oś
+# "device_brand" wywołuje services/brand_marker.py::extract_brand_marker
 # (kanoniczny przykład w jego docstringu to właśnie "Thunder Całe ciało" vs
-# "Onda Całe ciało" — dwa różne urządzenia RF/HIFU) jest importowany tylko w
-# starej klasyfikacyjnej ścieżce (taxonomy_consistency.py, martwe funkcje w
-# pipelines/competitor_analysis.py) — w services/similarity_pricing/ (żywy
-# silnik v2) w ogóle nie występuje. Test niżej koduje ZAMIERZONE zachowanie
-# (rozne urządzenie => NIE tożsame); dziś silnik go nie spełnia (żadna oś nie
-# głosuje 'against', category='for' wystarcza) — xfail dokumentuje lukę
-# zamiast cicho jej nie testować. Naprawa silnika NIE jest w zakresie tego
-# zadania — zgłoszona jako BEAUTY_AUDIT-x0x7.
+# "Onda Całe ciało" — dwa różne urządzenia RF/HIFU). Hard veto analogiczne do
+# body_area/package: różna marka obecna po OBU stronach => 'against'; brak
+# markera po którejkolwiek stronie => 'abstain' (nazwa generyczna, nie dowód
+# obcości); zgodna marka => 'abstain' (nie dowodzi tożsamości sama w sobie).
+# Test niżej koduje ZAMIERZONE zachowanie i teraz PRZECHODZI (był xfail).
 # --------------------------------------------------------------------------
 
-@pytest.mark.xfail(
-    reason="BEAUTY_AUDIT-x0x7: żadna z 6 osi tożsamości nie rozróżnia marki/"
-           "urządzenia — Onda vs Thunder przy identycznej cenie/czasie/"
-           "kategorii przechodzi jako tożsame nawet przy strictness=1.0.",
-    strict=True,
-)
 def test_device_brand_conflict_not_caught_by_identity_axes():
     # Ta sama kategoria/cena/czas, wyłącznie inne URZĄDZENIE w nazwie —
     # różny sprzęt to inny zabieg (inna technologia, inna realna cena rynkowa),
     # więc silnik POWINIEN je odrzucić jako nie-tożsame nawet przy najwyższej
-    # surowości. Dziś tego nie robi.
+    # surowości.
     subject = _s("Modelowanie sylwetki Onda", cat="Modelowanie sylwetki", dur=45, price=40000)
     sample = _s("Modelowanie sylwetki Thunder", cat="Modelowanie sylwetki", dur=45, price=40000, bid=2)
     votes = identity_votes(subject, sample)
     assert is_identity_match(votes, strictness=1.0) is False, (
         f"silnik traktuje Onda i Thunder (różny sprzęt) jako tę samą usługę: {votes}"
     )
+
+
+# --------------------------------------------------------------------------
+# Oś DEVICE_BRAND — hard veto, konwencja głosowania spójna z body_area/package
+# --------------------------------------------------------------------------
+
+def test_device_brand_different_markers_is_against():
+    from .layer_identity import vote_device_brand
+    # oba markery obecne i różne => against (hard veto)
+    subj = _s("Modelowanie sylwetki Onda", cat="Modelowanie sylwetki", dur=45, price=40000)
+    twin = _s("Modelowanie sylwetki Thunder", cat="Modelowanie sylwetki", dur=45, price=40000, bid=2)
+    assert vote_device_brand(subj, twin) == "against"
+
+
+def test_device_brand_one_missing_abstains():
+    from .layer_identity import vote_device_brand
+    # jeden marker None (nazwa generyczna, nie wymienia urządzenia) => abstain,
+    # NIE dowód obcości
+    subj = _s("Modelowanie sylwetki Onda", cat="Modelowanie sylwetki", dur=45, price=40000)
+    twin = _s("Modelowanie sylwetki", cat="Modelowanie sylwetki", dur=45, price=40000, bid=2)
+    assert vote_device_brand(subj, twin) == "abstain"
+
+
+def test_device_brand_same_marker_abstains_not_for():
+    from .layer_identity import vote_device_brand
+    # oba markery obecne i takie same => abstain, NIE for (zgodna marka sama
+    # w sobie nie dowodzi tożsamości — dwie usługi na tym samym Thunderze
+    # mogą się różnić obszarem/parametrem)
+    subj = _s("Modelowanie sylwetki Thunder całe ciało", cat="Modelowanie sylwetki", dur=45, price=40000)
+    twin = _s("Modelowanie sylwetki Thunder brzuch", cat="Modelowanie sylwetki", dur=45, price=40000, bid=2)
+    assert vote_device_brand(subj, twin) == "abstain"
+
+
+def test_device_brand_no_markers_zero_regression():
+    from .layer_identity import vote_device_brand
+    # brak markerów po obu stronach => abstain, zero zmiany zachowania dla
+    # większości usług bez marki w nazwie (np. "Manicure hybrydowy")
+    subj = _s("Manicure hybrydowy", cat="Manicure", dur=60, price=10000)
+    twin = _s("Manicure hybrydowy klasyczny", cat="Manicure", dur=60, price=11000, bid=2)
+    assert vote_device_brand(subj, twin) == "abstain"
+    # i nie psuje dotychczasowego is_identity_match dla tożsamej usługi bez marki
+    votes = identity_votes(subj, twin)
+    assert votes["device_brand"] == "abstain"
+    assert is_identity_match(votes, strictness=0.5, category_weight=0.4) is True
