@@ -163,26 +163,19 @@ def test_matching_runs_once_on_union(monkeypatch):
     assert set(cap["booksy"]) == {500, 501, 502, 100}
 
 
-# ── LUKA (BEAUTY_AUDIT-23o3, diagnoza mol-ns5s → naprawa mol-93tn) ──
-# counts_in_aggregates jest respektowane TYLKO przy budowaniu selected_booksy
+# ── LUKA NAPRAWIONA (BEAUTY_AUDIT-23o3, diagnoza mol-ns5s → naprawa mol-n04f)
+# counts_in_aggregates było respektowane TYLKO przy budowaniu selected_booksy
 # (linia "if getattr(cand, 'counts_in_aggregates', True)" w
 # compute_pricing_comparisons_v2). radius_booksy pochodzi z RPC
-# fn_competitors_in_radius, który o tej fladze nic nie wie (przeczytane repo
-# BEAUTY_AUDIT, supabase/migrations/146+147_*.sql — filtruje wyłącznie po
-# is_chain_head/odległości, zero odwołania do competitor_matches). Union
-# `set(radius_booksy) | selected_booksy` przywraca wykluczonego kandydata,
-# jeśli tylko mieści się geograficznie w promieniu — co jest niemal pewne dla
-# "wybranych konkurentów", bo są z definicji blisko subjectu. Test niżej
-# koduje ZAMIERZONE zachowanie (wykluczony kandydat nie wraca do puli wyceny
-# żadną drogą); dziś silnik go nie spełnia. Naprawa (SQL i/lub Python) NIE
-# jest w zakresie tego zadania — zgłoszona jako BEAUTY_AUDIT-2fv6.
+# fn_competitors_in_radius, który o tej fladze nic nie wie (supabase/
+# migrations/146+147_*.sql — filtruje wyłącznie po is_chain_head/odległości,
+# zero odwołania do competitor_matches). Union `set(radius_booksy) |
+# selected_booksy` przywracał wykluczonego kandydata, jeśli tylko mieścił się
+# geograficznie w promieniu. Fix: excluded_booksy odejmowany od unii w
+# compute_pricing_comparisons_v2 (BEAUTY_AUDIT-2fv6). SQL wariant
+# (fn_competitors_in_radius z opcjonalną listą wykluczeń) zostaje NIE
+# ZROBIONY — poprawka Python już usuwa błąd obserwowalny przez klienta.
 
-@pytest.mark.xfail(
-    reason="BEAUTY_AUDIT-2fv6: counts_in_aggregates=False filtruje tylko "
-           "selected_booksy; radius_booksy (fn_competitors_in_radius) o tej "
-           "fladze nic nie wie, union przywraca wykluczonego kandydata.",
-    strict=True,
-)
 def test_counts_in_aggregates_false_still_enters_geo_pool(monkeypatch):
     cap: dict[str, Any] = {}
     _patch_search(monkeypatch, [], capture=cap)

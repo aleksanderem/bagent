@@ -316,13 +316,22 @@ async def compute_pricing_comparisons_v2(
         cand.booksy_id for cand, _ in aligned_competitors
         if getattr(cand, "counts_in_aggregates", True)
     }
+    # counts_in_aggregates=False to per-subject decyzja z competitor_matches
+    # (młody salon bucket='new', albo ręczny must-include z "MUST NOT distort
+    # aggregates"). fn_competitors_in_radius o tej fladze nic nie wie, więc
+    # wykluczamy jawnie tutaj — inaczej wraca przez radius_booksy i po cichu
+    # psuje medianę/percentyle rynku (BEAUTY_AUDIT-2fv6).
+    excluded_booksy = {
+        cand.booksy_id for cand, _ in aligned_competitors
+        if not getattr(cand, "counts_in_aggregates", True)
+    }
     radius_booksy = (
         _geo_competitor_booksy_ids(service, int(subject_booksy), radius_km)
         if subject_booksy is not None else []
     )
 
     # MATCHING RAZ na sumie pul (wybrani zwykle ⊂ promień, ale gwarantujemy że są).
-    all_booksy = list(set(radius_booksy) | selected_booksy)
+    all_booksy = list((set(radius_booksy) | selected_booksy) - excluded_booksy)
     if not all_booksy:
         return []
 
