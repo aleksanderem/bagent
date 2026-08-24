@@ -18,7 +18,7 @@ import pytest
 from workers import outreach_event_detector as det
 
 
-RPC_ROW = {
+STAGING_ROW = {
     "contact_id": 7,
     "salon_booksy_id": 111,
     "competitor_booksy_id": 222,
@@ -47,12 +47,13 @@ class FakeQuery:
         return SimpleNamespace(data=self._result)
 
 
-def make_sb(rpc_rows, contact_row, capped_ids, upsert_data):
+def make_sb(staging_rows, contact_row, capped_ids, upsert_data):
     sb = MagicMock()
     shared = {"events": None}
-    sb.rpc.return_value = FakeQuery(rpc_rows)
 
     def table(name):
+        if name == "price_events_staging":
+            return FakeQuery(staging_rows)
         if name == "outreach_contacts":
             return FakeQuery([contact_row])
         if name == "outreach_events":
@@ -99,7 +100,7 @@ def make_wc():
 @pytest.mark.asyncio
 async def test_happy_path_emits_event_and_sets_contact_attributes():
     contact = {"id": 7, "email": "salon@example.pl", "is_customer": False, "owned_products": []}
-    sb = make_sb([RPC_ROW], contact, capped_ids=[], upsert_data=[{"id": 1}])
+    sb = make_sb([STAGING_ROW], contact, capped_ids=[], upsert_data=[{"id": 1}])
     wc = make_wc()
     with patch.object(det, "make_supabase_client", return_value=sb), \
          patch.object(det, "WintactClient", return_value=wc):
@@ -118,7 +119,7 @@ async def test_happy_path_emits_event_and_sets_contact_attributes():
 @pytest.mark.asyncio
 async def test_frequency_cap_suppresses_without_wintact_calls():
     contact = {"id": 7, "email": "salon@example.pl", "is_customer": False, "owned_products": []}
-    sb = make_sb([RPC_ROW], contact, capped_ids=[7], upsert_data=[{"id": 1}])
+    sb = make_sb([STAGING_ROW], contact, capped_ids=[7], upsert_data=[{"id": 1}])
     wc = make_wc()
     with patch.object(det, "make_supabase_client", return_value=sb), \
          patch.object(det, "WintactClient", return_value=wc):
@@ -133,7 +134,7 @@ async def test_frequency_cap_suppresses_without_wintact_calls():
 async def test_duplicate_external_key_is_not_reemitted():
     contact = {"id": 7, "email": "salon@example.pl", "is_customer": False, "owned_products": []}
     # upsert z ignore_duplicates zwraca [] dla istniejącego klucza
-    sb = make_sb([RPC_ROW], contact, capped_ids=[], upsert_data=[])
+    sb = make_sb([STAGING_ROW], contact, capped_ids=[], upsert_data=[])
     wc = make_wc()
     with patch.object(det, "make_supabase_client", return_value=sb), \
          patch.object(det, "WintactClient", return_value=wc):
