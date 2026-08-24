@@ -32,7 +32,6 @@ from pipelines.competitor_analysis import (
     _apply_versum_mappings,
     _classify_pricing_action,
     _compute_dimensional_scores,
-    _compute_pricing_comparisons,
     _compute_service_gaps,
     compute_competitor_analysis,
 )
@@ -679,11 +678,6 @@ class TestApplyVersumMappings:
         assert salon_data["services"][0]["booksy_treatment_id"] is None
 
 
-# ---------------------------------------------------------------------------
-# _compute_pricing_comparisons
-# ---------------------------------------------------------------------------
-
-
 def _cand(*, salon_id: int, counts_in_aggregates: bool = True) -> CompetitorCandidate:
     return CompetitorCandidate(
         salon_id=salon_id,
@@ -752,128 +746,6 @@ def _mock_supabase_no_verify() -> AsyncMock:
     # `for sv in sub_variants_map.get(sid, [])` loop.
     service.get_sub_variants_for_services.return_value = {}
     return service
-
-
-class TestComputePricingComparisons:
-    @pytest.mark.asyncio
-    async def test_empty_subject_returns_empty(self) -> None:
-        subject_data = {"services": []}
-        result = await _compute_pricing_comparisons(
-            _mock_supabase_no_verify(), report_id=1,
-            subject_data=subject_data, aligned_competitors=[],
-        )
-        assert result == []
-
-    @pytest.mark.asyncio
-    async def test_single_competitor_price_still_emits_variant_row(self) -> None:
-        # Contract change (commit a72440a, 2026-05-16 user feedback "nie
-        # możemy wycinać całego bloku zabiegu"): the variant tier no longer
-        # requires a minimum of 2 competitor prices. A single matched
-        # competitor still emits a comparison_tier='variant' row, carrying
-        # sample_size=1 so the UI can flag the thin sample. The OLD
-        # `if len(samples) < 2: continue` gate was deliberately removed.
-        subject_data = {
-            "services": [_svc(treatment_id=1, price_grosze=1000, name="A")],
-        }
-        aligned = [
-            (_cand(salon_id=1), {"services": [_svc(treatment_id=1, price_grosze=900)], "scrape": {"salon_name": "Cand1"}, "salon_id": 1}),
-        ]
-        result = await _compute_pricing_comparisons(
-            _mock_supabase_no_verify(), report_id=1,
-            subject_data=subject_data, aligned_competitors=aligned,
-        )
-        assert len(result) == 1
-        row = result[0]
-        assert row["comparison_tier"] == "variant"
-        assert row["booksy_treatment_id"] == 1
-        # Single competitor → market median == that competitor's price.
-        assert row["sample_size"] == 1
-        assert row["market_median_grosze"] == 900
-        assert len(row["competitor_samples"]) == 1
-
-    @pytest.mark.asyncio
-    async def test_computes_deviation_and_action(self) -> None:
-        # Subject 1000, market [500, 600, 700] → median 600, deviation = +66.67% → lower
-        subject_data = {
-            "services": [_svc(treatment_id=5, price_grosze=1000, name="Lase")],
-        }
-        aligned = [
-            (_cand(salon_id=1), {"services": [_svc(treatment_id=5, price_grosze=500)], "scrape": {"salon_name": "Cand1"}, "salon_id": 1}),
-            (_cand(salon_id=2), {"services": [_svc(treatment_id=5, price_grosze=600)], "scrape": {"salon_name": "Cand2"}, "salon_id": 2}),
-            (_cand(salon_id=3), {"services": [_svc(treatment_id=5, price_grosze=700)], "scrape": {"salon_name": "Cand3"}, "salon_id": 3}),
-        ]
-        result = await _compute_pricing_comparisons(
-            _mock_supabase_no_verify(), report_id=1,
-            subject_data=subject_data, aligned_competitors=aligned,
-        )
-        assert len(result) == 1
-        row = result[0]
-        assert row["booksy_treatment_id"] == 5
-        assert row["subject_price_grosze"] == 1000
-        assert row["market_median_grosze"] == 600
-        assert row["sample_size"] == 3
-        assert abs(row["deviation_pct"] - 66.67) < 0.01
-        assert row["recommended_action"] == "lower"
-        # Mig 064 fields surface on every row. VERIFICATION_THRESHOLD_PCT was
-        # lowered to 0.0 (2026-05-15 — "apply checks ALWAYS"), so any non-zero
-        # deviation runs verify_pricing_comparison. With no package keyword,
-        # no centroid (mock returns {}), and no duration, the row passes every
-        # check but still has deviation > 0 → verification_status is
-        # 'extreme_outlier' (kept for display, not dropped). See
-        # services/pricing_verification.py verify_pricing_comparison.
-        assert row["verification_status"] == "extreme_outlier"
-        assert isinstance(row["competitor_samples"], list)
-        assert len(row["competitor_samples"]) == 3
-
-    @pytest.mark.asyncio
-    async def test_non_counting_competitors_excluded_from_samples(self) -> None:
-        # counts_in_aggregates=False competitors must NOT contribute price
-        # samples (still a real contract). Cand1 (price 500) is excluded;
-        # only Cand2 (counting, price 1000) drives the market. Post-2026-05-16
-        # the single remaining counting price still emits a variant row
-        # (min-2 gate removed — see test_single_competitor_price_*).
-        subject_data = {
-            "services": [_svc(treatment_id=5, price_grosze=1000)],
-        }
-        aligned = [
-            (_cand(salon_id=1, counts_in_aggregates=False), {"services": [_svc(treatment_id=5, price_grosze=500)], "scrape": {"salon_name": "Cand1"}, "salon_id": 1}),
-            (_cand(salon_id=2), {"services": [_svc(treatment_id=5, price_grosze=1000)], "scrape": {"salon_name": "Cand2"}, "salon_id": 2}),
-        ]
-        result = await _compute_pricing_comparisons(
-            _mock_supabase_no_verify(), report_id=1,
-            subject_data=subject_data, aligned_competitors=aligned,
-        )
-        assert len(result) == 1
-        row = result[0]
-        # Only the counting competitor (salon_id=2, price 1000) contributes —
-        # the non-counting 500 zł price is excluded, so median stays 1000.
-        assert row["sample_size"] == 1
-        assert row["market_median_grosze"] == 1000
-        sample_salon_ids = [s.get("salon_id") for s in row["competitor_samples"]]
-        assert sample_salon_ids == [2]
-
-    @pytest.mark.asyncio
-    async def test_extreme_deviation_with_package_keyword_is_dropped(self) -> None:
-        # Subject 280000 grosze (2800 zł) "Onda 4 zabiegi" vs market median
-        # ~20000 (200 zł) = +1300% deviation. Package keyword "4 zabiegi"
-        # in subject name should drop the row before display.
-        subject_data = {
-            "services": [_svc(
-                treatment_id=7, price_grosze=280000,
-                name="Onda 4 zabiegi 1 obszar",
-            )],
-        }
-        aligned = [
-            (_cand(salon_id=1), {"services": [_svc(treatment_id=7, price_grosze=15000)], "scrape": {"salon_name": "Cand1"}, "salon_id": 1}),
-            (_cand(salon_id=2), {"services": [_svc(treatment_id=7, price_grosze=20000)], "scrape": {"salon_name": "Cand2"}, "salon_id": 2}),
-            (_cand(salon_id=3), {"services": [_svc(treatment_id=7, price_grosze=25000)], "scrape": {"salon_name": "Cand3"}, "salon_id": 3}),
-        ]
-        result = await _compute_pricing_comparisons(
-            _mock_supabase_no_verify(), report_id=1,
-            subject_data=subject_data, aligned_competitors=aligned,
-        )
-        # Dropped — package mismatch.
-        assert result == []
 
 
 # ---------------------------------------------------------------------------
@@ -1815,68 +1687,8 @@ async def test_competitor_drop_emits_data_load_trace(
 
 
 # ---------------------------------------------------------------------------
-# Test 3 — _tid_key None on a subject service emits service.tid_unresolved
-# ---------------------------------------------------------------------------
-
-
-@pytest.mark.asyncio
-async def test_tid_unresolved_subject_service_emits_trace() -> None:
-    """A subject service whose _tid_key resolves to None (no booksy_treatment_id
-    AND no synthetic_treatment_id) is skipped from the tier-1 pricing matrix.
-    That skip is now traced as `service.tid_unresolved`. Behaviour unchanged:
-    the service is still excluded, the row count is unaffected."""
-    from pipelines.competitor_analysis import _compute_treatment_tier_rows
-
-    tracer = _FakeTracer()
-    # One service WITH a tid (so the matrix isn't empty) + one WITHOUT.
-    # duration_minutes set so both pass the _eligible 5..240 gate and the
-    # tid-less one reaches the _tid_key None branch (the skip we trace).
-    good = _svc(treatment_id=5, price_grosze=1000, name="Good")
-    good["duration_minutes"] = 60
-    bad = _svc(treatment_id=5, price_grosze=1000, name="NoTid")
-    bad["duration_minutes"] = 60
-    bad["booksy_treatment_id"] = None
-    bad["synthetic_treatment_id"] = None
-    subject_data = {"services": [good, bad]}
-    aligned = [
-        (_cand(salon_id=1), {
-            "services": [_svc(treatment_id=5, price_grosze=900)],
-            "scrape": {"salon_name": "Cand1"}, "salon_id": 1,
-        }),
-    ]
-
-    await _compute_treatment_tier_rows(
-        report_id=1, subject_data=subject_data, aligned_competitors=aligned,
-        supabase=_mock_supabase_no_verify(), tracer=tracer,
-    )
-
-    unresolved = tracer.of("service.tid_unresolved")
-    assert len(unresolved) == 1
-    assert unresolved[0]["data"]["reason"] == "no_tid"
-    assert unresolved[0]["data"]["name"] == "NoTid"
-
-
-# ---------------------------------------------------------------------------
 # Test 4 — empty tier funcs emit pricing.computed {row_count: 0, skip_reason}
 # ---------------------------------------------------------------------------
-
-
-@pytest.mark.asyncio
-async def test_treatment_tier_empty_subject_emits_pricing_computed() -> None:
-    from pipelines.competitor_analysis import _compute_treatment_tier_rows
-
-    tracer = _FakeTracer()
-    rows = await _compute_treatment_tier_rows(
-        report_id=1, subject_data={"services": []}, aligned_competitors=[],
-        supabase=_mock_supabase_no_verify(), tracer=tracer,
-    )
-    assert rows == []  # behaviour unchanged
-    pc = tracer.of("pricing.computed")
-    assert any(
-        c["data"]["pricing_type"] == "treatment"
-        and c["data"]["row_count"] == 0
-        for c in pc
-    )
 
 
 @pytest.mark.asyncio
@@ -1956,14 +1768,9 @@ async def test_tier_funcs_tracer_none_safe() -> None:
     from pipelines.competitor_analysis import (
         _compute_brand_structured_pricing,
         _compute_method_targeted_pricing,
-        _compute_treatment_tier_rows,
         _resolve_method_categories_for_services,
     )
 
-    assert await _compute_treatment_tier_rows(
-        report_id=1, subject_data={"services": []}, aligned_competitors=[],
-        supabase=_mock_supabase_no_verify(), tracer=None,
-    ) == []
     assert await _compute_method_targeted_pricing(
         _mock_supabase_no_verify(), report_id=1,
         subject_data={"salon_id": None}, tracer=None,
@@ -2192,9 +1999,10 @@ async def test_pipeline_tracer_none_safe_full_run(
 # 2026-08-23 (BEAUTY_AUDIT-5srf): the spy follows the heavy path, and since
 # S0078 that path is `compute_pricing_comparisons_v2` — the similarity-first
 # engine wired in at competitor_analysis.py:727. The old
-# `_compute_pricing_comparisons` still lives in the module as a
-# reference/rollback copy but is no longer awaited by the pipeline, so
-# spying on it made this test assert on a function nothing calls.
+# `_compute_pricing_comparisons` was no longer awaited by the pipeline (0
+# callers outside tests), so spying on it made this test assert on a
+# function nothing calls — removed entirely in BEAUTY_AUDIT-23o3 (diagnosis
+# mol-ns5s confirmed no rollback path ever used it; martwe testy usunięte).
 #
 # 2026-08-23 (BEAUTY_AUDIT-cbnt): the gate no longer asks about variant_id at
 # all — v2 doesn't read that column (report_pricing.py:201-204 filters on

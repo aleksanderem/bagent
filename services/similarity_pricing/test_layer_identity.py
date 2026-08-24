@@ -8,6 +8,8 @@ from __future__ import annotations
 
 from typing import Any
 
+import pytest
+
 from .layer_identity import (
     adaptive_identity_filter,
     apply_identity_test,
@@ -339,3 +341,36 @@ def test_volume_does_not_fire_on_unrelated_numbers():
     assert "volume" not in extract_params("Strzyżenie dzieci do lat 5")
     assert vote_params(_s("Strzyżenie dzieci do lat 5"),
                        _s("Strzyżenie dzieci ( chłopcy ) do lat 5", bid=2)) == "abstain"
+
+
+# --------------------------------------------------------------------------
+# LUKA (BEAUTY_AUDIT-23o3, diagnoza mol-ns5s → naprawa mol-93tn): żadna z 6
+# osi nie zna MARKI/URZĄDZENIA. services/brand_marker.py::extract_brand_marker
+# (kanoniczny przykład w jego docstringu to właśnie "Thunder Całe ciało" vs
+# "Onda Całe ciało" — dwa różne urządzenia RF/HIFU) jest importowany tylko w
+# starej klasyfikacyjnej ścieżce (taxonomy_consistency.py, martwe funkcje w
+# pipelines/competitor_analysis.py) — w services/similarity_pricing/ (żywy
+# silnik v2) w ogóle nie występuje. Test niżej koduje ZAMIERZONE zachowanie
+# (rozne urządzenie => NIE tożsame); dziś silnik go nie spełnia (żadna oś nie
+# głosuje 'against', category='for' wystarcza) — xfail dokumentuje lukę
+# zamiast cicho jej nie testować. Naprawa silnika NIE jest w zakresie tego
+# zadania — zgłoszona jako BEAUTY_AUDIT-x0x7.
+# --------------------------------------------------------------------------
+
+@pytest.mark.xfail(
+    reason="BEAUTY_AUDIT-x0x7: żadna z 6 osi tożsamości nie rozróżnia marki/"
+           "urządzenia — Onda vs Thunder przy identycznej cenie/czasie/"
+           "kategorii przechodzi jako tożsame nawet przy strictness=1.0.",
+    strict=True,
+)
+def test_device_brand_conflict_not_caught_by_identity_axes():
+    # Ta sama kategoria/cena/czas, wyłącznie inne URZĄDZENIE w nazwie —
+    # różny sprzęt to inny zabieg (inna technologia, inna realna cena rynkowa),
+    # więc silnik POWINIEN je odrzucić jako nie-tożsame nawet przy najwyższej
+    # surowości. Dziś tego nie robi.
+    subject = _s("Modelowanie sylwetki Onda", cat="Modelowanie sylwetki", dur=45, price=40000)
+    sample = _s("Modelowanie sylwetki Thunder", cat="Modelowanie sylwetki", dur=45, price=40000, bid=2)
+    votes = identity_votes(subject, sample)
+    assert is_identity_match(votes, strictness=1.0) is False, (
+        f"silnik traktuje Onda i Thunder (różny sprzęt) jako tę samą usługę: {votes}"
+    )
