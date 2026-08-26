@@ -22,7 +22,7 @@ logger = logging.getLogger(__name__)
 
 _ACTION_THRESHOLD_PCT = 8.0
 _FN_LIMIT = 80
-_FN_MIN_SIMILARITY = 0.82
+_FN_MIN_SIMILARITY = 0.68
 _DEFAULT_RADIUS_KM = 15
 
 # Adaptacyjny próg podobieństwa. Gdy przy precyzyjnym progu (_FN_MIN_SIMILARITY)
@@ -54,8 +54,34 @@ _DEFAULT_RADIUS_KM = 15
 # luźniejsze dopasowanie staje się domyślne dla większości raportów, a
 # precyzyjne 0.82 zostaje dla salonów o pokryciu powyżej 80% — świadoma zmiana
 # charakteru silnika z "precyzyjny z ratunkiem" na "luźny z wyjątkiem".
+# 2026-08-26 (BEAUTY_AUDIT-ye2j): KONIEC PRZESUWANIA GRANICY — próg główny
+# 0.82 -> 0.68, fallback 0.75 -> 0.60. Powyższa historia (0.20 -> 0.50 -> 0.80)
+# to trzy próby dociągnięcia triggera tak, żeby ratunek odpalał się częściej;
+# komentarz sam nazywa to "przesuwaniem granicy zamiast jej usunięcia". Przy
+# progu głównym 0.68 fallback 0.75 byłby SUROWSZY od podstawowego, czyli
+# bezsensowny — stąd 0.60.
+#
+# Pomiar 2026-08-26 na 13 losowych salonach (6 miast, 6 branż, 173 usługi),
+# ŻADEN z medycyny estetycznej, na której strojono poprzednie progi:
+#
+#   próg    z ceną      odchylenie od mediany surowej   salonów/wiersz
+#   0.82    81 (47%)              17.6%                      12
+#   0.68   151 (87%)              20.0%                      42
+#
+#   Barber shop  54->96%   Fryzjer 33->76%   Masaż 7->100%
+#   Paznokcie    71->100%  Kosmet. 45->76%   Tatuaż 50->86%   (żadna w dół)
+#
+#   Bilans na 81 wierszach mających cenę w OBU wariantach: w górę 22, w dół 31,
+#   bez zmian 28, mediana zmiany ceny +0.0%. Istniejące ceny NIE drgnęły —
+#   doszło 70 nowych wierszy. Każdy wiersz stoi na 42 salonach zamiast 12.
+#
+# Przegląd jakościowy dopasowań przy 0.68 (losowe pary): "Henna rzęs" 35 zł ->
+# 80 salonów z similarity 1.000 na "Henna rzęs"; "Laminowanie rzęs+farbowanie"
+# -> 48 salonów z tą samą usługą; "Pedicure klasyczny" -> 63 salony. Niższy próg
+# nie wpuszcza śmieci, bo test tożsamości i tak je odsiewa (pomiar: warstwy
+# odrzucają łącznie 4% usług, retrieval gubił 46%).
 _ADAPTIVE_TRIGGER_VERIFIED_RATE = 0.80
-_ADAPTIVE_FALLBACK_SIMILARITY = 0.75
+_ADAPTIVE_FALLBACK_SIMILARITY = 0.60
 
 
 def _recommended_action(deviation_pct: float | None) -> str:
