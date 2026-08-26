@@ -16,13 +16,20 @@ from __future__ import annotations
 from dataclasses import dataclass
 from typing import Any
 
-from services.similarity_pricing.report_pricing import _ADAPTIVE_FALLBACK_SIMILARITY
-
-# Ten sam próg, przy którym wycena uznaje usługę za „porównywalną" w rzadkim
-# otoczeniu (adaptacyjny fallback). Celowo NIE 0.82 (próg precyzyjnej wyceny —
-# za ostry na pytanie „czy oferują to samo") i NIE 0.65 (promocja related
-# samples — za luźny: na raporcie 181 daje 14/15 'direct').
-BUCKET_MIN_SIMILARITY = _ADAPTIVE_FALLBACK_SIMILARITY
+# Próg „czy konkurent oferuje to samo" — WŁASNA stała, celowo NIEZALEŻNA od
+# progów wyceny. Celowo NIE 0.82 (próg precyzyjnej wyceny — za ostry na to
+# pytanie) i NIE 0.65 (promocja related samples — za luźny: na raporcie 181
+# daje 14/15 'direct').
+#
+# 2026-08-26 (BEAUTY_AUDIT-ye2j): ODPIĘTE od _ADAPTIVE_FALLBACK_SIMILARITY.
+# Do dziś ta stała była aliasem fallbacku wyceny, więc zmiana progu WYCENY
+# po cichu przestawiała klasyfikację konkurentów. Przy obniżeniu fallbacku
+# 0.75 -> 0.60 próg koszyków wylądowałby na wartości LUŹNIEJSZEJ niż 0.65,
+# które ten sam komentarz odrzuca — a bucket i counts_in_aggregates są
+# TRWAŁE w bazie i wpływają na agregaty rynkowe, nie tylko na jeden raport.
+# Wartość 0.75 to ostatni próg, przy którym koszyki były walidowane.
+# Zmiana tej stałej wymaga OSOBNEGO pomiaru rozkładu direct/cluster.
+BUCKET_MIN_SIMILARITY = 0.75
 
 # Udział pokrytych usług w CAŁYM menu subjecta.
 DIRECT_SHARE = 0.20        # oferuje odpowiednik co piątej usługi klientki
