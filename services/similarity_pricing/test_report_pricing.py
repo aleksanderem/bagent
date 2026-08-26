@@ -406,7 +406,14 @@ def test_adaptive_broadens_at_medium_coverage(monkeypatch):
     assert sims_used[2:] == [rp._ADAPTIVE_FALLBACK_SIMILARITY, rp._ADAPTIVE_FALLBACK_SIMILARITY]
     verified = [r for r in rows if r["verification_status"] == "verified"]
     assert len(verified) == 5, f"po fallbacku powinno być 5 wierszy z ceną, jest {len(verified)}"
-    assert (rows[0].get("verification_details") or {}).get("matching_broadened") is True
+    # 2026-08-26 (BEAUTY_AUDIT-ye2j): fallback SCALA, nie podmienia całości.
+    # Usługa 1 dostała cenę już przy progu precyzyjnym (precise_only={1}), więc
+    # jej wiersz zostaje NIETKNIĘTY — bez flagi poszerzenia i z pierwotną próbką.
+    # Flagę dostają wyłącznie wiersze, które precyzyjny przebieg zostawił puste.
+    assert (rows[0].get("verification_details") or {}).get("matching_broadened") is not True, \
+        "wiersz wyceniony przy progu precyzyjnym nie może zostać podmieniony przez fallback"
+    assert (rows[1].get("verification_details") or {}).get("matching_broadened") is True, \
+        "wiersz bez ceny przy progu precyzyjnym musi zostać uzupełniony przez fallback"
 
 
 def test_trigger_covers_real_reports_that_missed_the_rescue():

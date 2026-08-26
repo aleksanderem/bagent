@@ -462,12 +462,34 @@ async def compute_pricing_comparisons_v2(
         rows_b = _price_at(_ADAPTIVE_FALLBACK_SIMILARITY)
         n_verified_b = _n_verified(rows_b)
         if n_verified_b > n_verified:
-            for r in rows_b:
-                vd = r.get("verification_details") or {}
+            # 2026-08-26 (BEAUTY_AUDIT-ye2j): SCALANIE zamiast podmiany całości.
+            # Dotąd `rows = rows_b` zastępowało CAŁY raport, gdy tylko licznik
+            # verified wzrósł. Wiersz wyceniony poprawnie przy progu precyzyjnym
+            # dostawał wtedy nową, luźniejszą próbkę i nową medianę — mimo że
+            # nikt o to nie prosił, a wzrost licznika brał się z INNYCH usług.
+            # Warunek "n_verified_b > n_verified" mierzy pokrycie, nie
+            # poprawność, więc "fallback nie może pogorszyć" było nieprawdą.
+            # Teraz luźniejszy przebieg dokłada WYŁĄCZNIE wiersze, które przy
+            # progu precyzyjnym ceny nie dostały.
+            # Kluczujemy po POZYCJI, nie po service_id: oba przebiegi iterują tę
+            # samą listę subject_services w tej samej kolejności, a service_id
+            # bywa None (subject z audit scrape bez odpowiednika w indeksie).
+            scalone = []
+            for r, zastepnik in zip(rows, rows_b, strict=False):
+                if r["market_median_grosze"] is not None:
+                    scalone.append(r)
+                    continue
+                if zastepnik is None or zastepnik["market_median_grosze"] is None:
+                    scalone.append(r)
+                    continue
+                vd = zastepnik.get("verification_details") or {}
                 vd["matching_broadened"] = True
                 vd["min_similarity_used"] = _ADAPTIVE_FALLBACK_SIMILARITY
-                r["verification_details"] = vd
-            rows, n_verified, broadened_sim = rows_b, n_verified_b, _ADAPTIVE_FALLBACK_SIMILARITY
+                zastepnik["verification_details"] = vd
+                scalone.append(zastepnik)
+            rows = scalone
+            n_verified = _n_verified(rows)
+            broadened_sim = _ADAPTIVE_FALLBACK_SIMILARITY
 
     n_priced = sum(1 for r in rows if r["market_median_grosze"] is not None)
     logger.info(
