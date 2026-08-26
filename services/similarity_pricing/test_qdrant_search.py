@@ -48,10 +48,17 @@ class _RecordingQdrant(_FakeQdrant):
 
 
 def test_exact_flag_sets_search_params():
-    """Bez indeksu payload na booksy_id filtrowany HNSW gubi całe salony dla
-    małej puli — Faza 8a wymusza exact (BEAUTY_AUDIT-xi18)."""
+    """exact jest DOMYŚLNY (2026-08-26) — filtrowany HNSW gubi salony przy każdej puli.
+
+    Indeks payload na booksy_id istnieje i NIE rozwiązuje problemu. Pomiar na puli
+    produkcyjnej 4601 salonów: HNSW gubi 33-100% salonów w 6/6 przypadków. Pomiar
+    końcowy na 13 salonach z 6 branż: wiersze z ceną 13% -> 47%, żadna branża w dół,
+    mediana zmiany ceny +0,5%. Wcześniej exact wymuszała tylko Faza 8a dla puli
+    wybranych konkurentów (BEAUTY_AUDIT-xi18) — ten sam objaw, węższy zakres.
+    """
     client = _RecordingQdrant([_pt(10, 239352)])
     search_twins([1], [239352], subject_embeddings={1: [0.1]}, client=client)
-    assert all(r.params is None for r in client.requests)
-    search_twins([1], [239352], subject_embeddings={1: [0.1]}, client=client, exact=True)
     assert all(r.params is not None and r.params.exact is True for r in client.requests)
+    client_hnsw = _RecordingQdrant([_pt(10, 239352)])
+    search_twins([1], [239352], subject_embeddings={1: [0.1]}, client=client_hnsw, exact=False)
+    assert all(r.params is None for r in client_hnsw.requests)
