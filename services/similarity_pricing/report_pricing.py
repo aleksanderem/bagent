@@ -373,7 +373,7 @@ async def compute_pricing_comparisons_v2(
         # wierszy; osobny search WYŁĄCZNIE po wybranych przy tym samym progu
         # dawał im 13/9/8/5/5/4/3/3/2/2/1/1/1/1/0. Ten sam wzorzec co Faza 8a
         # (_aggregate_verified_match_counts w pipelines/competitor_analysis.py)
-        # — exact=True, bo kolekcja nie ma indeksu payload na booksy_id, więc
+        # — exact=True (od 2026-08-26 domyślne w search_twins dla KAŻDEJ puli), bo
         # filtrowany HNSW dla małej puli gubi całe salony. Dogrywamy wynik do
         # `clusters` PRZED pętlą per-usługa, dedup po service_id, żeby
         # is_selected niżej widziało bliźniaków, których pierwszy search

@@ -100,7 +100,7 @@ def search_twins(
     limit: int = 60,
     min_similarity: float = 0.82,
     client: QdrantClient | None = None,
-    exact: bool = False,
+    exact: bool = True,
 ) -> dict[int, list[dict[str, Any]]]:
     """Dla każdej usługi subject znajdź tożsamych bliźniaków wśród konkurentów.
 
@@ -113,12 +113,20 @@ def search_twins(
             Gdy None, fallback do retrieve z Qdrant (działa tylko dla chain-head).
         limit: max bliźniaków per usługa.
         min_similarity: próg cosine (score_threshold).
-        exact: brute-force zamiast HNSW. Kolekcja NIE MA indeksu payload na
-            booksy_id (payload_schema={}), więc filtrowany HNSW dla MAŁEJ puli
-            (np. 15 wybranych konkurentów) gubi CAŁE salony: pomiar na raporcie
-            250 — 10/15 salonów z 0 bliźniakami przy 0.55, exact=True daje
-            143–174 bliźniaków każdemu (BEAUTY_AUDIT-xi18). Dla puli ≤ ~100
-            salonów koszt exact jest pomijalny (221 zapytań ≈ 18 s).
+        exact: brute-force zamiast HNSW. DOMYŚLNIE True od 2026-08-26.
+            Filtrowany HNSW gubi salony przy KAŻDEJ wielkości puli, nie tylko
+            małej. Indeks payload na booksy_id ISTNIEJE (integer, 2,07 mln
+            punktów, status green — sprawdzone 2026-08-26); wcześniejszy zapis
+            "payload_schema={}" był nieaktualny i mylił diagnozę. Indeks NIE
+            rozwiązuje problemu recallu.
+            Pomiar 2026-08-26, pula produkcyjna 4601 salonów: HNSW gubi salony
+            w 6/6 przypadkach, od 33% do 100% (Masaż Tajski 15 salonów zamiast
+            60, Przedłużenie Żelowe 0 zamiast 2).
+            Pomiar końcowy na 13 salonach z 6 miast i 6 branż: wiersze z ceną
+            13% → 47%, każda branża w górę, żadna w dół; mediana zmiany ceny
+            +0,5% (ceny się nie przesuwają, tylko POJAWIAJĄ). Koszt +0,5 s
+            na salon. Wcześniejszy pomiar na raporcie 250 (BEAUTY_AUDIT-xi18)
+            pokazywał to samo dla puli 15 wybranych konkurentów.
 
     Returns:
         {subject_service_id: [sample]} w kształcie oczekiwanym przez
