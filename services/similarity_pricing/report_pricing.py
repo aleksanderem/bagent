@@ -80,8 +80,15 @@ _DEFAULT_RADIUS_KM = 15
 # -> 48 salonów z tą samą usługą; "Pedicure klasyczny" -> 63 salony. Niższy próg
 # nie wpuszcza śmieci, bo test tożsamości i tak je odsiewa (pomiar: warstwy
 # odrzucają łącznie 4% usług, retrieval gubił 46%).
+# 2026-08-26 (przegląd adwersaryjny, faza 0): fallback ZRÓWNANY z progiem głównym.
+# 0.60 nigdy nie został zmierzony — pomiar trafności obejmował wyłącznie kandydatów
+# przy 0.68, a fallback wysyłałby do wyceny pary z pasma 0.60-0.68, o którym nie
+# wiemy nic. Historia produkcji: flaga matching_broadened nie wystąpiła ANI RAZU,
+# więc zrównanie niczego nie odbiera. Strażnik niżej pomija drugi przebieg, gdy
+# fallback nie jest realnie luźniejszy (drugi przebieg = ~85 s i identyczny wynik).
+# Ponowne rozluźnienie wymaga ślepego holdoutu obejmującego pasmo poniżej progu.
 _ADAPTIVE_TRIGGER_VERIFIED_RATE = 0.80
-_ADAPTIVE_FALLBACK_SIMILARITY = 0.60
+_ADAPTIVE_FALLBACK_SIMILARITY = 0.68
 
 
 def _recommended_action(deviation_pct: float | None) -> str:
@@ -280,7 +287,14 @@ def _build_row(
         if hi > lo:
             subject_percentile = round(max(0.0, min(100.0, (subj_price - lo) / (hi - lo) * 50.0 + 25.0)), 2)
 
-    insufficient = res.status == "insufficient"
+    # 2026-08-26 (przegląd adwersaryjny, faza 0): "verified" wymaga ISTNIEJĄCEJ ceny.
+    # Wystarczalność liczona jest PRZED filtrem cenowym (normalize_unit), więc klaster
+    # z 3+ salonami dostawał status sufficient, po czym filtr odrzucał wszystkie próbki
+    # (pakiety, ceny 0) i cena wychodziła None — a wiersz szedł do UI jako "verified".
+    # Pomiar na produkcji: 25/1387 wierszy (1.8%), w raporcie 250 aż 10. Podwójna
+    # szkoda: klientka widzi "zweryfikowane" bez ceny, a zawyżony licznik verified
+    # potrafi POMINĄĆ fallback dokładnie tam, gdzie byłby potrzebny.
+    insufficient = res.status == "insufficient" or res.market_price_grosze is None
     verification_status = "subject_only" if insufficient else "verified"
     recommended_action = "subject_only" if insufficient else _recommended_action(res.deviation_pct)
 
@@ -391,6 +405,10 @@ async def compute_pricing_comparisons_v2(
         clusters = search_twins(
             subject_ids, all_booksy, subject_embeddings=subject_embeddings,
             limit=_FN_LIMIT, min_similarity=min_similarity,
+            # exact JAWNIE (faza 0): default wrócił do False, żeby żaden inny
+            # wołający nie odziedziczył brute-force bez pomiaru. Dla wyceny
+            # exact jest zmierzony: HNSW gubił 33-100% salonów w 6/6 przypadków.
+            exact=True,
         )
         # CROWD-OUT FIX (BEAUTY_AUDIT-0dmq, xi18): powyższy search bierze TOP
         # _FN_LIMIT bliźniaków z całej puli ~9k salonów w promieniu — wybrani
@@ -399,7 +417,7 @@ async def compute_pricing_comparisons_v2(
         # wierszy; osobny search WYŁĄCZNIE po wybranych przy tym samym progu
         # dawał im 13/9/8/5/5/4/3/3/2/2/1/1/1/1/0. Ten sam wzorzec co Faza 8a
         # (_aggregate_verified_match_counts w pipelines/competitor_analysis.py)
-        # — exact=True (od 2026-08-26 domyślne w search_twins dla KAŻDEJ puli), bo
+        # — exact=True JAWNIE (faza 0: default search_twins wrócił do False), bo
         # filtrowany HNSW dla małej puli gubi całe salony. Dogrywamy wynik do
         # `clusters` PRZED pętlą per-usługa, dedup po service_id, żeby
         # is_selected niżej widziało bliźniaków, których pierwszy search
@@ -458,7 +476,12 @@ async def compute_pricing_comparisons_v2(
     # otoczenie). Gęste salony nie schodzą poniżej triggera, więc ich precyzja
     # zostaje. Rzadkie dostają szerszy rynek, oznaczony flagą dla UI.
     broadened_sim: float | None = None
-    if verified_rate < _ADAPTIVE_TRIGGER_VERIFIED_RATE:
+    if (
+        verified_rate < _ADAPTIVE_TRIGGER_VERIFIED_RATE
+        # Strażnik: drugi przebieg ma sens tylko przy realnie luźniejszym progu —
+        # przy równych progach to ~85 s pracy na identyczny wynik.
+        and _ADAPTIVE_FALLBACK_SIMILARITY < _FN_MIN_SIMILARITY
+    ):
         rows_b = _price_at(_ADAPTIVE_FALLBACK_SIMILARITY)
         n_verified_b = _n_verified(rows_b)
         if n_verified_b > n_verified:

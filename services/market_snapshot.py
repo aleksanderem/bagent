@@ -482,6 +482,11 @@ def build_market_snapshot(
                 area_ids,
                 limit=TWINS_LIMIT_PER_REP,
                 min_similarity=TWIN_MIN_SIMILARITY,
+                # exact JAWNIE (faza 0, 2026-08-26): ta ścieżka nigdy nie była
+                # mierzona z brute-force (próg 0.82, do 900 zapytań, limit 500,
+                # wyjątek Qdranta połykany niżej -> cicha degradacja). Zostaje
+                # ANN do czasu osobnego pomiaru p95/p99 na realnych area_ids.
+                exact=False,
             )
         except Exception as e:  # noqa: BLE001 — Qdrant down ⇒ zostają same anchory
             logger.warning("market_snapshot: twin expansion unavailable (%s)", e)
