@@ -57,8 +57,10 @@ def test_exact_flag_sets_search_params():
     wybranych konkurentów (BEAUTY_AUDIT-xi18) — ten sam objaw, węższy zakres.
     """
     client = _RecordingQdrant([_pt(10, 239352)])
-    search_twins([1], [239352], subject_embeddings={1: [0.1]}, client=client)
+    search_twins([1], [239352], subject_embeddings={1: [0.1]}, client=client, exact=True)
     assert all(r.params is not None and r.params.exact is True for r in client.requests)
+    # Default WRÓCIŁ do False (faza 0): nowy wołający nie dziedziczy brute-force
+    # bez pomiaru — wycena i snapshot ustawiają exact jawnie u siebie.
     client_hnsw = _RecordingQdrant([_pt(10, 239352)])
-    search_twins([1], [239352], subject_embeddings={1: [0.1]}, client=client_hnsw, exact=False)
+    search_twins([1], [239352], subject_embeddings={1: [0.1]}, client=client_hnsw)
     assert all(r.params is None for r in client_hnsw.requests)

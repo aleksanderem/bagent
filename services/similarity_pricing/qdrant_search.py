@@ -100,7 +100,7 @@ def search_twins(
     limit: int = 60,
     min_similarity: float = 0.82,
     client: QdrantClient | None = None,
-    exact: bool = True,
+    exact: bool = False,
 ) -> dict[int, list[dict[str, Any]]]:
     """Dla każdej usługi subject znajdź tożsamych bliźniaków wśród konkurentów.
 
@@ -113,7 +113,12 @@ def search_twins(
             Gdy None, fallback do retrieve z Qdrant (działa tylko dla chain-head).
         limit: max bliźniaków per usługa.
         min_similarity: próg cosine (score_threshold).
-        exact: brute-force zamiast HNSW. DOMYŚLNIE True od 2026-08-26.
+        exact: brute-force zamiast HNSW. Default False — USTAWIAJ JAWNIE per
+            wołający (faza 0 przeglądu adwersaryjnego 2026-08-26: globalny default
+            True objął po cichu market_snapshot, którego nikt nie zmierzył przy
+            jego parametrach — próg 0.82, do 900 zapytań, połykany wyjątek).
+            Wycena przekazuje exact=True (zmierzone, patrz niżej); snapshot
+            exact=False (stan sprzed zmiany, do osobnego pomiaru).
             Filtrowany HNSW gubi salony przy KAŻDEJ wielkości puli, nie tylko
             małej. Indeks payload na booksy_id ISTNIEJE (integer, 2,07 mln
             punktów, status green — sprawdzone 2026-08-26); wcześniejszy zapis

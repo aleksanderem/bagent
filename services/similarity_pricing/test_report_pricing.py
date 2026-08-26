@@ -250,6 +250,9 @@ def test_packages_excluded_from_price(monkeypatch):
 def test_adaptive_broadens_when_sparse(monkeypatch):
     # Rzadkie otoczenie: przy precyzyjnym progu 0 twins → 0 verified → fallback
     # luźniejszym progiem daje 4 salony => verified, oznaczone flagą broadened.
+    # Faza 0 (2026-08-26): na produkcji fallback == próg główny (0.60 nie miał
+    # pomiaru), więc MECHANIZM testujemy z wymuszonym luźniejszym progiem.
+    monkeypatch.setattr(rp, "_ADAPTIVE_FALLBACK_SIMILARITY", rp._FN_MIN_SIMILARITY - 0.08)
     fallback_cluster = [_twin(10 + i, 500 + i, "Manicure", 5000 + i * 100, 30, cat="Paznokcie") for i in range(4)]
 
     def fake(subject_ids, comp_booksy, *, min_similarity, **kw):
@@ -268,6 +271,61 @@ def test_adaptive_broadens_when_sparse(monkeypatch):
     vd = rows[0].get("verification_details") or {}
     assert vd.get("matching_broadened") is True
     assert vd.get("min_similarity_used") == rp._ADAPTIVE_FALLBACK_SIMILARITY
+
+
+def test_verified_requires_price(monkeypatch):
+    """Faza 0: status "sufficient" bez ceny NIE może wyjść do UI jako verified.
+
+    Wystarczalność liczona jest PRZED filtrem cenowym: klaster z 3+ salonami
+    dostawał sufficient, po czym normalize_unit odrzucał wszystkie próbki
+    (same pakiety / ceny 0) i market_price wychodził None — a wiersz szedł jako
+    "verified" bez ceny. Produkcja: 25/1387 wierszy, w raporcie 250 aż 10.
+    Zawyżony licznik verified potrafił też POMINĄĆ fallback tam, gdzie był potrzebny.
+    """
+    from services.similarity_pricing.engine import MarketResult
+    res = MarketResult(
+        market_price_grosze=None, status="sufficient", n_unique_salons=4,
+        deviation_pct=None, p25_grosze=None, p50_grosze=None, p75_grosze=None,
+        zl_per_min_median=None, median_raw_grosze=None,
+        identity_strictness=0.0, identity_purity=1.0, subject_generic=False,
+        n_raw_samples=6, n_identity_kept=5, n_coherence_dropped=0, n_used_for_price=0,
+    )
+    subject = {"id": 1, "name": "Pakiet 5 masaży", "price_grosze": 50000,
+               "duration_minutes": 60, "booksy_treatment_id": 1}
+    row = rp._build_row(250, subject, res)
+    assert row["verification_status"] == "subject_only", (
+        "wiersz bez ceny nie może być verified — klientka widziałaby "
+        "'zweryfikowane' bez liczby, a licznik fallbacku byłby zawyżony"
+    )
+    assert row["market_median_grosze"] is None
+
+
+def test_no_second_pass_when_fallback_equals_main(monkeypatch):
+    """Faza 0: fallback zrównany z progiem głównym => drugi przebieg POMINIĘTY.
+
+    Drugi przebieg przy identycznym progu to ~85 s pracy na identyczny wynik,
+    a pasmo 0.60-0.68 nie ma pomiaru trafności. Strażnik w kodzie wymaga
+    _ADAPTIVE_FALLBACK_SIMILARITY < _FN_MIN_SIMILARITY.
+    """
+    assert rp._ADAPTIVE_FALLBACK_SIMILARITY >= rp._FN_MIN_SIMILARITY, (
+        "jeśli świadomie rozluźniono fallback, ten test i holdout muszą być zaktualizowane"
+    )
+    sims_used: list[float] = []
+
+    def fake(subject_ids, comp_booksy, *, min_similarity, **kw):
+        sims_used.append(min_similarity)
+        return {int(s): [] for s in subject_ids}
+    monkeypatch.setattr(rp, "search_twins", fake)
+    service = _FakeService(geo_booksy=list(range(500, 505)), salon_rows=[])
+    subject_data = {"booksy_id": 163496, "services": [{
+        "id": 1, "name": "Manicure", "price_grosze": 6000, "duration_minutes": 30,
+        "category_name": "Paznokcie", "booksy_treatment_id": 1,
+    }]}
+    rows = _run(compute_pricing_comparisons_v2(service, 250, subject_data, [(_Cand(100), {})]))
+    # 0 verified => trigger spełniony, ale strażnik progu blokuje drugi przebieg:
+    # search_twins wołane wyłącznie przy progu głównym.
+    assert all(sim == rp._FN_MIN_SIMILARITY for sim in sims_used), sims_used
+    assert rows[0]["verification_status"] == "subject_only"
 
 
 def test_no_broaden_when_dense(monkeypatch):
@@ -379,7 +437,10 @@ def test_adaptive_broadens_at_medium_coverage(monkeypatch):
     Przy triggerze 0.20 fallback nie ruszał (0.20 < 0.20 jest fałszem).
     Przy 0.50 rusza i podnosi pokrycie.
     """
-    precise_only = {1}          # tylko usługa 1 ma odpowiedniki przy 0.82
+    precise_only = {1}          # tylko usługa 1 ma odpowiedniki przy progu precyzyjnym
+    # Faza 0: mechanizm wymaga realnie luźniejszego fallbacku — wymuszamy go,
+    # bo produkcyjna wartość jest zrównana z progiem głównym do czasu holdoutu.
+    monkeypatch.setattr(rp, "_ADAPTIVE_FALLBACK_SIMILARITY", rp._FN_MIN_SIMILARITY - 0.08)
     cluster = [_twin(10 + i, 500 + i, "Mezoterapia", 30000, 60, cat="Twarz") for i in range(5)]
     sims_used: list[float] = []
 
