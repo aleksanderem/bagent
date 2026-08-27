@@ -57,6 +57,12 @@ AXIS_WEIGHTS: dict[str, float] = {
     "price": 1.5,       # rozrzut ceny rzędu wielkości — mocny sygnał innej usługi
     "category": 0.6,
     "duration": 0.5,
+    # osie taksonomii — waga symboliczna: rozstrzyga twarde weto, nie margines
+    "tax_obszar": 1.0,
+    "tax_odbiorca": 1.0,
+    "tax_etap": 1.0,
+    "tax_rozmiar": 1.0,
+    "tax_dlugosc": 1.0,
 }
 
 # Oś PRICE — asymetryczna. NIGDY 'for' (cena nie buduje klastra, jest wynikiem).
@@ -328,9 +334,39 @@ def vote_device_brand(subject: dict[str, Any], sample: dict[str, Any]) -> str:
     return "abstain"
 
 
+def _tax_norm(v: Any) -> str:
+    t = unicodedata.normalize("NFKD", str(v or "").lower())
+    t = "".join(c for c in t if not unicodedata.combining(c))
+    return re.sub(r"[^a-z0-9 ]", " ", t).strip()
+
+
+def vote_taxonomy_axis(subject: dict[str, Any], sample: dict[str, Any], axis: str) -> str:
+    """Weto osi taksonomii. NIGDY 'for' — zgodne wartości to abstain.
+
+    Wartości pochodzą z destylacji ("_tax" dopinane w report_pricing przed
+    wyceną); brak po którejkolwiek stronie => abstain (weto działa tylko tam,
+    gdzie obie strony są zdestylowane — zasięg rośnie z backfillem). Wspólny
+    rdzeń 5-znakowy znosi konflikt ("laser tulowy i radiofrekwencja" vs
+    "laser tulowy" to ta sama rodzina, nie sprzeczność).
+    """
+    va = (subject.get("_tax") or {}).get(axis)
+    vb = (sample.get("_tax") or {}).get(axis)
+    if not va or not vb:
+        return "abstain"
+    na, nb = _tax_norm(va), _tax_norm(vb)
+    if na == nb:
+        return "abstain"
+    ra = {w[:5] for w in na.split() if len(w) > 3}
+    rb = {w[:5] for w in nb.split() if len(w) > 3}
+    if ra and rb and (ra & rb):
+        return "abstain"
+    return "against"
+
+
 def identity_votes(subject: dict[str, Any], sample: dict[str, Any]) -> dict[str, str]:
     """Zbierz głosy wszystkich osi dla pary (subject, sample)."""
     return {
+        **{f"tax_{a}": vote_taxonomy_axis(subject, sample, a) for a in TAXONOMY_VETO_AXES},
         "params": vote_params(subject, sample),
         "package": vote_package(subject, sample),
         "body_area": vote_body_area(subject, sample),
@@ -377,7 +413,22 @@ def _cutoff_for_strictness(strictness: float) -> float:
 # różny zakres obszarów ciała (twarz vs twarz+szyja+dekolt), różna marka/urządzenie
 # (Onda vs Thunder). Cena, kategoria i czas to osie MIĘKKIE (głosy ważone, podlegają
 # surowości).
-_HARD_VETO_AXES = ("params", "package", "body_area", "device_brand")
+# Osie TAKSONOMII (destylowane modelem do service_taxonomy, mig 186/188) —
+# rozdzielają usługi podobne od tożsamych tam, gdzie nazwa nie wystarcza:
+# strzyżenie męskie vs damskie (odbiorca), 1 ml vs 3 ml (rozmiar), przedłużanie
+# vs uzupełnienie (etap). Konflikt = twarde weto; zgodność = ABSTAIN, nigdy
+# 'for' — metoda bywa wspólna dla różnych zakresów (lekcja Stylage: "wolumetria"
+# to i 1 ml za 700 zł, i 3 ml za 3500 zł), więc taksonomia wyłącznie ZAPRZECZA.
+# Pomiar na zamrożonym holdoucie 563 par (mig 188, etykiety 2 sędziów + człowiek):
+# wycina 25% par błędnych (powiązane+różne) przy 0% straty tożsamych — 0/69.
+# Oś "metoda" celowo POZA wetem: niestabilna nazewniczo (45% rozjazdu przy
+# powtórnej destylacji), dawała całą stratę tożsamych (5/69) za +17 pp cięcia.
+TAXONOMY_VETO_AXES = ("obszar", "odbiorca", "etap", "rozmiar", "dlugosc")
+
+_HARD_VETO_AXES = (
+    "params", "package", "body_area", "device_brand",
+    *(f"tax_{a}" for a in TAXONOMY_VETO_AXES),
+)
 
 
 def is_identity_match(
