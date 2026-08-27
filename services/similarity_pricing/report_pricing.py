@@ -331,6 +331,70 @@ def _build_row(
     }
 
 
+def _load_taxonomy_axes(
+    service: Any,
+    subject_booksy_id: int | None,
+    subject_services: list[dict[str, Any]],
+    clusters: dict[int, list[dict[str, Any]]],
+) -> tuple[dict[str, dict[str, Any]], str | None]:
+    """Osie z service_taxonomy dla nazw biorących udział w wycenie.
+
+    Weto osi taksonomii (layer_identity.TAXONOMY_VETO_AXES) działa wyłącznie
+    tam, gdzie OBIE strony pary są zdestylowane — brak wpisu => abstain, więc
+    raport bez pokrycia zachowuje się identycznie jak przed wetem. Zasięg
+    rośnie z backfillem (mig 186/187), bez zmian w tym kodzie.
+
+    Branża kontekstu = branża salonu PODMIOTU: kaskada mapy zabiegów
+    (treatment_branch_map po booksy_treatment_id usług podmiotu — głos
+    większościowy). Kandydat z promienia konkuruje o klientkę tej samej
+    branży, więc jego nazwę czytamy w tym samym kontekście — tak samo
+    liczył pomiar holdoutu (mig 188), którego wynik (25% ciętych złych,
+    0% straty tożsamych) jest podstawą tego weta.
+
+    Każdy błąd => pusty słownik i log; wycena idzie dalej bez weta.
+    """
+    try:
+        cli = getattr(service, "client", None)
+        if cli is None:
+            return {}, None
+        tids = [s.get("booksy_treatment_id") for s in subject_services if s.get("booksy_treatment_id")]
+        branza: str | None = None
+        if tids:
+            glosy: dict[str, int] = {}
+            for i in range(0, len(set(tids)), 40):
+                czesc = sorted(set(tids))[i : i + 40]
+                for r in (
+                    cli.table("treatment_branch_map").select("branza").in_("treatment_id", czesc).execute().data or []
+                ):
+                    glosy[r["branza"]] = glosy.get(r["branza"], 0) + 1
+            if glosy:
+                branza = max(glosy, key=glosy.get)
+        if not branza:
+            return {}, None
+        nazwy = {" ".join((s.get("name") or "").lower().split()) for s in subject_services}
+        for lst in clusters.values():
+            for x in lst:
+                nazwy.add(" ".join((x.get("service_name") or "").lower().split()))
+        nazwy.discard("")
+        kl = sorted(nazwy)
+        osie: dict[str, dict[str, Any]] = {}
+        for i in range(0, len(kl), 40):
+            for r in (
+                cli.table("service_taxonomy")
+                .select("name_key,osie")
+                .eq("branza", branza)
+                .in_("name_key", kl[i : i + 40])
+                .execute()
+                .data
+                or []
+            ):
+                osie[r["name_key"]] = r["osie"] or {}
+        return osie, branza
+    except Exception as e:  # noqa: BLE001 — brak taksonomii nie może wywrócić wyceny
+        logger.warning("taxonomy axes unavailable (%s): %s", type(e).__name__, str(e)[:120])
+        return {}, None
+
+
 async def compute_pricing_comparisons_v2(
     service: Any,
     report_id: int,
@@ -435,6 +499,13 @@ async def compute_pricing_comparisons_v2(
                         existing.append(x)
                         seen_service_ids.add(x.get("service_id"))
         out: list[dict[str, Any]] = []
+        tax_osie, tax_branza = _load_taxonomy_axes(
+            service, subject_data.get("booksy_id"), subject_services, clusters
+        )
+        if tax_osie:
+            logger.info(
+                "taxonomy veto: %d nazw z osiami (branża %s)", len(tax_osie), tax_branza
+            )
         for svc in subject_services:
             sid = int(svc["id"])
             raw = clusters.get(sid, [])
@@ -445,6 +516,7 @@ async def compute_pricing_comparisons_v2(
             peer_vecs = fetch_twin_vectors(twin_ids)
             peer_sims = compute_peer_max_sims(twin_ids, peer_vecs)
             for s in raw:
+                s["_tax"] = tax_osie.get(" ".join((s.get("service_name") or "").lower().split()))
                 bid = s.get("booksy_id")
                 info = salons_by_booksy.get(bid) or {}
                 s["salon_name"] = info.get("name", "")
@@ -459,6 +531,7 @@ async def compute_pricing_comparisons_v2(
                 "duration_minutes": svc.get("duration_minutes"),
                 "category_name": svc.get("category_name"),
                 "is_package": bool(svc.get("is_package", False)),
+                "_tax": tax_osie.get(" ".join((svc.get("name") or "").lower().split())),
             }
             result = compute_market_price(subject, raw, config)
             out.append(_build_row(report_id, svc, result))
