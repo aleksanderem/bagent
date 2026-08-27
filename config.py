@@ -5,6 +5,8 @@ from pydantic_settings import BaseSettings
 
 class Settings(BaseSettings):
     minimax_api_key: str = ""
+    # Z.ai (GLM-5.3-Flash) — pomost destylacji przy raporcie + runner backfillu.
+    zai_api_key: str = ""
     minimax_base_url: str = "https://api.minimax.io/anthropic"
     minimax_model: str = "MiniMax-M3"
     # M3 udostępnia okno kontekstu do 1M tokenów po stronie serwera (tiered:
