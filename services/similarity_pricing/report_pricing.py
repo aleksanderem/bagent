@@ -12,8 +12,11 @@ UI pokazuje rynek z wyróżnionymi rywalami (jeden widok, bez pustej zakładki).
 from __future__ import annotations
 
 import json
+import time
 import logging
 from typing import Any
+
+from config import settings
 
 from .engine import MarketResult, compute_market_price
 from .qdrant_search import compute_peer_max_sims, fetch_twin_vectors, search_twins
@@ -395,6 +398,133 @@ def _load_taxonomy_axes(
         return {}, None
 
 
+# ── POMOST DESTYLACJI (2026-08-27) ─────────────────────────────────────────
+# Rozwiązaniem DOCELOWYM jest destylacja przy ingest scrape'ów (wzorzec inline
+# embeddingów w _insert_services); pomost łata dziury DO CZASU wdrożenia i po
+# nim zostaje wyłącznie jako siatka bezpieczeństwa — gaśnie sam, gdy miss rate
+# spada do zera, bo każda destylacja pomostu zapisuje się TRWALE.
+#
+# Model purity (mig 189): pomost działa WYŁĄCZNIE poza terytorium M3. Pomiar
+# 2026-08-27: M3 i GLM nadają tej samej usłudze sprzeczne wartości osi w 3-14%
+# przypadków, więc dopisywanie wartości GLM w branżach destylowanych M3
+# tworzyłoby fałszywe weta. Wielka czwórka czeka na backfill M3.
+#
+# Budżet: max 40 wywołań i 75 s na raport — GLM-low robi paczkę 12 nazw w ~6 s
+# (pomiar: 309 nazw w 41 s), więc typowy raport mieści się z zapasem; nadmiar
+# po prostu zostaje niezdestylowany (abstain = zachowanie sprzed weta).
+_BRIDGE_M3_BRANZE = {"Salon Kosmetyczny", "Fryzjer", "Paznokcie", "Medycyna Estetyczna"}
+_BRIDGE_MAX_CALLS = 40
+_BRIDGE_DEADLINE_S = 75.0
+_BRIDGE_MODEL = "glm-5.3-flash"
+_BRIDGE_PROMPT_VER = 3  # tożsamy kontrakt co scripts/taxonomy_backfill.py (v3)
+
+
+def _bridge_prompt(branza: str, paczka: list[str]) -> str:
+    """Prompt v3 w wersji pomostowej — źródło prawdy: scripts/taxonomy_backfill.py.
+
+    Duplikacja świadoma i oznaczona wersją (_BRIDGE_PROMPT_VER); unifikacja
+    przy wydzieleniu bmatcher (bd w6vw)."""
+    poz = json.dumps([{"i": i, "nazwa": n} for i, n in enumerate(paczka)], ensure_ascii=False)
+    return (
+        f"Uslugi z branzy: {branza}.\n"
+        "OSIE: obszar, metoda, pakiet_sesji, rozmiar, marka_preparatu, odbiorca, etap, dlugosc\n\n"
+        "DEFINICJE OSI. Przyklady to ILUSTRACJE, NIE zamknieta lista — wypelniaj os KAZDA "
+        "wartoscia, ktora doslownie pada w tekscie. Zakaz dotyczy wylacznie ZGADYWANIA.\n"
+        "  etap — faza cyklu uslugi, np. przedluzanie, uzupelnienie, zdjecie, korekta.\n"
+        '  rozmiar — KAZDA ilosc/objetosc/zakres/liczba stref, w dowolnym zapisie. Normalizuj "2ml" -> "2 ml".\n'
+        "  dlugosc — KAZDE okreslenie dlugosci wlosow lub paznokci.\n"
+        "  odbiorca — plec/wiek docelowy, gdy jednoznaczny (meskie, damskie, dzieciece; takze barber, kids).\n"
+        "  obszar — czesc ciala wymieniona w tekscie. Bez wnioskowania z metody.\n"
+        "  metoda — rodzajowa nazwa zabiegu po polsku, BEZ marki i BEZ obszaru.\n"
+        "ZASADA NADRZEDNA: wypelniaj wylacznie to, co DOSLOWNIE wynika z nazwy. "
+        "Nie wiadomo -> POMIN os.\n"
+        'Zwroc JSON: {"result":[{"i":numer,"osie":{klucz:wartosc}}]}\n\nPOZYCJE:\n' + poz
+    )
+
+
+def _bridge_glm_client() -> Any | None:
+    """Klient GLM albo None (brak klucza = pomost wyłączony). Wydzielone dla testów."""
+    if not getattr(settings, "zai_api_key", ""):
+        return None
+    from openai import AsyncOpenAI
+    return AsyncOpenAI(api_key=settings.zai_api_key, base_url="https://api.z.ai/api/coding/paas/v4")
+
+
+async def _bridge_distill_missing(
+    service: Any,
+    branza: str | None,
+    osie: dict[str, dict[str, Any]],
+    subject_services: list[dict[str, Any]],
+    clusters: dict[int, list[dict[str, Any]]],
+) -> dict[str, dict[str, Any]]:
+    """Destyluj na żądanie nazwy bez wpisu w taksonomii; zwróć nowe osie.
+
+    Każdy błąd => log i pusty wynik — raport idzie dalej, brakujące nazwy
+    po prostu abstain (zachowanie identyczne jak przed wetem)."""
+    if not branza or branza in _BRIDGE_M3_BRANZE:
+        return {}
+    cli = _bridge_glm_client()
+    if cli is None:
+        return {}
+    try:
+        nazwy: set[str] = {" ".join((s.get("name") or "").lower().split()) for s in subject_services}
+        for lst in clusters.values():
+            for x in lst:
+                nazwy.add(" ".join((x.get("service_name") or "").lower().split()))
+        nazwy.discard("")
+        brak = sorted(n for n in nazwy if n not in osie)
+        if not brak:
+            return {}
+        start = time.monotonic()
+        nowe: dict[str, dict[str, Any]] = {}
+        rekordy: list[dict[str, Any]] = []
+        wywolan = 0
+        for i in range(0, len(brak), 12):
+            if wywolan >= _BRIDGE_MAX_CALLS or time.monotonic() - start > _BRIDGE_DEADLINE_S:
+                break
+            paczka = brak[i : i + 12]
+            wywolan += 1
+            r = await cli.chat.completions.create(
+                model=_BRIDGE_MODEL,
+                messages=[
+                    {"role": "system", "content": "Odpowiadasz WYLACZNIE poprawnym JSON."},
+                    {"role": "user", "content": _bridge_prompt(branza, paczka)},
+                ],
+                response_format={"type": "json_object"},
+                extra_body={"thinking": {"type": "enabled"}, "reasoning_effort": "low"},
+                temperature=1.0,
+                max_tokens=8000,
+                timeout=30,
+            )
+            for it in (json.loads(r.choices[0].message.content).get("result") or []):
+                idx = it.get("i") if isinstance(it, dict) else None
+                wartosci = (it.get("osie") or {}) if isinstance(it, dict) else {}
+                if not isinstance(idx, int) or idx >= len(paczka) or not wartosci:
+                    continue
+                nowe[paczka[idx]] = wartosci
+                rekordy.append({
+                    "name_key": paczka[idx], "name_sample": paczka[idx], "branza": branza,
+                    "branze": [branza], "osie": wartosci, "model": _BRIDGE_MODEL,
+                    "thinking": "low", "prompt_ver": _BRIDGE_PROMPT_VER,
+                })
+        # zapis TRWAŁY — pomost jest jednocześnie przyrostowym backfillem
+        cli_db = getattr(service, "client", None)
+        if rekordy and cli_db is not None:
+            for i in range(0, len(rekordy), 200):
+                cli_db.table("service_taxonomy").upsert(
+                    rekordy[i : i + 200], on_conflict="name_key,branza"
+                ).execute()
+        if nowe:
+            logger.info(
+                "pomost destylacji: %d/%d brakujących nazw (branża %s, %d wywołań, %.0f s)",
+                len(nowe), len(brak), branza, wywolan, time.monotonic() - start,
+            )
+        return nowe
+    except Exception as e:  # noqa: BLE001 — pomost nie może wywrócić raportu
+        logger.warning("pomost destylacji niedostępny (%s): %s", type(e).__name__, str(e)[:120])
+        return {}
+
+
 async def compute_pricing_comparisons_v2(
     service: Any,
     report_id: int,
@@ -464,7 +594,7 @@ async def compute_pricing_comparisons_v2(
         )
     salons_by_booksy = _lookup_salons(service, all_booksy)
 
-    def _price_at(min_similarity: float) -> list[dict[str, Any]]:
+    async def _price_at(min_similarity: float) -> list[dict[str, Any]]:
         """Jeden pełny przebieg wyceny przy danym progu podobieństwa twins."""
         clusters = search_twins(
             subject_ids, all_booksy, subject_embeddings=subject_embeddings,
@@ -502,6 +632,9 @@ async def compute_pricing_comparisons_v2(
         tax_osie, tax_branza = _load_taxonomy_axes(
             service, subject_data.get("booksy_id"), subject_services, clusters
         )
+        tax_osie = {**tax_osie, **await _bridge_distill_missing(
+            service, tax_branza, tax_osie, subject_services, clusters
+        )}
         if tax_osie:
             logger.info(
                 "taxonomy veto: %d nazw z osiami (branża %s)", len(tax_osie), tax_branza
@@ -541,7 +674,7 @@ async def compute_pricing_comparisons_v2(
         return sum(1 for r in rs if r["verification_status"] == "verified")
 
     # PASS 1 — precyzyjny próg (dokładne twins). Domyślne zachowanie.
-    rows = _price_at(_FN_MIN_SIMILARITY)
+    rows = await _price_at(_FN_MIN_SIMILARITY)
     n_verified = _n_verified(rows)
     verified_rate = n_verified / len(subject_services)
 
@@ -555,7 +688,7 @@ async def compute_pricing_comparisons_v2(
         # przy równych progach to ~85 s pracy na identyczny wynik.
         and _ADAPTIVE_FALLBACK_SIMILARITY < _FN_MIN_SIMILARITY
     ):
-        rows_b = _price_at(_ADAPTIVE_FALLBACK_SIMILARITY)
+        rows_b = await _price_at(_ADAPTIVE_FALLBACK_SIMILARITY)
         n_verified_b = _n_verified(rows_b)
         if n_verified_b > n_verified:
             # 2026-08-26 (BEAUTY_AUDIT-ye2j): SCALANIE zamiast podmiany całości.
