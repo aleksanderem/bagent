@@ -335,7 +335,14 @@ def vote_device_brand(subject: dict[str, Any], sample: dict[str, Any]) -> str:
 
 
 def _tax_norm(v: Any) -> str:
-    t = unicodedata.normalize("NFKD", str(v or "").lower())
+    # "ł" NIE rozkłada się w NFKD (U+0142 bez dekompozycji), więc bez jawnej
+    # zamiany "ciało" stawało się "ciao", "całe" -> "cae" — i rdzenie przestawały
+    # się pokrywać. Skutek na żywym teście 2026-08-27 (salon Masażprofesjonalny):
+    # weto FAŁSZYWIE cięło "cialo" vs "całe ciało" — 14 identycznych masaży
+    # wyleciało z próbki, bo GLM raz pisze ASCII, raz z diakrytykami.
+    # Pozostałe polskie znaki (ą ć ę ń ó ś ź ż) rozkładają się poprawnie.
+    t = str(v or "").lower().replace("ł", "l")
+    t = unicodedata.normalize("NFKD", t)
     t = "".join(c for c in t if not unicodedata.combining(c))
     return re.sub(r"[^a-z0-9 ]", " ", t).strip()
 

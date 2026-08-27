@@ -41,6 +41,21 @@ def test_brak_danych_to_abstain():
     assert vote_taxonomy_axis(_s(), _s(), "etap") == "abstain"
 
 
+def test_polskie_l_nie_tworzy_falszywego_konfliktu():
+    """Żywy test 2026-08-27: "cialo" (zapis ASCII od modelu) vs "całe ciało".
+
+    "ł" nie rozkłada się w NFKD — bez jawnej zamiany "ciało" -> "ciao" traciło
+    wspólny rdzeń z "cialo" i weto FAŁSZYWIE cięło identyczne masaże (14 par
+    w jednej usłudze). To ta sama usługa — musi być abstain.
+    """
+    a = _s(tax={"obszar": "cialo"})
+    b = _s(tax={"obszar": "całe ciało"})
+    assert vote_taxonomy_axis(a, b, "obszar") == "abstain"
+    c = _s(tax={"metoda": "masaz ciala"})
+    d = _s(tax={"metoda": "masaż ciała"})
+    assert vote_taxonomy_axis(c, d, "metoda") == "abstain"
+
+
 def test_wspolny_rdzen_znosi_konflikt():
     # "laser tulowy i radiofrekwencja" vs "laser tulowy" — rodzina, nie sprzeczność
     a = _s(tax={"obszar": "cała twarz"})
