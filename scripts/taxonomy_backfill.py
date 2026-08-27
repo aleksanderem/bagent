@@ -49,7 +49,17 @@ from services.supabase import SupabaseService  # noqa: E402
 
 log = logging.getLogger("taxonomy_backfill")
 
-PROMPT_VER = 1
+# v2 (2026-08-26): definicje osi ROZDZIELAJACYCH z przykladami. Pomiar na
+# zamrozonym holdoucie (mig 188): weto na 5 osiach wycinalo 31% zlych par przy
+# 3% straty tozsamych, a sufitem bylo POKRYCIE osi (etap 0%, rozmiar 27%) —
+# model nie wypelnial osi, ktorych nie zdefiniowano, trzymajac sie zasady
+# "tylko to, co doslownie w tekscie". Definicja mowi mu, CO w tekscie jest
+# doslownym sygnalem osi ("uzupelnienie" w nazwie => etap), nie lamiac zakazu
+# zgadywania.
+# v3: przyklady OTWARTE. v2 podniosl etap 0->15% i odbiorca 3->9%, ale ZADUSIL
+# rozmiar 22->5% i dlugosc 25->12% — model potraktowal wyliczenia jak zamknieta
+# liste dozwolonych wartosci. Weto na holdoucie spadlo 31% -> 26%.
+PROMPT_VER = 3
 
 # Prostokąty obejmujące województwa (przybliżenie po współrzędnych).
 REGIONY: dict[str, tuple[float, float, float, float]] = {
@@ -67,6 +77,7 @@ REGIONY: dict[str, tuple[float, float, float, float]] = {
     "raport259": (0.0, 0.0, 0.0, 0.0),
     "pary48": (0.0, 0.0, 0.0, 0.0),
     "test186": (0.0, 0.0, 0.0, 0.0),
+    "holdout188": (0.0, 0.0, 0.0, 0.0),
 }
 
 # Zamknięty słownik nazw osi. Bez niego model produkuje warianty
@@ -126,6 +137,52 @@ def strip_pl(s: str) -> str:
     return re.sub(r"[^a-z0-9 ]", " ", s).strip()
 
 
+class KlientGLM:
+    """GLM-5.3(-Flash) przez protokół OpenAI (api.z.ai/api/coding/paas/v4).
+
+    Klucze GLM Coding Plan działają dziś WYŁĄCZNIE po protokole OpenAI
+    (nota w docs GLM-5.3); thinking zawsze włączony, sterowanie przez
+    reasoning_effort. Pomiar 2026-08-27 na paczce 12 nazw: effort=low 5,9 s
+    (M3: 45-140 s), effort=high 158 s. Kontrakt jak generate_json MiniMaxa:
+    zwraca słownik z kluczem result.
+    """
+
+    def __init__(self, api_key: str, model: str = "glm-5.3-flash", effort: str = "low",
+                 temperature: float = 0.2):
+        from openai import AsyncOpenAI
+        self.client = AsyncOpenAI(api_key=api_key, base_url="https://api.z.ai/api/coding/paas/v4")
+        self.model = model
+        self.effort = effort
+        self.temperature = temperature
+
+    async def generate_json(self, prompt: str, max_tokens: int = 16000) -> dict:
+        r = await self.client.chat.completions.create(
+            model=self.model,
+            messages=[
+                {"role": "system", "content": "Odpowiadasz WYLACZNIE poprawnym JSON."},
+                {"role": "user", "content": prompt},
+            ],
+            response_format={"type": "json_object"},
+            extra_body={"thinking": {"type": "enabled"}, "reasoning_effort": self.effort},
+            temperature=self.temperature,
+            max_tokens=max_tokens,
+        )
+        return json.loads(r.choices[0].message.content)
+
+
+class LimitDostawcy(Exception):
+    """429 od dostawcy — dalsze mielenie kolejki nie ma sensu.
+
+    Incydent 2026-08-27: klucz subskrypcji dostawal 429 na KAZDYM wywolaniu
+    (rozjazd kont), a skrypt traktowal odmowy jak nieudane paczki: 1670 odmow
+    na przebieg, attempt+1 dla ~95 tys. wierszy w 1,5 h, zapisanych zero.
+    To brakujaca odpowiedz na pytanie HARD GATE #1: "co sie dzieje, gdy automat
+    NIE MOZE pracowac". Teraz: pierwszy 429 zatrzymuje przebieg w calosci,
+    pozycje NIE dostaja attempt+1 (to nie ich wina), skrypt wychodzi kodem 42,
+    a runner na ten kod spi godzine zamiast wracac natychmiast.
+    """
+
+
 @dataclass
 class Licznik:
     """Twardy limit dobowy — chroni subskrypcję dzieloną z produkcją."""
@@ -148,9 +205,20 @@ class Backfill:
         self.args = args
         self.svc = SupabaseService()
         self.cli = self.svc.client
-        self.model = MiniMaxClient(
+        self.bank: dict = {}
+        if args.bank:
+            with open(args.bank, encoding="utf-8") as f:
+                self.bank = json.load(f)
+        if args.provider == "glm":
+            if not os.environ.get("ZAI_API_KEY"):
+                raise SystemExit("--provider glm wymaga ZAI_API_KEY w srodowisku")
+            self.model = KlientGLM(os.environ["ZAI_API_KEY"], args.glm_model, args.glm_effort, args.glm_temp)
+            self.model_nazwa = args.glm_model
+        else:
+            self.model = MiniMaxClient(
             settings.minimax_api_key, settings.minimax_base_url, settings.minimax_model
         )
+            self.model_nazwa = settings.minimax_model
         # Rozumowanie jest warunkiem jakości (64% -> 81% pokrycia osi). Ustawiamy je
         # w pamięci procesu, NIE dotykamy .env produkcji.
         if args.thinking:
@@ -197,6 +265,13 @@ class Backfill:
                 # przejrzenia zamiast wracać w nieskończoność
                 .lt("attempt", 3)
             )
+            if self.args.runner_tag:
+                q = q.eq("runner", self.args.runner_tag)
+            if self.args.branze:
+                q = q.in_("branza", [b.strip() for b in self.args.branze.split(",") if b.strip()])
+            if self.args.branze_wyklucz:
+                wyk = [b.strip() for b in self.args.branze_wyklucz.split(",") if b.strip()]
+                q = q.not_.in_("branza", wyk)
             if kursor:
                 q = q.gt("name_key", kursor)
             dane = (q.order("name_key").limit(porcja).execute().data) or []
@@ -284,6 +359,16 @@ class Backfill:
         if self.args.minimal_axes:
             return (
                 "OSIE: obszar, metoda, pakiet_sesji, rozmiar, marka_preparatu, odbiorca\n"
+                """DEFINICJE OSI. Przyklady to ILUSTRACJE, NIE zamknieta lista — wypelniaj os KAZDA
+wartoscia, ktora doslownie pada w tekscie. Zakaz dotyczy wylacznie ZGADYWANIA
+tego, czego w tekscie nie ma.
+  etap     — faza cyklu uslugi, np. przedluzanie, uzupelnienie, zdjecie, korekta ("Uzupelnienie zelu" -> etap=uzupelnienie).
+  rozmiar  — KAZDA ilosc/objetosc/zakres/liczba stref, w dowolnym zapisie (np. "3 ml", "full face", "2 okolice", "male"). Normalizuj "2ml" -> "2 ml".
+  dlugosc  — KAZDE okreslenie dlugosci wlosow lub paznokci (np. srednie, "do ramion", "dlugosc 2-3").
+  odbiorca — plec/wiek docelowy, gdy jednoznaczny (meskie, damskie, dzieciece; takze barber, "dla panow", kids).
+  obszar   — czesc ciala wymieniona w tekscie. Bez wnioskowania z metody.
+  metoda   — rodzajowa nazwa zabiegu po polsku, BEZ marki i BEZ obszaru (np. "depilacja laserowa", "manicure hybrydowy").
+"""
                 "ZASADA: wypelniaj wylacznie to, co DOSLOWNIE wynika z nazwy, kategorii "
                 "lub opisu. ZAKAZ wnioskowania. Nie wiadomo -> POMIN os. ZAKAZ wartosci: "
                 "nieokreslony, brak, inny, standard, null.\n"
@@ -308,6 +393,22 @@ class Backfill:
         # w trybie minimal miały 13% pokrycia — a bez nich silnik nie odróżnia
         # strzyżenia męskiego od damskiego (pomiar trafności: 15/48 par błędnych).
         branza = branza_glowna(paczka[0])
+        bank_txt = ""
+        if self.bank and branza in self.bank:
+            czesci = []
+            for os_, wart in self.bank[branza].items():
+                czesci.append(f"  {os_}: " + ", ".join(list(wart)[:25]))
+            przyk = ""
+            zl = (self.bank.get("_przyklady") or {}).get(branza) or []
+            if zl:
+                przyk = "PRZYKLADY DOBREJ DESTYLACJI (wzoruj sie na stylu i poziomie szczegolu):\n" + "\n".join(
+                    f"  {e['nazwa']} -> {json.dumps(e['osie'], ensure_ascii=False)}" for e in zl[:5]
+                ) + "\n\n"
+            bank_txt = (
+                "ZNANE WARTOSCI TEJ BRANZY (preferuj DOKLADNIE te formy zapisu, "
+                "jesli pasuja; nowa wartosc wolno podac tylko gdy zadna nie pasuje):\n"
+                + "\n".join(czesci) + "\n\n" + przyk
+            )
         if branza == "_do_wyboru":
             # Kaskada nie rozstrzygnęła branży (mig 186): model wybiera ją per
             # pozycja, WYŁĄCZNIE z listy branż salonu podanej przy pozycji.
@@ -336,6 +437,16 @@ class Backfill:
 OSIE UNIWERSALNE: obszar, metoda, pakiet_sesji, rozmiar, marka_preparatu, odbiorca
 OSIE WLASNE TEJ BRANZY:
 {wlasne or '  (tylko uniwersalne)'}
+
+{bank_txt}DEFINICJE OSI. Przyklady to ILUSTRACJE, NIE zamknieta lista — wypelniaj os KAZDA
+wartoscia, ktora doslownie pada w tekscie. Zakaz dotyczy wylacznie ZGADYWANIA
+tego, czego w tekscie nie ma.
+  etap     — faza cyklu uslugi, np. przedluzanie, uzupelnienie, zdjecie, korekta ("Uzupelnienie zelu" -> etap=uzupelnienie).
+  rozmiar  — KAZDA ilosc/objetosc/zakres/liczba stref, w dowolnym zapisie (np. "3 ml", "full face", "2 okolice", "male"). Normalizuj "2ml" -> "2 ml".
+  dlugosc  — KAZDE okreslenie dlugosci wlosow lub paznokci (np. srednie, "do ramion", "dlugosc 2-3").
+  odbiorca — plec/wiek docelowy, gdy jednoznaczny (meskie, damskie, dzieciece; takze barber, "dla panow", kids).
+  obszar   — czesc ciala wymieniona w tekscie. Bez wnioskowania z metody.
+  metoda   — rodzajowa nazwa zabiegu po polsku, BEZ marki i BEZ obszaru (np. "depilacja laserowa", "manicure hybrydowy").
 
 NAZWY OSI — uzywaj WYLACZNIE tych kluczy: {OSIE_ENUM}
 ZASADA NADRZEDNA: wypelniaj wylacznie to, co DOSLOWNIE wynika z nazwy, kategorii lub opisu.
@@ -367,6 +478,10 @@ POZYCJE:
             )
             res = out.get("result") if isinstance(out, dict) else out
         except Exception as e:  # noqa: BLE001
+            if "rate_limit" in str(e).lower() or "Error code: 429" in str(e):
+                self.stop = True
+                log.error("LIMIT DOSTAWCY (429) — przerywam przebieg: %s", str(e)[:120])
+                raise LimitDostawcy(str(e)[:200]) from e
             # generate_json zakłada kopertę {"result": [...]}. M2.7 zwraca często GOŁĄ
             # TABLICĘ, czasem w bloku ```json, czasem jako NDJSON — i wtedy pada.
             # Model dostarczył poprawne dane, więc parsujemy sami zamiast tracić paczkę.
@@ -384,6 +499,20 @@ POZYCJE:
             osie = (r.get("osie") or {}) if isinstance(r, dict) else {}
             if not isinstance(i, int) or i >= len(paczka) or not osie:
                 continue
+            if self.args.bank:
+                # walidacja deterministyczna: wartosci-smieci wyciete, os po osi.
+                # 'zl'/cena w rozmiarze, meta-opisy ('zalezna od...'), wartosci-eseje.
+                czyste = {}
+                for k_, v_ in osie.items():
+                    w = str(v_).strip()
+                    if not w or len(w) > 40: continue
+                    wl = w.lower()
+                    if "zł" in wl or "zl" in wl.split(): continue
+                    if any(x in wl for x in ("zalezn", "od dlugosci", "od długości", "rozne", "różne", "wedlug", "według")): continue
+                    czyste[k_] = w
+                osie = czyste
+                if not osie:
+                    continue
             it = paczka[i]
             # mig 186: branża rozstrzygnięta w kolejce; dla grupy "_do_wyboru"
             # bierzemy wybór modelu, ale WYŁĄCZNIE z listy branż salonu — spoza
@@ -400,8 +529,8 @@ POZYCJE:
                     "name_key": it["name_key"], "name_sample": it["name_sample"],
                     "branza": branza,
                     "branze": it.get("branze") or [], "osie": osie,
-                    "model": settings.minimax_model,
-                    "thinking": settings.minimax_thinking or None,
+                    "model": self.model_nazwa,
+                    "thinking": (self.args.glm_effort if self.args.provider == "glm" else settings.minimax_thinking) or None,
                     "prompt_ver": PROMPT_VER,
                 }
             )
@@ -507,7 +636,10 @@ POZYCJE:
                 if not self.licznik.wolno():
                     log.warning("robotnik %d: limit dobowy wyczerpany", nr)
                     return
-                rek = await self._paczka(pk)
+                try:
+                    rek = await self._paczka(pk)
+                except LimitDostawcy:
+                    return  # pozycje paczki wracaja do kolejki NIETKNIETE
                 async with zapis_lock:
                     potwierdzone: set[tuple[str, str]] = set()
                     if rek:
@@ -533,7 +665,8 @@ POZYCJE:
         if not self.args.dry_run:
             self.zapisz_postep(ostatni, total=total)
         self._log_koniec(total)
-        return 0
+        # kod 42 = zatrzymanie przez limit dostawcy; runner na ten kod spi
+        return 42 if self.stop else 0
 
     def _log_postep(self, total: int) -> None:
         dt = max(time.time() - self.t0, 1)
@@ -566,6 +699,18 @@ def main() -> int:
     p.add_argument("--max-tokens", type=int, default=16000, help="16000 wymagane przy rozumowaniu")
     p.add_argument("--desc-chars", type=int, default=400, help="ile znaków opisu podać modelowi")
     p.add_argument("--thinking", default="adaptive", help="'adaptive' albo puste, żeby wyłączyć")
+    p.add_argument("--provider", choices=["minimax", "glm"], default="minimax",
+                   help="glm = GLM-5.3-Flash przez Z.ai (ZAI_API_KEY), osobna pula tokenow — mozna biec rownolegle z MiniMaxem")
+    p.add_argument("--glm-model", default="glm-5.3-flash")
+    p.add_argument("--glm-effort", default="low", choices=["low", "high", "max"])
+    # 1.0 to zalecenie docs GLM dla KODOWANIA; ekstrakcja wymaga powtarzalnosci —
+    # pomiar 2026-08-27: przy 1.0 dwa przebiegi tych samych nazw daly rozne
+    # wartosci (strata tozsamych skakala 0% <-> 4% miedzy przebiegami).
+    p.add_argument("--glm-temp", type=float, default=0.2)
+    p.add_argument("--bank", default="", help="sciezka do bank.json (slownik znanych wartosci per branza/os z destylacji M3) — wstrzykiwany do promptu jako preferowane formy zapisu; wyrownuje zargon i notacje miedzy modelami")
+    p.add_argument("--runner-tag", default="", help="bierz tylko wiersze kolejki z tym przydzialem (kolumna runner, mig 189): m3 | glm")
+    p.add_argument("--branze", default="", help="destyluj TYLKO te branze (lista po przecinku). Podzial branz miedzy modele = zero par mieszanych: pomiar 2026-08-27 pokazal, ze M3 i GLM nadaja TEJ SAMEJ usludze sprzeczne wartosci osi w 3-14%% przypadkow, wiec mieszanie modeli w jednej branzy tworzyloby falszywe weta")
+    p.add_argument("--branze-wyklucz", default="", help="pomin te branze (dopelnienie --branze drugiego runnera)")
     p.add_argument("--minimal-axes", action="store_true", help="tylko osie uniwersalne — 5x szybciej, bez osi branżowych")
     p.add_argument("--resume", action="store_true", help="wznów od zapisanego kursora")
     p.add_argument("--dry-run", action="store_true", help="nie zapisuj do bazy")
