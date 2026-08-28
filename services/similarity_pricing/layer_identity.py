@@ -405,14 +405,14 @@ def related_demotion_reason(subject: dict[str, Any], sample: dict[str, Any]) -> 
     if ds and dc and ds > 0 and dc > 0:
         if max(ds, dc) / min(ds, dc) >= DEMOTION_DURATION_RATIO:
             return "czas_trwania"
-    # 3) jednostronna oś rozdzielająca — jedna strona DEKLARUJE wymiar
-    #    (rozmiar/długość/etap), druga milczy; obie muszą być zdestylowane,
-    #    żeby cisza była znacząca (brak taksonomii => nie ma sygnału)
-    ta, tb = subject.get("_tax"), sample.get("_tax")
-    if ta and tb:
-        for axis in _DEMOTION_ONE_SIDED_AXES:
-            if bool(ta.get(axis)) != bool(tb.get(axis)):
-                return f"jednostronna_{axis}"
+    # 3) jednostronna oś — WYŁĄCZONE 2026-08-28 po regresie na żywym raporcie.
+    #    Pomiar parowy obiecywał +20 pp (43% -> 63% złych poza medianą), ale przy
+    #    PEŁNYM pokryciu taksonomii (Mazowsze domknięte) sygnał odchudzał rdzenie
+    #    median poniżej progu wystarczalności: raport 259 spadł z 92% wierszy
+    #    z ceną do 57%, "Tylko Ty" wzrosło 8% -> 43%. Lekcja: metryka parowa
+    #    nie mierzy skutku wierszowego — cisza jednej strony jest zbyt częsta,
+    #    by być sygnałem różnicy. Ewentualny powrót wymaga pomiaru NA WIERSZACH
+    #    (udział z ceną per raport), nie na parach.
     return None
 
 

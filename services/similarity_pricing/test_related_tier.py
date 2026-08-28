@@ -26,13 +26,14 @@ def test_czas_2x_degraduje():
     assert related_demotion_reason(_s(duration_minutes=60), _s(duration_minutes=90)) is None
 
 
-def test_jednostronny_wymiar_wymaga_obu_destylacji():
-    # jedna strona DEKLARUJE rozmiar, druga zdestylowana ale milczy -> degradacja
+def test_jednostronny_wymiar_NIE_degraduje():
+    """Wyłączone 2026-08-28: pomiar parowy obiecywał +20 pp, ale na żywym
+    raporcie 259 przy pełnym pokryciu Mazowsza sygnał ściął wiersze z ceną
+    92% -> 57% (rdzenie median poniżej wystarczalności). Cisza jednej strony
+    jest zbyt częsta, by znaczyć różnicę."""
     a = _s(_tax={"metoda": "masaż", "rozmiar": "90 min"})
     b = _s(_tax={"metoda": "masaż"})
-    assert related_demotion_reason(a, b) == "jednostronna_rozmiar"
-    # druga strona BEZ taksonomii -> cisza nic nie znaczy, brak degradacji
-    assert related_demotion_reason(a, _s()) is None
+    assert related_demotion_reason(a, b) is None
 
 
 def test_engine_wyprowadza_powiazane_poza_mediane():
