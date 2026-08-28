@@ -37,6 +37,9 @@ def test_jednostronny_wymiar_NIE_degraduje():
 
 
 def test_engine_wyprowadza_powiazane_poza_mediane():
+    """Degradacja aktywna od demotion_min_cluster kandydatów (strażnik zamożności,
+    2026-08-28): przy cienkim klastrze wolimy medianę z domieszką wymiaru niż
+    "Tylko Ty" — sekcja zwłok raportu 259 (92% -> 57% wierszy z ceną)."""
     subject = _s()
     twins = [
         # rdzeń mediany: 3 salony, ta sama usługa
@@ -46,13 +49,32 @@ def test_engine_wyprowadza_powiazane_poza_mediane():
          "price_grosze": 16000, "duration_minutes": 55, "similarity": 0.9},
         {"service_id": 3, "booksy_id": 103, "service_name": "Masaż klasyczny",
          "price_grosze": 15000, "duration_minutes": 60, "similarity": 0.9},
+        *[{"service_id": 10+i, "booksy_id": 110+i, "service_name": "Masaż klasyczny",
+           "price_grosze": 15000, "duration_minutes": 60, "similarity": 0.9} for i in range(5)],
         # 30 min przy 60 podmiotu -> powiązana, nie w medianie
         {"service_id": 4, "booksy_id": 104, "service_name": "Masaż klasyczny 30 min",
          "price_grosze": 8000, "duration_minutes": 30, "similarity": 0.9},
     ]
     res = compute_market_price(subject, twins, None)
-    assert res.n_unique_salons == 3
+    assert res.n_unique_salons == 8
     assert res.market_price_grosze == 15000  # 8000 NIE zaniża mediany
     assert len(res.related_samples) == 1
     assert res.related_samples[0]["related_reason"] == "czas_trwania"
     assert res.related_samples[0]["price_grosze"] == 8000
+
+
+def test_cienki_klaster_nie_degraduje():
+    """Poniżej progu zamożności degradacja wyłączona — 2 kandydatów o innym
+    czasie zostaje w medianie (lepsza cena z domieszką niż "Tylko Ty")."""
+    subject = _s(duration_minutes=60)
+    twins = [
+        {"service_id": 1, "booksy_id": 101, "service_name": "Masaż klasyczny",
+         "price_grosze": 14000, "duration_minutes": 30, "similarity": 0.9},
+        {"service_id": 2, "booksy_id": 102, "service_name": "Masaż klasyczny",
+         "price_grosze": 16000, "duration_minutes": 30, "similarity": 0.9},
+        {"service_id": 3, "booksy_id": 103, "service_name": "Masaż klasyczny",
+         "price_grosze": 15000, "duration_minutes": 60, "similarity": 0.9},
+    ]
+    res = compute_market_price(subject, twins, None)
+    assert res.n_unique_salons == 3
+    assert res.related_samples == []

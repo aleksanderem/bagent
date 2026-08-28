@@ -39,6 +39,8 @@ from .layer_unit import normalize_unit
 DEFAULT_CONFIG: dict[str, Any] = {
     # --- dedup (warstwa A) ---
     "dedup_strategy": "closest",
+    # degradacja do "powiązanych" aktywna dopiero od tylu kandydatów po tożsamości
+    "demotion_min_cluster": 8,
     # --- wystarczalność (warstwa B) ---
     "min_salons_sufficient": 5,
     "min_salons_thin": 3,
@@ -139,15 +141,37 @@ def compute_market_price(
     # czas >=2x, jednostronny rozmiar/długość/etap) — wtedy nie fałszuje mediany,
     # ale zostaje w raporcie jako powiązana. Progi zmierzone na holdoucie:
     # 63% błędnych poza medianą przy 17% tożsamych ZDEGRADOWANYCH (nie straconych).
+    # STRAŻNIK ZAMOŻNOŚCI (2026-08-28, sekcja zwłok raportu 259): degradacja to
+    # luksus bogatych klastrów. Med-est deklaruje czasy chaotycznie (konsultacja+
+    # zabieg), więc ratio 2x strzelało seryjnie i przy 2-6 kandydatach zabijało
+    # cały wiersz — raport spadł z 92% wierszy z ceną do 57%. Przy cienkim
+    # klastrze wolimy medianę z drobnymi domieszkami wymiaru niż "Tylko Ty";
+    # przy bogatym stać nas na czystość (i tam degradacja realnie poprawia).
     s_core: list[dict[str, Any]] = []
     related: list[dict[str, Any]] = []
-    for _s in s_identity:
-        powod = related_demotion_reason(subject, _s)
-        if powod is None:
-            s_core.append(_s)
-        else:
-            related.append({**_s, "related_reason": powod})
-    s_identity = s_core
+    if len(s_identity) >= cfg["demotion_min_cluster"]:
+        for _s in s_identity:
+            powod = related_demotion_reason(subject, _s)
+            if powod is None:
+                s_core.append(_s)
+            else:
+                related.append({**_s, "related_reason": powod})
+        # bezpiecznik dolny: degradacja nie może zepchnąć rdzenia poniżej progu
+        # wystarczalności — wtedy przywracamy najlżejsze degradacje (najmniejszy
+        # rozjazd czasu wraca pierwszy), bo prezentacja nie może kasować ceny
+        if len({x.get("booksy_id") for x in s_core}) < cfg["min_salons_thin"] and related:
+            def _lekkosc(x):
+                ds, dc = subject.get("duration_minutes"), x.get("duration_minutes")
+                if x.get("related_reason") == "czas_trwania" and ds and dc:
+                    return max(ds, dc) / max(min(ds, dc), 1)
+                return 99.0
+            related.sort(key=_lekkosc)
+            while related and len({x.get("booksy_id") for x in s_core}) < cfg["min_salons_thin"]:
+                w = related.pop(0)
+                w.pop("related_reason", None)
+                s_core.append(w)
+        s_identity = s_core
+    # klaster ubogi: bez degradacji — wszystko zostaje w medianie jak przed 2026-08-28
 
     # --- COHERENCE: obce bloki (geometria embeddingów, patrz layer_coherence) ---
     # Po identity: twarde weta już zdjęły oczywiste konflikty; tu wycinamy to,
