@@ -32,7 +32,7 @@ from typing import Any
 
 from .layer_coherence import drop_foreign_blocks
 from .layer_dedup import dedup_by_salon
-from .layer_identity import adaptive_identity_filter
+from .layer_identity import adaptive_identity_filter, related_demotion_reason
 from .layer_sufficiency import assess_sufficiency
 from .layer_unit import normalize_unit
 
@@ -96,7 +96,8 @@ class MarketResult:
     n_identity_kept: int             # ile przeszło test tożsamości
     n_coherence_dropped: int         # ile odrzucił coherence guard (obce bloki)
     n_used_for_price: int            # ile nie-pakietowych policzyło cenę
-    samples: list[dict[str, Any]] = field(default_factory=list)  # tożsame po dedup (drill-down UI)
+    samples: list[dict[str, Any]] = field(default_factory=list)
+    related_samples: list[dict[str, Any]] = field(default_factory=list)  # zdegradowane do "powiązanych" (2026-08-28)  # tożsame po dedup (drill-down UI)
     provenance: dict[str, Any] = field(default_factory=dict)
 
 
@@ -133,6 +134,21 @@ def compute_market_price(
         prefer=cfg["identity_prefer"],
     )
 
+    # --- DEGRADACJA: rdzeń mediany vs usługi POWIĄZANE (2026-08-28) ---
+    # Para po twardych wetach może wciąż różnić się wymiarem (metoda z taksonomii,
+    # czas >=2x, jednostronny rozmiar/długość/etap) — wtedy nie fałszuje mediany,
+    # ale zostaje w raporcie jako powiązana. Progi zmierzone na holdoucie:
+    # 63% błędnych poza medianą przy 17% tożsamych ZDEGRADOWANYCH (nie straconych).
+    s_core: list[dict[str, Any]] = []
+    related: list[dict[str, Any]] = []
+    for _s in s_identity:
+        powod = related_demotion_reason(subject, _s)
+        if powod is None:
+            s_core.append(_s)
+        else:
+            related.append({**_s, "related_reason": powod})
+    s_identity = s_core
+
     # --- COHERENCE: obce bloki (geometria embeddingów, patrz layer_coherence) ---
     # Po identity: twarde weta już zdjęły oczywiste konflikty; tu wycinamy to,
     # co metadane przepuściły. Przed dedup: pełna masa bloku = pewniejszy sygnał.
@@ -165,8 +181,10 @@ def compute_market_price(
         deviation = market_stats["deviation_pct"]
 
     final_id = meta_id["final"]
+    related.sort(key=lambda x: -(x.get("similarity") or 0))
     return MarketResult(
         market_price_grosze=market_price,
+        related_samples=related[:20],
         status=status,
         n_unique_salons=meta_b["n_unique_salons"],
         deviation_pct=deviation,

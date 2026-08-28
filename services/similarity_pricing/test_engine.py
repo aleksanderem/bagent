@@ -77,7 +77,7 @@ def test_generic_konsultacja_identity_filters_foreign_categories():
     # domeny (rzęsy, fryzjerstwo), zostawia tożsamy rdzeń (medycyna estetyczna).
     subject = {
         "service_id": 1, "service_name": "Konsultacja",
-        "price_grosze": 1000, "duration_minutes": 15,
+        "price_grosze": 1000, "duration_minutes": 30,  # 30 (nie 15): czas nie jest przedmiotem TEGO testu, a ratio 2x degraduje do powiazanych (2026-08-28)
         "category_name": "Medycyna estetyczna", "is_package": False,
     }
     samples = [

@@ -370,6 +370,52 @@ def vote_taxonomy_axis(subject: dict[str, Any], sample: dict[str, Any], axis: st
     return "against"
 
 
+# ── DEGRADACJA DO "POWIĄZANYCH" (2026-08-28) ───────────────────────────────
+# Sygnały ZA KRWAWE na twarde weto, ZA DOBRE do ignorowania: para wypada
+# z mediany ceny, ale zostaje w raporcie jako usługa POWIĄZANA (wizja produktu:
+# tożsame / powiązane / różne). Pomiar na zamrożonym holdoucie (182 przyjęte
+# pary, etykiety 2 sędziów + kalibracja człowiekiem):
+#
+#   konfiguracja                        złych poza medianą   tożsame zdegradowane
+#   samo twarde weto                        22%                   0
+#   + konflikt metody                       30%                   1%
+#   + czas trwania >= 2x                    43%                  10%
+#   + jednostronna oś rozdzielająca         63%                  17%
+#
+# Czas trwania jako TWARDE weto odrzucony pomiarem: próg 1.5x zabijał 29%
+# tożsamych (salony różnie deklarują czas tej samej usługi). Jako degradacja
+# jest bezpieczny — zdegradowana tożsama para pozostaje widoczna.
+DEMOTION_DURATION_RATIO = 2.0
+_DEMOTION_ONE_SIDED_AXES = ("rozmiar", "dlugosc", "etap")
+
+
+def related_demotion_reason(subject: dict[str, Any], sample: dict[str, Any]) -> str | None:
+    """Powód degradacji pary do warstwy 'powiązane' albo None (zostaje w medianie).
+
+    Wywoływane WYŁĄCZNIE dla par, które przeszły twarde weta — degradacja jest
+    łagodniejszym piętrem, nie drugim nożem.
+    """
+    # 1) konflikt metody z taksonomii — realna różnica rodzaju zabiegu, ale oś
+    #    zbyt niestabilna nazewniczo na twarde weto (45% rozjazdu przy powtórnej
+    #    destylacji tej samej nazwy dawało 7% strat tożsamych)
+    if vote_taxonomy_axis(subject, sample, "metoda") == "against":
+        return "metoda"
+    # 2) czas trwania >= 2x — "masaż 30 min" vs "masaż 90 min"
+    ds, dc = subject.get("duration_minutes"), sample.get("duration_minutes")
+    if ds and dc and ds > 0 and dc > 0:
+        if max(ds, dc) / min(ds, dc) >= DEMOTION_DURATION_RATIO:
+            return "czas_trwania"
+    # 3) jednostronna oś rozdzielająca — jedna strona DEKLARUJE wymiar
+    #    (rozmiar/długość/etap), druga milczy; obie muszą być zdestylowane,
+    #    żeby cisza była znacząca (brak taksonomii => nie ma sygnału)
+    ta, tb = subject.get("_tax"), sample.get("_tax")
+    if ta and tb:
+        for axis in _DEMOTION_ONE_SIDED_AXES:
+            if bool(ta.get(axis)) != bool(tb.get(axis)):
+                return f"jednostronna_{axis}"
+    return None
+
+
 def identity_votes(subject: dict[str, Any], sample: dict[str, Any]) -> dict[str, str]:
     """Zbierz głosy wszystkich osi dla pary (subject, sample)."""
     return {
