@@ -499,6 +499,19 @@ POZYCJE:
             osie = (r.get("osie") or {}) if isinstance(r, dict) else {}
             if not isinstance(i, int) or i >= len(paczka) or not osie:
                 continue
+            # normalizacja formatu: model bywa oddaje liste jako tekst
+            # "['nogi', 'stopy']" — sklejamy do "nogi, stopy" (audyt 2026-08-28:
+            # wzorzec powtarzalny; wartosc-lista psuje porownania weta znak po znaku)
+            for k_, v_ in list(osie.items()):
+                w = str(v_).strip()
+                if w.startswith("[") and w.endswith("]"):
+                    try:
+                        import ast as _ast
+                        parsed = _ast.literal_eval(w)
+                        if isinstance(parsed, (list, tuple)):
+                            osie[k_] = ", ".join(str(x) for x in parsed)
+                    except Exception:  # noqa: BLE001, S110
+                        pass
             if self.args.bank:
                 # walidacja deterministyczna: wartosci-smieci wyciete, os po osi.
                 # 'zl'/cena w rozmiarze, meta-opisy ('zalezna od...'), wartosci-eseje.
