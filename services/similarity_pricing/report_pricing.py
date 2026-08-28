@@ -297,11 +297,26 @@ def _build_row(
     # Pomiar na produkcji: 25/1387 wierszy (1.8%), w raporcie 250 aż 10. Podwójna
     # szkoda: klientka widzi "zweryfikowane" bez ceny, a zawyżony licznik verified
     # potrafi POMINĄĆ fallback dokładnie tam, gdzie byłby potrzebny.
+    # warstwa "powiązane" (2026-08-28): zdegradowane pary NIE fałszują mediany,
+    # ale zostają w raporcie — UI czyta verification_details.related (bez zmiany
+    # schematu tabeli; competitor_samples pozostaje czystą listą tożsamych)
+    related_ui = [
+        {
+            "service_name": x.get("service_name"),
+            "salon_name": x.get("salon_name"),
+            "price_grosze": x.get("price_grosze"),
+            "duration_minutes": x.get("duration_minutes"),
+            "reason": x.get("related_reason"),
+        }
+        for x in (res.related_samples or [])[:12]
+    ]
+
     insufficient = res.status == "insufficient" or res.market_price_grosze is None
     verification_status = "subject_only" if insufficient else "verified"
     recommended_action = "subject_only" if insufficient else _recommended_action(res.deviation_pct)
 
     deviation_pct_per_min: float | None = None
+    _vd_related = {"related": related_ui, "related_count": len(res.related_samples or [])} if related_ui else {}
     if not insufficient and res.zl_per_min_median and subj_price and subj_dur:
         subj_ppm = subj_price / subj_dur if subj_dur else None
         if subj_ppm and res.zl_per_min_median:
@@ -329,6 +344,7 @@ def _build_row(
         "sample_size": res.n_unique_salons,
         "recommended_action": recommended_action,
         "verification_status": verification_status,
+        "verification_details": _vd_related or None,
         "competitor_samples": [_sample_to_jsonb(s) for s in res.samples],
         # PAKIETY do drill-down (§9 README): kolumna package_samples gdy budujesz widok.
     }
