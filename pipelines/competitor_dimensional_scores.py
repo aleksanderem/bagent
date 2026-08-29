@@ -570,11 +570,16 @@ def compute_percentiles(values: list[float]) -> dict[str, float]:
 def compute_subject_percentile(subject_value: float, market_values: list[float]) -> float:
     """Return subject's percentile rank (0-100) within the market distribution.
 
-    Formula: (count of values <= subject / total count) * 100.
-    When two values tie at the subject, the subject scores where it lies,
-    which is the standard "percentile_rank" definition. Empty market → 50.
+    Formula (midrank): (below + 0.5 * equal) / total * 100.
+    Do 2026-08-30 remis liczyl sie jako wygrana (values <= subject):
+    wymiar binarny, ktory na Booksy ma KAZDY salon (rezerwacja online),
+    dawal kazdemu percentyl 100 i werdykt "lepiej" — sekcja radaru
+    wygladala identycznie dla wszystkich (audyt 250 vs 259). Z polowka
+    za remis pelny remis rynku daje 50 → uczciwe "podobnie".
+    Empty market → 50.
     """
     if not market_values:
         return 50.0
-    below_or_equal = sum(1 for v in market_values if v <= subject_value)
-    return 100.0 * below_or_equal / len(market_values)
+    below = sum(1 for v in market_values if v < subject_value)
+    equal = sum(1 for v in market_values if v == subject_value)
+    return 100.0 * (below + 0.5 * equal) / len(market_values)

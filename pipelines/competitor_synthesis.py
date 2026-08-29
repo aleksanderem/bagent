@@ -422,7 +422,7 @@ async def synthesize_competitor_insights(
     price_comparison = _build_price_comparison(pricing)
     score_breakdown = _build_score_breakdown(dimensions)
     opportunities = _build_opportunities(gaps, pricing)
-    seasonal_calendar = _build_seasonal_calendar(subject_context)
+    seasonal_calendar = _build_seasonal_calendar(subject_context, pricing)
     short_strategy = _build_short_strategy(insights.get("recommendations") or [])
     long_strategy = _build_long_strategy(
         insights.get("recommendations") or [], gaps, dimensions,
@@ -439,12 +439,13 @@ async def synthesize_competitor_insights(
     customer_journey = _build_customer_journey(subject_context, dimensions, pricing)
     funnel = _build_funnel(subject_context, pricing)
     action_plan = _build_action_plan(
-        insights.get("recommendations") or [], gaps,
+        insights.get("recommendations") or [], gaps, pricing,
     )
     summary = _build_summary(
         matches=matches, pricing=pricing, gaps=gaps,
         dimensions=dimensions, recommendations=insights.get("recommendations") or [],
         opportunities=opportunities,
+        subject_context=subject_context,
     )
 
     # calendarComparison needs an extra Supabase fetch (open_hours from
@@ -1836,7 +1837,29 @@ _SEASONAL_CALENDAR_CATEGORY_OVERRIDES: dict[str, dict[int, dict[str, Any]]] = {
 }
 
 
-def _build_seasonal_calendar(subject_context: dict[str, Any]) -> list[dict[str, Any]]:
+# Tokeny sezonowe per miesiac — dopasowywane do NAZW uslug podmiotu, zeby
+# kalendarz przestal byc identyczny dla kazdego salonu tej samej kategorii
+# (audyt 2026-08-30: Beauty4ever vs JetSet = 100% ten sam kalendarz).
+_SEZON_TOKENY: list[list[str]] = [
+    ["oczyszczan", "detoks", "nawilz", "nawilż"],          # Sty
+    ["makijaz", "makijaż", "manicure", "hybryd", "usta"],  # Lut
+    [],                                                      # Mar (vouchery)
+    ["oczyszczan", "peeling"],                               # Kwi
+    ["depilacj", "makijaz", "makijaż"],                      # Maj
+    ["depilacj", "laser"],                                   # Cze
+    ["pedicure", "podolog"],                                 # Lip
+    ["nawilz", "nawilż", "regener", "pielegnac", "pielęgnac"],  # Sie
+    ["laser", "mezoterap", "przebarwie"],                    # Wrz
+    ["peeling", "kwas"],                                     # Paz
+    ["pakiet", "seria"],                                     # Lis
+    ["makijaz", "makijaż", "stylizacj"],                     # Gru
+]
+
+
+def _build_seasonal_calendar(
+    subject_context: dict[str, Any],
+    pricing: list[dict[str, Any]],
+) -> list[dict[str, Any]]:
     """Build seasonalCalendar — 12-month intensity calendar adapted to the
     salon's primary category. Returns the generic Polish beauty market
     seasonality with category-specific overrides applied per month.
@@ -1851,9 +1874,31 @@ def _build_seasonal_calendar(subject_context: dict[str, Any]) -> list[dict[str, 
                     calendar[month_idx].update(override)
             break
 
+    # Personalizacja cennikiem: do kazdego miesiaca dopinamy do 3 uslug
+    # podmiotu pasujacych do sezonu — kalendarz przestaje byc szablonem.
+    nazwy = []
+    for row in pricing or []:
+        n = str(row.get("treatment_name") or "").strip()
+        if n:
+            nazwy.append(n)
+    for idx, tokeny in enumerate(_SEZON_TOKENY):
+        if not tokeny:
+            continue
+        trafione: list[str] = []
+        for n in nazwy:
+            nl = n.lower()
+            if any(t in nl for t in tokeny) and n not in trafione:
+                trafione.append(n)
+            if len(trafione) == 3:
+                break
+        if trafione:
+            calendar[idx]["subjectServices"] = trafione
+
     logger.info(
-        "_build_seasonal_calendar: built 12 months for category='%s'",
+        "_build_seasonal_calendar: built 12 months for category='%s' "
+        "(personalizacja: %d/12 miesiecy z uslugami podmiotu)",
         subject_context.get("primary_category_name") or "(unknown)",
+        sum(1 for m in calendar if m.get("subjectServices")),
     )
     return calendar
 
@@ -2512,6 +2557,7 @@ def _build_summary(
     dimensions: list[dict[str, Any]],
     recommendations: list[dict[str, Any]],
     opportunities: list[dict[str, Any]],
+    subject_context: dict[str, Any],
 ) -> dict[str, Any]:
     """Build the top-of-report KPI summary aggregating across all child tables."""
     competitors_analyzed = len(matches)
@@ -2556,20 +2602,20 @@ def _build_summary(
     else:
         overall_score = 50
 
-    # Market position: oblicz pozycję subjekta w rankingu wg composite_score.
-    # Konkurenci są w `matches`, ich composite_score jest już znany. Subject
-    # nie ma matches.composite_score (sam nie jest wymieniony), więc pozycję
-    # przybliżamy: jeśli salon ma overall_score >= 70 percentyl, to top 3;
-    # jeśli >=50, top 5; inaczej dolna połowa.
+    # Market position z TWARDYCH danych Booksy: ranking po (ocena, liczba
+    # recenzji). Do 2026-08-30 heurystyka od overall_score rozdawala "#1
+    # z 16" praktycznie kazdemu (Beauty4ever i JetSet dostali te sama
+    # jedynke) — pozycja byla pochlebstwem, nie pomiarem.
     total = competitors_analyzed + 1
-    if overall_score >= 70:
-        position = 1 + max(0, len([m for m in matches if float(m.get("composite_score") or 0) > 0.85]))
-    elif overall_score >= 55:
-        position = max(2, total // 2)
-    else:
-        position = max(3, total - 1)
-    position = min(position, total)
-    market_position = f"#{position} z {total}"
+    subj_rating = float(subject_context.get("reviews_rank") or 0.0)
+    subj_reviews = int(subject_context.get("reviews_count") or 0)
+    lepsi = 0
+    for m in matches:
+        m_rating = float(m.get("reviews_rank") or 0.0)
+        m_reviews = int(m.get("reviews_count") or 0)
+        if (m_rating, m_reviews) > (subj_rating, subj_reviews):
+            lepsi += 1
+    market_position = f"#{lepsi + 1} z {total}"
 
     summary = {
         "marketPosition": market_position,
@@ -2633,6 +2679,7 @@ def _category_to_phase(category: str) -> str:
 def _build_action_plan(
     recommendations: list[dict[str, Any]],
     gaps: list[dict[str, Any]],
+    pricing: list[dict[str, Any]],
 ) -> list[dict[str, Any]]:
     """Build the 14-day actionPlan flat list.
 
@@ -2668,9 +2715,34 @@ def _build_action_plan(
         pool = by_cat.get(cat) or []
         return pool.pop(0) if pool else None
 
-    # Days 1-2: Diagnoza (always generic — operator setup)
-    _add_day(1, "Diagnoza", "Przeczytaj raport z zespołem", effort="1h", owner="Ty + zespół", category="planning")
-    _add_day(2, "Diagnoza", "Wybierz 3 akcje do wdrożenia z listy rekomendacji", effort="30 min", owner="Ty", category="planning")
+    # Days 1-2: Diagnoza — z danych raportu, nie z szablonu (audyt
+    # 2026-08-30: kazdy salon dostawal identyczne "Przeczytaj raport").
+    odstajace = sorted(
+        (p for p in (pricing or [])
+         if p.get("deviation_pct") is not None and float(p["deviation_pct"]) > 25),
+        key=lambda p: -float(p["deviation_pct"]),
+    )
+    if odstajace:
+        top = odstajace[0]
+        _add_day(
+            1, "Diagnoza",
+            f"Przejrzyj {len(odstajace)} pozycji cennika powyżej rynku — "
+            f"najmocniej odstaje {top.get('treatment_name')} "
+            f"(+{float(top['deviation_pct']):.0f}% vs mediana okolicy)",
+            effort="1h", owner="Ty", category="pricing",
+        )
+    else:
+        _add_day(1, "Diagnoza", "Przejrzyj porównanie cen z raportem — Twoje ceny trzymają się rynku", effort="45 min", owner="Ty", category="planning")
+    top_gap = next((g for g in (gaps or []) if g.get("gap_type") == "missing"), None)
+    if top_gap:
+        _add_day(
+            2, "Diagnoza",
+            f"Zdecyduj, czy dodajesz do oferty: {top_gap.get('treatment_name')} "
+            f"(ma go {top_gap.get('competitor_count')} konkurentów z okolicy)",
+            effort="30 min", owner="Ty", category="services",
+        )
+    else:
+        _add_day(2, "Diagnoza", "Wybierz 3 akcje do wdrożenia z listy rekomendacji", effort="30 min", owner="Ty", category="planning")
 
     # Days 3-4: Cennik
     for day in (3, 4):
