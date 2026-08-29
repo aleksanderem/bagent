@@ -2356,3 +2356,76 @@ async def test_run_aborted_inside_pricing_never_marks_completed(
     assert "completed" not in _statuses_written(mock), (
         "przerwany przebieg nie może zostawić raportu oznaczonego jako gotowy"
     )
+
+
+# ── Weto rodziny nazw + sugestie nazw (2026-08-29, audyt raportu 250) ──
+
+from pipelines.competitor_analysis import (
+    _compose_suggested_name,
+    _rdzen_rodziny_luki,
+    _rdzenie_wszystkich_tokenow,
+    _SUGESTIA_MAX_ZNAKOW,
+)
+
+
+class TestRdzenRodzinyLuki:
+    def test_lifting_fala_radiowa(self):
+        assert _rdzen_rodziny_luki("Lifting falą radiową") == "lifti"
+
+    def test_mezoterapia_glowy(self):
+        # "głowy" jest w stopliście — rdzeniem zostaje mezoterapia
+        assert _rdzen_rodziny_luki("Mezoterapia głowy") == "mezot"
+
+    def test_stoplista_przeskakuje_obszar(self):
+        # pierwszy znaczący token po pominięciu obszaru
+        assert _rdzen_rodziny_luki("Twarz - fotoodmładzanie") == "fotoo"
+
+    def test_sama_stoplista_daje_none(self):
+        assert _rdzen_rodziny_luki("Twarz + szyja") is None
+
+    def test_polskie_znaki_l_przed_nfkd(self):
+        # ł nie ma dekompozycji NFKD — musi być zamienione wcześniej
+        assert _rdzen_rodziny_luki("Złuszczanie kwasem") == "zlusz"
+
+
+class TestWetoRodzinyNazw:
+    def test_podmiot_z_liftingiem_wetuje_luke_lifting(self):
+        rdzenie = _rdzenie_wszystkich_tokenow(
+            ["VIRTUE RF twarz + szyja - lifting, ujędrnienie i przebudowa skóry"]
+        )
+        assert _rdzen_rodziny_luki("Lifting falą radiową") in rdzenie
+
+    def test_podmiot_z_mezoterapia_wetuje_luke_mezoterapii(self):
+        rdzenie = _rdzenie_wszystkich_tokenow(["Mezoterapia igłowa Cytocare 532"])
+        assert _rdzen_rodziny_luki("Mezoterapia mikroigłowa") in rdzenie
+
+    def test_kwas_hialuronowy_przechodzi(self):
+        # prawdziwa luka raportu 250 — podmiot nie ma nic z tej rodziny
+        rdzenie = _rdzenie_wszystkich_tokenow([
+            "VIRTUE RF twarz - lifting", "Mezoterapia igłowa Cytocare",
+            "Peeling kawitacyjny", "Karboksyterapia - BIUST",
+        ])
+        assert _rdzen_rodziny_luki("Wypełnianie kwasem hialuronowym") not in rdzenie
+
+
+class TestComposeSuggestedName:
+    def test_prefix_juz_na_poczatku_nazwy_bez_zmian(self):
+        # raport 250: "Lipoliza iniekcyjna" sugerowała samą siebie
+        nazwa = "Lipoliza iniekcyjna - likwidowanie tkanki tłuszczowej 20ml"
+        assert _compose_suggested_name("Lipoliza iniekcyjna", nazwa) == nazwa
+
+    def test_limit_znakow_tnie_segmentami(self):
+        wynik = _compose_suggested_name(
+            "Zabiegi na ciało i modelowanie sylwetki",
+            "Onda Coolwaves - 3 obszary - redukcja tkanki tłuszczowej i cellulitu",
+        )
+        assert len(wynik) <= _SUGESTIA_MAX_ZNAKOW
+        assert wynik.startswith("Zabiegi na ciało i modelowanie sylwetki Onda")
+
+    def test_krotkie_bez_zmian(self):
+        assert _compose_suggested_name("Depilacja", "Thunder MT") == "Depilacja Thunder MT"
+
+    def test_pierwsze_slowo_zdublowane_nie_dokleja(self):
+        assert _compose_suggested_name(
+            "Depilacja laserowa", "Depilacja całe ciało"
+        ) == "Depilacja całe ciało"

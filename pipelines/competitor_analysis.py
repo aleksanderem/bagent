@@ -2601,6 +2601,49 @@ async def _filter_missing_by_method_category(
     return kept
 
 
+
+# ── Weto rodziny nazw dla luk (2026-08-29, raport 250) ──────────────
+# Tokeny, które nie identyfikują procedury (obszary ciała, wypełniacze) —
+# nie mogą być rdzeniem rodziny ani po stronie luki, ani podmiotu.
+_LUKA_STOPWORDY = frozenset({
+    "twarz", "twarzy", "cialo", "ciala", "calego", "szyja", "szyi",
+    "dekolt", "dekoltu", "dlonie", "dloni", "stopy", "plecy", "plecow",
+    "glowa", "glowy", "okolica", "okolice", "obszar", "obszary",
+    "zabieg", "zabiegi", "pakiet", "seria", "okolic", "premium",
+})
+
+
+def _rdzen_rodziny_luki(nazwa: str) -> str | None:
+    """Pierwszy znaczący token nazwy przycięty do 5 znaków.
+
+    "Lifting falą radiową" → "lifti", "Mezoterapia głowy" → "mezot".
+    ł→l PRZED NFKD (U+0142 nie ma dekompozycji — nauczka z layer_identity).
+    None gdy nazwa nie ma żadnego tokenu ≥5 znaków poza stoplistą (fail-open).
+    """
+    import unicodedata as _ud
+    plain = nazwa.replace("\u0142", "l").replace("\u0141", "L")
+    plain = _ud.normalize("NFKD", plain)
+    plain = "".join(ch for ch in plain if not _ud.combining(ch)).lower()
+    for tok in re.findall(r"[a-z]+", plain):
+        if len(tok) >= 5 and tok not in _LUKA_STOPWORDY:
+            return tok[:5]
+    return None
+
+
+def _rdzenie_wszystkich_tokenow(nazwy: list[str]) -> set[str]:
+    """Rdzenie (5 znaków) WSZYSTKICH znaczących tokenów listy nazw."""
+    import unicodedata as _ud
+    rdzenie: set[str] = set()
+    for nazwa in nazwy:
+        plain = (nazwa or "").replace("\u0142", "l").replace("\u0141", "L")
+        plain = _ud.normalize("NFKD", plain)
+        plain = "".join(ch for ch in plain if not _ud.combining(ch)).lower()
+        for tok in re.findall(r"[a-z]+", plain):
+            if len(tok) >= 5 and tok not in _LUKA_STOPWORDY:
+                rdzenie.add(tok[:5])
+    return rdzenie
+
+
 async def _compute_service_gaps(
     service: SupabaseService,
     report_id: int,
@@ -2738,6 +2781,36 @@ async def _compute_service_gaps(
             service, missing, subject_svcs, competitor_service_ids_by_tid,
             tracer=tracer,
         )
+
+    # ── Weto rodziny nazw (2026-08-29, raport 250) ──────────────────
+    # Walk-up po kategoriach jest ślepy, gdy usługi podmiotu nie mają
+    # klasyfikacji (tid=None — VIRTUE RF itp.): raport 250 kazał "dodać"
+    # lifting/mezoterapię/peeling salonowi z 5 liftingami i 11
+    # mezoterapiami. Siatka bezpieczeństwa: luka odpada, jeśli rdzeń
+    # rodziny jej nazwy występuje wśród rdzeni tokenów nazw usług
+    # podmiotu (WSZYSTKICH aktywnych, także tych bez tid — to właśnie
+    # martwe pole walk-upu). Świadomy koszt: przemilczymy lukę
+    # "Depilacja laserowa" u salonu z woskiem — fałszywe "brakuje Ci"
+    # jest droższe niż przemilczana wariacja.
+    if missing:
+        nazwy_podmiotu = [
+            str(svc.get("name") or "")
+            for svc in (subject_data.get("services") or [])
+            if isinstance(svc, dict) and svc.get("is_active", True)
+        ]
+        rdzenie_podmiotu = _rdzenie_wszystkich_tokenow(nazwy_podmiotu)
+        przed_wetem = len(missing)
+        missing = [
+            g for g in missing
+            if _rdzen_rodziny_luki(str(g.get("treatment_name") or ""))
+            not in rdzenie_podmiotu
+        ]
+        if len(missing) != przed_wetem:
+            logger.info(
+                "service_gaps: weto rodziny nazw odrzucilo %d/%d luk "
+                "(podmiot ma usluge tej rodziny pod inna nazwa)",
+                przed_wetem - len(missing), przed_wetem,
+            )
 
     missing.sort(key=lambda r: (-(r["popularity_score"] or 0), -(r["competitor_count"] or 0)))
     missing = missing[:10]
@@ -3309,6 +3382,21 @@ async def _enhance_hidden_services_with_inference(
         h.setdefault("inference_reasoning", "")
         h.setdefault("inferred_tid", None)
         h.setdefault("parent_category", None)
+
+    # Sugestia identyczna z obecną nazwą = zero akcji dla właścicielki —
+    # taki wpis w sekcji "ukryte usługi" to szum (audyt raportu 250:
+    # "Lipoliza iniekcyjna" radziła zmienić nazwę na nią samą).
+    przed_filtrem = len(hidden_services)
+    hidden_services = [
+        h for h in hidden_services
+        if " ".join(str(h.get("suggested_name") or "").split()).lower()
+        != " ".join(str(h.get("name") or "").split()).lower()
+    ]
+    if len(hidden_services) != przed_filtrem:
+        logger.info(
+            "hidden_services: odrzucono %d wpisow bez realnej zmiany nazwy",
+            przed_filtrem - len(hidden_services),
+        )
 
     return hidden_services
 
@@ -4010,11 +4098,24 @@ async def _apply_llm_taxonomy_to_null_tid_services(
     return stats["rule_2"] + stats["rule_3"] + stats["rule_4"] + stats["rule_1"]
 
 
+# Booksy ucina nazwy usług na listingu przy ~50 znakach (patrz
+# _recover_full_name / reference_booksy_name_truncation). Sugerowana nazwa
+# dłuższa niż limit poniżej i tak nie będzie widoczna w całości — a rada
+# "zmień nazwę na 123-znakową" jest bezużyteczna dla właścicielki.
+_SUGESTIA_MAX_ZNAKOW = 70
+
+
 def _compose_suggested_name(prefix: str, current_name: str) -> str:
     """Compose human-readable suggested name from prefix + current name.
 
-    Avoid duplicate words (e.g. "Depilacja Depilacja Thunder"). Trim
-    leading symbols (✦, ⭕) from current_name so they don't pollute
+    Zasady (2026-08-29, po audycie raportu 250):
+      - prefix duplikujący POCZĄTEK nazwy (nie tylko pierwsze słowo) →
+        zwróć nazwę bez zmian ("Lipoliza iniekcyjna" + "Lipoliza
+        iniekcyjna - ..." dawało sugestię identyczną z oryginałem),
+      - całość > _SUGESTIA_MAX_ZNAKOW → utnij OPISOWY ogon nazwy na
+        granicy segmentu " - ", a w ostateczności na granicy słowa;
+        słowo kluczowe (prefix) zawsze zostaje w całości na początku.
+    Trim leading symbols (✦, ⭕) from current_name so they don't pollute
     the new suggestion.
     """
     # Strip leading non-word symbols + spaces from current name
@@ -4023,15 +4124,32 @@ def _compose_suggested_name(prefix: str, current_name: str) -> str:
     if cleaned.startswith("- "):
         cleaned = cleaned[2:].strip()
 
-    # Avoid duplicate first word: if cleaned starts with the same word as prefix,
-    # don't double it. E.g. prefix="Depilacja" + cleaned="Depilacja laserowa..."
-    # → return cleaned ("Depilacja laserowa..." — opis salonu).
+    prefix = (prefix or "").strip()
+    # Prefix już zawarty na początku nazwy → nazwa jest OK, nic nie doklejaj.
+    if prefix and cleaned.lower().startswith(prefix.lower()):
+        return cleaned
+    # Stara heurystyka: to samo pierwsze słowo → nie dubluj.
     prefix_first_word = prefix.split()[0].lower() if prefix else ""
     cleaned_first_word = cleaned.split()[0].lower() if cleaned else ""
     if prefix_first_word and prefix_first_word == cleaned_first_word:
         return cleaned
 
-    return f"{prefix} {cleaned}".strip()
+    pelna = f"{prefix} {cleaned}".strip()
+    if len(pelna) <= _SUGESTIA_MAX_ZNAKOW:
+        return pelna
+
+    # Za długo — tnij ogon nazwy segmentami " - " (opisowe dopiski salonu).
+    budzet = _SUGESTIA_MAX_ZNAKOW - len(prefix) - 1
+    segmenty = cleaned.split(" - ")
+    rdzen = segmenty[0]
+    for seg in segmenty[1:]:
+        if len(rdzen) + 3 + len(seg) > budzet:
+            break
+        rdzen = f"{rdzen} - {seg}"
+    if len(rdzen) > budzet:
+        # Nawet pierwszy segment nie mieści się — tnij na granicy słowa.
+        rdzen = rdzen[:budzet].rsplit(" ", 1)[0].rstrip(" -,")
+    return f"{prefix} {rdzen}".strip()
 
 
 def _build_active_promotions(
