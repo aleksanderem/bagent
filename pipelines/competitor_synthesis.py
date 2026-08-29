@@ -444,6 +444,7 @@ async def synthesize_competitor_insights(
     summary = _build_summary(
         matches=matches, pricing=pricing, gaps=gaps,
         dimensions=dimensions, recommendations=insights.get("recommendations") or [],
+        opportunities=opportunities,
     )
 
     # calendarComparison needs an extra Supabase fetch (open_hours from
@@ -2510,25 +2511,33 @@ def _build_summary(
     gaps: list[dict[str, Any]],
     dimensions: list[dict[str, Any]],
     recommendations: list[dict[str, Any]],
+    opportunities: list[dict[str, Any]],
 ) -> dict[str, Any]:
     """Build the top-of-report KPI summary aggregating across all child tables."""
     competitors_analyzed = len(matches)
 
-    # Avg pricing deviation across all comparisons (bezwzględna mediana
-    # odchylenia daje informację: na ile twoje ceny dryfują od rynku)
+    # Mediana odchylenia cen vs rynek. Do 2026-08-29 liczona była ŚREDNIA
+    # (raport 250: +24% przy medianie +11%) — pojedynczy outlier w rodzaju
+    # Lip Flip +166% zawyżał nagłówek dwukrotnie względem typowego wiersza.
+    # Etykieta pola mówi "vs mediany", więc liczymy medianę.
     deviations = [
         float(p.get("deviation_pct") or 0)
         for p in pricing
         if p.get("deviation_pct") is not None
     ]
     if deviations:
-        avg_deviation = sum(deviations) / len(deviations)
-        price_vs_median = f"{avg_deviation:+.0f}%"
+        import statistics
+        median_deviation = statistics.median(deviations)
+        price_vs_median = f"{median_deviation:+.0f}%"
     else:
         price_vs_median = "—"
 
-    # Liczba luk = wszystkie gap_type='missing'
-    missing_gaps_count = sum(1 for g in gaps if g.get("gap_type") == "missing")
+    # Liczba luk = te, które FAKTYCZNIE pokazujemy w sekcji opportunities
+    # (do 2026-08-29 licznik brał wszystkie gap_type='missing' → hero mówił
+    # "10 luk", a lista pokazywała 8 po filtrach popularności i cap-ie).
+    missing_gaps_count = sum(
+        1 for o in opportunities if o.get("kind") == "missing_service"
+    )
 
     # Potential uplift z rekomendacji (estimatedRevenueImpactGrosze) → zł/mies
     uplift_grosze = sum(

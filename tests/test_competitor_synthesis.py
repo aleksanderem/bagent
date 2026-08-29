@@ -1395,3 +1395,37 @@ async def test_synthesize_via_openai_acquires_gpt4omini_slot(
     assert result["positioning_narrative"].startswith("Pozycja salonu")
     assert result["recommendations"][0]["sourceCompetitorIds"] == []
     assert result["recommendations"][0]["sourceDataPoints"] == []
+
+
+# ── Mediana zamiast średniej + spójny licznik luk (2026-08-29) ──
+
+from pipelines.competitor_synthesis import _build_summary
+
+
+class TestSummaryMedianaILicznik:
+    def _pricing(self, odchylenia):
+        return [{"deviation_pct": d} for d in odchylenia]
+
+    def test_mediana_odporna_na_outlier(self):
+        # raport 250: Lip Flip +166% zawyżał średnią do +24% przy medianie +11%
+        summary = _build_summary(
+            matches=[], pricing=self._pricing([5, 8, 11, 14, 166]),
+            gaps=[], dimensions=[], recommendations=[], opportunities=[],
+        )
+        assert summary["priceVsMedian"] == "+11%"
+
+    def test_brak_danych_daje_kreske(self):
+        summary = _build_summary(
+            matches=[], pricing=[], gaps=[], dimensions=[],
+            recommendations=[], opportunities=[],
+        )
+        assert summary["priceVsMedian"] == "—"
+
+    def test_licznik_luk_liczy_pokazywane_opportunities(self):
+        gaps = [{"gap_type": "missing"}] * 10  # w bazie 10...
+        opportunities = [{"kind": "missing_service"}] * 8  # ...ale pokazujemy 8
+        summary = _build_summary(
+            matches=[], pricing=[], gaps=gaps, dimensions=[],
+            recommendations=[], opportunities=opportunities,
+        )
+        assert summary["serviceGapsCount"] == 8
