@@ -2606,28 +2606,42 @@ async def _filter_missing_by_method_category(
 # Tokeny, które nie identyfikują procedury (obszary ciała, wypełniacze) —
 # nie mogą być rdzeniem rodziny ani po stronie luki, ani podmiotu.
 _LUKA_STOPWORDY = frozenset({
+    # obszary ciała
     "twarz", "twarzy", "cialo", "ciala", "calego", "szyja", "szyi",
     "dekolt", "dekoltu", "dlonie", "dloni", "stopy", "plecy", "plecow",
-    "glowa", "glowy", "okolica", "okolice", "obszar", "obszary",
-    "zabieg", "zabiegi", "pakiet", "seria", "okolic", "premium",
+    "glowa", "glowy", "brzuch", "brzucha", "biust", "biustu", "uda",
+    "lydki", "pachy", "ramiona", "posladki", "posladkow", "nogi", "rece",
+    "usta", "broda", "kark", "bikini",
+    # wypełniacze i modyfikatory bez tożsamości procedury
+    "okolica", "okolice", "okolic", "obszar", "obszary", "zabieg",
+    "zabiegi", "pakiet", "seria", "premium", "zmarszczek", "zmarszczki",
+    # nośniki chemiczne — "kwasem" występuje i w peelingach, i w fillerach;
+    # rodziną jest peeling/wypełnianie, nie kwas
+    "kwas", "kwasu", "kwasem", "kwasami",
 })
 
 
-def _rdzen_rodziny_luki(nazwa: str) -> str | None:
-    """Pierwszy znaczący token nazwy przycięty do 5 znaków.
+def _rdzenie_rodziny_luki(nazwa: str) -> list[str]:
+    """Rdzenie (5 znaków) DWÓCH pierwszych znaczących tokenów nazwy.
 
-    "Lifting falą radiową" → "lifti", "Mezoterapia głowy" → "mezot".
-    ł→l PRZED NFKD (U+0142 nie ma dekompozycji — nauczka z layer_identity).
-    None gdy nazwa nie ma żadnego tokenu ≥5 znaków poza stoplistą (fail-open).
+    Dwa, nie jeden: polskie nazwy zabiegów często zaczynają się od
+    przymiotnika ("NIECHIRURGICZNY lifting twarzy") albo ogólnika
+    ("PIELĘGNACJA i oczyszczanie twarzy") — pierwsza wersja weta (jeden
+    token) przepuściła oba fałsze w regeneracji raportu 250. Próg 4 znaki,
+    żeby złapać HIFU/Onda; ł→l PRZED NFKD (U+0142 nie ma dekompozycji).
+    Pusta lista, gdy nic znaczącego (fail-open — luka zostaje).
     """
     import unicodedata as _ud
     plain = nazwa.replace("\u0142", "l").replace("\u0141", "L")
     plain = _ud.normalize("NFKD", plain)
     plain = "".join(ch for ch in plain if not _ud.combining(ch)).lower()
+    rdzenie: list[str] = []
     for tok in re.findall(r"[a-z]+", plain):
-        if len(tok) >= 5 and tok not in _LUKA_STOPWORDY:
-            return tok[:5]
-    return None
+        if len(tok) >= 4 and tok not in _LUKA_STOPWORDY:
+            rdzenie.append(tok[:5])
+            if len(rdzenie) == 2:
+                break
+    return rdzenie
 
 
 def _rdzenie_wszystkich_tokenow(nazwy: list[str]) -> set[str]:
@@ -2639,7 +2653,7 @@ def _rdzenie_wszystkich_tokenow(nazwy: list[str]) -> set[str]:
         plain = _ud.normalize("NFKD", plain)
         plain = "".join(ch for ch in plain if not _ud.combining(ch)).lower()
         for tok in re.findall(r"[a-z]+", plain):
-            if len(tok) >= 5 and tok not in _LUKA_STOPWORDY:
+            if len(tok) >= 4 and tok not in _LUKA_STOPWORDY:
                 rdzenie.add(tok[:5])
     return rdzenie
 
@@ -2802,8 +2816,10 @@ async def _compute_service_gaps(
         przed_wetem = len(missing)
         missing = [
             g for g in missing
-            if _rdzen_rodziny_luki(str(g.get("treatment_name") or ""))
-            not in rdzenie_podmiotu
+            if not any(
+                r in rdzenie_podmiotu
+                for r in _rdzenie_rodziny_luki(str(g.get("treatment_name") or ""))
+            )
         ]
         if len(missing) != przed_wetem:
             logger.info(

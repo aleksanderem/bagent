@@ -1411,13 +1411,14 @@ class TestSummaryMedianaILicznik:
         summary = _build_summary(
             matches=[], pricing=self._pricing([5, 8, 11, 14, 166]),
             gaps=[], dimensions=[], recommendations=[], opportunities=[],
+            subject_context={},
         )
         assert summary["priceVsMedian"] == "+11%"
 
     def test_brak_danych_daje_kreske(self):
         summary = _build_summary(
             matches=[], pricing=[], gaps=[], dimensions=[],
-            recommendations=[], opportunities=[],
+            recommendations=[], opportunities=[], subject_context={},
         )
         assert summary["priceVsMedian"] == "—"
 
@@ -1426,6 +1427,6 @@ class TestSummaryMedianaILicznik:
         opportunities = [{"kind": "missing_service"}] * 8  # ...ale pokazujemy 8
         summary = _build_summary(
             matches=[], pricing=[], gaps=gaps, dimensions=[],
-            recommendations=[], opportunities=opportunities,
+            recommendations=[], opportunities=opportunities, subject_context={},
         )
         assert summary["serviceGapsCount"] == 8

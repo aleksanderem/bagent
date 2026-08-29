@@ -518,8 +518,13 @@ class TestSubjectPercentile:
         assert compute_subject_percentile(50.0, []) == 50.0
 
     def test_subject_is_median(self) -> None:
-        # 5 values, subject equals median → 60% (3 of 5 are ≤)
-        assert compute_subject_percentile(50.0, [10, 20, 50, 80, 100]) == 60.0
+        # midrank: 2 poniżej + pół remisu = 2.5 z 5 → 50%
+        assert compute_subject_percentile(50.0, [10, 20, 50, 80, 100]) == 50.0
+
+    def test_pelny_remis_rynku_daje_50(self) -> None:
+        # wymiar binarny, który ma każdy (rezerwacja online na Booksy):
+        # przed 2026-08-30 dawał 100 i werdykt "lepiej" każdemu salonowi
+        assert compute_subject_percentile(1.0, [1.0] * 15) == 50.0
 
     def test_subject_is_top(self) -> None:
         # subject > all market → 100
@@ -2362,50 +2367,84 @@ async def test_run_aborted_inside_pricing_never_marks_completed(
 
 from pipelines.competitor_analysis import (
     _compose_suggested_name,
-    _rdzen_rodziny_luki,
+    _rdzenie_rodziny_luki,
     _rdzenie_wszystkich_tokenow,
     _SUGESTIA_MAX_ZNAKOW,
 )
 
 
-class TestRdzenRodzinyLuki:
+class TestRdzenieRodzinyLuki:
     def test_lifting_fala_radiowa(self):
-        assert _rdzen_rodziny_luki("Lifting falą radiową") == "lifti"
+        # dwa pierwsze znaczące tokeny (próg 4 znaki)
+        assert _rdzenie_rodziny_luki("Lifting falą radiową") == ["lifti", "fala"]
 
     def test_mezoterapia_glowy(self):
-        # "głowy" jest w stopliście — rdzeniem zostaje mezoterapia
-        assert _rdzen_rodziny_luki("Mezoterapia głowy") == "mezot"
+        # "głowy" jest w stopliście — zostaje mezoterapia
+        assert _rdzenie_rodziny_luki("Mezoterapia głowy") == ["mezot"]
 
-    def test_stoplista_przeskakuje_obszar(self):
-        # pierwszy znaczący token po pominięciu obszaru
-        assert _rdzen_rodziny_luki("Twarz - fotoodmładzanie") == "fotoo"
+    def test_przymiotnik_nie_chowa_glowy(self):
+        # regeneracja 250: "Niechirurgiczny lifting twarzy" przeszedł
+        # przez weto v1 (jeden token) — v2 łapie lifting jako drugi token
+        assert "lifti" in _rdzenie_rodziny_luki("Niechirurgiczny lifting twarzy")
 
-    def test_sama_stoplista_daje_none(self):
-        assert _rdzen_rodziny_luki("Twarz + szyja") is None
+    def test_ogolnik_nie_chowa_glowy(self):
+        assert "oczys" in _rdzenie_rodziny_luki("Pielęgnacja i oczyszczanie twarzy")
+
+    def test_hifu_przechodzi_prog_4(self):
+        assert _rdzenie_rodziny_luki("Zabieg HIFU") == ["hifu"]
+
+    def test_kwasem_w_stopliscie(self):
+        # nośnik chemiczny nie identyfikuje procedury — fillery vs peelingi
+        assert _rdzenie_rodziny_luki("Wypełnianie zmarszczek kwasem hialuronowym") == ["wypel", "hialu"]
+
+    def test_sama_stoplista_daje_pusta(self):
+        assert _rdzenie_rodziny_luki("Twarz + szyja") == []
 
     def test_polskie_znaki_l_przed_nfkd(self):
         # ł nie ma dekompozycji NFKD — musi być zamienione wcześniej
-        assert _rdzen_rodziny_luki("Złuszczanie kwasem") == "zlusz"
+        assert _rdzenie_rodziny_luki("Złuszczanie kwasem")[0] == "zlusz"
 
 
 class TestWetoRodzinyNazw:
+    def _weto(self, luka, uslugi_podmiotu):
+        rdzenie = _rdzenie_wszystkich_tokenow(uslugi_podmiotu)
+        return any(r in rdzenie for r in _rdzenie_rodziny_luki(luka))
+
     def test_podmiot_z_liftingiem_wetuje_luke_lifting(self):
-        rdzenie = _rdzenie_wszystkich_tokenow(
-            ["VIRTUE RF twarz + szyja - lifting, ujędrnienie i przebudowa skóry"]
+        assert self._weto(
+            "Lifting falą radiową",
+            ["VIRTUE RF twarz + szyja - lifting, ujędrnienie i przebudowa skóry"],
         )
-        assert _rdzen_rodziny_luki("Lifting falą radiową") in rdzenie
+
+    def test_niechirurgiczny_lifting_tez_wetowany(self):
+        assert self._weto(
+            "Niechirurgiczny lifting twarzy",
+            ["VIRTUE RF twarz - lifting, ujędrnienie"],
+        )
+
+    def test_oczyszczanie_wetowane(self):
+        assert self._weto(
+            "Pielęgnacja i oczyszczanie twarzy",
+            ["Oczyszczanie wodorowe - oczyszczenie skóry"],
+        )
 
     def test_podmiot_z_mezoterapia_wetuje_luke_mezoterapii(self):
-        rdzenie = _rdzenie_wszystkich_tokenow(["Mezoterapia igłowa Cytocare 532"])
-        assert _rdzen_rodziny_luki("Mezoterapia mikroigłowa") in rdzenie
+        assert self._weto("Mezoterapia mikroigłowa", ["Mezoterapia igłowa Cytocare 532"])
 
     def test_kwas_hialuronowy_przechodzi(self):
         # prawdziwa luka raportu 250 — podmiot nie ma nic z tej rodziny
-        rdzenie = _rdzenie_wszystkich_tokenow([
-            "VIRTUE RF twarz - lifting", "Mezoterapia igłowa Cytocare",
-            "Peeling kawitacyjny", "Karboksyterapia - BIUST",
-        ])
-        assert _rdzen_rodziny_luki("Wypełnianie kwasem hialuronowym") not in rdzenie
+        assert not self._weto(
+            "Wypełnianie kwasem hialuronowym",
+            ["VIRTUE RF twarz - lifting", "Mezoterapia igłowa Cytocare",
+             "Peeling kawitacyjny", "Karboksyterapia - BIUST"],
+        )
+
+    def test_liposukcja_przy_lipolizie_przechodzi(self):
+        # inna metoda redukcji tłuszczu — rdzenie 'lipos' vs 'lipol'
+        assert not self._weto(
+            "Liposukcja brzucha",
+            ["Lipoliza iniekcyjna - likwidowanie tkanki tłuszczowej"],
+        )
 
 
 class TestComposeSuggestedName:
