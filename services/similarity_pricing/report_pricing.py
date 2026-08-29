@@ -317,6 +317,24 @@ def _build_row(
 
     deviation_pct_per_min: float | None = None
     _vd_related = {"related": related_ui, "related_count": len(res.related_samples or [])} if related_ui else {}
+    # Kolumna related_samples (mig 089, legacy "podobne semantycznie") — Rich UI
+    # (parts2) czyta ją przez adaptToReportData.relatedPrices. Degradacje piszemy
+    # w tym samym kształcie z NOWYMI wartościami relation (wymiar_*), które
+    # przechodzą passesRelatedDisplayFilter jako kategoryczne (semantic_match
+    # wymaga sim>=0.65, kategoryczne przechodzą zawsze).
+    _REL = {"czas_trwania": "wymiar_czas", "metoda": "wymiar_metoda"}
+    related_col = [
+        {
+            "salon_name": x.get("salon_name"),
+            "salon_id": x.get("salon_id"),
+            "service_name": x.get("service_name"),
+            "price_grosze": x.get("price_grosze"),
+            "duration_minutes": x.get("duration_minutes"),
+            "similarity": x.get("similarity"),
+            "relation": _REL.get(str(x.get("related_reason")), "wymiar_zakres"),
+        }
+        for x in (res.related_samples or [])[:20]
+    ]
     if not insufficient and res.zl_per_min_median and subj_price and subj_dur:
         subj_ppm = subj_price / subj_dur if subj_dur else None
         if subj_ppm and res.zl_per_min_median:
@@ -345,6 +363,7 @@ def _build_row(
         "recommended_action": recommended_action,
         "verification_status": verification_status,
         "verification_details": _vd_related or None,
+        "related_samples": related_col or None,
         "competitor_samples": [_sample_to_jsonb(s) for s in res.samples],
         # PAKIETY do drill-down (§9 README): kolumna package_samples gdy budujesz widok.
     }
