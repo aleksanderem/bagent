@@ -2468,3 +2468,35 @@ class TestComposeSuggestedName:
         assert _compose_suggested_name(
             "Depilacja laserowa", "Depilacja całe ciało"
         ) == "Depilacja całe ciało"
+
+
+class TestBezpiecznikStemplaAudytu:
+    """Jeden audyt = jeden salon. Incydent 2026-08-30: scrape Beauty4ever
+    ostemplowany audytem JetSeta → raport liczony na cudzym cenniku."""
+
+    @pytest.mark.asyncio
+    async def test_konflikt_stempla_pada_glosno(self):
+        from services.supabase import SupabaseService
+
+        class _Res:
+            def __init__(self, data): self.data = data
+
+        class _Query:
+            def __init__(self, wyniki): self._wyniki = wyniki
+            def select(self, *_a, **_k): return self
+            def eq(self, *_a, **_k): return self
+            def order(self, *_a, **_k): return self
+            def limit(self, *_a, **_k): return self
+            def execute(self): return _Res(self._wyniki.pop(0))
+
+        service = SupabaseService.__new__(SupabaseService)
+        wyniki = [
+            [{"id": "s1", "booksy_id": 98814, "salon_name": "B4e"}],   # latest scrape
+            [{"booksy_id": 98814}, {"booksy_id": 106245}],              # konflikt!
+        ]
+        class _Client:
+            def table(self, _): return _Query(wyniki)
+        service.client = _Client()
+
+        with pytest.raises(ValueError, match="Konflikt stempla"):
+            await service.get_subject_salon_for_audit("j57test")
