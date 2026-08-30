@@ -1430,3 +1430,45 @@ class TestSummaryMedianaILicznik:
             recommendations=[], opportunities=opportunities, subject_context={},
         )
         assert summary["serviceGapsCount"] == 8
+
+
+# ── Strategie v2: dane przed generykami (2026-08-30) ──
+
+from pipelines.competitor_synthesis import _build_short_strategy, _build_long_strategy
+
+
+class TestStrategieZDanych:
+    _pricing = [
+        {"treatment_name": "Lip Flip", "deviation_pct": 166.0},
+        {"treatment_name": "Peeling kawitacyjny", "deviation_pct": 93.0},
+        {"treatment_name": "Masaż twarzy", "deviation_pct": -35.0},
+    ]
+    _gaps = [
+        {"gap_type": "missing", "treatment_name": "Kwas hialuronowy", "competitor_count": 9},
+        {"gap_type": "missing", "treatment_name": "Fotoodmładzanie", "competitor_count": 5},
+    ]
+
+    def test_short_tydzien3_zawiera_odstajace_ceny_z_nazwami(self):
+        weeks = _build_short_strategy([], self._pricing, self._gaps)
+        t3 = " | ".join(t["t"] for t in weeks[0]["tasks"])
+        assert "Lip Flip" in t3 and "+166%" in t3
+
+    def test_short_luka_z_nazwa_w_planie(self):
+        weeks = _build_short_strategy([], self._pricing, self._gaps)
+        wszystkie = " | ".join(t["t"] for w in weeks for t in w["tasks"])
+        assert "Kwas hialuronowy" in wszystkie
+
+    def test_short_generyki_tylko_dopelniaja(self):
+        weeks = _build_short_strategy([], self._pricing, self._gaps)
+        # tydzien 3 ma 2 zadania z danych → tylko 1 generyk
+        z_danych = [t for t in weeks[0]["tasks"] if t.get("fromData")]
+        assert len(z_danych) == 2 and len(weeks[0]["tasks"]) == 3
+
+    def test_long_bez_fabrykowanych_kwot(self):
+        quarters = _build_long_strategy([], self._gaps, [], self._pricing)
+        # zero rekomendacji → zero kwot, nie stale 620000/1000000...
+        assert all(q["revenueDeltaGrosze"] == 0 for q in quarters)
+
+    def test_long_q1_wskazuje_odstajaca_pozycje(self):
+        quarters = _build_long_strategy([], self._gaps, [], self._pricing)
+        assert any("Lip Flip" in o for o in quarters[0]["outcomes"])
