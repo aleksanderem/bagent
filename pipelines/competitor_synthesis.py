@@ -423,9 +423,9 @@ async def synthesize_competitor_insights(
     score_breakdown = _build_score_breakdown(dimensions)
     opportunities = _build_opportunities(gaps, pricing)
     seasonal_calendar = _build_seasonal_calendar(subject_context, pricing)
-    short_strategy = _build_short_strategy(insights.get("recommendations") or [])
+    short_strategy = _build_short_strategy(insights.get("recommendations") or [], pricing, gaps)
     long_strategy = _build_long_strategy(
-        insights.get("recommendations") or [], gaps, dimensions,
+        insights.get("recommendations") or [], gaps, dimensions, pricing,
     )
     # customerJourney + funnel: industry-benchmark estimates (przywrócone
     # 2026-05-15). Wcześniejsza wersja prezentowała wartości jako twarde
@@ -836,7 +836,15 @@ async def _run_minimax_synthesis(
                 "salonu bez wiedzy technicznej. Opierasz się na dostarczonych danych, "
                 "ale NIGDY nie podajesz kwot w zł ani procentów i nie używasz żargonu "
                 "(mediana, percentyl, benchmark) — kierunek i skalę opisujesz słowami. "
-                "Nigdy nie zmyślasz."
+                "Nigdy nie zmyślasz. "
+                # 2026-08-30 (audyt samosci raportow): rekomendacje-ogolniki
+                # ('skoryguj ceny zabiegow powyzej rynku') brzmia identycznie
+                # dla kazdego salonu. Nazwy uslug to nie kwoty — wymagamy ich.
+                "KAŻDA rekomendacja musi wskazywać po NAZWIE konkretne usługi "
+                "lub elementy profilu z dostarczonych danych — w actionTitle "
+                "przynajmniej jedna nazwa (np. 'Skoryguj cenę: Lip Flip', nie "
+                "'zabiegi powyżej rynku'). Rekomendacja, którą można wkleić "
+                "innemu salonowi bez zmian, jest błędna."
             ),
             user_message=context,
             tools=[COMPETITOR_INSIGHTS_TOOL],
@@ -1952,16 +1960,19 @@ _SHORT_STRATEGY_TEMPLATE: list[dict[str, Any]] = [
 ]
 
 
-def _build_short_strategy(recommendations: list[dict[str, Any]]) -> list[dict[str, Any]]:
+def _build_short_strategy(
+    recommendations: list[dict[str, Any]],
+    pricing: list[dict[str, Any]],
+    gaps: list[dict[str, Any]],
+) -> list[dict[str, Any]]:
     """Build shortStrategy — 4-week plan continuing after the 14-day action
-    plan. Each week gets default media-ramp tasks PLUS up to 1 recommendation
-    title surfaced from the AI synthesis where impact aligns.
+    plan.
 
-    Mapping recommendation impact → week:
-      - high impact + low effort → Tyg. 3 (foundation)
-      - high impact + medium/high effort → Tyg. 4 (first campaigns)
-      - medium impact → Tyg. 5 (optimization)
-      - low impact → Tyg. 6 (scaling/measure)
+    v2 (2026-08-30, audyt samosci raportow): dwa RÓŻNE salony dostawaly
+    plan zbieżny w 90%, bo tydzień = 3 generyki + 1 slot rekomendacji.
+    Teraz NAJPIERW zadania z danych TEGO salonu (odstające ceny z nazwami,
+    luki z nazwami, rekomendacje), a generyki z szablonu tylko DOPEŁNIAJĄ
+    tydzień do 3 zadań.
     """
     weeks: list[dict[str, Any]] = []
 
@@ -1971,27 +1982,75 @@ def _build_short_strategy(recommendations: list[dict[str, Any]]) -> list[dict[st
     low = [r for r in recommendations if r.get("impact") == "low"]
     week_recs = [high_low, high_other, medium, low]
 
+    def _dev(p: dict[str, Any]) -> float:
+        try:
+            return float(p.get("deviation_pct"))
+        except (TypeError, ValueError):
+            return 0.0
+
+    odstajace = sorted(
+        (p for p in pricing if _dev(p) > 25), key=lambda p: -_dev(p),
+    )
+    zanizone = sorted(
+        (p for p in pricing if _dev(p) < -20), key=lambda p: _dev(p),
+    )
+    luki = [g for g in gaps if g.get("gap_type") == "missing"]
+
+    def _zadanie_cennik(p: dict[str, Any]) -> str:
+        return (
+            f"Zdecyduj o cenie: {p.get('treatment_name')} "
+            f"({_dev(p):+.0f}% vs mediana okolicy)"
+        )[:120]
+
+    def _zadanie_podwyzka(p: dict[str, Any]) -> str:
+        return (
+            f"Rozważ podwyżkę: {p.get('treatment_name')} "
+            f"({_dev(p):+.0f}% vs okolica — zostawiasz pieniądze na stole)"
+        )[:120]
+
+    def _zadanie_luka(g: dict[str, Any], krok: str) -> str:
+        return (
+            f"{krok}: {g.get('treatment_name')} "
+            f"(ma go {g.get('competitor_count')} konkurentów)"
+        )[:120]
+
+    # Zadania z danych przydzielone do tygodni tematycznie.
+    dane_na_tydzien: list[list[str]] = [
+        [_zadanie_cennik(p) for p in odstajace[:2]],
+        [_zadanie_luka(g, "Przygotuj ofertę i cennik") for g in luki[:1]],
+        [_zadanie_podwyzka(p) for p in zanizone[:1]]
+        + [_zadanie_luka(g, "Dodaj do Booksy") for g in luki[1:2]],
+        [_zadanie_podwyzka(p) for p in zanizone[1:2]],
+    ]
+
     for idx, template in enumerate(_SHORT_STRATEGY_TEMPLATE):
-        tasks = [{"t": t, "done": False} for t in template["default_tasks"]]
-        # Surface up to 1 AI recommendation per week to make the plan feel
-        # specific to the salon's audit, not just a generic media playbook.
+        tasks: list[dict[str, Any]] = []
         rec_pool = week_recs[idx]
         if rec_pool:
             top = rec_pool[0]
-            tasks.insert(0, {
+            tasks.append({
                 "t": (top.get("actionTitle") or "Akcja z analizy konkurencji")[:120],
                 "done": False,
                 "fromRecommendation": True,
             })
+        for zadanie in dane_na_tydzien[idx]:
+            tasks.append({"t": zadanie, "done": False, "fromData": True})
+        # Generyki tylko dopelniaja do 3 zadan.
+        for t in template["default_tasks"]:
+            if len(tasks) >= 3:
+                break
+            tasks.append({"t": t, "done": False})
         weeks.append({
             "week": template["week"],
             "title": template["title"],
-            "tasks": tasks,
+            "tasks": tasks[:4],
         })
 
     logger.info(
-        "_build_short_strategy: built %d weeks (%d high-low, %d high-other, %d medium, %d low recs)",
-        len(weeks), len(high_low), len(high_other), len(medium), len(low),
+        "_build_short_strategy v2: %d tyg, z danych: cennik+%d/-%d, luk %d, "
+        "rec %d/%d/%d/%d",
+        len(weeks), len(odstajace), len(zanizone), len(luki),
+        len(high_low), len(high_other), len(medium), len(low),
     )
     return weeks
 
@@ -2005,6 +2064,7 @@ def _build_long_strategy(
     recommendations: list[dict[str, Any]],
     gaps: list[dict[str, Any]],
     dimensions: list[dict[str, Any]],
+    pricing: list[dict[str, Any]],
 ) -> list[dict[str, Any]]:
     """Build longStrategy — 4 quarters, each with title/goal/outcomes.
 
@@ -2016,6 +2076,13 @@ def _build_long_strategy(
     Revenue delta = sum of estimatedRevenueImpactGrosze for recs assigned to
     the quarter, fallback to constant tiers when AI didn't quantify.
     """
+    def _dev(p: dict[str, Any]) -> float:
+        try:
+            return float(p.get("deviation_pct"))
+        except (TypeError, ValueError):
+            return 0.0
+
+    odstajace = sorted((p for p in pricing if _dev(p) > 25), key=lambda p: -_dev(p))
     pricing_recs = [r for r in recommendations if r.get("category") == "pricing"]
     service_recs = [r for r in recommendations if r.get("category") == "services"]
     content_recs = [r for r in recommendations if r.get("category") == "content"]
@@ -2035,11 +2102,19 @@ def _build_long_strategy(
                 total += v
         return total
 
+    # v2 (2026-08-30): zero fabrykowanych obietnic liczbowych ("baza 300+",
+    # "paragon +18%") — wyniki kwartalne z DANYCH tego salonu, generyki
+    # tylko bez liczb.
     q1_outcomes = [
         "Google + Meta Ads działają na płatnym ruchu",
-        "Email baza 300+ kontaktów",
         "Niski koszt pozyskania nowej klientki",
     ]
+    if odstajace:
+        q1_outcomes.insert(
+            0,
+            (f"Uporządkowane ceny {len(odstajace)} odstających pozycji "
+             f"(start: {odstajace[0].get('treatment_name')})")[:90],
+        )
     if pricing_recs:
         q1_outcomes.insert(0, (pricing_recs[0].get("actionTitle") or "Optymalizacja cennika")[:80])
 
@@ -2052,9 +2127,8 @@ def _build_long_strategy(
         q2_outcomes.insert(0, (service_recs[0].get("actionTitle") or "Rozbudowa portfolio usług")[:80])
 
     q3_outcomes = [
-        "Blog / Reels z poradnikami (12+ materiałów)",
-        "Program lojalnościowy dla stałych klientów",
-        "Wejście do 3 lokalnych rankingów",
+        "Regularny content (blog / Reels) z poradnikami",
+        "Program lojalnościowy dla stałych klientek",
     ]
     if content_recs:
         q3_outcomes.insert(0, (content_recs[0].get("actionTitle") or "Content marketing — opisy + zdjęcia")[:80])
@@ -2063,7 +2137,7 @@ def _build_long_strategy(
 
     q4_outcomes = [
         "Sprzedaż voucherów online (+8% rocznie)",
-        "Średni paragon +18%",
+        "Wyższy średni paragon dzięki pakietom",
     ]
     if missing_gaps:
         names = ", ".join((g.get("treatment_name") or "Nowa usługa") for g in missing_gaps[:3])
@@ -2079,7 +2153,7 @@ def _build_long_strategy(
             "goal": "Pełny setup i pierwsze ROI-dodatnie kampanie",
             "outcomes": q1_outcomes[:4],
             "adsFocus": True,
-            "revenueDeltaGrosze": _sum_grosze(pricing_recs[:2]) or 620000,
+            "revenueDeltaGrosze": _sum_grosze(pricing_recs[:2]),
         },
         {
             "q": "Q2",
@@ -2088,7 +2162,7 @@ def _build_long_strategy(
             "goal": "Podwojenie budżetu na najlepsze kampanie",
             "outcomes": q2_outcomes[:4],
             "adsFocus": True,
-            "revenueDeltaGrosze": _sum_grosze(service_recs[:1]) + 1000000,
+            "revenueDeltaGrosze": _sum_grosze(service_recs[:1]),
         },
         {
             "q": "Q3",
@@ -2097,7 +2171,7 @@ def _build_long_strategy(
             "goal": "Budowa marki poza reklamami — niższy CPA długoterminowo",
             "outcomes": q3_outcomes[:4],
             "adsFocus": False,
-            "revenueDeltaGrosze": _sum_grosze(content_recs) + 1500000,
+            "revenueDeltaGrosze": _sum_grosze(content_recs),
         },
         {
             "q": "Q4",
@@ -2106,7 +2180,7 @@ def _build_long_strategy(
             "goal": "Wyższy średni paragon + nowe kanały przychodu",
             "outcomes": q4_outcomes[:4],
             "adsFocus": False,
-            "revenueDeltaGrosze": _sum_grosze(ops_recs) + 2200000,
+            "revenueDeltaGrosze": _sum_grosze(ops_recs),
         },
     ]
 
