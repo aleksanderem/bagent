@@ -903,6 +903,27 @@ class SupabaseService:
             return None
         scrape = scrape_res.data[0]
 
+        # Bezpiecznik stempla (2026-08-30): jeden convex_audit_id NIE MOZE
+        # wskazywac scrape'ow dwoch roznych salonow. Incydent: scrape
+        # Beauty4ever ostemplowany audytem JetSeta sprawil, ze "raport
+        # Beauty4ever" liczyl sie i renderowal na danych JetSeta przez 10
+        # dni. Przy konflikcie padamy glosno zamiast po cichu liczyc
+        # czyjs raport na cudzym cenniku.
+        konflikt_res = (
+            self.client.table("salon_scrapes")
+            .select("booksy_id")
+            .eq("convex_audit_id", convex_audit_id)
+            .execute()
+        )
+        rozne_salony = {r["booksy_id"] for r in (konflikt_res.data or [])}
+        if len(rozne_salony) > 1:
+            raise ValueError(
+                f"Konflikt stempla audytu {convex_audit_id!r}: scrape'y "
+                f"{len(rozne_salony)} roznych salonow (booksy_id="
+                f"{sorted(rozne_salony)}). Odmowa rezolucji podmiotu — "
+                f"wyczysc bledny stempel zanim wygenerujesz raport."
+            )
+
         # Translate booksy_id -> salons.id (internal PK). This is required so
         # downstream queries on salon_top_services (keyed by salon_id) work.
         salon_res = (
