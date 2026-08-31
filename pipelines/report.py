@@ -147,6 +147,246 @@ def _apply_transformations_to_scraped(
     }
 
 
+# ── Continuity with the previous audit (BEAUTY_AUDIT-8w15) ──
+# A re-audited salon used to get brand-new AI suggestions that contradicted
+# what we recommended in its previous audit — the report undermined its own
+# earlier advice. These helpers reconcile the previous audit's
+# transformations with the current scrape so that:
+#   * a suggestion the salon APPLIED is treated as canonical (never re-flagged),
+#   * a suggestion still PENDING is repeated verbatim instead of re-invented.
+
+
+def _normalize_desc_text(text: str | None) -> str:
+    """Whitespace/case-insensitive comparison key for descriptions."""
+    if not text:
+        return ""
+    return " ".join(text.split()).lower()
+
+
+def _build_previous_audit_context(
+    scraped_data: Any, prev: dict[str, Any]
+) -> dict[str, Any] | None:
+    """Cross previous transformations (DB shape: type / service_name /
+    before_text / after_text) with the CURRENT scrape.
+
+    Returns None when nothing from the previous audit maps onto the current
+    pricelist (e.g. the salon rewrote everything from scratch).
+    """
+    current: dict[str, dict[str, str]] = {}
+    for cat in scraped_data.categories:
+        for svc in cat.services:
+            key = _normalize_lookup_key(svc.name)
+            if key and key not in current:
+                current[key] = {
+                    "name": svc.name,
+                    "description": svc.description or "",
+                }
+
+    prev_trans = prev.get("transformations") or []
+
+    # Previous naming suggestions: normalized old name → suggested new name.
+    prev_rename: dict[str, str] = {}
+    for t in prev_trans:
+        if t.get("type") != "name":
+            continue
+        before = _normalize_lookup_key(
+            t.get("before_text") or t.get("service_name") or ""
+        )
+        after = (t.get("after_text") or "").strip()
+        if before and after:
+            prev_rename[before] = after
+
+    applied_names: set[str] = set()
+    applied_names_display: list[str] = []
+    # normalized current(=old) name → {"name": current raw name, "after": suggestion}
+    pending_names: dict[str, dict[str, str]] = {}
+
+    for before_key, after in prev_rename.items():
+        after_key = _normalize_lookup_key(after)
+        if not after_key or after_key == before_key:
+            continue  # degenerate suggestion (przed==po) — nothing to enforce
+        if after_key in current:
+            applied_names.add(after_key)
+            applied_names_display.append(current[after_key]["name"])
+        elif before_key in current:
+            pending_names[before_key] = {
+                "name": current[before_key]["name"],
+                "after": after,
+            }
+
+    applied_desc_names: set[str] = set()
+    pending_descs: dict[str, str] = {}
+    for t in prev_trans:
+        if t.get("type") != "description":
+            continue
+        service_key = _normalize_lookup_key(t.get("service_name") or "")
+        after_desc = (t.get("after_text") or "").strip()
+        if not service_key or not after_desc:
+            continue
+        # The service may have been renamed since — possibly via our own
+        # naming suggestion — so check the old name and its renamed form.
+        candidates = [service_key]
+        renamed = prev_rename.get(service_key)
+        if renamed:
+            candidates.append(_normalize_lookup_key(renamed))
+        for key in candidates:
+            svc = current.get(key)
+            if not svc:
+                continue
+            if _normalize_desc_text(svc["description"]) == _normalize_desc_text(after_desc):
+                applied_desc_names.add(key)
+            else:
+                pending_descs.setdefault(key, after_desc)
+            break
+
+    if not (applied_names or pending_names or applied_desc_names or pending_descs):
+        return None
+
+    date_raw = str(prev.get("report_created_at") or "")[:10]
+    lines: list[str] = [
+        f"KONTEKST POPRZEDNIEGO AUDYTU ({date_raw or 'data nieznana'}):",
+        "Ten salon był już przez nas audytowany i część rekomendacji WDROŻONO.",
+    ]
+    applied_all = applied_names_display + [
+        current[k]["name"] for k in sorted(applied_desc_names - applied_names)
+    ]
+    if applied_all:
+        lines.append(
+            "1) Poniższe usługi noszą już nazwy/opisy z naszych poprzednich "
+            "rekomendacji — traktuj je jako wzorcowe: NIE zgłaszaj ich jako "
+            "problemów i NIE proponuj dla nich zmian (alreadyOptimal: true):"
+        )
+        for n in applied_all[:40]:
+            lines.append(f"   - {n}")
+        if len(applied_all) > 40:
+            lines.append(f"   ... i {len(applied_all) - 40} kolejnych")
+    if pending_names:
+        lines.append(
+            "2) Rekomendacje zmian nazw z poprzedniego audytu wciąż NIE "
+            "wdrożone — jeśli nadal zasadne, powtórz DOKŁADNIE tę samą "
+            "propozycję zamiast wymyślać nową:"
+        )
+        for p in list(pending_names.values())[:40]:
+            lines.append(f'   - "{p["name"]}" → "{p["after"]}"')
+    lines.append(
+        "Zachowaj spójność terminologii z powyższymi rekomendacjami w całym cenniku."
+    )
+
+    return {
+        "prev_convex_audit_id": prev.get("convex_audit_id"),
+        "report_date": date_raw,
+        "applied_names": applied_names,
+        "pending_names": pending_names,
+        "applied_desc_names": applied_desc_names,
+        "pending_descs": pending_descs,
+        "prompt_block": "\n".join(lines),
+        "counts": {
+            "appliedNames": len(applied_names),
+            "pendingNames": len(pending_names),
+            "appliedDescriptions": len(applied_desc_names),
+            "pendingDescriptions": len(pending_descs),
+        },
+    }
+
+
+def _reconcile_naming_with_previous(
+    result: dict[str, Any], ctx: dict[str, Any]
+) -> tuple[dict[str, Any], dict[str, int]]:
+    """Deterministic guarantee on top of the prompt-level instructions.
+
+    Even if the model ignores the previous-audit context block:
+      * drop proposals against names the salon already applied from us,
+      * replace fresh proposals with the previous suggestion (stability),
+      * re-inject pending suggestions the agent skipped, so advice never
+        silently disappears between audits.
+    """
+    transformations: list[dict[str, Any]] = []
+    dropped = reused = injected = 0
+    covered_pending: set[str] = set()
+
+    for t in result.get("transformations", []):
+        key = _normalize_lookup_key(t.get("before") or t.get("serviceName") or "")
+        if key in ctx["applied_names"]:
+            dropped += 1
+            continue
+        pending = ctx["pending_names"].get(key)
+        if pending:
+            covered_pending.add(key)
+            if (t.get("after") or "").strip() != pending["after"]:
+                t = {
+                    **t,
+                    "after": pending["after"],
+                    "reason": "Rekomendacja z poprzedniego audytu — utrzymana dla spójności",
+                }
+                reused += 1
+        transformations.append(t)
+
+    for key, pending in ctx["pending_names"].items():
+        if key in covered_pending:
+            continue
+        transformations.append({
+            "type": "name",
+            "serviceName": pending["name"],
+            "before": pending["name"],
+            "after": pending["after"],
+            "reason": "Rekomendacja z poprzedniego audytu (podtrzymana)",
+            "impactScore": 3,
+            "causedByIssueGlobalIndex": None,
+        })
+        injected += 1
+
+    coverage = dict(result.get("coverage") or {})
+    coverage["alreadyOptimal"] = coverage.get("alreadyOptimal", 0) + dropped
+    coverage["optimized"] = max(0, coverage.get("optimized", 0) - dropped) + injected
+    return (
+        {**result, "transformations": transformations, "coverage": coverage},
+        {"dropped": dropped, "reused": reused, "injected": injected},
+    )
+
+
+def _reconcile_descriptions_with_previous(
+    result: dict[str, Any], ctx: dict[str, Any]
+) -> tuple[dict[str, Any], dict[str, int]]:
+    """Description twin of _reconcile_naming_with_previous.
+
+    No re-injection here: audit_transformations stores no original
+    description (before_text is empty), so we cannot verify a skipped
+    suggestion is still meaningful — only proposals the agent actively
+    made are stabilised.
+    """
+    transformations: list[dict[str, Any]] = []
+    dropped = reused = 0
+
+    for t in result.get("transformations", []):
+        key = _normalize_lookup_key(t.get("serviceName") or "")
+        if key in ctx["applied_desc_names"]:
+            dropped += 1
+            continue
+        prev_desc = ctx["pending_descs"].get(key)
+        # ≥50 chars: a full description we once shipped, not a stub —
+        # mirrors the "bardzo ubogi opis" threshold in the agent prompt.
+        if (
+            prev_desc
+            and len(prev_desc) >= 50
+            and (t.get("after") or "").strip() != prev_desc
+        ):
+            t = {
+                **t,
+                "after": prev_desc,
+                "reason": "Opis z rekomendacji poprzedniego audytu — utrzymany dla spójności",
+            }
+            reused += 1
+        transformations.append(t)
+
+    coverage = dict(result.get("coverage") or {})
+    coverage["alreadyOptimal"] = coverage.get("alreadyOptimal", 0) + dropped
+    coverage["optimized"] = max(0, coverage.get("optimized", 0) - dropped)
+    return (
+        {**result, "transformations": transformations, "coverage": coverage},
+        {"dropped": dropped, "reused": reused},
+    )
+
+
 def _build_truncation_issues(scraped_data: Any, stats: dict[str, Any]) -> list[dict[str, Any]]:
     """Deterministyczne issue o nazwach uciętych przez Booksy (limit ~50 zn.).
 
@@ -308,6 +548,30 @@ async def run_audit_pipeline(
     dupes = len(stats["duplicateNames"])
     await progress(15, f"Statystyki: {total_services} usług, {desc_count} z opisem, {dur_count} z czasem, {dupes} duplikatów ({dt}ms)")
 
+    # ── Step 1.5: Continuity with the previous audit of this salon ──
+    # (BEAUTY_AUDIT-8w15) Loaded BEFORE any AI runs so scoring and both
+    # transformation agents see what we already recommended last time.
+    # Fail-open: any error degrades to a normal first-audit run.
+    previous_ctx: dict[str, Any] | None = None
+    try:
+        prev = await supabase.get_previous_audit_transformations(audit_id)
+        if prev:
+            previous_ctx = _build_previous_audit_context(scraped_data, prev)
+        if previous_ctx:
+            c = previous_ctx["counts"]
+            await progress(18, (
+                f"Poprzedni audyt ({previous_ctx['report_date']}): "
+                f"{c['appliedNames']} nazw i {c['appliedDescriptions']} opisów "
+                f"już wdrożonych, {c['pendingNames']} rekomendacji do podtrzymania"
+            ))
+    except Exception as e:
+        logger.warning(
+            "[%s] Previous-audit context failed (%s) — continuing without",
+            audit_id, e,
+        )
+        previous_ctx = None
+    prev_block = previous_ctx["prompt_block"] if previous_ctx else ""
+
     # ── Phase 1 — Diagnostic scoring (PARALLEL) ──
     # Produces issues WITHOUT running transformation agents. We need a stable
     # issue list before dispatching the naming / description agents so each
@@ -320,8 +584,8 @@ async def run_audit_pipeline(
     t0 = time.time()
 
     naming_scoring, desc_scoring, structure_result = await _asyncio.gather(
-        _score_naming(client, scraped_data, stats, progress),
-        _score_descriptions(client, scraped_data, stats, progress),
+        _score_naming(client, scraped_data, stats, progress, previous_block=prev_block),
+        _score_descriptions(client, scraped_data, stats, progress, previous_block=prev_block),
         _analyze_structure(client, scraped_data, stats),
     )
 
@@ -375,12 +639,32 @@ async def run_audit_pipeline(
         _agent_naming(
             client, scraped_data, all_issues, run_agent_loop, NAMING_TOOL, progress,
             on_step=lambda step, count: _on_agent_step("nazwy", step, count),
+            previous_block=prev_block,
         ),
         _agent_descriptions(
             client, scraped_data, all_issues, run_agent_loop, DESCRIPTION_TOOL, progress,
             on_step=lambda step, count: _on_agent_step("opisy", step, count),
+            previous_block=prev_block,
         ),
     )
+
+    # Deterministic continuity guarantee — even if the model ignored the
+    # previous-audit context block, applied suggestions stay untouched and
+    # pending ones are repeated verbatim (BEAUTY_AUDIT-8w15).
+    if previous_ctx:
+        naming_result, n_rec = _reconcile_naming_with_previous(naming_result, previous_ctx)
+        desc_result, d_rec = _reconcile_descriptions_with_previous(desc_result, previous_ctx)
+        stats["previousAudit"] = {
+            "previousConvexAuditId": previous_ctx["prev_convex_audit_id"],
+            "previousReportDate": previous_ctx["report_date"],
+            **previous_ctx["counts"],
+            "namingDroppedAsApplied": n_rec["dropped"],
+            "namingReused": n_rec["reused"],
+            "namingInjected": n_rec["injected"],
+            "descriptionsDroppedAsApplied": d_rec["dropped"],
+            "descriptionsReused": d_rec["reused"],
+        }
+        logger.info("[%s] Continuity with previous audit: %s", audit_id, stats["previousAudit"])
 
     dt = int((time.time() - t0) * 1000)
     n_transforms = len(naming_result["transformations"])
@@ -850,6 +1134,7 @@ async def _score_naming(
     scraped_data: Any,
     stats: dict[str, Any],
     progress: ProgressCallback,
+    previous_block: str = "",
 ) -> dict[str, Any]:
     """Scoring-only half of the old _analyze_naming.
 
@@ -869,6 +1154,8 @@ async def _score_naming(
             "CENNIK:\n{pricelist_text}"
         )
     full_prompt = _fill_prompt(naming_prompt, pricelist_text=pricelist_text)
+    if previous_block:
+        full_prompt = f"{full_prompt}\n\n{previous_block}"
 
     t0 = time.time()
     try:
@@ -904,6 +1191,7 @@ async def _score_descriptions(
     scraped_data: Any,
     stats: dict[str, Any],
     progress: ProgressCallback,
+    previous_block: str = "",
 ) -> dict[str, Any]:
     """Scoring-only half of the old _analyze_descriptions."""
     from pipelines.helpers import build_full_pricelist_text
@@ -935,6 +1223,8 @@ async def _score_descriptions(
         if "{" in desc_prompt
         else f"{desc_prompt}\n\nCENNIK:\n{pricelist_text}"
     )
+    if previous_block:
+        full_prompt = f"{full_prompt}\n\n{previous_block}"
 
     t0 = time.time()
     try:
@@ -972,6 +1262,7 @@ async def _agent_naming(
     naming_tool: dict[str, Any],
     progress: ProgressCallback,
     on_step: Any = None,
+    previous_block: str = "",
 ) -> dict[str, Any]:
     """Agent-loop half of the old _analyze_naming.
 
@@ -1010,6 +1301,8 @@ async def _agent_naming(
         if "{pricelist_text}" in naming_agent_prompt
         else f"{filled_prompt}\n\nCENNIK:\n{pricelist_text}"
     )
+    if previous_block:
+        user_msg = f"{user_msg}\n\n{previous_block}"
     await progress(30, "Agent loop: poprawianie nazw usług (tool_use)...")
 
     transformations: list[dict[str, Any]] = []
@@ -1130,6 +1423,7 @@ async def _agent_descriptions(
     description_tool: dict[str, Any],
     progress: ProgressCallback,
     on_step: Any = None,
+    previous_block: str = "",
 ) -> dict[str, Any]:
     """Agent-loop half of the old _analyze_descriptions."""
     from pipelines.helpers import build_full_pricelist_text
@@ -1157,6 +1451,8 @@ async def _agent_descriptions(
         if "{pricelist_text}" in desc_agent_prompt
         else f"{filled_prompt}\n\nCENNIK:\n{pricelist_text}"
     )
+    if previous_block:
+        user_msg = f"{user_msg}\n\n{previous_block}"
     await progress(56, "Agent loop: poprawianie opisów usług (tool_use)...")
 
     # Build a lookup of original descriptions so we can detect
