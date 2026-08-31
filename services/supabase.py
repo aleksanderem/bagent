@@ -254,6 +254,80 @@ class SupabaseService:
             "changes": row.get("category_changes") or [],
         }
 
+    async def get_previous_audit_transformations(
+        self, convex_audit_id: str
+    ) -> dict | None:
+        """Find the newest PREVIOUS audit of the same salon and return its
+        naming/description transformations.
+
+        Salon identity comes from salon_scrapes (booksy_id) — audit_reports
+        has no salon key of its own, but every audit writes a scrape row
+        stamped with convex_audit_id, so:
+            current audit → salon_scrapes.booksy_id
+            → other scrapes of that booksy_id with a different convex_audit_id
+            → their audit_reports row (newest first) → audit_transformations.
+
+        Returns {"convex_audit_id", "report_created_at", "transformations"}
+        (transformations in DB shape: type / service_name / before_text /
+        after_text) or None when this is the salon's first audit.
+        """
+        cur = (
+            self.client.table("salon_scrapes")
+            .select("booksy_id")
+            .eq("convex_audit_id", convex_audit_id)
+            .order("scraped_at", desc=True)
+            .limit(1)
+            .execute()
+        )
+        if not cur.data:
+            return None
+        booksy_id = cur.data[0].get("booksy_id")
+        if not booksy_id:
+            return None
+
+        # neq() maps to SQL `<>` which also drops NULL convex_audit_id rows
+        # (plain refresh scrapes without an audit).
+        prev_scrapes = (
+            self.client.table("salon_scrapes")
+            .select("convex_audit_id, scraped_at")
+            .eq("booksy_id", booksy_id)
+            .neq("convex_audit_id", convex_audit_id)
+            .order("scraped_at", desc=True)
+            .limit(20)
+            .execute()
+        )
+        seen: set[str] = set()
+        for row in prev_scrapes.data or []:
+            prev_id = row.get("convex_audit_id")
+            if not prev_id or prev_id in seen:
+                continue
+            seen.add(prev_id)
+            rep = (
+                self.client.table("audit_reports")
+                .select("id, created_at")
+                .eq("convex_audit_id", prev_id)
+                .limit(1)
+                .execute()
+            )
+            if not rep.data:
+                continue  # scrape exists but the audit never finished a report
+            report_id = rep.data[0]["id"]
+            trans = (
+                self.client.table("audit_transformations")
+                .select("type, service_name, before_text, after_text")
+                .eq("audit_report_id", report_id)
+                .order("sort_order", desc=False)
+                .execute()
+            )
+            if not trans.data:
+                continue
+            return {
+                "convex_audit_id": prev_id,
+                "report_created_at": rep.data[0].get("created_at"),
+                "transformations": trans.data,
+            }
+        return None
+
     async def save_report(
         self,
         convex_audit_id: str,
