@@ -2,7 +2,30 @@
 
 from datetime import datetime, timedelta, timezone
 
-from workers.meta_ads_refresh import DISCOVERY_RETRY_DAYS, _ad_alerts, _discovery_plan
+from workers.meta_ads_refresh import (
+    DISCOVERY_RETRY_DAYS,
+    _ad_alerts,
+    _ads_page_conflict,
+    _discovery_plan,
+    _page_name_from_ads,
+)
+
+
+def test_page_name_from_ads_takes_first_non_empty():
+    ads = [{"adArchiveId": "1"}, {"adArchiveId": "2", "pageName": " My Day Beauty Space "}]
+    assert _page_name_from_ads(ads) == "My Day Beauty Space"
+    assert _page_name_from_ads([]) is None
+
+
+def test_ads_page_conflict_only_for_links_outside_booksy():
+    # Link ze stopki WWW prowadzi na cudzą stronę → konflikt, nie skanujemy.
+    row = {"facebook_source": "website_crawl"}
+    assert _ads_page_conflict(row, "My Day Beauty Space", "KARASEK CLINIC")
+    # Ta sama strona pod hasłem → brak konfliktu.
+    assert _ads_page_conflict(row, "Beauty4ever Klinika Medycyny Estetycznej", "Beauty4ever - ul. Wołoska 16") is None
+    # Link z Booksy wpisał właściciel — nie sprawdzamy, nawet gdy nazwa inna.
+    assert _ads_page_conflict({"facebook_source": "booksy"}, "Inna Nazwa", "KARASEK CLINIC") is None
+    assert _ads_page_conflict({}, "Inna Nazwa", "KARASEK CLINIC") is None
 
 
 def test_discovery_plan_new_targets_get_full_cascade_failed_skip_their_source():

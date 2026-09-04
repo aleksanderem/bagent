@@ -233,15 +233,29 @@ def name_similarity(a: str, b: str) -> float:
         _containment(ta, joined_b, longer),
         _containment(tb, joined_a, longer),
     )
-    return max(jaccard, ratio, containment)
+    # Krótsza nazwa w całości zawarta w dłuższej („La Beaute" w „La Beaute
+    # razem do doskonałości") — pod warunkiem, że to więcej niż jedno krótkie
+    # słowo (samo „boski" nie wystarcza).
+    shorter, longer_set = (sa, sb) if len(joined_a) <= len(joined_b) else (sb, sa)
+    subset = 0.0
+    if shorter <= longer_set and (len(shorter) >= 2 or len("".join(shorter)) >= 8):
+        subset = 0.8
+    return max(jaccard, ratio, containment, subset)
+
+
+_SLOGAN_SPLIT_RE = re.compile(r"\s+[-–|:]\s+|\s*\|\s*")
 
 
 def page_name_matches(page_name: str | None, salon_name: str) -> bool:
     """Kontrola po rozwiązaniu strony. Brak nazwy (resolve przez widget
-    page-plugin nie zwraca tytułu) = nie ma czego sprawdzać, przepuszczamy."""
+    page-plugin nie zwraca tytułu) = nie ma czego sprawdzać, przepuszczamy.
+    Tytuł strony FB bywa z hasłem i miastem („La Beaute Clinique - razem do
+    doskonałości | Warsaw") — porównujemy też sam pierwszy człon."""
     if not page_name:
         return True
-    return name_similarity(page_name, salon_name) >= NAME_MATCH_THRESHOLD
+    head = _SLOGAN_SPLIT_RE.split(page_name, maxsplit=1)[0].strip() or page_name
+    score = max(name_similarity(page_name, salon_name), name_similarity(head, salon_name))
+    return score >= NAME_MATCH_THRESHOLD
 
 
 # ── Wyszukiwarka (Brave) ────────────────────────────────────────────────────

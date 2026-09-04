@@ -117,6 +117,11 @@ def test_name_similarity_rejects_other_salon(a, b):
 def test_page_name_matches_uses_threshold():
     assert page_name_matches("Beauty4ever Klinika", "Beauty4ever - ul. Wołoska 16")
     assert not page_name_matches("My Day Beauty Space", "KARASEK CLINIC")
+    # Realny fałszywy alarm z prod (2026-09-04): tytuł strony z hasłem i miastem.
+    assert page_name_matches("La Beaute Clinique - razem do doskonałości | Warsaw", "La Beaute Clinique")
+    assert page_name_matches("Elle Clinic | Warsaw", "Elle Clinic")
+    assert page_name_matches("Revival Clinic | Wilanów", "Revival Clinic")
+    assert not page_name_matches("BOSKI Salon Urody | Lipinki", "Beauty Hair Boski Sadowski")
     # Brak nazwy strony (resolve przez widget) = nie da się sprawdzić, przepuszczamy.
     assert page_name_matches(None, "KARASEK CLINIC")
 
