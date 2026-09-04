@@ -189,6 +189,27 @@ def _save_contact_point(sb: Client):
     return save
 
 
+def _page_name_from_ads(ads: list[dict[str, Any]]) -> str | None:
+    """Nazwa strony z pierwszej reklamy, która ją niesie (scraper bextract: pageName)."""
+    for a in ads:
+        name = str(a.get("pageName") or "").strip()
+        if name:
+            return name
+    return None
+
+
+def _ads_page_conflict(
+    page_row: dict[str, Any], ad_page_name: str, salon_name: str
+) -> str | None:
+    """Opis konfliktu, gdy strona z linku spoza Booksy nosi nazwę innego salonu.
+    Link z Booksy jest wpisany przez właściciela — nie sprawdzamy."""
+    if page_row.get("facebook_source") in (None, "booksy"):
+        return None
+    if page_name_matches(ad_page_name, salon_name):
+        return None
+    return f"nazwa strony «{ad_page_name}» (z reklam) nie pasuje do salonu «{salon_name}»"
+
+
 def _salon_name(sb: Client, salon_ref_id: int) -> str:
     rows = sb.table("salons").select("name").eq("id", salon_ref_id).limit(1).execute().data or []
     return str(rows[0].get("name") or "") if rows else ""
@@ -575,6 +596,22 @@ async def _scan_salon(
     now_iso = datetime.now(timezone.utc).isoformat()
 
     ads = await _fetch_ads(http, page_id)
+
+    # Resolve przez widget page-plugin nie zwraca nazwy strony, więc kontrola
+    # „czy to na pewno ten salon" dla linku spoza Booksy odbywa się tu — na
+    # nazwie strony z samych reklam. Cudza strona (KARASEK CLINIC →
+    # mydaybeautyspace ze stopki WWW) dostaje mismatch i NIE jest skanowana.
+    ad_page_name = _page_name_from_ads(ads)
+    if ad_page_name and not page_row.get("page_name"):
+        conflict = _ads_page_conflict(page_row, ad_page_name, _salon_name(sb, salon_ref_id))
+        patch_name: dict[str, Any] = {"page_name": ad_page_name, "updated_at": now_iso}
+        if conflict:
+            patch_name.update({"resolve_status": "mismatch", "resolve_error": conflict})
+            logger.warning("[meta-ads] salon_ref_id=%s: %s", salon_ref_id, conflict)
+        sb.table("salon_meta_pages").update(patch_name).eq("salon_ref_id", salon_ref_id).execute()
+        if conflict:
+            return []
+
     seen_ids = {int(a["adArchiveId"]) for a in ads if str(a.get("adArchiveId", "")).isdigit()}
 
     existing = (
@@ -706,7 +743,7 @@ async def meta_ads_refresh_cron(ctx: dict[str, Any]) -> dict[str, Any]:
 
         resolved = (
             sb.table("salon_meta_pages")
-            .select("salon_ref_id, booksy_id, page_id, page_name")
+            .select("salon_ref_id, booksy_id, page_id, page_name, facebook_source")
             .eq("resolve_status", "resolved")
             .limit(FETCH_BATCH)
             .execute()

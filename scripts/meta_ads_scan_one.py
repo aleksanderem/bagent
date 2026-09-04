@@ -15,10 +15,15 @@ from __future__ import annotations
 
 import asyncio
 import sys
+from pathlib import Path
 
 import httpx
 
-from workers.meta_ads_refresh import (
+# Skrypt odpalany po ścieżce (`uv run python scripts/…`) nie ma korzenia repo
+# w sys.path — bez tego `import workers` pada (jak w innych scripts/backfill_*).
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
+
+from workers.meta_ads_refresh import (  # noqa: E402
     _discover_targets,
     _get_client,
     _ingest_history,
@@ -47,7 +52,10 @@ async def main(salon_ref_id: int) -> int:
         await _resolve_pending(sb, http)
         rows = (
             sb.table("salon_meta_pages")
-            .select("salon_ref_id, booksy_id, page_id, page_name, resolve_status, resolve_error")
+            .select(
+                "salon_ref_id, booksy_id, page_id, page_name, resolve_status, resolve_error, "
+                "facebook_source"
+            )
             .eq("salon_ref_id", salon_ref_id)
             .execute()
             .data
