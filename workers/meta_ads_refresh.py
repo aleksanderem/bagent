@@ -24,14 +24,20 @@ taxonomy-refresh opisane w memory reference_monitoring_stack).
 
 from __future__ import annotations
 
+import asyncio
 import logging
 import os
-from datetime import datetime, timezone
+from datetime import datetime, timedelta, timezone
 from typing import Any
 
 import httpx
 from supabase import Client
 
+from services.meta_page_discovery import (
+    DiscoveryTarget,
+    discover_facebook_page,
+    page_name_matches,
+)
 from services.sb_client import make_supabase_client
 
 from config import settings
@@ -42,6 +48,10 @@ logger = logging.getLogger(__name__)
 # więc pełny obieg i tak domyka się w jednym runie.
 RESOLVE_BATCH = 12
 FETCH_BATCH = 40
+# Kaskada znajdowania strony FB: ile salonów na run (każdy to crawl WWW i/lub
+# 1-2 zapytania do Brave) i po ilu dniach ponawiać nieudane.
+DISCOVERY_BATCH = 15
+DISCOVERY_RETRY_DAYS = 7
 
 _supabase_client: Client | None = None
 
@@ -127,35 +137,146 @@ async def _fetch_ads(http: httpx.AsyncClient, page_id: int) -> list[dict[str, An
     return await _fetch_ads_scraper(http, page_id)
 
 
-def _sync_targets(sb: Client) -> None:
-    """Widok targets → wiersze pending w salon_meta_pages (idempotentnie)."""
-    targets = (
-        sb.table("v_meta_ads_scan_targets").select("salon_ref_id, booksy_id, facebook_url").execute().data
-        or []
-    )
-    known = {
-        row["salon_ref_id"]
-        for row in (sb.table("salon_meta_pages").select("salon_ref_id").execute().data or [])
-    }
-    fresh = [t for t in targets if t["salon_ref_id"] not in known]
-    if fresh:
-        sb.table("salon_meta_pages").insert(
-            [
-                {
-                    "salon_ref_id": t["salon_ref_id"],
-                    "booksy_id": t["booksy_id"],
-                    "facebook_url": t["facebook_url"],
-                }
-                for t in fresh
-            ]
+def _parse_ts(value: Any) -> datetime | None:
+    if not value:
+        return None
+    try:
+        parsed = datetime.fromisoformat(str(value).replace("Z", "+00:00"))
+    except ValueError:
+        return None
+    return parsed if parsed.tzinfo else parsed.replace(tzinfo=timezone.utc)
+
+
+def _discovery_plan(
+    rows: list[dict[str, Any]], now: datetime
+) -> list[tuple[dict[str, Any], frozenset[str]]]:
+    """Które cele dostają kaskadę w tym runie i z pominięciem jakich źródeł.
+
+    - brak wiersza w salon_meta_pages → pełna kaskada;
+    - not_found/error starsze niż DISCOVERY_RETRY_DAYS → kaskada bez źródła,
+      które dało nieudany link (facebook_source), żeby nie kręcić się w kółko;
+    - pending/resolved/mismatch → nic (pending czeka na resolve, mismatch na
+      człowieka — cudza strona nie ma być skanowana po cichu).
+    """
+    plan: list[tuple[dict[str, Any], frozenset[str]]] = []
+    for row in rows:
+        status = row.get("resolve_status")
+        if status is None:
+            plan.append((row, frozenset()))
+            continue
+        if status not in ("not_found", "error"):
+            continue
+        updated = _parse_ts(row.get("page_updated_at"))
+        if updated and (now - updated) < timedelta(days=DISCOVERY_RETRY_DAYS):
+            continue
+        source = row.get("facebook_source")
+        plan.append((row, frozenset({source}) if source else frozenset()))
+    return plan
+
+
+def _save_contact_point(sb: Client):
+    """Uchwyt FB znaleziony na WWW wraca do salon_contact_points (mig 167) —
+    korzysta z niego też outreach. Duplikat = nic (unique salon/kind/value_norm)."""
+
+    def save(point: dict[str, Any]) -> None:
+        try:
+            sb.table("salon_contact_points").upsert(
+                point, on_conflict="salon_ref_id,kind,value_norm", ignore_duplicates=True
+            ).execute()
+        except Exception as exc:  # noqa: BLE001 — zapis to bonus, nie warunek skanu
+            logger.warning("[meta-discovery] salon_contact_points upsert padł: %s", exc)
+
+    return save
+
+
+def _salon_name(sb: Client, salon_ref_id: int) -> str:
+    rows = sb.table("salons").select("name").eq("id", salon_ref_id).limit(1).execute().data or []
+    return str(rows[0].get("name") or "") if rows else ""
+
+
+async def _discover_targets(sb: Client, http: httpx.AsyncClient) -> dict[str, int]:
+    """Kaskada znajdowania strony FB (services/meta_page_discovery) dla celów
+    bez rozwiązanej strony. Zastępuje dawny _sync_targets, który brał link
+    wyłącznie z profilu Booksy — salon bez linku tam nigdy nie wchodził do skanu."""
+    rows = sb.table("v_meta_ads_discovery_targets").select("*").execute().data or []
+    plan = _discovery_plan(rows, datetime.now(timezone.utc))[:DISCOVERY_BATCH]
+    save = _save_contact_point(sb)
+    stats = {"candidates": len(plan), "found": 0, "missing": 0}
+    now_iso = datetime.now(timezone.utc).isoformat()
+    for row, skip in plan:
+        target = DiscoveryTarget(
+            salon_ref_id=row["salon_ref_id"],
+            booksy_id=row["booksy_id"],
+            name=row.get("name") or "",
+            city=row.get("city"),
+            facebook_url_booksy=row.get("facebook_url_booksy"),
+            facebook_url_crawl=row.get("facebook_url_crawl"),
+            website=row.get("website"),
+        )
+        try:
+            found = await discover_facebook_page(
+                target,
+                http,
+                brave_api_key=settings.brave_search_api_key,
+                save_contact_point=save,
+                skip_sources=skip,
+            )
+        except Exception as exc:  # noqa: BLE001 — jeden salon nie wywala runu
+            logger.warning("[meta-discovery] salon_ref_id=%s padł: %s", target.salon_ref_id, exc)
+            found = None
+
+        if found:
+            patch = {
+                "facebook_url": found.facebook_url,
+                "facebook_source": found.source,
+                "discovery_confidence": found.confidence,
+                "resolve_status": "pending",
+                "resolve_error": None,
+                "page_id": None,
+                "page_name": None,
+                "resolved_at": None,
+            }
+            stats["found"] += 1
+            logger.info(
+                "[meta-discovery] %s (%s) -> %s [%s]",
+                target.name, target.salon_ref_id, found.facebook_url, found.source,
+            )
+        else:
+            # Wiersz not_found bez źródła = „nic w żadnym źródle"; plan ponowi
+            # go po DISCOVERY_RETRY_DAYS zamiast codziennie palić crawl i Brave.
+            patch = {
+                "facebook_url": "",
+                "facebook_source": None,
+                "discovery_confidence": None,
+                "resolve_status": "not_found",
+                "resolve_error": "brak strony FB w żadnym źródle (Booksy, WWW, wyszukiwarka)",
+                "page_id": None,
+                "page_name": None,
+            }
+            stats["missing"] += 1
+            logger.info(
+                "[meta-discovery] %s (%s): brak strony FB w żadnym źródle",
+                target.name, target.salon_ref_id,
+            )
+        sb.table("salon_meta_pages").upsert(
+            {
+                "salon_ref_id": target.salon_ref_id,
+                "booksy_id": target.booksy_id,
+                "updated_at": now_iso,
+                **patch,
+            },
+            on_conflict="salon_ref_id",
         ).execute()
-        logger.info("[meta-ads] nowych salonów w kolejce: %d", len(fresh))
+        if settings.brave_search_api_key:
+            await asyncio.sleep(1.1)  # limit Brave: 1 zapytanie na sekundę
+    logger.info("[meta-discovery] run: %s", stats)
+    return stats
 
 
 async def _resolve_pending(sb: Client, http: httpx.AsyncClient) -> None:
     pending = (
         sb.table("salon_meta_pages")
-        .select("salon_ref_id, facebook_url")
+        .select("salon_ref_id, facebook_url, facebook_source")
         .eq("resolve_status", "pending")
         .limit(RESOLVE_BATCH)
         .execute()
@@ -175,6 +296,20 @@ async def _resolve_pending(sb: Client, http: httpx.AsyncClient) -> None:
                         "resolved_at": datetime.now(timezone.utc).isoformat(),
                     }
                 )
+                # Link spoza Booksy (stopka WWW, wyszukiwarka) bywa cudzy —
+                # nazwa strony musi pasować do salonu, inaczej nie skanujemy.
+                if row.get("facebook_source") not in (None, "booksy"):
+                    salon_name = _salon_name(sb, row["salon_ref_id"])
+                    if not page_name_matches(res.get("pageName"), salon_name):
+                        patch.update(
+                            {
+                                "resolve_status": "mismatch",
+                                "resolve_error": (
+                                    f"nazwa strony «{res.get('pageName')}» nie pasuje "
+                                    f"do salonu «{salon_name}»"
+                                ),
+                            }
+                        )
             else:
                 patch.update(
                     {"resolve_status": "not_found", "resolve_error": res.get("reason")}
@@ -556,7 +691,7 @@ async def _scan_salon(
 
 
 async def meta_ads_refresh_cron(ctx: dict[str, Any]) -> dict[str, Any]:
-    """Nightly: sync targets → resolve pending → skan resolved → alerty."""
+    """Nightly: kaskada znajdowania stron FB → resolve pending → skan resolved → alerty."""
     # Import lokalny — unika cyklu importów przy starcie workera.
     from workers.scrape_refresh import _post_monitoring_alerts
 
@@ -566,7 +701,7 @@ async def meta_ads_refresh_cron(ctx: dict[str, Any]) -> dict[str, Any]:
         return {"skipped": "no_api_key"}
 
     async with httpx.AsyncClient() as http:
-        _sync_targets(sb)
+        await _discover_targets(sb, http)
         await _resolve_pending(sb, http)
 
         resolved = (
