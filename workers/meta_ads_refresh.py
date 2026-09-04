@@ -674,9 +674,13 @@ async def _scan_salon(
         platforms = a.get("platforms") or None
         if platforms and platforms != row.get("platforms"):
             patch["platforms"] = platforms
-        started = a.get("startedRunningOn")
-        if started and started != row.get("started_running_on"):
-            patch["started_running_on"] = started
+        # NIE `started` — to nazwa listy nowych reklam z góry funkcji; nadpisana
+        # tu datą, wysadzała _ad_alerts („'str' object has no attribute 'get'")
+        # przy każdym skanie z nowymi reklamami po baseline — zero alertów
+        # ad_started/ad_stopped od wdrożenia mig 169 do 2026-09-04.
+        started_on = a.get("startedRunningOn")
+        if started_on and started_on != row.get("started_running_on"):
+            patch["started_running_on"] = started_on
         # Wideo wygasa (fbcdn) — odświeżamy URL przy każdym skanie.
         if a.get("videoUrl"):
             patch["video_url"] = a["videoUrl"]
