@@ -40,6 +40,9 @@ class Settings(BaseSettings):
     # returns the raw business JSON we already know how to ingest.
     bextract_api_url: str = "https://api.booksyaudit.pl"
     bextract_api_key: str = ""
+    # Brave Search API — krok „wyszukiwarka" kaskady znajdowania strony FB salonu
+    # (services/meta_page_discovery). Pusty = krok pomijany.
+    brave_search_api_key: str = ""
 
     # Worker self-identification for SELECT ... FOR UPDATE SKIP LOCKED.
     # Set per-process in PM2 ecosystem so logs + locked_by columns disambiguate.
