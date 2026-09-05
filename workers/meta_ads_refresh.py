@@ -44,10 +44,13 @@ from config import settings
 
 logger = logging.getLogger(__name__)
 
-# Limity per run — skan jest tani, ale FB nie lubi salw; kolejka ma ~32 salony,
-# więc pełny obieg i tak domyka się w jednym runie.
+# Limity per run — skan jest tani, ale FB nie lubi salw. Po kaskadzie
+# znajdowania stron (2026-09-04) rozwiązanych salonów jest 53 i rośnie z każdą
+# watchlistą/raportem; przy FETCH_BATCH=40 cron 06:15 skanował 39 i cicho
+# pomijał resztę (log: „scanned: 39”). Jeden skan to ~10-20 s w bextract,
+# więc 120 mieści się w oknie nocnym z zapasem.
 RESOLVE_BATCH = 12
-FETCH_BATCH = 40
+FETCH_BATCH = 120
 # Kaskada znajdowania strony FB: ile salonów na run (każdy to crawl WWW i/lub
 # 1-2 zapytania do Brave) i po ilu dniach ponawiać nieudane.
 DISCOVERY_BATCH = 15
