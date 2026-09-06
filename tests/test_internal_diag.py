@@ -116,3 +116,40 @@ def test_endpoint_assembles_sections_independently(monkeypatch, tmp_path):
     assert body["backup"]["error"] == "brak plików", "brak zrzutów to informacja, nie wyjątek"
     assert body["redis"]["ok"] is False and body["redis"]["queues"] == {}
     assert body["crons"]["items"] == []
+
+
+def test_tail_lines_reads_only_the_end_and_filters_errors(tmp_path):
+    log = tmp_path / "bagent-worker-error.log"
+    body = "\n".join(f"httpx INFO HTTP Request {i}" for i in range(5000))
+    body += "\nTraceback (most recent call last):\n  File x\nRuntimeError: Konga 504\nhttpx INFO ok\n"
+    log.write_text(body)
+    lines = diag.tail_lines(log, max_bytes=4096)
+    assert lines[-1] == "httpx INFO ok"
+    assert len(lines) < 200, "czytamy tylko końcówkę pliku"
+    tails = diag.pm2_log_tails(names=("bagent-worker", "nie-ma"), log_dir=tmp_path)
+    assert tails["bagent-worker"]["errors"] == ["Traceback (most recent call last):", "RuntimeError: Konga 504"]
+    assert tails["bagent-worker"]["tail"][-1] == "httpx INFO ok"
+    assert tails["nie-ma"] == {"file": str(tmp_path / "nie-ma-error.log"), "errors": [], "tail": []}
+
+
+def test_endpoint_logs_flag_adds_pm2_tails(monkeypatch, tmp_path):
+    async def fake_pm2() -> dict:
+        return {"processes": [], "expected": list(diag.EXPECTED_PM2)}
+
+    async def fake_sha() -> str:
+        return "abc1234"
+
+    monkeypatch.setattr(diag, "pm2_processes", fake_pm2)
+    monkeypatch.setattr(diag, "git_sha", fake_sha)
+    monkeypatch.setattr(diag, "PM2_LOG_DIR", tmp_path)
+    (tmp_path / "bagent-worker-error.log").write_text("INFO start\nERROR boom\n")
+    prev = getattr(app.state, "arq", None)
+    app.state.arq = None
+    try:
+        plain = client.get("/api/internal/diag", headers={"x-api-key": settings.api_key}).json()
+        with_logs = client.get("/api/internal/diag", params={"logs": "1"}, headers={"x-api-key": settings.api_key}).json()
+    finally:
+        app.state.arq = prev
+    assert "logs" not in plain, "bez ?logs=1 odpowiedź zostaje lekka"
+    assert with_logs["logs"]["bagent-worker"]["errors"] == ["ERROR boom"]
+    assert with_logs["logs"]["bagent-worker"]["tail"] == ["INFO start", "ERROR boom"]

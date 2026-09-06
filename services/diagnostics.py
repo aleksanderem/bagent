@@ -181,6 +181,48 @@ async def redis_queues(pool: Any) -> dict[str, Any]:
     return {"ok": True, "queues": queues}
 
 
+PM2_LOG_DIR = Path(os.path.expanduser("~/.pm2/logs"))
+LOG_TAIL_BYTES = 256 * 1024
+LOG_LINE_MAX = 300
+LOG_ERROR_RE = re.compile(r"(ERROR|CRITICAL|WARNING|Traceback|Exception|Error:|\bERR\b|UnhandledPromise)")
+
+
+def tail_lines(path: Path, max_bytes: int = LOG_TAIL_BYTES) -> list[str]:
+    """Ostatnie linie pliku bez czytania całości (logi PM2 bywają duże)."""
+    try:
+        size = path.stat().st_size
+        with path.open("rb") as fh:
+            fh.seek(max(0, size - max_bytes))
+            chunk = fh.read()
+    except OSError:
+        return []
+    text = chunk.decode(errors="replace")
+    lines = text.splitlines()
+    if size > max_bytes and lines:
+        lines = lines[1:]  # pierwsza linia może być ucięta w środku
+    return [ln.rstrip()[:LOG_LINE_MAX] for ln in lines if ln.strip()]
+
+
+def pm2_log_tails(names: tuple[str, ...] = EXPECTED_PM2, log_dir: Path | None = None, errors_n: int = 25, tail_n: int = 10) -> dict[str, Any]:
+    """Dla każdego procesu PM2: ostatnie linie z błędami i surowy ogon error-loga.
+
+    Python loguje na stderr, więc `<nazwa>-error.log` zawiera też INFO —
+    `errors` to tylko linie wyglądające na problem, `tail` to ostatnie linie
+    bez filtra (kontekst, „co robił przed chwilą").
+    """
+    log_dir = log_dir or PM2_LOG_DIR
+    out: dict[str, Any] = {}
+    for name in names:
+        err_path = log_dir / f"{name}-error.log"
+        lines = tail_lines(err_path)
+        out[name] = {
+            "file": str(err_path),
+            "errors": [ln for ln in lines if LOG_ERROR_RE.search(ln)][-errors_n:],
+            "tail": lines[-tail_n:],
+        }
+    return out
+
+
 async def git_sha() -> str | None:
     try:
         return (await _run(["git", "rev-parse", "--short", "HEAD"], cwd=REPO_ROOT)).strip() or None
@@ -188,7 +230,7 @@ async def git_sha() -> str | None:
         return None
 
 
-async def collect_diagnostics(pool: Any, backup_dir: str) -> dict[str, Any]:
+async def collect_diagnostics(pool: Any, backup_dir: str, include_logs: bool = False) -> dict[str, Any]:
     pm2, sha = await asyncio.gather(pm2_processes(), git_sha())
     redis = await redis_queues(pool)
     crons: list[dict[str, Any]] = []
@@ -213,4 +255,5 @@ async def collect_diagnostics(pool: Any, backup_dir: str) -> dict[str, Any]:
         "backup": latest_backup(backup_dir),
         "redis": redis,
         "crons": {"items": crons, **({"error": crons_error} if crons_error else {})},
+        **({"logs": pm2_log_tails()} if include_logs else {}),
     }

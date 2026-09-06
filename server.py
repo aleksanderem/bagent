@@ -968,16 +968,17 @@ async def sse_events() -> EventSourceResponse:
 
 
 @app.get("/api/internal/diag", dependencies=[Depends(verify_api_key)])
-async def internal_diag() -> dict:
+async def internal_diag(logs: bool = False) -> dict:
     """Zakładka admina „Crawlery i diagnostyka" (Convex convex/admin/diagnostics.ts).
 
     To, czego Convex sam nie zobaczy: procesy PM2 na tytanie, dysk, wiek
     ostatniego zrzutu bazy, kolejki arq z żywotnością workerów i ślady
     cronów z Redisa. Każda sekcja niezależna — błąd jednej nie psuje reszty.
+    `?logs=1` dokłada ogony error-logów PM2 (linie z błędami + ostatnie 10).
     """
     from services.diagnostics import collect_diagnostics
 
-    return await collect_diagnostics(getattr(app.state, "arq", None), settings.backup_dir)
+    return await collect_diagnostics(getattr(app.state, "arq", None), settings.backup_dir, include_logs=logs)
 
 
 @app.get("/api/internal/settings", dependencies=[Depends(verify_api_key)])
