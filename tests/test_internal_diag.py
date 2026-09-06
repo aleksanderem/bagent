@@ -153,3 +153,30 @@ def test_endpoint_logs_flag_adds_pm2_tails(monkeypatch, tmp_path):
     assert "logs" not in plain, "bez ?logs=1 odpowiedź zostaje lekka"
     assert with_logs["logs"]["bagent-worker"]["errors"] == ["ERROR boom"]
     assert with_logs["logs"]["bagent-worker"]["tail"] == ["INFO start", "ERROR boom"]
+
+
+def test_parse_systemd_merges_timers_unit_files_and_failed():
+    timers = json.dumps([
+        {"next": 1788712800000000, "left": 1, "last": 1788712200022376, "passed": 1, "unit": "booksy-hc.timer", "activates": "booksy-hc.service"},
+        {"next": 0, "left": 0, "last": 0, "passed": 0, "unit": "booksy-never.timer", "activates": "booksy-never.service"},
+    ])
+    units = json.dumps([
+        {"unit_file": "booksy-hc.timer", "state": "enabled"},
+        {"unit_file": "booksy-pg-dump-upload.timer", "state": "disabled"},
+    ])
+    failed = json.dumps([{"unit": "booksy-x.service", "description": "X", "load": "loaded", "active": "failed", "sub": "failed"}])
+    out = diag.parse_systemd(timers, units, failed)
+    by = {t["unit"]: t for t in out["timers"]}
+    assert by["booksy-hc.timer"]["state"] == "enabled"
+    assert by["booksy-hc.timer"]["last"] == "2026-09-06T16:30:00+00:00"
+    assert by["booksy-hc.timer"]["next"] == "2026-09-06T16:40:00+00:00"
+    assert by["booksy-never.timer"]["last"] is None and by["booksy-never.timer"]["next"] is None
+    assert by["booksy-pg-dump-upload.timer"] == {"unit": "booksy-pg-dump-upload.timer", "activates": None, "last": None, "next": None, "state": "disabled"}, "wyłączony timer nie jest w list-timers, ale musi być na liście"
+    assert out["failed"] == [{"unit": "booksy-x.service", "description": "X", "sub": "failed"}]
+    assert diag.parse_systemd("", "", "") == {"timers": [], "failed": []}
+
+
+def test_parse_pm2_jlist_reports_started_at():
+    now_ms = int(datetime.now().timestamp() * 1000)
+    rows = diag.parse_pm2_jlist(json.dumps([{"name": "w", "pm2_env": {"status": "online", "restart_time": 0, "pm_uptime": now_ms - 60_000}, "monit": {}}]))
+    assert rows[0]["started_at"].endswith("+00:00")
