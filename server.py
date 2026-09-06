@@ -62,6 +62,13 @@ async def lifespan(fastapi_app: FastAPI):
         logger.warning("arq Redis pool failed to connect at startup: %s", e)
         arq_pool = None
     fastapi_app.state.arq = arq_pool
+    # Nadpisania z panelu admina „Klucze i stałe" (Convex systemSettings) —
+    # proces API bierze je przy starcie; workery mają do tego cron co 5 min.
+    try:
+        from services.settings_sync import sync_settings
+        logger.info("[settings-sync] start: %s", await sync_settings(settings))
+    except Exception as e:  # noqa: BLE001
+        logger.warning("[settings-sync] start padł: %s", e)
     try:
         yield
     finally:
@@ -722,7 +729,7 @@ async def suggest_versum_mappings(request: VersumSuggestRequest) -> AnalyzeRespo
         # No worker enqueue needed — JobStore alone serves this case via
         # the /result endpoint reading job.result_data.
         job_id = str(uuid.uuid4())
-        job = store.create_job(job_id, f"versum-0-services", meta={"type": "versum_suggest"})
+        job = store.create_job(job_id, "versum-0-services", meta={"type": "versum_suggest"})
         job.result_data = {"suggestions": [], "serviceCount": 0, "suggestionCount": 0}
         job.mark_running()
         job.mark_completed()

@@ -91,6 +91,16 @@ async def startup(ctx: dict[str, Any]) -> None:
     except Exception as e:  # noqa: BLE001
         logger.warning("Sentry init for worker failed: %s", e)
 
+    # Nadpisania z panelu admina „Klucze i stałe" (Convex systemSettings) —
+    # przy starcie, potem cron settings_sync_cron co 5 minut. Brak Convexa
+    # nie może położyć workera, więc sync sam łapie wyjątki.
+    try:
+        from config import settings
+        from services.settings_sync import sync_settings
+        logger.info("[settings-sync] start: %s", await sync_settings(settings))
+    except Exception as e:  # noqa: BLE001
+        logger.warning("[settings-sync] start padł: %s", e)
+
     # Observability — arq's CLI does NOT accept --log-level (verified
     # 2026-05-24, crashloops with "No such option"), so we set up
     # Python logging programmatically here at worker startup. This
@@ -282,6 +292,9 @@ try:  # pragma: no cover
         # i stopy reklam wchodzą do strumienia alertów monitoringu, zestawiane
         # ze zmianami cenników w feedzie i digestach.
         cron("workers.meta_ads_refresh.meta_ads_refresh_cron", hour={6}, minute={15}),
+        # Panel „Klucze i stałe": nadpisania kluczy z Convexa co 5 minut
+        # (services/settings_sync.py). Każdy proces synchronizuje się osobno.
+        cron("services.settings_sync.settings_sync_cron", minute={i for i in range(3, 60, 5)}),
         # Reap stuck jobs every 10 minutes.
         cron("workers.scrape_refresh.reap_stuck_jobs", minute={i for i in range(2, 60, 10)}),
         # beads BEAUTY_AUDIT-1mb — competitor report queue drain + zombie reap
@@ -558,6 +571,9 @@ try:  # pragma: no cover
             "workers.main.report_worker_heartbeat",
             minute={i for i in range(0, 60, 5)},
         ),
+        # Panel „Klucze i stałe": nadpisania kluczy z Convexa co 5 minut —
+        # osobno dla tego procesu (ma własny obiekt settings).
+        cron("services.settings_sync.settings_sync_cron", minute={i for i in range(3, 60, 5)}),
     ]
 except Exception:  # noqa: BLE001
     SCRAPE_CRONS = []
