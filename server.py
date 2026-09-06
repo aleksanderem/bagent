@@ -967,6 +967,19 @@ async def sse_events() -> EventSourceResponse:
     return EventSourceResponse(event_generator())
 
 
+@app.get("/api/internal/diag", dependencies=[Depends(verify_api_key)])
+async def internal_diag() -> dict:
+    """Zakładka admina „Crawlery i diagnostyka" (Convex convex/admin/diagnostics.ts).
+
+    To, czego Convex sam nie zobaczy: procesy PM2 na tytanie, dysk, wiek
+    ostatniego zrzutu bazy, kolejki arq z żywotnością workerów i ślady
+    cronów z Redisa. Każda sekcja niezależna — błąd jednej nie psuje reszty.
+    """
+    from services.diagnostics import collect_diagnostics
+
+    return await collect_diagnostics(getattr(app.state, "arq", None), settings.backup_dir)
+
+
 @app.get("/api/internal/settings", dependencies=[Depends(verify_api_key)])
 async def internal_settings(key: str | None = None) -> dict:
     """Panel admina „Klucze i stałe" (Convex settings/reveal.ts).

@@ -44,6 +44,9 @@ class Settings(BaseSettings):
     # (services/meta_page_discovery). Pusty = krok pomijany.
     brave_search_api_key: str = ""
 
+    # Katalog zrzutów bazy (pg_dump) — diagnostyka pokazuje wiek najnowszego.
+    backup_dir: str = "/var/backups/supabase"
+
     # Worker self-identification for SELECT ... FOR UPDATE SKIP LOCKED.
     # Set per-process in PM2 ecosystem so logs + locked_by columns disambiguate.
     scrape_worker_id: str = "scrape-worker-default"

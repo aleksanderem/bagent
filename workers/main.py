@@ -101,6 +101,16 @@ async def startup(ctx: dict[str, Any]) -> None:
     except Exception as e:  # noqa: BLE001
         logger.warning("[settings-sync] start padł: %s", e)
 
+    # Harmonogram cronów do Redisa (bagent:cron:*), żeby zakładka „Crawlery
+    # i diagnostyka" widziała też crony, które jeszcze nie chodziły. Obie
+    # klasy workerów publikują pełną listę — wpisy są idempotentne.
+    try:
+        from services.cron_runs import publish_schedules
+        entries = [(cj.name, "scrape", cj) for cj in SCRAPE_CRONS] + [(cj.name, "reports", cj) for cj in REPORT_CRONS]
+        await publish_schedules(ctx.get("redis"), entries)
+    except Exception as e:  # noqa: BLE001
+        logger.warning("[cron-runs] publikacja harmonogramu nieudana: %s", e)
+
     # Observability — arq's CLI does NOT accept --log-level (verified
     # 2026-05-24, crashloops with "No such option"), so we set up
     # Python logging programmatically here at worker startup. This

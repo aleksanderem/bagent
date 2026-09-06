@@ -32,6 +32,8 @@ import logging
 import traceback
 from typing import Any, Awaitable, Callable, Optional
 
+from services.cron_runs import track_cron_run
+
 logger = logging.getLogger(__name__)
 
 # Legacy bagent_pipeline values, kept because Convex's withBagentRetry writes
@@ -228,8 +230,13 @@ def wrap_crons(cron_jobs: list[Any]) -> list[Any]:
     import_string at construction time, so `cj.coroutine` is always a real
     coroutine function here — both registration styles end up identical.
     The CronJob is a dataclass: `replace` keeps name/schedule/timeout/max_tries
-    and swaps only the coroutine (new object, original untouched)."""
-    return [dataclasses.replace(cj, coroutine=log_task_errors(cj.coroutine)) for cj in cron_jobs]
+    and swaps only the coroutine (new object, original untouched).
+    Na wierzchu track_cron_run zostawia w Redisie ślad przebiegu
+    (services/cron_runs.py) dla zakładki „Crawlery i diagnostyka"."""
+    return [
+        dataclasses.replace(cj, coroutine=track_cron_run(cj.name, log_task_errors(cj.coroutine)))
+        for cj in cron_jobs
+    ]
 
 
 def unwrapped(functions: list[Callable[..., Any]]) -> list[Callable[..., Any]]:
