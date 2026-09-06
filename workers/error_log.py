@@ -25,6 +25,7 @@ alter the original exception (arq still retries / fails the job as before).
 from __future__ import annotations
 
 import asyncio
+import time
 import dataclasses
 import functools
 import json
@@ -138,8 +139,13 @@ def build_error_row(
     ctx: Optional[dict] = None,
     args: tuple = (),
     kwargs: Optional[dict] = None,
+    note: Optional[str] = None,
 ) -> dict[str, Any]:
-    """Pure function: shape one bagent_error_log row from a failed task call."""
+    """Pure function: shape one bagent_error_log row from a failed task call.
+
+    `note` zastępuje pusty opis wyjątku (CancelledError nie ma treści) —
+    np. „przerwane po 12 s (restart/abort workera)" vs „timeout po 14400 s".
+    """
     ctx = ctx or {}
     kwargs = kwargs or {}
     request = _first_dict(args, kwargs)
@@ -158,7 +164,7 @@ def build_error_row(
         "attempt_number": min(max(job_try, 1), 3),
         "request_payload": payload,
         "error_type": classify_error(exc),
-        "error_message": f"{type(exc).__name__}: {exc}"[:_MAX_MESSAGE],
+        "error_message": f"{type(exc).__name__}: {note or exc}"[:_MAX_MESSAGE],
         "stack_trace": "".join(
             traceback.format_exception(type(exc), exc, exc.__traceback__)
         )[-_MAX_STACK:],
@@ -176,12 +182,13 @@ async def record_task_error(
     ctx: Optional[dict] = None,
     args: tuple = (),
     kwargs: Optional[dict] = None,
+    note: Optional[str] = None,
 ) -> bool:
     """Write one row. Returns True on success; never raises."""
     if type(exc).__name__ in _SKIP_EXC_NAMES:
         return False
     try:
-        row = build_error_row(task_name, exc, ctx=ctx, args=args, kwargs=kwargs)
+        row = build_error_row(task_name, exc, ctx=ctx, args=args, kwargs=kwargs, note=note)
         await asyncio.wait_for(asyncio.to_thread(_insert_row_sync, row), WRITE_TIMEOUT_S)
         exc._bagent_error_logged = True  # type: ignore[attr-defined] — read by server.py's HTTP handler
         logger.info("bagent_error_log: recorded %s failure (audit=%s)", task_name, row["convex_audit_id"])
@@ -194,6 +201,20 @@ async def record_task_error(
         return False
 
 
+# arq job_timeout obu workerów (workers/main.py); poniżej 95% tego czasu
+# CancelledError nie może być timeoutem — to restart albo abort.
+DEFAULT_JOB_TIMEOUT_S = 4 * 60 * 60
+
+
+def cancellation_note(exc: BaseException, elapsed_s: float, job_timeout_s: float = DEFAULT_JOB_TIMEOUT_S) -> Optional[str]:
+    """Opis dla CancelledError: przerwanie (restart/abort) czy prawdziwy timeout."""
+    if not isinstance(exc, asyncio.CancelledError):
+        return None
+    if elapsed_s < job_timeout_s * 0.95:
+        return f"przerwane po {int(elapsed_s)} s (restart/abort workera)"
+    return f"timeout po {int(elapsed_s)} s"
+
+
 def log_task_errors(coro: Callable[..., Awaitable[Any]]) -> Callable[..., Awaitable[Any]]:
     """Wrap an arq task so any exception is recorded in bagent_error_log
     and then re-raised unchanged. `functools.wraps` keeps `__qualname__`,
@@ -204,13 +225,17 @@ def log_task_errors(coro: Callable[..., Awaitable[Any]]) -> Callable[..., Awaita
 
     @functools.wraps(coro)
     async def wrapper(ctx: dict, *args: Any, **kwargs: Any) -> Any:
+        started = time.monotonic()
         try:
             return await coro(ctx, *args, **kwargs)
         except (Exception, asyncio.CancelledError) as exc:
-            # CancelledError is how arq delivers job_timeout (asyncio.wait_for).
-            # It is a BaseException: record it as error_type="timeout" and
-            # re-raise unchanged so arq still marks the job as timed out.
-            await record_task_error(coro.__name__, exc, ctx=ctx, args=args, kwargs=kwargs)
+            # CancelledError is how arq delivers job_timeout (asyncio.wait_for),
+            # but ALSO how a worker restart/abort cancels running jobs. Both
+            # stay error_type="timeout" (CHECK in mig 014); the message says
+            # which — elapsed far below job_timeout means an interruption,
+            # not a timeout. Re-raise unchanged so arq handles the job as usual.
+            note = cancellation_note(exc, time.monotonic() - started)
+            await record_task_error(coro.__name__, exc, ctx=ctx, args=args, kwargs=kwargs, note=note)
             raise
 
     wrapper._bagent_error_log_wrapped = True  # type: ignore[attr-defined]

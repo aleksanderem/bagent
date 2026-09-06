@@ -68,6 +68,9 @@ def parse_pm2_jlist(raw: str) -> list[dict[str, Any]]:
         env = proc.get("pm2_env") or {}
         monit = proc.get("monit") or {}
         uptime_ms = None
+        started_at = None
+        if env.get("pm_uptime"):
+            started_at = datetime.fromtimestamp(int(env["pm_uptime"]) / 1000, UTC).isoformat(timespec="seconds")
         if env.get("status") == "online" and env.get("pm_uptime"):
             uptime_ms = max(0, now_ms - int(env["pm_uptime"]))
         out.append(
@@ -76,6 +79,7 @@ def parse_pm2_jlist(raw: str) -> list[dict[str, Any]]:
                 "status": env.get("status") or "unknown",
                 "restarts": int(env.get("restart_time") or 0),
                 "uptime_ms": uptime_ms,
+                "started_at": started_at,
                 "memory_mb": round((monit.get("memory") or 0) / 1024 / 1024, 1),
                 "cpu": monit.get("cpu") or 0,
             }
@@ -223,6 +227,67 @@ def pm2_log_tails(names: tuple[str, ...] = EXPECTED_PM2, log_dir: Path | None = 
     return out
 
 
+SYSTEMD_TIMER_GLOB = "booksy-*"
+BACKUP_LOG = Path("/var/log/backup-supabase.log")
+
+
+def _usec_to_iso(value: Any) -> str | None:
+    """systemctl --output=json podaje czasy w mikrosekundach od epoki (0 = brak)."""
+    try:
+        usec = int(value)
+    except (TypeError, ValueError):
+        return None
+    if usec <= 0:
+        return None
+    return datetime.fromtimestamp(usec / 1_000_000, UTC).isoformat(timespec="seconds")
+
+
+def parse_systemd(timers_json: str, unit_files_json: str, failed_json: str) -> dict[str, Any]:
+    """Timery booksy-* (ostatni/następny start, czy włączony) + jednostki w stanie failed."""
+    states = {u.get("unit_file"): u.get("state") for u in json.loads(unit_files_json or "[]")}
+    timers = []
+    for t in json.loads(timers_json or "[]"):
+        unit = t.get("unit") or ""
+        timers.append(
+            {
+                "unit": unit,
+                "activates": t.get("activates"),
+                "last": _usec_to_iso(t.get("last")),
+                "next": _usec_to_iso(t.get("next")),
+                "state": states.get(unit, "unknown"),
+            }
+        )
+    # Timery wyłączone nie pojawiają się w list-timers — dopisz je z unit-files.
+    listed = {t["unit"] for t in timers}
+    for unit, state in states.items():
+        if unit and unit not in listed:
+            timers.append({"unit": unit, "activates": None, "last": None, "next": None, "state": state})
+    timers.sort(key=lambda t: t["unit"])
+    failed = [
+        {"unit": u.get("unit"), "description": u.get("description"), "sub": u.get("sub")}
+        for u in json.loads(failed_json or "[]")
+    ]
+    return {"timers": timers, "failed": failed}
+
+
+async def systemd_status() -> dict[str, Any]:
+    """systemctl działa bez uprawnień do odczytu; błąd = sekcja z `error`, reszta normalnie."""
+    try:
+        timers, units, failed = await asyncio.gather(
+            _run(["systemctl", "list-timers", "--all", "--no-pager", "--output=json", SYSTEMD_TIMER_GLOB]),
+            _run(["systemctl", "list-unit-files", "--no-pager", "--output=json", f"{SYSTEMD_TIMER_GLOB}.timer"]),
+            _run(["systemctl", "list-units", "--state=failed", "--no-pager", "--output=json"]),
+        )
+        return parse_systemd(timers, units, failed)
+    except Exception as exc:  # noqa: BLE001
+        return {"timers": [], "failed": [], "error": str(exc)}
+
+
+def backup_log_tail(path: Path = BACKUP_LOG, n: int = 15) -> list[str]:
+    """Ogon logu root-crona zrzutu bazy (04:00 UTC) — gdy plik jest czytelny."""
+    return tail_lines(path)[-n:]
+
+
 async def git_sha() -> str | None:
     try:
         return (await _run(["git", "rev-parse", "--short", "HEAD"], cwd=REPO_ROOT)).strip() or None
@@ -231,7 +296,7 @@ async def git_sha() -> str | None:
 
 
 async def collect_diagnostics(pool: Any, backup_dir: str, include_logs: bool = False) -> dict[str, Any]:
-    pm2, sha = await asyncio.gather(pm2_processes(), git_sha())
+    pm2, sha, systemd = await asyncio.gather(pm2_processes(), git_sha(), systemd_status())
     redis = await redis_queues(pool)
     crons: list[dict[str, Any]] = []
     crons_error: str | None = None
@@ -252,7 +317,8 @@ async def collect_diagnostics(pool: Any, backup_dir: str, include_logs: bool = F
         },
         "pm2": pm2,
         "disk": disk_usage("/"),
-        "backup": latest_backup(backup_dir),
+        "backup": {**latest_backup(backup_dir), **({"log_tail": backup_log_tail()} if include_logs else {})},
+        "systemd": systemd,
         "redis": redis,
         "crons": {"items": crons, **({"error": crons_error} if crons_error else {})},
         **({"logs": pm2_log_tails()} if include_logs else {}),
