@@ -991,7 +991,7 @@ async def internal_settings(key: str | None = None) -> dict:
         value = getattr(settings, field)
         text = "" if value is None else str(value)
         entry: dict[str, Any] = {
-            "set": value not in (None, "", False),
+            "set": not (value is None or value == ""),
             "tail": text[-4:] if len(text) >= 8 else "",
         }
         if not any(hint in field for hint in secret_hint):
