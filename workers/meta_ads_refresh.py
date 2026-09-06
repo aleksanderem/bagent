@@ -567,7 +567,7 @@ def _ad_alerts(
                     "title": f"{base['salonName']}: nowa reklama na Meta",
                     "body": (
                         f"Konkurent wypuścił reklamę (start {ad.get('startedRunningOn') or 'dziś'}): "
-                        f"„{text[:180]}…” Zestaw ją z ruchami w jego cenniku."
+                        f"„{text[:180]}…”"
                     ),
                     "metadataJson": None,
                 }
