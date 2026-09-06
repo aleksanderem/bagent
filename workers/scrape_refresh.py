@@ -237,6 +237,9 @@ def _build_monitoring_alerts(
     salon_display = (schedule_rows[0].get("salon_name") or salon_name_fallback or "Salon")
 
     # 1. Per-service diffs (added / removed / price_changed) — authoritative source
+    # Treść alertu = sam fakt (co, u kogo, za ile). Zdania-„wnioski" („może warto
+    # przemyśleć ofertę") usunięte 2026-09-06: były identyczne w każdym wierszu,
+    # a wnioski per zmiana robi interpretacja AI (aiMeaning/aiAction).
     for sd in service_diffs:
         status = sd.get("status")
         service_name = (sd.get("service_name") or "").strip()
@@ -251,8 +254,7 @@ def _build_monitoring_alerts(
                 "service_added",
                 "info",
                 f"{salon_display}: nowa usługa",
-                f"Dodano: {service_name} ({price_display}). "
-                "Rynek się rusza — może warto przemyśleć ofertę.",
+                f"Dodano: {service_name} ({price_display}).",
                 meta={"service_name": service_name, "price": price_display},
             )
         elif status == "removed":
@@ -264,8 +266,7 @@ def _build_monitoring_alerts(
                 # Loss of a service from a competitor = warning per spec
                 "warning",
                 f"{salon_display}: usunięto usługę",
-                f"Konkurent zrezygnował z: {service_name} ({price_display}). "
-                "Może warto rozważyć dodanie tej usługi w swojej ofercie.",
+                f"Konkurent zrezygnował z: {service_name} ({price_display}).",
                 meta={"service_name": service_name, "price": price_display},
             )
         elif status == "price_changed":
@@ -291,8 +292,7 @@ def _build_monitoring_alerts(
                     "price_increase",
                     sev,
                     f"{salon_display}: cena podniesiona — {service_name}",
-                    f"{service_name}: {prev_disp} → {cur_disp}. "
-                    "Sprawdź czy warto utrzymać swój cennik.",
+                    f"{service_name}: {prev_disp} → {cur_disp}.",
                     meta={
                         "service_name": service_name,
                         "prev_price": prev_disp,
@@ -305,8 +305,7 @@ def _build_monitoring_alerts(
                     "price_decrease",
                     sev,
                     f"{salon_display}: cena obniżona — {service_name}",
-                    f"{service_name}: {prev_disp} → {cur_disp}. "
-                    "Konkurent stawia na ostrzejsze ceny — sprawdź swoją strategię.",
+                    f"{service_name}: {prev_disp} → {cur_disp}.",
                     meta={
                         "service_name": service_name,
                         "prev_price": prev_disp,
@@ -326,8 +325,7 @@ def _build_monitoring_alerts(
                 "review_spike",
                 "info",
                 f"{salon_display}: dużo nowych opinii",
-                f"Konkurent zgarnął {reviews_count_delta} nowych opinii. "
-                "Zobacz co takiego robią — i czy da się to powielić.",
+                f"Konkurent zgarnął {reviews_count_delta} nowych opinii.",
                 meta={"reviews_count_delta": reviews_count_delta},
             )
 
@@ -336,8 +334,7 @@ def _build_monitoring_alerts(
                 "review_drop",
                 "warning",
                 f"{salon_display}: ocena spada",
-                f"Ocena konkurenta spadła o {abs(reviews_rank_delta):.2f} pkt. "
-                "Dobre okno żeby przyciągnąć ich niezadowolonych klientów.",
+                f"Ocena konkurenta spadła o {abs(reviews_rank_delta):.2f} pkt.",
                 meta={"reviews_rank_delta": reviews_rank_delta},
             )
 
@@ -349,16 +346,14 @@ def _build_monitoring_alerts(
                     "promotion_started",
                     "info",
                     f"{salon_display}: uruchomił promocję",
-                    "Konkurent wszedł w tryb promowany na Booksy. "
-                    "Sprawdź czy nie warto też zarezerwować widoczności w okolicy.",
+                    "Konkurent wszedł w tryb promowany na Booksy.",
                 )
             elif promoted_current is False:
                 _emit(
                     "promotion_ended",
                     "info",
                     f"{salon_display}: zakończył promocję",
-                    "Konkurent wyłączył tryb promowany. "
-                    "To moment, w którym Twoja widoczność może zyskać kosztem ich rezygnacji.",
+                    "Konkurent wyłączył tryb promowany.",
                 )
 
     return alerts
