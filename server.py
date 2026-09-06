@@ -967,6 +967,39 @@ async def sse_events() -> EventSourceResponse:
     return EventSourceResponse(event_generator())
 
 
+@app.get("/api/internal/settings", dependencies=[Depends(verify_api_key)])
+async def internal_settings(key: str | None = None) -> dict:
+    """Panel admina „Klucze i stałe" (Convex settings/reveal.ts).
+
+    Bez `key`: stan każdego pola Settings tego procesu — czy ustawione i
+    końcówka (4 znaki) — żeby panel wiedział, czy „BRAK" to prawdziwy brak.
+    Z `key`: pełna wartość jednego pola (podgląd na życzenie admina).
+    Chronione tym samym kluczem co reszta API. Wartości niesekretne wracają
+    w całości także bez `key`; sekrety tylko z `key`.
+    """
+    fields = list(type(settings).model_fields.keys())
+    if key:
+        field = key.strip().lower()
+        if field not in fields:
+            raise HTTPException(status_code=404, detail="Nieznany klucz")
+        value = getattr(settings, field)
+        return {"key": field.upper(), "value": "" if value is None else str(value)}
+
+    secret_hint = ("key", "secret", "password", "token", "dsn")
+    out: dict[str, dict[str, Any]] = {}
+    for field in fields:
+        value = getattr(settings, field)
+        text = "" if value is None else str(value)
+        entry: dict[str, Any] = {
+            "set": value not in (None, "", False),
+            "tail": text[-4:] if len(text) >= 8 else "",
+        }
+        if not any(hint in field for hint in secret_hint):
+            entry["value"] = text
+        out[field.upper()] = entry
+    return {"settings": out}
+
+
 @app.get("/api/health")
 async def health() -> dict:
     running = sum(1 for j in store.list_jobs() if j.status == "running")
