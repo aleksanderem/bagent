@@ -1390,6 +1390,42 @@ class SalonJsonIngester:
 
     # -- Manual cleanup on partial failure ----------------------------------
 
+    def _dedup_services_against_prev(self, scrape_id: str) -> str:
+        """mig 194: wiersze usług idą za głową łańcucha.
+
+        Gdy cennik nowego skanu jest identyczny z poprzednim skanem-z-usługami,
+        funkcja SQL usuwa świeżo wstawione wiersze i PRZEPINA stare (z embeddingami,
+        klasyfikacją, wariantami) na nowy skan. Hash cennika liczy wyłącznie SQL
+        (``fn_services_hash``) — jedna definicja, zero powielania w Pythonie.
+
+        Wołać DOPIERO po wpisie do json_ingestion_log: wcześniejsze kroki potrafią
+        ``_unwind_scrape`` nowy skan, a po przepięciu skasowałoby to jedyne wiersze
+        usług salonu. Błąd tutaj jest niefatalny — zostaje stan jak przed mig 194
+        (dwie kopie), a kompaktowanie historii dogoni.
+
+        Zwraca wynik SQL: moved / kept / kept_audit_prev / kept_linked / no_prev /
+        no_rows / no_scrape, albo ``error`` przy wyjątku.
+        """
+        try:
+            res = _retry_http(
+                lambda: self.client.rpc(
+                    "fn_scrape_services_dedup_against_prev", {"p_new": scrape_id}
+                ).execute(),
+                op_name="fn_scrape_services_dedup_against_prev",
+            )
+            data = getattr(res, "data", None)
+            if isinstance(data, list):
+                data = data[0] if data else None
+            if isinstance(data, dict):
+                data = next(iter(data.values()), None)
+            return str(data) if data is not None else "unknown"
+        except Exception as e:  # noqa: BLE001 — niefatalne, patrz docstring
+            logger.warning(
+                "services dedup (mig 194) failed for scrape %s: %s: %s",
+                scrape_id, type(e).__name__, e,
+            )
+            return "error"
+
     def _unwind_scrape(self, scrape_id: str) -> None:
         """Delete a salon_scrapes row and its cascade children.
 
@@ -1537,6 +1573,24 @@ class SalonJsonIngester:
                 self._unwind_scrape(scrape_id)
             raise IngestError(f"failed during audit log: {type(e).__name__}: {e}") from e
 
+        # 7.5. mig 194: cennik identyczny z poprzednim skanem → świeże wiersze
+        # usług precz, stare przepięte na nowy skan (wiersze idą za głową).
+        # Po dzienniku (żaden unwind już nie grozi), przed promocją głowy
+        # (jej bramka embeddingów widzi wtedy przepięte, już zembedowane wiersze).
+        if (
+            dedup_action != "unchanged"
+            and not self.dry_run
+            and scrape_id != "dry-run-uuid"
+            and services_count > 0
+        ):
+            dedup_result = self._dedup_services_against_prev(scrape_id)
+            counts["services_moved"] = 1 if dedup_result == "moved" else 0
+            counts["services_kept"] = 1 if dedup_result.startswith("kept") else 0
+            logger.info(
+                "services dedup (mig 194): booksy_id=%s scrape=%s → %s",
+                booksy_id, scrape_id, dedup_result,
+            )
+
         # 8. Promote the new row to chain head (and convert the previous
         # head to a delta when applicable). For 'unchanged' this is a
         # no-op — the head already exists and was already bumped during
@@ -1661,7 +1715,7 @@ def main() -> int:
     skipped = len(already)
     errors = 0
     error_examples: list[str] = []
-    inserted_totals = {"scrapes": 0, "services": 0, "reviews": 0, "top_services": 0}
+    inserted_totals = {"scrapes": 0, "services": 0, "reviews": 0, "top_services": 0, "services_moved": 0, "services_kept": 0}
 
     abort_threshold = max(10, int(0.05 * total))
 
@@ -1718,6 +1772,7 @@ def main() -> int:
     logger.info("    salon_scrape_services: %d", inserted_totals["services"])
     logger.info("    salon_reviews:         %d", inserted_totals["reviews"])
     logger.info("    salon_top_services:    %d", inserted_totals["top_services"])
+    logger.info("    services dedup (194):  moved=%d kept=%d", inserted_totals.get("services_moved", 0), inserted_totals.get("services_kept", 0))
 
     if error_examples:
         logger.info("  first errors (up to 10):")
