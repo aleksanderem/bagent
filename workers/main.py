@@ -374,18 +374,21 @@ try:  # pragma: no cover
         # Iter 8 — outreach deployer: ship approved templates and
         # segments to wintact every 2 min. Idempotent (skip rows whose
         # wintact_*_id is already set).
-        cron(
-            "workers.outreach_deployer.deploy_approved_templates",
-            minute={i for i in range(0, 60, 2)},
-        ),
-        cron(
-            "workers.outreach_deployer.deploy_approved_segments",
-            minute={i for i in range(0, 60, 5)},
-        ),
-        cron(
-            "workers.outreach_deployer.activate_approved_sequences",
-            minute={i for i in range(0, 60, 5)},
-        ),
+        # WYLACZONE 2026-09-15 (decyzja Alexa): caly outreach przez Wintact stoi —
+        # deployer, orchestrator (zapis do sekwencji + wysylka) i maszyna stanow.
+        # Wlaczenie z powrotem = odkomentowanie + swiadoma decyzja o wysylce.
+        # cron(
+        #     "workers.outreach_deployer.deploy_approved_templates",
+        #     minute={i for i in range(0, 60, 2)},
+        # ),
+        # cron(
+        #     "workers.outreach_deployer.deploy_approved_segments",
+        #     minute={i for i in range(0, 60, 5)},
+        # ),
+        # cron(
+        #     "workers.outreach_deployer.activate_approved_sequences",
+        #     minute={i for i in range(0, 60, 5)},
+        # ),
         # Iter 8 — outreach orchestrator: enrol every 5 min, send loop
         # every minute (capped at 25 sends per minute by wintact rate
         # limit; orchestrator slices accordingly).
@@ -407,28 +410,34 @@ try:  # pragma: no cover
         #     "workers.outreach_event_detector.detect_and_emit_price_events",
         #     hour={5}, minute={40},
         # ),
-        cron(
-            "workers.outreach_orchestrator.enroll_due_contacts",
-            minute={i for i in range(0, 60, 5)},
-        ),
-        cron(
-            "workers.outreach_orchestrator.send_due_messages",
-            minute={i for i in range(0, 60)},
-        ),
+        # WYLACZONE 2026-09-15 (decyzja Alexa): caly outreach przez Wintact stoi —
+        # deployer, orchestrator (zapis do sekwencji + wysylka) i maszyna stanow.
+        # Wlaczenie z powrotem = odkomentowanie + swiadoma decyzja o wysylce.
+        # cron(
+        #     "workers.outreach_orchestrator.enroll_due_contacts",
+        #     minute={i for i in range(0, 60, 5)},
+        # ),
+        # cron(
+        #     "workers.outreach_orchestrator.send_due_messages",
+        #     minute={i for i in range(0, 60)},
+        # ),
         # Iter 8 — state machine: cold ingestion every 30 min,
         # purchase-driven transitions every 15 min, stale expiry hourly.
-        cron(
-            "workers.state_transition_processor.ingest_new_cold_contacts",
-            minute={0, 30},
-        ),
-        cron(
-            "workers.state_transition_processor.apply_purchase_transitions",
-            minute={i for i in range(0, 60, 15)},
-        ),
-        cron(
-            "workers.state_transition_processor.expire_stale_states",
-            minute={45},
-        ),
+        # WYLACZONE 2026-09-15 (decyzja Alexa): caly outreach przez Wintact stoi —
+        # deployer, orchestrator (zapis do sekwencji + wysylka) i maszyna stanow.
+        # Wlaczenie z powrotem = odkomentowanie + swiadoma decyzja o wysylce.
+        # cron(
+        #     "workers.state_transition_processor.ingest_new_cold_contacts",
+        #     minute={0, 30},
+        # ),
+        # cron(
+        #     "workers.state_transition_processor.apply_purchase_transitions",
+        #     minute={i for i in range(0, 60, 15)},
+        # ),
+        # cron(
+        #     "workers.state_transition_processor.expire_stale_states",
+        #     minute={45},
+        # ),
         # ── Taxonomy maintenance (nightly cascade, ~30min total budget) ──
         # 2026-07-05: refresh_taxonomy_views + refresh_inferred_treatments
         # MOVED to host-level systemd (booksy-taxonomy-refresh.timer, 03:00 UTC,
