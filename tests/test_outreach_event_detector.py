@@ -1,11 +1,14 @@
-"""Testy detektora zdarzeń outreach (F1 event-driven planu).
+"""Testy detektora zmian cen (tryb: tylko zapis w bazie, bez Wintacta).
 
 Kontrakty krytyczne:
-  1. happy path — event ląduje w księdze, payload w custom_json_1 kontaktu,
-     customEvents.upsert z external_id = external_key, emitted_at ustawione;
-  2. frequency-cap — kontakt z emisją <14 dni dostaje wpis suppressed,
-     ZERO wywołań Wintacta;
-  3. dedup — external_key już w księdze (upsert ignore) → zero emisji.
+  1. zdarzenie ląduje w outreach_events z payloadem, bez emitted_at i bez
+     suppressed_reason — gotowe dla przyszłego nadawcy;
+  2. moduł w ogóle nie zna Wintacta — nic nie wychodzi poza bazę;
+  3. staging czytany stronami (PostgREST oddaje max 1000 wierszy) — żaden
+     wiersz nie ginie;
+  4. duplikat external_key (ta sama zmiana z kolejnej nocy) nie liczy się
+     jako nowy zapis;
+  5. wiersz stagingu bez kontaktu w outreach_contacts jest pomijany (FK).
 """
 
 from __future__ import annotations
@@ -18,126 +21,141 @@ import pytest
 from workers import outreach_event_detector as det
 
 
-RPC_ROW = {
-    "contact_id": 7,
-    "salon_booksy_id": 111,
-    "competitor_booksy_id": 222,
-    "competitor_name": "My Beauty Bar",
-    "competitor_km": 0.06,
-    "top_service": "Mezoterapia igłowa",
-    "old_price_grosze": 42000,
-    "new_price_grosze": 35000,
-    "pct_change": -16.7,
-    "changed_services": 3,
-    "area_competitors_with_changes": 41,
-    "detected_ts": "2026-08-11T03:00:00+00:00",
-}
+def staging_row(contact_id: int, competitor_id: int = 222) -> dict:
+    return {
+        "contact_id": contact_id,
+        "salon_booksy_id": 111,
+        "competitor_booksy_id": competitor_id,
+        "competitor_name": "My Beauty Bar",
+        "competitor_km": 0.06,
+        "top_service": "Mezoterapia igłowa",
+        "old_price_grosze": 42000,
+        "new_price_grosze": 35000,
+        "pct_change": -16.7,
+        "changed_services": 3,
+        "area_competitors_with_changes": 41,
+        "detected_ts": "2026-08-11T03:00:00+00:00",
+    }
 
 
-class FakeQuery:
-    """Minimalny łańcuszek supabase-py: table().select/in_/gte/upsert/update.eq → execute."""
+def contact(contact_id: int, is_customer: bool = False) -> dict:
+    return {"id": contact_id, "is_customer": is_customer, "owned_products": []}
 
-    def __init__(self, result):
-        self._result = result
 
-    def __getattr__(self, _name):
-        return lambda *a, **k: self
+class FakeTable:
+    """Łańcuszek supabase-py: select/order/range/in_/upsert → execute, z nagrywaniem."""
+
+    def __init__(self, name: str, db: "FakeDb"):
+        self.name, self.db = name, db
+        self.calls: dict = {}
+
+    def select(self, *_a, **_k):
+        return self
+
+    def order(self, *_a, **_k):
+        return self
+
+    def range(self, start, end):
+        self.calls["range"] = (start, end)
+        return self
+
+    def in_(self, _col, values):
+        self.calls["in"] = list(values)
+        return self
+
+    def upsert(self, records, **kwargs):
+        self.calls["upsert"] = (list(records), kwargs)
+        return self
 
     def execute(self):
-        return SimpleNamespace(data=self._result)
+        if self.name == "price_events_staging":
+            start, end = self.calls["range"]
+            self.db.staging_reads.append((start, end))
+            return SimpleNamespace(data=self.db.staging[start : end + 1])
+        if self.name == "outreach_contacts":
+            ids = set(self.calls["in"])
+            return SimpleNamespace(data=[c for c in self.db.contacts if c["id"] in ids])
+        if self.name == "outreach_events":
+            records, kwargs = self.calls["upsert"]
+            self.db.upserts.append((records, kwargs))
+            fresh = [r for r in records if r["external_key"] not in self.db.existing_keys]
+            self.db.existing_keys.update(r["external_key"] for r in fresh)
+            return SimpleNamespace(data=fresh)
+        raise AssertionError(f"nieoczekiwana tabela: {self.name}")
 
 
-def make_sb(rpc_rows, contact_row, capped_ids, upsert_data):
-    sb = MagicMock()
-    shared = {"events": None}
-    sb.rpc.return_value = FakeQuery(rpc_rows)
+class FakeDb:
+    def __init__(self, staging, contacts, existing_keys=()):
+        self.staging, self.contacts = staging, contacts
+        self.existing_keys = set(existing_keys)
+        self.staging_reads: list = []
+        self.upserts: list = []
 
-    def table(name):
-        if name == "outreach_contacts":
-            return FakeQuery([contact_row])
-        if name == "outreach_events":
-            # jeden współdzielony mock: sb.table() jest wołane wielokrotnie,
-            # a licznik per-instancja mylił upsert z cap-checkiem
-            t = shared["events"]
-            if t is None:
-                t = MagicMock()
-                state = {"mode": None}
-
-                def _select(*a, **k): state["mode"] = "cap"; return t
-                def _upsert(*a, **k): state["mode"] = "upsert"; return t
-                def _update(*a, **k): state["mode"] = "update"; return t
-
-                def execute():
-                    if state["mode"] == "cap":
-                        return SimpleNamespace(data=[{"contact_id": i} for i in capped_ids])
-                    if state["mode"] == "upsert":
-                        return SimpleNamespace(data=upsert_data)
-                    return SimpleNamespace(data=[])
-
-                t.select.side_effect = _select
-                t.upsert.side_effect = _upsert
-                t.update.side_effect = _update
-                t.in_.return_value = t
-                t.gte.return_value = t
-                t.eq.return_value = t
-                t.execute.side_effect = execute
-                shared["events"] = t
-            return t
-        raise AssertionError(name)
-
-    sb.table.side_effect = table
-    return sb
+    def client(self):
+        sb = MagicMock()
+        sb.table.side_effect = lambda name: FakeTable(name, self)
+        return sb
 
 
-def make_wc():
-    wc = AsyncMock()
-    wc.__aenter__ = AsyncMock(return_value=wc)
-    wc.__aexit__ = AsyncMock(return_value=False)
-    return wc
+async def run(db: FakeDb) -> dict:
+    with patch.object(det, "make_supabase_client", return_value=db.client()), \
+         patch("services.healthcheck.ping", new=AsyncMock()):
+        return await det.detect_and_emit_price_events({})
+
+
+def test_module_has_no_wintact_dependency():
+    assert not hasattr(det, "WintactClient")
+    assert not hasattr(det, "WintactError")
 
 
 @pytest.mark.asyncio
-async def test_happy_path_emits_event_and_sets_contact_attributes():
-    contact = {"id": 7, "email": "salon@example.pl", "is_customer": False, "owned_products": []}
-    sb = make_sb([RPC_ROW], contact, capped_ids=[], upsert_data=[{"id": 1}])
-    wc = make_wc()
-    with patch.object(det, "make_supabase_client", return_value=sb), \
-         patch.object(det, "WintactClient", return_value=wc):
-        out = await det.detect_and_emit_price_events({})
+async def test_records_event_without_emission_markers():
+    db = FakeDb([staging_row(7)], [contact(7)])
+    out = await run(db)
 
-    assert out == {"detected": 1, "emitted": 1, "suppressed": 0, "errors": 0}
-    attrs = wc.upsert_contact.call_args.kwargs["attributes"]
-    assert attrs["custom_json_1"]["competitor_name"] == "My Beauty Bar"
-    assert attrs["custom_json_1"]["direction"] == "spadek"
-    assert attrs["custom_string_3"] == "audit"  # nie-klient → cold sprzedaż audytu
-    ev = wc.upsert_custom_event.call_args.kwargs
-    assert ev["event_name"] == det.EVENT_NAME_PRICE
-    assert ev["external_id"].startswith("price:7:222:")
+    assert out == {"detected": 1, "recorded": 1, "duplicates": 0, "skipped_no_contact": 0}
+    (records, kwargs), = db.upserts
+    rec = records[0]
+    assert rec["event_type"] == det.EVENT_NAME_PRICE
+    assert rec["external_key"].startswith("price:7:222:")
+    assert rec["payload"]["competitor_name"] == "My Beauty Bar"
+    assert rec["payload"]["direction"] == "spadek"
+    assert rec["payload"]["target_product"] == "audit"
+    assert "emitted_at" not in rec and "suppressed_reason" not in rec
+    assert kwargs == {"on_conflict": "external_key", "ignore_duplicates": True}
 
 
 @pytest.mark.asyncio
-async def test_frequency_cap_suppresses_without_wintact_calls():
-    contact = {"id": 7, "email": "salon@example.pl", "is_customer": False, "owned_products": []}
-    sb = make_sb([RPC_ROW], contact, capped_ids=[7], upsert_data=[{"id": 1}])
-    wc = make_wc()
-    with patch.object(det, "make_supabase_client", return_value=sb), \
-         patch.object(det, "WintactClient", return_value=wc):
-        out = await det.detect_and_emit_price_events({})
+async def test_reads_all_staging_pages_beyond_postgrest_limit():
+    n = det.STAGING_PAGE_SIZE * 2 + 17
+    db = FakeDb([staging_row(i) for i in range(1, n + 1)], [contact(i) for i in range(1, n + 1)])
+    out = await run(db)
 
-    assert out["suppressed"] == 1 and out["emitted"] == 0
-    wc.upsert_contact.assert_not_called()
-    wc.upsert_custom_event.assert_not_called()
+    assert out["detected"] == n and out["recorded"] == n
+    assert len(db.staging_reads) == 3
+    assert all(len(records) <= det.UPSERT_BATCH for records, _ in db.upserts)
 
 
 @pytest.mark.asyncio
-async def test_duplicate_external_key_is_not_reemitted():
-    contact = {"id": 7, "email": "salon@example.pl", "is_customer": False, "owned_products": []}
-    # upsert z ignore_duplicates zwraca [] dla istniejącego klucza
-    sb = make_sb([RPC_ROW], contact, capped_ids=[], upsert_data=[])
-    wc = make_wc()
-    with patch.object(det, "make_supabase_client", return_value=sb), \
-         patch.object(det, "WintactClient", return_value=wc):
-        out = await det.detect_and_emit_price_events({})
+async def test_duplicate_key_from_previous_night_is_not_counted_as_new():
+    row = staging_row(7)
+    db = FakeDb([row], [contact(7, is_customer=True)], existing_keys=[det._external_key(row)])
+    out = await run(db)
 
-    assert out["emitted"] == 0 and out["suppressed"] == 0
-    wc.upsert_custom_event.assert_not_called()
+    assert out == {"detected": 1, "recorded": 0, "duplicates": 1, "skipped_no_contact": 0}
+
+
+@pytest.mark.asyncio
+async def test_row_without_contact_is_skipped():
+    db = FakeDb([staging_row(7), staging_row(8)], [contact(7)])
+    out = await run(db)
+
+    assert out == {"detected": 2, "recorded": 1, "duplicates": 0, "skipped_no_contact": 1}
+    (records, _), = db.upserts
+    assert [r["contact_id"] for r in records] == [7]
+
+
+@pytest.mark.asyncio
+async def test_empty_staging_returns_zero_stats():
+    out = await run(FakeDb([], []))
+    assert out == {"detected": 0, "recorded": 0, "duplicates": 0, "skipped_no_contact": 0}
