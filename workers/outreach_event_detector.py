@@ -1,42 +1,45 @@
-"""Nocny detektor zdarzeń outreach → Wintact custom events (F1 planu
-docs/outreach-assets/EVENT_DRIVEN_PLAN.md w repo BEAUTY_AUDIT).
+"""Nocny detektor zmian cen konkurencji — ZAPIS W BAZIE, bez Wintacta.
 
-Przepływ (pilot: zmiany cen konkurencji):
-  1. RPC ``fn_detect_competitor_price_events`` (mig 163) — jeden najmocniejszy
-     event per kontakt (staged temp tables po stronie Postgresa, ~5 min).
-  2. Frequency-cap: kontakt z ``outreach_events.emitted_at`` młodszym niż
-     EVENT_FREQUENCY_CAP_DAYS dostaje wpis ``suppressed_reason='frequency_cap'``
-     zamiast emisji. Księga w Supabase jest źródłem prawdy dla capu — Wintact
-     deduplikuje po external_id, ale niczego nie ogranicza w czasie.
-  3. Dedup: ``external_key`` unikatowy (contact:price:competitor:data) — ten sam
-     klucz idzie do Wintacta jako ``external_id`` w customEvents.upsert.
-  4. Personalizacja: payload zdarzenia ląduje w ``custom_json_1`` KONTAKTU przed
-     emisją eventu — automation email czyta {{ contact.custom_json_1.* }},
-     bo silnik NIE przekazuje properties eventu do szablonu
-     (notifuse: buildAutomationTemplateData buduje dane wyłącznie z kontaktu).
-  5. customEvents.upsert odpala automatyzację (trigger: custom event) — dopóki
-     automatyzacja nie istnieje/nieaktywna, event tylko zapisuje się w timeline.
+2026-09-15 (decyzja Alexa): outreach przez Wintact wyłączony, więc detektor
+tylko księguje wykryte zmiany w ``outreach_events``. Nic nie wychodzi poza
+naszą bazę; kolumna ``emitted_at`` zostaje pusta, a indeks
+``idx_outreach_events_pending`` pozwoli późniejszemu nadawcy wziąć te
+zdarzenia, gdy wysyłka wróci — zanim to nastąpi, nic nie jest tracone.
 
-Bez aktywnej automatyzacji w Wintakcie ten worker NICZEGO nie wysyła mailem.
+Przepływ:
+  1. SELECT z ``price_events_staging`` (mig 182_price_events_staging w repo
+     web) — jeden najmocniejszy event per kontakt. Tabelę odświeża raz na noc
+     ``fn_refresh_price_events_staging()`` wołana z hosta przez ``docker exec
+     psql`` (ops/systemd/booksy-price-events-refresh.*, timer 05:00 UTC), bo
+     funkcja trwa ~2,2 min, a PostgREST ma statement_timeout 8 s
+     (BEAUTY_AUDIT-mol-m092). Czytamy STRONAMI: PostgREST zwraca najwyżej
+     PGRST_DB_MAX_ROWS=1000 wierszy na zapytanie, a staging ma ~36 tys.
+  2. Kontakty: tylko te, które nadal istnieją w ``outreach_contacts`` (FK) —
+     plus ``is_customer``/``target_product`` do payloadu.
+  3. Dedup: ``external_key`` unikatowy (price:contact:competitor:dzień) —
+     upsert z ignore_duplicates, więc ta sama zmiana z kolejnych nocy okna
+     detekcji nie dubluje się.
+
+Bez limitu na przebieg i bez frequency-capu: to były bezpieczniki wysyłki,
+a przy samym zapisie ucinałyby dane (pominięte zdarzenie z tym samym kluczem
+nie wróciłoby już nigdy).
 """
 
 from __future__ import annotations
 
 import logging
-from datetime import datetime, timezone
 from typing import Any
 
 from config import settings
 from services.sb_client import make_supabase_client
-from services.wintact import WintactClient, WintactError
 
 logger = logging.getLogger("bagent.workers.outreach_event_detector")
 
 EVENT_NAME_PRICE = "competitor.price_change"
-EVENT_FREQUENCY_CAP_DAYS = 14
-# Bezpiecznik pilota: górny limit emisji na jeden przebieg. Podnosimy świadomie
-# po obejrzeniu pierwszych przebiegów, nie domyślnie.
-MAX_EMISSIONS_PER_RUN = 200
+# Rozmiar strony odczytu = PGRST_DB_MAX_ROWS; wsad zapisu mieści się w 8 s timeoutu.
+STAGING_PAGE_SIZE = 1000
+CONTACT_CHUNK = 500
+UPSERT_BATCH = 500
 
 
 def _external_key(row: dict[str, Any]) -> str:
@@ -123,116 +126,86 @@ async def detect_and_emit_price_events(ctx: dict[str, Any]) -> dict[str, int]:
     return result
 
 
-async def _detect_and_emit_price_events_impl(ctx: dict[str, Any]) -> dict[str, int]:
-    """Cron nightly: detekcja → księga → (cap/dedup) → Wintact."""
-    sb = make_supabase_client(settings.supabase_url, settings.supabase_service_key)
+def _read_staging(sb) -> list[dict[str, Any]]:
+    rows: list[dict[str, Any]] = []
+    offset = 0
+    while True:
+        page = (
+            sb.table("price_events_staging")
+            .select("*")
+            .order("contact_id")
+            .range(offset, offset + STAGING_PAGE_SIZE - 1)
+            .execute()
+            .data
+            or []
+        )
+        rows.extend(page)
+        if len(page) < STAGING_PAGE_SIZE:
+            return rows
+        offset += STAGING_PAGE_SIZE
 
-    rows = sb.rpc("fn_detect_competitor_price_events", {}).execute().data or []
-    if not rows:
-        return {"detected": 0, "emitted": 0, "suppressed": 0, "errors": 0}
 
-    contact_ids = sorted({r["contact_id"] for r in rows})
+def _load_contacts(sb, contact_ids: list[int]) -> dict[int, dict[str, Any]]:
     contacts: dict[int, dict[str, Any]] = {}
-    for i in range(0, len(contact_ids), 200):
-        chunk = contact_ids[i : i + 200]
+    for i in range(0, len(contact_ids), CONTACT_CHUNK):
         res = (
             sb.table("outreach_contacts")
-            .select("id, email, is_customer, owned_products")
-            .in_("id", chunk)
+            .select("id, is_customer, owned_products")
+            .in_("id", contact_ids[i : i + CONTACT_CHUNK])
             .execute()
         )
-        for c in res.data or []:
-            contacts[c["id"]] = c
+        contacts.update({c["id"]: c for c in res.data or []})
+    return contacts
 
-    # Frequency-cap: kontakty z emisją w oknie capu
-    from datetime import timedelta
-    cap_cutoff = (datetime.now(timezone.utc) - timedelta(days=EVENT_FREQUENCY_CAP_DAYS)).isoformat()
-    capped: set[int] = set()
-    for i in range(0, len(contact_ids), 200):
-        chunk = contact_ids[i : i + 200]
-        res = (
+
+def _event_record(row: dict[str, Any], contact: dict[str, Any]) -> dict[str, Any]:
+    payload = {
+        **_payload(row),
+        # docelowy produkt wg gałęzi z canvasu (klient → dosprzedaż)
+        "target_product": (
+            "monitoring" if contact.get("is_customer")
+            and "monitoring" not in (contact.get("owned_products") or [])
+            else "audit"
+        ),
+        "is_customer": bool(contact.get("is_customer")),
+    }
+    return {
+        "contact_id": row["contact_id"],
+        "event_type": EVENT_NAME_PRICE,
+        "external_key": _external_key(row),
+        "payload": payload,
+    }
+
+
+async def _detect_and_emit_price_events_impl(ctx: dict[str, Any]) -> dict[str, int]:
+    """Staging → outreach_events (tylko zapis, bez Wintacta)."""
+    sb = make_supabase_client(settings.supabase_url, settings.supabase_service_key)
+
+    rows = _read_staging(sb)
+    if not rows:
+        return {"detected": 0, "recorded": 0, "duplicates": 0, "skipped_no_contact": 0}
+
+    contacts = _load_contacts(sb, sorted({r["contact_id"] for r in rows}))
+    records = [_event_record(r, contacts[r["contact_id"]]) for r in rows if r["contact_id"] in contacts]
+    skipped = len(rows) - len(records)
+
+    recorded = 0
+    for i in range(0, len(records), UPSERT_BATCH):
+        ins = (
             sb.table("outreach_events")
-            .select("contact_id")
-            .in_("contact_id", chunk)
-            .gte("emitted_at", cap_cutoff)
+            .upsert(records[i : i + UPSERT_BATCH], on_conflict="external_key", ignore_duplicates=True)
             .execute()
         )
-        capped.update(r["contact_id"] for r in res.data or [])
+        recorded += len(ins.data or [])
 
-    detected = len(rows)
-    emitted = suppressed = errors = 0
-
-    async with WintactClient() as wc:
-        for row in rows:
-            key = _external_key(row)
-            contact = contacts.get(row["contact_id"])
-            if not contact or not contact.get("email"):
-                continue
-
-            suppress: str | None = None
-            if row["contact_id"] in capped:
-                suppress = "frequency_cap"
-            elif emitted >= MAX_EMISSIONS_PER_RUN:
-                suppress = "run_limit"
-
-            payload = _payload(row)
-            # docelowy produkt wg gałęzi z canvasu (klient → dosprzedaż)
-            payload["target_product"] = (
-                "monitoring" if contact.get("is_customer")
-                and "monitoring" not in (contact.get("owned_products") or [])
-                else "audit"
-            )
-            payload["is_customer"] = bool(contact.get("is_customer"))
-
-            ins = (
-                sb.table("outreach_events")
-                .upsert(
-                    {
-                        "contact_id": row["contact_id"],
-                        "event_type": EVENT_NAME_PRICE,
-                        "external_key": key,
-                        "payload": payload,
-                        "suppressed_reason": suppress,
-                    },
-                    on_conflict="external_key",
-                    ignore_duplicates=True,
-                )
-                .execute()
-            )
-            if not ins.data:
-                continue  # duplikat z wcześniejszego przebiegu — nie emituj ponownie
-            if suppress:
-                suppressed += 1
-                continue
-
-            try:
-                await wc.upsert_contact(
-                    contact["email"],
-                    attributes={
-                        "custom_json_1": payload,
-                        "custom_string_3": payload["target_product"],
-                    },
-                )
-                await wc.upsert_custom_event(
-                    email=contact["email"],
-                    event_name=EVENT_NAME_PRICE,
-                    external_id=key,
-                    properties=payload,
-                )
-                sb.table("outreach_events").update(
-                    {"emitted_at": datetime.now(timezone.utc).isoformat()}
-                ).eq("external_key", key).execute()
-                capped.add(row["contact_id"])  # cap obowiązuje też w ramach przebiegu
-                emitted += 1
-            except WintactError as exc:
-                errors += 1
-                logger.error("Emisja %s nieudana: %s", key, exc)
-
-    logger.info(
-        "price events: detected=%d emitted=%d suppressed=%d errors=%d",
-        detected, emitted, suppressed, errors,
-    )
-    return {"detected": detected, "emitted": emitted, "suppressed": suppressed, "errors": errors}
+    stats = {
+        "detected": len(rows),
+        "recorded": recorded,
+        "duplicates": len(records) - recorded,
+        "skipped_no_contact": skipped,
+    }
+    logger.info("price events (tylko zapis): %s", stats)
+    return stats
 
 
 ALL_OUTREACH_EVENT_DETECTOR_TASKS = [detect_and_emit_price_events]
