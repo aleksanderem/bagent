@@ -73,6 +73,40 @@ async def get_redis_pool() -> ArqRedis:
 # pattern in #21 OR move to ctx-based shared clients. For the foundation
 # (this PR), we keep on_startup minimal — just log and verify connectivity.
 
+def configure_worker_logging() -> None:
+    # Observability — arq's CLI does NOT accept --log-level (verified
+    # 2026-05-24, crashloops with "No such option"), so we set up
+    # Python logging programmatically here at worker startup. This
+    # makes `logger.info(...)` from pipelines/competitor_analysis.py +
+    # services/* (where the per-phase markers + Etap 4 progress live)
+    # reach PM2 logs. See 2026-05-24-pipeline-profile.md for why this
+    # is needed: 649s of pipeline silence at WARNING-default.
+    #
+    # CRITICAL: setLevel alone is not enough — Python's root logger
+    # ships with zero handlers, so any record below WARNING gets
+    # silently dropped even if the logger level is INFO. We must
+    # install a handler via basicConfig (idempotent if already set,
+    # force=True overrides arq's own initialization which sets the
+    # arq.worker logger to INFO but leaves root at WARNING).
+    # PM2 prepends its own timestamp on every log line — keep our
+    # format short to avoid double timestamps making PM2 logs unreadable.
+    logging.basicConfig(
+        level=logging.INFO,
+        format="%(name)s %(levelname)s %(message)s",
+        force=True,
+    )
+    logging.getLogger("pipelines").setLevel(logging.INFO)
+    logging.getLogger("services").setLevel(logging.INFO)
+    logging.getLogger("agent").setLevel(logging.INFO)
+    logging.getLogger("bagent.workers").setLevel(logging.INFO)
+    # Root on INFO also let httpx log EVERY request ("HTTP Request: PATCH …
+    # 200 OK"): 99.7% of bagent-worker-error.log, which reached 22 GB by
+    # 2026-09-17 (~1.6 GB/day). Failed requests still surface as exceptions
+    # in our code; connection-level problems stay visible on WARNING.
+    logging.getLogger("httpx").setLevel(logging.WARNING)
+    logging.getLogger("httpcore").setLevel(logging.WARNING)
+
+
 async def startup(ctx: dict[str, Any]) -> None:
     # Issue #24 — load .env into os.environ first so observability.py
     # can see BUGSINK_DSN_*. pydantic-settings reads .env separately
@@ -111,31 +145,7 @@ async def startup(ctx: dict[str, Any]) -> None:
     except Exception as e:  # noqa: BLE001
         logger.warning("[cron-runs] publikacja harmonogramu nieudana: %s", e)
 
-    # Observability — arq's CLI does NOT accept --log-level (verified
-    # 2026-05-24, crashloops with "No such option"), so we set up
-    # Python logging programmatically here at worker startup. This
-    # makes `logger.info(...)` from pipelines/competitor_analysis.py +
-    # services/* (where the per-phase markers + Etap 4 progress live)
-    # reach PM2 logs. See 2026-05-24-pipeline-profile.md for why this
-    # is needed: 649s of pipeline silence at WARNING-default.
-    #
-    # CRITICAL: setLevel alone is not enough — Python's root logger
-    # ships with zero handlers, so any record below WARNING gets
-    # silently dropped even if the logger level is INFO. We must
-    # install a handler via basicConfig (idempotent if already set,
-    # force=True overrides arq's own initialization which sets the
-    # arq.worker logger to INFO but leaves root at WARNING).
-    # PM2 prepends its own timestamp on every log line — keep our
-    # format short to avoid double timestamps making PM2 logs unreadable.
-    logging.basicConfig(
-        level=logging.INFO,
-        format="%(name)s %(levelname)s %(message)s",
-        force=True,
-    )
-    logging.getLogger("pipelines").setLevel(logging.INFO)
-    logging.getLogger("services").setLevel(logging.INFO)
-    logging.getLogger("agent").setLevel(logging.INFO)
-    logging.getLogger("bagent.workers").setLevel(logging.INFO)
+    configure_worker_logging()
 
     logger.info("arq worker starting up")
     logger.info(
