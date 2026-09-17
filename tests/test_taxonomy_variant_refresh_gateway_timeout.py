@@ -70,10 +70,15 @@ class _ScriptedClient:
         return _Res(n)
 
 
-def _install(monkeypatch, client, pings):
+def _install(monkeypatch, client, pings, sleeps=None):
     async def recording_ping(slug, fail=False):
         pings.append((slug, fail))
 
+    async def recording_sleep(seconds):
+        if sleeps is not None:
+            sleeps.append(seconds)
+
+    monkeypatch.setattr(tr, "_backoff_sleep", recording_sleep)
     monkeypatch.setattr("services.healthcheck.ping", recording_ping, raising=False)
     monkeypatch.setattr(
         "services.sb_client.make_supabase_client",
@@ -88,10 +93,16 @@ def test_504_halves_batch_and_finishes_the_night(monkeypatch):
         max_ok_batch={"backfill_service_variants": 1_250, "backfill_untagged_services_via_variant": 5_000},
     )
     pings: list[tuple] = []
-    _install(monkeypatch, client, pings)
+    sleeps: list[float] = []
+    _install(monkeypatch, client, pings, sleeps)
 
     msg = asyncio.run(tr.refresh_service_variants({}))
 
+    assert sleeps == [tr.VARIANT_TIMEOUT_BACKOFF_S] * 2, (
+        "Kong ucina po 60 s, ale Postgres liczy porcję dalej (max 91 s zmierzone) — "
+        "ponowienie bez przerwy nakłada drugi pełny skan na wciąż trwający"
+    )
+    assert tr.VARIANT_TIMEOUT_BACKOFF_S >= 60
     assert client.pools["backfill_service_variants"] == 0, "504 nie może zostawić backlogu, który mieścił się w mniejszych porcjach"
     assert client.pools["backfill_untagged_services_via_variant"] == 0, "faza B musi się wykonać mimo 504 w fazie A"
     sizes_a = [s for name, s in client.calls if name == "backfill_service_variants"]
@@ -142,6 +153,23 @@ def test_only_504_and_zero_progress_is_a_loud_failure(monkeypatch):
     with pytest.raises(RuntimeError):
         asyncio.run(tr.refresh_service_variants({}))
 
+    assert pings == [("HC_PING_VARIANT_MATCH_REFRESH", True)]
+
+
+def test_one_phase_stuck_on_504_with_zero_rows_is_loud_even_if_other_moved(monkeypatch):
+    """Faza A zrobiła swoje, faza B nie przerobiła ani wiersza przez 504 — to nie jest „zajęta noc"."""
+    client = _ScriptedClient(
+        pools={"backfill_service_variants": 8_000, "backfill_untagged_services_via_variant": 9_000},
+        max_ok_batch={"backfill_service_variants": 5_000, "backfill_untagged_services_via_variant": 0},
+    )
+    pings: list[tuple] = []
+    _install(monkeypatch, client, pings)
+
+    with pytest.raises(RuntimeError) as excinfo:
+        asyncio.run(tr.refresh_service_variants({}))
+
+    assert client.pools["backfill_service_variants"] == 0, "postęp fazy A zostaje"
+    assert "untagged=0 (timeouts)" in str(excinfo.value)
     assert pings == [("HC_PING_VARIANT_MATCH_REFRESH", True)]
 
 

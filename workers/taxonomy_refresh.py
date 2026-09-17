@@ -60,6 +60,11 @@ VARIANT_BATCH_SIZE = 5_000      # per RPC call (mig 127 statement_timeout=120s)
 # the host-side inference loop) must not kill the whole night (BEAUTY_AUDIT-a9v1):
 # a timeout halves the chunk down to this floor; 504 at the floor ends the phase.
 VARIANT_MIN_BATCH_SIZE = 500
+# Kong's 504 does not cancel the statement: Postgres keeps computing the chunk
+# (up to its own 120 s; 91 s max measured in pg_stat_statements). Retrying at
+# once stacks a second scan of the 36 GB table on top of the one still running,
+# so wait out the rest of statement_timeout first.
+VARIANT_TIMEOUT_BACKOFF_S = 60.0
 
 
 async def refresh_taxonomy_views(ctx: dict[str, Any]) -> str:
@@ -347,13 +352,18 @@ async def _refresh_service_variants_impl(ctx: dict[str, Any]) -> str:
         f"refresh_service_variants: in_tid={in_tid} ({in_tid_stop}), "
         f"untagged={untagged} ({untagged_stop}) in {dt:.0f}s"
     )
-    if in_tid + untagged == 0 and "timeouts" in (in_tid_stop, untagged_stop):
-        # Nothing moved and the gateway kept timing out even on the smallest
-        # chunk — a real outage, not a busy night.
+    if (in_tid, in_tid_stop) == (0, "timeouts") or (untagged, untagged_stop) == (0, "timeouts"):
+        # A phase that moved no row and kept timing out even on the smallest
+        # chunk is a real outage, not a busy night — even when the other phase
+        # made progress (phase B alone runs up to ~82 s per chunk).
         raise RuntimeError(msg)
     logger.info(msg)
     await ping("HC_PING_VARIANT_MATCH_REFRESH")
     return msg
+
+
+async def _backoff_sleep(seconds: float) -> None:
+    await asyncio.sleep(seconds)
 
 
 def _is_gateway_timeout(exc: Exception) -> bool:
@@ -393,7 +403,11 @@ async def _drain_variant_rpc(
                 )
                 return total, "timeouts"
             batch = max(VARIANT_MIN_BATCH_SIZE, batch // 2)
-            logger.warning("%s: gateway timeout, chunk down to %d", rpc_name, batch)
+            logger.warning(
+                "%s: gateway timeout, chunk down to %d after %.0f s pause",
+                rpc_name, batch, VARIANT_TIMEOUT_BACKOFF_S,
+            )
+            await _backoff_sleep(VARIANT_TIMEOUT_BACKOFF_S)
             continue
         n = res.data if isinstance(res.data, int) else 0
         if n == 0:
