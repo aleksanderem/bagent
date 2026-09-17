@@ -2,6 +2,7 @@
 
 import asyncio
 import logging
+import time
 from collections.abc import Awaitable, Callable
 
 import anthropic
@@ -9,6 +10,7 @@ import httpx
 
 from config import settings
 from services.json_repair import parse_llm_json
+from services.posthog_analytics import capture_ai_generation
 
 logger = logging.getLogger(__name__)
 
@@ -49,6 +51,35 @@ class MiniMaxClient:
             return {}
         return {"thinking": {"type": mode}}
 
+    async def _create_measured(self, span_name: str, **kwargs) -> anthropic.types.Message:
+        """Jedno wyjście do modelu — mierzone i zgłaszane do PostHoga (koszty AI).
+
+        Wszystkie trzy publiczne metody idą tędy, więc żaden rachunek nie ucieka
+        poza pomiar. Analityka jest best-effort: jej awaria nie dotyka wywołania.
+        """
+        started = time.monotonic()
+        try:
+            response = await self.client.messages.create(**kwargs)
+        except BaseException as exc:
+            await capture_ai_generation(
+                provider="minimax",
+                model=self.model,
+                span_name=span_name,
+                started_at=started,
+                error=exc,
+            )
+            raise
+        usage = getattr(response, "usage", None)
+        await capture_ai_generation(
+            provider="minimax",
+            model=self.model,
+            span_name=span_name,
+            started_at=started,
+            input_tokens=getattr(usage, "input_tokens", None),
+            output_tokens=getattr(usage, "output_tokens", None),
+        )
+        return response
+
     async def create_message(
         self,
         system: str,
@@ -71,7 +102,7 @@ class MiniMaxClient:
         kwargs.update(self._thinking_kwargs())
         if tools:
             kwargs["tools"] = tools
-        return await self.client.messages.create(**kwargs)
+        return await self._create_measured("create_message", **kwargs)
 
     async def generate_json(
         self,
@@ -92,7 +123,8 @@ class MiniMaxClient:
             "prostego cudzysłowu (\") — cytaty i nazwy pisz w «...» albo bez "
             "cudzysłowów. Pisz wyłącznie po polsku."
         )
-        response = await self.client.messages.create(
+        response = await self._create_measured(
+            "generate_json",
             model=self.model,
             max_tokens=max_tokens,
             temperature=0.3,
@@ -133,7 +165,7 @@ class MiniMaxClient:
         }
         if system:
             kwargs["system"] = system
-        response = await self.client.messages.create(**kwargs)
+        response = await self._create_measured("generate_text", **kwargs)
         for block in response.content:
             if block.type == "text":
                 return block.text

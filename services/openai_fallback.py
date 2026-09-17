@@ -15,11 +15,40 @@ from __future__ import annotations
 
 import json
 import logging
+import time
 from typing import Any
+
+from services.posthog_analytics import capture_ai_generation
 
 logger = logging.getLogger(__name__)
 
 _FALLBACK_MODEL = "gpt-4o-mini"
+
+
+async def _measured_completion(client, span_name: str, **kwargs):
+    """Wywołanie OpenAI z pomiarem kosztu (to samo co w MiniMaxie)."""
+    started = time.monotonic()
+    try:
+        response = await client.chat.completions.create(**kwargs)
+    except BaseException as exc:
+        await capture_ai_generation(
+            provider="openai",
+            model=str(kwargs.get("model", "?")),
+            span_name=span_name,
+            started_at=started,
+            error=exc,
+        )
+        raise
+    usage = getattr(response, "usage", None)
+    await capture_ai_generation(
+        provider="openai",
+        model=str(kwargs.get("model", "?")),
+        span_name=span_name,
+        started_at=started,
+        input_tokens=getattr(usage, "prompt_tokens", None),
+        output_tokens=getattr(usage, "completion_tokens", None),
+    )
+    return response
 
 
 async def generate_json_via_openai(
@@ -36,7 +65,9 @@ async def generate_json_via_openai(
 
     # json_object mode requires the word "JSON" somewhere in the messages.
     system_msg = f"{system} Odpowiadaj wyłącznie poprawnym JSON.".strip()
-    response = await client.chat.completions.create(
+    response = await _measured_completion(
+        client,
+        "openai_fallback_json",
         model=_FALLBACK_MODEL,
         messages=[
             {"role": "system", "content": system_msg},
@@ -67,7 +98,9 @@ async def generate_text_via_openai(
         messages.append({"role": "system", "content": system})
     messages.append({"role": "user", "content": prompt})
 
-    response = await client.chat.completions.create(
+    response = await _measured_completion(
+        client,
+        "openai_fallback_text",
         model=_FALLBACK_MODEL,
         messages=messages,
         max_tokens=max_tokens,
