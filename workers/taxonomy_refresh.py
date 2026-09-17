@@ -54,6 +54,17 @@ STALE_FOCUS_DAYS = 14           # re-compute focus older than this
 VARIANT_BATCH_CAP = 300_000     # in-tid daily inflow + margin (~4 min @ 5k/~4s)
 VARIANT_UNTAGGED_CAP = 100_000  # untagged inflow is much smaller
 VARIANT_BATCH_SIZE = 5_000      # per RPC call (mig 127 statement_timeout=120s)
+# Kong's rest-v1 route has no explicit read_timeout, so the proxy cuts every RPC
+# at its 60 s default and answers 504 — while the procedure itself may run up to
+# 120 s. A chunk that is slow only because the database is busy (03:35 overlaps
+# the host-side inference loop) must not kill the whole night (BEAUTY_AUDIT-a9v1):
+# a timeout halves the chunk down to this floor; 504 at the floor ends the phase.
+VARIANT_MIN_BATCH_SIZE = 500
+# Kong's 504 does not cancel the statement: Postgres keeps computing the chunk
+# (up to its own 120 s; 91 s max measured in pg_stat_statements). Retrying at
+# once stacks a second scan of the 36 GB table on top of the one still running,
+# so wait out the rest of statement_timeout first.
+VARIANT_TIMEOUT_BACKOFF_S = 60.0
 
 
 async def refresh_taxonomy_views(ctx: dict[str, Any]) -> str:
@@ -305,12 +316,14 @@ async def _refresh_service_variants_impl(ctx: dict[str, Any]) -> str:
     # that needs more than 30s ALWAYS dies on ReadTimeout, no matter how healthy
     # the database is (BEAUTY_AUDIT-xnb9 — phase B died at 233s into the run).
     # 140s sits above the server's own limit, so a genuine statement timeout
-    # comes back as a Postgres error instead of a client-side guess, and stays
-    # under Kong's ~150s proxy read_timeout. Same KIND of override as
-    # refresh_taxonomy_views above, but a different number: that RPC has
-    # statement_timeout=10min, so its 120s cap is a budget; here 120s is the
-    # server's own limit, so the client has to sit just above it. Every other
-    # supabase call in the worker keeps its fail-fast default.
+    # comes back as a Postgres error instead of a client-side guess. The binding
+    # limit in production is Kong, though: rest-v1 has no read_timeout, so the
+    # proxy answers 504 after its 60 s default (the 150 s in Kong's config
+    # belongs to another service) — _drain_variant_rpc handles that 504. Same
+    # KIND of override as refresh_taxonomy_views above, but a different number:
+    # that RPC has statement_timeout=10min, so its 120s cap is a budget; here
+    # 120s is the server's own limit, so the client has to sit just above it.
+    # Every other supabase call in the worker keeps its fail-fast default.
     client = make_supabase_client(
         settings.supabase_url,
         settings.supabase_service_key,
@@ -322,44 +335,85 @@ async def _refresh_service_variants_impl(ctx: dict[str, Any]) -> str:
     # pre-scoped by parent_treatment_id so cross-family mistakes are impossible
     # — hence the looser 0.55 default. This covers the overwhelming majority
     # (fresh scrapes carry booksy_treatment_id inline at ingest).
-    in_tid = 0
-    while in_tid < VARIANT_BATCH_CAP:
-        res = await asyncio.to_thread(
-            lambda: client.rpc(
-                "backfill_service_variants",
-                {"p_batch_size": VARIANT_BATCH_SIZE, "p_min_similarity": 0.55},
-            ).execute()
-        )
-        n = res.data if isinstance(res.data, int) else 0
-        if n == 0:
-            break
-        in_tid += n
+    in_tid, in_tid_stop = await _drain_variant_rpc(
+        client, "backfill_service_variants", 0.55, VARIANT_BATCH_CAP
+    )
 
     # Phase B: untagged catch-up (booksy_treatment_id NULL). Global ANN over all
     # variants with no taxonomy guard — a wrong match re-tags the whole family,
     # so the stricter 0.70 default. Sets booksy_treatment_id + variant_id from
     # the matched variant's parent. Much smaller population.
-    untagged = 0
-    while untagged < VARIANT_UNTAGGED_CAP:
-        res = await asyncio.to_thread(
-            lambda: client.rpc(
-                "backfill_untagged_services_via_variant",
-                {"p_batch_size": VARIANT_BATCH_SIZE, "p_min_similarity": 0.70},
-            ).execute()
-        )
-        n = res.data if isinstance(res.data, int) else 0
-        if n == 0:
-            break
-        untagged += n
+    untagged, untagged_stop = await _drain_variant_rpc(
+        client, "backfill_untagged_services_via_variant", 0.70, VARIANT_UNTAGGED_CAP
+    )
 
     dt = time.time() - t_start
     msg = (
-        f"refresh_service_variants: in_tid={in_tid}, untagged={untagged} "
-        f"in {dt:.0f}s"
+        f"refresh_service_variants: in_tid={in_tid} ({in_tid_stop}), "
+        f"untagged={untagged} ({untagged_stop}) in {dt:.0f}s"
     )
+    if (in_tid, in_tid_stop) == (0, "timeouts") or (untagged, untagged_stop) == (0, "timeouts"):
+        # A phase that moved no row and kept timing out even on the smallest
+        # chunk is a real outage, not a busy night — even when the other phase
+        # made progress (phase B alone runs up to ~82 s per chunk).
+        raise RuntimeError(msg)
     logger.info(msg)
     await ping("HC_PING_VARIANT_MATCH_REFRESH")
     return msg
+
+
+async def _backoff_sleep(seconds: float) -> None:
+    await asyncio.sleep(seconds)
+
+
+def _is_gateway_timeout(exc: Exception) -> bool:
+    if isinstance(exc, httpx.TimeoutException):
+        return True
+    return str(getattr(exc, "code", "")) == "504"
+
+
+async def _drain_variant_rpc(
+    client: Any, rpc_name: str, min_similarity: float, cap: int
+) -> tuple[int, str]:
+    """Call a mig-127 backfill RPC until it returns 0 or the cap is hit.
+
+    Returns (rows evaluated, stop reason): "drained", "cap" or "timeouts".
+    A gateway timeout halves the chunk (floor VARIANT_MIN_BATCH_SIZE) and
+    retries; a timeout at the floor gives the phase up — the RPCs are
+    idempotent, so the rest is picked up the next night. Any other error
+    propagates, so a broken procedure stays loud.
+    """
+    batch = VARIANT_BATCH_SIZE
+    total = 0
+    while total < cap:
+        try:
+            res = await asyncio.to_thread(
+                lambda b=batch: client.rpc(
+                    rpc_name,
+                    {"p_batch_size": b, "p_min_similarity": min_similarity},
+                ).execute()
+            )
+        except Exception as exc:
+            if not _is_gateway_timeout(exc):
+                raise
+            if batch <= VARIANT_MIN_BATCH_SIZE:
+                logger.warning(
+                    "%s: gateway timeout at the minimum chunk (%d), phase given up "
+                    "after %d rows", rpc_name, batch, total,
+                )
+                return total, "timeouts"
+            batch = max(VARIANT_MIN_BATCH_SIZE, batch // 2)
+            logger.warning(
+                "%s: gateway timeout, chunk down to %d after %.0f s pause",
+                rpc_name, batch, VARIANT_TIMEOUT_BACKOFF_S,
+            )
+            await _backoff_sleep(VARIANT_TIMEOUT_BACKOFF_S)
+            continue
+        n = res.data if isinstance(res.data, int) else 0
+        if n == 0:
+            return total, "drained"
+        total += n
+    return total, "cap"
 
 
 async def refresh_salon_focus_distributions(ctx: dict[str, Any]) -> str:
