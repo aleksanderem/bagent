@@ -7,6 +7,13 @@ class Settings(BaseSettings):
     minimax_api_key: str = ""
     # Z.ai (GLM-5.3-Flash) — pomost destylacji przy raporcie + runner backfillu.
     zai_api_key: str = ""
+    # Źródło weta taksonomii w wycenie raportu (bd BEAUTY_AUDIT-8295):
+    #   "glm"      — osie słowne z service_taxonomy + pomost GLM (stan dotychczasowy),
+    #   "typesafe" — profil liczbowy z badania TypeSafe (services/typesafe_profile),
+    #                destylacja na żądanie do service_profile, bez wyłączonych branż.
+    # "typesafe" bez TYPESAFE_API_KEY albo bez zainstalowanego SDK = powrót do "glm".
+    taxonomy_veto_source: str = "glm"
+    typesafe_api_key: str = ""
     minimax_base_url: str = "https://api.minimax.io/anthropic"
     minimax_model: str = "MiniMax-M3"
     # M3 udostępnia okno kontekstu do 1M tokenów po stronie serwera (tiered:

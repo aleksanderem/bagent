@@ -42,6 +42,7 @@ import unicodedata
 from typing import Any
 
 from ..body_area_taxonomy import extract_body_areas
+from ..typesafe_profile.weto import axis_conflict as profile_axis_conflict
 from ..brand_marker import extract_brand_marker
 from .layer_category import is_generic_name
 from .layer_neutral import is_neutral_category
@@ -355,7 +356,17 @@ def vote_taxonomy_axis(subject: dict[str, Any], sample: dict[str, Any], axis: st
     gdzie obie strony są zdestylowane — zasięg rośnie z backfillem). Wspólny
     rdzeń 5-znakowy znosi konflikt ("laser tulowy i radiofrekwencja" vs
     "laser tulowy" to ta sama rodzina, nie sprzeczność).
+
+    Gdy wycena dostarcza profile liczbowe TypeSafe ("_profil", źródło
+    TAXONOMY_VETO_SOURCE=typesafe), sprzeczność liczy services/typesafe_profile/
+    weto.py, a osie słowne nie biorą udziału — dwóch źródeł się nie porównuje.
+    Brak profilu po którejkolwiek stronie => abstain, tak samo jak wyżej.
     """
+    pa, pb = subject.get("_profil"), sample.get("_profil")
+    if pa is not None or pb is not None:
+        if not pa or not pb:
+            return "abstain"
+        return "against" if profile_axis_conflict(pa, pb, axis) else "abstain"
     va = (subject.get("_tax") or {}).get(axis)
     vb = (sample.get("_tax") or {}).get(axis)
     if not va or not vb:

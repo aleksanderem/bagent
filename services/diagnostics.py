@@ -22,7 +22,9 @@ from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
 
+from config import settings
 from services.cron_runs import list_cron_runs
+from services.diag_destylacja import zbierz as zbierz_destylacje
 
 STARTED_AT = datetime.now(UTC)
 REPO_ROOT = Path(__file__).resolve().parent.parent
@@ -295,6 +297,18 @@ async def git_sha() -> str | None:
         return None
 
 
+def _supabase_client() -> Any | None:
+    """Klient bazy dla sekcji liczbowych; brak konfiguracji = sekcja z `error`."""
+    if not settings.supabase_url or not settings.supabase_service_key:
+        return None
+    try:
+        from services.sb_client import make_supabase_client
+
+        return make_supabase_client(settings.supabase_url, settings.supabase_service_key)
+    except Exception:  # noqa: BLE001 — diagnostyka nie może wywrócić endpointu
+        return None
+
+
 async def collect_diagnostics(pool: Any, backup_dir: str, include_logs: bool = False) -> dict[str, Any]:
     pm2, sha, systemd = await asyncio.gather(pm2_processes(), git_sha(), systemd_status())
     redis = await redis_queues(pool)
@@ -321,5 +335,8 @@ async def collect_diagnostics(pool: Any, backup_dir: str, include_logs: bool = F
         "systemd": systemd,
         "redis": redis,
         "crons": {"items": crons, **({"error": crons_error} if crons_error else {})},
+        # Odsiewanie usług tylko podobnych: którym sposobem, czy ma czym, ile
+        # profili/tokenów/USD w ostatniej dobie (services/diag_destylacja.py).
+        "destylacja": await asyncio.to_thread(zbierz_destylacje, _supabase_client()),
         **({"logs": pm2_log_tails()} if include_logs else {}),
     }

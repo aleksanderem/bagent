@@ -36,6 +36,7 @@ dependencies = [
     # reconstruction helper in services/scrape_history.py.
     "jsonpatch>=1.33",
     "numpy>=2.4.6",
+    "typesafe-sdk>=0.7.1",
 ]
 
 [project.optional-dependencies]

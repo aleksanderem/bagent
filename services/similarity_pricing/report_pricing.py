@@ -369,6 +369,23 @@ def _build_row(
     }
 
 
+def _subject_branza(cli: Any, subject_services: list[dict[str, Any]]) -> str | None:
+    """Branża salonu PODMIOTU: głos większościowy treatment_branch_map po
+    booksy_treatment_id jego usług. Kontekst, w którym czytamy WSZYSTKIE nazwy
+    wyceny — kandydat z promienia konkuruje o klientkę tej samej branży."""
+    tids = sorted({s.get("booksy_treatment_id") for s in subject_services if s.get("booksy_treatment_id")})
+    if not tids:
+        return None
+    glosy: dict[str, int] = {}
+    for i in range(0, len(tids), 40):
+        for r in (
+            cli.table("treatment_branch_map").select("branza").in_("treatment_id", tids[i : i + 40]).execute().data
+            or []
+        ):
+            glosy[r["branza"]] = glosy.get(r["branza"], 0) + 1
+    return max(glosy, key=glosy.get) if glosy else None
+
+
 def _load_taxonomy_axes(
     service: Any,
     subject_booksy_id: int | None,
@@ -395,18 +412,7 @@ def _load_taxonomy_axes(
         cli = getattr(service, "client", None)
         if cli is None:
             return {}, None
-        tids = [s.get("booksy_treatment_id") for s in subject_services if s.get("booksy_treatment_id")]
-        branza: str | None = None
-        if tids:
-            glosy: dict[str, int] = {}
-            for i in range(0, len(set(tids)), 40):
-                czesc = sorted(set(tids))[i : i + 40]
-                for r in (
-                    cli.table("treatment_branch_map").select("branza").in_("treatment_id", czesc).execute().data or []
-                ):
-                    glosy[r["branza"]] = glosy.get(r["branza"], 0) + 1
-            if glosy:
-                branza = max(glosy, key=glosy.get)
+        branza = _subject_branza(cli, subject_services)
         if not branza:
             return {}, None
         nazwy = {" ".join((s.get("name") or "").lower().split()) for s in subject_services}
@@ -560,6 +566,24 @@ async def _bridge_distill_missing(
         return {}
 
 
+def _profile_session(service: Any) -> Any | None:
+    """Sesja profili TypeSafe albo None (weto słowne GLM, stan dotychczasowy).
+
+    Włącza TAXONOMY_VETO_SOURCE=typesafe. Brak klucza albo SDK => None i log —
+    raport liczy się dalej na osiach GLM, zamiast stracić weto w ogóle."""
+    if getattr(settings, "taxonomy_veto_source", "glm") != "typesafe":
+        return None
+    if not getattr(settings, "typesafe_api_key", ""):
+        logger.warning("TAXONOMY_VETO_SOURCE=typesafe bez TYPESAFE_API_KEY — weto na osiach GLM")
+        return None
+    try:
+        from services.typesafe_profile.destylacja import ProfileSession
+    except ImportError as e:  # SDK niezainstalowane na serwerze (uv sync po deployu)
+        logger.error("TAXONOMY_VETO_SOURCE=typesafe, ale moduł profili nie wstaje (%s) — weto na osiach GLM", e)
+        return None
+    return ProfileSession(service)
+
+
 async def compute_pricing_comparisons_v2(
     service: Any,
     report_id: int,
@@ -628,6 +652,15 @@ async def compute_pricing_comparisons_v2(
             "pusty raport."
         )
     salons_by_booksy = _lookup_salons(service, all_booksy)
+    # Źródło weta taksonomii: sesja profili TypeSafe (oba przebiegi progu dzielą
+    # pamięć, budżet i zegar) albo None = osie słowne GLM jak dotąd.
+    profile_session = _profile_session(service)
+    profile_branza = None
+    if profile_session is not None:
+        try:
+            profile_branza = _subject_branza(service.client, subject_services)
+        except Exception as e:  # noqa: BLE001 — bez branży weto milczy, wycena idzie dalej
+            logger.warning("branża podmiotu niedostępna (%s): %s", type(e).__name__, str(e)[:120])
 
     async def _price_at(min_similarity: float) -> list[dict[str, Any]]:
         """Jeden pełny przebieg wyceny przy danym progu podobieństwa twins."""
@@ -664,16 +697,24 @@ async def compute_pricing_comparisons_v2(
                         existing.append(x)
                         seen_service_ids.add(x.get("service_id"))
         out: list[dict[str, Any]] = []
-        tax_osie, tax_branza = _load_taxonomy_axes(
-            service, subject_data.get("booksy_id"), subject_services, clusters
-        )
-        tax_osie = {**tax_osie, **await _bridge_distill_missing(
-            service, tax_branza, tax_osie, subject_services, clusters
-        )}
-        if tax_osie:
+        tax_osie: dict[str, dict[str, Any]] = {}
+        profile: dict[str, dict[str, Any]] = {}
+        if profile_session is not None:
+            profile = await profile_session.profiles_for(profile_branza, subject_services, clusters)
             logger.info(
-                "taxonomy veto: %d nazw z osiami (branża %s)", len(tax_osie), tax_branza
+                "taxonomy veto (typesafe): %d nazw z profilem (branża %s)", len(profile), profile_branza
             )
+        else:
+            tax_osie, tax_branza = _load_taxonomy_axes(
+                service, subject_data.get("booksy_id"), subject_services, clusters
+            )
+            tax_osie = {**tax_osie, **await _bridge_distill_missing(
+                service, tax_branza, tax_osie, subject_services, clusters
+            )}
+            if tax_osie:
+                logger.info(
+                    "taxonomy veto: %d nazw z osiami (branża %s)", len(tax_osie), tax_branza
+                )
         for svc in subject_services:
             sid = int(svc["id"])
             raw = clusters.get(sid, [])
@@ -684,7 +725,9 @@ async def compute_pricing_comparisons_v2(
             peer_vecs = fetch_twin_vectors(twin_ids)
             peer_sims = compute_peer_max_sims(twin_ids, peer_vecs)
             for s in raw:
-                s["_tax"] = tax_osie.get(" ".join((s.get("service_name") or "").lower().split()))
+                klucz = " ".join((s.get("service_name") or "").lower().split())
+                s["_tax"] = tax_osie.get(klucz)
+                s["_profil"] = profile.get(klucz)
                 bid = s.get("booksy_id")
                 info = salons_by_booksy.get(bid) or {}
                 s["salon_name"] = info.get("name", "")
@@ -700,6 +743,7 @@ async def compute_pricing_comparisons_v2(
                 "category_name": svc.get("category_name"),
                 "is_package": bool(svc.get("is_package", False)),
                 "_tax": tax_osie.get(" ".join((svc.get("name") or "").lower().split())),
+                "_profil": profile.get(" ".join((svc.get("name") or "").lower().split())),
             }
             result = compute_market_price(subject, raw, config)
             out.append(_build_row(report_id, svc, result))

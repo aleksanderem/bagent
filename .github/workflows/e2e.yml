@@ -66,6 +66,11 @@ jobs:
       - name: Matching engine — similarity_pricing (anti-mixing guard)
         run: uv run pytest services/similarity_pricing/ -q
 
+      # Sekcja „destylacja" w /api/internal/diag — panel admina składa z niej
+      # kontrolkę (czym odsiewamy, ile tokenów i USD w dobie). Atrapy, bez sieci.
+      - name: Autodiagnostyka destylacji
+        run: uv run pytest tests/test_diag_destylacja.py -q
+
       - name: Discovery pump regression
         run: uv run pytest tests/e2e/test_discovery_pump_regression.py -v -m e2e
 
