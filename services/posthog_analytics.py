@@ -7,8 +7,10 @@ widać wyłącznie wywołania z Convexa, czyli wierzchołek góry lodowej.
 Wysyłamy WYŁĄCZNIE metadane: model, liczbę tokenów, czas i ewentualny błąd.
 Treści promptów nie ruszamy — siedzą w nich cenniki klientek.
 
-Wyłącznik: bez `POSTHOG_PROJECT_KEY` w środowisku funkcja nic nie robi, więc
-lokalnie i w testach nie leci ani jedno żądanie.
+Wyłącznik: bez `POSTHOG_PROJECT_KEY` w środowisku zdarzenie nie leci, więc
+lokalnie i w testach nie ma ruchu do PostHoga. Podsumowanie dobowe w naszej
+bazie (services/zuzycie_ai.py) jest osobne i ma własny wyłącznik — brak
+konfiguracji Supabase.
 
 UWAGA na wolumen: wołać to TYLKO przy generowaniu tekstu (jedno wywołanie =
 jedno zdarzenie). Nigdy w pętli embeddingów — tam idą dziesiątki tysięcy
@@ -23,6 +25,8 @@ import time
 from datetime import UTC, datetime
 
 import httpx
+
+from services.zuzycie_ai import dopisz as dopisz_zuzycie
 
 logger = logging.getLogger(__name__)
 
@@ -48,6 +52,12 @@ async def capture_ai_generation(
     trace_id: str | None = None,
 ) -> None:
     """Zgłasza jedno wywołanie modelu. Nigdy nie podnosi wyjątku."""
+    # Podsumowanie dobowe w NASZEJ bazie — panel admina pokazuje z tego koszt
+    # i tokeny przy każdym mechanizmie, bez wychodzenia do PostHoga.
+    await dopisz_zuzycie(
+        provider=provider, model=model, span_name=span_name,
+        input_tokens=input_tokens, output_tokens=output_tokens, error=error is not None,
+    )
     key = _api_key()
     if not key:
         return

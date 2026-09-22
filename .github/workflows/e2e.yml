@@ -71,6 +71,10 @@ jobs:
       - name: Autodiagnostyka destylacji
         run: uv run pytest tests/test_diag_destylacja.py -q
 
+      # Koszt i tokeny modeli: cennik + zapis dobowy + sekcja diagnostyki.
+      - name: Zużycie modeli (koszty)
+        run: uv run pytest tests/test_zuzycie_ai.py -q
+
       - name: Discovery pump regression
         run: uv run pytest tests/e2e/test_discovery_pump_regression.py -v -m e2e
 

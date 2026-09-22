@@ -25,6 +25,7 @@ from typing import Any
 from config import settings
 from services.cron_runs import list_cron_runs
 from services.diag_destylacja import zbierz as zbierz_destylacje
+from services.diag_koszty import zbierz as zbierz_koszty
 
 STARTED_AT = datetime.now(UTC)
 REPO_ROOT = Path(__file__).resolve().parent.parent
@@ -320,6 +321,7 @@ async def collect_diagnostics(pool: Any, backup_dir: str, include_logs: bool = F
         except Exception as exc:  # noqa: BLE001
             crons_error = str(exc)
     now = datetime.now(UTC)
+    sb = _supabase_client()
     return {
         "generated_at": now.isoformat(timespec="seconds"),
         "host": {"hostname": socket.gethostname(), "time_utc": now.isoformat(timespec="seconds")},
@@ -337,6 +339,8 @@ async def collect_diagnostics(pool: Any, backup_dir: str, include_logs: bool = F
         "crons": {"items": crons, **({"error": crons_error} if crons_error else {})},
         # Odsiewanie usług tylko podobnych: którym sposobem, czy ma czym, ile
         # profili/tokenów/USD w ostatniej dobie (services/diag_destylacja.py).
-        "destylacja": await asyncio.to_thread(zbierz_destylacje, _supabase_client()),
+        "destylacja": await asyncio.to_thread(zbierz_destylacje, sb),
+        # Koszt i tokeny modeli za dobę, per mechanizm (services/diag_koszty.py).
+        "koszty": await asyncio.to_thread(zbierz_koszty, sb),
         **({"logs": pm2_log_tails()} if include_logs else {}),
     }
