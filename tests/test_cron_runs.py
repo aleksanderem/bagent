@@ -38,6 +38,10 @@ class FakeRedis:
             if key.startswith(prefix):
                 yield key.encode()
 
+    async def delete(self, *keys: str) -> None:
+        for key in keys:
+            self.data.pop(key, None)
+
 
 def cj(**kw):
     base = {"hour": None, "minute": None, "second": None, "weekday": None, "day": None}
@@ -118,3 +122,22 @@ async def test_publish_and_list_merge_schedule_with_runs():
     assert daily["last_ok"] is True and daily["runs"] == 1 and daily["fails"] == 0
     drain = next(r for r in rows if r["name"] == "workers.b.drain")
     assert drain["last_ok"] is None and drain["last_started_at"] is None, "jeszcze nie chodził"
+
+
+@pytest.mark.asyncio
+async def test_publish_prunes_traces_of_crons_removed_from_schedule():
+    """Cron wyłączony w kodzie (15.09: outreach) nie może wisieć w panelu jako „spóźniony"."""
+    redis = FakeRedis()
+    daily = ("cron:workers.a.daily", "scrape", cj(hour={6}, minute={15}))
+    await publish_schedules(redis, [daily, ("cron:workers.outreach.send", "reports", cj(minute=set(range(60))))])
+    await publish_schedules(redis, [daily])
+    assert [r["name"] for r in await list_cron_runs(redis)] == ["workers.a.daily"]
+
+
+@pytest.mark.asyncio
+async def test_publish_with_empty_schedule_keeps_existing_traces():
+    """Pusta lista to błąd konfiguracji, nie sygnał „skasuj wszystko"."""
+    redis = FakeRedis()
+    await publish_schedules(redis, [("cron:workers.a.daily", "scrape", cj(hour={6}, minute={15}))])
+    await publish_schedules(redis, [])
+    assert [r["name"] for r in await list_cron_runs(redis)] == ["workers.a.daily"]

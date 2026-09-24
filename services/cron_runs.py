@@ -144,8 +144,14 @@ async def _safe_hset(redis: Any, key: str, mapping: dict[str, str], incr: str | 
 
 
 async def publish_schedules(redis: Any, entries: Iterable[tuple[str, str, Any]]) -> int:
-    """Zapisz harmonogram i workera każdego cronu: (nazwa, worker, CronJob)."""
-    count = 0
+    """Zapisz harmonogram i workera każdego cronu: (nazwa, worker, CronJob).
+
+    Wywołujący podaje PEŁNY harmonogram obu workerów, więc ślad cronu spoza
+    listy należy do cronu wyłączonego albo usuniętego z kodu — kasujemy go.
+    Bez tego panel w nieskończoność pokazuje taki cron jako „spóźniony"
+    (15.09 wyłączony outreach wisiał tam jako 8 spóźnionych cronów).
+    """
+    published: set[str] = set()
     for name, worker, cj in entries:
         await _safe_hset(
             redis,
@@ -156,8 +162,26 @@ async def publish_schedules(redis: Any, entries: Iterable[tuple[str, str, Any]])
                 "expected_every_s": str(expected_every_seconds(cj)),
             },
         )
-        count += 1
-    return count
+        published.add(cron_key(name))
+    await _prune_unscheduled(redis, published)
+    return len(published)
+
+
+async def _prune_unscheduled(redis: Any, keep: set[str]) -> None:
+    # Pusty harmonogram to błąd konfiguracji, nie sygnał „skasuj wszystko".
+    if redis is None or not keep:
+        return
+    try:
+        stale: list[str] = []
+        async for raw_key in redis.scan_iter(match=f"{KEY_PREFIX}*", count=200):
+            key = _decode(raw_key)
+            if key not in keep:
+                stale.append(key)
+        if stale:
+            await redis.delete(*stale)
+            logger.info("[cron-runs] usunięte ślady cronów spoza harmonogramu: %s", ", ".join(stale))
+    except Exception as exc:  # noqa: BLE001 — sprzątanie śladu nie może położyć startu workera
+        logger.debug("[cron-runs] sprzątanie śladów nieudane: %s", exc)
 
 
 def _decode(value: Any) -> str:
