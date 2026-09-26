@@ -66,6 +66,12 @@ jobs:
       - name: Matching engine — similarity_pricing (anti-mixing guard)
         run: uv run pytest services/similarity_pricing/ -q
 
+      # Pomiar trafności matchingu (bd BEAUTY_AUDIT-asrk): pamięć ocen par
+      # sędziego TypeSafe i reguły porównania „wszystkie cechy równe”.
+      # Atrapy klienta i bazy, bez sieci.
+      - name: Pomiar trafności — sędzia par i porównanie wg schematu
+        run: uv run pytest services/typesafe_ocena/ services/typesafe_drzewo/test_schemat.py -q
+
       # Sekcja „destylacja" w /api/internal/diag — panel admina składa z niej
       # kontrolkę (czym odsiewamy, ile tokenów i USD w dobie). Atrapy, bez sieci.
       - name: Autodiagnostyka destylacji

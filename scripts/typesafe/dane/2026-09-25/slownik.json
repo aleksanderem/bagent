@@ -1,0 +1,7932 @@
+{
+ "zwierze": {
+  "do 5 kg": {
+   "synonimy": [
+    "do 5 kg"
+   ],
+   "n": 235,
+   "rodzic": null
+  },
+  "krótkowłosy": {
+   "synonimy": [
+    "krótkowłose",
+    "krótkowłosy"
+   ],
+   "n": 194,
+   "rodzic": null
+  },
+  "do 10 kg": {
+   "synonimy": [
+    "do 10 kg"
+   ],
+   "n": 134,
+   "rodzic": null
+  },
+  "długowłosy": {
+   "synonimy": [
+    "długowłosy"
+   ],
+   "n": 130,
+   "rodzic": null
+  },
+  "do 4 kg": {
+   "synonimy": [
+    "do 4 kg"
+   ],
+   "n": 64,
+   "rodzic": null
+  },
+  "szorstkowłosy": {
+   "synonimy": [
+    "szorstkowłosy"
+   ],
+   "n": 61,
+   "rodzic": null
+  },
+  "koty": {
+   "synonimy": [
+    "koty"
+   ],
+   "n": 58,
+   "rodzic": null
+  },
+  "małe": {
+   "synonimy": [
+    "małe"
+   ],
+   "n": 31,
+   "rodzic": null
+  }
+ },
+ "objetosc": {
+  "1:1": {
+   "synonimy": [
+    "1:1"
+   ],
+   "n": 646,
+   "rodzic": null
+  },
+  "2-3d": {
+   "synonimy": [
+    "2-3d",
+    "2/3d"
+   ],
+   "n": 255,
+   "rodzic": null
+  },
+  "4-6d": {
+   "synonimy": [
+    "4-6d"
+   ],
+   "n": 199,
+   "rodzic": null
+  },
+  "mega volume": {
+   "synonimy": [
+    "mega volume"
+   ],
+   "n": 191,
+   "rodzic": null
+  },
+  "2:1": {
+   "synonimy": [
+    "2:1",
+    "2d",
+    "uzupełnienie 2:1"
+   ],
+   "n": 90,
+   "rodzic": null
+  },
+  "3d": {
+   "synonimy": [
+    "3d"
+   ],
+   "n": 46,
+   "rodzic": null
+  },
+  "3:1": {
+   "synonimy": [
+    "3:1"
+   ],
+   "n": 45,
+   "rodzic": null
+  },
+  "4:1": {
+   "synonimy": [
+    "4:1"
+   ],
+   "n": 42,
+   "rodzic": null
+  },
+  "12+": {
+   "synonimy": [
+    "12+"
+   ],
+   "n": 41,
+   "rodzic": null
+  },
+  "4-5d": {
+   "synonimy": [
+    "4-5d"
+   ],
+   "n": 25,
+   "rodzic": null
+  },
+  "4d": {
+   "synonimy": [
+    "4d"
+   ],
+   "n": 20,
+   "rodzic": null
+  },
+  "zagęszczenie": {
+   "synonimy": [
+    "zagęszczenie"
+   ],
+   "n": 13,
+   "rodzic": null
+  },
+  "6:1; 7:1": {
+   "synonimy": [
+    "6:1; 7:1"
+   ],
+   "n": 12,
+   "rodzic": null
+  },
+  "2x lobe": {
+   "synonimy": [
+    "2x lobe"
+   ],
+   "n": 12,
+   "rodzic": null
+  },
+  "objętościowa": {
+   "synonimy": [
+    "objętościowa"
+   ],
+   "n": 11,
+   "rodzic": null
+  },
+  "5:1": {
+   "synonimy": [
+    "5:1"
+   ],
+   "n": 11,
+   "rodzic": null
+  },
+  "badania 2d": {
+   "synonimy": [
+    "badania 2d"
+   ],
+   "n": 6,
+   "rodzic": null
+  },
+  "10+": {
+   "synonimy": [
+    "10+"
+   ],
+   "n": 6,
+   "rodzic": null
+  },
+  "kompozycje": {
+   "synonimy": [
+    "kompozycje"
+   ],
+   "n": 4,
+   "rodzic": null
+  }
+ },
+ "poziom_specjalisty": {
+  "top stylistka": {
+   "synonimy": [
+    "pro stylistka",
+    "top stylista",
+    "top stylistka"
+   ],
+   "n": 1153,
+   "rodzic": null
+  },
+  "top barber": {
+   "synonimy": [
+    "starszy barber",
+    "top barber"
+   ],
+   "n": 174,
+   "rodzic": null
+  },
+  "junior barber": {
+   "synonimy": [
+    "junior",
+    "junior barber"
+   ],
+   "n": 112,
+   "rodzic": null
+  },
+  "lekarz": {
+   "synonimy": [
+    "dr irena eris",
+    "lekarz"
+   ],
+   "n": 103,
+   "rodzic": null
+  },
+  "senior barber": {
+   "synonimy": [
+    "senior",
+    "senior barber"
+   ],
+   "n": 96,
+   "rodzic": null
+  },
+  "master": {
+   "synonimy": [
+    "master",
+    "vip master"
+   ],
+   "n": 76,
+   "rodzic": null
+  },
+  "stylista": {
+   "synonimy": [
+    "stylista"
+   ],
+   "n": 71,
+   "rodzic": null
+  },
+  "mgr": {
+   "synonimy": [
+    "mgr",
+    "mgr fizjoterapii"
+   ],
+   "n": 64,
+   "rodzic": null
+  },
+  "fizjoterapeuta": {
+   "synonimy": [
+    "fizjoterapeuta"
+   ],
+   "n": 43,
+   "rodzic": null
+  },
+  "początkujący": {
+   "synonimy": [
+    "początkujący"
+   ],
+   "n": 39,
+   "rodzic": null
+  },
+  "top master": {
+   "synonimy": [
+    "top master"
+   ],
+   "n": 14,
+   "rodzic": null
+  },
+  "architekt": {
+   "synonimy": [
+    "architekt"
+   ],
+   "n": 4,
+   "rodzic": null
+  },
+  "psycholog": {
+   "synonimy": [
+    "psycholog"
+   ],
+   "n": 3,
+   "rodzic": null
+  }
+ },
+ "okazja": {
+  "ślub": {
+   "synonimy": [
+    "makijaż ślubny",
+    "ślub",
+    "ślubny"
+   ],
+   "n": 1143,
+   "rodzic": null
+  },
+  "okolicznościowy": {
+   "synonimy": [
+    "makijaż okolicznościowy",
+    "okolicznościowe",
+    "okolicznościowy",
+    "wieczorowy"
+   ],
+   "n": 877,
+   "rodzic": null
+  },
+  "dzienny": {
+   "synonimy": [
+    "codzienny",
+    "dzienny",
+    "makijaż dzienny"
+   ],
+   "n": 267,
+   "rodzic": null
+  },
+  "zabieg bankietowy": {
+   "synonimy": [
+    "zabieg bankietowy"
+   ],
+   "n": 225,
+   "rodzic": null
+  },
+  "sesja zdjęciowa": {
+   "synonimy": [
+    "fotograficzny",
+    "sesja zdjęciowa"
+   ],
+   "n": 205,
+   "rodzic": null
+  },
+  "makijaż wieczorowy": {
+   "synonimy": [
+    "makijaż wieczorowy"
+   ],
+   "n": 102,
+   "rodzic": null
+  },
+  "dzienny/wieczorowy": {
+   "synonimy": [
+    "dzienny i wieczorowy",
+    "dzienny/wieczorowy"
+   ],
+   "n": 74,
+   "rodzic": null
+  },
+  "prezent": {
+   "synonimy": [
+    "prezent"
+   ],
+   "n": 69,
+   "rodzic": null
+  },
+  "biznesowy": {
+   "synonimy": [
+    "biznesowa",
+    "biznesowy",
+    "dzienny, biznesowy"
+   ],
+   "n": 47,
+   "rodzic": null
+  },
+  "romantyczny": {
+   "synonimy": [
+    "romantyczny"
+   ],
+   "n": 38,
+   "rodzic": null
+  },
+  "próbny+ślubny": {
+   "synonimy": [
+    "próbny+ślubny"
+   ],
+   "n": 32,
+   "rodzic": null
+  },
+  "sylwester": {
+   "synonimy": [
+    "sylwester"
+   ],
+   "n": 26,
+   "rodzic": null
+  },
+  "halloween": {
+   "synonimy": [
+    "halloween"
+   ],
+   "n": 19,
+   "rodzic": null
+  },
+  "studniówkowy": {
+   "synonimy": [
+    "studniówkowy"
+   ],
+   "n": 18,
+   "rodzic": null
+  },
+  "koktajlowy": {
+   "synonimy": [
+    "koktajlowy"
+   ],
+   "n": 17,
+   "rodzic": null
+  },
+  "sesja ślubna": {
+   "synonimy": [
+    "sesja ślubna"
+   ],
+   "n": 9,
+   "rodzic": null
+  },
+  "plener": {
+   "synonimy": [
+    "plener"
+   ],
+   "n": 7,
+   "rodzic": null
+  },
+  "weekendy": {
+   "synonimy": [
+    "weekendy"
+   ],
+   "n": 6,
+   "rodzic": null
+  },
+  "portretowa": {
+   "synonimy": [
+    "portretowa"
+   ],
+   "n": 3,
+   "rodzic": null
+  }
+ },
+ "liczba_osob": {
+  "dla dwojga": {
+   "synonimy": [
+    "2",
+    "2 osobowy",
+    "2 osoby",
+    "dla dwojga",
+    "dla par",
+    "para",
+    "pary",
+    "w parze"
+   ],
+   "n": 2655,
+   "rodzic": null
+  },
+  "indywidualny": {
+   "synonimy": [
+    "1 osoba",
+    "1 osoba dorosła",
+    "indywidualna",
+    "indywidualny",
+    "jedna osoba",
+    "sesja indywidualna",
+    "terapia indywidualna"
+   ],
+   "n": 364,
+   "rodzic": null
+  },
+  "4 ręce": {
+   "synonimy": [
+    "4 ręce",
+    "na 4 ręce",
+    "w 4 ręce"
+   ],
+   "n": 259,
+   "rodzic": null
+  },
+  "zajęcia grupowe": {
+   "synonimy": [
+    "grupowa",
+    "zajcia grupowe",
+    "zajęcia grupowe",
+    "zajścia grupowe"
+   ],
+   "n": 130,
+   "rodzic": null
+  },
+  "w duecie": {
+   "synonimy": [
+    "trening w parze",
+    "w duecie"
+   ],
+   "n": 54,
+   "rodzic": null
+  },
+  "4 osoby": {
+   "synonimy": [
+    "4 osoby",
+    "do 4 osób",
+    "maksymalnie 4"
+   ],
+   "n": 45,
+   "rodzic": null
+  },
+  "ćwiczenia indywidualne": {
+   "synonimy": [
+    "zajęcia indywidualne",
+    "ćwiczenia indywidualne"
+   ],
+   "n": 43,
+   "rodzic": null
+  },
+  "3 osoby": {
+   "synonimy": [
+    "3 osoby"
+   ],
+   "n": 41,
+   "rodzic": null
+  },
+  "double": {
+   "synonimy": [
+    "double"
+   ],
+   "n": 19,
+   "rodzic": null
+  },
+  "terapia par": {
+   "synonimy": [
+    "terapia par"
+   ],
+   "n": 16,
+   "rodzic": null
+  },
+  "psychoterapia par": {
+   "synonimy": [
+    "psychoterapia par"
+   ],
+   "n": 12,
+   "rodzic": null
+  },
+  "5 osób": {
+   "synonimy": [
+    "5 osób"
+   ],
+   "n": 11,
+   "rodzic": null
+  },
+  "joga indywidualna": {
+   "synonimy": [
+    "joga indywidualna"
+   ],
+   "n": 11,
+   "rodzic": null
+  },
+  "6 osób": {
+   "synonimy": [
+    "6 dzieci",
+    "6 osób"
+   ],
+   "n": 7,
+   "rodzic": null
+  },
+  "trening indywidualny": {
+   "synonimy": [
+    "trening indywidualny"
+   ],
+   "n": 5,
+   "rodzic": null
+  },
+  "jednoosobowy": {
+   "synonimy": [
+    "jednoosobowy"
+   ],
+   "n": 4,
+   "rodzic": null
+  },
+  "praca indywidualna": {
+   "synonimy": [
+    "praca indywidualna"
+   ],
+   "n": 3,
+   "rodzic": null
+  },
+  "łóżko leżące (lampy hybrydowe)": {
+   "synonimy": [
+    "łóżko leżące (lampy hybrydowe)"
+   ],
+   "n": 3,
+   "rodzic": null
+  },
+  "sesja 1:1": {
+   "synonimy": [
+    "sesja 1:1"
+   ],
+   "n": 3,
+   "rodzic": null
+  },
+  "kąpiel dla 2 osób": {
+   "synonimy": [
+    "kąpiel dla 2 osób"
+   ],
+   "n": 3,
+   "rodzic": null
+  },
+  "4-12": {
+   "synonimy": [
+    "4-12"
+   ],
+   "n": 3,
+   "rodzic": null
+  }
+ },
+ "dlugosc": {
+  "długie": {
+   "synonimy": [
+    "3-4",
+    "długie",
+    "dłuższe",
+    "l",
+    "powyżej 10 cm",
+    "włosy długie"
+   ],
+   "n": 7273,
+   "rodzic": null
+  },
+  "średnie": {
+   "synonimy": [
+    "do ramion",
+    "włosy średnie",
+    "za ramiona",
+    "średni",
+    "średnia",
+    "średnia długość",
+    "średnie"
+   ],
+   "n": 7166,
+   "rodzic": null
+  },
+  "krótkie": {
+   "synonimy": [
+    "bardzo krótkie",
+    "krótka",
+    "krótkie",
+    "kurze łapki",
+    "skrócenie",
+    "włosy krótkie"
+   ],
+   "n": 5706,
+   "rodzic": null
+  },
+  "bardzo długie": {
+   "synonimy": [
+    "bardzo długie"
+   ],
+   "n": 1672,
+   "rodzic": null
+  },
+  "do łopatek": {
+   "synonimy": [
+    "do łopatek",
+    "za łopatki"
+   ],
+   "n": 1163,
+   "rodzic": null
+  },
+  "1-2": {
+   "synonimy": [
+    "1-2"
+   ],
+   "n": 897,
+   "rodzic": null
+  },
+  "do uszu": {
+   "synonimy": [
+    "do ucha",
+    "do uszu"
+   ],
+   "n": 398,
+   "rodzic": null
+  },
+  "krótkie / średnie / długie": {
+   "synonimy": [
+    "krótkie / średnie / długie"
+   ],
+   "n": 320,
+   "rodzic": null
+  },
+  "do pasa": {
+   "synonimy": [
+    "do pasa"
+   ],
+   "n": 317,
+   "rodzic": null
+  },
+  "na zero": {
+   "synonimy": [
+    "na 0",
+    "na zero",
+    "na łyso",
+    "zero"
+   ],
+   "n": 250,
+   "rodzic": null
+  },
+  "półdługie": {
+   "synonimy": [
+    "półdługie",
+    "średnio długie"
+   ],
+   "n": 248,
+   "rodzic": null
+  },
+  "3": {
+   "synonimy": [
+    "3",
+    "3 mm"
+   ],
+   "n": 215,
+   "rodzic": null
+  },
+  "s": {
+   "synonimy": [
+    "s"
+   ],
+   "n": 174,
+   "rodzic": null
+  },
+  "na jedną długość": {
+   "synonimy": [
+    "jedna długość",
+    "na jedną długość"
+   ],
+   "n": 155,
+   "rodzic": null
+  },
+  "1-3": {
+   "synonimy": [
+    "1-3"
+   ],
+   "n": 124,
+   "rodzic": null
+  },
+  "do 2 cm": {
+   "synonimy": [
+    "do 2 cm"
+   ],
+   "n": 114,
+   "rodzic": null
+  },
+  "2-3": {
+   "synonimy": [
+    "2-3"
+   ],
+   "n": 108,
+   "rodzic": null
+  },
+  "m": {
+   "synonimy": [
+    "m"
+   ],
+   "n": 91,
+   "rodzic": null
+  },
+  "4-5": {
+   "synonimy": [
+    "4-5"
+   ],
+   "n": 70,
+   "rodzic": null
+  },
+  "14+": {
+   "synonimy": [
+    "14+"
+   ],
+   "n": 65,
+   "rodzic": null
+  },
+  "do 3 cm": {
+   "synonimy": [
+    "do 3 cm"
+   ],
+   "n": 58,
+   "rodzic": null
+  },
+  "5-6": {
+   "synonimy": [
+    "5-6"
+   ],
+   "n": 57,
+   "rodzic": null
+  },
+  "do 10 cm": {
+   "synonimy": [
+    "+10 cm",
+    "do 10 cm"
+   ],
+   "n": 33,
+   "rodzic": null
+  },
+  "średnie i długie": {
+   "synonimy": [
+    "średnie i długie"
+   ],
+   "n": 25,
+   "rodzic": null
+  },
+  "do 5 cm": {
+   "synonimy": [
+    "do 5 cm"
+   ],
+   "n": 21,
+   "rodzic": null
+  },
+  "do 15 cm": {
+   "synonimy": [
+    "do 15 cm"
+   ],
+   "n": 12,
+   "rodzic": null
+  },
+  "0-3 mm": {
+   "synonimy": [
+    "0-3 mm"
+   ],
+   "n": 10,
+   "rodzic": null
+  },
+  "100 m/200 m": {
+   "synonimy": [
+    "100 m/200 m"
+   ],
+   "n": 6,
+   "rodzic": null
+  },
+  "25 m": {
+   "synonimy": [
+    "25 m"
+   ],
+   "n": 6,
+   "rodzic": null
+  },
+  "do 6 cm": {
+   "synonimy": [
+    "do 6 cm"
+   ],
+   "n": 6,
+   "rodzic": null
+  },
+  "do 16\"": {
+   "synonimy": [
+    "do 16\""
+   ],
+   "n": 4,
+   "rodzic": null
+  },
+  "5-10 cm": {
+   "synonimy": [
+    "5-10 cm"
+   ],
+   "n": 4,
+   "rodzic": null
+  },
+  "10-15 cm": {
+   "synonimy": [
+    "10-15 cm"
+   ],
+   "n": 4,
+   "rodzic": null
+  },
+  "do 20 cm": {
+   "synonimy": [
+    "do 20 cm"
+   ],
+   "n": 3,
+   "rodzic": null
+  }
+ },
+ "etap": {
+  "uzupełnienie": {
+   "synonimy": [
+    "przedłużanie rzęs - uzupełnienie",
+    "uzupełnianie",
+    "uzupełnianie rzęs",
+    "uzupełnianie żelowe",
+    "uzupełnienie",
+    "uzupełnienie do 3 tygodni",
+    "uzupełnienie rzęs",
+    "wypełnienie"
+   ],
+   "n": 9238,
+   "rodzic": null
+  },
+  "zdjęcie": {
+   "synonimy": [
+    "zdjęcie",
+    "zdjęcie hybrydy"
+   ],
+   "n": 8172,
+   "rodzic": null
+  },
+  "konsultacja": {
+   "synonimy": [
+    "konsultacja",
+    "konsultacja kosmetologiczna",
+    "konsultacja makijażu permanentnego",
+    "konsultacja piercingu",
+    "konsultacja podologiczna",
+    "konsultacja przekłucia",
+    "konsultacja stomatologiczna",
+    "konsultacja wstępna",
+    "konsultacje",
+    "krótka konsultacja",
+    "telekonsultacja"
+   ],
+   "n": 2467,
+   "rodzic": null
+  },
+  "korekta": {
+   "synonimy": [
+    "korekcja",
+    "korekta",
+    "korekta lakieru",
+    "korekta makijażu permanentnego",
+    "korekta paznokci",
+    "z korektą"
+   ],
+   "n": 1858,
+   "rodzic": null
+  },
+  "pierwsza wizyta": {
+   "synonimy": [
+    "pierwsza",
+    "pierwsza konsultacja",
+    "pierwsza wizyta",
+    "pierwszorazowa",
+    "pierwszy",
+    "pierwszy zabieg",
+    "wstepna",
+    "wstępna"
+   ],
+   "n": 1671,
+   "rodzic": null
+  },
+  "odświeżenie": {
+   "synonimy": [
+    "1-1,5 roku od zabiegu",
+    "odświeżanie",
+    "odświeżenie",
+    "odświeżenie makijażu permanentnego",
+    "po 1 roku",
+    "po roku",
+    "powyżej roku"
+   ],
+   "n": 896,
+   "rodzic": null
+  },
+  "kolejna wizyta": {
+   "synonimy": [
+    "kolejna",
+    "kolejna wizyta",
+    "kolejne wizyty",
+    "kontynuacja",
+    "kontynuacja terapii",
+    "powtórne"
+   ],
+   "n": 607,
+   "rodzic": null
+  },
+  "próbny": {
+   "synonimy": [
+    "makijaż próbny",
+    "próbny",
+    "zabieg próbny",
+    "zabieg testowy"
+   ],
+   "n": 411,
+   "rodzic": null
+  },
+  "zdjęcie stylizacji": {
+   "synonimy": [
+    "zdjęcie stylizacji"
+   ],
+   "n": 308,
+   "rodzic": null
+  },
+  "kontrola": {
+   "synonimy": [
+    "konsultacja kontrolna",
+    "kontrola",
+    "kontrolna",
+    "wizyta diagnostyczna",
+    "wizyta kontrolna"
+   ],
+   "n": 152,
+   "rodzic": null
+  },
+  "założenie klamry ortonyksyjnej": {
+   "synonimy": [
+    "założenie klamry ortonyksyjnej"
+   ],
+   "n": 143,
+   "rodzic": null
+  },
+  "do 2 miesięcy": {
+   "synonimy": [
+    "do 2 miesięcy",
+    "po 6 tygodniach"
+   ],
+   "n": 115,
+   "rodzic": null
+  },
+  "zdjęcie żelu": {
+   "synonimy": [
+    "zdjęcie żelu"
+   ],
+   "n": 89,
+   "rodzic": null
+  },
+  "założenie": {
+   "synonimy": [
+    "założenie"
+   ],
+   "n": 84,
+   "rodzic": null
+  },
+  "po operacji": {
+   "synonimy": [
+    "po operacji",
+    "stan po operacji plastycznej"
+   ],
+   "n": 55,
+   "rodzic": null
+  },
+  "trening wprowadzający": {
+   "synonimy": [
+    "trening wprowadzający"
+   ],
+   "n": 30,
+   "rodzic": null
+  },
+  "przedoperacyjna": {
+   "synonimy": [
+    "przedoperacyjna",
+    "przedoperacyjny"
+   ],
+   "n": 25,
+   "rodzic": null
+  },
+  "jednoetapowe": {
+   "synonimy": [
+    "jednoetapowe"
+   ],
+   "n": 17,
+   "rodzic": null
+  },
+  "aplikacja": {
+   "synonimy": [
+    "aplikacja"
+   ],
+   "n": 14,
+   "rodzic": null
+  },
+  "utrwalenie": {
+   "synonimy": [
+    "utrwalenie"
+   ],
+   "n": 13,
+   "rodzic": null
+  },
+  "spotkanie": {
+   "synonimy": [
+    "spotkanie"
+   ],
+   "n": 13,
+   "rodzic": null
+  },
+  "tymczasowa": {
+   "synonimy": [
+    "tymczasowa"
+   ],
+   "n": 13,
+   "rodzic": null
+  },
+  "zdjęcie rtg": {
+   "synonimy": [
+    "zdjęcie rentgenowskie",
+    "zdjęcie rtg"
+   ],
+   "n": 11,
+   "rodzic": null
+  },
+  "zabieg + korekta": {
+   "synonimy": [
+    "zabieg + korekta"
+   ],
+   "n": 10,
+   "rodzic": null
+  },
+  "wymiana": {
+   "synonimy": [
+    "wymiana"
+   ],
+   "n": 8,
+   "rodzic": null
+  },
+  "aparat zdejmowany": {
+   "synonimy": [
+    "aparat zdejmowany"
+   ],
+   "n": 3,
+   "rodzic": null
+  },
+  "prep": {
+   "synonimy": [
+    "prep"
+   ],
+   "n": 3,
+   "rodzic": null
+  }
+ },
+ "cel": {
+  "cellulit": {
+   "synonimy": [
+    "antycellulitowy",
+    "cellulit",
+    "cellulit, obrzęki",
+    "masaż antycellulitowy"
+   ],
+   "n": 2470,
+   "rodzic": null
+  },
+  "modelowanie sylwetki": {
+   "synonimy": [
+    "modelowanie sylwetki",
+    "modelujący"
+   ],
+   "n": 2250,
+   "rodzic": null
+  },
+  "stymulator tkankowy": {
+   "synonimy": [
+    "stymulator tkankowy",
+    "stymulatory tkankowe"
+   ],
+   "n": 2246,
+   "rodzic": null
+  },
+  "regeneracja": {
+   "synonimy": [
+    "gojenie",
+    "regeneracja"
+   ],
+   "n": 1799,
+   "rodzic": null
+  },
+  "skóra problematyczna": {
+   "synonimy": [
+    "skóra problematyczna",
+    "skóra trądzikowa",
+    "trądzik"
+   ],
+   "n": 1303,
+   "rodzic": null
+  },
+  "wzmocnienie": {
+   "synonimy": [
+    "wzmocnienie"
+   ],
+   "n": 1165,
+   "rodzic": null
+  },
+  "masaż leczniczy": {
+   "synonimy": [
+    "leczniczy",
+    "masaż leczniczy",
+    "terapeutyczny",
+    "zabieg terapeutyczny"
+   ],
+   "n": 1156,
+   "rodzic": null
+  },
+  "liftingujący": {
+   "synonimy": [
+    "liftingujący",
+    "masaż liftingujący",
+    "zabieg liftingujący"
+   ],
+   "n": 869,
+   "rodzic": null
+  },
+  "relaksacyjny": {
+   "synonimy": [
+    "antystres",
+    "relaksacyjny"
+   ],
+   "n": 483,
+   "rodzic": null
+  },
+  "blizna": {
+   "synonimy": [
+    "blizna",
+    "blizny",
+    "nacięcie/pęknięcie krocza"
+   ],
+   "n": 463,
+   "rodzic": null
+  },
+  "anti-aging": {
+   "synonimy": [
+    "anti-aging",
+    "odmładzający",
+    "skóra dojrzała",
+    "zabieg odmładzający"
+   ],
+   "n": 405,
+   "rodzic": null
+  },
+  "skóra odwodniona": {
+   "synonimy": [
+    "skóra odwodniona"
+   ],
+   "n": 380,
+   "rodzic": null
+  },
+  "ujędrnienie": {
+   "synonimy": [
+    "ujędrnienie"
+   ],
+   "n": 378,
+   "rodzic": null
+  },
+  "cery wrażliwe i naczyniowe": {
+   "synonimy": [
+    "cery wrażliwe i naczyniowe"
+   ],
+   "n": 325,
+   "rodzic": null
+  },
+  "wrastający paznokieć": {
+   "synonimy": [
+    "paznokieć wrastający",
+    "wrastające paznokcie",
+    "wrastający paznokieć"
+   ],
+   "n": 305,
+   "rodzic": null
+  },
+  "usuwanie przebarwień": {
+   "synonimy": [
+    "odświeżenie koloru",
+    "rozjaśnienie",
+    "usuwanie przebarwień",
+    "zabieg rozświetlający"
+   ],
+   "n": 274,
+   "rodzic": null
+  },
+  "ból": {
+   "synonimy": [
+    "ból"
+   ],
+   "n": 244,
+   "rodzic": null
+  },
+  "brodawki wirusowe": {
+   "synonimy": [
+    "brodawki wirusowe"
+   ],
+   "n": 233,
+   "rodzic": null
+  },
+  "bruksizm": {
+   "synonimy": [
+    "bruksizm"
+   ],
+   "n": 216,
+   "rodzic": null
+  },
+  "zabieg oczyszczający": {
+   "synonimy": [
+    "zabieg oczyszczający"
+   ],
+   "n": 214,
+   "rodzic": null
+  },
+  "redukcja tkanki tłuszczowej": {
+   "synonimy": [
+    "odchudzanie",
+    "redukcja tkanki tłuszczowej",
+    "zabieg wyszczuplający"
+   ],
+   "n": 188,
+   "rodzic": null
+  },
+  "obrzęki": {
+   "synonimy": [
+    "obrzęki"
+   ],
+   "n": 177,
+   "rodzic": null
+  },
+  "kreska zagęszczająca": {
+   "synonimy": [
+    "kreska zagęszczająca",
+    "zagęszczająca"
+   ],
+   "n": 166,
+   "rodzic": null
+  },
+  "grzybica": {
+   "synonimy": [
+    "grzybica"
+   ],
+   "n": 152,
+   "rodzic": null
+  },
+  "onycholiza": {
+   "synonimy": [
+    "onycholiza"
+   ],
+   "n": 149,
+   "rodzic": null
+  },
+  "wady postawy": {
+   "synonimy": [
+    "skolioza",
+    "skolioza, wady postawy",
+    "wad postawy",
+    "wady postawy"
+   ],
+   "n": 138,
+   "rodzic": null
+  },
+  "tuszowanie siwizny": {
+   "synonimy": [
+    "kamuflaż siwizny",
+    "maskowanie siwizny",
+    "tuszowanie siwizny"
+   ],
+   "n": 127,
+   "rodzic": null
+  },
+  "nietrzymanie moczu": {
+   "synonimy": [
+    "nietrzymanie moczu"
+   ],
+   "n": 91,
+   "rodzic": null
+  },
+  "rozstępy": {
+   "synonimy": [
+    "rozstępy"
+   ],
+   "n": 87,
+   "rodzic": null
+  },
+  "pedicure leczniczy": {
+   "synonimy": [
+    "pedicure leczniczy"
+   ],
+   "n": 85,
+   "rodzic": null
+  },
+  "ortopedyczna": {
+   "synonimy": [
+    "ortopedyczna"
+   ],
+   "n": 82,
+   "rodzic": null
+  },
+  "ból kręgosłupa": {
+   "synonimy": [
+    "ból kręgosłupa"
+   ],
+   "n": 58,
+   "rodzic": null
+  },
+  "leczenie zachowawcze": {
+   "synonimy": [
+    "leczenie",
+    "leczenie zachowawcze"
+   ],
+   "n": 58,
+   "rodzic": null
+  },
+  "piegi": {
+   "synonimy": [
+    "piegi"
+   ],
+   "n": 51,
+   "rodzic": null
+  },
+  "migrena": {
+   "synonimy": [
+    "migrena"
+   ],
+   "n": 51,
+   "rodzic": null
+  },
+  "rwa kulszowa": {
+   "synonimy": [
+    "rwa kulszowa"
+   ],
+   "n": 48,
+   "rodzic": null
+  },
+  "bóle głowy": {
+   "synonimy": [
+    "bóle głowy"
+   ],
+   "n": 48,
+   "rodzic": null
+  },
+  "adhd": {
+   "synonimy": [
+    "adhd",
+    "adhd - psychoedukacja",
+    "adhd i spektrum autyzmu",
+    "diagnoza adhd"
+   ],
+   "n": 35,
+   "rodzic": null
+  },
+  "aromaterapeutyczna": {
+   "synonimy": [
+    "aromaterapeutyczna"
+   ],
+   "n": 33,
+   "rodzic": null
+  },
+  "rozejście mięśni brzucha": {
+   "synonimy": [
+    "rozejście mięśni brzucha"
+   ],
+   "n": 28,
+   "rodzic": null
+  },
+  "bolesne współżycie": {
+   "synonimy": [
+    "bolesne współżycie"
+   ],
+   "n": 26,
+   "rodzic": null
+  },
+  "sportowa": {
+   "synonimy": [
+    "sportowa"
+   ],
+   "n": 25,
+   "rodzic": null
+  },
+  "bolesne miesiączki": {
+   "synonimy": [
+    "bolesne miesiączki"
+   ],
+   "n": 23,
+   "rodzic": null
+  },
+  "endometrioza": {
+   "synonimy": [
+    "endometrioza"
+   ],
+   "n": 22,
+   "rodzic": null
+  },
+  "neurologia": {
+   "synonimy": [
+    "neurologia"
+   ],
+   "n": 20,
+   "rodzic": null
+  },
+  "psychologiczna": {
+   "synonimy": [
+    "psychologiczna",
+    "zdrowie psychiczne"
+   ],
+   "n": 14,
+   "rodzic": null
+  },
+  "mokry efekt": {
+   "synonimy": [
+    "mokry efekt"
+   ],
+   "n": 13,
+   "rodzic": null
+  },
+  "wsparcie płodności": {
+   "synonimy": [
+    "wsparcie płodności"
+   ],
+   "n": 12,
+   "rodzic": null
+  },
+  "po mastektomii": {
+   "synonimy": [
+    "po mastektomii"
+   ],
+   "n": 10,
+   "rodzic": null
+  },
+  "zdrowie": {
+   "synonimy": [
+    "zdrowie"
+   ],
+   "n": 7,
+   "rodzic": null
+  },
+  "most protetyczny": {
+   "synonimy": [
+    "most protetyczny"
+   ],
+   "n": 6,
+   "rodzic": null
+  },
+  "nadpotliwość": {
+   "synonimy": [
+    "nadpotliwość"
+   ],
+   "n": 6,
+   "rodzic": null
+  },
+  "holistyczna": {
+   "synonimy": [
+    "holistyczna"
+   ],
+   "n": 6,
+   "rodzic": null
+  },
+  "uzależnienia": {
+   "synonimy": [
+    "uzależnienia"
+   ],
+   "n": 5,
+   "rodzic": null
+  },
+  "nietolerancja pokarmowa": {
+   "synonimy": [
+    "nietolerancja pokarmowa"
+   ],
+   "n": 5,
+   "rodzic": null
+  },
+  "estetyczny": {
+   "synonimy": [
+    "estetyczny"
+   ],
+   "n": 4,
+   "rodzic": null
+  },
+  "ochrona lakieru": {
+   "synonimy": [
+    "ochrona lakieru"
+   ],
+   "n": 3,
+   "rodzic": null
+  },
+  "usuwanie wgnieceń": {
+   "synonimy": [
+    "usuwanie wgnieceń"
+   ],
+   "n": 3,
+   "rodzic": null
+  },
+  "zwężenie": {
+   "synonimy": [
+    "zwężenie"
+   ],
+   "n": 3,
+   "rodzic": null
+  },
+  "leczenie nadwrażliwości": {
+   "synonimy": [
+    "leczenie nadwrażliwości"
+   ],
+   "n": 3,
+   "rodzic": null
+  },
+  "akupunktura lecznicza": {
+   "synonimy": [
+    "akupunktura lecznicza"
+   ],
+   "n": 3,
+   "rodzic": null
+  }
+ },
+ "material": {
+  "ciepły olej": {
+   "synonimy": [
+    "aromatyczne olejki",
+    "ciepłe olejki",
+    "ciepły olej",
+    "ciepły olejek",
+    "olej",
+    "olej migdałowy",
+    "olejek",
+    "olejek aromatyczny",
+    "olejki",
+    "olejki aromatyczne",
+    "olejki eteryczne"
+   ],
+   "n": 1304,
+   "rodzic": null
+  },
+  "henna": {
+   "synonimy": [
+    "farbka/henna",
+    "henna",
+    "henna pudrowa",
+    "henna zwykła"
+   ],
+   "n": 1266,
+   "rodzic": null
+  },
+  "tytan": {
+   "synonimy": [
+    "biżuteria tytanowa",
+    "biżuteria z tytanu",
+    "manicure tytanowy",
+    "tytan",
+    "tytan / ptfe",
+    "tytan astm f-136",
+    "tytan astm f136",
+    "tytan astm-f136",
+    "tytan chirurgiczny",
+    "tytan chirurgiczny astm f-136",
+    "tytan g23",
+    "tytan implantacyjny",
+    "tytan implantacyjny astm f-136",
+    "tytan implantacyjny f136",
+    "tytan lub stal chirurgiczna",
+    "tytanowy kolczyk"
+   ],
+   "n": 1252,
+   "rodzic": null
+  },
+  "toksyna botulinowa": {
+   "synonimy": [
+    "toksyna botulinowa"
+   ],
+   "n": 647,
+   "rodzic": null
+  },
+  "gorący ręcznik": {
+   "synonimy": [
+    "gorący ręcznik"
+   ],
+   "n": 518,
+   "rodzic": null
+  },
+  "pasta cukrowa": {
+   "synonimy": [
+    "pasta cukrowa"
+   ],
+   "n": 491,
+   "rodzic": null
+  },
+  "igła": {
+   "synonimy": [
+    "igła",
+    "sterylna igła"
+   ],
+   "n": 281,
+   "rodzic": null
+  },
+  "kępki rzęs": {
+   "synonimy": [
+    "kępki",
+    "kępki rzęs"
+   ],
+   "n": 257,
+   "rodzic": null
+  },
+  "nici pdo": {
+   "synonimy": [
+    "nici liftingujące",
+    "nici pdo"
+   ],
+   "n": 235,
+   "rodzic": null
+  },
+  "masło shea": {
+   "synonimy": [
+    "masło shea"
+   ],
+   "n": 229,
+   "rodzic": null
+  },
+  "kwas hialuronowy": {
+   "synonimy": [
+    "kwas hialuronowy"
+   ],
+   "n": 218,
+   "rodzic": null
+  },
+  "czekolada": {
+   "synonimy": [
+    "czekolada"
+   ],
+   "n": 189,
+   "rodzic": null
+  },
+  "kamienie bazaltowe": {
+   "synonimy": [
+    "kamienie bazaltowe"
+   ],
+   "n": 182,
+   "rodzic": null
+  },
+  "miód": {
+   "synonimy": [
+    "masaż miodowy",
+    "miód"
+   ],
+   "n": 155,
+   "rodzic": null
+  },
+  "plazma": {
+   "synonimy": [
+    "plazma",
+    "prp"
+   ],
+   "n": 155,
+   "rodzic": null
+  },
+  "zioła": {
+   "synonimy": [
+    "zioła"
+   ],
+   "n": 122,
+   "rodzic": null
+  },
+  "ampułka": {
+   "synonimy": [
+    "ampułka"
+   ],
+   "n": 115,
+   "rodzic": null
+  },
+  "parafina": {
+   "synonimy": [
+    "parafina"
+   ],
+   "n": 114,
+   "rodzic": null
+  },
+  "olej kokosowy": {
+   "synonimy": [
+    "olej kokosowy"
+   ],
+   "n": 111,
+   "rodzic": null
+  },
+  "lakier": {
+   "synonimy": [
+    "lakier",
+    "powłoka hydrofobowa"
+   ],
+   "n": 93,
+   "rodzic": null
+  },
+  "fibryna bogatopłytkowa": {
+   "synonimy": [
+    "fibryna bogatopłytkowa"
+   ],
+   "n": 79,
+   "rodzic": null
+  },
+  "kwas polimlekowy": {
+   "synonimy": [
+    "kwas polimlekowy"
+   ],
+   "n": 79,
+   "rodzic": null
+  },
+  "folia": {
+   "synonimy": [
+    "folia",
+    "folia ochronna",
+    "zabezpieczenie folią ppf"
+   ],
+   "n": 74,
+   "rodzic": null
+  },
+  "kaszmir": {
+   "synonimy": [
+    "kaszmir"
+   ],
+   "n": 68,
+   "rodzic": null
+  },
+  "eyeliner": {
+   "synonimy": [
+    "eyeliner"
+   ],
+   "n": 66,
+   "rodzic": null
+  },
+  "stal chirurgiczna": {
+   "synonimy": [
+    "stal chirurgiczna"
+   ],
+   "n": 65,
+   "rodzic": null
+  },
+  "kompozyt": {
+   "synonimy": [
+    "kompozyt",
+    "materiał kompozytowy"
+   ],
+   "n": 61,
+   "rodzic": null
+  },
+  "alu": {
+   "synonimy": [
+    "alu"
+   ],
+   "n": 58,
+   "rodzic": null
+  },
+  "remover": {
+   "synonimy": [
+    "remover"
+   ],
+   "n": 54,
+   "rodzic": null
+  },
+  "plastik medyczny": {
+   "synonimy": [
+    "bioplast",
+    "plastik medyczny"
+   ],
+   "n": 54,
+   "rodzic": null
+  },
+  "stal": {
+   "synonimy": [
+    "metal",
+    "metalowy",
+    "stal"
+   ],
+   "n": 43,
+   "rodzic": null
+  },
+  "bandaże": {
+   "synonimy": [
+    "bandaż",
+    "bandaże"
+   ],
+   "n": 38,
+   "rodzic": null
+  },
+  "porcelana": {
+   "synonimy": [
+    "ceramika",
+    "korona porcelanowa",
+    "porcelana"
+   ],
+   "n": 38,
+   "rodzic": null
+  },
+  "olej sezamowy": {
+   "synonimy": [
+    "olej sezamowy"
+   ],
+   "n": 36,
+   "rodzic": null
+  },
+  "świeca": {
+   "synonimy": [
+    "świeca"
+   ],
+   "n": 32,
+   "rodzic": null
+  },
+  "olej arganowy": {
+   "synonimy": [
+    "olej arganowy"
+   ],
+   "n": 31,
+   "rodzic": null
+  },
+  "materiał": {
+   "synonimy": [
+    "materiał",
+    "materiałowy"
+   ],
+   "n": 29,
+   "rodzic": null
+  },
+  "bambus": {
+   "synonimy": [
+    "bambus"
+   ],
+   "n": 28,
+   "rodzic": null
+  },
+  "powłoka ceramiczna": {
+   "synonimy": [
+    "powłoka ceramiczna"
+   ],
+   "n": 28,
+   "rodzic": null
+  },
+  "tapicerka skórzana": {
+   "synonimy": [
+    "tapicerka skórzana"
+   ],
+   "n": 28,
+   "rodzic": null
+  },
+  "sztuczne rzęsy": {
+   "synonimy": [
+    "sztuczne rzęsy"
+   ],
+   "n": 21,
+   "rodzic": null
+  },
+  "biżuteria typu labret": {
+   "synonimy": [
+    "biżuteria typu labret"
+   ],
+   "n": 20,
+   "rodzic": null
+  },
+  "wosk syntetyczny": {
+   "synonimy": [
+    "wosk płynny",
+    "wosk syntetyczny"
+   ],
+   "n": 16,
+   "rodzic": null
+  },
+  "farba": {
+   "synonimy": [
+    "farba"
+   ],
+   "n": 15,
+   "rodzic": null
+  },
+  "cyrkon": {
+   "synonimy": [
+    "cyrkon",
+    "tlenek cyrkonu"
+   ],
+   "n": 9,
+   "rodzic": null
+  },
+  "włókno szklane": {
+   "synonimy": [
+    "włókno szklane"
+   ],
+   "n": 8,
+   "rodzic": null
+  },
+  "r134a": {
+   "synonimy": [
+    "r134a"
+   ],
+   "n": 7,
+   "rodzic": null
+  },
+  "fluor": {
+   "synonimy": [
+    "fluor"
+   ],
+   "n": 5,
+   "rodzic": null
+  },
+  "bez fluoryzacji": {
+   "synonimy": [
+    "bez fluoryzacji"
+   ],
+   "n": 5,
+   "rodzic": null
+  },
+  "skóra sztuczna": {
+   "synonimy": [
+    "skóra sztuczna"
+   ],
+   "n": 5,
+   "rodzic": null
+  },
+  "powłoka elastomerowa": {
+   "synonimy": [
+    "powłoka elastomerowa"
+   ],
+   "n": 4,
+   "rodzic": null
+  },
+  "powłoka grafenowa": {
+   "synonimy": [
+    "powłoka grafenowa"
+   ],
+   "n": 3,
+   "rodzic": null
+  },
+  "guma": {
+   "synonimy": [
+    "guma"
+   ],
+   "n": 3,
+   "rodzic": null
+  },
+  "glasjonomer": {
+   "synonimy": [
+    "glasjonomer"
+   ],
+   "n": 3,
+   "rodzic": null
+  }
+ },
+ "technika": {
+  "hybryda": {
+   "synonimy": [
+    "hybryda",
+    "hybrydowy",
+    "pedicure hybrydowy"
+   ],
+   "n": 10044,
+   "rodzic": null
+  },
+  "żel": {
+   "synonimy": [
+    "przedłużanie żelowe",
+    "żel"
+   ],
+   "n": 8202,
+   "rodzic": null
+  },
+  "depilacja woskiem": {
+   "synonimy": [
+    "depilacja woskiem",
+    "wosk",
+    "wosk twardy",
+    "woskiem"
+   ],
+   "n": 4930,
+   "rodzic": null
+  },
+  "żel, hybryda": {
+   "synonimy": [
+    "hybryda, żel",
+    "przedłużanie na szablonie",
+    "żel, hybryda"
+   ],
+   "n": 1890,
+   "rodzic": null
+  },
+  "oczyszczanie manualne": {
+   "synonimy": [
+    "manualny",
+    "oczyszczanie manualne",
+    "ręczny"
+   ],
+   "n": 1229,
+   "rodzic": null
+  },
+  "brzytwa": {
+   "synonimy": [
+    "brzytwa",
+    "brzytwą",
+    "golenie brzytwą",
+    "kontur brzytwą",
+    "shaver"
+   ],
+   "n": 929,
+   "rodzic": null
+  },
+  "akryl": {
+   "synonimy": [
+    "akryl"
+   ],
+   "n": 898,
+   "rodzic": null
+  },
+  "żel, akryl": {
+   "synonimy": [
+    "akryl, żel",
+    "żel, akryl",
+    "żel, akrylożel"
+   ],
+   "n": 858,
+   "rodzic": null
+  },
+  "ombre": {
+   "synonimy": [
+    "cieniowanie",
+    "ombre",
+    "ombre/sombre",
+    "pudrowa",
+    "pudrowa/ombre",
+    "pudrowe",
+    "sombre"
+   ],
+   "n": 765,
+   "rodzic": null
+  },
+  "air touch": {
+   "synonimy": [
+    "air touch",
+    "airtouch"
+   ],
+   "n": 739,
+   "rodzic": null
+  },
+  "strzyżenie maszynką": {
+   "synonimy": [
+    "kontur maszynką",
+    "maszynka",
+    "strzyżenie maszynką"
+   ],
+   "n": 621,
+   "rodzic": null
+  },
+  "balayage": {
+   "synonimy": [
+    "balayage"
+   ],
+   "n": 612,
+   "rodzic": null
+  },
+  "mezoterapia bezigłowa": {
+   "synonimy": [
+    "mezoterapia bezigłowa"
+   ],
+   "n": 571,
+   "rodzic": null
+  },
+  "baby boomer / french": {
+   "synonimy": [
+    "baby boomer / french",
+    "french"
+   ],
+   "n": 493,
+   "rodzic": null
+  },
+  "bańka chińska": {
+   "synonimy": [
+    "bańka chińska",
+    "masaż próżniowy"
+   ],
+   "n": 475,
+   "rodzic": null
+  },
+  "koloryzacja jednolita": {
+   "synonimy": [
+    "koloryzacja globalna",
+    "koloryzacja jednolita",
+    "koloryzacja jednotonowa"
+   ],
+   "n": 474,
+   "rodzic": null
+  },
+  "depilacja pastą cukrową": {
+   "synonimy": [
+    "depilacja pastą cukrową"
+   ],
+   "n": 471,
+   "rodzic": null
+  },
+  "autorski": {
+   "synonimy": [
+    "autorski"
+   ],
+   "n": 419,
+   "rodzic": null
+  },
+  "radiofrekwencja": {
+   "synonimy": [
+    "radiofrekwencja",
+    "rf bipolarna"
+   ],
+   "n": 405,
+   "rodzic": null
+  },
+  "mikronakłuwanie": {
+   "synonimy": [
+    "mikronakłuwanie",
+    "mikropunktura"
+   ],
+   "n": 405,
+   "rodzic": null
+  },
+  "uv": {
+   "synonimy": [
+    "uv"
+   ],
+   "n": 390,
+   "rodzic": null
+  },
+  "laserowa": {
+   "synonimy": [
+    "laserowa"
+   ],
+   "n": 374,
+   "rodzic": null
+  },
+  "mikrodermabrazja diamentowa": {
+   "synonimy": [
+    "mikrodermabrazja diamentowa"
+   ],
+   "n": 354,
+   "rodzic": null
+  },
+  "liposukcja ultradźwiękowa": {
+   "synonimy": [
+    "liposukcja ultradźwiękowa"
+   ],
+   "n": 269,
+   "rodzic": null
+  },
+  "żel, akryl, hybryda": {
+   "synonimy": [
+    "akryl, żel, hybryda",
+    "żel, akryl, hybryda"
+   ],
+   "n": 251,
+   "rodzic": null
+  },
+  "masaż transbukalny": {
+   "synonimy": [
+    "masaż transbukalny",
+    "transbukalny"
+   ],
+   "n": 237,
+   "rodzic": null
+  },
+  "koloryzacja wielotonowa": {
+   "synonimy": [
+    "koloryzacja wielotonowa"
+   ],
+   "n": 214,
+   "rodzic": null
+  },
+  "fade": {
+   "synonimy": [
+    "fade",
+    "skin fade"
+   ],
+   "n": 208,
+   "rodzic": null
+  },
+  "akryl, hybryda": {
+   "synonimy": [
+    "akryl, hybryda"
+   ],
+   "n": 196,
+   "rodzic": null
+  },
+  "maszynka + nożyczki": {
+   "synonimy": [
+    "maszynka + nożyczki",
+    "nożyczki, maszynka"
+   ],
+   "n": 186,
+   "rodzic": null
+  },
+  "akrylożel": {
+   "synonimy": [
+    "akrylożel"
+   ],
+   "n": 181,
+   "rodzic": null
+  },
+  "opalanie natryskowe": {
+   "synonimy": [
+    "opalanie natryskowe"
+   ],
+   "n": 178,
+   "rodzic": null
+  },
+  "peeling enzymatyczny": {
+   "synonimy": [
+    "peeling enzymatyczny"
+   ],
+   "n": 168,
+   "rodzic": null
+  },
+  "pistolet": {
+   "synonimy": [
+    "pistolet",
+    "przekłucie igłą"
+   ],
+   "n": 157,
+   "rodzic": null
+  },
+  "naturalna płytka": {
+   "synonimy": [
+    "naturalna płytka"
+   ],
+   "n": 156,
+   "rodzic": null
+  },
+  "suche igłowanie": {
+   "synonimy": [
+    "suche igłowanie"
+   ],
+   "n": 143,
+   "rodzic": null
+  },
+  "nożyczkami": {
+   "synonimy": [
+    "nożyczkami",
+    "nożyczki"
+   ],
+   "n": 135,
+   "rodzic": null
+  },
+  "fala akustyczna": {
+   "synonimy": [
+    "fala akustyczna"
+   ],
+   "n": 106,
+   "rodzic": null
+  },
+  "kreska cieniowana": {
+   "synonimy": [
+    "cieniowana",
+    "kreska cieniowana"
+   ],
+   "n": 99,
+   "rodzic": null
+  },
+  "golarka": {
+   "synonimy": [
+    "golarka"
+   ],
+   "n": 93,
+   "rodzic": null
+  },
+  "gua sha": {
+   "synonimy": [
+    "gua sha"
+   ],
+   "n": 87,
+   "rodzic": null
+  },
+  "malowanie hybrydowe": {
+   "synonimy": [
+    "malowanie hybrydowe"
+   ],
+   "n": 75,
+   "rodzic": null
+  },
+  "laser frakcyjny nieablacyjny": {
+   "synonimy": [
+    "laser frakcyjny nieablacyjny"
+   ],
+   "n": 72,
+   "rodzic": null
+  },
+  "strzyżenie z modelowaniem": {
+   "synonimy": [
+    "strzyżenie z modelowaniem"
+   ],
+   "n": 71,
+   "rodzic": null
+  },
+  "włoskowa": {
+   "synonimy": [
+    "włos maszynowy",
+    "włoskowa"
+   ],
+   "n": 71,
+   "rodzic": null
+  },
+  "kreska dekoracyjna": {
+   "synonimy": [
+    "kreska dekoracyjna"
+   ],
+   "n": 66,
+   "rodzic": null
+  },
+  "kontur z cieniowaniem": {
+   "synonimy": [
+    "kontur z cieniowaniem"
+   ],
+   "n": 63,
+   "rodzic": null
+  },
+  "podciśnienie": {
+   "synonimy": [
+    "podciśnienie"
+   ],
+   "n": 57,
+   "rodzic": null
+  },
+  "akwarelowa": {
+   "synonimy": [
+    "akwarelowa",
+    "aquarelle lips"
+   ],
+   "n": 54,
+   "rodzic": null
+  },
+  "microblading": {
+   "synonimy": [
+    "microblading"
+   ],
+   "n": 50,
+   "rodzic": null
+  },
+  "automatyczny": {
+   "synonimy": [
+    "automatic transmission",
+    "automatyczny"
+   ],
+   "n": 47,
+   "rodzic": null
+  },
+  "basic": {
+   "synonimy": [
+    "basic"
+   ],
+   "n": 43,
+   "rodzic": null
+  },
+  "pranie ekstrakcyjne": {
+   "synonimy": [
+    "metoda ekstrakcyjna",
+    "pranie ekstrakcyjne"
+   ],
+   "n": 43,
+   "rodzic": null
+  },
+  "masaż japoński": {
+   "synonimy": [
+    "masaż japoński"
+   ],
+   "n": 42,
+   "rodzic": null
+  },
+  "techniki mięśniowo-powięziowe": {
+   "synonimy": [
+    "fm stecco",
+    "techniki mięśniowo-powięziowe",
+    "terapia manualna i praca z powięzią"
+   ],
+   "n": 39,
+   "rodzic": null
+  },
+  "na gładko": {
+   "synonimy": [
+    "na gładko"
+   ],
+   "n": 38,
+   "rodzic": null
+  },
+  "nakładki": {
+   "synonimy": [
+    "nakładki"
+   ],
+   "n": 33,
+   "rodzic": null
+  },
+  "metoda na dwa wiadra": {
+   "synonimy": [
+    "metoda na dwa wiadra"
+   ],
+   "n": 30,
+   "rodzic": null
+  },
+  "zabiegi zewnętrzne": {
+   "synonimy": [
+    "zabiegi zewnętrzne"
+   ],
+   "n": 26,
+   "rodzic": null
+  },
+  "bonding": {
+   "synonimy": [
+    "bonding",
+    "flow injection"
+   ],
+   "n": 23,
+   "rodzic": null
+  },
+  "pod mikroskopem": {
+   "synonimy": [
+    "pod mikroskopem"
+   ],
+   "n": 20,
+   "rodzic": null
+  },
+  "wet look": {
+   "synonimy": [
+    "wet look"
+   ],
+   "n": 15,
+   "rodzic": null
+  },
+  "brzytwa, gorący ręcznik": {
+   "synonimy": [
+    "brzytwa, gorący ręcznik"
+   ],
+   "n": 15,
+   "rodzic": null
+  },
+  "gbt": {
+   "synonimy": [
+    "gbt"
+   ],
+   "n": 15,
+   "rodzic": null
+  },
+  "skupiona": {
+   "synonimy": [
+    "skupiona"
+   ],
+   "n": 12,
+   "rodzic": null
+  },
+  "ultradźwięki": {
+   "synonimy": [
+    "ultradźwięki"
+   ],
+   "n": 11,
+   "rodzic": null
+  },
+  "pnf": {
+   "synonimy": [
+    "pnf"
+   ],
+   "n": 11,
+   "rodzic": null
+  },
+  "trening ems dry": {
+   "synonimy": [
+    "trening ems dry"
+   ],
+   "n": 11,
+   "rodzic": null
+  },
+  "wosk/pasta cukrowa": {
+   "synonimy": [
+    "depilacja cukrem lub woskiem",
+    "wosk/pasta cukrowa"
+   ],
+   "n": 11,
+   "rodzic": null
+  },
+  "skrzynia manualna": {
+   "synonimy": [
+    "skrzynia manualna"
+   ],
+   "n": 10,
+   "rodzic": null
+  },
+  "kolorowy": {
+   "synonimy": [
+    "kolorowy"
+   ],
+   "n": 10,
+   "rodzic": null
+  },
+  "fine line": {
+   "synonimy": [
+    "fine line",
+    "fineline"
+   ],
+   "n": 9,
+   "rodzic": null
+  },
+  "bez brzytwy": {
+   "synonimy": [
+    "bez brzytwy"
+   ],
+   "n": 8,
+   "rodzic": null
+  },
+  "ciche": {
+   "synonimy": [
+    "ciche"
+   ],
+   "n": 8,
+   "rodzic": null
+  },
+  "protokół zero": {
+   "synonimy": [
+    "protokół zero"
+   ],
+   "n": 8,
+   "rodzic": null
+  },
+  "czyszczenie chemiczne": {
+   "synonimy": [
+    "czyszczenie chemiczne"
+   ],
+   "n": 5,
+   "rodzic": null
+  },
+  "terapia dożylna": {
+   "synonimy": [
+    "terapia dożylna"
+   ],
+   "n": 5,
+   "rodzic": null
+  },
+  "industrial": {
+   "synonimy": [
+    "industrial"
+   ],
+   "n": 5,
+   "rodzic": null
+  },
+  "jednoetapowa": {
+   "synonimy": [
+    "jednoetapowa"
+   ],
+   "n": 4,
+   "rodzic": null
+  },
+  "akupunktura japońska": {
+   "synonimy": [
+    "akupunktura japońska"
+   ],
+   "n": 4,
+   "rodzic": null
+  },
+  "dom klienta": {
+   "synonimy": [
+    "dom klienta"
+   ],
+   "n": 4,
+   "rodzic": null
+  },
+  "znieczulenie miejscowe": {
+   "synonimy": [
+    "znieczulenie miejscowe"
+   ],
+   "n": 3,
+   "rodzic": null
+  },
+  "skalpel": {
+   "synonimy": [
+    "skalpel"
+   ],
+   "n": 3,
+   "rodzic": null
+  }
+ },
+ "odbiorca": {
+  "mężczyźni": {
+   "synonimy": [
+    "męskie",
+    "mężczyzna",
+    "mężczyźni",
+    "panowie"
+   ],
+   "n": 9638,
+   "rodzic": null
+  },
+  "kobiety": {
+   "synonimy": [
+    "damska",
+    "damskie",
+    "damskie, 18+",
+    "dietetyka kobieca",
+    "dla kobiet",
+    "klientki",
+    "kobieta",
+    "kobiety",
+    "strzyżenie damskie"
+   ],
+   "n": 9627,
+   "rodzic": null
+  },
+  "psy": {
+   "synonimy": [
+    "pielęgnacja psa",
+    "pies",
+    "psy",
+    "zwierzęta"
+   ],
+   "n": 2153,
+   "rodzic": null
+  },
+  "dzieci": {
+   "synonimy": [
+    "do 7 lat",
+    "dzieci",
+    "dzieci i młodzież",
+    "dziecięce",
+    "dziecko",
+    "fizjoterapia dzieci",
+    "konsultacje dla dzieci",
+    "pediatryczna"
+   ],
+   "n": 2068,
+   "rodzic": null
+  },
+  "kobiety w ciąży": {
+   "synonimy": [
+    "aktywna ciąża",
+    "ciąża",
+    "kobiety w ciąży",
+    "masaż prenatalny"
+   ],
+   "n": 676,
+   "rodzic": null
+  },
+  "dorośli": {
+   "synonimy": [
+    "18+",
+    "21+",
+    "dorosłych",
+    "dorośli",
+    "osoba dorosła",
+    "osoby dorosłe",
+    "osoby dorosłe, pary lub rodziny",
+    "osoby pełnoletnie",
+    "pełnoletnie"
+   ],
+   "n": 623,
+   "rodzic": null
+  },
+  "męski": {
+   "synonimy": [
+    "męska",
+    "męski"
+   ],
+   "n": 542,
+   "rodzic": null
+  },
+  "16+": {
+   "synonimy": [
+    "16 lat+",
+    "16+",
+    "min 16 lat",
+    "od 16 lat",
+    "od 16 r.ż",
+    "od 16 roku życia"
+   ],
+   "n": 377,
+   "rodzic": null
+  },
+  "kobiety i mężczyźni": {
+   "synonimy": [
+    "kobiety i mężczyźni"
+   ],
+   "n": 302,
+   "rodzic": null
+  },
+  "panie": {
+   "synonimy": [
+    "panie"
+   ],
+   "n": 256,
+   "rodzic": null
+  },
+  "panna młoda": {
+   "synonimy": [
+    "panna młoda"
+   ],
+   "n": 246,
+   "rodzic": null
+  },
+  "ojciec + syn": {
+   "synonimy": [
+    "ojciec + syn",
+    "ojciec i syn",
+    "ojciec z synem"
+   ],
+   "n": 243,
+   "rodzic": null
+  },
+  "pacjent": {
+   "synonimy": [
+    "pacjent"
+   ],
+   "n": 224,
+   "rodzic": null
+  },
+  "15+": {
+   "synonimy": [
+    "15 lat",
+    "15 lat+",
+    "15+",
+    "od 15 lat",
+    "od 15 roku życia"
+   ],
+   "n": 213,
+   "rodzic": null
+  },
+  "osoby aktywne fizycznie": {
+   "synonimy": [
+    "osoby aktywne fizycznie",
+    "sportowcy"
+   ],
+   "n": 205,
+   "rodzic": null
+  },
+  "dla siebie": {
+   "synonimy": [
+    "dla siebie",
+    "makijaż dla siebie",
+    "makijaż własny",
+    "na własny użytek"
+   ],
+   "n": 191,
+   "rodzic": null
+  },
+  "chłopcy": {
+   "synonimy": [
+    "chłopcy",
+    "do 10 lat"
+   ],
+   "n": 177,
+   "rodzic": null
+  },
+  "po porodzie": {
+   "synonimy": [
+    "po cesarskim cięciu",
+    "po porodzie"
+   ],
+   "n": 121,
+   "rodzic": null
+  },
+  "dziewczynki": {
+   "synonimy": [
+    "dziewczynki"
+   ],
+   "n": 105,
+   "rodzic": null
+  },
+  "niemowlęta": {
+   "synonimy": [
+    "0-3 r.z",
+    "dzieci 0-2 r.ż",
+    "niemowlęta"
+   ],
+   "n": 77,
+   "rodzic": null
+  },
+  "szczeniaki": {
+   "synonimy": [
+    "szczeniaki"
+   ],
+   "n": 60,
+   "rodzic": null
+  },
+  "mężczyźni, dzieci": {
+   "synonimy": [
+    "mężczyźni, dzieci"
+   ],
+   "n": 57,
+   "rodzic": null
+  },
+  "nowi klienci": {
+   "synonimy": [
+    "nowi klienci"
+   ],
+   "n": 52,
+   "rodzic": null
+  },
+  "młodzież": {
+   "synonimy": [
+    "młodzież",
+    "młodzież (12+)",
+    "nastolatki (13+)"
+   ],
+   "n": 45,
+   "rodzic": null
+  },
+  "od 14 lat": {
+   "synonimy": [
+    "od 14 lat"
+   ],
+   "n": 44,
+   "rodzic": null
+  },
+  "dzieci i dorośli": {
+   "synonimy": [
+    "dzieci i dorośli",
+    "dzieci, dorośli",
+    "dzieci, młodzież i dorośli"
+   ],
+   "n": 44,
+   "rodzic": null
+  },
+  "do 12 lat": {
+   "synonimy": [
+    "do 12 lat"
+   ],
+   "n": 35,
+   "rodzic": null
+  },
+  "13+": {
+   "synonimy": [
+    "13+"
+   ],
+   "n": 35,
+   "rodzic": null
+  },
+  "kobiety w ciąży i po porodzie": {
+   "synonimy": [
+    "kobiety w ciąży i po porodzie",
+    "okołoporodowa"
+   ],
+   "n": 27,
+   "rodzic": null
+  },
+  "rodzice": {
+   "synonimy": [
+    "rodzic",
+    "rodzice"
+   ],
+   "n": 24,
+   "rodzic": null
+  },
+  "stały klient": {
+   "synonimy": [
+    "stały klient"
+   ],
+   "n": 21,
+   "rodzic": null
+  },
+  "rodzina": {
+   "synonimy": [
+    "rodzina",
+    "rodziny"
+   ],
+   "n": 18,
+   "rodzic": null
+  },
+  "wizażyści": {
+   "synonimy": [
+    "wizażyści"
+   ],
+   "n": 17,
+   "rodzic": null
+  },
+  "studenci": {
+   "synonimy": [
+    "studenci"
+   ],
+   "n": 15,
+   "rodzic": null
+  },
+  "posiadacze karty medicover sport": {
+   "synonimy": [
+    "posiadacze karty medicover sport"
+   ],
+   "n": 14,
+   "rodzic": null
+  },
+  "od 12 lat": {
+   "synonimy": [
+    "od 12 lat",
+    "od 12 r.ż"
+   ],
+   "n": 14,
+   "rodzic": null
+  },
+  "u klienta": {
+   "synonimy": [
+    "u klienta"
+   ],
+   "n": 13,
+   "rodzic": null
+  },
+  "6-16 lat": {
+   "synonimy": [
+    "6-16 lat"
+   ],
+   "n": 13,
+   "rodzic": null
+  },
+  "16 lat": {
+   "synonimy": [
+    "16 lat"
+   ],
+   "n": 13,
+   "rodzic": null
+  },
+  "opieka nad osobami starszymi": {
+   "synonimy": [
+    "opieka nad osobami starszymi",
+    "senior 65+"
+   ],
+   "n": 13,
+   "rodzic": null
+  },
+  "do 8 lat": {
+   "synonimy": [
+    "do 8 lat"
+   ],
+   "n": 11,
+   "rodzic": null
+  },
+  "menopauza": {
+   "synonimy": [
+    "menopauza"
+   ],
+   "n": 11,
+   "rodzic": null
+  },
+  "od 8 lat": {
+   "synonimy": [
+    "od 8 lat",
+    "od 8 roku życia"
+   ],
+   "n": 10,
+   "rodzic": null
+  },
+  "od 7 roku życia": {
+   "synonimy": [
+    "od 7 lat",
+    "od 7 roku życia"
+   ],
+   "n": 9,
+   "rodzic": null
+  },
+  "motocykliści": {
+   "synonimy": [
+    "motocykliści"
+   ],
+   "n": 8,
+   "rodzic": null
+  },
+  "od 3 roku życia": {
+   "synonimy": [
+    "od 3 lat",
+    "od 3 roku życia"
+   ],
+   "n": 8,
+   "rodzic": null
+  },
+  "średniozaawansowana": {
+   "synonimy": [
+    "średniozaawansowana"
+   ],
+   "n": 6,
+   "rodzic": null
+  },
+  "kursanci kursu rocznego": {
+   "synonimy": [
+    "kursanci kursu rocznego"
+   ],
+   "n": 5,
+   "rodzic": null
+  },
+  "od 4 lat": {
+   "synonimy": [
+    "od 4 lat"
+   ],
+   "n": 5,
+   "rodzic": null
+  },
+  "od 6 r.ż": {
+   "synonimy": [
+    "od 6 r.ż"
+   ],
+   "n": 3,
+   "rodzic": null
+  },
+  "spektrum autyzmu": {
+   "synonimy": [
+    "spektrum autyzmu"
+   ],
+   "n": 3,
+   "rodzic": null
+  },
+  "od 10 roku życia": {
+   "synonimy": [
+    "od 10 roku życia"
+   ],
+   "n": 3,
+   "rodzic": null
+  }
+ },
+ "preparat_urzadzenie": {
+  "laser": {
+   "synonimy": [
+    "laser",
+    "laser diodowy"
+   ],
+   "n": 1524,
+   "rodzic": null
+  },
+  "biorepeel": {
+   "synonimy": [
+    "biorepeel",
+    "biorepeel cl3",
+    "estgen"
+   ],
+   "n": 1504,
+   "rodzic": null
+  },
+  "botox": {
+   "synonimy": [
+    "botox",
+    "btx",
+    "toksyna botulinowa (botoks)"
+   ],
+   "n": 1454,
+   "rodzic": null
+  },
+  "lycon": {
+   "synonimy": [
+    "lycon"
+   ],
+   "n": 1412,
+   "rodzic": null
+  },
+  "indiba": {
+   "synonimy": [
+    "indiba",
+    "indiba deep care",
+    "indiba®",
+    "terapia indiba"
+   ],
+   "n": 913,
+   "rodzic": null
+  },
+  "dermaquest": {
+   "synonimy": [
+    "dermaquest"
+   ],
+   "n": 825,
+   "rodzic": null
+  },
+  "primelase": {
+   "synonimy": [
+    "depilacja laserowa primelase",
+    "epilacja laserowa primelase",
+    "primelase",
+    "primelase excellence"
+   ],
+   "n": 822,
+   "rodzic": null
+  },
+  "icoone": {
+   "synonimy": [
+    "icoone",
+    "icoone laser",
+    "icoone laser med",
+    "icoone laser med 2"
+   ],
+   "n": 821,
+   "rodzic": null
+  },
+  "dermapen": {
+   "synonimy": [
+    "dermapen",
+    "dermapen 4",
+    "dermapen 4.0"
+   ],
+   "n": 708,
+   "rodzic": null
+  },
+  "guna": {
+   "synonimy": [
+    "guna",
+    "tropokolagen",
+    "tropokolagen guna"
+   ],
+   "n": 696,
+   "rodzic": null
+  },
+  "prx-t33": {
+   "synonimy": [
+    "prx-t33"
+   ],
+   "n": 658,
+   "rodzic": null
+  },
+  "pca skin": {
+   "synonimy": [
+    "pca",
+    "pca skin"
+   ],
+   "n": 623,
+   "rodzic": null
+  },
+  "hifu": {
+   "synonimy": [
+    "hifu"
+   ],
+   "n": 587,
+   "rodzic": null
+  },
+  "laser frakcyjny co2": {
+   "synonimy": [
+    "laser frakcyjny",
+    "laser frakcyjny co2"
+   ],
+   "n": 548,
+   "rodzic": null
+  },
+  "storz medical": {
+   "synonimy": [
+    "storz",
+    "storz medical"
+   ],
+   "n": 545,
+   "rodzic": null
+  },
+  "lpg": {
+   "synonimy": [
+    "lpg",
+    "lpg alliance"
+   ],
+   "n": 484,
+   "rodzic": null
+  },
+  "retix c": {
+   "synonimy": [
+    "retix c",
+    "retix.c"
+   ],
+   "n": 461,
+   "rodzic": null
+  },
+  "geneo": {
+   "synonimy": [
+    "geneo"
+   ],
+   "n": 430,
+   "rodzic": null
+  },
+  "arkana": {
+   "synonimy": [
+    "arkana"
+   ],
+   "n": 430,
+   "rodzic": null
+  },
+  "arosha": {
+   "synonimy": [
+    "arosha"
+   ],
+   "n": 422,
+   "rodzic": null
+  },
+  "ibx": {
+   "synonimy": [
+    "ibx",
+    "ibx system"
+   ],
+   "n": 410,
+   "rodzic": null
+  },
+  "alma harmony": {
+   "synonimy": [
+    "alma harmony",
+    "alma harmony xl pro",
+    "alma primex",
+    "dye-vl"
+   ],
+   "n": 380,
+   "rodzic": null
+  },
+  "olaplex": {
+   "synonimy": [
+    "olaplex"
+   ],
+   "n": 366,
+   "rodzic": null
+  },
+  "dr cyj": {
+   "synonimy": [
+    "dr cyj",
+    "dr cyj hair filler",
+    "dr. cyj",
+    "dr. cyj hair filler",
+    "dr.cyj"
+   ],
+   "n": 340,
+   "rodzic": null
+  },
+  "nucleofill": {
+   "synonimy": [
+    "nucleofill"
+   ],
+   "n": 333,
+   "rodzic": null
+  },
+  "mediderma": {
+   "synonimy": [
+    "mediderma"
+   ],
+   "n": 325,
+   "rodzic": null
+  },
+  "joico": {
+   "synonimy": [
+    "joico"
+   ],
+   "n": 324,
+   "rodzic": null
+  },
+  "vectus": {
+   "synonimy": [
+    "depilacja laserowa vectus",
+    "laser vectus",
+    "vectus"
+   ],
+   "n": 318,
+   "rodzic": null
+  },
+  "neauvia hydro deluxe": {
+   "synonimy": [
+    "neauvia",
+    "neauvia hydro deluxe"
+   ],
+   "n": 315,
+   "rodzic": null
+  },
+  "bye bye repair system": {
+   "synonimy": [
+    "bye bye repair system"
+   ],
+   "n": 312,
+   "rodzic": null
+  },
+  "onda": {
+   "synonimy": [
+    "onda",
+    "onda pro"
+   ],
+   "n": 301,
+   "rodzic": null
+  },
+  "mesoestetic": {
+   "synonimy": [
+    "mesoestetic"
+   ],
+   "n": 289,
+   "rodzic": null
+  },
+  "xela rederm": {
+   "synonimy": [
+    "xela rederm"
+   ],
+   "n": 288,
+   "rodzic": null
+  },
+  "jalupro": {
+   "synonimy": [
+    "jalupro"
+   ],
+   "n": 281,
+   "rodzic": null
+  },
+  "profhilo": {
+   "synonimy": [
+    "profhilo"
+   ],
+   "n": 272,
+   "rodzic": null
+  },
+  "pro xn": {
+   "synonimy": [
+    "pro xn"
+   ],
+   "n": 269,
+   "rodzic": null
+  },
+  "kerastase": {
+   "synonimy": [
+    "kerastase"
+   ],
+   "n": 264,
+   "rodzic": null
+  },
+  "kevin murphy": {
+   "synonimy": [
+    "kevin murphy"
+   ],
+   "n": 260,
+   "rodzic": null
+  },
+  "peel mission": {
+   "synonimy": [
+    "peel mission"
+   ],
+   "n": 256,
+   "rodzic": null
+  },
+  "dmk": {
+   "synonimy": [
+    "dmk"
+   ],
+   "n": 250,
+   "rodzic": null
+  },
+  "bloomea": {
+   "synonimy": [
+    "bloomea"
+   ],
+   "n": 249,
+   "rodzic": null
+  },
+  "medestelle": {
+   "synonimy": [
+    "medestelle"
+   ],
+   "n": 236,
+   "rodzic": null
+  },
+  "purles": {
+   "synonimy": [
+    "purles"
+   ],
+   "n": 235,
+   "rodzic": null
+  },
+  "ems": {
+   "synonimy": [
+    "b-strong",
+    "ems",
+    "hi-emt+rf+ems"
+   ],
+   "n": 218,
+   "rodzic": null
+  },
+  "light sheer": {
+   "synonimy": [
+    "depilacja laserowa light sheer",
+    "light sheer"
+   ],
+   "n": 203,
+   "rodzic": null
+  },
+  "juvederm": {
+   "synonimy": [
+    "juvederm"
+   ],
+   "n": 195,
+   "rodzic": null
+  },
+  "dives med": {
+   "synonimy": [
+    "dives med"
+   ],
+   "n": 186,
+   "rodzic": null
+  },
+  "blomdahl": {
+   "synonimy": [
+    "blomdahl"
+   ],
+   "n": 185,
+   "rodzic": null
+  },
+  "nanili": {
+   "synonimy": [
+    "nanili"
+   ],
+   "n": 177,
+   "rodzic": null
+  },
+  "thesera": {
+   "synonimy": [
+    "thesera"
+   ],
+   "n": 168,
+   "rodzic": null
+  },
+  "karisma": {
+   "synonimy": [
+    "karisma"
+   ],
+   "n": 166,
+   "rodzic": null
+  },
+  "studex": {
+   "synonimy": [
+    "bezhukowy pistolet",
+    "studex",
+    "studex®"
+   ],
+   "n": 162,
+   "rodzic": null
+  },
+  "stylage": {
+   "synonimy": [
+    "stylage",
+    "stylage m"
+   ],
+   "n": 154,
+   "rodzic": null
+  },
+  "thalgo": {
+   "synonimy": [
+    "thalgo"
+   ],
+   "n": 153,
+   "rodzic": null
+  },
+  "phformula": {
+   "synonimy": [
+    "phformula"
+   ],
+   "n": 141,
+   "rodzic": null
+  },
+  "fotona": {
+   "synonimy": [
+    "fotona"
+   ],
+   "n": 139,
+   "rodzic": null
+  },
+  "skeyndor": {
+   "synonimy": [
+    "skeyndor"
+   ],
+   "n": 131,
+   "rodzic": null
+  },
+  "cooltech": {
+   "synonimy": [
+    "cooltech"
+   ],
+   "n": 127,
+   "rodzic": null
+  },
+  "brae": {
+   "synonimy": [
+    "brae"
+   ],
+   "n": 124,
+   "rodzic": null
+  },
+  "jean paul myne": {
+   "synonimy": [
+    "jean paul myne"
+   ],
+   "n": 119,
+   "rodzic": null
+  },
+  "btl": {
+   "synonimy": [
+    "btl"
+   ],
+   "n": 119,
+   "rodzic": null
+  },
+  "pq age": {
+   "synonimy": [
+    "pq age"
+   ],
+   "n": 116,
+   "rodzic": null
+  },
+  "revolax": {
+   "synonimy": [
+    "revolax"
+   ],
+   "n": 115,
+   "rodzic": null
+  },
+  "opi": {
+   "synonimy": [
+    "opi"
+   ],
+   "n": 112,
+   "rodzic": null
+  },
+  "vagheggi": {
+   "synonimy": [
+    "vagheggi"
+   ],
+   "n": 108,
+   "rodzic": null
+  },
+  "eximia titanium": {
+   "synonimy": [
+    "eximia",
+    "eximia titanium"
+   ],
+   "n": 98,
+   "rodzic": null
+  },
+  "azzalure": {
+   "synonimy": [
+    "azzalure"
+   ],
+   "n": 95,
+   "rodzic": null
+  },
+  "vinylux": {
+   "synonimy": [
+    "vinylux"
+   ],
+   "n": 93,
+   "rodzic": null
+  },
+  "goldwell": {
+   "synonimy": [
+    "goldwell"
+   ],
+   "n": 92,
+   "rodzic": null
+  },
+  "plasma iq": {
+   "synonimy": [
+    "plasma iq"
+   ],
+   "n": 88,
+   "rodzic": null
+  },
+  "davines": {
+   "synonimy": [
+    "davines"
+   ],
+   "n": 80,
+   "rodzic": null
+  },
+  "korugi": {
+   "synonimy": [
+    "korugi"
+   ],
+   "n": 80,
+   "rodzic": null
+  },
+  "invernessmed": {
+   "synonimy": [
+    "inverness",
+    "inverness med",
+    "invernessmed"
+   ],
+   "n": 80,
+   "rodzic": null
+  },
+  "exilis": {
+   "synonimy": [
+    "exilis"
+   ],
+   "n": 75,
+   "rodzic": null
+  },
+  "lampa led": {
+   "synonimy": [
+    "lampa led",
+    "led"
+   ],
+   "n": 75,
+   "rodzic": null
+  },
+  "hialuronidaza": {
+   "synonimy": [
+    "hialuronidaza"
+   ],
+   "n": 72,
+   "rodzic": null
+  },
+  "depilacja laserowa diodowa": {
+   "synonimy": [
+    "depilacja laserem diodowym",
+    "depilacja laserowa diodowa"
+   ],
+   "n": 69,
+   "rodzic": null
+  },
+  "dr. sorbie": {
+   "synonimy": [
+    "dr. sorbie"
+   ],
+   "n": 63,
+   "rodzic": null
+  },
+  "meltivio": {
+   "synonimy": [
+    "meltivio"
+   ],
+   "n": 63,
+   "rodzic": null
+  },
+  "bieżnia vacu": {
+   "synonimy": [
+    "bieżnia vacu"
+   ],
+   "n": 62,
+   "rodzic": null
+  },
+  "belotero": {
+   "synonimy": [
+    "belotero"
+   ],
+   "n": 61,
+   "rodzic": null
+  },
+  "artego": {
+   "synonimy": [
+    "artego"
+   ],
+   "n": 59,
+   "rodzic": null
+  },
+  "laser nd:yag": {
+   "synonimy": [
+    "laser nd:yag"
+   ],
+   "n": 58,
+   "rodzic": null
+  },
+  "radiesse": {
+   "synonimy": [
+    "radiesse"
+   ],
+   "n": 58,
+   "rodzic": null
+  },
+  "relfydess": {
+   "synonimy": [
+    "relfydess"
+   ],
+   "n": 57,
+   "rodzic": null
+  },
+  "beyond": {
+   "synonimy": [
+    "beyond",
+    "beyond light"
+   ],
+   "n": 57,
+   "rodzic": null
+  },
+  "nature…®": {
+   "synonimy": [
+    "nature…®"
+   ],
+   "n": 56,
+   "rodzic": null
+  },
+  "dermaheal": {
+   "synonimy": [
+    "dermaheal"
+   ],
+   "n": 55,
+   "rodzic": null
+  },
+  "medilase pro": {
+   "synonimy": [
+    "medilase pro"
+   ],
+   "n": 54,
+   "rodzic": null
+  },
+  "teosyal": {
+   "synonimy": [
+    "teosyal"
+   ],
+   "n": 52,
+   "rodzic": null
+  },
+  "ipixel": {
+   "synonimy": [
+    "ipixel"
+   ],
+   "n": 52,
+   "rodzic": null
+  },
+  "stymulator": {
+   "synonimy": [
+    "stymulator"
+   ],
+   "n": 51,
+   "rodzic": null
+  },
+  "laser wolumetryczny": {
+   "synonimy": [
+    "laser wolumetryczny"
+   ],
+   "n": 51,
+   "rodzic": null
+  },
+  "alliance": {
+   "synonimy": [
+    "alliance"
+   ],
+   "n": 51,
+   "rodzic": null
+  },
+  "maximus": {
+   "synonimy": [
+    "maximus"
+   ],
+   "n": 51,
+   "rodzic": null
+  },
+  "sculptra": {
+   "synonimy": [
+    "sculptra"
+   ],
+   "n": 49,
+   "rodzic": null
+  },
+  "lumi eyes": {
+   "synonimy": [
+    "lumi eyes"
+   ],
+   "n": 49,
+   "rodzic": null
+  },
+  "infrared": {
+   "synonimy": [
+    "infrared"
+   ],
+   "n": 49,
+   "rodzic": null
+  },
+  "infini": {
+   "synonimy": [
+    "infini"
+   ],
+   "n": 48,
+   "rodzic": null
+  },
+  "restylane": {
+   "synonimy": [
+    "restylane"
+   ],
+   "n": 47,
+   "rodzic": null
+  },
+  "long time liner": {
+   "synonimy": [
+    "long time liner",
+    "long-time-liner"
+   ],
+   "n": 42,
+   "rodzic": null
+  },
+  "styx": {
+   "synonimy": [
+    "styx"
+   ],
+   "n": 40,
+   "rodzic": null
+  },
+  "american crew": {
+   "synonimy": [
+    "american crew"
+   ],
+   "n": 39,
+   "rodzic": null
+  },
+  "swarovski": {
+   "synonimy": [
+    "swarovski"
+   ],
+   "n": 38,
+   "rodzic": null
+  },
+  "btl x-wave": {
+   "synonimy": [
+    "btl x-wave",
+    "zwave"
+   ],
+   "n": 37,
+   "rodzic": null
+  },
+  "boa": {
+   "synonimy": [
+    "boa"
+   ],
+   "n": 35,
+   "rodzic": null
+  },
+  "zaffiro": {
+   "synonimy": [
+    "zaffiro"
+   ],
+   "n": 34,
+   "rodzic": null
+  },
+  "venus legacy": {
+   "synonimy": [
+    "venus legacy"
+   ],
+   "n": 31,
+   "rodzic": null
+  },
+  "aparat stały": {
+   "synonimy": [
+    "aparat stały"
+   ],
+   "n": 31,
+   "rodzic": null
+  },
+  "lipo zero": {
+   "synonimy": [
+    "lipo zero"
+   ],
+   "n": 30,
+   "rodzic": null
+  },
+  "velashape": {
+   "synonimy": [
+    "velashape"
+   ],
+   "n": 29,
+   "rodzic": null
+  },
+  "blanc one click": {
+   "synonimy": [
+    "blanc one click",
+    "blancone click",
+    "blancone touch"
+   ],
+   "n": 29,
+   "rodzic": null
+  },
+  "loreal": {
+   "synonimy": [
+    "loreal",
+    "loreal cover"
+   ],
+   "n": 21,
+   "rodzic": null
+  },
+  "inlei": {
+   "synonimy": [
+    "inlei"
+   ],
+   "n": 19,
+   "rodzic": null
+  },
+  "biorezonans bicom optima": {
+   "synonimy": [
+    "bicom optima",
+    "biorezonans bicom optima",
+    "terapia bicom"
+   ],
+   "n": 19,
+   "rodzic": null
+  },
+  "skrzynia automatyczna": {
+   "synonimy": [
+    "skrzynia automatyczna"
+   ],
+   "n": 18,
+   "rodzic": null
+  },
+  "golarka elektryczna": {
+   "synonimy": [
+    "golarka elektryczna"
+   ],
+   "n": 15,
+   "rodzic": null
+  },
+  "fits": {
+   "synonimy": [
+    "fits"
+   ],
+   "n": 15,
+   "rodzic": null
+  },
+  "komora hiperbaryczna": {
+   "synonimy": [
+    "1.3 ata",
+    "komora hiperbaryczna"
+   ],
+   "n": 15,
+   "rodzic": null
+  },
+  "o2farm": {
+   "synonimy": [
+    "o2farm"
+   ],
+   "n": 14,
+   "rodzic": null
+  },
+  "tens": {
+   "synonimy": [
+    "tens"
+   ],
+   "n": 14,
+   "rodzic": null
+  },
+  "thermogeniq": {
+   "synonimy": [
+    "thermogeniq"
+   ],
+   "n": 13,
+   "rodzic": null
+  },
+  "infrashape": {
+   "synonimy": [
+    "infrashape"
+   ],
+   "n": 13,
+   "rodzic": null
+  },
+  "laser wysokoenergetyczny": {
+   "synonimy": [
+    "laser wysokoenergetyczny"
+   ],
+   "n": 12,
+   "rodzic": null
+  },
+  "kim": {
+   "synonimy": [
+    "kim"
+   ],
+   "n": 11,
+   "rodzic": null
+  },
+  "bemer": {
+   "synonimy": [
+    "bemer"
+   ],
+   "n": 11,
+   "rodzic": null
+  },
+  "invisalign": {
+   "synonimy": [
+    "invisalign"
+   ],
+   "n": 10,
+   "rodzic": null
+  },
+  "roll shape": {
+   "synonimy": [
+    "roll shape"
+   ],
+   "n": 9,
+   "rodzic": null
+  },
+  "emslim": {
+   "synonimy": [
+    "emslim"
+   ],
+   "n": 9,
+   "rodzic": null
+  },
+  "icb medical": {
+   "synonimy": [
+    "icb medical"
+   ],
+   "n": 8,
+   "rodzic": null
+  },
+  "clearlift": {
+   "synonimy": [
+    "clearlift"
+   ],
+   "n": 7,
+   "rodzic": null
+  },
+  "swan shaper": {
+   "synonimy": [
+    "swan shaper"
+   ],
+   "n": 7,
+   "rodzic": null
+  },
+  "prevdent": {
+   "synonimy": [
+    "prevdent"
+   ],
+   "n": 6,
+   "rodzic": null
+  },
+  "exciplex": {
+   "synonimy": [
+    "exciplex"
+   ],
+   "n": 6,
+   "rodzic": null
+  },
+  "lumiscan": {
+   "synonimy": [
+    "lumiscan"
+   ],
+   "n": 6,
+   "rodzic": null
+  },
+  "embody": {
+   "synonimy": [
+    "embody"
+   ],
+   "n": 6,
+   "rodzic": null
+  },
+  "tanita": {
+   "synonimy": [
+    "tanita"
+   ],
+   "n": 6,
+   "rodzic": null
+  },
+  "biodentine": {
+   "synonimy": [
+    "biodentine"
+   ],
+   "n": 5,
+   "rodzic": null
+  },
+  "compex": {
+   "synonimy": [
+    "compex"
+   ],
+   "n": 5,
+   "rodzic": null
+  },
+  "lipocryo": {
+   "synonimy": [
+    "lipocryo"
+   ],
+   "n": 5,
+   "rodzic": null
+  },
+  "fotofinder": {
+   "synonimy": [
+    "fotofinder"
+   ],
+   "n": 5,
+   "rodzic": null
+  },
+  "facematic": {
+   "synonimy": [
+    "facematic"
+   ],
+   "n": 5,
+   "rodzic": null
+  },
+  "masculpt": {
+   "synonimy": [
+    "masculpt"
+   ],
+   "n": 5,
+   "rodzic": null
+  },
+  "karcher professional": {
+   "synonimy": [
+    "karcher professional"
+   ],
+   "n": 4,
+   "rodzic": null
+  },
+  "koch chemie": {
+   "synonimy": [
+    "koch chemie"
+   ],
+   "n": 4,
+   "rodzic": null
+  },
+  "luminus": {
+   "synonimy": [
+    "luminus"
+   ],
+   "n": 4,
+   "rodzic": null
+  },
+  "ergoline": {
+   "synonimy": [
+    "ergoline"
+   ],
+   "n": 4,
+   "rodzic": null
+  },
+  "vector dürr dental": {
+   "synonimy": [
+    "vector dürr dental"
+   ],
+   "n": 4,
+   "rodzic": null
+  },
+  "mikrokamera": {
+   "synonimy": [
+    "mikrokamera"
+   ],
+   "n": 4,
+   "rodzic": null
+  },
+  "kod emocji®": {
+   "synonimy": [
+    "kod emocji®"
+   ],
+   "n": 4,
+   "rodzic": null
+  },
+  "fala elektromagnetyczna": {
+   "synonimy": [
+    "fala elektromagnetyczna"
+   ],
+   "n": 4,
+   "rodzic": null
+  },
+  "medicover": {
+   "synonimy": [
+    "medicover"
+   ],
+   "n": 4,
+   "rodzic": null
+  },
+  "collonite no.915": {
+   "synonimy": [
+    "collonite no.915"
+   ],
+   "n": 3,
+   "rodzic": null
+  },
+  "opalescence boost": {
+   "synonimy": [
+    "opalescence boost"
+   ],
+   "n": 3,
+   "rodzic": null
+  },
+  "cbct 3d": {
+   "synonimy": [
+    "cbct 3d"
+   ],
+   "n": 3,
+   "rodzic": null
+  },
+  "dermie pharm time4herbs": {
+   "synonimy": [
+    "dermie pharm time4herbs"
+   ],
+   "n": 3,
+   "rodzic": null
+  },
+  "wenflon": {
+   "synonimy": [
+    "wenflon"
+   ],
+   "n": 3,
+   "rodzic": null
+  }
+ },
+ "obszar": {
+  "twarz": {
+   "synonimy": [
+    "cała twarz",
+    "pielęgnacja twarzy",
+    "twarz",
+    "twarzoczaszka",
+    "zabieg na twarz"
+   ],
+   "n": 30957,
+   "rodzic": null
+  },
+  "paznokcie": {
+   "synonimy": [
+    "naturalna płytka paznokcia",
+    "paznokcie",
+    "paznokcie stóp",
+    "paznokieć"
+   ],
+   "n": 29909,
+   "rodzic": null
+  },
+  "włosy": {
+   "synonimy": [
+    "włosy"
+   ],
+   "n": 29731,
+   "rodzic": null
+  },
+  "ciało": {
+   "synonimy": [
+    "całe ciało",
+    "całe ciało psa",
+    "całkowita",
+    "ciało",
+    "ciało psa",
+    "full body",
+    "karoseria",
+    "komplet",
+    "laser tulowy",
+    "mycie zewnętrzne auta",
+    "nadwozie",
+    "zabieg na ciało"
+   ],
+   "n": 12002,
+   "rodzic": null
+  },
+  "stopy": {
+   "synonimy": [
+    "1/2",
+    "pięty",
+    "podeszwy stóp",
+    "stopa",
+    "stopy",
+    "stopy, podeszwy stóp"
+   ],
+   "n": 11137,
+   "rodzic": null
+  },
+  "twarz, szyja, dekolt": {
+   "synonimy": [
+    "deka",
+    "dekolt",
+    "szyja + dekolt",
+    "szyja, dekolt",
+    "twarz + szyja + dekolt",
+    "twarz+szyja+dekolt",
+    "twarz, szyja i dekolt",
+    "twarz, szyja, dekolt"
+   ],
+   "n": 9224,
+   "rodzic": null
+  },
+  "rzęsy": {
+   "synonimy": [
+    "kreska w linii rzęs",
+    "linia rzęs",
+    "rzęs",
+    "rzęsy"
+   ],
+   "n": 8826,
+   "rodzic": null
+  },
+  "brwi": {
+   "synonimy": [
+    "brwi"
+   ],
+   "n": 7662,
+   "rodzic": null
+  },
+  "twarz, szyja": {
+   "synonimy": [
+    "twarz + szyja",
+    "twarz i szyja",
+    "twarz+szyja",
+    "twarz, szyja"
+   ],
+   "n": 4409,
+   "rodzic": null
+  },
+  "skóra głowy": {
+   "synonimy": [
+    "golenie głowy",
+    "głowa",
+    "skóra głowy",
+    "skóra głowy i włosy"
+   ],
+   "n": 3849,
+   "rodzic": null
+  },
+  "dłonie": {
+   "synonimy": [
+    "dłonie"
+   ],
+   "n": 3784,
+   "rodzic": null
+  },
+  "okolica oka": {
+   "synonimy": [
+    "oczy",
+    "oko",
+    "okolica oczu",
+    "okolica oka",
+    "okolice oczu",
+    "oprawa oka",
+    "pod oczy",
+    "powieka",
+    "powieka dolna",
+    "powieka górna",
+    "powieki"
+   ],
+   "n": 3663,
+   "rodzic": null
+  },
+  "broda": {
+   "synonimy": [
+    "alpha",
+    "broda",
+    "podbródek",
+    "staw skroniowo-żuchwowy",
+    "stawy skroniowo-żuchwowe",
+    "stylizacja brody",
+    "szczęka i żuchwa",
+    "szczęka/żuchwa",
+    "zarost",
+    "żuchwa"
+   ],
+   "n": 3534,
+   "rodzic": null
+  },
+  "włosy i broda": {
+   "synonimy": [
+    "broda, włosy",
+    "głowa i broda",
+    "głowa, broda",
+    "włosy + broda",
+    "włosy i broda",
+    "włosy lub broda",
+    "włosy, broda"
+   ],
+   "n": 3042,
+   "rodzic": null
+  },
+  "usta": {
+   "synonimy": [
+    "dolna warga",
+    "jama ustna",
+    "usta",
+    "warga",
+    "wędzidełko górnej wargi"
+   ],
+   "n": 2961,
+   "rodzic": null
+  },
+  "brwi i rzęsy": {
+   "synonimy": [
+    "brwi i rzęs",
+    "brwi i rzęsy",
+    "brwi, rzęsy",
+    "rzęsy i brwi",
+    "stylizacja brwi i rzęs"
+   ],
+   "n": 2839,
+   "rodzic": null
+  },
+  "dłonie i stopy": {
+   "synonimy": [
+    "dłonie i stopy",
+    "dłonie, stopy"
+   ],
+   "n": 2347,
+   "rodzic": null
+  },
+  "plecy": {
+   "synonimy": [
+    "plecy",
+    "tył",
+    "tył ciała"
+   ],
+   "n": 2180,
+   "rodzic": null
+  },
+  "brzuch": {
+   "synonimy": [
+    "brzuch"
+   ],
+   "n": 2135,
+   "rodzic": null
+  },
+  "ucho": {
+   "synonimy": [
+    "2 uszy",
+    "7+",
+    "chrząstka ucha",
+    "helix",
+    "małżowina uszna",
+    "płatek ucha",
+    "płatki uszu",
+    "tragus",
+    "ucho",
+    "uszy"
+   ],
+   "n": 1968,
+   "rodzic": null
+  },
+  "nogi": {
+   "synonimy": [
+    "całe",
+    "całe nogi",
+    "nogi",
+    "nogi, stopy",
+    "stopy, nogi"
+   ],
+   "n": 1901,
+   "rodzic": null
+  },
+  "bikini": {
+   "synonimy": [
+    "bikini",
+    "bikini brazylijskie",
+    "bikini głębokie",
+    "bikini klasyczne",
+    "bikini płytkie",
+    "okolice intymne"
+   ],
+   "n": 1696,
+   "rodzic": null
+  },
+  "uda": {
+   "synonimy": [
+    "uda"
+   ],
+   "n": 1501,
+   "rodzic": null
+  },
+  "szyja": {
+   "synonimy": [
+    "kark",
+    "szyja"
+   ],
+   "n": 1405,
+   "rodzic": null
+  },
+  "pośladki": {
+   "synonimy": [
+    "pośladki",
+    "szpara pośladkowa"
+   ],
+   "n": 1201,
+   "rodzic": null
+  },
+  "pachy": {
+   "synonimy": [
+    "pachy"
+   ],
+   "n": 931,
+   "rodzic": null
+  },
+  "ramiona": {
+   "synonimy": [
+    "ramiona"
+   ],
+   "n": 879,
+   "rodzic": null
+  },
+  "ręce": {
+   "synonimy": [
+    "całe ręce",
+    "ręce",
+    "ręka"
+   ],
+   "n": 862,
+   "rodzic": null
+  },
+  "nos": {
+   "synonimy": [
+    "nos",
+    "nostril",
+    "septum"
+   ],
+   "n": 842,
+   "rodzic": null
+  },
+  "1 partia": {
+   "synonimy": [
+    "1 obszar",
+    "1 partia",
+    "1 partia ciała",
+    "częściowy",
+    "jedna strona"
+   ],
+   "n": 796,
+   "rodzic": null
+  },
+  "zęby": {
+   "synonimy": [
+    "4w1",
+    "jeden łuk zębowy",
+    "stomatologia",
+    "stomatologiczna",
+    "trzonowiec",
+    "uzębienie",
+    "ząb",
+    "ząb mleczny",
+    "ząb stały",
+    "ząb zatrzymany",
+    "zęby",
+    "zęby mleczne",
+    "zęby, jama ustna"
+   ],
+   "n": 773,
+   "rodzic": null
+  },
+  "policzki": {
+   "synonimy": [
+    "policzki"
+   ],
+   "n": 771,
+   "rodzic": null
+  },
+  "skóra": {
+   "synonimy": [
+    "skóra"
+   ],
+   "n": 708,
+   "rodzic": null
+  },
+  "odrost": {
+   "synonimy": [
+    "odrost",
+    "odrosty"
+   ],
+   "n": 684,
+   "rodzic": null
+  },
+  "wąsik": {
+   "synonimy": [
+    "górna warga",
+    "nad górną wargą",
+    "wąs",
+    "wąsik",
+    "wąsy"
+   ],
+   "n": 630,
+   "rodzic": null
+  },
+  "boki": {
+   "synonimy": [
+    "baki",
+    "boczki",
+    "boki",
+    "boki i tył głowy",
+    "brzuch, boczki"
+   ],
+   "n": 629,
+   "rodzic": null
+  },
+  "łydki": {
+   "synonimy": [
+    "łydki"
+   ],
+   "n": 536,
+   "rodzic": null
+  },
+  "klatka piersiowa": {
+   "synonimy": [
+    "biust",
+    "klatka piersiowa",
+    "piersi"
+   ],
+   "n": 536,
+   "rodzic": null
+  },
+  "paznokcie u stóp": {
+   "synonimy": [
+    "paznokcie u stóp",
+    "paznokcie, stopy",
+    "stopy, paznokcie"
+   ],
+   "n": 520,
+   "rodzic": null
+  },
+  "uda, pośladki": {
+   "synonimy": [
+    "nogi, pośladki",
+    "pośladki, uda",
+    "uda, pośladki"
+   ],
+   "n": 426,
+   "rodzic": null
+  },
+  "czoło": {
+   "synonimy": [
+    "czoło",
+    "lwia zmarszczka"
+   ],
+   "n": 421,
+   "rodzic": null
+  },
+  "przedramiona": {
+   "synonimy": [
+    "przedramiona"
+   ],
+   "n": 365,
+   "rodzic": null
+  },
+  "ciało, twarz": {
+   "synonimy": [
+    "całe ciało, twarz",
+    "ciało, twarz",
+    "twarz, ciało"
+   ],
+   "n": 327,
+   "rodzic": null
+  },
+  "dno miednicy": {
+   "synonimy": [
+    "dna miednicy",
+    "dno miednicy",
+    "ginekologia",
+    "miednica",
+    "mięśnie dna miednicy",
+    "urologiczna"
+   ],
+   "n": 314,
+   "rodzic": null
+  },
+  "kręgosłup": {
+   "synonimy": [
+    "kręgosłup",
+    "kręgosłupa"
+   ],
+   "n": 272,
+   "rodzic": null
+  },
+  "brzuch, uda, pośladki": {
+   "synonimy": [
+    "brzuch, pośladki, uda",
+    "brzuch, uda, pośladki",
+    "mięśnie",
+    "nogi, pośladki, brzuch",
+    "uda, brzuch, pośladki",
+    "uda, pośladki, brzuch"
+   ],
+   "n": 228,
+   "rodzic": null
+  },
+  "wnętrze auta": {
+   "synonimy": [
+    "detailing wnętrza",
+    "mycie wnętrza",
+    "samochód osobowy",
+    "sedan / kombi",
+    "wnętrze",
+    "wnętrze auta"
+   ],
+   "n": 201,
+   "rodzic": null
+  },
+  "grzywka": {
+   "synonimy": [
+    "grzywka"
+   ],
+   "n": 197,
+   "rodzic": null
+  },
+  "twarz, głowa": {
+   "synonimy": [
+    "czaszka",
+    "głowa, twarz",
+    "twarz, głowa"
+   ],
+   "n": 163,
+   "rodzic": null
+  },
+  "nos, uszy, brwi": {
+   "synonimy": [
+    "nos i uszy",
+    "nos, uszy",
+    "nos, uszy, brwi",
+    "nos/uszy",
+    "uszy + nos",
+    "uszy i nos",
+    "uszy, nos",
+    "uszy, nos, brwi",
+    "uszy/nos"
+   ],
+   "n": 159,
+   "rodzic": null
+  },
+  "brwi i usta": {
+   "synonimy": [
+    "brwi + usta",
+    "brwi i usta",
+    "brwi, usta"
+   ],
+   "n": 148,
+   "rodzic": null
+  },
+  "bruzdy nosowo-wargowe": {
+   "synonimy": [
+    "bruzdy nosowo-wargowe"
+   ],
+   "n": 140,
+   "rodzic": null
+  },
+  "kolana": {
+   "synonimy": [
+    "kolana",
+    "kolano"
+   ],
+   "n": 136,
+   "rodzic": null
+  },
+  "kreska dolna": {
+   "synonimy": [
+    "kreska dolna"
+   ],
+   "n": 135,
+   "rodzic": null
+  },
+  "włosy, skóra głowy": {
+   "synonimy": [
+    "włosy, skóra głowy"
+   ],
+   "n": 123,
+   "rodzic": null
+  },
+  "pępek": {
+   "synonimy": [
+    "pępek"
+   ],
+   "n": 120,
+   "rodzic": null
+  },
+  "kreska górna": {
+   "synonimy": [
+    "kreska górna"
+   ],
+   "n": 118,
+   "rodzic": null
+  },
+  "sutki": {
+   "synonimy": [
+    "sutek",
+    "sutki"
+   ],
+   "n": 111,
+   "rodzic": null
+  },
+  "plecy, ramiona, głowa": {
+   "synonimy": [
+    "plecy, kark, ramiona",
+    "plecy, ramiona",
+    "plecy, ramiona, głowa"
+   ],
+   "n": 107,
+   "rodzic": null
+  },
+  "plecy, kark": {
+   "synonimy": [
+    "plecy, kark"
+   ],
+   "n": 92,
+   "rodzic": null
+  },
+  "język": {
+   "synonimy": [
+    "język"
+   ],
+   "n": 79,
+   "rodzic": null
+  },
+  "krocze": {
+   "synonimy": [
+    "krocze",
+    "szwy"
+   ],
+   "n": 76,
+   "rodzic": null
+  },
+  "dolina łez": {
+   "synonimy": [
+    "dolina łez"
+   ],
+   "n": 75,
+   "rodzic": null
+  },
+  "twarz, szyja, kark": {
+   "synonimy": [
+    "twarz, kark",
+    "twarz, szyja, kark"
+   ],
+   "n": 73,
+   "rodzic": null
+  },
+  "duży": {
+   "synonimy": [
+    "bardzo duży",
+    "duże",
+    "duży"
+   ],
+   "n": 65,
+   "rodzic": null
+  },
+  "przekłucie intymne": {
+   "synonimy": [
+    "przekłucie intymne"
+   ],
+   "n": 55,
+   "rodzic": null
+  },
+  "paznokcie i brwi": {
+   "synonimy": [
+    "paznokcie i brwi"
+   ],
+   "n": 54,
+   "rodzic": null
+  },
+  "głowa + broda": {
+   "synonimy": [
+    "broda, głowa",
+    "głowa + broda",
+    "głowa lub broda"
+   ],
+   "n": 54,
+   "rodzic": null
+  },
+  "3 partie": {
+   "synonimy": [
+    "3 partie",
+    "3 strefy"
+   ],
+   "n": 52,
+   "rodzic": null
+  },
+  "sofa": {
+   "synonimy": [
+    "fotele",
+    "narożnik",
+    "sofa"
+   ],
+   "n": 51,
+   "rodzic": null
+  },
+  "plecy, kręgosłup": {
+   "synonimy": [
+    "plecy, kręgosłup"
+   ],
+   "n": 47,
+   "rodzic": null
+  },
+  "twarz, dekolt": {
+   "synonimy": [
+    "twarz, dekolt"
+   ],
+   "n": 42,
+   "rodzic": null
+  },
+  "szyby": {
+   "synonimy": [
+    "okna",
+    "szyby"
+   ],
+   "n": 42,
+   "rodzic": null
+  },
+  "plecy, nogi": {
+   "synonimy": [
+    "plecy, nogi"
+   ],
+   "n": 40,
+   "rodzic": null
+  },
+  "twarz, plecy": {
+   "synonimy": [
+    "twarz, plecy"
+   ],
+   "n": 39,
+   "rodzic": null
+  },
+  "brzuch, uda, pośladki, ramiona": {
+   "synonimy": [
+    "brzuch, pośladki, uda, ramiona",
+    "brzuch, pośladki, uda, łydki, ramiona",
+    "brzuch, uda, pośladki, ramiona"
+   ],
+   "n": 36,
+   "rodzic": null
+  },
+  "suv": {
+   "synonimy": [
+    "auto suv",
+    "suv"
+   ],
+   "n": 35,
+   "rodzic": null
+  },
+  "felgi": {
+   "synonimy": [
+    "felgi",
+    "lakier, felgi",
+    "opony"
+   ],
+   "n": 35,
+   "rodzic": null
+  },
+  "nogi, brzuch": {
+   "synonimy": [
+    "nogi, brzuch"
+   ],
+   "n": 34,
+   "rodzic": null
+  },
+  "twarz, szyja, dekolt, głowa": {
+   "synonimy": [
+    "twarz, szyja, dekolt, głowa"
+   ],
+   "n": 34,
+   "rodzic": null
+  },
+  "głowa, szyja, kark": {
+   "synonimy": [
+    "głowa, szyja, kark"
+   ],
+   "n": 33,
+   "rodzic": null
+  },
+  "stopy, łydki": {
+   "synonimy": [
+    "stopy, łydki"
+   ],
+   "n": 29,
+   "rodzic": null
+  },
+  "materac": {
+   "synonimy": [
+    "materac",
+    "obie strony"
+   ],
+   "n": 29,
+   "rodzic": null
+  },
+  "dywaniki": {
+   "synonimy": [
+    "dywan",
+    "dywaniki"
+   ],
+   "n": 26,
+   "rodzic": null
+  },
+  "reflektory": {
+   "synonimy": [
+    "reflektory"
+   ],
+   "n": 21,
+   "rodzic": null
+  },
+  "do 50 m²": {
+   "synonimy": [
+    "do 100 m²",
+    "do 50 m²"
+   ],
+   "n": 18,
+   "rodzic": null
+  },
+  "full front": {
+   "synonimy": [
+    "full front",
+    "przód"
+   ],
+   "n": 18,
+   "rodzic": null
+  },
+  "biuro": {
+   "synonimy": [
+    "biuro"
+   ],
+   "n": 15,
+   "rodzic": null
+  },
+  "boki i broda": {
+   "synonimy": [
+    "boki i broda"
+   ],
+   "n": 11,
+   "rodzic": null
+  },
+  "włosy, broda, twarz": {
+   "synonimy": [
+    "włosy, broda, twarz"
+   ],
+   "n": 11,
+   "rodzic": null
+  },
+  "zewnętrzna i wewnętrzna": {
+   "synonimy": [
+    "zewnętrzna i wewnętrzna"
+   ],
+   "n": 11,
+   "rodzic": null
+  },
+  "zabieg zewnętrzny": {
+   "synonimy": [
+    "zabieg zewnętrzny"
+   ],
+   "n": 9,
+   "rodzic": null
+  },
+  "podsufitka": {
+   "synonimy": [
+    "podsufitka"
+   ],
+   "n": 8,
+   "rodzic": null
+  },
+  "broda i wąsy": {
+   "synonimy": [
+    "broda i wąsy"
+   ],
+   "n": 8,
+   "rodzic": null
+  },
+  "zabiegi wewnętrzne": {
+   "synonimy": [
+    "zabiegi wewnętrzne"
+   ],
+   "n": 8,
+   "rodzic": null
+  },
+  "dziąsła": {
+   "synonimy": [
+    "dziąsła",
+    "dziąsło"
+   ],
+   "n": 8,
+   "rodzic": null
+  },
+  "silnik": {
+   "synonimy": [
+    "silnik"
+   ],
+   "n": 7,
+   "rodzic": null
+  },
+  "brzuch, pośladki": {
+   "synonimy": [
+    "brzuch, pośladki"
+   ],
+   "n": 7,
+   "rodzic": null
+  },
+  "wędzidełko": {
+   "synonimy": [
+    "wędzidełko"
+   ],
+   "n": 6,
+   "rodzic": null
+  },
+  "2 partie ciała": {
+   "synonimy": [
+    "2 partie ciała"
+   ],
+   "n": 6,
+   "rodzic": null
+  },
+  "mieszkanie": {
+   "synonimy": [
+    "mieszkanie"
+   ],
+   "n": 5,
+   "rodzic": null
+  },
+  "wykładzina": {
+   "synonimy": [
+    "wykładzina"
+   ],
+   "n": 5,
+   "rodzic": null
+  },
+  "balkon": {
+   "synonimy": [
+    "balkon"
+   ],
+   "n": 5,
+   "rodzic": null
+  },
+  "bott": {
+   "synonimy": [
+    "bott"
+   ],
+   "n": 5,
+   "rodzic": null
+  },
+  "podłoga": {
+   "synonimy": [
+    "podłoga"
+   ],
+   "n": 3,
+   "rodzic": null
+  },
+  "dach": {
+   "synonimy": [
+    "dach"
+   ],
+   "n": 3,
+   "rodzic": null
+  },
+  "pas": {
+   "synonimy": [
+    "pas"
+   ],
+   "n": 3,
+   "rodzic": null
+  }
+ },
+ "rodzaj_zabiegu": {
+  "strzyżenie": {
+   "synonimy": [
+    "strzyżenie",
+    "strzyżenie brody",
+    "strzyżenie włosów",
+    "strzyżenie włosów i brody",
+    "strzyżenie z kąpielą",
+    "trymowanie"
+   ],
+   "n": 15206,
+   "rodzic": "strzyżenie"
+  },
+  "masaż": {
+   "synonimy": [
+    "aromaterapia",
+    "masaż",
+    "masaż ajurwedyjski",
+    "masaż aromaterapeutyczny",
+    "masaż autorski",
+    "masaż balijski",
+    "masaż gorącymi kamieniami",
+    "masaż klasyczny",
+    "masaż kobido",
+    "masaż lomi lomi",
+    "masaż modelujący",
+    "masaż relaksacyjny",
+    "masaż spa - wellness",
+    "masaż sportowy",
+    "masaż tajski",
+    "masaż terapeutyczny",
+    "masaż tkanek głębokich",
+    "masaż twarzy",
+    "masaż świecą",
+    "shiatsu"
+   ],
+   "n": 13578,
+   "rodzic": null
+  },
+  "mezoterapia igłowa": {
+   "synonimy": [
+    "mezoterapia",
+    "mezoterapia igłowa",
+    "mezoterapia mikroigłowa",
+    "mezoterapia mikroigłowa (dermapen 4.0)",
+    "mezoterapia mikroigłowa (dermapen)"
+   ],
+   "n": 11433,
+   "rodzic": null
+  },
+  "depilacja laserowa": {
+   "synonimy": [
+    "depilacja",
+    "depilacja laserowa",
+    "epilacja laserowa"
+   ],
+   "n": 9955,
+   "rodzic": null
+  },
+  "peeling chemiczny": {
+   "synonimy": [
+    "peeling",
+    "peeling chemiczny",
+    "peeling kwasowy",
+    "peeling medyczny"
+   ],
+   "n": 9600,
+   "rodzic": null
+  },
+  "przedłużanie paznokci": {
+   "synonimy": [
+    "przedłużanie",
+    "przedłużanie paznokci",
+    "przedłużanie włosów",
+    "przedłużanie włosów metodą keratynową",
+    "przedłużenie"
+   ],
+   "n": 8912,
+   "rodzic": "przedłużanie paznokci"
+  },
+  "manicure hybrydowy": {
+   "synonimy": [
+    "manicure",
+    "manicure hybrydowy",
+    "manicure hybrydowy z nadbudową",
+    "manicure hybrydowy ze wzmocnieniem",
+    "manicure hybrydowy ze zdobieniem",
+    "manicure hybrydowy, baby boomer / french",
+    "manicure hybrydowy, pedicure hybrydowy",
+    "manicure hybrydowy, zdobienie paznokci"
+   ],
+   "n": 7901,
+   "rodzic": null
+  },
+  "koloryzacja": {
+   "synonimy": [
+    "farbka",
+    "farbowanie",
+    "koloryzacja",
+    "koloryzacja farbką",
+    "koloryzacja kreatywna",
+    "koloryzacja odrostu",
+    "koloryzacja z refleksami",
+    "odsiwianie",
+    "tonowanie"
+   ],
+   "n": 7887,
+   "rodzic": "koloryzacja"
+  },
+  "pedicure": {
+   "synonimy": [
+    "pedicure",
+    "pedicure higieniczny",
+    "pedicure japoński",
+    "pedicure klasyczny",
+    "pedicure kosmetyczny",
+    "pedicure kwasowy",
+    "pedicure podologiczny",
+    "pedicure spa",
+    "podologia"
+   ],
+   "n": 7317,
+   "rodzic": null
+  },
+  "radiofrekwencja mikroigłowa": {
+   "synonimy": [
+    "fala radiowa",
+    "radiofrekwencja mikroigłowa",
+    "rf mikroigłowa",
+    "rf mikroigłowy"
+   ],
+   "n": 4104,
+   "rodzic": "mezoterapia mikroigłowa"
+  },
+  "przedłużanie rzęs": {
+   "synonimy": [
+    "doklejanie rzęs",
+    "przedłużanie rzęs",
+    "stylizacja rzęs"
+   ],
+   "n": 3853,
+   "rodzic": null
+  },
+  "makijaż permanentny": {
+   "synonimy": [
+    "dopigmentowanie",
+    "dopigmentowanie makijażu permanentnego",
+    "kreska",
+    "kreski",
+    "makijaż permanentny",
+    "makijaż permanentny ust",
+    "mikropigmentacja",
+    "pmu"
+   ],
+   "n": 3610,
+   "rodzic": null
+  },
+  "pielęgnacja": {
+   "synonimy": [
+    "grooming",
+    "kompleksowa pielęgnacja",
+    "pielęgnacja",
+    "pielęgnacja higieniczna",
+    "pielęgnacja kompleksowa",
+    "pielęgnacja włosów",
+    "usługa higieniczna",
+    "zabieg pielęgnacyjny"
+   ],
+   "n": 3517,
+   "rodzic": null
+  },
+  "oczyszczanie wodorowe": {
+   "synonimy": [
+    "oczyszczanie",
+    "oczyszczanie twarzy",
+    "oczyszczanie wodorowe"
+   ],
+   "n": 3457,
+   "rodzic": "zabieg pielęgnacyjny"
+  },
+  "modelowanie": {
+   "synonimy": [
+    "facemodeling",
+    "modelowanie",
+    "stylizacja"
+   ],
+   "n": 3047,
+   "rodzic": null
+  },
+  "piercing": {
+   "synonimy": [
+    "medyczne przekłuwanie uszu",
+    "piercing",
+    "przekłucie",
+    "przekłucie ciała",
+    "przekłucie ucha",
+    "przekłucie uszu",
+    "przekłuwanie uszu",
+    "vertical helix"
+   ],
+   "n": 2925,
+   "rodzic": null
+  },
+  "endermologia": {
+   "synonimy": [
+    "endermologia",
+    "endermologia lpg"
+   ],
+   "n": 2779,
+   "rodzic": "masaż"
+  },
+  "terapia manualna": {
+   "synonimy": [
+    "chiropraktyka",
+    "fizjoterapia",
+    "fizjoterapia ortopedyczna",
+    "fizjoterapia po operacji plastycznej",
+    "fizjoterapia pooperacyjna",
+    "fizykoterapia",
+    "kinezyterapia",
+    "ogólna i ortopedyczna",
+    "rehabilitacja",
+    "terapia",
+    "terapia manualna",
+    "terapia światłem led",
+    "światłoterapia"
+   ],
+   "n": 2377,
+   "rodzic": "masaż"
+  },
+  "rytuał": {
+   "synonimy": [
+    "rytuał",
+    "rytuał pielęgnacyjny"
+   ],
+   "n": 2276,
+   "rodzic": null
+  },
+  "laminacja": {
+   "synonimy": [
+    "laminacja",
+    "laminacja brwi",
+    "laminacja paznokci",
+    "laminacja rzęs",
+    "lifting rzęs"
+   ],
+   "n": 2267,
+   "rodzic": null
+  },
+  "manicure klasyczny": {
+   "synonimy": [
+    "manicure klasyczny"
+   ],
+   "n": 2131,
+   "rodzic": null
+  },
+  "makijaż": {
+   "synonimy": [
+    "kurs makijażu",
+    "lekcja makijażu",
+    "makijaż",
+    "makijaż + fryzura",
+    "nauka makijażu"
+   ],
+   "n": 1806,
+   "rodzic": null
+  },
+  "trening": {
+   "synonimy": [
+    "elektrostymulacja",
+    "elektrostymulacja mięśni",
+    "elektrostymulacja mięśni rf",
+    "gimnastyka korekcyjna",
+    "szkolenie",
+    "terapia wad postawy",
+    "trening",
+    "trening ems",
+    "trening i dieta",
+    "trening na orbitreku",
+    "trening personalny",
+    "victory ems fit"
+   ],
+   "n": 1772,
+   "rodzic": "trening"
+  },
+  "drenaż limfatyczny": {
+   "synonimy": [
+    "drenaż limfatyczny",
+    "limfodrenaż",
+    "masaż limfatyczny",
+    "presoterapia"
+   ],
+   "n": 1769,
+   "rodzic": "masaż"
+  },
+  "baleyage": {
+   "synonimy": [
+    "baleyage"
+   ],
+   "n": 1515,
+   "rodzic": "koloryzacja"
+  },
+  "tak (strzyżenie + modelowanie)": {
+   "synonimy": [
+    "botoks na włosy",
+    "strzyżenie + modelowanie",
+    "tak (strzyżenie + modelowanie)"
+   ],
+   "n": 1290,
+   "rodzic": "strzyżenie"
+  },
+  "botoks": {
+   "synonimy": [
+    "botoks",
+    "botox na włosy",
+    "botulinoterapia"
+   ],
+   "n": 1259,
+   "rodzic": null
+  },
+  "karboksyterapia": {
+   "synonimy": [
+    "karboksyterapia"
+   ],
+   "n": 1245,
+   "rodzic": "mezoterapia igłowa"
+  },
+  "peeling kawitacyjny": {
+   "synonimy": [
+    "peeling kawitacyjny"
+   ],
+   "n": 1194,
+   "rodzic": "peeling chemiczny"
+  },
+  "powiększanie ust": {
+   "synonimy": [
+    "modelowanie ust",
+    "powiększanie i modelowanie ust",
+    "powiększanie ust",
+    "wypełnianie kwasem hialuronowym"
+   ],
+   "n": 1122,
+   "rodzic": "wolumetria"
+  },
+  "cover": {
+   "synonimy": [
+    "cover",
+    "cover-up",
+    "farbowanie brody",
+    "kamuflaż",
+    "koloryzacja + strzyżenie",
+    "repigmentacja"
+   ],
+   "n": 1093,
+   "rodzic": "koloryzacja"
+  },
+  "manicure żelowy": {
+   "synonimy": [
+    "manicure żelowy"
+   ],
+   "n": 1066,
+   "rodzic": "manicure klasyczny"
+  },
+  "dekoloryzacja": {
+   "synonimy": [
+    "dekoloryzacja",
+    "dekoloryzacja + farbowanie",
+    "dekoloryzacja + koloryzacja",
+    "dekoloryzacja + tonowanie"
+   ],
+   "n": 985,
+   "rodzic": "koloryzacja"
+  },
+  "naprawa paznokcia": {
+   "synonimy": [
+    "naprawa",
+    "naprawa paznokcia",
+    "naprawa/przedłużenie",
+    "regeneracja paznokci",
+    "rekonstrukcja paznokci",
+    "rekonstrukcja paznokcia"
+   ],
+   "n": 984,
+   "rodzic": null
+  },
+  "zdobienie paznokci": {
+   "synonimy": [
+    "zdobienie paznokci"
+   ],
+   "n": 942,
+   "rodzic": "manicure klasyczny"
+  },
+  "lipoliza iniekcyjna": {
+   "synonimy": [
+    "lipoliza",
+    "lipoliza iniekcyjna"
+   ],
+   "n": 905,
+   "rodzic": "mezoterapia igłowa"
+  },
+  "infuzja tlenowa": {
+   "synonimy": [
+    "infuzja tlenowa",
+    "oxybrazja",
+    "zabieg dotleniający"
+   ],
+   "n": 879,
+   "rodzic": "zabieg pielęgnacyjny"
+  },
+  "keratynowe prostowanie": {
+   "synonimy": [
+    "keratynowe prostowanie",
+    "keratynowe prostowanie włosów",
+    "prostowanie",
+    "prostowanie keratynowe",
+    "prostowanie włosów"
+   ],
+   "n": 827,
+   "rodzic": "stylizacja włosów"
+  },
+  "fala uderzeniowa": {
+   "synonimy": [
+    "fala uderzeniowa",
+    "fala uderzeniowa intelekt",
+    "shockwave",
+    "terapia falą uderzeniową"
+   ],
+   "n": 826,
+   "rodzic": null
+  },
+  "trwała ondulacja": {
+   "synonimy": [
+    "trwała ondulacja"
+   ],
+   "n": 755,
+   "rodzic": null
+  },
+  "tak (tonowanie + cięcie + modelowanie)": {
+   "synonimy": [
+    "tak (tonowanie + cięcie + modelowanie)"
+   ],
+   "n": 752,
+   "rodzic": null
+  },
+  "refleksy": {
+   "synonimy": [
+    "pasemka",
+    "refleksy"
+   ],
+   "n": 730,
+   "rodzic": "koloryzacja"
+  },
+  "kobido": {
+   "synonimy": [
+    "kinesiotaping",
+    "kobido"
+   ],
+   "n": 711,
+   "rodzic": "masaż"
+  },
+  "lifting": {
+   "synonimy": [
+    "lifting"
+   ],
+   "n": 709,
+   "rodzic": null
+  },
+  "refleksologia": {
+   "synonimy": [
+    "akupresura",
+    "akupresura, refleksologia",
+    "refleksologia"
+   ],
+   "n": 692,
+   "rodzic": "masaż"
+  },
+  "manicure, pedicure": {
+   "synonimy": [
+    "manicure hybrydowy, pedicure",
+    "manicure klasyczny, pedicure klasyczny",
+    "manicure, pedicure"
+   ],
+   "n": 686,
+   "rodzic": null
+  },
+  "laseroterapia": {
+   "synonimy": [
+    "laseroterapia",
+    "laserowe usuwanie makijażu permanentnego",
+    "usuwanie makijażu permanentnego"
+   ],
+   "n": 662,
+   "rodzic": "fizjoterapia"
+  },
+  "kriolipoliza": {
+   "synonimy": [
+    "kriolipoliza",
+    "krioterapia"
+   ],
+   "n": 647,
+   "rodzic": "lipoliza iniekcyjna"
+  },
+  "usuwanie tatuażu": {
+   "synonimy": [
+    "laserowe usuwanie tatuażu",
+    "usuwanie tatuażu",
+    "usuwanie tatuażu laserem",
+    "usuwanie tatuażu laserowego"
+   ],
+   "n": 636,
+   "rodzic": "laseroterapia"
+  },
+  "kąpiel": {
+   "synonimy": [
+    "kąpiel",
+    "kąpiel pielęgnacyjna",
+    "kąpiele z hydromasażem"
+   ],
+   "n": 634,
+   "rodzic": "pielęgnacja"
+  },
+  "uroginekologiczna": {
+   "synonimy": [
+    "fizjoterapia uroginekologiczna",
+    "ginekologia estetyczna",
+    "konsultacja uroginekologiczna",
+    "terapia uroginekologiczna",
+    "uroginekologia",
+    "uroginekologiczna"
+   ],
+   "n": 590,
+   "rodzic": "fizjoterapia"
+  },
+  "barber": {
+   "synonimy": [
+    "barber",
+    "golenie"
+   ],
+   "n": 586,
+   "rodzic": "strzyżenie"
+  },
+  "wolumetria": {
+   "synonimy": [
+    "wolumetria",
+    "wypełnienie kwasem hialuronowym"
+   ],
+   "n": 581,
+   "rodzic": null
+  },
+  "masaż bańką chińską": {
+   "synonimy": [
+    "bańki chińskie",
+    "bańki próżniowe",
+    "masaż bańką chińską",
+    "stawianie baniek"
+   ],
+   "n": 566,
+   "rodzic": "masaż"
+  },
+  "biostymulacja": {
+   "synonimy": [
+    "biostymulacja",
+    "stymulacja tkankowa"
+   ],
+   "n": 562,
+   "rodzic": "biorewitalizacja"
+  },
+  "mikrodermabrazja": {
+   "synonimy": [
+    "mikrodermabrazja"
+   ],
+   "n": 548,
+   "rodzic": "peeling chemiczny"
+  },
+  "masaż podciśnieniowy": {
+   "synonimy": [
+    "dermomasaż",
+    "masaż podciśnieniowy"
+   ],
+   "n": 542,
+   "rodzic": "masaż"
+  },
+  "wyczesywanie": {
+   "synonimy": [
+    "czesanie",
+    "wyczesanie",
+    "wyczesywanie"
+   ],
+   "n": 531,
+   "rodzic": "pielęgnacja"
+  },
+  "konsultacja dietetyczna": {
+   "synonimy": [
+    "dieta",
+    "dietetyka",
+    "dietetyka kliniczna",
+    "konsultacja dietetyczna",
+    "konsultacja psychodietetyczna",
+    "psychodietetyka",
+    "żywienie"
+   ],
+   "n": 527,
+   "rodzic": "trening i dieta"
+  },
+  "biorewitalizacja": {
+   "synonimy": [
+    "biorewitalizacja",
+    "rewitalizacja"
+   ],
+   "n": 516,
+   "rodzic": "zabieg pielęgnacyjny"
+  },
+  "head spa": {
+   "synonimy": [
+    "head spa",
+    "spa"
+   ],
+   "n": 451,
+   "rodzic": null
+  },
+  "zabieg nawilżający": {
+   "synonimy": [
+    "zabieg nawilżający"
+   ],
+   "n": 428,
+   "rodzic": "zabieg pielęgnacyjny"
+  },
+  "rekonstrukcja włosów": {
+   "synonimy": [
+    "rekonstrukcja",
+    "rekonstrukcja włosów"
+   ],
+   "n": 425,
+   "rodzic": "zabieg pielęgnacyjny"
+  },
+  "farbowanie + strzyżenie": {
+   "synonimy": [
+    "baleyage + strzyżenie",
+    "farbowanie + strzyżenie",
+    "farbowanie + strzyżenie + modelowanie",
+    "koloryzacja + strzyżenie + modelowanie",
+    "tonowanie + strzyżenie"
+   ],
+   "n": 412,
+   "rodzic": "fryzjerstwo"
+  },
+  "ipl": {
+   "synonimy": [
+    "fototerapia",
+    "ipl"
+   ],
+   "n": 411,
+   "rodzic": "laseroterapia"
+  },
+  "termolifting": {
+   "synonimy": [
+    "termolifting"
+   ],
+   "n": 407,
+   "rodzic": "lifting"
+  },
+  "upięcie": {
+   "synonimy": [
+    "upięcie"
+   ],
+   "n": 401,
+   "rodzic": "modelowanie"
+  },
+  "czyszczenie": {
+   "synonimy": [
+    "czyszczenie",
+    "czyszczenie wnętrza auta",
+    "mycie",
+    "sprzątanie"
+   ],
+   "n": 366,
+   "rodzic": null
+  },
+  "fale radiowe": {
+   "synonimy": [
+    "fale radiowe",
+    "terapia falami radiowymi"
+   ],
+   "n": 350,
+   "rodzic": "termolifting"
+  },
+  "stylizacja włosów": {
+   "synonimy": [
+    "fryzjerstwo",
+    "mycie i stylizacja",
+    "stylizacja włosów"
+   ],
+   "n": 335,
+   "rodzic": null
+  },
+  "elektrokoagulacja": {
+   "synonimy": [
+    "elektrokoagulacja",
+    "laserowe zamykanie naczynek"
+   ],
+   "n": 333,
+   "rodzic": "laseroterapia"
+  },
+  "tatuaż": {
+   "synonimy": [
+    "tatuaż"
+   ],
+   "n": 308,
+   "rodzic": null
+  },
+  "nanoplastia": {
+   "synonimy": [
+    "nanoplastia"
+   ],
+   "n": 302,
+   "rodzic": "keratynowe prostowanie"
+  },
+  "trymowanie brody": {
+   "synonimy": [
+    "trymer",
+    "trymowanie brody"
+   ],
+   "n": 288,
+   "rodzic": null
+  },
+  "peeling węglowy": {
+   "synonimy": [
+    "peeling węglowy",
+    "peeling węglowy laserowy"
+   ],
+   "n": 273,
+   "rodzic": "peeling chemiczny"
+  },
+  "psychoterapia": {
+   "synonimy": [
+    "dda/ddd",
+    "konsultacja psychoterapeutyczna",
+    "psychoterapia",
+    "psychoterapia indywidualna",
+    "sesja terapeutyczna",
+    "terapia psychologiczna"
+   ],
+   "n": 273,
+   "rodzic": null
+  },
+  "osocze bogatopłytkowe": {
+   "synonimy": [
+    "osocze bogatopłytkowe",
+    "osocze bogatopłytkowe (prp)"
+   ],
+   "n": 248,
+   "rodzic": null
+  },
+  "nitkowanie": {
+   "synonimy": [
+    "nitkowanie"
+   ],
+   "n": 245,
+   "rodzic": null
+  },
+  "wybielanie zębów": {
+   "synonimy": [
+    "wybielanie zębów"
+   ],
+   "n": 240,
+   "rodzic": null
+  },
+  "manicure japoński": {
+   "synonimy": [
+    "manicure japoński"
+   ],
+   "n": 235,
+   "rodzic": "manicure klasyczny"
+  },
+  "maderoterapia": {
+   "synonimy": [
+    "maderoterapia"
+   ],
+   "n": 220,
+   "rodzic": null
+  },
+  "elektroepilacja": {
+   "synonimy": [
+    "elektroepilacja"
+   ],
+   "n": 211,
+   "rodzic": "depilacja laserowa"
+  },
+  "medycyna estetyczna": {
+   "synonimy": [
+    "medycyna estetyczna"
+   ],
+   "n": 209,
+   "rodzic": null
+  },
+  "rozjaśnianie": {
+   "synonimy": [
+    "rozjaśnianie",
+    "wybielanie"
+   ],
+   "n": 208,
+   "rodzic": null
+  },
+  "trening medyczny": {
+   "synonimy": [
+    "trening medyczny"
+   ],
+   "n": 205,
+   "rodzic": "trening"
+  },
+  "body wrapping": {
+   "synonimy": [
+    "bandażowanie",
+    "bandażowanie ciała",
+    "body wrapping"
+   ],
+   "n": 199,
+   "rodzic": null
+  },
+  "diagnoza": {
+   "synonimy": [
+    "diagnostyka",
+    "diagnostyka komputerowa",
+    "diagnostyka pojazdu",
+    "diagnoza",
+    "diagnoza asd",
+    "diagnoza psychologiczna",
+    "integracja sensoryczna",
+    "test diagnostyczny"
+   ],
+   "n": 195,
+   "rodzic": "diagnoza"
+  },
+  "akupunktura": {
+   "synonimy": [
+    "akupunktura",
+    "akupunktura enterodermalna",
+    "elektroakupunktura"
+   ],
+   "n": 194,
+   "rodzic": null
+  },
+  "redermalizacja": {
+   "synonimy": [
+    "redermalizacja"
+   ],
+   "n": 192,
+   "rodzic": null
+  },
+  "usuwanie": {
+   "synonimy": [
+    "usuwanie",
+    "zdejmowanie tooth gems"
+   ],
+   "n": 186,
+   "rodzic": "tooth gems"
+  },
+  "sonoforeza": {
+   "synonimy": [
+    "sonoforeza"
+   ],
+   "n": 174,
+   "rodzic": null
+  },
+  "ortodoncja": {
+   "synonimy": [
+    "aparat ortodontyczny stały",
+    "aparat ruchomy",
+    "clear aligner",
+    "ortodoncja"
+   ],
+   "n": 169,
+   "rodzic": null
+  },
+  "osteopatia": {
+   "synonimy": [
+    "osteopatia",
+    "terapia czaszkowo-krzyżowa",
+    "terapia osteopatyczna"
+   ],
+   "n": 169,
+   "rodzic": "fizjoterapia"
+  },
+  "regulacja": {
+   "synonimy": [
+    "regulacja"
+   ],
+   "n": 167,
+   "rodzic": null
+  },
+  "konsultacja fizjoterapeutyczna": {
+   "synonimy": [
+    "konsultacja fizjoterapeutyczna"
+   ],
+   "n": 164,
+   "rodzic": "fizjoterapia"
+  },
+  "endomasaż": {
+   "synonimy": [
+    "endermomasaż próżniowy",
+    "endomasaż",
+    "masaż endosferyczny"
+   ],
+   "n": 163,
+   "rodzic": null
+  },
+  "higienizacja": {
+   "synonimy": [
+    "higienizacja",
+    "higienizacja zębów",
+    "instruktaż higieny",
+    "piaskowanie",
+    "scaling",
+    "skaling"
+   ],
+   "n": 162,
+   "rodzic": "czyszczenie"
+  },
+  "terapia enzymatyczna": {
+   "synonimy": [
+    "terapia enzymatyczna"
+   ],
+   "n": 154,
+   "rodzic": null
+  },
+  "pranie tapicerki": {
+   "synonimy": [
+    "pranie",
+    "pranie tapicerki",
+    "pranie tapicerki meblowej"
+   ],
+   "n": 154,
+   "rodzic": "czyszczenie"
+  },
+  "zabieg podologiczny": {
+   "synonimy": [
+    "opracowanie paznokci",
+    "zabieg podologiczny"
+   ],
+   "n": 153,
+   "rodzic": null
+  },
+  "taping": {
+   "synonimy": [
+    "kinesiology taping",
+    "taping"
+   ],
+   "n": 151,
+   "rodzic": "kobido"
+  },
+  "chirurgia": {
+   "synonimy": [
+    "chirurgia",
+    "chirurgia plastyczna",
+    "część chirurgiczna",
+    "ekstrakcja",
+    "ekstrakcja zęba"
+   ],
+   "n": 151,
+   "rodzic": null
+  },
+  "pilates": {
+   "synonimy": [
+    "pilates"
+   ],
+   "n": 137,
+   "rodzic": "trening"
+  },
+  "downsize": {
+   "synonimy": [
+    "downsize",
+    "skrócenie biżuterii",
+    "wymiana biżuterii",
+    "wymiana kolczyka",
+    "wymiana kolczyków"
+   ],
+   "n": 137,
+   "rodzic": "piercing"
+  },
+  "trychologia": {
+   "synonimy": [
+    "trychologia",
+    "zabieg trychologiczny"
+   ],
+   "n": 136,
+   "rodzic": "trychologia"
+  },
+  "polerowanie włosów": {
+   "synonimy": [
+    "polerowanie",
+    "polerowanie włosów"
+   ],
+   "n": 130,
+   "rodzic": "strzyżenie"
+  },
+  "konturowanie": {
+   "synonimy": [
+    "kontur",
+    "konturowanie"
+   ],
+   "n": 130,
+   "rodzic": "trymowanie brody"
+  },
+  "lipolaser": {
+   "synonimy": [
+    "lipolaser"
+   ],
+   "n": 125,
+   "rodzic": null
+  },
+  "wypełnianie zmarszczek": {
+   "synonimy": [
+    "wypełnianie zmarszczek"
+   ],
+   "n": 120,
+   "rodzic": "wolumetria"
+  },
+  "podstawowe": {
+   "synonimy": [
+    "podstawowe"
+   ],
+   "n": 116,
+   "rodzic": null
+  },
+  "sombre/ombre": {
+   "synonimy": [
+    "sombre/ombre"
+   ],
+   "n": 111,
+   "rodzic": "koloryzacja"
+  },
+  "tooth gems": {
+   "synonimy": [
+    "biżuteria nazębna",
+    "tooth gems"
+   ],
+   "n": 111,
+   "rodzic": null
+  },
+  "liposukcja kawitacyjna": {
+   "synonimy": [
+    "liposukcja",
+    "liposukcja kawitacyjna"
+   ],
+   "n": 110,
+   "rodzic": null
+  },
+  "protetyka": {
+   "synonimy": [
+    "inlay/onlay",
+    "korona protetyczna",
+    "korony i mosty",
+    "protetyka",
+    "proteza"
+   ],
+   "n": 110,
+   "rodzic": null
+  },
+  "malowanie paznokci": {
+   "synonimy": [
+    "malowanie paznokci"
+   ],
+   "n": 109,
+   "rodzic": "manicure, pedicure"
+  },
+  "detailing": {
+   "synonimy": [
+    "detailing",
+    "mycie detailingowe"
+   ],
+   "n": 108,
+   "rodzic": "czyszczenie"
+  },
+  "leczenie kanałowe": {
+   "synonimy": [
+    "endodoncja",
+    "leczenie endodontyczne",
+    "leczenie kanałowe"
+   ],
+   "n": 107,
+   "rodzic": "chirurgia"
+  },
+  "mycie komplet": {
+   "synonimy": [
+    "mycie auta",
+    "mycie i czyszczenie pojazdu",
+    "mycie komplet",
+    "mycie samochodu"
+   ],
+   "n": 102,
+   "rodzic": null
+  },
+  "joga": {
+   "synonimy": [
+    "joga",
+    "joga powietrzna",
+    "kundalini joga"
+   ],
+   "n": 99,
+   "rodzic": "trening"
+  },
+  "koloryzacja + refleksy": {
+   "synonimy": [
+    "koloryzacja + refleksy"
+   ],
+   "n": 98,
+   "rodzic": "koloryzacja"
+  },
+  "wymiana opon": {
+   "synonimy": [
+    "przełożenie opony z wyważeniem",
+    "wymiana kół",
+    "wymiana opon",
+    "wymiana opon z wyważeniem"
+   ],
+   "n": 97,
+   "rodzic": null
+  },
+  "rozpuszczenie": {
+   "synonimy": [
+    "rozpuszczanie kwasu hialuronowego",
+    "rozpuszczenie"
+   ],
+   "n": 97,
+   "rodzic": null
+  },
+  "terapia wisceralna": {
+   "synonimy": [
+    "terapia wisceralna"
+   ],
+   "n": 96,
+   "rodzic": "terapia manualna"
+  },
+  "konsultacja psychologiczna": {
+   "synonimy": [
+    "konsultacja psychologiczna",
+    "konsultacje psychologiczne",
+    "psychologia",
+    "psychologia sportu"
+   ],
+   "n": 96,
+   "rodzic": "psychoterapia"
+  },
+  "kroplówka": {
+   "synonimy": [
+    "kroplówka",
+    "kroplówka - wlew witaminowy",
+    "kroplówka regeneracyjna",
+    "kroplówka-wlew witaminowy",
+    "kroplówki",
+    "kroplówki witaminowe",
+    "wlewy witaminowe"
+   ],
+   "n": 95,
+   "rodzic": null
+  },
+  "zabieg parafinowy": {
+   "synonimy": [
+    "zabieg parafinowy"
+   ],
+   "n": 93,
+   "rodzic": "zabieg pielęgnacyjny"
+  },
+  "wkładki ortopedyczne": {
+   "synonimy": [
+    "wkładka ortopedyczna",
+    "wkładki ortopediczne",
+    "wkładki ortopedyczne"
+   ],
+   "n": 90,
+   "rodzic": "zabieg podologiczny"
+  },
+  "ajurwedyjski": {
+   "synonimy": [
+    "ajurwedyjski",
+    "terapie ayurvedyjskie"
+   ],
+   "n": 90,
+   "rodzic": "masaż"
+  },
+  "strzyżenie i trymowanie brody": {
+   "synonimy": [
+    "strzyżenie i trymowanie brody"
+   ],
+   "n": 89,
+   "rodzic": "barber"
+  },
+  "botox + strzyżenie": {
+   "synonimy": [
+    "botox + strzyżenie"
+   ],
+   "n": 82,
+   "rodzic": null
+  },
+  "trwała ondulacja + strzyżenie": {
+   "synonimy": [
+    "trwała ondulacja + strzyżenie"
+   ],
+   "n": 82,
+   "rodzic": "trwała ondulacja"
+  },
+  "woskowanie": {
+   "synonimy": [
+    "woskowanie"
+   ],
+   "n": 82,
+   "rodzic": "depilacja laserowa"
+  },
+  "peeling ciała": {
+   "synonimy": [
+    "peeling ciała"
+   ],
+   "n": 78,
+   "rodzic": null
+  },
+  "usg": {
+   "synonimy": [
+    "usg"
+   ],
+   "n": 78,
+   "rodzic": null
+  },
+  "golenie królewskie": {
+   "synonimy": [
+    "golenie głowy i strzyżenie brody",
+    "golenie królewskie"
+   ],
+   "n": 76,
+   "rodzic": "barber"
+  },
+  "kąpiel ozonowa": {
+   "synonimy": [
+    "kąpiel ozonowa",
+    "ozonowanie"
+   ],
+   "n": 75,
+   "rodzic": "kąpiel"
+  },
+  "nauka jazdy": {
+   "synonimy": [
+    "jazdy doszkalające",
+    "nauka jazdy"
+   ],
+   "n": 74,
+   "rodzic": null
+  },
+  "fizjoterapia stomatologiczna": {
+   "synonimy": [
+    "fizjoterapia stomatologiczna"
+   ],
+   "n": 72,
+   "rodzic": "fizjoterapia"
+  },
+  "buzzcut": {
+   "synonimy": [
+    "buzzcut"
+   ],
+   "n": 69,
+   "rodzic": "strzyżenie"
+  },
+  "usunięcie odcisku": {
+   "synonimy": [
+    "usunięcie odcisku"
+   ],
+   "n": 68,
+   "rodzic": "zabieg podologiczny"
+  },
+  "uzupełnianie żelowe, pedicure hybrydowy": {
+   "synonimy": [
+    "uzupełnianie żelowe, pedicure hybrydowy"
+   ],
+   "n": 67,
+   "rodzic": "manicure, pedicure"
+  },
+  "fryzura": {
+   "synonimy": [
+    "fryzura"
+   ],
+   "n": 66,
+   "rodzic": null
+  },
+  "klamra ortonyksyjna": {
+   "synonimy": [
+    "klamra ortonyksyjna",
+    "klamra podologiczna"
+   ],
+   "n": 64,
+   "rodzic": "zabieg podologiczny"
+  },
+  "tamponada": {
+   "synonimy": [
+    "tamponada"
+   ],
+   "n": 63,
+   "rodzic": "zabieg podologiczny"
+  },
+  "vacu": {
+   "synonimy": [
+    "vacu"
+   ],
+   "n": 63,
+   "rodzic": null
+  },
+  "dredy": {
+   "synonimy": [
+    "dredy"
+   ],
+   "n": 62,
+   "rodzic": null
+  },
+  "access bars": {
+   "synonimy": [
+    "access bars"
+   ],
+   "n": 60,
+   "rodzic": null
+  },
+  "rollshape": {
+   "synonimy": [
+    "rollshape"
+   ],
+   "n": 60,
+   "rodzic": null
+  },
+  "analiza składu ciała": {
+   "synonimy": [
+    "analiza składu ciała",
+    "analiza składu ciała, konsultacja",
+    "konsultacja, analiza składu ciała"
+   ],
+   "n": 60,
+   "rodzic": "diagnoza"
+  },
+  "manicure kombinowany": {
+   "synonimy": [
+    "manicure kombinowany"
+   ],
+   "n": 59,
+   "rodzic": null
+  },
+  "endosfera": {
+   "synonimy": [
+    "endosfera"
+   ],
+   "n": 58,
+   "rodzic": "masaż podciśnieniowy"
+  },
+  "fluoryzacja": {
+   "synonimy": [
+    "fluoryzacja",
+    "lakowanie zębów"
+   ],
+   "n": 57,
+   "rodzic": "higienizacja"
+  },
+  "tlenoterapia hiperbaryczna": {
+   "synonimy": [
+    "tlenoterapia",
+    "tlenoterapia hiperbaryczna"
+   ],
+   "n": 56,
+   "rodzic": null
+  },
+  "masaż powięziowy": {
+   "synonimy": [
+    "masaż powięziowy",
+    "terapia mięśniowo-powięziowa",
+    "terapia powięziowa"
+   ],
+   "n": 56,
+   "rodzic": "masaż"
+  },
+  "stomatologia zachowawcza": {
+   "synonimy": [
+    "stomatologia zachowawcza"
+   ],
+   "n": 52,
+   "rodzic": null
+  },
+  "tomografia cbct": {
+   "synonimy": [
+    "tomografia cbct",
+    "tomografia cbct 3d",
+    "tomografia komputerowa"
+   ],
+   "n": 51,
+   "rodzic": "diagnoza"
+  },
+  "logopedia": {
+   "synonimy": [
+    "logopedia",
+    "logopedyczna",
+    "terapia logopedyczna"
+   ],
+   "n": 47,
+   "rodzic": null
+  },
+  "świecowanie uszu": {
+   "synonimy": [
+    "conch",
+    "świecowanie uszu"
+   ],
+   "n": 44,
+   "rodzic": null
+  },
+  "masaż stemplami ziołowymi": {
+   "synonimy": [
+    "masaż stemplami ziołowymi"
+   ],
+   "n": 41,
+   "rodzic": "masaż"
+  },
+  "neurologopedia": {
+   "synonimy": [
+    "neurologopeda",
+    "neurologopedia"
+   ],
+   "n": 40,
+   "rodzic": "logopedia"
+  },
+  "brew": {
+   "synonimy": [
+    "brew"
+   ],
+   "n": 39,
+   "rodzic": null
+  },
+  "microdermal": {
+   "synonimy": [
+    "microdermal",
+    "wycięcie microdermala"
+   ],
+   "n": 39,
+   "rodzic": null
+  },
+  "opalanie w solarium": {
+   "synonimy": [
+    "opalanie w solarium",
+    "solarium"
+   ],
+   "n": 39,
+   "rodzic": null
+  },
+  "stylizacja brwi": {
+   "synonimy": [
+    "stylizacja brwi"
+   ],
+   "n": 38,
+   "rodzic": "regulacja"
+  },
+  "masaż gorącą świecą": {
+   "synonimy": [
+    "masaż gorącą świecą"
+   ],
+   "n": 38,
+   "rodzic": "masaż"
+  },
+  "terapia blizn": {
+   "synonimy": [
+    "terapia blizn",
+    "terapia blizny"
+   ],
+   "n": 37,
+   "rodzic": null
+  },
+  "zabieg termoaktywny": {
+   "synonimy": [
+    "zabieg termoaktywny"
+   ],
+   "n": 36,
+   "rodzic": null
+  },
+  "retusz": {
+   "synonimy": [
+    "retusz",
+    "retusz siwizny"
+   ],
+   "n": 36,
+   "rodzic": null
+  },
+  "implantacja": {
+   "synonimy": [
+    "implantacja",
+    "implantologia"
+   ],
+   "n": 36,
+   "rodzic": "protetyka"
+  },
+  "regulacja brwi": {
+   "synonimy": [
+    "regulacja brwi"
+   ],
+   "n": 33,
+   "rodzic": "regulacja"
+  },
+  "korepetycje coachingowe": {
+   "synonimy": [
+    "coaching",
+    "korepetycje",
+    "korepetycje coachingowe"
+   ],
+   "n": 33,
+   "rodzic": null
+  },
+  "konsultacja treningowa": {
+   "synonimy": [
+    "konsultacja treningowa"
+   ],
+   "n": 32,
+   "rodzic": null
+  },
+  "hirudoterapia": {
+   "synonimy": [
+    "hirudoterapia"
+   ],
+   "n": 30,
+   "rodzic": null
+  },
+  "biorezonans": {
+   "synonimy": [
+    "biorezonans",
+    "diagnostyka biorezonansowa",
+    "terapia biorezonansowa",
+    "test biorezonansowy"
+   ],
+   "n": 30,
+   "rodzic": null
+  },
+  "manual": {
+   "synonimy": [
+    "manual"
+   ],
+   "n": 27,
+   "rodzic": "nauka jazdy"
+  },
+  "sauna infrared": {
+   "synonimy": [
+    "mini spa sauna",
+    "sauna",
+    "sauna / mini strefa spa",
+    "sauna infrared",
+    "sauna karbonowa"
+   ],
+   "n": 26,
+   "rodzic": "sauna infrared"
+  },
+  "zabieg": {
+   "synonimy": [
+    "zabieg"
+   ],
+   "n": 25,
+   "rodzic": null
+  },
+  "hipnoterapia": {
+   "synonimy": [
+    "hipnoterapia",
+    "hipnoza"
+   ],
+   "n": 24,
+   "rodzic": "psychoterapia"
+  },
+  "serwis klimatyzacji": {
+   "synonimy": [
+    "serwis klimatyzacji"
+   ],
+   "n": 22,
+   "rodzic": null
+  },
+  "integracja strukturalna": {
+   "synonimy": [
+    "integracja strukturalna"
+   ],
+   "n": 22,
+   "rodzic": "integracja sensoryczna"
+  },
+  "oklejanie folią ochronną": {
+   "synonimy": [
+    "aplikacja folii ochronnej",
+    "oklejanie folią ochronną",
+    "oklejanie folią ochronną ppf",
+    "oklejanie samochodu"
+   ],
+   "n": 22,
+   "rodzic": "detailing"
+  },
+  "dermatoskopia": {
+   "synonimy": [
+    "badanie videodermatoskopowe",
+    "dermatoskopia"
+   ],
+   "n": 21,
+   "rodzic": "diagnoza"
+  },
+  "wymiana oleju": {
+   "synonimy": [
+    "wymiana oleju"
+   ],
+   "n": 20,
+   "rodzic": null
+  },
+  "fizjoterapia urologiczna": {
+   "synonimy": [
+    "fizjoterapia urologiczna"
+   ],
+   "n": 20,
+   "rodzic": "fizjoterapia"
+  },
+  "wyważanie kół": {
+   "synonimy": [
+    "geometria kół",
+    "wyważanie kół",
+    "wyważenie kół"
+   ],
+   "n": 20,
+   "rodzic": "wymiana opon"
+  },
+  "elektroterapia": {
+   "synonimy": [
+    "elektroterapia"
+   ],
+   "n": 19,
+   "rodzic": "fizjoterapia"
+  },
+  "konsultacja dermatologiczna": {
+   "synonimy": [
+    "dermatologia",
+    "konsultacja dermatologiczna",
+    "konsultacja lekarska"
+   ],
+   "n": 19,
+   "rodzic": null
+  },
+  "urologia": {
+   "synonimy": [
+    "urologia"
+   ],
+   "n": 18,
+   "rodzic": null
+  },
+  "terapia wodorowa": {
+   "synonimy": [
+    "inhalacja wodorem",
+    "inhalacja wodorem molekularnym",
+    "inhalacje wodorem molekularnym",
+    "terapia wodorowa"
+   ],
+   "n": 18,
+   "rodzic": null
+  },
+  "kod emocji": {
+   "synonimy": [
+    "kod emocji"
+   ],
+   "n": 17,
+   "rodzic": null
+  },
+  "opatrunek": {
+   "synonimy": [
+    "opatrunek"
+   ],
+   "n": 17,
+   "rodzic": null
+  },
+  "stretching": {
+   "synonimy": [
+    "rozciąganie",
+    "stretching"
+   ],
+   "n": 16,
+   "rodzic": "fizjoterapia"
+  },
+  "terapia psychosomatyczna": {
+   "synonimy": [
+    "psychosomatyka",
+    "sesja psychosomatyczna",
+    "terapia psychosomatyczna"
+   ],
+   "n": 16,
+   "rodzic": "psychoterapia"
+  },
+  "kurs": {
+   "synonimy": [
+    "kurs"
+   ],
+   "n": 14,
+   "rodzic": "makijaż"
+  },
+  "analiza skóry": {
+   "synonimy": [
+    "analiza skóry"
+   ],
+   "n": 14,
+   "rodzic": "diagnoza"
+  },
+  "nauka pływania": {
+   "synonimy": [
+    "nauka pływania"
+   ],
+   "n": 14,
+   "rodzic": null
+  },
+  "sesja normobaryczna": {
+   "synonimy": [
+    "normobaria",
+    "sesja normobaryczna"
+   ],
+   "n": 14,
+   "rodzic": "tlenoterapia hiperbaryczna"
+  },
+  "magnetoterapia": {
+   "synonimy": [
+    "magneffio",
+    "magnetoterapia"
+   ],
+   "n": 14,
+   "rodzic": "elektroterapia"
+  },
+  "licówka": {
+   "synonimy": [
+    "licówka"
+   ],
+   "n": 13,
+   "rodzic": null
+  },
+  "tre": {
+   "synonimy": [
+    "tre"
+   ],
+   "n": 13,
+   "rodzic": null
+  },
+  "impregnacja": {
+   "synonimy": [
+    "impregnacja",
+    "zabezpieczenie"
+   ],
+   "n": 13,
+   "rodzic": "czyszczenie"
+  },
+  "seksuologia": {
+   "synonimy": [
+    "konsultacja seksuologiczna",
+    "seksuologia"
+   ],
+   "n": 13,
+   "rodzic": null
+  },
+  "wymiana klocków hamulcowych": {
+   "synonimy": [
+    "wymiana klocków hamulcowych",
+    "wymiana tarcz i klocków hamulcowych"
+   ],
+   "n": 13,
+   "rodzic": null
+  },
+  "badanie": {
+   "synonimy": [
+    "badania laboratoryjne",
+    "badanie"
+   ],
+   "n": 13,
+   "rodzic": "diagnoza"
+  },
+  "terapia komplementarna": {
+   "synonimy": [
+    "terapia holistyczna",
+    "terapia komplementarna",
+    "terapie holistyczne"
+   ],
+   "n": 13,
+   "rodzic": null
+  },
+  "periodontologia": {
+   "synonimy": [
+    "periodontologia"
+   ],
+   "n": 12,
+   "rodzic": null
+  },
+  "terapia tecar": {
+   "synonimy": [
+    "terapia tecar"
+   ],
+   "n": 12,
+   "rodzic": null
+  },
+  "podcięcie wędzidełka": {
+   "synonimy": [
+    "chirurgia stomatologiczna",
+    "podcięcie wędzidełka"
+   ],
+   "n": 12,
+   "rodzic": "chirurgia"
+  },
+  "jonoforeza": {
+   "synonimy": [
+    "jonoforeza"
+   ],
+   "n": 11,
+   "rodzic": "elektroterapia"
+  },
+  "pigmentacja": {
+   "synonimy": [
+    "mikropigmentacja skóry głowy",
+    "pigmentacja"
+   ],
+   "n": 11,
+   "rodzic": null
+  },
+  "badania krwi": {
+   "synonimy": [
+    "badania krwi",
+    "test z krwi"
+   ],
+   "n": 11,
+   "rodzic": "badanie"
+  },
+  "matematyka": {
+   "synonimy": [
+    "matematyka"
+   ],
+   "n": 10,
+   "rodzic": null
+  },
+  "icon": {
+   "synonimy": [
+    "icon"
+   ],
+   "n": 10,
+   "rodzic": null
+  },
+  "pinezkowanie": {
+   "synonimy": [
+    "pinezkowanie"
+   ],
+   "n": 10,
+   "rodzic": "akupunktura"
+  },
+  "badanie wzroku": {
+   "synonimy": [
+    "badanie wzroku"
+   ],
+   "n": 10,
+   "rodzic": "diagnoza"
+  },
+  "reiki": {
+   "synonimy": [
+    "reiki"
+   ],
+   "n": 10,
+   "rodzic": null
+  },
+  "rook": {
+   "synonimy": [
+    "rook"
+   ],
+   "n": 10,
+   "rodzic": null
+  },
+  "medycyna chińska": {
+   "synonimy": [
+    "medycyna chińska",
+    "medycyna chińska i akupunktura"
+   ],
+   "n": 10,
+   "rodzic": null
+  },
+  "sprzątanie po remoncie": {
+   "synonimy": [
+    "sprzątanie po remoncie"
+   ],
+   "n": 9,
+   "rodzic": "czyszczenie"
+  },
+  "wymiana wyświetlacza": {
+   "synonimy": [
+    "wymiana wyświetlacza"
+   ],
+   "n": 9,
+   "rodzic": null
+  },
+  "modelowanie brody": {
+   "synonimy": [
+    "modelowanie brody"
+   ],
+   "n": 9,
+   "rodzic": null
+  },
+  "rtg": {
+   "synonimy": [
+    "rtg"
+   ],
+   "n": 9,
+   "rodzic": "diagnoza"
+  },
+  "korona": {
+   "synonimy": [
+    "korona"
+   ],
+   "n": 9,
+   "rodzic": "protetyka"
+  },
+  "terapia w gabinecie": {
+   "synonimy": [
+    "terapia w gabinecie"
+   ],
+   "n": 9,
+   "rodzic": null
+  },
+  "badania sti": {
+   "synonimy": [
+    "badania sti"
+   ],
+   "n": 9,
+   "rodzic": "diagnoza"
+  },
+  "biofeedback": {
+   "synonimy": [
+    "biofeedback",
+    "biofeedback eeg"
+   ],
+   "n": 9,
+   "rodzic": null
+  },
+  "przedtrzonowiec": {
+   "synonimy": [
+    "przedtrzonowiec",
+    "surface"
+   ],
+   "n": 9,
+   "rodzic": null
+  },
+  "wkład koronowo-korzeniowy": {
+   "synonimy": [
+    "wkład koronowo-korzeniowy"
+   ],
+   "n": 8,
+   "rodzic": null
+  },
+  "trichoskopia": {
+   "synonimy": [
+    "trichoskopia"
+   ],
+   "n": 8,
+   "rodzic": null
+  },
+  "jazda konna": {
+   "synonimy": [
+    "jazda konna"
+   ],
+   "n": 8,
+   "rodzic": null
+  },
+  "kosmetologia": {
+   "synonimy": [
+    "kosmetologia"
+   ],
+   "n": 8,
+   "rodzic": null
+  },
+  "konsultacja behawioralna": {
+   "synonimy": [
+    "konsultacja behawioralna",
+    "opieka behawioralna"
+   ],
+   "n": 8,
+   "rodzic": null
+  },
+  "przeróbki odzieży": {
+   "synonimy": [
+    "przeróbki odzieży",
+    "taliowanie"
+   ],
+   "n": 8,
+   "rodzic": null
+  },
+  "wynajem sali": {
+   "synonimy": [
+    "wynajem gabinetu",
+    "wynajem sali"
+   ],
+   "n": 8,
+   "rodzic": null
+  },
+  "aparat retencyjny": {
+   "synonimy": [
+    "aparat retencyjny",
+    "retencja"
+   ],
+   "n": 8,
+   "rodzic": "ortodoncja"
+  },
+  "generalne": {
+   "synonimy": [
+    "generalne"
+   ],
+   "n": 7,
+   "rodzic": null
+  },
+  "moksoterapia": {
+   "synonimy": [
+    "moksoterapia"
+   ],
+   "n": 7,
+   "rodzic": "akupunktura"
+  },
+  "demontaż i montaż": {
+   "synonimy": [
+    "demontaż i montaż"
+   ],
+   "n": 6,
+   "rodzic": null
+  },
+  "wymiana amortyzatora": {
+   "synonimy": [
+    "wymiana amortyzatora"
+   ],
+   "n": 6,
+   "rodzic": null
+  },
+  "mikroskopowe badanie żywej kropli krwi": {
+   "synonimy": [
+    "mikroskopowe badanie żywej kropli krwi"
+   ],
+   "n": 6,
+   "rodzic": "badanie"
+  },
+  "coaching rodzicielski": {
+   "synonimy": [
+    "coaching rodzicielski"
+   ],
+   "n": 6,
+   "rodzic": null
+  },
+  "dry needling": {
+   "synonimy": [
+    "dry needling"
+   ],
+   "n": 6,
+   "rodzic": "akupunktura"
+  },
+  "krioterapia miejscowa": {
+   "synonimy": [
+    "krioterapia miejscowa"
+   ],
+   "n": 6,
+   "rodzic": null
+  },
+  "konsultacja trychologiczna": {
+   "synonimy": [
+    "konsultacja trychologiczna"
+   ],
+   "n": 6,
+   "rodzic": null
+  },
+  "human design": {
+   "synonimy": [
+    "human design"
+   ],
+   "n": 6,
+   "rodzic": null
+  },
+  "kinezjologia energetyczna": {
+   "synonimy": [
+    "kinezjologia energetyczna"
+   ],
+   "n": 6,
+   "rodzic": null
+  },
+  "liposlim lift": {
+   "synonimy": [
+    "liposlim lift"
+   ],
+   "n": 6,
+   "rodzic": null
+  },
+  "przyciemnianie szyb": {
+   "synonimy": [
+    "przyciemnianie szyb"
+   ],
+   "n": 5,
+   "rodzic": null
+  },
+  "nacięcie ropnia": {
+   "synonimy": [
+    "nacięcie ropnia"
+   ],
+   "n": 5,
+   "rodzic": "chirurgia"
+  },
+  "odbudowa zęba": {
+   "synonimy": [
+    "odbudowa zęba"
+   ],
+   "n": 5,
+   "rodzic": "stomatologia zachowawcza"
+  },
+  "szyna relaksacyjna": {
+   "synonimy": [
+    "szyna relaksacyjna"
+   ],
+   "n": 5,
+   "rodzic": null
+  },
+  "terapia tkanek miękkich": {
+   "synonimy": [
+    "terapia tkanek miękkich"
+   ],
+   "n": 5,
+   "rodzic": null
+  },
+  "bikefitting": {
+   "synonimy": [
+    "bikefitting"
+   ],
+   "n": 5,
+   "rodzic": null
+  },
+  "instruktaż pielęgnacyjny": {
+   "synonimy": [
+    "instruktaż pielęgnacyjny"
+   ],
+   "n": 5,
+   "rodzic": "instruktaż higieny"
+  },
+  "medytacja": {
+   "synonimy": [
+    "medytacja"
+   ],
+   "n": 5,
+   "rodzic": null
+  },
+  "psychiatria": {
+   "synonimy": [
+    "psychiatria"
+   ],
+   "n": 5,
+   "rodzic": "konsultacja psychologiczna"
+  },
+  "anodowanie": {
+   "synonimy": [
+    "anodowanie"
+   ],
+   "n": 5,
+   "rodzic": null
+  },
+  "aplikacja wosku": {
+   "synonimy": [
+    "aplikacja wosku"
+   ],
+   "n": 4,
+   "rodzic": "detailing"
+  },
+  "bilard": {
+   "synonimy": [
+    "bilard"
+   ],
+   "n": 4,
+   "rodzic": null
+  },
+  "przechowywanie opon": {
+   "synonimy": [
+    "przechowywanie opon"
+   ],
+   "n": 4,
+   "rodzic": null
+  },
+  "rozmowa": {
+   "synonimy": [
+    "rozmowa"
+   ],
+   "n": 4,
+   "rodzic": null
+  },
+  "renowacja": {
+   "synonimy": [
+    "renowacja"
+   ],
+   "n": 4,
+   "rodzic": null
+  },
+  "terapia pedagogiczna": {
+   "synonimy": [
+    "terapia pedagogiczna"
+   ],
+   "n": 4,
+   "rodzic": null
+  },
+  "wymiana suwaka": {
+   "synonimy": [
+    "wymiana suwaka"
+   ],
+   "n": 4,
+   "rodzic": "przeróbki odzieży"
+  },
+  "ściągnięcie tooth gems": {
+   "synonimy": [
+    "ściągnięcie tooth gems"
+   ],
+   "n": 4,
+   "rodzic": "tooth gems"
+  },
+  "skanowanie": {
+   "synonimy": [
+    "skanowanie"
+   ],
+   "n": 4,
+   "rodzic": "badanie"
+  },
+  "znieczulenie": {
+   "synonimy": [
+    "znieczulenie"
+   ],
+   "n": 4,
+   "rodzic": "zabieg"
+  },
+  "bioenergoterapia": {
+   "synonimy": [
+    "bioenergoterapia"
+   ],
+   "n": 4,
+   "rodzic": "terapia komplementarna"
+  },
+  "haloterapia": {
+   "synonimy": [
+    "haloterapia"
+   ],
+   "n": 4,
+   "rodzic": "terapia komplementarna"
+  },
+  "mindfulness": {
+   "synonimy": [
+    "mindfulness"
+   ],
+   "n": 4,
+   "rodzic": "medytacja"
+  },
+  "emdr": {
+   "synonimy": [
+    "emdr"
+   ],
+   "n": 4,
+   "rodzic": "psychoterapia"
+  },
+  "recepta ziołowa": {
+   "synonimy": [
+    "recepta ziołowa"
+   ],
+   "n": 4,
+   "rodzic": null
+  },
+  "miofunkcjonalna": {
+   "synonimy": [
+    "miofunkcjonalna"
+   ],
+   "n": 4,
+   "rodzic": null
+  },
+  "zabiegi laryngologiczne": {
+   "synonimy": [
+    "zabiegi laryngologiczne"
+   ],
+   "n": 4,
+   "rodzic": null
+  },
+  "badanie/pracownia eeg, qeeg": {
+   "synonimy": [
+    "badanie/pracownia eeg, qeeg"
+   ],
+   "n": 4,
+   "rodzic": "badanie"
+  },
+  "dermatologia, wenerologia i alergologia": {
+   "synonimy": [
+    "dermatologia, wenerologia i alergologia"
+   ],
+   "n": 4,
+   "rodzic": null
+  },
+  "usuwanie brodawek wirusowych": {
+   "synonimy": [
+    "usuwanie brodawek wirusowych"
+   ],
+   "n": 4,
+   "rodzic": "usuwanie"
+  },
+  "bridge": {
+   "synonimy": [
+    "bridge"
+   ],
+   "n": 4,
+   "rodzic": null
+  },
+  "poszerzenie kanału przekłucia": {
+   "synonimy": [
+    "poszerzenie kanału przekłucia"
+   ],
+   "n": 4,
+   "rodzic": null
+  },
+  "efekt kim": {
+   "synonimy": [
+    "efekt kim"
+   ],
+   "n": 4,
+   "rodzic": null
+  },
+  "boks": {
+   "synonimy": [
+    "boks"
+   ],
+   "n": 4,
+   "rodzic": null
+  },
+  "test oddechowy": {
+   "synonimy": [
+    "test oddechowy"
+   ],
+   "n": 4,
+   "rodzic": "badanie"
+  },
+  "prostowanie felg": {
+   "synonimy": [
+    "prostowanie felg"
+   ],
+   "n": 3,
+   "rodzic": null
+  },
+  "przegląd pojazdu": {
+   "synonimy": [
+    "przegląd pojazdu"
+   ],
+   "n": 3,
+   "rodzic": null
+  },
+  "wymiana sprzęgła": {
+   "synonimy": [
+    "wymiana sprzęgła"
+   ],
+   "n": 3,
+   "rodzic": null
+  },
+  "śpiew / emisja głosu": {
+   "synonimy": [
+    "śpiew / emisja głosu"
+   ],
+   "n": 3,
+   "rodzic": null
+  },
+  "tulip thermo climber": {
+   "synonimy": [
+    "tulip thermo climber"
+   ],
+   "n": 3,
+   "rodzic": "zabieg termoaktywny"
+  },
+  "usuwanie żywicy": {
+   "synonimy": [
+    "usuwanie żywicy"
+   ],
+   "n": 3,
+   "rodzic": null
+  },
+  "dekontaminacja lakieru": {
+   "synonimy": [
+    "dekontaminacja lakieru"
+   ],
+   "n": 3,
+   "rodzic": "detailing"
+  },
+  "wymiana łączników stabilizatora": {
+   "synonimy": [
+    "wymiana łączników stabilizatora"
+   ],
+   "n": 3,
+   "rodzic": "wymiana amortyzatora"
+  },
+  "wulkanizacja": {
+   "synonimy": [
+    "wulkanizacja"
+   ],
+   "n": 3,
+   "rodzic": "wymiana opon"
+  },
+  "wymiana baterii": {
+   "synonimy": [
+    "wymiana baterii"
+   ],
+   "n": 3,
+   "rodzic": null
+  },
+  "zawieszenie": {
+   "synonimy": [
+    "zawieszenie"
+   ],
+   "n": 3,
+   "rodzic": "przegląd pojazdu"
+  },
+  "test moxo": {
+   "synonimy": [
+    "test moxo"
+   ],
+   "n": 3,
+   "rodzic": "badanie"
+  },
+  "polerowanie zębów": {
+   "synonimy": [
+    "polerowanie zębów"
+   ],
+   "n": 3,
+   "rodzic": "higienizacja"
+  },
+  "resekcja wierzchołka korzenia": {
+   "synonimy": [
+    "resekcja wierzchołka korzenia"
+   ],
+   "n": 3,
+   "rodzic": "leczenie kanałowe"
+  },
+  "szynowanie zębów": {
+   "synonimy": [
+    "szynowanie zębów"
+   ],
+   "n": 3,
+   "rodzic": "periodontologia"
+  },
+  "analiza pierwiastkowa włosa": {
+   "synonimy": [
+    "analiza pierwiastkowa włosa"
+   ],
+   "n": 3,
+   "rodzic": "badanie"
+  },
+  "somatic experiencing": {
+   "synonimy": [
+    "somatic experiencing"
+   ],
+   "n": 3,
+   "rodzic": "psychoterapia"
+  },
+  "tarot": {
+   "synonimy": [
+    "tarot"
+   ],
+   "n": 3,
+   "rodzic": null
+  },
+  "wkładka domaciczna (antykoncepcja)": {
+   "synonimy": [
+    "wkładka domaciczna (antykoncepcja)"
+   ],
+   "n": 3,
+   "rodzic": null
+  },
+  "szczepionki": {
+   "synonimy": [
+    "szczepionki"
+   ],
+   "n": 3,
+   "rodzic": null
+  },
+  "szkoła rodzenia": {
+   "synonimy": [
+    "szkoła rodzenia"
+   ],
+   "n": 3,
+   "rodzic": "kurs"
+  },
+  "usługi pielęgniarskie": {
+   "synonimy": [
+    "usługi pielęgniarskie"
+   ],
+   "n": 3,
+   "rodzic": null
+  },
+  "pielęgniarstwo": {
+   "synonimy": [
+    "pielęgniarstwo"
+   ],
+   "n": 3,
+   "rodzic": null
+  },
+  "położnictwo": {
+   "synonimy": [
+    "położnictwo"
+   ],
+   "n": 3,
+   "rodzic": null
+  },
+  "vertical labret": {
+   "synonimy": [
+    "vertical labret"
+   ],
+   "n": 3,
+   "rodzic": null
+  },
+  "bioconturing": {
+   "synonimy": [
+    "bioconturing"
+   ],
+   "n": 3,
+   "rodzic": null
+  },
+  "dogfitness": {
+   "synonimy": [
+    "dogfitness"
+   ],
+   "n": 3,
+   "rodzic": "trening i dieta"
+  }
+ },
+ "_liczbowe": {
+  "liczba_zabiegow": [
+   "1 aplikacja",
+   "1 focus",
+   "1 przyłożenie",
+   "1 punkt",
+   "1 raz w tygodniu",
+   "1 sesja",
+   "1 spotkanie",
+   "1 wejście",
+   "1 wizyta",
+   "1 zabieg",
+   "10",
+   "10 h",
+   "10 kolejnych zabiegów",
+   "10 masaży",
+   "10 sesji",
+   "10 treningów",
+   "10 wejść",
+   "10 wizyt",
+   "10 zabiegów",
+   "10x",
+   "12 treningów",
+   "12 wejść",
+   "12 zabiegów",
+   "15",
+   "15 zabiegów",
+   "16 treningów",
+   "2 focusy",
+   "2 partie",
+   "2 przekłucia",
+   "2 przekłucia w cenie 1",
+   "2 spotkania",
+   "2 treningi",
+   "2 wizyty",
+   "2 zabiegi",
+   "20 treningów",
+   "20 wejść",
+   "20 zabiegów",
+   "24 treningi",
+   "2w1",
+   "3 etapy",
+   "3 focusy",
+   "3 przekłucia",
+   "3 sesje",
+   "3 szt",
+   "3 treningi",
+   "3 wejścia",
+   "3 wizyty",
+   "3 zabiegi",
+   "4",
+   "4 focusy",
+   "4 lub 6 zabiegów",
+   "4 sesje",
+   "4 treningi",
+   "4 wejścia",
+   "4 zabiegi",
+   "5 badań",
+   "5 masaży",
+   "5 sesji",
+   "5 spotkań",
+   "5 treningów",
+   "5 wejść",
+   "5 wizyt",
+   "5 zabiegów",
+   "5+1",
+   "5w1",
+   "6",
+   "6 etapów",
+   "6 wejść",
+   "6 zab",
+   "6 zabiegów",
+   "6-10 zabiegów",
+   "6/12/18/24 zabiegów",
+   "7 dni",
+   "7 wejść",
+   "8 spotkań",
+   "8 treningów",
+   "8 wejść",
+   "8 zabiegów",
+   "combo",
+   "combo light",
+   "combo ojciec + syn",
+   "combo plus",
+   "combo premium",
+   "czuła transformacja – 3 kroki",
+   "dwa zabiegi",
+   "dwuetapowe",
+   "jednorazowa",
+   "karnet",
+   "kompleks",
+   "kompleksowy",
+   "konsultacja + usg",
+   "makijaż + sesja foto",
+   "ojciec + strzyżenie syna",
+   "pakiet",
+   "pakiet 10 h",
+   "pakiet 3 spotkań po 45 minut",
+   "pakiet 4 zabiegów",
+   "pakiet detailing",
+   "pakiet duo",
+   "pakiet ślubny",
+   "pełny pakiet",
+   "pojedyncza sesja",
+   "pojedynczy zabieg",
+   "sesja",
+   "set",
+   "strzyżenie combo",
+   "tak",
+   "usługa kompleksowa",
+   "vip",
+   "zestaw"
+  ],
+  "czas_trwania": [
+   "1 h",
+   "1 miesiąc",
+   "1 rok",
+   "1 sezon",
+   "1,5 h",
+   "1,5h",
+   "10 min",
+   "120 min",
+   "14 dni",
+   "14-dniowy",
+   "15 min",
+   "15 minut",
+   "1h",
+   "2 h",
+   "2 hours",
+   "2 miesiące",
+   "20 min",
+   "25 min",
+   "2h",
+   "3 h",
+   "3 lata",
+   "3 miesiące",
+   "30 dni",
+   "30 min",
+   "30 minut",
+   "32 punkty",
+   "35 dni",
+   "36 minut",
+   "4 h",
+   "4 tygodnie",
+   "4-6 tygodni",
+   "40 min",
+   "40 minut",
+   "45 min",
+   "45 minut",
+   "5 h",
+   "50 min",
+   "50 minut",
+   "55 min",
+   "6 miesięcy",
+   "6 tygodni",
+   "60 dni",
+   "60 min",
+   "60 min / sesja",
+   "60 minut",
+   "6h",
+   "7-dniowy",
+   "75 min",
+   "8 tygodni",
+   "80 min",
+   "90 dni",
+   "90 min",
+   "90 minut",
+   "całodniowa sesja",
+   "całonocna",
+   "concept2",
+   "do 1 roku",
+   "do 1,5 roku",
+   "do 12 miesięcy",
+   "do 18 miesięcy",
+   "do 2 lat",
+   "do 2 mies",
+   "do 3 miesięcy",
+   "do 3 tygodni",
+   "do 6 miesięcy",
+   "do 6 tygodni",
+   "do 8 tygodni",
+   "do roku",
+   "duża sesja",
+   "ekspres",
+   "pn-pt",
+   "sesja 50 min"
+  ],
+  "ilosc_preparatu": [
+   "0,5 ml",
+   "1",
+   "1 ampułka",
+   "1 dziurka",
+   "1 kanał",
+   "1 kolczyk",
+   "1 kolor",
+   "1 kryształek",
+   "1 ml",
+   "1 okolica",
+   "1 paznokieć",
+   "1 powierzchnia",
+   "1 przekłucie",
+   "1 szt",
+   "1 sztuka",
+   "1 ucho",
+   "1 zmiana",
+   "1 ząb",
+   "1 łuk",
+   "10 cm2",
+   "10 kryształków",
+   "10 ml",
+   "10+ kryształków",
+   "100 g",
+   "144",
+   "1ml",
+   "2 głowice",
+   "2 kanały",
+   "2 kolczyki",
+   "2 kryształki",
+   "2 microdermale",
+   "2 ml",
+   "2 obszary",
+   "2 okolice",
+   "2 paznokcie",
+   "2 powierzchnie",
+   "2 strefy",
+   "2 szt",
+   "2 sztuki",
+   "2 łuki",
+   "2,5 ml",
+   "25",
+   "2ml",
+   "3 kanały",
+   "3 kryształki",
+   "3 ml",
+   "3 obszary",
+   "3 okolice",
+   "3 powierzchnie",
+   "3-4 sztuki",
+   "4 kanały",
+   "4 ml",
+   "4 przekłucia",
+   "4 szt",
+   "5 cm2",
+   "5 ml",
+   "5 przekłuć",
+   "8+",
+   "bardzo mały",
+   "mały",
+   "podwójne"
+  ]
+ }
+}

@@ -1,0 +1,55 @@
+{
+ "vs_czlowiek": {
+  "par": 49,
+  "zgodnosc_proc": 73.5,
+  "sedzia_tozsame_a_naprawde_rozne": 0,
+  "precyzja_tozsame_proc": 100.0,
+  "macierz_wzorzec_na_sedzia": {
+   "tozsame": {
+    "powiazane": 5,
+    "tozsame": 7
+   },
+   "powiazane": {
+    "powiazane": 18,
+    "rozne": 4
+   },
+   "rozne": {
+    "powiazane": 4,
+    "rozne": 11
+   }
+  }
+ },
+ "vs_sedziowie_modele": {
+  "par": 393,
+  "zgodnosc_proc": 84.2,
+  "sedzia_tozsame_a_naprawde_rozne": 0,
+  "precyzja_tozsame_proc": 87.3,
+  "macierz_wzorzec_na_sedzia": {
+   "tozsame": {
+    "tozsame": 62,
+    "powiazane": 21
+   },
+   "powiazane": {
+    "powiazane": 178,
+    "rozne": 10,
+    "tozsame": 9
+   },
+   "rozne": {
+    "powiazane": 22,
+    "rozne": 91
+   }
+  }
+ },
+ "per_branza_vs_sedziowie": {
+  "Barber shop": 86.1,
+  "Fryzjer": 78.7,
+  "Masaż": 83.0,
+  "Paznokcie": 80.5,
+  "Salon Kosmetyczny": 85.9,
+  "Tatuaż i Piercing": 90.3
+ },
+ "koszt_usd": 0.0166,
+ "par_z_pamieci": 0,
+ "par_nowych": 549,
+ "par_bez_oceny": 0
+}

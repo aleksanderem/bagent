@@ -1,0 +1,645 @@
+{
+ "final|wszystkie|v7": {
+  "n": 393,
+  "trafnosc": 88.0,
+  "wychwycone": 62.7,
+  "precyzja": 76.5,
+  "tp": 52,
+  "fp": 16,
+  "fn": 31
+ },
+ "final|wszystkie|sedzia": {
+  "n": 393,
+  "trafnosc": 92.4,
+  "wychwycone": 74.7,
+  "precyzja": 87.3,
+  "tp": 62,
+  "fp": 9,
+  "fn": 21
+ },
+ "final|v7_rozstrzygniete|v7": {
+  "n": 308,
+  "trafnosc": 88.6,
+  "wychwycone": 73.2,
+  "precyzja": 76.5,
+  "tp": 52,
+  "fp": 16,
+  "fn": 19
+ },
+ "final|v7_rozstrzygniete|sedzia": {
+  "n": 308,
+  "trafnosc": 93.8,
+  "wychwycone": 81.7,
+  "precyzja": 90.6,
+  "tp": 58,
+  "fp": 6,
+  "fn": 13
+ },
+ "final|v7_niepelne|v7": {
+  "n": 85,
+  "trafnosc": 85.9,
+  "wychwycone": 0.0,
+  "precyzja": 0.0,
+  "tp": 0,
+  "fp": 0,
+  "fn": 12
+ },
+ "final|v7_niepelne|sedzia": {
+  "n": 85,
+  "trafnosc": 87.1,
+  "wychwycone": 33.3,
+  "precyzja": 57.1,
+  "tp": 4,
+  "fp": 3,
+  "fn": 8
+ },
+ "final|nieparzyste_rozstrz|v7": {
+  "n": 150,
+  "trafnosc": 88.0,
+  "wychwycone": 73.7,
+  "precyzja": 77.8,
+  "tp": 28,
+  "fp": 8,
+  "fn": 10
+ },
+ "final|nieparzyste_rozstrz|sedzia": {
+  "n": 150,
+  "trafnosc": 94.7,
+  "wychwycone": 81.6,
+  "precyzja": 96.9,
+  "tp": 31,
+  "fp": 1,
+  "fn": 7
+ },
+ "human|wszystkie|v7": {
+  "n": 49,
+  "trafnosc": 83.7,
+  "wychwycone": 41.7,
+  "precyzja": 83.3,
+  "tp": 5,
+  "fp": 1,
+  "fn": 7
+ },
+ "human|wszystkie|sedzia": {
+  "n": 49,
+  "trafnosc": 89.8,
+  "wychwycone": 58.3,
+  "precyzja": 100.0,
+  "tp": 7,
+  "fp": 0,
+  "fn": 5
+ },
+ "human|v7_rozstrzygniete|v7": {
+  "n": 32,
+  "trafnosc": 84.4,
+  "wychwycone": 55.6,
+  "precyzja": 83.3,
+  "tp": 5,
+  "fp": 1,
+  "fn": 4
+ },
+ "human|v7_rozstrzygniete|sedzia": {
+  "n": 32,
+  "trafnosc": 90.6,
+  "wychwycone": 66.7,
+  "precyzja": 100.0,
+  "tp": 6,
+  "fp": 0,
+  "fn": 3
+ },
+ "human|v7_niepelne|v7": {
+  "n": 17,
+  "trafnosc": 82.4,
+  "wychwycone": 0.0,
+  "precyzja": 0.0,
+  "tp": 0,
+  "fp": 0,
+  "fn": 3
+ },
+ "human|v7_niepelne|sedzia": {
+  "n": 17,
+  "trafnosc": 88.2,
+  "wychwycone": 33.3,
+  "precyzja": 100.0,
+  "tp": 1,
+  "fp": 0,
+  "fn": 2
+ },
+ "human|nieparzyste_rozstrz|v7": {
+  "n": 20,
+  "trafnosc": 90.0,
+  "wychwycone": 66.7,
+  "precyzja": 100.0,
+  "tp": 4,
+  "fp": 0,
+  "fn": 2
+ },
+ "human|nieparzyste_rozstrz|sedzia": {
+  "n": 20,
+  "trafnosc": 90.0,
+  "wychwycone": 66.7,
+  "precyzja": 100.0,
+  "tp": 4,
+  "fp": 0,
+  "fn": 2
+ },
+ "holdout_rozkład_pasm": {
+  "0.55-0.68": 84,
+  "0.75-0.85": 168,
+  "0.85+": 143,
+  "0.68-0.75": 168
+ },
+ "holdout_rozkład_decyzji_silnika": {
+  "odrzucony_retrieval": 84,
+  "przyjety": 241,
+  "odrzucony_silnik": 238
+ },
+ "holdout_etykiety_modeli": {
+  "rozne": 113,
+  "powiazane": 197,
+  "niepewne": 170,
+  "tozsame": 83
+ },
+ "salony_v7_x_sedzia": {
+  "Fryzjer": {
+   "tozsame|tozsame": 231,
+   "niepelne|powiazane": 172,
+   "tozsame|powiazane": 113,
+   "rozne|powiazane": 94,
+   "rozne|rozne": 48,
+   "rozne|tozsame": 42,
+   "powiazane|powiazane": 40,
+   "niepelne|tozsame": 35,
+   "powiazane|tozsame": 9,
+   "niepelne|rozne": 7,
+   "powiazane|rozne": 2
+  },
+  "_razem": {
+   "tozsame|tozsame": 2270,
+   "niepelne|powiazane": 1832,
+   "rozne|powiazane": 1519,
+   "powiazane|powiazane": 1309,
+   "tozsame|powiazane": 1248,
+   "rozne|rozne": 761,
+   "niepelne|tozsame": 621,
+   "rozne|tozsame": 490,
+   "powiazane|tozsame": 390,
+   "powiazane|rozne": 170,
+   "niepelne|rozne": 148,
+   "tozsame|rozne": 24
+  },
+  "Paznokcie": {
+   "tozsame|tozsame": 748,
+   "niepelne|powiazane": 366,
+   "powiazane|powiazane": 305,
+   "rozne|powiazane": 281,
+   "niepelne|tozsame": 195,
+   "powiazane|tozsame": 187,
+   "tozsame|powiazane": 99,
+   "rozne|tozsame": 51,
+   "rozne|rozne": 14,
+   "tozsame|rozne": 5,
+   "powiazane|rozne": 2,
+   "niepelne|rozne": 2
+  },
+  "Medycyna Estetyczna": {
+   "rozne|powiazane": 469,
+   "rozne|rozne": 395,
+   "powiazane|powiazane": 312,
+   "niepelne|powiazane": 295,
+   "tozsame|tozsame": 224,
+   "tozsame|powiazane": 140,
+   "rozne|tozsame": 118,
+   "powiazane|rozne": 101,
+   "niepelne|tozsame": 85,
+   "powiazane|tozsame": 67,
+   "niepelne|rozne": 58,
+   "tozsame|rozne": 4
+  },
+  "Masaż": {
+   "niepelne|powiazane": 139,
+   "rozne|rozne": 125,
+   "tozsame|tozsame": 124,
+   "tozsame|powiazane": 100,
+   "powiazane|powiazane": 76,
+   "rozne|powiazane": 71,
+   "rozne|tozsame": 44,
+   "powiazane|rozne": 34,
+   "niepelne|rozne": 32,
+   "niepelne|tozsame": 13,
+   "powiazane|tozsame": 11,
+   "tozsame|rozne": 2
+  },
+  "Depilacja": {
+   "niepelne|powiazane": 281,
+   "tozsame|tozsame": 191,
+   "powiazane|powiazane": 158,
+   "rozne|powiazane": 150,
+   "tozsame|powiazane": 125,
+   "niepelne|tozsame": 113,
+   "rozne|rozne": 73,
+   "powiazane|tozsame": 49,
+   "rozne|tozsame": 32,
+   "niepelne|rozne": 14,
+   "tozsame|rozne": 12,
+   "powiazane|rozne": 11
+  },
+  "Podologia": {
+   "tozsame|tozsame": 104,
+   "niepelne|powiazane": 87,
+   "tozsame|powiazane": 77,
+   "rozne|powiazane": 74,
+   "niepelne|tozsame": 56,
+   "rozne|tozsame": 50,
+   "rozne|rozne": 18,
+   "powiazane|powiazane": 15,
+   "niepelne|rozne": 13,
+   "powiazane|tozsame": 3,
+   "powiazane|rozne": 1
+  },
+  "Salon Kosmetyczny": {
+   "tozsame|tozsame": 126,
+   "rozne|powiazane": 99,
+   "niepelne|powiazane": 95,
+   "tozsame|powiazane": 92,
+   "powiazane|powiazane": 64,
+   "rozne|rozne": 50,
+   "rozne|tozsame": 42,
+   "niepelne|tozsame": 35,
+   "powiazane|tozsame": 19,
+   "niepelne|rozne": 10,
+   "powiazane|rozne": 8,
+   "tozsame|rozne": 1
+  },
+  "Barber shop": {
+   "tozsame|tozsame": 234,
+   "niepelne|powiazane": 114,
+   "powiazane|powiazane": 84,
+   "tozsame|powiazane": 59,
+   "rozne|powiazane": 57,
+   "rozne|tozsame": 38,
+   "niepelne|tozsame": 36,
+   "rozne|rozne": 17,
+   "powiazane|tozsame": 8,
+   "niepelne|rozne": 5,
+   "powiazane|rozne": 1
+  },
+  "Brwi i rzęsy": {
+   "tozsame|powiazane": 443,
+   "tozsame|tozsame": 288,
+   "niepelne|powiazane": 283,
+   "powiazane|powiazane": 255,
+   "rozne|powiazane": 224,
+   "rozne|tozsame": 73,
+   "niepelne|tozsame": 53,
+   "powiazane|tozsame": 37,
+   "rozne|rozne": 21,
+   "powiazane|rozne": 10,
+   "niepelne|rozne": 7
+  }
+ },
+ "salony_przyklady_v7_rozne_sedzia_tozsame": {
+  "Fryzjer": [
+   [
+    "Broda",
+    "strzyżenie",
+    "Broda (Beard Trimming)",
+    "trymowanie brody"
+   ],
+   [
+    "Koloryzacja  (Cover)",
+    "cover",
+    "Odsiwianie (Cover- Koloryzacja Męska)",
+    "tuszowanie siwizny"
+   ],
+   [
+    "Strzyżenie damskie Mistrz",
+    "strzyżenie z modelowaniem",
+    "Strzyżenie damskie",
+    "strzyżenie"
+   ],
+   [
+    "Strzyżenie damskie Mistrz",
+    "strzyżenie z modelowaniem",
+    "Strzyżenie damskie",
+    "strzyżenie"
+   ],
+   [
+    "Strzyżenie damskie Mistrz",
+    "strzyżenie z modelowaniem",
+    "Strzyżenie damskie/ Women’s haircut",
+    "strzyżenie"
+   ],
+   [
+    "Strzyżenie męskie",
+    "strzyżenie",
+    "Strzyżenie męskie",
+    "strzyżenie z modelowaniem"
+   ]
+  ],
+  "Paznokcie": [
+   [
+    "Usuwanie hybrydy (bez skórek)",
+    "manicure hybrydowy",
+    "Usunięcie hybrydy+odżywka(bez skórek)",
+    "manicure klasyczny"
+   ],
+   [
+    "Rekonstrukcja paznokcia",
+    "naprawa paznokcia",
+    "Rekonstrukcja paznokcia",
+    "przedłużanie paznokci"
+   ],
+   [
+    "Pedicure hybrydowy + pięty",
+    "pedicure",
+    "Pedicure hybrydowy (dez pięt )",
+    "pedicure hybrydowy"
+   ],
+   [
+    "Pedicure hybrydowy + pięty",
+    "pedicure",
+    "Pedicure hybrydowy (ze stopami)",
+    "pedicure hybrydowy"
+   ],
+   [
+    "Pedicure hybrydowy + pięty",
+    "pedicure",
+    "Pedicure hybrydowy z piętami",
+    "pedicure hybrydowy"
+   ],
+   [
+    "Pedicure hybrydowy + pięty",
+    "pedicure",
+    "Pedicure hybrydowy z piętami",
+    "pedicure hybrydowy"
+   ]
+  ],
+  "Medycyna Estetyczna": [
+   [
+    "Nucleofil Eyes",
+    "biostymulacja",
+    "✨ Nucleofill Soft Eyes – napięcie i rozś",
+    "stymulatory tkankowe"
+   ],
+   [
+    "Nucleofil Eyes",
+    "biostymulacja",
+    "Stymulatory okolice oka",
+    "stymulatory tkankowe"
+   ],
+   [
+    "Nucleofil Eyes",
+    "biostymulacja",
+    "Stymulator tkakowy na okolicę oka",
+    "stymulatory tkankowe"
+   ],
+   [
+    "Mastelli Plinest",
+    "stymulatory tkankowe",
+    "💫 MASTELLI PLINEST PDRN (LEKARZ)",
+    "biostymulacja"
+   ],
+   [
+    "Lenisna - kwas polimlekowy",
+    "biostymulacja",
+    "Stymulator kolagenu (kwas polimlekowy - ",
+    "stymulator"
+   ],
+   [
+    "Geo Lifting V",
+    "stymulator",
+    "GEO - Lifting V",
+    "stymulatory tkankowe"
+   ]
+  ],
+  "Masaż": [
+   [
+    "Masaż Leczniczy 60min",
+    "masaż",
+    "Masaż leczniczy 60min",
+    "masaż leczniczy"
+   ],
+   [
+    "Henna +regulacja brwi",
+    "stylizacja brwi",
+    "Henna+ regulacja brwi",
+    "koloryzacja"
+   ],
+   [
+    "Henna +regulacja brwi",
+    "stylizacja brwi",
+    "Henna i regulacja brwi",
+    "koloryzacja"
+   ],
+   [
+    "Henna +regulacja brwi",
+    "stylizacja brwi",
+    "Henna brwi+regulacja",
+    "koloryzacja"
+   ],
+   [
+    "Henna +regulacja brwi",
+    "stylizacja brwi",
+    "Henna brwi + regulacja",
+    "koloryzacja"
+   ],
+   [
+    "Henna +regulacja brwi",
+    "stylizacja brwi",
+    "Henna brwi + regulacja",
+    "koloryzacja"
+   ]
+  ],
+  "Depilacja": [
+   [
+    "LASEROWE USUWANIE PERMANENTNEGO MAKIJAŻU",
+    "usuwanie",
+    "Usuwanie laserowe - makijaż permanentny",
+    "usuwanie tatuażu"
+   ],
+   [
+    "LASEROWE USUWANIE PERMANENTNEGO MAKIJAŻU",
+    "usuwanie",
+    "LASEROWE USUWANIE MAKIJAŻU PERMANENTNEGO",
+    "usuwanie tatuażu"
+   ],
+   [
+    "LASEROWE USUWANIE PERMANENTNEGO MAKIJAŻU",
+    "usuwanie",
+    "HELIOS 785NM – USUWANIE MAKIJAŻU PERMANE",
+    "usuwanie tatuażu"
+   ],
+   [
+    "Strzyżenie damskie (srednie  włosy )",
+    "strzyżenie",
+    "Strzyżenie damskie średnie włosy",
+    "strzyżenie z modelowaniem"
+   ],
+   [
+    "Strzyżenie damskie (srednie  włosy )",
+    "strzyżenie",
+    "Strzyżenie damskie średnie włosy",
+    "strzyżenie z modelowaniem"
+   ],
+   [
+    "Strzyżenie damskie (srednie  włosy )",
+    "strzyżenie",
+    "Strzyżenie damskie włosy średnie",
+    "strzyżenie z modelowaniem"
+   ]
+  ],
+  "Podologia": [
+   [
+    "Uzupełnienie rekonstrukcji paznokcia",
+    "naprawa paznokcia",
+    "Uzupełnienie rekonstrukcji paznokcia",
+    "zabieg podologiczny"
+   ],
+   [
+    "Pedicure specjalistyczny - leczniczy",
+    "zabieg podologiczny",
+    "Pedicure leczniczy",
+    "pedicure leczniczy"
+   ],
+   [
+    "Pedicure specjalistyczny - leczniczy",
+    "zabieg podologiczny",
+    "Pedicure leczniczy",
+    "pedicure"
+   ],
+   [
+    "Pedicure specjalistyczny - leczniczy",
+    "zabieg podologiczny",
+    "Pedicure leczniczy",
+    "pedicure leczniczy"
+   ],
+   [
+    "Pedicure specjalistyczny - leczniczy",
+    "zabieg podologiczny",
+    "Pedicure leczniczy (odciski, modzele, pę",
+    "pedicure leczniczy"
+   ],
+   [
+    "Pedicure specjalistyczny - leczniczy",
+    "zabieg podologiczny",
+    "Pedicure  Leczniczy",
+    "pedicure leczniczy"
+   ]
+  ],
+  "Salon Kosmetyczny": [
+   [
+    "regulacja łuku brwiowego",
+    "stylizacja brwi",
+    "Regulacja brwi",
+    "regulacja brwi"
+   ],
+   [
+    "regulacja łuku brwiowego",
+    "stylizacja brwi",
+    "Regulacja Brwi",
+    "regulacja brwi"
+   ],
+   [
+    "regulacja łuku brwiowego",
+    "stylizacja brwi",
+    "Regulacja brwi",
+    "regulacja brwi"
+   ],
+   [
+    "laminacja rzęs",
+    "laminacja",
+    "Lifting/laminacja rzęs",
+    "lifting"
+   ],
+   [
+    "Wąsik",
+    "depilacja woskiem",
+    "Wąsik",
+    "woskowanie"
+   ],
+   [
+    "Usunięcie hybrydy (ręce) +odżywka",
+    "kobido",
+    "Usunięcie hybrydy + odżywka",
+    "manicure hybrydowy"
+   ]
+  ],
+  "Barber shop": [
+   [
+    "Trymowanie brody",
+    "strzyżenie i trymowanie brody",
+    "Trymowanie brody",
+    "trymowanie brody"
+   ],
+   [
+    "Trymowanie brody",
+    "strzyżenie i trymowanie brody",
+    "Trymowanie brody",
+    "trymowanie brody"
+   ],
+   [
+    "Trymowanie brody",
+    "strzyżenie i trymowanie brody",
+    "Trymowanie brody",
+    "trymowanie brody"
+   ],
+   [
+    "Trymowanie brody",
+    "strzyżenie i trymowanie brody",
+    "Trymowanie brody",
+    "trymowanie brody"
+   ],
+   [
+    "Trymowanie brody",
+    "strzyżenie i trymowanie brody",
+    "Trymowanie brody",
+    "trymowanie brody"
+   ],
+   [
+    "Trymowanie brody",
+    "strzyżenie i trymowanie brody",
+    "Trymowanie brody",
+    "trymowanie brody"
+   ]
+  ],
+  "Brwi i rzęsy": [
+   [
+    "Henna pudrowa lub farbka z geometrią + r",
+    "koloryzacja",
+    "Henna pudrowa+geometria+regulacja",
+    "stylizacja brwi"
+   ],
+   [
+    "Henna pudrowa lub farbka z geometrią + r",
+    "koloryzacja",
+    "HENNA PUDROWA  Z GEOMETRIĄ BRWI I PIELĘG",
+    "stylizacja brwi"
+   ],
+   [
+    "Henna pudrowa lub farbka z geometrią + r",
+    "koloryzacja",
+    "Henna pudrowa, regulacja brwi z geometri",
+    "regulacja brwi"
+   ],
+   [
+    "Henna pudrowa lub farbka z geometrią + r",
+    "koloryzacja",
+    "⚜️HENNA BRWI Z REGULACJĄ i GEOMETRIĄ ( k",
+    "stylizacja brwi"
+   ],
+   [
+    "Henna pudrowa lub farbka z geometrią + r",
+    "koloryzacja",
+    "Regulacja+geometria+henna pudrowa brwi",
+    "stylizacja brwi"
+   ],
+   [
+    "Koreański lifting rzęs",
+    "lifting",
+    "Koreański Lifting Rzęs",
+    "laminacja"
+   ]
+  ]
+ }
+}
