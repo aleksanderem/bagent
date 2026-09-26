@@ -1,0 +1,181 @@
+{
+ "pokrycie_per_typ_salonu": {
+  "Salon Kosmetyczny": {
+   "uslug": 3208,
+   "rodzaj_proc": 98.8,
+   "pewny_rodzaj_proc": 84.6,
+   "cechy_konkretne_proc": 53.1,
+   "cechy_inna_proc": 4.3
+  },
+  "Paznokcie": {
+   "uslug": 1826,
+   "rodzaj_proc": 96.1,
+   "pewny_rodzaj_proc": 85.9,
+   "cechy_konkretne_proc": 52.0,
+   "cechy_inna_proc": 2.0
+  },
+  "Fryzjer": {
+   "uslug": 1181,
+   "rodzaj_proc": 98.5,
+   "pewny_rodzaj_proc": 81.8,
+   "cechy_konkretne_proc": 56.1,
+   "cechy_inna_proc": 1.4
+  },
+  "Medycyna Estetyczna": {
+   "uslug": 813,
+   "rodzaj_proc": 99.3,
+   "pewny_rodzaj_proc": 77.6,
+   "cechy_konkretne_proc": 61.4,
+   "cechy_inna_proc": 6.3
+  },
+  "Brwi i rzęsy": {
+   "uslug": 601,
+   "rodzaj_proc": 99.5,
+   "pewny_rodzaj_proc": 89.7,
+   "cechy_konkretne_proc": 53.6,
+   "cechy_inna_proc": 4.4
+  },
+  "Barber shop": {
+   "uslug": 364,
+   "rodzaj_proc": 100.0,
+   "pewny_rodzaj_proc": 79.1,
+   "cechy_konkretne_proc": 55.2,
+   "cechy_inna_proc": 0.9
+  },
+  "Masaż": {
+   "uslug": 305,
+   "rodzaj_proc": 99.7,
+   "pewny_rodzaj_proc": 85.2,
+   "cechy_konkretne_proc": 44.7,
+   "cechy_inna_proc": 5.7
+  },
+  "Podologia": {
+   "uslug": 272,
+   "rodzaj_proc": 98.5,
+   "pewny_rodzaj_proc": 82.4,
+   "cechy_konkretne_proc": 54.1,
+   "cechy_inna_proc": 6.7
+  },
+  "Depilacja": {
+   "uslug": 239,
+   "rodzaj_proc": 98.3,
+   "pewny_rodzaj_proc": 84.1,
+   "cechy_konkretne_proc": 61.5,
+   "cechy_inna_proc": 2.6
+  },
+  "Inni": {
+   "uslug": 113,
+   "rodzaj_proc": 98.2,
+   "pewny_rodzaj_proc": 79.6,
+   "cechy_konkretne_proc": 54.2,
+   "cechy_inna_proc": 4.1
+  },
+  "Makijaż": {
+   "uslug": 81,
+   "rodzaj_proc": 98.8,
+   "pewny_rodzaj_proc": 84.0,
+   "cechy_konkretne_proc": 51.1,
+   "cechy_inna_proc": 8.4
+  },
+  "Zdrowie": {
+   "uslug": 50,
+   "rodzaj_proc": 100.0,
+   "pewny_rodzaj_proc": 70.0,
+   "cechy_konkretne_proc": 58.8,
+   "cechy_inna_proc": 5.3
+  },
+  "Tatuaż i Piercing": {
+   "uslug": 42,
+   "rodzaj_proc": 100.0,
+   "pewny_rodzaj_proc": 92.9,
+   "cechy_konkretne_proc": 46.6,
+   "cechy_inna_proc": 6.2
+  }
+ },
+ "werdykty_w_probkach_ceny": {
+  "Fryzjer": {
+   "tozsame": 43.5,
+   "niepelne": 26.9,
+   "rozne": 23.2,
+   "powiazane": 6.4
+  },
+  "Paznokcie": {
+   "tozsame": 37.8,
+   "niepelne": 25.0,
+   "powiazane": 21.9,
+   "rozne": 15.3
+  },
+  "Medycyna Estetyczna": {
+   "rozne": 43.3,
+   "powiazane": 21.2,
+   "niepelne": 19.3,
+   "tozsame": 16.2
+  },
+  "Masaż": {
+   "rozne": 31.1,
+   "tozsame": 29.2,
+   "niepelne": 23.9,
+   "powiazane": 15.8
+  },
+  "Depilacja": {
+   "niepelne": 33.7,
+   "tozsame": 27.0,
+   "rozne": 21.1,
+   "powiazane": 18.1
+  },
+  "Podologia": {
+   "tozsame": 36.3,
+   "niepelne": 31.3,
+   "rozne": 28.5,
+   "powiazane": 3.8
+  },
+  "Salon Kosmetyczny": {
+   "tozsame": 34.2,
+   "rozne": 29.8,
+   "niepelne": 21.8,
+   "powiazane": 14.2
+  },
+  "Barber shop": {
+   "tozsame": 44.9,
+   "niepelne": 23.7,
+   "rozne": 17.2,
+   "powiazane": 14.2
+  },
+  "Brwi i rzęsy": {
+   "tozsame": 43.1,
+   "niepelne": 20.1,
+   "rozne": 18.8,
+   "powiazane": 18.0
+  }
+ },
+ "powody_nie_tozsamych": {
+  "tozsame": 3540,
+  "inny rodzaj": 2770,
+  "obszar": 1518,
+  "technika": 566,
+  "dlugosc": 409,
+  "cel": 385,
+  "rodzaj ogólny": 291,
+  "odbiorca": 291,
+  "liczba_zabiegow": 257,
+  "preparat_urzadzenie": 228,
+  "rodzaj spoza schematu": 196,
+  "etap": 133,
+  "ilosc": 73,
+  "objetosc": 35,
+  "material": 33
+ },
+ "holdout_rozstrzygniete_proc": 78.4,
+ "holdout_vs_modele_rozstrzygniete": {
+  "trafnosc_tak_nie_proc": 88.6,
+  "wychwycone_tozsame_proc": 73.2,
+  "precyzja_tozsame_proc": 76.5,
+  "falszywie_tozsame": 16
+ },
+ "holdout_vs_czlowiek_rozstrzygniete": {
+  "trafnosc_tak_nie_proc": 84.4,
+  "wychwycone_tozsame_proc": 55.6,
+  "precyzja_tozsame_proc": 83.3,
+  "falszywie_tozsame": 1
+ }
+}

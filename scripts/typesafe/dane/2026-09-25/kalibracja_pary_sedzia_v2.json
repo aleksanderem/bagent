@@ -1,0 +1,8447 @@
+[
+ {
+  "id": 235,
+  "branza": "Salon Kosmetyczny",
+  "podmiot": "Peeling chemiczny ClearChoice Green Tea",
+  "kandydat": "SALICYLIC CA BRIGHT PEEL",
+  "human": null,
+  "final": "rozne",
+  "sedzia": "powiazane",
+  "score": 0.85,
+  "cechy": {
+   "ten_sam_zabieg": 0.43,
+   "ten_sam_obszar": 0.35,
+   "ten_sam_wariant": 0.07
+  }
+ },
+ {
+  "id": 282,
+  "branza": "Paznokcie",
+  "podmiot": "Manicure hybrydowy",
+  "kandydat": "Manicure hybrydowy+wzmocnienie bazą+kolor",
+  "human": null,
+  "final": "powiazane",
+  "sedzia": "powiazane",
+  "score": 1.08,
+  "cechy": {
+   "ten_sam_zabieg": 0.54,
+   "ten_sam_obszar": 0.25,
+   "ten_sam_wariant": 0.16
+  }
+ },
+ {
+  "id": 238,
+  "branza": "Barber shop",
+  "podmiot": "Strzyżenie męskie maszynka+nożyczki bez mycia",
+  "kandydat": "Strzyżenie maszynką + cieniowanie",
+  "human": null,
+  "final": "powiazane",
+  "sedzia": "powiazane",
+  "score": 1.02,
+  "cechy": {
+   "ten_sam_zabieg": 0.3,
+   "ten_sam_obszar": 0.32,
+   "ten_sam_wariant": 0.17
+  }
+ },
+ {
+  "id": 245,
+  "branza": "Salon Kosmetyczny",
+  "podmiot": "Peeling chemiczny ClearChoice Green Tea",
+  "kandydat": "Peeling chemiczny - LACTIPEEL",
+  "human": null,
+  "final": "powiazane",
+  "sedzia": "powiazane",
+  "score": 1.17,
+  "cechy": {
+   "ten_sam_zabieg": 0.71,
+   "ten_sam_obszar": 0.38,
+   "ten_sam_wariant": 0.12
+  }
+ },
+ {
+  "id": 267,
+  "branza": "Tatuaż i Piercing",
+  "podmiot": "Przedłużanie rzęs 1:4",
+  "kandydat": "Przedłużanie rzęs 4D",
+  "human": null,
+  "final": "niepewne",
+  "sedzia": "powiazane",
+  "score": 1.13,
+  "cechy": {
+   "ten_sam_zabieg": 0.26,
+   "ten_sam_obszar": 0.72,
+   "ten_sam_wariant": 0.14
+  }
+ },
+ {
+  "id": 272,
+  "branza": "Masaż",
+  "podmiot": "Masaż dźwiękiem - misy tybetańskie+kryształowe",
+  "kandydat": "Masaż dźwiękiem: misy tybetańskie i dzwonki Koshi",
+  "human": null,
+  "final": "niepewne",
+  "sedzia": "powiazane",
+  "score": 1.43,
+  "cechy": {
+   "ten_sam_zabieg": 0.64,
+   "ten_sam_obszar": 0.45,
+   "ten_sam_wariant": 0.3
+  }
+ },
+ {
+  "id": 253,
+  "branza": "Salon Kosmetyczny",
+  "podmiot": "Manicure hybrydowy",
+  "kandydat": "Manicure Hybrydowy",
+  "human": null,
+  "final": "tozsame",
+  "sedzia": "tozsame",
+  "score": 1.99,
+  "cechy": {
+   "ten_sam_zabieg": 0.84,
+   "ten_sam_obszar": 0.82,
+   "ten_sam_wariant": 0.4
+  }
+ },
+ {
+  "id": 259,
+  "branza": "Fryzjer",
+  "podmiot": "INTRAJECT Zabieg Trychologiczny",
+  "kandydat": "Mezoterapia igłowa - włosy",
+  "human": null,
+  "final": "powiazane",
+  "sedzia": "powiazane",
+  "score": 1.03,
+  "cechy": {
+   "ten_sam_zabieg": 0.27,
+   "ten_sam_obszar": 0.53,
+   "ten_sam_wariant": 0.13
+  }
+ },
+ {
+  "id": 268,
+  "branza": "Barber shop",
+  "podmiot": "Trwała ondulacja keratynowa męska włosy do ucha",
+  "kandydat": "Keratynowe prostowanie włosów - do ramion",
+  "human": null,
+  "final": "rozne",
+  "sedzia": "rozne",
+  "score": 0.1,
+  "cechy": {
+   "ten_sam_zabieg": 0.08,
+   "ten_sam_obszar": 0.07,
+   "ten_sam_wariant": 0.02
+  }
+ },
+ {
+  "id": 288,
+  "branza": "Paznokcie",
+  "podmiot": "Wzmocnienie żelowe naturalnej płytki",
+  "kandydat": "Uzupełnienie żelu/Wzmocnienie żelem EXPRESS",
+  "human": null,
+  "final": "powiazane",
+  "sedzia": "powiazane",
+  "score": 1.07,
+  "cechy": {
+   "ten_sam_zabieg": 0.61,
+   "ten_sam_obszar": 0.54,
+   "ten_sam_wariant": 0.16
+  }
+ },
+ {
+  "id": 296,
+  "branza": "Fryzjer",
+  "podmiot": "Oczyszczanie Wodorowe",
+  "kandydat": "Oczyszczanie wodorowe + Peeling kawitacyjny",
+  "human": null,
+  "final": "powiazane",
+  "sedzia": "powiazane",
+  "score": 0.98,
+  "cechy": {
+   "ten_sam_zabieg": 0.18,
+   "ten_sam_obszar": 0.05,
+   "ten_sam_wariant": 0.06
+  }
+ },
+ {
+  "id": 311,
+  "branza": "Barber shop",
+  "podmiot": "Strzyżenie męskie maszynka+nożyczki bez mycia",
+  "kandydat": "Strzyżenie męskie- jedna długość",
+  "human": null,
+  "final": "niepewne",
+  "sedzia": "powiazane",
+  "score": 1.0,
+  "cechy": {
+   "ten_sam_zabieg": 0.18,
+   "ten_sam_obszar": 0.42,
+   "ten_sam_wariant": 0.11
+  }
+ },
+ {
+  "id": 344,
+  "branza": "Fryzjer",
+  "podmiot": "MAKIJAŻ PERMANENTNY BRWI",
+  "kandydat": "Makijaż permanentny po 3 miesięcy",
+  "human": null,
+  "final": "powiazane",
+  "sedzia": "powiazane",
+  "score": 1.03,
+  "cechy": {
+   "ten_sam_zabieg": 0.57,
+   "ten_sam_obszar": 0.44,
+   "ten_sam_wariant": 0.1
+  }
+ },
+ {
+  "id": 361,
+  "branza": "Paznokcie",
+  "podmiot": "Regulacja (wosk/pęseta)",
+  "kandydat": "Regulacja brwi woskiem + wąsik",
+  "human": null,
+  "final": "powiazane",
+  "sedzia": "powiazane",
+  "score": 0.98,
+  "cechy": {
+   "ten_sam_zabieg": 0.16,
+   "ten_sam_obszar": 0.11,
+   "ten_sam_wariant": 0.1
+  }
+ },
+ {
+  "id": 369,
+  "branza": "Masaż",
+  "podmiot": "Masaż intensywnie liftingujacy + zabieg na twarz",
+  "kandydat": "Radiofrekwencja RF mikroigłowa - twarz",
+  "human": null,
+  "final": "rozne",
+  "sedzia": "rozne",
+  "score": 0.06,
+  "cechy": {
+   "ten_sam_zabieg": 0.02,
+   "ten_sam_obszar": 0.27,
+   "ten_sam_wariant": 0.03
+  }
+ },
+ {
+  "id": 386,
+  "branza": "Barber shop",
+  "podmiot": "Strzyżenie damskie krótkie (5-10 cm) włosy",
+  "kandydat": "Strzyżenie + modelowanie włosy krótkie",
+  "human": null,
+  "final": "niepewne",
+  "sedzia": "powiazane",
+  "score": 1.43,
+  "cechy": {
+   "ten_sam_zabieg": 0.51,
+   "ten_sam_obszar": 0.7,
+   "ten_sam_wariant": 0.41
+  }
+ },
+ {
+  "id": 395,
+  "branza": "Tatuaż i Piercing",
+  "podmiot": "Przedłużanie rzęs 1:3",
+  "kandydat": "Przedłużanie rzęs 1:1",
+  "human": null,
+  "final": "powiazane",
+  "sedzia": "powiazane",
+  "score": 1.0,
+  "cechy": {
+   "ten_sam_zabieg": 0.16,
+   "ten_sam_obszar": 0.37,
+   "ten_sam_wariant": 0.04
+  }
+ },
+ {
+  "id": 302,
+  "branza": "Fryzjer",
+  "podmiot": "Endermologia LPG Alliance jeden zabieg na ciało",
+  "kandydat": "LPG Alliance Endermologia -Zabieg na 1 partię ...",
+  "human": "tozsame",
+  "final": "powiazane",
+  "sedzia": "powiazane",
+  "score": 1.03,
+  "cechy": {
+   "ten_sam_zabieg": 0.83,
+   "ten_sam_obszar": 0.23,
+   "ten_sam_wariant": 0.32
+  }
+ },
+ {
+  "id": 301,
+  "branza": "Paznokcie",
+  "podmiot": "Zmiana hybrydy",
+  "kandydat": "Pedicure hybrydowy",
+  "human": null,
+  "final": "rozne",
+  "sedzia": "powiazane",
+  "score": 0.92,
+  "cechy": {
+   "ten_sam_zabieg": 0.31,
+   "ten_sam_obszar": 0.3,
+   "ten_sam_wariant": 0.08
+  }
+ },
+ {
+  "id": 319,
+  "branza": "Barber shop",
+  "podmiot": "Trwała ondulacja keratynowa męska włosy do ucha",
+  "kandydat": "Zabieg prostująco-regenerujący \"Terapia protein...",
+  "human": null,
+  "final": "rozne",
+  "sedzia": "rozne",
+  "score": 0.06,
+  "cechy": {
+   "ten_sam_zabieg": 0.08,
+   "ten_sam_obszar": 0.13,
+   "ten_sam_wariant": 0.02
+  }
+ },
+ {
+  "id": 327,
+  "branza": "Fryzjer",
+  "podmiot": "Osocze bogatopłytkowe i fibryna komórkowa twarz",
+  "kandydat": "Mezoterapia kolagenem twarz, szyja i dekolt",
+  "human": null,
+  "final": "powiazane",
+  "sedzia": "rozne",
+  "score": 0.04,
+  "cechy": {
+   "ten_sam_zabieg": 0.04,
+   "ten_sam_obszar": 0.2,
+   "ten_sam_wariant": 0.03
+  }
+ },
+ {
+  "id": 332,
+  "branza": "Tatuaż i Piercing",
+  "podmiot": "Henna rzęs",
+  "kandydat": "Henna rzęs",
+  "human": null,
+  "final": "tozsame",
+  "sedzia": "tozsame",
+  "score": 1.72,
+  "cechy": {
+   "ten_sam_zabieg": 0.51,
+   "ten_sam_obszar": 0.65,
+   "ten_sam_wariant": 0.3
+  }
+ },
+ {
+  "id": 337,
+  "branza": "Salon Kosmetyczny",
+  "podmiot": "Mezoterapia mikroigłowa z egzosomami DERMALOGICA",
+  "kandydat": "Mezoterapia mikroigłowa",
+  "human": null,
+  "final": "powiazane",
+  "sedzia": "powiazane",
+  "score": 1.2,
+  "cechy": {
+   "ten_sam_zabieg": 0.78,
+   "ten_sam_obszar": 0.38,
+   "ten_sam_wariant": 0.17
+  }
+ },
+ {
+  "id": 379,
+  "branza": "Masaż",
+  "podmiot": "Masaż twarzy z refleksologią + masaż pleców i stóp",
+  "kandydat": "Masaż relaksacyjny (pleców, głowy, stopy)",
+  "human": null,
+  "final": "powiazane",
+  "sedzia": "powiazane",
+  "score": 0.96,
+  "cechy": {
+   "ten_sam_zabieg": 0.19,
+   "ten_sam_obszar": 0.11,
+   "ten_sam_wariant": 0.11
+  }
+ },
+ {
+  "id": 438,
+  "branza": "Paznokcie",
+  "podmiot": "Architektura +farbowanie+regulacja +botox",
+  "kandydat": "Laminacja brwi+regulacja+farbowanie rzęs",
+  "human": null,
+  "final": "niepewne",
+  "sedzia": "powiazane",
+  "score": 0.84,
+  "cechy": {
+   "ten_sam_zabieg": 0.11,
+   "ten_sam_obszar": 0.16,
+   "ten_sam_wariant": 0.09
+  }
+ },
+ {
+  "id": 350,
+  "branza": "Salon Kosmetyczny",
+  "podmiot": "Odnowienie (linie rzęs).Od półtora roku od zabiegu",
+  "kandydat": "Manicure + zdejmowanie hybrydy",
+  "human": null,
+  "final": "rozne",
+  "sedzia": "rozne",
+  "score": 0.0,
+  "cechy": {
+   "ten_sam_zabieg": 0.02,
+   "ten_sam_obszar": 0.02,
+   "ten_sam_wariant": 0.01
+  }
+ },
+ {
+  "id": 364,
+  "branza": "Fryzjer",
+  "podmiot": "Kwas L - Polimlekowy",
+  "kandydat": "Protokół Firm& Lift",
+  "human": null,
+  "final": "rozne",
+  "sedzia": "rozne",
+  "score": 0.0,
+  "cechy": {
+   "ten_sam_zabieg": 0.02,
+   "ten_sam_obszar": 0.06,
+   "ten_sam_wariant": 0.02
+  }
+ },
+ {
+  "id": 426,
+  "branza": "Tatuaż i Piercing",
+  "podmiot": "Przedłużanie rzęs 1:4",
+  "kandydat": "Przedłużanie rzęs metoda 1:1",
+  "human": null,
+  "final": "niepewne",
+  "sedzia": "powiazane",
+  "score": 1.0,
+  "cechy": {
+   "ten_sam_zabieg": 0.08,
+   "ten_sam_obszar": 0.5,
+   "ten_sam_wariant": 0.03
+  }
+ },
+ {
+  "id": 429,
+  "branza": "Tatuaż i Piercing",
+  "podmiot": "Przedłużanie rzęs 1:1",
+  "kandydat": "Przedłużanie rzęs 1:1 uzupełnienie do 3 tyg",
+  "human": null,
+  "final": "niepewne",
+  "sedzia": "powiazane",
+  "score": 1.0,
+  "cechy": {
+   "ten_sam_zabieg": 0.47,
+   "ten_sam_obszar": 0.28,
+   "ten_sam_wariant": 0.03
+  }
+ },
+ {
+  "id": 446,
+  "branza": "Fryzjer",
+  "podmiot": "Peeling kawitacyjny z maską algową",
+  "kandydat": "Peeling kawitacyjny + ultradźwięki + maska",
+  "human": null,
+  "final": "powiazane",
+  "sedzia": "powiazane",
+  "score": 1.06,
+  "cechy": {
+   "ten_sam_zabieg": 0.41,
+   "ten_sam_obszar": 0.32,
+   "ten_sam_wariant": 0.15
+  }
+ },
+ {
+  "id": 518,
+  "branza": "Salon Kosmetyczny",
+  "podmiot": "Odnowienie (linie rzęs).Od półtora roku od zabiegu",
+  "kandydat": "Laminowanie brwi + stylizacja",
+  "human": null,
+  "final": "rozne",
+  "sedzia": "rozne",
+  "score": 0.09,
+  "cechy": {
+   "ten_sam_zabieg": 0.04,
+   "ten_sam_obszar": 0.06,
+   "ten_sam_wariant": 0.02
+  }
+ },
+ {
+  "id": 526,
+  "branza": "Paznokcie",
+  "podmiot": "Przedłużanie paznokci Do 1-2 długości",
+  "kandydat": "Przedłużanie paznokci, długość 3-4",
+  "human": null,
+  "final": "niepewne",
+  "sedzia": "powiazane",
+  "score": 1.0,
+  "cechy": {
+   "ten_sam_zabieg": 0.29,
+   "ten_sam_obszar": 0.21,
+   "ten_sam_wariant": 0.02
+  }
+ },
+ {
+  "id": 538,
+  "branza": "Masaż",
+  "podmiot": "Masaż dźwiękiem - misy tybetańskie+kryształowe",
+  "kandydat": "Masaż Relax & Therapy",
+  "human": null,
+  "final": "niepewne",
+  "sedzia": "rozne",
+  "score": 0.14,
+  "cechy": {
+   "ten_sam_zabieg": 0.03,
+   "ten_sam_obszar": 0.12,
+   "ten_sam_wariant": 0.04
+  }
+ },
+ {
+  "id": 563,
+  "branza": "Salon Kosmetyczny",
+  "podmiot": "Manicure hybrydowy french",
+  "kandydat": "Manicure hybrydowy - zdobienie babyboomer/french",
+  "human": null,
+  "final": "niepewne",
+  "sedzia": "powiazane",
+  "score": 1.21,
+  "cechy": {
+   "ten_sam_zabieg": 0.68,
+   "ten_sam_obszar": 0.48,
+   "ten_sam_wariant": 0.29
+  }
+ },
+ {
+  "id": 543,
+  "branza": "Tatuaż i Piercing",
+  "podmiot": "Laminowanie rzęs+farbowanie",
+  "kandydat": "Laminacja rzęs + koloryzacja",
+  "human": "tozsame",
+  "final": "tozsame",
+  "sedzia": "tozsame",
+  "score": 1.84,
+  "cechy": {
+   "ten_sam_zabieg": 0.75,
+   "ten_sam_obszar": 0.85,
+   "ten_sam_wariant": 0.48
+  }
+ },
+ {
+  "id": 401,
+  "branza": "Tatuaż i Piercing",
+  "podmiot": "Henna rzęs",
+  "kandydat": "Henna rzęs",
+  "human": null,
+  "final": "tozsame",
+  "sedzia": "tozsame",
+  "score": 1.85,
+  "cechy": {
+   "ten_sam_zabieg": 0.6,
+   "ten_sam_obszar": 0.75,
+   "ten_sam_wariant": 0.34
+  }
+ },
+ {
+  "id": 402,
+  "branza": "Barber shop",
+  "podmiot": "Odsiwianie brody",
+  "kandydat": "Odsiwianie brody",
+  "human": null,
+  "final": "tozsame",
+  "sedzia": "tozsame",
+  "score": 2.0,
+  "cechy": {
+   "ten_sam_zabieg": 0.89,
+   "ten_sam_obszar": 0.96,
+   "ten_sam_wariant": 0.76
+  }
+ },
+ {
+  "id": 403,
+  "branza": "Salon Kosmetyczny",
+  "podmiot": "Usunięcie manicure hybrydowego i manicure klasyczn",
+  "kandydat": "Usunięcie lakieru hybrydowego + manicure hybrydowy",
+  "human": null,
+  "final": "powiazane",
+  "sedzia": "powiazane",
+  "score": 0.96,
+  "cechy": {
+   "ten_sam_zabieg": 0.21,
+   "ten_sam_obszar": 0.27,
+   "ten_sam_wariant": 0.13
+  }
+ },
+ {
+  "id": 404,
+  "branza": "Paznokcie",
+  "podmiot": "Manicure męski",
+  "kandydat": "Manicure klasyczny męski",
+  "human": null,
+  "final": "tozsame",
+  "sedzia": "powiazane",
+  "score": 1.48,
+  "cechy": {
+   "ten_sam_zabieg": 0.69,
+   "ten_sam_obszar": 0.61,
+   "ten_sam_wariant": 0.41
+  }
+ },
+ {
+  "id": 405,
+  "branza": "Barber shop",
+  "podmiot": "Buzz cut/Strzyżenie maszynką",
+  "kandydat": "Strzyżenie maszynką / boki",
+  "human": null,
+  "final": "powiazane",
+  "sedzia": "powiazane",
+  "score": 1.02,
+  "cechy": {
+   "ten_sam_zabieg": 0.74,
+   "ten_sam_obszar": 0.27,
+   "ten_sam_wariant": 0.21
+  }
+ },
+ {
+  "id": 406,
+  "branza": "Tatuaż i Piercing",
+  "podmiot": "Henna rzęs",
+  "kandydat": "Henna rzęs + brwi",
+  "human": null,
+  "final": "niepewne",
+  "sedzia": "powiazane",
+  "score": 0.99,
+  "cechy": {
+   "ten_sam_zabieg": 0.32,
+   "ten_sam_obszar": 0.12,
+   "ten_sam_wariant": 0.08
+  }
+ },
+ {
+  "id": 407,
+  "branza": "Salon Kosmetyczny",
+  "podmiot": "Uzupełnienie paznokci akrylem",
+  "kandydat": "Zdjęcie hybrydy + manicure bez malowania",
+  "human": null,
+  "final": "rozne",
+  "sedzia": "rozne",
+  "score": 0.04,
+  "cechy": {
+   "ten_sam_zabieg": 0.04,
+   "ten_sam_obszar": 0.13,
+   "ten_sam_wariant": 0.02
+  }
+ },
+ {
+  "id": 408,
+  "branza": "Paznokcie",
+  "podmiot": "Depilacja Wąsika",
+  "kandydat": "Depilacja wąsik",
+  "human": null,
+  "final": "tozsame",
+  "sedzia": "tozsame",
+  "score": 1.83,
+  "cechy": {
+   "ten_sam_zabieg": 0.41,
+   "ten_sam_obszar": 0.73,
+   "ten_sam_wariant": 0.32
+  }
+ },
+ {
+  "id": 409,
+  "branza": "Fryzjer",
+  "podmiot": "Endermologia LPG- Pakiet 5 zabiegów na ciało",
+  "kandydat": "LPG Alliance Endermologia - Pierwsza wizyta",
+  "human": null,
+  "final": "powiazane",
+  "sedzia": "powiazane",
+  "score": 1.0,
+  "cechy": {
+   "ten_sam_zabieg": 0.84,
+   "ten_sam_obszar": 0.19,
+   "ten_sam_wariant": 0.02
+  }
+ },
+ {
+  "id": 410,
+  "branza": "Salon Kosmetyczny",
+  "podmiot": "Odnowienie OCZY. Od półtora roku od zabiegu",
+  "kandydat": "Oczyszczanie 14-etapowe (wodorowe lub manualne)",
+  "human": null,
+  "final": "rozne",
+  "sedzia": "rozne",
+  "score": 0.09,
+  "cechy": {
+   "ten_sam_zabieg": 0.04,
+   "ten_sam_obszar": 0.06,
+   "ten_sam_wariant": 0.02
+  }
+ },
+ {
+  "id": 411,
+  "branza": "Masaż",
+  "podmiot": "Lifting twarzy  bez skalpela PROGELIFT",
+  "kandydat": "Profhilo",
+  "human": null,
+  "final": "niepewne",
+  "sedzia": "rozne",
+  "score": 0.03,
+  "cechy": {
+   "ten_sam_zabieg": 0.04,
+   "ten_sam_obszar": 0.18,
+   "ten_sam_wariant": 0.02
+  }
+ },
+ {
+  "id": 412,
+  "branza": "Tatuaż i Piercing",
+  "podmiot": "Przedłużanie rzęs 1:4",
+  "kandydat": "Przedłużanie rzęs 3-4D uzup. do 4 tyg.",
+  "human": null,
+  "final": "powiazane",
+  "sedzia": "powiazane",
+  "score": 1.0,
+  "cechy": {
+   "ten_sam_zabieg": 0.25,
+   "ten_sam_obszar": 0.35,
+   "ten_sam_wariant": 0.04
+  }
+ },
+ {
+  "id": 413,
+  "branza": "Tatuaż i Piercing",
+  "podmiot": "Przedłużanie rzęs 1:3",
+  "kandydat": "Przedłużanie rzęs 2-3D uzup. do 4 tyg.",
+  "human": null,
+  "final": "powiazane",
+  "sedzia": "powiazane",
+  "score": 1.0,
+  "cechy": {
+   "ten_sam_zabieg": 0.24,
+   "ten_sam_obszar": 0.33,
+   "ten_sam_wariant": 0.03
+  }
+ },
+ {
+  "id": 414,
+  "branza": "Barber shop",
+  "podmiot": "Depilacja woskiem",
+  "kandydat": "Depilacja woskiem",
+  "human": null,
+  "final": "tozsame",
+  "sedzia": "tozsame",
+  "score": 1.92,
+  "cechy": {
+   "ten_sam_zabieg": 0.89,
+   "ten_sam_obszar": 0.45,
+   "ten_sam_wariant": 0.45
+  }
+ },
+ {
+  "id": 425,
+  "branza": "Fryzjer",
+  "podmiot": "Endermologia LPG - 10 zabiegów na ciało",
+  "kandydat": "Endermologia LPG®",
+  "human": "powiazane",
+  "final": "niepewne",
+  "sedzia": "powiazane",
+  "score": 1.01,
+  "cechy": {
+   "ten_sam_zabieg": 0.8,
+   "ten_sam_obszar": 0.23,
+   "ten_sam_wariant": 0.08
+  }
+ },
+ {
+  "id": 416,
+  "branza": "Fryzjer",
+  "podmiot": "Krioterapia",
+  "kandydat": "Tc Cryo 2 (Kriolipoliza Kontrastowa)",
+  "human": null,
+  "final": "rozne",
+  "sedzia": "powiazane",
+  "score": 0.77,
+  "cechy": {
+   "ten_sam_zabieg": 0.16,
+   "ten_sam_obszar": 0.11,
+   "ten_sam_wariant": 0.03
+  }
+ },
+ {
+  "id": 417,
+  "branza": "Barber shop",
+  "podmiot": "Trwała ondulacja keratynowa męska włosy krótki",
+  "kandydat": "Trwała ondulacja",
+  "human": null,
+  "final": "powiazane",
+  "sedzia": "powiazane",
+  "score": 1.03,
+  "cechy": {
+   "ten_sam_zabieg": 0.34,
+   "ten_sam_obszar": 0.34,
+   "ten_sam_wariant": 0.11
+  }
+ },
+ {
+  "id": 418,
+  "branza": "Tatuaż i Piercing",
+  "podmiot": "Henna brwi pudrowe|farbka+regulacja",
+  "kandydat": "Henna brwi z regulacją",
+  "human": null,
+  "final": "niepewne",
+  "sedzia": "powiazane",
+  "score": 1.45,
+  "cechy": {
+   "ten_sam_zabieg": 0.61,
+   "ten_sam_obszar": 0.73,
+   "ten_sam_wariant": 0.47
+  }
+ },
+ {
+  "id": 419,
+  "branza": "Tatuaż i Piercing",
+  "podmiot": "Przedłużanie rzęs 1:3",
+  "kandydat": "Przedłużanie rzęs 1:1",
+  "human": null,
+  "final": "powiazane",
+  "sedzia": "powiazane",
+  "score": 1.0,
+  "cechy": {
+   "ten_sam_zabieg": 0.21,
+   "ten_sam_obszar": 0.41,
+   "ten_sam_wariant": 0.04
+  }
+ },
+ {
+  "id": 420,
+  "branza": "Paznokcie",
+  "podmiot": "Przedłużenie paznokci akrylem do 2długosci+hybryda",
+  "kandydat": "Opracowanie paznokci u stóp + lakier hybrydowy",
+  "human": null,
+  "final": "rozne",
+  "sedzia": "rozne",
+  "score": 0.13,
+  "cechy": {
+   "ten_sam_zabieg": 0.04,
+   "ten_sam_obszar": 0.09,
+   "ten_sam_wariant": 0.03
+  }
+ },
+ {
+  "id": 421,
+  "branza": "Salon Kosmetyczny",
+  "podmiot": "Manicure klasyczny",
+  "kandydat": "ZDJĘCIE Stylizacji + Manicure PIELĘGNACYJNY",
+  "human": null,
+  "final": "powiazane",
+  "sedzia": "powiazane",
+  "score": 0.91,
+  "cechy": {
+   "ten_sam_zabieg": 0.13,
+   "ten_sam_obszar": 0.2,
+   "ten_sam_wariant": 0.06
+  }
+ },
+ {
+  "id": 422,
+  "branza": "Barber shop",
+  "podmiot": "Odsiwianie włosów",
+  "kandydat": "Stylizacja włosów",
+  "human": null,
+  "final": "rozne",
+  "sedzia": "rozne",
+  "score": 0.46,
+  "cechy": {
+   "ten_sam_zabieg": 0.16,
+   "ten_sam_obszar": 0.37,
+   "ten_sam_wariant": 0.08
+  }
+ },
+ {
+  "id": 423,
+  "branza": "Salon Kosmetyczny",
+  "podmiot": "Peeling kawitacyjny ZEMITS",
+  "kandydat": "Peeling Kawitacyjny - TWARZ + SZYJA + DEKOLT",
+  "human": null,
+  "final": "powiazane",
+  "sedzia": "powiazane",
+  "score": 1.19,
+  "cechy": {
+   "ten_sam_zabieg": 0.75,
+   "ten_sam_obszar": 0.14,
+   "ten_sam_wariant": 0.15
+  }
+ },
+ {
+  "id": 424,
+  "branza": "Tatuaż i Piercing",
+  "podmiot": "Przedłużanie rzęs 1:4",
+  "kandydat": "Przedłużanie rzęs 1:1",
+  "human": null,
+  "final": "powiazane",
+  "sedzia": "powiazane",
+  "score": 0.99,
+  "cechy": {
+   "ten_sam_zabieg": 0.19,
+   "ten_sam_obszar": 0.34,
+   "ten_sam_wariant": 0.03
+  }
+ },
+ {
+  "id": 454,
+  "branza": "Tatuaż i Piercing",
+  "podmiot": "Henna brwi pudrowe|farbka+regulacja",
+  "kandydat": "Henna brwi i rzęs+regulacja pęsetą",
+  "human": null,
+  "final": "powiazane",
+  "sedzia": "powiazane",
+  "score": 1.14,
+  "cechy": {
+   "ten_sam_zabieg": 0.34,
+   "ten_sam_obszar": 0.42,
+   "ten_sam_wariant": 0.26
+  }
+ },
+ {
+  "id": 527,
+  "branza": "Tatuaż i Piercing",
+  "podmiot": "Henna rzęs",
+  "kandydat": "Henna brwi i rzęs",
+  "human": null,
+  "final": "powiazane",
+  "sedzia": "powiazane",
+  "score": 0.95,
+  "cechy": {
+   "ten_sam_zabieg": 0.26,
+   "ten_sam_obszar": 0.12,
+   "ten_sam_wariant": 0.08
+  }
+ },
+ {
+  "id": 551,
+  "branza": "Barber shop",
+  "podmiot": "Strzyżenie damskie krótkie (5-10 cm) włosy",
+  "kandydat": "Strzyżenie damskie + pielęgnacja włosów",
+  "human": null,
+  "final": "powiazane",
+  "sedzia": "powiazane",
+  "score": 0.99,
+  "cechy": {
+   "ten_sam_zabieg": 0.22,
+   "ten_sam_obszar": 0.26,
+   "ten_sam_wariant": 0.06
+  }
+ },
+ {
+  "id": 226,
+  "branza": "Salon Kosmetyczny",
+  "podmiot": "Uzupełnienie paznokci akrylem",
+  "kandydat": "Uzupełnienie paznokci do 5 tygodni do 3 na szablon",
+  "human": null,
+  "final": "niepewne",
+  "sedzia": "powiazane",
+  "score": 1.17,
+  "cechy": {
+   "ten_sam_zabieg": 0.52,
+   "ten_sam_obszar": 0.43,
+   "ten_sam_wariant": 0.2
+  }
+ },
+ {
+  "id": 227,
+  "branza": "Salon Kosmetyczny",
+  "podmiot": "Manicure hybrydowy",
+  "kandydat": "Manicure żelowe - przedłużanie",
+  "human": null,
+  "final": "powiazane",
+  "sedzia": "powiazane",
+  "score": 0.91,
+  "cechy": {
+   "ten_sam_zabieg": 0.09,
+   "ten_sam_obszar": 0.23,
+   "ten_sam_wariant": 0.05
+  }
+ },
+ {
+  "id": 228,
+  "branza": "Paznokcie",
+  "podmiot": "Dopełnienie żelem Do 1-2 długości",
+  "kandydat": "Przedłużanie paznokci żelem",
+  "human": null,
+  "final": "powiazane",
+  "sedzia": "powiazane",
+  "score": 0.99,
+  "cechy": {
+   "ten_sam_zabieg": 0.5,
+   "ten_sam_obszar": 0.31,
+   "ten_sam_wariant": 0.11
+  }
+ },
+ {
+  "id": 229,
+  "branza": "Masaż",
+  "podmiot": "Masaż stóp z refleksologią",
+  "kandydat": "Refleksologia stóp",
+  "human": null,
+  "final": "powiazane",
+  "sedzia": "tozsame",
+  "score": 1.75,
+  "cechy": {
+   "ten_sam_zabieg": 0.66,
+   "ten_sam_obszar": 0.7,
+   "ten_sam_wariant": 0.19
+  }
+ },
+ {
+  "id": 230,
+  "branza": "Masaż",
+  "podmiot": "Masaż twarzy oraz głowy z refleksologią.",
+  "kandydat": "Masaż leczniczy + refleksologia",
+  "human": null,
+  "final": "powiazane",
+  "sedzia": "rozne",
+  "score": 0.35,
+  "cechy": {
+   "ten_sam_zabieg": 0.2,
+   "ten_sam_obszar": 0.08,
+   "ten_sam_wariant": 0.08
+  }
+ },
+ {
+  "id": 231,
+  "branza": "Tatuaż i Piercing",
+  "podmiot": "Henna rzęs",
+  "kandydat": "Henna rzęs",
+  "human": null,
+  "final": "tozsame",
+  "sedzia": "tozsame",
+  "score": 1.82,
+  "cechy": {
+   "ten_sam_zabieg": 0.63,
+   "ten_sam_obszar": 0.71,
+   "ten_sam_wariant": 0.36
+  }
+ },
+ {
+  "id": 232,
+  "branza": "Barber shop",
+  "podmiot": "Strzyżenie  męskie  włosy dlugie/ ponizej ramion",
+  "kandydat": "Strzyżenie męskie krótkie",
+  "human": null,
+  "final": "powiazane",
+  "sedzia": "powiazane",
+  "score": 0.99,
+  "cechy": {
+   "ten_sam_zabieg": 0.23,
+   "ten_sam_obszar": 0.27,
+   "ten_sam_wariant": 0.02
+  }
+ },
+ {
+  "id": 233,
+  "branza": "Salon Kosmetyczny",
+  "podmiot": "Terapia Enzymatyczna CIRCADIA",
+  "kandydat": "Dives Gia - multi-kompleks",
+  "human": null,
+  "final": "rozne",
+  "sedzia": "rozne",
+  "score": 0.06,
+  "cechy": {
+   "ten_sam_zabieg": 0.05,
+   "ten_sam_obszar": 0.12,
+   "ten_sam_wariant": 0.04
+  }
+ },
+ {
+  "id": 211,
+  "branza": "Salon Kosmetyczny",
+  "podmiot": "Usunięcie manicure hybrydowego i manicure klasyczn",
+  "kandydat": "Usunięcie manicuru hybrydowego + odżywka",
+  "human": null,
+  "final": "powiazane",
+  "sedzia": "powiazane",
+  "score": 1.03,
+  "cechy": {
+   "ten_sam_zabieg": 0.38,
+   "ten_sam_obszar": 0.21,
+   "ten_sam_wariant": 0.19
+  }
+ },
+ {
+  "id": 212,
+  "branza": "Salon Kosmetyczny",
+  "podmiot": "Mezoterapia mikroigłowa z egzosomami DERMALOGICA",
+  "kandydat": "Mezoterapia mikroigłowa Dr. pen uda",
+  "human": null,
+  "final": "powiazane",
+  "sedzia": "powiazane",
+  "score": 0.92,
+  "cechy": {
+   "ten_sam_zabieg": 0.67,
+   "ten_sam_obszar": 0.18,
+   "ten_sam_wariant": 0.08
+  }
+ },
+ {
+  "id": 213,
+  "branza": "Paznokcie",
+  "podmiot": "Uzupełnienie długich paznokci",
+  "kandydat": "Uzupełnienie żelem",
+  "human": null,
+  "final": "niepewne",
+  "sedzia": "powiazane",
+  "score": 1.07,
+  "cechy": {
+   "ten_sam_zabieg": 0.25,
+   "ten_sam_obszar": 0.46,
+   "ten_sam_wariant": 0.29
+  }
+ },
+ {
+  "id": 214,
+  "branza": "Fryzjer",
+  "podmiot": "Oczyszczanie wodorowe exclusive",
+  "kandydat": "Oczyszczanie wodorowe",
+  "human": null,
+  "final": "powiazane",
+  "sedzia": "tozsame",
+  "score": 1.81,
+  "cechy": {
+   "ten_sam_zabieg": 0.58,
+   "ten_sam_obszar": 0.44,
+   "ten_sam_wariant": 0.16
+  }
+ },
+ {
+  "id": 215,
+  "branza": "Tatuaż i Piercing",
+  "podmiot": "Laminowanie rzęs",
+  "kandydat": "Lifting rzęs &botoks &laminacja",
+  "human": null,
+  "final": "powiazane",
+  "sedzia": "powiazane",
+  "score": 1.11,
+  "cechy": {
+   "ten_sam_zabieg": 0.26,
+   "ten_sam_obszar": 0.32,
+   "ten_sam_wariant": 0.1
+  }
+ },
+ {
+  "id": 216,
+  "branza": "Masaż",
+  "podmiot": "Masaż intensywnie liftingujacy + zabieg na twarz",
+  "kandydat": "SIGNATURE Premium Care",
+  "human": null,
+  "final": "powiazane",
+  "sedzia": "powiazane",
+  "score": 0.7,
+  "cechy": {
+   "ten_sam_zabieg": 0.17,
+   "ten_sam_obszar": 0.25,
+   "ten_sam_wariant": 0.08
+  }
+ },
+ {
+  "id": 234,
+  "branza": "Paznokcie",
+  "podmiot": "Dopełnienie żelem Do 3-4 długości",
+  "kandydat": "Dopełnienie paznokci żelowe (3-4)",
+  "human": "tozsame",
+  "final": "tozsame",
+  "sedzia": "tozsame",
+  "score": 1.85,
+  "cechy": {
+   "ten_sam_zabieg": 0.82,
+   "ten_sam_obszar": 0.82,
+   "ten_sam_wariant": 0.68
+  }
+ },
+ {
+  "id": 218,
+  "branza": "Tatuaż i Piercing",
+  "podmiot": "Henna rzęs",
+  "kandydat": "Henna rzęs",
+  "human": null,
+  "final": "tozsame",
+  "sedzia": "tozsame",
+  "score": 1.91,
+  "cechy": {
+   "ten_sam_zabieg": 0.64,
+   "ten_sam_obszar": 0.78,
+   "ten_sam_wariant": 0.36
+  }
+ },
+ {
+  "id": 219,
+  "branza": "Fryzjer",
+  "podmiot": "Endermologia LPG - 10 zabiegów na ciało",
+  "kandydat": "I-lipo + Icoone pakiet 8 zabiegów",
+  "human": null,
+  "final": "niepewne",
+  "sedzia": "powiazane",
+  "score": 0.54,
+  "cechy": {
+   "ten_sam_zabieg": 0.06,
+   "ten_sam_obszar": 0.27,
+   "ten_sam_wariant": 0.01
+  }
+ },
+ {
+  "id": 220,
+  "branza": "Paznokcie",
+  "podmiot": "Uzupełnienie paznokci",
+  "kandydat": "Pedicure hybrydowy",
+  "human": null,
+  "final": "rozne",
+  "sedzia": "rozne",
+  "score": 0.42,
+  "cechy": {
+   "ten_sam_zabieg": 0.09,
+   "ten_sam_obszar": 0.19,
+   "ten_sam_wariant": 0.03
+  }
+ },
+ {
+  "id": 221,
+  "branza": "Salon Kosmetyczny",
+  "podmiot": "Makijaż permanentny. Brwi",
+  "kandydat": "Makijaż Permanentny Brwi",
+  "human": null,
+  "final": "tozsame",
+  "sedzia": "tozsame",
+  "score": 1.99,
+  "cechy": {
+   "ten_sam_zabieg": 0.8,
+   "ten_sam_obszar": 0.91,
+   "ten_sam_wariant": 0.51
+  }
+ },
+ {
+  "id": 222,
+  "branza": "Tatuaż i Piercing",
+  "podmiot": "Henna brwi pudrowe|farbka+regulacja",
+  "kandydat": "Henna brwi + regulacja z geometrią",
+  "human": null,
+  "final": "powiazane",
+  "sedzia": "tozsame",
+  "score": 1.53,
+  "cechy": {
+   "ten_sam_zabieg": 0.46,
+   "ten_sam_obszar": 0.69,
+   "ten_sam_wariant": 0.29
+  }
+ },
+ {
+  "id": 223,
+  "branza": "Paznokcie",
+  "podmiot": "Lami+regulacja+botox",
+  "kandydat": "Lami rzęs(farbka)+regulacja brwi+farbka",
+  "human": null,
+  "final": "niepewne",
+  "sedzia": "powiazane",
+  "score": 0.72,
+  "cechy": {
+   "ten_sam_zabieg": 0.14,
+   "ten_sam_obszar": 0.15,
+   "ten_sam_wariant": 0.07
+  }
+ },
+ {
+  "id": 224,
+  "branza": "Masaż",
+  "podmiot": "Masaż  pleców",
+  "kandydat": "Masaż pleców",
+  "human": null,
+  "final": "tozsame",
+  "sedzia": "tozsame",
+  "score": 1.97,
+  "cechy": {
+   "ten_sam_zabieg": 0.68,
+   "ten_sam_obszar": 0.84,
+   "ten_sam_wariant": 0.38
+  }
+ },
+ {
+  "id": 225,
+  "branza": "Masaż",
+  "podmiot": "Lekka głowa NOWOŚĆ",
+  "kandydat": "Masaż karku i szyi",
+  "human": null,
+  "final": "niepewne",
+  "sedzia": "powiazane",
+  "score": 0.72,
+  "cechy": {
+   "ten_sam_zabieg": 0.24,
+   "ten_sam_obszar": 0.2,
+   "ten_sam_wariant": 0.08
+  }
+ },
+ {
+  "id": 459,
+  "branza": "Fryzjer",
+  "podmiot": "Powiększanie,modelowanie ust",
+  "kandydat": "Przedłużanie rzęs 2-3D",
+  "human": null,
+  "final": "rozne",
+  "sedzia": "rozne",
+  "score": 0.0,
+  "cechy": {
+   "ten_sam_zabieg": 0.01,
+   "ten_sam_obszar": 0.03,
+   "ten_sam_wariant": 0.01
+  }
+ },
+ {
+  "id": 487,
+  "branza": "Masaż",
+  "podmiot": "Masaż twarzy z refleksologią + masaż pleców i stóp",
+  "kandydat": "Masaż KOBIDO LIFT Twarz +Szyja+Kark + Skóra Głowy",
+  "human": null,
+  "final": "powiazane",
+  "sedzia": "rozne",
+  "score": 0.07,
+  "cechy": {
+   "ten_sam_zabieg": 0.03,
+   "ten_sam_obszar": 0.04,
+   "ten_sam_wariant": 0.03
+  }
+ },
+ {
+  "id": 501,
+  "branza": "Masaż",
+  "podmiot": "Masaż intensywnie liftingujacy + zabieg na twarz",
+  "kandydat": "Masaż liftingujący twarz, szyja, dekolt",
+  "human": null,
+  "final": "powiazane",
+  "sedzia": "powiazane",
+  "score": 0.99,
+  "cechy": {
+   "ten_sam_zabieg": 0.34,
+   "ten_sam_obszar": 0.19,
+   "ten_sam_wariant": 0.11
+  }
+ },
+ {
+  "id": 509,
+  "branza": "Fryzjer",
+  "podmiot": "Osocze bogatopłytkowe+fibryna twarz i szyja",
+  "kandydat": "Fibryna bogatopłytkowa - okolice oczu",
+  "human": null,
+  "final": "niepewne",
+  "sedzia": "powiazane",
+  "score": 0.92,
+  "cechy": {
+   "ten_sam_zabieg": 0.17,
+   "ten_sam_obszar": 0.05,
+   "ten_sam_wariant": 0.04
+  }
+ },
+ {
+  "id": 236,
+  "branza": "Paznokcie",
+  "podmiot": "Farbowanie brwi",
+  "kandydat": "Farbowanie brwi",
+  "human": null,
+  "final": "tozsame",
+  "sedzia": "tozsame",
+  "score": 1.91,
+  "cechy": {
+   "ten_sam_zabieg": 0.66,
+   "ten_sam_obszar": 0.78,
+   "ten_sam_wariant": 0.4
+  }
+ },
+ {
+  "id": 239,
+  "branza": "Fryzjer",
+  "podmiot": "Leczenie nadpotliwości pach toksyną botulinową",
+  "kandydat": "Botox like - argirelina",
+  "human": null,
+  "final": "rozne",
+  "sedzia": "rozne",
+  "score": 0.05,
+  "cechy": {
+   "ten_sam_zabieg": 0.06,
+   "ten_sam_obszar": 0.03,
+   "ten_sam_wariant": 0.03
+  }
+ },
+ {
+  "id": 240,
+  "branza": "Salon Kosmetyczny",
+  "podmiot": "Korekta (linie rzęs). Od 0-3 miesięcy po zabiegu",
+  "kandydat": "Laminacja rzęs+farbowanie+botox",
+  "human": null,
+  "final": "rozne",
+  "sedzia": "powiazane",
+  "score": 0.84,
+  "cechy": {
+   "ten_sam_zabieg": 0.09,
+   "ten_sam_obszar": 0.13,
+   "ten_sam_wariant": 0.02
+  }
+ },
+ {
+  "id": 241,
+  "branza": "Tatuaż i Piercing",
+  "podmiot": "Henna brwi pudrowe|farbka+regulacja",
+  "kandydat": "Regulacja i farbowanie brwi farbką + henna rzęs",
+  "human": null,
+  "final": "powiazane",
+  "sedzia": "powiazane",
+  "score": 0.99,
+  "cechy": {
+   "ten_sam_zabieg": 0.21,
+   "ten_sam_obszar": 0.18,
+   "ten_sam_wariant": 0.13
+  }
+ },
+ {
+  "id": 242,
+  "branza": "Paznokcie",
+  "podmiot": "Zdobienie na 2 paznokciach (delikatne)",
+  "kandydat": "Stylizacja na wszystkich paznokciach",
+  "human": null,
+  "final": "niepewne",
+  "sedzia": "powiazane",
+  "score": 0.95,
+  "cechy": {
+   "ten_sam_zabieg": 0.2,
+   "ten_sam_obszar": 0.1,
+   "ten_sam_wariant": 0.03
+  }
+ },
+ {
+  "id": 243,
+  "branza": "Paznokcie",
+  "podmiot": "Manicure klasyczny",
+  "kandydat": "Manicure klasyczny",
+  "human": null,
+  "final": "tozsame",
+  "sedzia": "tozsame",
+  "score": 1.95,
+  "cechy": {
+   "ten_sam_zabieg": 0.72,
+   "ten_sam_obszar": 0.76,
+   "ten_sam_wariant": 0.53
+  }
+ },
+ {
+  "id": 244,
+  "branza": "Paznokcie",
+  "podmiot": "Hybryda u stóp",
+  "kandydat": "Pedicure hybrydowy z opracowaniem podeszwy",
+  "human": null,
+  "final": "powiazane",
+  "sedzia": "powiazane",
+  "score": 1.11,
+  "cechy": {
+   "ten_sam_zabieg": 0.55,
+   "ten_sam_obszar": 0.27,
+   "ten_sam_wariant": 0.2
+  }
+ },
+ {
+  "id": 246,
+  "branza": "Tatuaż i Piercing",
+  "podmiot": "Przedłużanie rzęs 1:4",
+  "kandydat": "Przedłużanie rzęs 5:1",
+  "human": null,
+  "final": "niepewne",
+  "sedzia": "powiazane",
+  "score": 1.02,
+  "cechy": {
+   "ten_sam_zabieg": 0.36,
+   "ten_sam_obszar": 0.58,
+   "ten_sam_wariant": 0.04
+  }
+ },
+ {
+  "id": 247,
+  "branza": "Masaż",
+  "podmiot": "Masaż relaksacyjny TRIO",
+  "kandydat": "Masaż relaksacyjny",
+  "human": null,
+  "final": "powiazane",
+  "sedzia": "powiazane",
+  "score": 1.02,
+  "cechy": {
+   "ten_sam_zabieg": 0.56,
+   "ten_sam_obszar": 0.31,
+   "ten_sam_wariant": 0.12
+  }
+ },
+ {
+  "id": 248,
+  "branza": "Tatuaż i Piercing",
+  "podmiot": "Przedłużanie rzęs 1:2",
+  "kandydat": "Przedłużanie rzęs 2D",
+  "human": null,
+  "final": "niepewne",
+  "sedzia": "powiazane",
+  "score": 1.23,
+  "cechy": {
+   "ten_sam_zabieg": 0.33,
+   "ten_sam_obszar": 0.62,
+   "ten_sam_wariant": 0.17
+  }
+ },
+ {
+  "id": 249,
+  "branza": "Tatuaż i Piercing",
+  "podmiot": "Przedłużanie rzęs 1:4",
+  "kandydat": "Przedłużenie rzęs 3/4:1",
+  "human": null,
+  "final": "powiazane",
+  "sedzia": "powiazane",
+  "score": 1.07,
+  "cechy": {
+   "ten_sam_zabieg": 0.43,
+   "ten_sam_obszar": 0.64,
+   "ten_sam_wariant": 0.06
+  }
+ },
+ {
+  "id": 250,
+  "branza": "Tatuaż i Piercing",
+  "podmiot": "Przedłużanie rzęs 1:2",
+  "kandydat": "Przedłużanie rzęs 1D (1:1)",
+  "human": null,
+  "final": "powiazane",
+  "sedzia": "powiazane",
+  "score": 1.0,
+  "cechy": {
+   "ten_sam_zabieg": 0.16,
+   "ten_sam_obszar": 0.51,
+   "ten_sam_wariant": 0.03
+  }
+ },
+ {
+  "id": 251,
+  "branza": "Barber shop",
+  "podmiot": "Depilacja woskiem",
+  "kandydat": "Depilacja wąsików woskiem",
+  "human": null,
+  "final": "niepewne",
+  "sedzia": "powiazane",
+  "score": 0.95,
+  "cechy": {
+   "ten_sam_zabieg": 0.69,
+   "ten_sam_obszar": 0.07,
+   "ten_sam_wariant": 0.1
+  }
+ },
+ {
+  "id": 252,
+  "branza": "Tatuaż i Piercing",
+  "podmiot": "Przedłużanie rzęs 1:4",
+  "kandydat": "Przedłużanie rzęs 1:4",
+  "human": null,
+  "final": "tozsame",
+  "sedzia": "tozsame",
+  "score": 1.83,
+  "cechy": {
+   "ten_sam_zabieg": 0.61,
+   "ten_sam_obszar": 0.8,
+   "ten_sam_wariant": 0.67
+  }
+ },
+ {
+  "id": 254,
+  "branza": "Tatuaż i Piercing",
+  "podmiot": "Henna brwi pudrowe|farbka+regulacja",
+  "kandydat": "Regulacja brwi+ henna/farbka brwi+ henna rzęs",
+  "human": null,
+  "final": "powiazane",
+  "sedzia": "powiazane",
+  "score": 1.0,
+  "cechy": {
+   "ten_sam_zabieg": 0.22,
+   "ten_sam_obszar": 0.23,
+   "ten_sam_wariant": 0.15
+  }
+ },
+ {
+  "id": 255,
+  "branza": "Masaż",
+  "podmiot": "Masaż stóp z refleksologią",
+  "kandydat": "Masaż stóp z peelingiem",
+  "human": null,
+  "final": "powiazane",
+  "sedzia": "powiazane",
+  "score": 0.91,
+  "cechy": {
+   "ten_sam_zabieg": 0.07,
+   "ten_sam_obszar": 0.22,
+   "ten_sam_wariant": 0.12
+  }
+ },
+ {
+  "id": 256,
+  "branza": "Fryzjer",
+  "podmiot": "Peeling kawitacyjny jako dodatek do zabiegu",
+  "kandydat": "Dodatek - Peeling kawitacyjny",
+  "human": null,
+  "final": "niepewne",
+  "sedzia": "tozsame",
+  "score": 1.94,
+  "cechy": {
+   "ten_sam_zabieg": 0.84,
+   "ten_sam_obszar": 0.66,
+   "ten_sam_wariant": 0.49
+  }
+ },
+ {
+  "id": 257,
+  "branza": "Tatuaż i Piercing",
+  "podmiot": "Przedłużanie rzęs 1:4",
+  "kandydat": "Przedłużanie rzęs 2-3:1",
+  "human": null,
+  "final": "powiazane",
+  "sedzia": "powiazane",
+  "score": 0.91,
+  "cechy": {
+   "ten_sam_zabieg": 0.08,
+   "ten_sam_obszar": 0.4,
+   "ten_sam_wariant": 0.02
+  }
+ },
+ {
+  "id": 258,
+  "branza": "Paznokcie",
+  "podmiot": "Pedicure hybrydowy",
+  "kandydat": "Pedicure hybrydowy (pełny)",
+  "human": null,
+  "final": "niepewne",
+  "sedzia": "powiazane",
+  "score": 1.46,
+  "cechy": {
+   "ten_sam_zabieg": 0.72,
+   "ten_sam_obszar": 0.36,
+   "ten_sam_wariant": 0.25
+  }
+ },
+ {
+  "id": 260,
+  "branza": "Masaż",
+  "podmiot": "Masaż twarzy z refleksologią + masaż pleców i stóp",
+  "kandydat": "REFLEKSOLOGIA",
+  "human": null,
+  "final": "niepewne",
+  "sedzia": "powiazane",
+  "score": 0.96,
+  "cechy": {
+   "ten_sam_zabieg": 0.27,
+   "ten_sam_obszar": 0.09,
+   "ten_sam_wariant": 0.08
+  }
+ },
+ {
+  "id": 261,
+  "branza": "Barber shop",
+  "podmiot": "Farbowanie włosów  Balejaż męski",
+  "kandydat": "Balejaż",
+  "human": null,
+  "final": "powiazane",
+  "sedzia": "powiazane",
+  "score": 0.79,
+  "cechy": {
+   "ten_sam_zabieg": 0.36,
+   "ten_sam_obszar": 0.23,
+   "ten_sam_wariant": 0.07
+  }
+ },
+ {
+  "id": 262,
+  "branza": "Tatuaż i Piercing",
+  "podmiot": "Przedłużanie rzęs 1:1",
+  "kandydat": "Przedłużanie rzęs 2:1",
+  "human": null,
+  "final": "powiazane",
+  "sedzia": "powiazane",
+  "score": 1.0,
+  "cechy": {
+   "ten_sam_zabieg": 0.25,
+   "ten_sam_obszar": 0.35,
+   "ten_sam_wariant": 0.04
+  }
+ },
+ {
+  "id": 263,
+  "branza": "Tatuaż i Piercing",
+  "podmiot": "Laminowanie rzęs",
+  "kandydat": "🔥Laminacja brwi +Przedluzanie rzes",
+  "human": null,
+  "final": "rozne",
+  "sedzia": "powiazane",
+  "score": 0.75,
+  "cechy": {
+   "ten_sam_zabieg": 0.12,
+   "ten_sam_obszar": 0.09,
+   "ten_sam_wariant": 0.04
+  }
+ },
+ {
+  "id": 264,
+  "branza": "Tatuaż i Piercing",
+  "podmiot": "Przedłużanie rzęs 1:1",
+  "kandydat": "Przedłużanie rzęs 2:1",
+  "human": null,
+  "final": "powiazane",
+  "sedzia": "powiazane",
+  "score": 1.0,
+  "cechy": {
+   "ten_sam_zabieg": 0.25,
+   "ten_sam_obszar": 0.35,
+   "ten_sam_wariant": 0.04
+  }
+ },
+ {
+  "id": 265,
+  "branza": "Tatuaż i Piercing",
+  "podmiot": "Przedłużanie rzęs 1:2",
+  "kandydat": "Przedłużanie rzęs 2D",
+  "human": null,
+  "final": "tozsame",
+  "sedzia": "powiazane",
+  "score": 1.11,
+  "cechy": {
+   "ten_sam_zabieg": 0.33,
+   "ten_sam_obszar": 0.72,
+   "ten_sam_wariant": 0.18
+  }
+ },
+ {
+  "id": 266,
+  "branza": "Paznokcie",
+  "podmiot": "Lami+regulacja+botox",
+  "kandydat": "Regulacja brwi+ SPA dla brwi",
+  "human": null,
+  "final": "rozne",
+  "sedzia": "powiazane",
+  "score": 0.7,
+  "cechy": {
+   "ten_sam_zabieg": 0.11,
+   "ten_sam_obszar": 0.22,
+   "ten_sam_wariant": 0.07
+  }
+ },
+ {
+  "id": 237,
+  "branza": "Barber shop",
+  "podmiot": "Odsiwianie brody",
+  "kandydat": "Trymowanie brody + brzytwa",
+  "human": "rozne",
+  "final": "niepewne",
+  "sedzia": "powiazane",
+  "score": 0.95,
+  "cechy": {
+   "ten_sam_zabieg": 0.23,
+   "ten_sam_obszar": 0.21,
+   "ten_sam_wariant": 0.09
+  }
+ },
+ {
+  "id": 269,
+  "branza": "Salon Kosmetyczny",
+  "podmiot": "Peeling kawitacyjny ZEMITS",
+  "kandydat": "Peeling kawitacyjny",
+  "human": null,
+  "final": "tozsame",
+  "sedzia": "tozsame",
+  "score": 1.88,
+  "cechy": {
+   "ten_sam_zabieg": 0.85,
+   "ten_sam_obszar": 0.54,
+   "ten_sam_wariant": 0.39
+  }
+ },
+ {
+  "id": 270,
+  "branza": "Tatuaż i Piercing",
+  "podmiot": "Kolorowe rzęsy",
+  "kandydat": "Brązowe rzęsy",
+  "human": null,
+  "final": "niepewne",
+  "sedzia": "powiazane",
+  "score": 0.9,
+  "cechy": {
+   "ten_sam_zabieg": 0.12,
+   "ten_sam_obszar": 0.4,
+   "ten_sam_wariant": 0.07
+  }
+ },
+ {
+  "id": 271,
+  "branza": "Tatuaż i Piercing",
+  "podmiot": "Kolorowe rzęsy",
+  "kandydat": "Henna brwi + rzęsy",
+  "human": null,
+  "final": "rozne",
+  "sedzia": "rozne",
+  "score": 0.12,
+  "cechy": {
+   "ten_sam_zabieg": 0.04,
+   "ten_sam_obszar": 0.12,
+   "ten_sam_wariant": 0.03
+  }
+ },
+ {
+  "id": 273,
+  "branza": "Fryzjer",
+  "podmiot": "Gi Gi Acon zabieg do skóry trądzikowej i łojotokow",
+  "kandydat": "Zabieg liftingujący",
+  "human": null,
+  "final": "niepewne",
+  "sedzia": "rozne",
+  "score": 0.01,
+  "cechy": {
+   "ten_sam_zabieg": 0.04,
+   "ten_sam_obszar": 0.24,
+   "ten_sam_wariant": 0.03
+  }
+ },
+ {
+  "id": 274,
+  "branza": "Paznokcie",
+  "podmiot": "Regulacja (wosk/pęseta)",
+  "kandydat": "Geometria brwi z regulacją (wosk + pęseta)",
+  "human": null,
+  "final": "powiazane",
+  "sedzia": "tozsame",
+  "score": 1.61,
+  "cechy": {
+   "ten_sam_zabieg": 0.72,
+   "ten_sam_obszar": 0.52,
+   "ten_sam_wariant": 0.34
+  }
+ },
+ {
+  "id": 275,
+  "branza": "Salon Kosmetyczny",
+  "podmiot": "Manicure hybrydowy french",
+  "kandydat": "Manicure hybrydowy french",
+  "human": null,
+  "final": "tozsame",
+  "sedzia": "tozsame",
+  "score": 1.94,
+  "cechy": {
+   "ten_sam_zabieg": 0.84,
+   "ten_sam_obszar": 0.75,
+   "ten_sam_wariant": 0.52
+  }
+ },
+ {
+  "id": 279,
+  "branza": "Paznokcie",
+  "podmiot": "Pedicure męski",
+  "kandydat": "Manicure męski",
+  "human": "rozne",
+  "final": "rozne",
+  "sedzia": "rozne",
+  "score": 0.18,
+  "cechy": {
+   "ten_sam_zabieg": 0.19,
+   "ten_sam_obszar": 0.04,
+   "ten_sam_wariant": 0.13
+  }
+ },
+ {
+  "id": 277,
+  "branza": "Salon Kosmetyczny",
+  "podmiot": "Usunięcie akrylu z płytki paznokci plus manicure",
+  "kandydat": "Usunięcie hybrydy + manicure klasyczny",
+  "human": null,
+  "final": "powiazane",
+  "sedzia": "powiazane",
+  "score": 0.84,
+  "cechy": {
+   "ten_sam_zabieg": 0.14,
+   "ten_sam_obszar": 0.47,
+   "ten_sam_wariant": 0.19
+  }
+ },
+ {
+  "id": 278,
+  "branza": "Salon Kosmetyczny",
+  "podmiot": "Makijaż permanentny. Brwi",
+  "kandydat": "Makijaż permanentny brwi + usta",
+  "human": null,
+  "final": "niepewne",
+  "sedzia": "powiazane",
+  "score": 0.94,
+  "cechy": {
+   "ten_sam_zabieg": 0.48,
+   "ten_sam_obszar": 0.07,
+   "ten_sam_wariant": 0.11
+  }
+ },
+ {
+  "id": 280,
+  "branza": "Barber shop",
+  "podmiot": "Buzz cut/Strzyżenie maszynką",
+  "kandydat": "Strzyżenie, odświeżenie",
+  "human": "powiazane",
+  "final": "niepewne",
+  "sedzia": "powiazane",
+  "score": 0.98,
+  "cechy": {
+   "ten_sam_zabieg": 0.25,
+   "ten_sam_obszar": 0.27,
+   "ten_sam_wariant": 0.1
+  }
+ },
+ {
+  "id": 285,
+  "branza": "Paznokcie",
+  "podmiot": "Regulacja (wosk/pęseta)",
+  "kandydat": "Regulacja brwi",
+  "human": "tozsame",
+  "final": "tozsame",
+  "sedzia": "tozsame",
+  "score": 1.51,
+  "cechy": {
+   "ten_sam_zabieg": 0.63,
+   "ten_sam_obszar": 0.77,
+   "ten_sam_wariant": 0.46
+  }
+ },
+ {
+  "id": 281,
+  "branza": "Barber shop",
+  "podmiot": "Depilacja woskiem",
+  "kandydat": "Depilacja woskiem - Broda",
+  "human": null,
+  "final": "powiazane",
+  "sedzia": "powiazane",
+  "score": 0.99,
+  "cechy": {
+   "ten_sam_zabieg": 0.74,
+   "ten_sam_obszar": 0.1,
+   "ten_sam_wariant": 0.14
+  }
+ },
+ {
+  "id": 283,
+  "branza": "Salon Kosmetyczny",
+  "podmiot": "Mezoterapia mikroigłowa z egzosomami DERMALOGICA",
+  "kandydat": "Mezoterapia mikroigłowa TWARZ,SZYJA",
+  "human": null,
+  "final": "powiazane",
+  "sedzia": "powiazane",
+  "score": 1.0,
+  "cechy": {
+   "ten_sam_zabieg": 0.64,
+   "ten_sam_obszar": 0.16,
+   "ten_sam_wariant": 0.1
+  }
+ },
+ {
+  "id": 284,
+  "branza": "Salon Kosmetyczny",
+  "podmiot": "Mezoterapia mikroigłowa z egzosomami DERMALOGICA",
+  "kandydat": "Mezoterapia mikroigłowa - TWARZ I SZYJA",
+  "human": null,
+  "final": "powiazane",
+  "sedzia": "powiazane",
+  "score": 1.01,
+  "cechy": {
+   "ten_sam_zabieg": 0.68,
+   "ten_sam_obszar": 0.14,
+   "ten_sam_wariant": 0.1
+  }
+ },
+ {
+  "id": 293,
+  "branza": "Salon Kosmetyczny",
+  "podmiot": "Peeling kawitacyjny + Peeling migdałowy M.A.D",
+  "kandydat": "MIGDAŁ.MANDELIC COMPLEX 50% Twarz + Szyja + Dekolt",
+  "human": "rozne",
+  "final": "niepewne",
+  "sedzia": "powiazane",
+  "score": 0.84,
+  "cechy": {
+   "ten_sam_zabieg": 0.12,
+   "ten_sam_obszar": 0.13,
+   "ten_sam_wariant": 0.06
+  }
+ },
+ {
+  "id": 286,
+  "branza": "Barber shop",
+  "podmiot": "Depilacja woskiem",
+  "kandydat": "Depilacja woskiem Wąsik",
+  "human": null,
+  "final": "powiazane",
+  "sedzia": "powiazane",
+  "score": 1.0,
+  "cechy": {
+   "ten_sam_zabieg": 0.73,
+   "ten_sam_obszar": 0.11,
+   "ten_sam_wariant": 0.17
+  }
+ },
+ {
+  "id": 287,
+  "branza": "Salon Kosmetyczny",
+  "podmiot": "Manicure hybrydowy french",
+  "kandydat": "Manicure hybrydowy french/baby boomer",
+  "human": null,
+  "final": "niepewne",
+  "sedzia": "powiazane",
+  "score": 1.24,
+  "cechy": {
+   "ten_sam_zabieg": 0.68,
+   "ten_sam_obszar": 0.59,
+   "ten_sam_wariant": 0.28
+  }
+ },
+ {
+  "id": 289,
+  "branza": "Paznokcie",
+  "podmiot": "Manicure męski",
+  "kandydat": "Pedicure męski",
+  "human": null,
+  "final": "rozne",
+  "sedzia": "rozne",
+  "score": 0.18,
+  "cechy": {
+   "ten_sam_zabieg": 0.19,
+   "ten_sam_obszar": 0.04,
+   "ten_sam_wariant": 0.13
+  }
+ },
+ {
+  "id": 290,
+  "branza": "Fryzjer",
+  "podmiot": "Oczyszczanie manualne twarzy",
+  "kandydat": "Oczyszczanie manualne twarzy",
+  "human": null,
+  "final": "tozsame",
+  "sedzia": "tozsame",
+  "score": 1.95,
+  "cechy": {
+   "ten_sam_zabieg": 0.84,
+   "ten_sam_obszar": 0.93,
+   "ten_sam_wariant": 0.56
+  }
+ },
+ {
+  "id": 291,
+  "branza": "Paznokcie",
+  "podmiot": "Uzupełnienie paznokci",
+  "kandydat": "Usunięcie stylizacji żelowej + pielęgnacja",
+  "human": null,
+  "final": "rozne",
+  "sedzia": "rozne",
+  "score": 0.14,
+  "cechy": {
+   "ten_sam_zabieg": 0.06,
+   "ten_sam_obszar": 0.12,
+   "ten_sam_wariant": 0.01
+  }
+ },
+ {
+  "id": 292,
+  "branza": "Fryzjer",
+  "podmiot": "Peeling kawitacyjny jako dodatek do zabiegu",
+  "kandydat": "Peeling Kawitacyjny",
+  "human": null,
+  "final": "niepewne",
+  "sedzia": "tozsame",
+  "score": 1.94,
+  "cechy": {
+   "ten_sam_zabieg": 0.89,
+   "ten_sam_obszar": 0.73,
+   "ten_sam_wariant": 0.62
+  }
+ },
+ {
+  "id": 294,
+  "branza": "Fryzjer",
+  "podmiot": "Oczyszczanie wodorowe + manualne",
+  "kandydat": "manualne oczyszczanie twarzy + peeling kawitacyjny",
+  "human": null,
+  "final": "powiazane",
+  "sedzia": "powiazane",
+  "score": 0.97,
+  "cechy": {
+   "ten_sam_zabieg": 0.15,
+   "ten_sam_obszar": 0.47,
+   "ten_sam_wariant": 0.11
+  }
+ },
+ {
+  "id": 295,
+  "branza": "Masaż",
+  "podmiot": "Masaż  pleców",
+  "kandydat": "Masaż szyja  + barki + głowa",
+  "human": null,
+  "final": "niepewne",
+  "sedzia": "powiazane",
+  "score": 0.82,
+  "cechy": {
+   "ten_sam_zabieg": 0.4,
+   "ten_sam_obszar": 0.06,
+   "ten_sam_wariant": 0.07
+  }
+ },
+ {
+  "id": 297,
+  "branza": "Masaż",
+  "podmiot": "Masaż  pleców",
+  "kandydat": "Masaż  pleców relaksacyjny",
+  "human": null,
+  "final": "tozsame",
+  "sedzia": "powiazane",
+  "score": 1.4,
+  "cechy": {
+   "ten_sam_zabieg": 0.43,
+   "ten_sam_obszar": 0.32,
+   "ten_sam_wariant": 0.19
+  }
+ },
+ {
+  "id": 298,
+  "branza": "Barber shop",
+  "podmiot": "Depilacja woskiem",
+  "kandydat": "Depilacja woskiem - brwi",
+  "human": null,
+  "final": "powiazane",
+  "sedzia": "powiazane",
+  "score": 0.97,
+  "cechy": {
+   "ten_sam_zabieg": 0.7,
+   "ten_sam_obszar": 0.07,
+   "ten_sam_wariant": 0.11
+  }
+ },
+ {
+  "id": 299,
+  "branza": "Salon Kosmetyczny",
+  "podmiot": "Manicure hybrydowy french",
+  "kandydat": "Manicure hybrydowy",
+  "human": null,
+  "final": "powiazane",
+  "sedzia": "powiazane",
+  "score": 1.01,
+  "cechy": {
+   "ten_sam_zabieg": 0.64,
+   "ten_sam_obszar": 0.32,
+   "ten_sam_wariant": 0.17
+  }
+ },
+ {
+  "id": 300,
+  "branza": "Tatuaż i Piercing",
+  "podmiot": "Henna rzęs",
+  "kandydat": "Henna rzęs i brwi wraz z regulacją",
+  "human": null,
+  "final": "powiazane",
+  "sedzia": "powiazane",
+  "score": 0.96,
+  "cechy": {
+   "ten_sam_zabieg": 0.18,
+   "ten_sam_obszar": 0.07,
+   "ten_sam_wariant": 0.05
+  }
+ },
+ {
+  "id": 276,
+  "branza": "Paznokcie",
+  "podmiot": "Manicure męski",
+  "kandydat": "Manicure klasyczny męski",
+  "human": "tozsame",
+  "final": "tozsame",
+  "sedzia": "powiazane",
+  "score": 1.37,
+  "cechy": {
+   "ten_sam_zabieg": 0.69,
+   "ten_sam_obszar": 0.72,
+   "ten_sam_wariant": 0.48
+  }
+ },
+ {
+  "id": 303,
+  "branza": "Fryzjer",
+  "podmiot": "Wygładzenie bruzdy wargowo-nosowej",
+  "kandydat": "Efekt BTX - likwidacja zmarszczek mimicznych",
+  "human": null,
+  "final": "niepewne",
+  "sedzia": "powiazane",
+  "score": 0.95,
+  "cechy": {
+   "ten_sam_zabieg": 0.54,
+   "ten_sam_obszar": 0.19,
+   "ten_sam_wariant": 0.08
+  }
+ },
+ {
+  "id": 304,
+  "branza": "Barber shop",
+  "podmiot": "Strzyżenie  męskie  włosy dlugie/ ponizej ramion",
+  "kandydat": "Strzyżenie męskie włosy długie",
+  "human": null,
+  "final": "tozsame",
+  "sedzia": "powiazane",
+  "score": 1.37,
+  "cechy": {
+   "ten_sam_zabieg": 0.49,
+   "ten_sam_obszar": 0.51,
+   "ten_sam_wariant": 0.54
+  }
+ },
+ {
+  "id": 305,
+  "branza": "Masaż",
+  "podmiot": "Modelujący masaż twarzy",
+  "kandydat": "Liftingujący masaż twarzy",
+  "human": null,
+  "final": "powiazane",
+  "sedzia": "powiazane",
+  "score": 1.26,
+  "cechy": {
+   "ten_sam_zabieg": 0.36,
+   "ten_sam_obszar": 0.72,
+   "ten_sam_wariant": 0.13
+  }
+ },
+ {
+  "id": 306,
+  "branza": "Fryzjer",
+  "podmiot": "Oczyszczanie manualne pleców",
+  "kandydat": "Zabieg Pielęgnacyjny Na Twarz, Szyje, Dekolt",
+  "human": null,
+  "final": "rozne",
+  "sedzia": "rozne",
+  "score": 0.03,
+  "cechy": {
+   "ten_sam_zabieg": 0.03,
+   "ten_sam_obszar": 0.04,
+   "ten_sam_wariant": 0.02
+  }
+ },
+ {
+  "id": 307,
+  "branza": "Tatuaż i Piercing",
+  "podmiot": "Przedłużanie rzęs 1:1",
+  "kandydat": "Przedłużanie rzęs 5-6D uzup. do 3 tyg",
+  "human": null,
+  "final": "niepewne",
+  "sedzia": "powiazane",
+  "score": 0.99,
+  "cechy": {
+   "ten_sam_zabieg": 0.09,
+   "ten_sam_obszar": 0.21,
+   "ten_sam_wariant": 0.01
+  }
+ },
+ {
+  "id": 308,
+  "branza": "Fryzjer",
+  "podmiot": "Gi Gi Acon zabieg do skóry trądzikowej i łojotokow",
+  "kandydat": "Normalizujący zabieg",
+  "human": null,
+  "final": "powiazane",
+  "sedzia": "rozne",
+  "score": 0.17,
+  "cechy": {
+   "ten_sam_zabieg": 0.1,
+   "ten_sam_obszar": 0.13,
+   "ten_sam_wariant": 0.04
+  }
+ },
+ {
+  "id": 313,
+  "branza": "Salon Kosmetyczny",
+  "podmiot": "Uzupełnienie paznokci akrylożelem",
+  "kandydat": "Uzupełnienie paznokci żelowych",
+  "human": "tozsame",
+  "final": "powiazane",
+  "sedzia": "powiazane",
+  "score": 1.02,
+  "cechy": {
+   "ten_sam_zabieg": 0.17,
+   "ten_sam_obszar": 0.41,
+   "ten_sam_wariant": 0.29
+  }
+ },
+ {
+  "id": 310,
+  "branza": "Salon Kosmetyczny",
+  "podmiot": "Manicure hybrydowy french",
+  "kandydat": "Manicure Hybrydowy French",
+  "human": null,
+  "final": "tozsame",
+  "sedzia": "tozsame",
+  "score": 1.99,
+  "cechy": {
+   "ten_sam_zabieg": 0.86,
+   "ten_sam_obszar": 0.84,
+   "ten_sam_wariant": 0.5
+  }
+ },
+ {
+  "id": 312,
+  "branza": "Salon Kosmetyczny",
+  "podmiot": "Manicure hybrydowy french",
+  "kandydat": "Manicure hybrydowy",
+  "human": null,
+  "final": "powiazane",
+  "sedzia": "powiazane",
+  "score": 1.01,
+  "cechy": {
+   "ten_sam_zabieg": 0.59,
+   "ten_sam_obszar": 0.31,
+   "ten_sam_wariant": 0.14
+  }
+ },
+ {
+  "id": 324,
+  "branza": "Salon Kosmetyczny",
+  "podmiot": "Makijaż permanentny. Usta",
+  "kandydat": "Makijaż permanentny brwi",
+  "human": "powiazane",
+  "final": "niepewne",
+  "sedzia": "rozne",
+  "score": 0.29,
+  "cechy": {
+   "ten_sam_zabieg": 0.42,
+   "ten_sam_obszar": 0.03,
+   "ten_sam_wariant": 0.12
+  }
+ },
+ {
+  "id": 314,
+  "branza": "Fryzjer",
+  "podmiot": "Usuwanie włokniakow",
+  "kandydat": "Usuwanie kurzajki od 400 zł",
+  "human": null,
+  "final": "rozne",
+  "sedzia": "rozne",
+  "score": 0.08,
+  "cechy": {
+   "ten_sam_zabieg": 0.06,
+   "ten_sam_obszar": 0.14,
+   "ten_sam_wariant": 0.03
+  }
+ },
+ {
+  "id": 315,
+  "branza": "Masaż",
+  "podmiot": "Masaż nóg",
+  "kandydat": "Masaż leczniczy",
+  "human": null,
+  "final": "powiazane",
+  "sedzia": "rozne",
+  "score": 0.48,
+  "cechy": {
+   "ten_sam_zabieg": 0.15,
+   "ten_sam_obszar": 0.05,
+   "ten_sam_wariant": 0.05
+  }
+ },
+ {
+  "id": 316,
+  "branza": "Barber shop",
+  "podmiot": "Strzyżenie  męskie  włosy średni/max do ramoin",
+  "kandydat": "Strzyżenie włosów długich",
+  "human": null,
+  "final": "niepewne",
+  "sedzia": "powiazane",
+  "score": 1.0,
+  "cechy": {
+   "ten_sam_zabieg": 0.37,
+   "ten_sam_obszar": 0.25,
+   "ten_sam_wariant": 0.15
+  }
+ },
+ {
+  "id": 317,
+  "branza": "Barber shop",
+  "podmiot": "Depilacja woskiem",
+  "kandydat": "depilacja woskiem twarz",
+  "human": null,
+  "final": "powiazane",
+  "sedzia": "powiazane",
+  "score": 1.0,
+  "cechy": {
+   "ten_sam_zabieg": 0.72,
+   "ten_sam_obszar": 0.12,
+   "ten_sam_wariant": 0.16
+  }
+ },
+ {
+  "id": 318,
+  "branza": "Salon Kosmetyczny",
+  "podmiot": "Usunięcie akrylu z płytki paznokci plus manicure",
+  "kandydat": "Uzupełnienie paznokci akrylem + hybryda",
+  "human": null,
+  "final": "rozne",
+  "sedzia": "rozne",
+  "score": 0.24,
+  "cechy": {
+   "ten_sam_zabieg": 0.08,
+   "ten_sam_obszar": 0.19,
+   "ten_sam_wariant": 0.02
+  }
+ },
+ {
+  "id": 320,
+  "branza": "Barber shop",
+  "podmiot": "Strzyżenie włosów",
+  "kandydat": "Strzyżenie włosów (do ramion)",
+  "human": null,
+  "final": "powiazane",
+  "sedzia": "powiazane",
+  "score": 0.99,
+  "cechy": {
+   "ten_sam_zabieg": 0.24,
+   "ten_sam_obszar": 0.14,
+   "ten_sam_wariant": 0.05
+  }
+ },
+ {
+  "id": 321,
+  "branza": "Tatuaż i Piercing",
+  "podmiot": "Laminowanie rzęs",
+  "kandydat": "Laminacja + Lifting + Henna rzęs",
+  "human": null,
+  "final": "niepewne",
+  "sedzia": "powiazane",
+  "score": 0.99,
+  "cechy": {
+   "ten_sam_zabieg": 0.25,
+   "ten_sam_obszar": 0.12,
+   "ten_sam_wariant": 0.07
+  }
+ },
+ {
+  "id": 322,
+  "branza": "Tatuaż i Piercing",
+  "podmiot": "Kolorowe rzęsy",
+  "kandydat": "Brwi",
+  "human": null,
+  "final": "rozne",
+  "sedzia": "rozne",
+  "score": 0.0,
+  "cechy": {
+   "ten_sam_zabieg": 0.01,
+   "ten_sam_obszar": 0.03,
+   "ten_sam_wariant": 0.02
+  }
+ },
+ {
+  "id": 323,
+  "branza": "Tatuaż i Piercing",
+  "podmiot": "Przedłużanie rzęs 1:2",
+  "kandydat": "Przedłużanie rzęs 2-3D uzup. do 4 tyg.",
+  "human": null,
+  "final": "niepewne",
+  "sedzia": "powiazane",
+  "score": 1.0,
+  "cechy": {
+   "ten_sam_zabieg": 0.17,
+   "ten_sam_obszar": 0.26,
+   "ten_sam_wariant": 0.02
+  }
+ },
+ {
+  "id": 325,
+  "branza": "Barber shop",
+  "podmiot": "Wzorki na włosach",
+  "kandydat": "Rozjaśnianie włosów",
+  "human": null,
+  "final": "rozne",
+  "sedzia": "rozne",
+  "score": 0.0,
+  "cechy": {
+   "ten_sam_zabieg": 0.02,
+   "ten_sam_obszar": 0.27,
+   "ten_sam_wariant": 0.02
+  }
+ },
+ {
+  "id": 326,
+  "branza": "Barber shop",
+  "podmiot": "Strzyżenie damskie krótkie (5-10 cm) włosy",
+  "kandydat": "Strzyżenie damskie",
+  "human": null,
+  "final": "powiazane",
+  "sedzia": "powiazane",
+  "score": 1.0,
+  "cechy": {
+   "ten_sam_zabieg": 0.24,
+   "ten_sam_obszar": 0.34,
+   "ten_sam_wariant": 0.05
+  }
+ },
+ {
+  "id": 328,
+  "branza": "Salon Kosmetyczny",
+  "podmiot": "Uzupełnienie paznokci akrylem",
+  "kandydat": "Uzupełnienie zelem",
+  "human": null,
+  "final": "niepewne",
+  "sedzia": "powiazane",
+  "score": 0.99,
+  "cechy": {
+   "ten_sam_zabieg": 0.09,
+   "ten_sam_obszar": 0.55,
+   "ten_sam_wariant": 0.2
+  }
+ },
+ {
+  "id": 329,
+  "branza": "Fryzjer",
+  "podmiot": "Osocze bogatopłytkowe i fibryna komórkowa twarz",
+  "kandydat": "Stymulator tkankowy Karisma",
+  "human": null,
+  "final": "rozne",
+  "sedzia": "rozne",
+  "score": 0.04,
+  "cechy": {
+   "ten_sam_zabieg": 0.04,
+   "ten_sam_obszar": 0.11,
+   "ten_sam_wariant": 0.02
+  }
+ },
+ {
+  "id": 330,
+  "branza": "Barber shop",
+  "podmiot": "Strzyżenie długich włosów",
+  "kandydat": "Strzyżenie długich włosów nożyczkami",
+  "human": null,
+  "final": "tozsame",
+  "sedzia": "powiazane",
+  "score": 1.19,
+  "cechy": {
+   "ten_sam_zabieg": 0.43,
+   "ten_sam_obszar": 0.56,
+   "ten_sam_wariant": 0.49
+  }
+ },
+ {
+  "id": 331,
+  "branza": "Salon Kosmetyczny",
+  "podmiot": "Peeling kawitacyjny + M.A.D z vitamina C",
+  "kandydat": "Peeling kawitacyjny + Sonoforeza+ Ampułka +Maska",
+  "human": null,
+  "final": "powiazane",
+  "sedzia": "powiazane",
+  "score": 0.97,
+  "cechy": {
+   "ten_sam_zabieg": 0.23,
+   "ten_sam_obszar": 0.19,
+   "ten_sam_wariant": 0.08
+  }
+ },
+ {
+  "id": 309,
+  "branza": "Fryzjer",
+  "podmiot": "Oczyszczanie wodorowe exclusive",
+  "kandydat": "Oczyszczanie manualne",
+  "human": "powiazane",
+  "final": "niepewne",
+  "sedzia": "powiazane",
+  "score": 0.98,
+  "cechy": {
+   "ten_sam_zabieg": 0.07,
+   "ten_sam_obszar": 0.34,
+   "ten_sam_wariant": 0.08
+  }
+ },
+ {
+  "id": 333,
+  "branza": "Barber shop",
+  "podmiot": "Trwała ondulacja keratynowa męska włosy krótki",
+  "kandydat": "BIO Trwała",
+  "human": null,
+  "final": "powiazane",
+  "sedzia": "powiazane",
+  "score": 0.73,
+  "cechy": {
+   "ten_sam_zabieg": 0.14,
+   "ten_sam_obszar": 0.25,
+   "ten_sam_wariant": 0.03
+  }
+ },
+ {
+  "id": 334,
+  "branza": "Masaż",
+  "podmiot": "Masaż dźwiękiem - misy tybetańskie+kryształowe",
+  "kandydat": "Masaż dźwiękiem: misy tybetańskie i dzwonki Koshi",
+  "human": null,
+  "final": "niepewne",
+  "sedzia": "powiazane",
+  "score": 1.43,
+  "cechy": {
+   "ten_sam_zabieg": 0.64,
+   "ten_sam_obszar": 0.45,
+   "ten_sam_wariant": 0.3
+  }
+ },
+ {
+  "id": 335,
+  "branza": "Barber shop",
+  "podmiot": "Trwała ondulacja keratynowa męska włosy krótki",
+  "kandydat": "Trwala dla objętości od nasady (włosy do ramion)",
+  "human": null,
+  "final": "powiazane",
+  "sedzia": "powiazane",
+  "score": 0.84,
+  "cechy": {
+   "ten_sam_zabieg": 0.19,
+   "ten_sam_obszar": 0.13,
+   "ten_sam_wariant": 0.03
+  }
+ },
+ {
+  "id": 336,
+  "branza": "Paznokcie",
+  "podmiot": "Uzupełnienie paznokci",
+  "kandydat": "Uzupełnienie  💅",
+  "human": null,
+  "final": "tozsame",
+  "sedzia": "tozsame",
+  "score": 1.98,
+  "cechy": {
+   "ten_sam_zabieg": 0.74,
+   "ten_sam_obszar": 0.83,
+   "ten_sam_wariant": 0.59
+  }
+ },
+ {
+  "id": 338,
+  "branza": "Masaż",
+  "podmiot": "Masaż  pleców",
+  "kandydat": "Stawy krzyżowo biodrowe -testy, masaż, mobilizacja",
+  "human": null,
+  "final": "powiazane",
+  "sedzia": "rozne",
+  "score": 0.31,
+  "cechy": {
+   "ten_sam_zabieg": 0.11,
+   "ten_sam_obszar": 0.09,
+   "ten_sam_wariant": 0.05
+  }
+ },
+ {
+  "id": 339,
+  "branza": "Tatuaż i Piercing",
+  "podmiot": "Henna brwi pudrowe|farbka+regulacja",
+  "kandydat": "Henna brwi + regulacja",
+  "human": null,
+  "final": "tozsame",
+  "sedzia": "tozsame",
+  "score": 1.68,
+  "cechy": {
+   "ten_sam_zabieg": 0.5,
+   "ten_sam_obszar": 0.74,
+   "ten_sam_wariant": 0.42
+  }
+ },
+ {
+  "id": 340,
+  "branza": "Fryzjer",
+  "podmiot": "Endermologia LPG dla MĘŻCZYZN - 1 zabieg",
+  "kandydat": "Endermologia ciało - pakiet 6 zabiegów",
+  "human": null,
+  "final": "powiazane",
+  "sedzia": "powiazane",
+  "score": 0.97,
+  "cechy": {
+   "ten_sam_zabieg": 0.75,
+   "ten_sam_obszar": 0.12,
+   "ten_sam_wariant": 0.01
+  }
+ },
+ {
+  "id": 341,
+  "branza": "Paznokcie",
+  "podmiot": "Dopełnienie żelem Do 1-2 długości",
+  "kandydat": "Dopełnienie paznokci żelowych",
+  "human": null,
+  "final": "tozsame",
+  "sedzia": "powiazane",
+  "score": 1.48,
+  "cechy": {
+   "ten_sam_zabieg": 0.71,
+   "ten_sam_obszar": 0.52,
+   "ten_sam_wariant": 0.27
+  }
+ },
+ {
+  "id": 342,
+  "branza": "Paznokcie",
+  "podmiot": "Pedicure męski",
+  "kandydat": "Pedicure klasyczny",
+  "human": null,
+  "final": "powiazane",
+  "sedzia": "powiazane",
+  "score": 0.91,
+  "cechy": {
+   "ten_sam_zabieg": 0.27,
+   "ten_sam_obszar": 0.27,
+   "ten_sam_wariant": 0.12
+  }
+ },
+ {
+  "id": 343,
+  "branza": "Paznokcie",
+  "podmiot": "Dopełnienie żelem Do 1-2 długości",
+  "kandydat": "Uzupełnienie żelem",
+  "human": null,
+  "final": "tozsame",
+  "sedzia": "powiazane",
+  "score": 1.13,
+  "cechy": {
+   "ten_sam_zabieg": 0.55,
+   "ten_sam_obszar": 0.36,
+   "ten_sam_wariant": 0.18
+  }
+ },
+ {
+  "id": 345,
+  "branza": "Paznokcie",
+  "podmiot": "Lami+regulacja+botox",
+  "kandydat": "Laminacja brwi + regulacja + koloryzacja + botox",
+  "human": null,
+  "final": "powiazane",
+  "sedzia": "powiazane",
+  "score": 1.02,
+  "cechy": {
+   "ten_sam_zabieg": 0.32,
+   "ten_sam_obszar": 0.15,
+   "ten_sam_wariant": 0.14
+  }
+ },
+ {
+  "id": 346,
+  "branza": "Salon Kosmetyczny",
+  "podmiot": "Uzupełnienie paznokci akrylożelem",
+  "kandydat": "Uzupełnienie paznokci żelem",
+  "human": null,
+  "final": "powiazane",
+  "sedzia": "powiazane",
+  "score": 1.08,
+  "cechy": {
+   "ten_sam_zabieg": 0.28,
+   "ten_sam_obszar": 0.58,
+   "ten_sam_wariant": 0.32
+  }
+ },
+ {
+  "id": 347,
+  "branza": "Fryzjer",
+  "podmiot": "Endermologia LPG Alliance jeden zabieg na ciało",
+  "kandydat": "PAKIET 5 ZABIEGÓW EndermologiaIR+RF brzuch+boczki",
+  "human": null,
+  "final": "niepewne",
+  "sedzia": "powiazane",
+  "score": 0.79,
+  "cechy": {
+   "ten_sam_zabieg": 0.09,
+   "ten_sam_obszar": 0.08,
+   "ten_sam_wariant": 0.01
+  }
+ },
+ {
+  "id": 348,
+  "branza": "Tatuaż i Piercing",
+  "podmiot": "Przedłużanie rzęs 1:2",
+  "kandydat": "Przedłużanie rzęs",
+  "human": null,
+  "final": "niepewne",
+  "sedzia": "powiazane",
+  "score": 1.04,
+  "cechy": {
+   "ten_sam_zabieg": 0.36,
+   "ten_sam_obszar": 0.37,
+   "ten_sam_wariant": 0.1
+  }
+ },
+ {
+  "id": 349,
+  "branza": "Salon Kosmetyczny",
+  "podmiot": "Manicure klasyczny",
+  "kandydat": "Manicure klasyczny",
+  "human": null,
+  "final": "tozsame",
+  "sedzia": "tozsame",
+  "score": 1.85,
+  "cechy": {
+   "ten_sam_zabieg": 0.7,
+   "ten_sam_obszar": 0.73,
+   "ten_sam_wariant": 0.56
+  }
+ },
+ {
+  "id": 351,
+  "branza": "Salon Kosmetyczny",
+  "podmiot": "Mezoterapia mikroigłowa z egzosomami DERMALOGICA",
+  "kandydat": "Mezoterapia mikroigłowa + peeling",
+  "human": null,
+  "final": "niepewne",
+  "sedzia": "powiazane",
+  "score": 0.99,
+  "cechy": {
+   "ten_sam_zabieg": 0.42,
+   "ten_sam_obszar": 0.25,
+   "ten_sam_wariant": 0.07
+  }
+ },
+ {
+  "id": 352,
+  "branza": "Paznokcie",
+  "podmiot": "Pedicure męski",
+  "kandydat": "Pedicure męski TOP stylistka",
+  "human": null,
+  "final": "niepewne",
+  "sedzia": "tozsame",
+  "score": 1.75,
+  "cechy": {
+   "ten_sam_zabieg": 0.66,
+   "ten_sam_obszar": 0.52,
+   "ten_sam_wariant": 0.35
+  }
+ },
+ {
+  "id": 353,
+  "branza": "Salon Kosmetyczny",
+  "podmiot": "Korekta OCZY. Od 0-3 miesięcy po zabiegu",
+  "kandydat": "Makijaż permanentny Korekta kreski",
+  "human": null,
+  "final": "niepewne",
+  "sedzia": "powiazane",
+  "score": 0.98,
+  "cechy": {
+   "ten_sam_zabieg": 0.39,
+   "ten_sam_obszar": 0.42,
+   "ten_sam_wariant": 0.18
+  }
+ },
+ {
+  "id": 354,
+  "branza": "Barber shop",
+  "podmiot": "Strzyżenie damskie krótkie (5-10 cm) włosy",
+  "kandydat": "Modelowanie włosy długie",
+  "human": null,
+  "final": "rozne",
+  "sedzia": "powiazane",
+  "score": 0.52,
+  "cechy": {
+   "ten_sam_zabieg": 0.06,
+   "ten_sam_obszar": 0.25,
+   "ten_sam_wariant": 0.02
+  }
+ },
+ {
+  "id": 355,
+  "branza": "Fryzjer",
+  "podmiot": "Oczyszczanie manualne pleców",
+  "kandydat": "Oczyszczanie pleców",
+  "human": null,
+  "final": "powiazane",
+  "sedzia": "powiazane",
+  "score": 1.27,
+  "cechy": {
+   "ten_sam_zabieg": 0.3,
+   "ten_sam_obszar": 0.4,
+   "ten_sam_wariant": 0.19
+  }
+ },
+ {
+  "id": 356,
+  "branza": "Barber shop",
+  "podmiot": "Trwała ondulacja keratynowa męska włosy do karku",
+  "kandydat": "Zabieg keratynowy [włosy długie do pasa]",
+  "human": null,
+  "final": "rozne",
+  "sedzia": "rozne",
+  "score": 0.46,
+  "cechy": {
+   "ten_sam_zabieg": 0.24,
+   "ten_sam_obszar": 0.06,
+   "ten_sam_wariant": 0.02
+  }
+ },
+ {
+  "id": 358,
+  "branza": "Fryzjer",
+  "podmiot": "Peeling kawitacyjny jako dodatek do zabiegu",
+  "kandydat": "Peeling kawitacyjny",
+  "human": null,
+  "final": "powiazane",
+  "sedzia": "powiazane",
+  "score": 1.08,
+  "cechy": {
+   "ten_sam_zabieg": 0.77,
+   "ten_sam_obszar": 0.2,
+   "ten_sam_wariant": 0.13
+  }
+ },
+ {
+  "id": 359,
+  "branza": "Fryzjer",
+  "podmiot": "Masaż klasyczny",
+  "kandydat": "Masaż klasyczny",
+  "human": null,
+  "final": "tozsame",
+  "sedzia": "tozsame",
+  "score": 1.71,
+  "cechy": {
+   "ten_sam_zabieg": 0.67,
+   "ten_sam_obszar": 0.46,
+   "ten_sam_wariant": 0.33
+  }
+ },
+ {
+  "id": 360,
+  "branza": "Masaż",
+  "podmiot": "Masaż brzucha + misa tybetańska",
+  "kandydat": "Masaż relaksacyjny",
+  "human": null,
+  "final": "rozne",
+  "sedzia": "powiazane",
+  "score": 0.62,
+  "cechy": {
+   "ten_sam_zabieg": 0.1,
+   "ten_sam_obszar": 0.08,
+   "ten_sam_wariant": 0.05
+  }
+ },
+ {
+  "id": 362,
+  "branza": "Barber shop",
+  "podmiot": "Odsiwianie włosów",
+  "kandydat": "Odsiwianie włosów lub brody",
+  "human": null,
+  "final": "niepewne",
+  "sedzia": "powiazane",
+  "score": 1.11,
+  "cechy": {
+   "ten_sam_zabieg": 0.68,
+   "ten_sam_obszar": 0.14,
+   "ten_sam_wariant": 0.27
+  }
+ },
+ {
+  "id": 363,
+  "branza": "Fryzjer",
+  "podmiot": "Endermologia LPG Alliance jeden zabieg na ciało",
+  "kandydat": "Endermologia LPG®",
+  "human": null,
+  "final": "niepewne",
+  "sedzia": "powiazane",
+  "score": 1.29,
+  "cechy": {
+   "ten_sam_zabieg": 0.79,
+   "ten_sam_obszar": 0.31,
+   "ten_sam_wariant": 0.23
+  }
+ },
+ {
+  "id": 357,
+  "branza": "Masaż",
+  "podmiot": "Masaż  pleców",
+  "kandydat": "Masaż Pleców",
+  "human": "tozsame",
+  "final": "tozsame",
+  "sedzia": "tozsame",
+  "score": 1.97,
+  "cechy": {
+   "ten_sam_zabieg": 0.77,
+   "ten_sam_obszar": 0.81,
+   "ten_sam_wariant": 0.44
+  }
+ },
+ {
+  "id": 365,
+  "branza": "Barber shop",
+  "podmiot": "Strzyżenie długich włosów",
+  "kandydat": "Strzyżenie + modelowanie włosów",
+  "human": null,
+  "final": "powiazane",
+  "sedzia": "powiazane",
+  "score": 0.99,
+  "cechy": {
+   "ten_sam_zabieg": 0.2,
+   "ten_sam_obszar": 0.3,
+   "ten_sam_wariant": 0.04
+  }
+ },
+ {
+  "id": 377,
+  "branza": "Barber shop",
+  "podmiot": "Depilacja woskiem",
+  "kandydat": "Depilacja woskiem Lycon - Wąsik",
+  "human": "powiazane",
+  "final": "niepewne",
+  "sedzia": "powiazane",
+  "score": 0.99,
+  "cechy": {
+   "ten_sam_zabieg": 0.63,
+   "ten_sam_obszar": 0.1,
+   "ten_sam_wariant": 0.09
+  }
+ },
+ {
+  "id": 367,
+  "branza": "Paznokcie",
+  "podmiot": "Manicure męski",
+  "kandydat": "Pedicure męski",
+  "human": null,
+  "final": "rozne",
+  "sedzia": "rozne",
+  "score": 0.14,
+  "cechy": {
+   "ten_sam_zabieg": 0.13,
+   "ten_sam_obszar": 0.03,
+   "ten_sam_wariant": 0.08
+  }
+ },
+ {
+  "id": 368,
+  "branza": "Fryzjer",
+  "podmiot": "Oczyszczanie manualne pleców",
+  "kandydat": "Oczyszczenie wodorowe",
+  "human": null,
+  "final": "niepewne",
+  "sedzia": "rozne",
+  "score": 0.14,
+  "cechy": {
+   "ten_sam_zabieg": 0.04,
+   "ten_sam_obszar": 0.04,
+   "ten_sam_wariant": 0.05
+  }
+ },
+ {
+  "id": 370,
+  "branza": "Barber shop",
+  "podmiot": "Strzyżenie damskie krótkie (5-10 cm) włosy",
+  "kandydat": "Strzyżenie + modelowanie włosy bardzo długie",
+  "human": null,
+  "final": "niepewne",
+  "sedzia": "powiazane",
+  "score": 0.99,
+  "cechy": {
+   "ten_sam_zabieg": 0.2,
+   "ten_sam_obszar": 0.35,
+   "ten_sam_wariant": 0.01
+  }
+ },
+ {
+  "id": 371,
+  "branza": "Barber shop",
+  "podmiot": "Strzyżenie  męskie  włosy dlugie/ ponizej ramion",
+  "kandydat": "Strzyzenie męskie (długie włosy)",
+  "human": null,
+  "final": "tozsame",
+  "sedzia": "tozsame",
+  "score": 1.77,
+  "cechy": {
+   "ten_sam_zabieg": 0.78,
+   "ten_sam_obszar": 0.72,
+   "ten_sam_wariant": 0.67
+  }
+ },
+ {
+  "id": 372,
+  "branza": "Barber shop",
+  "podmiot": "Trwała ondulacja keratynowa męska włosy do ramion",
+  "kandydat": "Podciąganie włos metoda KERATYNOWA",
+  "human": null,
+  "final": "rozne",
+  "sedzia": "rozne",
+  "score": 0.02,
+  "cechy": {
+   "ten_sam_zabieg": 0.08,
+   "ten_sam_obszar": 0.13,
+   "ten_sam_wariant": 0.02
+  }
+ },
+ {
+  "id": 373,
+  "branza": "Barber shop",
+  "podmiot": "Strzyżenie damskie krótkie (5-10 cm) włosy",
+  "kandydat": "Strzyżenie damskie  włosy do linii ramion",
+  "human": null,
+  "final": "niepewne",
+  "sedzia": "powiazane",
+  "score": 0.99,
+  "cechy": {
+   "ten_sam_zabieg": 0.29,
+   "ten_sam_obszar": 0.16,
+   "ten_sam_wariant": 0.02
+  }
+ },
+ {
+  "id": 374,
+  "branza": "Masaż",
+  "podmiot": "Masaż intensywnie liftingujacy + zabieg na twarz",
+  "kandydat": "🔥 Masaż próżniowy (całe cało)+ Wiskey Bandaż",
+  "human": null,
+  "final": "niepewne",
+  "sedzia": "rozne",
+  "score": 0.01,
+  "cechy": {
+   "ten_sam_zabieg": 0.03,
+   "ten_sam_obszar": 0.03,
+   "ten_sam_wariant": 0.02
+  }
+ },
+ {
+  "id": 375,
+  "branza": "Salon Kosmetyczny",
+  "podmiot": "Peeling kawitacyjny + M.A.D z vitamina C",
+  "kandydat": "KWAS MIGDAŁOWY 40% wiosenny blask 🌸",
+  "human": null,
+  "final": "niepewne",
+  "sedzia": "powiazane",
+  "score": 0.55,
+  "cechy": {
+   "ten_sam_zabieg": 0.08,
+   "ten_sam_obszar": 0.23,
+   "ten_sam_wariant": 0.06
+  }
+ },
+ {
+  "id": 376,
+  "branza": "Masaż",
+  "podmiot": "Masaż dźwiękiem-misy tybetańskie+kryształowe",
+  "kandydat": "Masaz \"Dotyk Orientu\"",
+  "human": null,
+  "final": "niepewne",
+  "sedzia": "rozne",
+  "score": 0.09,
+  "cechy": {
+   "ten_sam_zabieg": 0.04,
+   "ten_sam_obszar": 0.12,
+   "ten_sam_wariant": 0.04
+  }
+ },
+ {
+  "id": 387,
+  "branza": "Paznokcie",
+  "podmiot": "Pedicure klasyczny + Stopy",
+  "kandydat": "Manicure klasyczny",
+  "human": "rozne",
+  "final": "rozne",
+  "sedzia": "rozne",
+  "score": 0.11,
+  "cechy": {
+   "ten_sam_zabieg": 0.09,
+   "ten_sam_obszar": 0.03,
+   "ten_sam_wariant": 0.07
+  }
+ },
+ {
+  "id": 378,
+  "branza": "Masaż",
+  "podmiot": "Masaż brzucha + misa tybetańska",
+  "kandydat": "Masaż tkanek głębokich",
+  "human": null,
+  "final": "rozne",
+  "sedzia": "rozne",
+  "score": 0.38,
+  "cechy": {
+   "ten_sam_zabieg": 0.07,
+   "ten_sam_obszar": 0.06,
+   "ten_sam_wariant": 0.05
+  }
+ },
+ {
+  "id": 380,
+  "branza": "Tatuaż i Piercing",
+  "podmiot": "Rzęsy Mokry efekt 2D",
+  "kandydat": "Uzupełnienie rzęs Mokry efekt 3:1",
+  "human": null,
+  "final": "powiazane",
+  "sedzia": "powiazane",
+  "score": 1.0,
+  "cechy": {
+   "ten_sam_zabieg": 0.35,
+   "ten_sam_obszar": 0.33,
+   "ten_sam_wariant": 0.03
+  }
+ },
+ {
+  "id": 381,
+  "branza": "Masaż",
+  "podmiot": "Masaż intensywnie liftingujacy + zabieg na twarz",
+  "kandydat": "Zabieg Mocno Liftingujący Filler & Lifting",
+  "human": null,
+  "final": "powiazane",
+  "sedzia": "powiazane",
+  "score": 0.91,
+  "cechy": {
+   "ten_sam_zabieg": 0.14,
+   "ten_sam_obszar": 0.42,
+   "ten_sam_wariant": 0.08
+  }
+ },
+ {
+  "id": 382,
+  "branza": "Barber shop",
+  "podmiot": "Buzz cut/Strzyżenie maszynką",
+  "kandydat": "Strzyżenie długie włosów nożyczkami i broda(combo)",
+  "human": null,
+  "final": "rozne",
+  "sedzia": "powiazane",
+  "score": 0.65,
+  "cechy": {
+   "ten_sam_zabieg": 0.03,
+   "ten_sam_obszar": 0.11,
+   "ten_sam_wariant": 0.02
+  }
+ },
+ {
+  "id": 383,
+  "branza": "Masaż",
+  "podmiot": "Masaż  pleców",
+  "kandydat": "Masaż pleców i kręgosłupa",
+  "human": null,
+  "final": "niepewne",
+  "sedzia": "powiazane",
+  "score": 1.1,
+  "cechy": {
+   "ten_sam_zabieg": 0.45,
+   "ten_sam_obszar": 0.21,
+   "ten_sam_wariant": 0.16
+  }
+ },
+ {
+  "id": 384,
+  "branza": "Tatuaż i Piercing",
+  "podmiot": "Henna brwi pudrowe|farbka+regulacja",
+  "kandydat": "Henna pudrowa brwi",
+  "human": null,
+  "final": "powiazane",
+  "sedzia": "powiazane",
+  "score": 1.13,
+  "cechy": {
+   "ten_sam_zabieg": 0.63,
+   "ten_sam_obszar": 0.37,
+   "ten_sam_wariant": 0.27
+  }
+ },
+ {
+  "id": 385,
+  "branza": "Fryzjer",
+  "podmiot": "Kwas mlekowy",
+  "kandydat": "Peeling chemiczny z kwasem glikolowym (Glycolic Pe",
+  "human": null,
+  "final": "niepewne",
+  "sedzia": "powiazane",
+  "score": 0.77,
+  "cechy": {
+   "ten_sam_zabieg": 0.27,
+   "ten_sam_obszar": 0.62,
+   "ten_sam_wariant": 0.05
+  }
+ },
+ {
+  "id": 388,
+  "branza": "Paznokcie",
+  "podmiot": "Wzmocnienie żelowe naturalnej płytki",
+  "kandydat": "Wzmocnienie naturalnej płytki żelem",
+  "human": null,
+  "final": "tozsame",
+  "sedzia": "tozsame",
+  "score": 2.0,
+  "cechy": {
+   "ten_sam_zabieg": 0.92,
+   "ten_sam_obszar": 0.95,
+   "ten_sam_wariant": 0.68
+  }
+ },
+ {
+  "id": 389,
+  "branza": "Barber shop",
+  "podmiot": "Strzyżenie włosów",
+  "kandydat": "Strzyżenie damskie + fale - włosy krótkie",
+  "human": null,
+  "final": "niepewne",
+  "sedzia": "powiazane",
+  "score": 0.99,
+  "cechy": {
+   "ten_sam_zabieg": 0.17,
+   "ten_sam_obszar": 0.3,
+   "ten_sam_wariant": 0.05
+  }
+ },
+ {
+  "id": 390,
+  "branza": "Paznokcie",
+  "podmiot": "Wzmocnienie żelowe naturalnej płytki",
+  "kandydat": "Wzmocnienie paznokci żelem (bez hybrydy)",
+  "human": null,
+  "final": "niepewne",
+  "sedzia": "tozsame",
+  "score": 1.56,
+  "cechy": {
+   "ten_sam_zabieg": 0.76,
+   "ten_sam_obszar": 0.75,
+   "ten_sam_wariant": 0.4
+  }
+ },
+ {
+  "id": 391,
+  "branza": "Salon Kosmetyczny",
+  "podmiot": "Utwardzenie naturalnych  paznokci żelem",
+  "kandydat": "| UZUPEŁNIENIE ŻELU |",
+  "human": null,
+  "final": "niepewne",
+  "sedzia": "powiazane",
+  "score": 0.93,
+  "cechy": {
+   "ten_sam_zabieg": 0.28,
+   "ten_sam_obszar": 0.25,
+   "ten_sam_wariant": 0.05
+  }
+ },
+ {
+  "id": 392,
+  "branza": "Barber shop",
+  "podmiot": "Trwała ondulacja keratynowa męska włosy do ramion",
+  "kandydat": "Włosy długie",
+  "human": null,
+  "final": "rozne",
+  "sedzia": "rozne",
+  "score": 0.01,
+  "cechy": {
+   "ten_sam_zabieg": 0.01,
+   "ten_sam_obszar": 0.03,
+   "ten_sam_wariant": 0.02
+  }
+ },
+ {
+  "id": 393,
+  "branza": "Tatuaż i Piercing",
+  "podmiot": "Kolorowe rzęsy",
+  "kandydat": "Farbowanie rzęs",
+  "human": null,
+  "final": "rozne",
+  "sedzia": "powiazane",
+  "score": 0.6,
+  "cechy": {
+   "ten_sam_zabieg": 0.06,
+   "ten_sam_obszar": 0.22,
+   "ten_sam_wariant": 0.05
+  }
+ },
+ {
+  "id": 394,
+  "branza": "Masaż",
+  "podmiot": "Masaż dźwiękiem - misy tybetańskie+kryształowe",
+  "kandydat": "Masaż Tajski",
+  "human": null,
+  "final": "rozne",
+  "sedzia": "rozne",
+  "score": 0.02,
+  "cechy": {
+   "ten_sam_zabieg": 0.02,
+   "ten_sam_obszar": 0.08,
+   "ten_sam_wariant": 0.03
+  }
+ },
+ {
+  "id": 366,
+  "branza": "Barber shop",
+  "podmiot": "Strzyżenie męskie maszynka+nożyczki bez mycia",
+  "kandydat": "Strzyżenie damskie  włosy krótkie",
+  "human": "powiazane",
+  "final": "rozne",
+  "sedzia": "rozne",
+  "score": 0.32,
+  "cechy": {
+   "ten_sam_zabieg": 0.04,
+   "ten_sam_obszar": 0.17,
+   "ten_sam_wariant": 0.02
+  }
+ },
+ {
+  "id": 396,
+  "branza": "Salon Kosmetyczny",
+  "podmiot": "Makijaż permanentny. Oczy",
+  "kandydat": "Makijaż permanentny brwi",
+  "human": null,
+  "final": "powiazane",
+  "sedzia": "rozne",
+  "score": 0.21,
+  "cechy": {
+   "ten_sam_zabieg": 0.3,
+   "ten_sam_obszar": 0.04,
+   "ten_sam_wariant": 0.09
+  }
+ },
+ {
+  "id": 397,
+  "branza": "Salon Kosmetyczny",
+  "podmiot": "Uzupełnienie paznokci żelem",
+  "kandydat": "Uzupełnienie rzęs 5 D",
+  "human": null,
+  "final": "rozne",
+  "sedzia": "rozne",
+  "score": 0.01,
+  "cechy": {
+   "ten_sam_zabieg": 0.02,
+   "ten_sam_obszar": 0.02,
+   "ten_sam_wariant": 0.03
+  }
+ },
+ {
+  "id": 398,
+  "branza": "Paznokcie",
+  "podmiot": "Pedicure hybrydowy + stopy",
+  "kandydat": "Pedicure hybrydowy",
+  "human": null,
+  "final": "niepewne",
+  "sedzia": "powiazane",
+  "score": 1.48,
+  "cechy": {
+   "ten_sam_zabieg": 0.6,
+   "ten_sam_obszar": 0.39,
+   "ten_sam_wariant": 0.27
+  }
+ },
+ {
+  "id": 511,
+  "branza": "Masaż",
+  "podmiot": "Masaż dźwiękiem - misy tybetańskie+kryształowe",
+  "kandydat": "Orientalny Rytuał: Bamboo Cho i Masaż Dźwiękiem",
+  "human": "tozsame",
+  "final": "powiazane",
+  "sedzia": "powiazane",
+  "score": 0.92,
+  "cechy": {
+   "ten_sam_zabieg": 0.13,
+   "ten_sam_obszar": 0.19,
+   "ten_sam_wariant": 0.06
+  }
+ },
+ {
+  "id": 400,
+  "branza": "Paznokcie",
+  "podmiot": "Uzupełnienie z hybrydą",
+  "kandydat": "Uzupełnienie żelem",
+  "human": null,
+  "final": "niepewne",
+  "sedzia": "powiazane",
+  "score": 0.99,
+  "cechy": {
+   "ten_sam_zabieg": 0.11,
+   "ten_sam_obszar": 0.36,
+   "ten_sam_wariant": 0.19
+  }
+ },
+ {
+  "id": 502,
+  "branza": "Fryzjer",
+  "podmiot": "Oczyszczanie manualne twarzy",
+  "kandydat": "Oczyszczanie manualne",
+  "human": null,
+  "final": "tozsame",
+  "sedzia": "powiazane",
+  "score": 1.08,
+  "cechy": {
+   "ten_sam_zabieg": 0.5,
+   "ten_sam_obszar": 0.24,
+   "ten_sam_wariant": 0.19
+  }
+ },
+ {
+  "id": 503,
+  "branza": "Masaż",
+  "podmiot": "Masaż dźwiękiem-misy tybetańskie+kryształowe",
+  "kandydat": "Masaż klasyczny",
+  "human": null,
+  "final": "rozne",
+  "sedzia": "rozne",
+  "score": 0.46,
+  "cechy": {
+   "ten_sam_zabieg": 0.03,
+   "ten_sam_obszar": 0.19,
+   "ten_sam_wariant": 0.05
+  }
+ },
+ {
+  "id": 504,
+  "branza": "Fryzjer",
+  "podmiot": "Masaż klasyczny",
+  "kandydat": "Masaż klasyczny",
+  "human": null,
+  "final": "tozsame",
+  "sedzia": "tozsame",
+  "score": 1.69,
+  "cechy": {
+   "ten_sam_zabieg": 0.67,
+   "ten_sam_obszar": 0.45,
+   "ten_sam_wariant": 0.31
+  }
+ },
+ {
+  "id": 505,
+  "branza": "Tatuaż i Piercing",
+  "podmiot": "Henna brwi pudrowe|farbka+regulacja",
+  "kandydat": "Henna brwi i rzęs + regulacja brwi",
+  "human": null,
+  "final": "powiazane",
+  "sedzia": "powiazane",
+  "score": 1.07,
+  "cechy": {
+   "ten_sam_zabieg": 0.43,
+   "ten_sam_obszar": 0.29,
+   "ten_sam_wariant": 0.26
+  }
+ },
+ {
+  "id": 506,
+  "branza": "Fryzjer",
+  "podmiot": "Wygładzenie bruzdy wargowo-nosowej",
+  "kandydat": "Botoks – lwia zmarszczka",
+  "human": null,
+  "final": "niepewne",
+  "sedzia": "powiazane",
+  "score": 0.77,
+  "cechy": {
+   "ten_sam_zabieg": 0.45,
+   "ten_sam_obszar": 0.11,
+   "ten_sam_wariant": 0.06
+  }
+ },
+ {
+  "id": 507,
+  "branza": "Paznokcie",
+  "podmiot": "Pedicure męski",
+  "kandydat": "Pedicure klasyczny (zwykły lakier) + spa dla stóp",
+  "human": null,
+  "final": "powiazane",
+  "sedzia": "powiazane",
+  "score": 0.9,
+  "cechy": {
+   "ten_sam_zabieg": 0.18,
+   "ten_sam_obszar": 0.24,
+   "ten_sam_wariant": 0.09
+  }
+ },
+ {
+  "id": 508,
+  "branza": "Salon Kosmetyczny",
+  "podmiot": "Makijaż permanentny. Usta",
+  "kandydat": "Makijaż permanentny usta",
+  "human": null,
+  "final": "tozsame",
+  "sedzia": "tozsame",
+  "score": 1.99,
+  "cechy": {
+   "ten_sam_zabieg": 0.82,
+   "ten_sam_obszar": 0.91,
+   "ten_sam_wariant": 0.53
+  }
+ },
+ {
+  "id": 510,
+  "branza": "Paznokcie",
+  "podmiot": "Manicure męski",
+  "kandydat": "Manicure męski",
+  "human": null,
+  "final": "tozsame",
+  "sedzia": "tozsame",
+  "score": 1.75,
+  "cechy": {
+   "ten_sam_zabieg": 0.56,
+   "ten_sam_obszar": 0.61,
+   "ten_sam_wariant": 0.44
+  }
+ },
+ {
+  "id": 516,
+  "branza": "Fryzjer",
+  "podmiot": "Leczenie bruksizmu botoksem",
+  "kandydat": "Uśmiech dziąsłowy",
+  "human": "rozne",
+  "final": "niepewne",
+  "sedzia": "rozne",
+  "score": 0.36,
+  "cechy": {
+   "ten_sam_zabieg": 0.4,
+   "ten_sam_obszar": 0.29,
+   "ten_sam_wariant": 0.08
+  }
+ },
+ {
+  "id": 512,
+  "branza": "Paznokcie",
+  "podmiot": "Lami+regulacja+botox",
+  "kandydat": "KOMPLEKS HENNA PUDROWA BRWI+REGULACJA+BOTOX",
+  "human": null,
+  "final": "powiazane",
+  "sedzia": "powiazane",
+  "score": 0.92,
+  "cechy": {
+   "ten_sam_zabieg": 0.2,
+   "ten_sam_obszar": 0.45,
+   "ten_sam_wariant": 0.13
+  }
+ },
+ {
+  "id": 513,
+  "branza": "Tatuaż i Piercing",
+  "podmiot": "Laminowanie rzęs",
+  "kandydat": "Laminacja rzęs",
+  "human": null,
+  "final": "tozsame",
+  "sedzia": "tozsame",
+  "score": 1.96,
+  "cechy": {
+   "ten_sam_zabieg": 0.76,
+   "ten_sam_obszar": 0.8,
+   "ten_sam_wariant": 0.3
+  }
+ },
+ {
+  "id": 514,
+  "branza": "Masaż",
+  "podmiot": "Masaż dźwiękiem - misy tybetańskie+kryształowe",
+  "kandydat": "Masaż gorącymi kamieniami",
+  "human": null,
+  "final": "rozne",
+  "sedzia": "rozne",
+  "score": 0.22,
+  "cechy": {
+   "ten_sam_zabieg": 0.03,
+   "ten_sam_obszar": 0.23,
+   "ten_sam_wariant": 0.04
+  }
+ },
+ {
+  "id": 515,
+  "branza": "Salon Kosmetyczny",
+  "podmiot": "Uzupełnienie długich paznokci powyżej 3 tygodni",
+  "kandydat": "PRZEDŁUŻENIE PAZNOKCI ŻELEM DŁUGIE-POW. 2,5 kratki",
+  "human": null,
+  "final": "niepewne",
+  "sedzia": "powiazane",
+  "score": 1.09,
+  "cechy": {
+   "ten_sam_zabieg": 0.4,
+   "ten_sam_obszar": 0.51,
+   "ten_sam_wariant": 0.23
+  }
+ },
+ {
+  "id": 517,
+  "branza": "Paznokcie",
+  "podmiot": "Wzmocnienie żelowe naturalnej płytki",
+  "kandydat": "utwardzenie naturalnej płytki żelem + hybryda",
+  "human": "tozsame",
+  "final": "powiazane",
+  "sedzia": "powiazane",
+  "score": 1.06,
+  "cechy": {
+   "ten_sam_zabieg": 0.34,
+   "ten_sam_obszar": 0.42,
+   "ten_sam_wariant": 0.19
+  }
+ },
+ {
+  "id": 520,
+  "branza": "Masaż",
+  "podmiot": "Masaż  pleców",
+  "kandydat": "Masaż Pleców",
+  "human": "tozsame",
+  "final": "tozsame",
+  "sedzia": "tozsame",
+  "score": 1.97,
+  "cechy": {
+   "ten_sam_zabieg": 0.77,
+   "ten_sam_obszar": 0.81,
+   "ten_sam_wariant": 0.44
+  }
+ },
+ {
+  "id": 519,
+  "branza": "Barber shop",
+  "podmiot": "Odsiwianie włosów",
+  "kandydat": "Odsiwianie włosów i brody",
+  "human": null,
+  "final": "powiazane",
+  "sedzia": "powiazane",
+  "score": 0.98,
+  "cechy": {
+   "ten_sam_zabieg": 0.49,
+   "ten_sam_obszar": 0.1,
+   "ten_sam_wariant": 0.14
+  }
+ },
+ {
+  "id": 521,
+  "branza": "Tatuaż i Piercing",
+  "podmiot": "Laminowanie rzęs",
+  "kandydat": "Laminacja brwi",
+  "human": null,
+  "final": "rozne",
+  "sedzia": "rozne",
+  "score": 0.36,
+  "cechy": {
+   "ten_sam_zabieg": 0.25,
+   "ten_sam_obszar": 0.05,
+   "ten_sam_wariant": 0.06
+  }
+ },
+ {
+  "id": 522,
+  "branza": "Masaż",
+  "podmiot": "Masaż brzucha + misa tybetańska",
+  "kandydat": "Masaż terapeutyczny brzucha",
+  "human": null,
+  "final": "powiazane",
+  "sedzia": "powiazane",
+  "score": 0.97,
+  "cechy": {
+   "ten_sam_zabieg": 0.21,
+   "ten_sam_obszar": 0.32,
+   "ten_sam_wariant": 0.15
+  }
+ },
+ {
+  "id": 523,
+  "branza": "Barber shop",
+  "podmiot": "Strzyżenie  męskie  włosy dlugie/ ponizej ramion",
+  "kandydat": "Strzyżenie męskie długie włosy",
+  "human": null,
+  "final": "tozsame",
+  "sedzia": "tozsame",
+  "score": 1.71,
+  "cechy": {
+   "ten_sam_zabieg": 0.6,
+   "ten_sam_obszar": 0.75,
+   "ten_sam_wariant": 0.54
+  }
+ },
+ {
+  "id": 524,
+  "branza": "Paznokcie",
+  "podmiot": "Lami+regulacja+botox",
+  "kandydat": "Laminacja/lifting rzęs+botox+farbka",
+  "human": null,
+  "final": "rozne",
+  "sedzia": "rozne",
+  "score": 0.42,
+  "cechy": {
+   "ten_sam_zabieg": 0.12,
+   "ten_sam_obszar": 0.09,
+   "ten_sam_wariant": 0.07
+  }
+ },
+ {
+  "id": 525,
+  "branza": "Masaż",
+  "podmiot": "Masaż intensywnie liftingujacy + zabieg na twarz",
+  "kandydat": "Masaż twarzy + Oczyszczanie ultradźwiękowe",
+  "human": null,
+  "final": "powiazane",
+  "sedzia": "powiazane",
+  "score": 0.83,
+  "cechy": {
+   "ten_sam_zabieg": 0.17,
+   "ten_sam_obszar": 0.45,
+   "ten_sam_wariant": 0.12
+  }
+ },
+ {
+  "id": 399,
+  "branza": "Paznokcie",
+  "podmiot": "Zdjęcie paznokci",
+  "kandydat": "Manicure hybrydowy",
+  "human": "rozne",
+  "final": "rozne",
+  "sedzia": "rozne",
+  "score": 0.11,
+  "cechy": {
+   "ten_sam_zabieg": 0.05,
+   "ten_sam_obszar": 0.2,
+   "ten_sam_wariant": 0.03
+  }
+ },
+ {
+  "id": 427,
+  "branza": "Paznokcie",
+  "podmiot": "Zdobienie na 2 paznokciach (delikatne)",
+  "kandydat": "Zdobienie -ręcznie malowane/stemple",
+  "human": null,
+  "final": "powiazane",
+  "sedzia": "powiazane",
+  "score": 1.0,
+  "cechy": {
+   "ten_sam_zabieg": 0.32,
+   "ten_sam_obszar": 0.19,
+   "ten_sam_wariant": 0.07
+  }
+ },
+ {
+  "id": 428,
+  "branza": "Salon Kosmetyczny",
+  "podmiot": "Manicure hybrydowy french",
+  "kandydat": "Manicure hybrydowy",
+  "human": null,
+  "final": "niepewne",
+  "sedzia": "powiazane",
+  "score": 1.02,
+  "cechy": {
+   "ten_sam_zabieg": 0.62,
+   "ten_sam_obszar": 0.32,
+   "ten_sam_wariant": 0.17
+  }
+ },
+ {
+  "id": 430,
+  "branza": "Barber shop",
+  "podmiot": "Strzyżenie włosów",
+  "kandydat": "Strzyżenie damskie włosy do łopatek",
+  "human": null,
+  "final": "powiazane",
+  "sedzia": "powiazane",
+  "score": 0.98,
+  "cechy": {
+   "ten_sam_zabieg": 0.33,
+   "ten_sam_obszar": 0.22,
+   "ten_sam_wariant": 0.05
+  }
+ },
+ {
+  "id": 431,
+  "branza": "Salon Kosmetyczny",
+  "podmiot": "Manicure hybrydowy french",
+  "kandydat": "Manicure hybrydowy",
+  "human": null,
+  "final": "niepewne",
+  "sedzia": "powiazane",
+  "score": 1.01,
+  "cechy": {
+   "ten_sam_zabieg": 0.64,
+   "ten_sam_obszar": 0.32,
+   "ten_sam_wariant": 0.17
+  }
+ },
+ {
+  "id": 432,
+  "branza": "Fryzjer",
+  "podmiot": "Leczenie nadpotliwości pach toksyną botulinową",
+  "kandydat": "Botoks - leczenie nadpotliwości",
+  "human": null,
+  "final": "powiazane",
+  "sedzia": "tozsame",
+  "score": 1.91,
+  "cechy": {
+   "ten_sam_zabieg": 0.88,
+   "ten_sam_obszar": 0.73,
+   "ten_sam_wariant": 0.27
+  }
+ },
+ {
+  "id": 433,
+  "branza": "Barber shop",
+  "podmiot": "Combo (włosy + broda)",
+  "kandydat": "Strzyżenie + Broda",
+  "human": null,
+  "final": "niepewne",
+  "sedzia": "tozsame",
+  "score": 1.69,
+  "cechy": {
+   "ten_sam_zabieg": 0.42,
+   "ten_sam_obszar": 0.72,
+   "ten_sam_wariant": 0.27
+  }
+ },
+ {
+  "id": 434,
+  "branza": "Fryzjer",
+  "podmiot": "Platysma (mięsień szeroki szyi)",
+  "kandydat": "Lipolaser - brzuch",
+  "human": null,
+  "final": "rozne",
+  "sedzia": "rozne",
+  "score": 0.0,
+  "cechy": {
+   "ten_sam_zabieg": 0.03,
+   "ten_sam_obszar": 0.02,
+   "ten_sam_wariant": 0.03
+  }
+ },
+ {
+  "id": 435,
+  "branza": "Paznokcie",
+  "podmiot": "Pedicure hybrydowy",
+  "kandydat": "Manicure hybrydowy 1 kolor",
+  "human": null,
+  "final": "rozne",
+  "sedzia": "rozne",
+  "score": 0.24,
+  "cechy": {
+   "ten_sam_zabieg": 0.27,
+   "ten_sam_obszar": 0.03,
+   "ten_sam_wariant": 0.09
+  }
+ },
+ {
+  "id": 436,
+  "branza": "Salon Kosmetyczny",
+  "podmiot": "Uzupełnienie paznokci akrylem",
+  "kandydat": "Przedłużenie paznokci z hybrydą",
+  "human": null,
+  "final": "rozne",
+  "sedzia": "powiazane",
+  "score": 0.98,
+  "cechy": {
+   "ten_sam_zabieg": 0.06,
+   "ten_sam_obszar": 0.44,
+   "ten_sam_wariant": 0.03
+  }
+ },
+ {
+  "id": 439,
+  "branza": "Tatuaż i Piercing",
+  "podmiot": "Henna rzęs",
+  "kandydat": "Henna rzęs",
+  "human": null,
+  "final": "tozsame",
+  "sedzia": "tozsame",
+  "score": 1.78,
+  "cechy": {
+   "ten_sam_zabieg": 0.56,
+   "ten_sam_obszar": 0.68,
+   "ten_sam_wariant": 0.31
+  }
+ },
+ {
+  "id": 440,
+  "branza": "Tatuaż i Piercing",
+  "podmiot": "Henna brwi pudrowe|farbka+regulacja",
+  "kandydat": "Henna brwi i regulacja",
+  "human": null,
+  "final": "niepewne",
+  "sedzia": "tozsame",
+  "score": 1.6,
+  "cechy": {
+   "ten_sam_zabieg": 0.42,
+   "ten_sam_obszar": 0.69,
+   "ten_sam_wariant": 0.29
+  }
+ },
+ {
+  "id": 441,
+  "branza": "Fryzjer",
+  "podmiot": "Endermologia LPG - 10 zabiegów na ciało",
+  "kandydat": "Endermologie STANDARD LPG Alliance® - 15 zabiegów",
+  "human": null,
+  "final": "powiazane",
+  "sedzia": "powiazane",
+  "score": 1.0,
+  "cechy": {
+   "ten_sam_zabieg": 0.81,
+   "ten_sam_obszar": 0.28,
+   "ten_sam_wariant": 0.01
+  }
+ },
+ {
+  "id": 442,
+  "branza": "Barber shop",
+  "podmiot": "Odsiwianie włosów",
+  "kandydat": "Upięcie włosów",
+  "human": null,
+  "final": "rozne",
+  "sedzia": "rozne",
+  "score": 0.03,
+  "cechy": {
+   "ten_sam_zabieg": 0.03,
+   "ten_sam_obszar": 0.25,
+   "ten_sam_wariant": 0.03
+  }
+ },
+ {
+  "id": 443,
+  "branza": "Fryzjer",
+  "podmiot": "Masaż tkanek głębokich",
+  "kandydat": "Masaż tkanek głębokich",
+  "human": null,
+  "final": "tozsame",
+  "sedzia": "tozsame",
+  "score": 1.84,
+  "cechy": {
+   "ten_sam_zabieg": 0.71,
+   "ten_sam_obszar": 0.62,
+   "ten_sam_wariant": 0.35
+  }
+ },
+ {
+  "id": 444,
+  "branza": "Tatuaż i Piercing",
+  "podmiot": "Laminowanie rzęs+farbowanie",
+  "kandydat": "Laminacja rzęs",
+  "human": null,
+  "final": "powiazane",
+  "sedzia": "powiazane",
+  "score": 0.99,
+  "cechy": {
+   "ten_sam_zabieg": 0.35,
+   "ten_sam_obszar": 0.15,
+   "ten_sam_wariant": 0.11
+  }
+ },
+ {
+  "id": 445,
+  "branza": "Paznokcie",
+  "podmiot": "Manicure męski",
+  "kandydat": "Pedicure męski",
+  "human": null,
+  "final": "rozne",
+  "sedzia": "rozne",
+  "score": 0.17,
+  "cechy": {
+   "ten_sam_zabieg": 0.13,
+   "ten_sam_obszar": 0.04,
+   "ten_sam_wariant": 0.13
+  }
+ },
+ {
+  "id": 447,
+  "branza": "Salon Kosmetyczny",
+  "podmiot": "Manicure hybrydowy french",
+  "kandydat": "Manicure hybrydowy",
+  "human": null,
+  "final": "powiazane",
+  "sedzia": "powiazane",
+  "score": 1.01,
+  "cechy": {
+   "ten_sam_zabieg": 0.64,
+   "ten_sam_obszar": 0.28,
+   "ten_sam_wariant": 0.17
+  }
+ },
+ {
+  "id": 448,
+  "branza": "Masaż",
+  "podmiot": "Masaż stóp z refleksologią",
+  "kandydat": "Masaż relaksacyjny - częściowy",
+  "human": null,
+  "final": "niepewne",
+  "sedzia": "rozne",
+  "score": 0.34,
+  "cechy": {
+   "ten_sam_zabieg": 0.1,
+   "ten_sam_obszar": 0.04,
+   "ten_sam_wariant": 0.05
+  }
+ },
+ {
+  "id": 449,
+  "branza": "Salon Kosmetyczny",
+  "podmiot": "Mezoterapia mikroigłowa z egzosomami DERMALOGICA",
+  "kandydat": "Mezoterapia mikroigłowa - terapia blizn",
+  "human": null,
+  "final": "powiazane",
+  "sedzia": "powiazane",
+  "score": 0.98,
+  "cechy": {
+   "ten_sam_zabieg": 0.65,
+   "ten_sam_obszar": 0.25,
+   "ten_sam_wariant": 0.09
+  }
+ },
+ {
+  "id": 450,
+  "branza": "Tatuaż i Piercing",
+  "podmiot": "Henna rzęs",
+  "kandydat": "Henna rzęs",
+  "human": null,
+  "final": "tozsame",
+  "sedzia": "tozsame",
+  "score": 1.84,
+  "cechy": {
+   "ten_sam_zabieg": 0.6,
+   "ten_sam_obszar": 0.7,
+   "ten_sam_wariant": 0.34
+  }
+ },
+ {
+  "id": 451,
+  "branza": "Tatuaż i Piercing",
+  "podmiot": "Rzęsy Mokry efekt 4D",
+  "kandydat": "Uzupełnienie rzęs 7-mega volume",
+  "human": null,
+  "final": "niepewne",
+  "sedzia": "powiazane",
+  "score": 0.99,
+  "cechy": {
+   "ten_sam_zabieg": 0.16,
+   "ten_sam_obszar": 0.46,
+   "ten_sam_wariant": 0.03
+  }
+ },
+ {
+  "id": 452,
+  "branza": "Barber shop",
+  "podmiot": "Trwała ondulacja keratynowa męska włosy do karku",
+  "kandydat": "Keratynowe prostowanie włosów do pasa",
+  "human": null,
+  "final": "niepewne",
+  "sedzia": "rozne",
+  "score": 0.13,
+  "cechy": {
+   "ten_sam_zabieg": 0.08,
+   "ten_sam_obszar": 0.06,
+   "ten_sam_wariant": 0.02
+  }
+ },
+ {
+  "id": 453,
+  "branza": "Tatuaż i Piercing",
+  "podmiot": "Laminowanie rzęs",
+  "kandydat": "Laminacja rzęs",
+  "human": null,
+  "final": "tozsame",
+  "sedzia": "tozsame",
+  "score": 1.96,
+  "cechy": {
+   "ten_sam_zabieg": 0.75,
+   "ten_sam_obszar": 0.75,
+   "ten_sam_wariant": 0.34
+  }
+ },
+ {
+  "id": 455,
+  "branza": "Fryzjer",
+  "podmiot": "INTRAJECT Zabieg Trychologiczny",
+  "kandydat": "Infuzja tlenowa. Regeneracja przy użyciu koncen...",
+  "human": null,
+  "final": "niepewne",
+  "sedzia": "powiazane",
+  "score": 0.53,
+  "cechy": {
+   "ten_sam_zabieg": 0.16,
+   "ten_sam_obszar": 0.41,
+   "ten_sam_wariant": 0.07
+  }
+ },
+ {
+  "id": 456,
+  "branza": "Paznokcie",
+  "podmiot": "Uzupełnienie z hybrydą",
+  "kandydat": "ZDJĘCIE HYBRYDY + MANICURE Z ODŻYWKĄ",
+  "human": null,
+  "final": "rozne",
+  "sedzia": "powiazane",
+  "score": 0.79,
+  "cechy": {
+   "ten_sam_zabieg": 0.2,
+   "ten_sam_obszar": 0.25,
+   "ten_sam_wariant": 0.06
+  }
+ },
+ {
+  "id": 457,
+  "branza": "Paznokcie",
+  "podmiot": "Przedłużanie paznokci Do 1-2 długości",
+  "kandydat": "Przedłuzenie paznokci +KOLOR",
+  "human": null,
+  "final": "tozsame",
+  "sedzia": "powiazane",
+  "score": 1.0,
+  "cechy": {
+   "ten_sam_zabieg": 0.36,
+   "ten_sam_obszar": 0.35,
+   "ten_sam_wariant": 0.1
+  }
+ },
+ {
+  "id": 458,
+  "branza": "Paznokcie",
+  "podmiot": "Architektura +farbowanie+regulacja +botox",
+  "kandydat": "Laminacja brwi+depilacja +botox",
+  "human": null,
+  "final": "powiazane",
+  "sedzia": "powiazane",
+  "score": 0.83,
+  "cechy": {
+   "ten_sam_zabieg": 0.09,
+   "ten_sam_obszar": 0.26,
+   "ten_sam_wariant": 0.08
+  }
+ },
+ {
+  "id": 437,
+  "branza": "Fryzjer",
+  "podmiot": "Masaż klasyczny",
+  "kandydat": "BALIJSKI KLASYCZNY",
+  "human": "powiazane",
+  "final": "niepewne",
+  "sedzia": "powiazane",
+  "score": 0.96,
+  "cechy": {
+   "ten_sam_zabieg": 0.25,
+   "ten_sam_obszar": 0.26,
+   "ten_sam_wariant": 0.08
+  }
+ },
+ {
+  "id": 460,
+  "branza": "Salon Kosmetyczny",
+  "podmiot": "Rekonstrukcja obgryzanych paznokci",
+  "kandydat": "Rekonstrukcja paznokcia",
+  "human": null,
+  "final": "powiazane",
+  "sedzia": "powiazane",
+  "score": 1.13,
+  "cechy": {
+   "ten_sam_zabieg": 0.37,
+   "ten_sam_obszar": 0.42,
+   "ten_sam_wariant": 0.14
+  }
+ },
+ {
+  "id": 462,
+  "branza": "Tatuaż i Piercing",
+  "podmiot": "Rzęsy Efekt Anime",
+  "kandydat": "Rzęsy ANIME piórka",
+  "human": null,
+  "final": "niepewne",
+  "sedzia": "tozsame",
+  "score": 1.76,
+  "cechy": {
+   "ten_sam_zabieg": 0.37,
+   "ten_sam_obszar": 0.57,
+   "ten_sam_wariant": 0.17
+  }
+ },
+ {
+  "id": 463,
+  "branza": "Tatuaż i Piercing",
+  "podmiot": "Laminowanie rzęs+farbowanie",
+  "kandydat": "Laminacja rzęs + farbka",
+  "human": null,
+  "final": "tozsame",
+  "sedzia": "tozsame",
+  "score": 1.95,
+  "cechy": {
+   "ten_sam_zabieg": 0.74,
+   "ten_sam_obszar": 0.85,
+   "ten_sam_wariant": 0.46
+  }
+ },
+ {
+  "id": 464,
+  "branza": "Salon Kosmetyczny",
+  "podmiot": "Manicure hybrydowy french",
+  "kandydat": "Manicure hybrydowy",
+  "human": null,
+  "final": "powiazane",
+  "sedzia": "powiazane",
+  "score": 1.01,
+  "cechy": {
+   "ten_sam_zabieg": 0.57,
+   "ten_sam_obszar": 0.31,
+   "ten_sam_wariant": 0.15
+  }
+ },
+ {
+  "id": 465,
+  "branza": "Fryzjer",
+  "podmiot": "Kwas L - Polimlekowy pośladki",
+  "kandydat": "Stymulator tkankowy GEO-Lifting V 64mg",
+  "human": null,
+  "final": "niepewne",
+  "sedzia": "rozne",
+  "score": 0.02,
+  "cechy": {
+   "ten_sam_zabieg": 0.04,
+   "ten_sam_obszar": 0.05,
+   "ten_sam_wariant": 0.02
+  }
+ },
+ {
+  "id": 471,
+  "branza": "Masaż",
+  "podmiot": "Masaż nóg",
+  "kandydat": "Masaż Autorski",
+  "human": "powiazane",
+  "final": "niepewne",
+  "sedzia": "powiazane",
+  "score": 0.51,
+  "cechy": {
+   "ten_sam_zabieg": 0.12,
+   "ten_sam_obszar": 0.04,
+   "ten_sam_wariant": 0.05
+  }
+ },
+ {
+  "id": 467,
+  "branza": "Masaż",
+  "podmiot": "Masaż twarzy oraz głowy z refleksologią.",
+  "kandydat": "Reset dla głowy",
+  "human": null,
+  "final": "niepewne",
+  "sedzia": "powiazane",
+  "score": 0.97,
+  "cechy": {
+   "ten_sam_zabieg": 0.25,
+   "ten_sam_obszar": 0.26,
+   "ten_sam_wariant": 0.11
+  }
+ },
+ {
+  "id": 468,
+  "branza": "Paznokcie",
+  "podmiot": "Pedicure klasyczny + Stopy",
+  "kandydat": "Pedicure klasyczny",
+  "human": null,
+  "final": "niepewne",
+  "sedzia": "powiazane",
+  "score": 1.13,
+  "cechy": {
+   "ten_sam_zabieg": 0.41,
+   "ten_sam_obszar": 0.22,
+   "ten_sam_wariant": 0.21
+  }
+ },
+ {
+  "id": 470,
+  "branza": "Fryzjer",
+  "podmiot": "Endermologia LPG Alliance jeden zabieg na ciało",
+  "kandydat": "Endermologia LPG Całe Ciało",
+  "human": null,
+  "final": "niepewne",
+  "sedzia": "powiazane",
+  "score": 1.46,
+  "cechy": {
+   "ten_sam_zabieg": 0.75,
+   "ten_sam_obszar": 0.65,
+   "ten_sam_wariant": 0.39
+  }
+ },
+ {
+  "id": 472,
+  "branza": "Masaż",
+  "podmiot": "Masaż stóp z refleksologią",
+  "kandydat": "Refleksologia stóp",
+  "human": null,
+  "final": "niepewne",
+  "sedzia": "tozsame",
+  "score": 1.77,
+  "cechy": {
+   "ten_sam_zabieg": 0.73,
+   "ten_sam_obszar": 0.67,
+   "ten_sam_wariant": 0.31
+  }
+ },
+ {
+  "id": 473,
+  "branza": "Masaż",
+  "podmiot": "Masaż intensywnie liftingujacy + zabieg na twarz",
+  "kandydat": "🔥 Mezoterapia igłowa - NCTC 109 - Twarz / szyja",
+  "human": null,
+  "final": "rozne",
+  "sedzia": "rozne",
+  "score": 0.01,
+  "cechy": {
+   "ten_sam_zabieg": 0.03,
+   "ten_sam_obszar": 0.22,
+   "ten_sam_wariant": 0.03
+  }
+ },
+ {
+  "id": 474,
+  "branza": "Tatuaż i Piercing",
+  "podmiot": "Przedłużanie rzęs 1:3",
+  "kandydat": "Przedłużanie rzęs 2:1 uzupełnienie do 3 tyg",
+  "human": null,
+  "final": "niepewne",
+  "sedzia": "powiazane",
+  "score": 1.0,
+  "cechy": {
+   "ten_sam_zabieg": 0.24,
+   "ten_sam_obszar": 0.34,
+   "ten_sam_wariant": 0.02
+  }
+ },
+ {
+  "id": 475,
+  "branza": "Barber shop",
+  "podmiot": "Strzyżenie męskie z myciem i model",
+  "kandydat": "Strzyżenie męskie długie włosy",
+  "human": null,
+  "final": "niepewne",
+  "sedzia": "powiazane",
+  "score": 0.99,
+  "cechy": {
+   "ten_sam_zabieg": 0.17,
+   "ten_sam_obszar": 0.22,
+   "ten_sam_wariant": 0.06
+  }
+ },
+ {
+  "id": 476,
+  "branza": "Salon Kosmetyczny",
+  "podmiot": "Makijaż permanentny. Usta",
+  "kandydat": "makijaż permanentny brwi   3D",
+  "human": null,
+  "final": "rozne",
+  "sedzia": "rozne",
+  "score": 0.24,
+  "cechy": {
+   "ten_sam_zabieg": 0.3,
+   "ten_sam_obszar": 0.02,
+   "ten_sam_wariant": 0.06
+  }
+ },
+ {
+  "id": 477,
+  "branza": "Paznokcie",
+  "podmiot": "Manicure klasyczny",
+  "kandydat": "Manicure klasyczny z odżywką",
+  "human": null,
+  "final": "niepewne",
+  "sedzia": "powiazane",
+  "score": 1.34,
+  "cechy": {
+   "ten_sam_zabieg": 0.38,
+   "ten_sam_obszar": 0.23,
+   "ten_sam_wariant": 0.21
+  }
+ },
+ {
+  "id": 478,
+  "branza": "Salon Kosmetyczny",
+  "podmiot": "Uzupełnienie paznokci akrylożelem",
+  "kandydat": "Uzupełnienie Paznokci Żelowych",
+  "human": null,
+  "final": "niepewne",
+  "sedzia": "powiazane",
+  "score": 1.22,
+  "cechy": {
+   "ten_sam_zabieg": 0.38,
+   "ten_sam_obszar": 0.69,
+   "ten_sam_wariant": 0.42
+  }
+ },
+ {
+  "id": 480,
+  "branza": "Salon Kosmetyczny",
+  "podmiot": "Makijaż permanentny. Brwi",
+  "kandydat": "Permanentny makijaż brwi",
+  "human": null,
+  "final": "niepewne",
+  "sedzia": "tozsame",
+  "score": 1.96,
+  "cechy": {
+   "ten_sam_zabieg": 0.72,
+   "ten_sam_obszar": 0.89,
+   "ten_sam_wariant": 0.36
+  }
+ },
+ {
+  "id": 481,
+  "branza": "Masaż",
+  "podmiot": "Lifting twarzy  bez skalpela PROGELIFT",
+  "kandydat": "Azjatycka pielegnacja twarzy, szyi, głowy",
+  "human": null,
+  "final": "rozne",
+  "sedzia": "rozne",
+  "score": 0.03,
+  "cechy": {
+   "ten_sam_zabieg": 0.03,
+   "ten_sam_obszar": 0.14,
+   "ten_sam_wariant": 0.03
+  }
+ },
+ {
+  "id": 482,
+  "branza": "Barber shop",
+  "podmiot": "Strzyżenie włosów",
+  "kandydat": "Prostowanie włosów",
+  "human": null,
+  "final": "rozne",
+  "sedzia": "rozne",
+  "score": 0.02,
+  "cechy": {
+   "ten_sam_zabieg": 0.03,
+   "ten_sam_obszar": 0.3,
+   "ten_sam_wariant": 0.03
+  }
+ },
+ {
+  "id": 483,
+  "branza": "Barber shop",
+  "podmiot": "Strzyżenie włosów",
+  "kandydat": "Strzyżenie + Cover (odsiwianie) włosów",
+  "human": null,
+  "final": "powiazane",
+  "sedzia": "powiazane",
+  "score": 0.99,
+  "cechy": {
+   "ten_sam_zabieg": 0.22,
+   "ten_sam_obszar": 0.17,
+   "ten_sam_wariant": 0.08
+  }
+ },
+ {
+  "id": 484,
+  "branza": "Barber shop",
+  "podmiot": "Farbowanie włosów  Balejaż męski",
+  "kandydat": "Balejaż - włosy długie",
+  "human": null,
+  "final": "niepewne",
+  "sedzia": "powiazane",
+  "score": 0.92,
+  "cechy": {
+   "ten_sam_zabieg": 0.3,
+   "ten_sam_obszar": 0.29,
+   "ten_sam_wariant": 0.04
+  }
+ },
+ {
+  "id": 485,
+  "branza": "Paznokcie",
+  "podmiot": "Manicure męski",
+  "kandydat": "Pedicure męski",
+  "human": null,
+  "final": "rozne",
+  "sedzia": "rozne",
+  "score": 0.14,
+  "cechy": {
+   "ten_sam_zabieg": 0.15,
+   "ten_sam_obszar": 0.04,
+   "ten_sam_wariant": 0.11
+  }
+ },
+ {
+  "id": 486,
+  "branza": "Salon Kosmetyczny",
+  "podmiot": "Manicure hybrydowy french",
+  "kandydat": "Pedicure hybrydowy same paznokcie +french",
+  "human": null,
+  "final": "rozne",
+  "sedzia": "rozne",
+  "score": 0.29,
+  "cechy": {
+   "ten_sam_zabieg": 0.24,
+   "ten_sam_obszar": 0.03,
+   "ten_sam_wariant": 0.07
+  }
+ },
+ {
+  "id": 488,
+  "branza": "Fryzjer",
+  "podmiot": "Konsultacja fizjoterapeutyczna",
+  "kandydat": "Osteopatia trzewna / terapia wisceralna",
+  "human": null,
+  "final": "rozne",
+  "sedzia": "rozne",
+  "score": 0.18,
+  "cechy": {
+   "ten_sam_zabieg": 0.03,
+   "ten_sam_obszar": 0.07,
+   "ten_sam_wariant": 0.03
+  }
+ },
+ {
+  "id": 489,
+  "branza": "Fryzjer",
+  "podmiot": "Leczenie nadpotliwości pach toksyną botulinową",
+  "kandydat": "Leczenie Bruksizmu- BotoxBotox",
+  "human": null,
+  "final": "niepewne",
+  "sedzia": "rozne",
+  "score": 0.06,
+  "cechy": {
+   "ten_sam_zabieg": 0.35,
+   "ten_sam_obszar": 0.03,
+   "ten_sam_wariant": 0.05
+  }
+ },
+ {
+  "id": 490,
+  "branza": "Fryzjer",
+  "podmiot": "Leczenie nadpotliwości pach toksyną botulinową",
+  "kandydat": "Leczenie nadpotliwości toksyna botulinową",
+  "human": null,
+  "final": "tozsame",
+  "sedzia": "powiazane",
+  "score": 1.09,
+  "cechy": {
+   "ten_sam_zabieg": 0.8,
+   "ten_sam_obszar": 0.24,
+   "ten_sam_wariant": 0.25
+  }
+ },
+ {
+  "id": 466,
+  "branza": "Masaż",
+  "podmiot": "Masaż brzucha + misa tybetańska",
+  "kandydat": "Masaż próżniowy brzuch + boki + plecy",
+  "human": "rozne",
+  "final": "niepewne",
+  "sedzia": "powiazane",
+  "score": 0.69,
+  "cechy": {
+   "ten_sam_zabieg": 0.12,
+   "ten_sam_obszar": 0.1,
+   "ten_sam_wariant": 0.06
+  }
+ },
+ {
+  "id": 181,
+  "branza": "Masaż",
+  "podmiot": "Masaż stóp z refleksologią",
+  "kandydat": "Tajski masaż stóp z elementami refleksoterapii",
+  "human": null,
+  "final": "powiazane",
+  "sedzia": "powiazane",
+  "score": 1.18,
+  "cechy": {
+   "ten_sam_zabieg": 0.41,
+   "ten_sam_obszar": 0.59,
+   "ten_sam_wariant": 0.2
+  }
+ },
+ {
+  "id": 183,
+  "branza": "Paznokcie",
+  "podmiot": "Lami+regulacja+farbowanie",
+  "kandydat": "Brwi kolor + regulacja",
+  "human": null,
+  "final": "niepewne",
+  "sedzia": "powiazane",
+  "score": 0.85,
+  "cechy": {
+   "ten_sam_zabieg": 0.12,
+   "ten_sam_obszar": 0.31,
+   "ten_sam_wariant": 0.09
+  }
+ },
+ {
+  "id": 186,
+  "branza": "Masaż",
+  "podmiot": "Masaż intensywnie liftingujacy + zabieg na twarz",
+  "kandydat": "Akupunktura Kosmetyczna Z Masażem Liftingującym",
+  "human": null,
+  "final": "powiazane",
+  "sedzia": "powiazane",
+  "score": 0.78,
+  "cechy": {
+   "ten_sam_zabieg": 0.15,
+   "ten_sam_obszar": 0.37,
+   "ten_sam_wariant": 0.1
+  }
+ },
+ {
+  "id": 189,
+  "branza": "Fryzjer",
+  "podmiot": "Masaż klasyczny",
+  "kandydat": "Rytuał Regeneracyjny",
+  "human": null,
+  "final": "powiazane",
+  "sedzia": "powiazane",
+  "score": 0.73,
+  "cechy": {
+   "ten_sam_zabieg": 0.14,
+   "ten_sam_obszar": 0.24,
+   "ten_sam_wariant": 0.06
+  }
+ },
+ {
+  "id": 191,
+  "branza": "Fryzjer",
+  "podmiot": "MAKIJAŻ PERMANENTNY BRWI",
+  "kandydat": "usuwanie makijażu permanentnego brwi / ust",
+  "human": null,
+  "final": "rozne",
+  "sedzia": "rozne",
+  "score": 0.04,
+  "cechy": {
+   "ten_sam_zabieg": 0.02,
+   "ten_sam_obszar": 0.14,
+   "ten_sam_wariant": 0.01
+  }
+ },
+ {
+  "id": 200,
+  "branza": "Salon Kosmetyczny",
+  "podmiot": "Manicure hybrydowy",
+  "kandydat": "Manicure hybrydowy",
+  "human": null,
+  "final": "tozsame",
+  "sedzia": "tozsame",
+  "score": 1.92,
+  "cechy": {
+   "ten_sam_zabieg": 0.84,
+   "ten_sam_obszar": 0.73,
+   "ten_sam_wariant": 0.43
+  }
+ },
+ {
+  "id": 205,
+  "branza": "Barber shop",
+  "podmiot": "Strzyżenie długich włosów",
+  "kandydat": "Strzyżenie damskie włosy krótkie",
+  "human": null,
+  "final": "rozne",
+  "sedzia": "powiazane",
+  "score": 0.99,
+  "cechy": {
+   "ten_sam_zabieg": 0.23,
+   "ten_sam_obszar": 0.3,
+   "ten_sam_wariant": 0.02
+  }
+ },
+ {
+  "id": 208,
+  "branza": "Fryzjer",
+  "podmiot": "Peeling kawitacyjny z maską algową",
+  "kandydat": "Peeling kawitacyjny z masażem i maską algową",
+  "human": null,
+  "final": "powiazane",
+  "sedzia": "powiazane",
+  "score": 1.04,
+  "cechy": {
+   "ten_sam_zabieg": 0.59,
+   "ten_sam_obszar": 0.17,
+   "ten_sam_wariant": 0.16
+  }
+ },
+ {
+  "id": 209,
+  "branza": "Fryzjer",
+  "podmiot": "Oczyszczanie wodorowe + manualne",
+  "kandydat": "Oczyszczanie + mikrodermabrazja + maska algowa",
+  "human": null,
+  "final": "powiazane",
+  "sedzia": "powiazane",
+  "score": 0.82,
+  "cechy": {
+   "ten_sam_zabieg": 0.08,
+   "ten_sam_obszar": 0.23,
+   "ten_sam_wariant": 0.08
+  }
+ },
+ {
+  "id": 461,
+  "branza": "Paznokcie",
+  "podmiot": "Lami+regulacja+farbowanie",
+  "kandydat": "Laminacja brwi z regulacją",
+  "human": null,
+  "final": "niepewne",
+  "sedzia": "powiazane",
+  "score": 1.34,
+  "cechy": {
+   "ten_sam_zabieg": 0.75,
+   "ten_sam_obszar": 0.75,
+   "ten_sam_wariant": 0.53
+  }
+ },
+ {
+  "id": 469,
+  "branza": "Salon Kosmetyczny",
+  "podmiot": "Usunięcie akrylu z płytki paznokci plus manicure",
+  "kandydat": "Usunięcie stylizacji żelowej z manicure i odżywka",
+  "human": null,
+  "final": "niepewne",
+  "sedzia": "powiazane",
+  "score": 0.94,
+  "cechy": {
+   "ten_sam_zabieg": 0.19,
+   "ten_sam_obszar": 0.42,
+   "ten_sam_wariant": 0.23
+  }
+ },
+ {
+  "id": 479,
+  "branza": "Fryzjer",
+  "podmiot": "Oczyszczanie manualne pleców",
+  "kandydat": "Oczyszczanie Manualne Twarzy",
+  "human": null,
+  "final": "niepewne",
+  "sedzia": "rozne",
+  "score": 0.44,
+  "cechy": {
+   "ten_sam_zabieg": 0.42,
+   "ten_sam_obszar": 0.04,
+   "ten_sam_wariant": 0.09
+  }
+ },
+ {
+  "id": 491,
+  "branza": "Barber shop",
+  "podmiot": "Strzyżenie damskie krótkie (5-10 cm) włosy",
+  "kandydat": "Strzyżenie damskie -włosy krótkie + modelowanie",
+  "human": null,
+  "final": "powiazane",
+  "sedzia": "powiazane",
+  "score": 1.26,
+  "cechy": {
+   "ten_sam_zabieg": 0.35,
+   "ten_sam_obszar": 0.53,
+   "ten_sam_wariant": 0.32
+  }
+ },
+ {
+  "id": 492,
+  "branza": "Masaż",
+  "podmiot": "Masaż brzucha + misa tybetańska",
+  "kandydat": "Masaż biustu -  liftingujący/relaksacyjny",
+  "human": null,
+  "final": "rozne",
+  "sedzia": "rozne",
+  "score": 0.14,
+  "cechy": {
+   "ten_sam_zabieg": 0.07,
+   "ten_sam_obszar": 0.03,
+   "ten_sam_wariant": 0.07
+  }
+ },
+ {
+  "id": 493,
+  "branza": "Paznokcie",
+  "podmiot": "Dopełnienie żelem Do 1-2 długości",
+  "kandydat": "Dopełnienie paznokci żelowych długość 3 (długie)",
+  "human": null,
+  "final": "powiazane",
+  "sedzia": "powiazane",
+  "score": 1.0,
+  "cechy": {
+   "ten_sam_zabieg": 0.63,
+   "ten_sam_obszar": 0.21,
+   "ten_sam_wariant": 0.04
+  }
+ },
+ {
+  "id": 494,
+  "branza": "Barber shop",
+  "podmiot": "Strzyżenie męskie tylko nożyczki z myciem i model.",
+  "kandydat": "Strzyżenie damskie bardzo długie",
+  "human": null,
+  "final": "rozne",
+  "sedzia": "rozne",
+  "score": 0.25,
+  "cechy": {
+   "ten_sam_zabieg": 0.06,
+   "ten_sam_obszar": 0.13,
+   "ten_sam_wariant": 0.02
+  }
+ },
+ {
+  "id": 495,
+  "branza": "Tatuaż i Piercing",
+  "podmiot": "Przedłużanie rzęs 1:4",
+  "kandydat": "Przedłużanie rzęs 2:1",
+  "human": null,
+  "final": "powiazane",
+  "sedzia": "powiazane",
+  "score": 1.03,
+  "cechy": {
+   "ten_sam_zabieg": 0.3,
+   "ten_sam_obszar": 0.56,
+   "ten_sam_wariant": 0.04
+  }
+ },
+ {
+  "id": 496,
+  "branza": "Tatuaż i Piercing",
+  "podmiot": "Przedłużanie rzęs 1:1",
+  "kandydat": "Przedłużanie rzęs 2D (1:2)",
+  "human": null,
+  "final": "powiazane",
+  "sedzia": "powiazane",
+  "score": 1.0,
+  "cechy": {
+   "ten_sam_zabieg": 0.13,
+   "ten_sam_obszar": 0.47,
+   "ten_sam_wariant": 0.04
+  }
+ },
+ {
+  "id": 497,
+  "branza": "Fryzjer",
+  "podmiot": "Masaż klasyczny",
+  "kandydat": "Masaż klasyczny całego ciała",
+  "human": null,
+  "final": "tozsame",
+  "sedzia": "powiazane",
+  "score": 1.11,
+  "cechy": {
+   "ten_sam_zabieg": 0.59,
+   "ten_sam_obszar": 0.22,
+   "ten_sam_wariant": 0.16
+  }
+ },
+ {
+  "id": 498,
+  "branza": "Paznokcie",
+  "podmiot": "Manicure męski",
+  "kandydat": "Pedicure męski",
+  "human": null,
+  "final": "rozne",
+  "sedzia": "rozne",
+  "score": 0.11,
+  "cechy": {
+   "ten_sam_zabieg": 0.13,
+   "ten_sam_obszar": 0.04,
+   "ten_sam_wariant": 0.11
+  }
+ },
+ {
+  "id": 499,
+  "branza": "Paznokcie",
+  "podmiot": "Przedłużanie paznokci 6-9",
+  "kandydat": "Przedłużenie paznokci - do 4 linii na formie",
+  "human": null,
+  "final": "powiazane",
+  "sedzia": "powiazane",
+  "score": 1.02,
+  "cechy": {
+   "ten_sam_zabieg": 0.32,
+   "ten_sam_obszar": 0.41,
+   "ten_sam_wariant": 0.09
+  }
+ },
+ {
+  "id": 500,
+  "branza": "Tatuaż i Piercing",
+  "podmiot": "Przedłużanie rzęs 1:3",
+  "kandydat": "Przedłużanie rzęs 1:1",
+  "human": null,
+  "final": "powiazane",
+  "sedzia": "powiazane",
+  "score": 1.0,
+  "cechy": {
+   "ten_sam_zabieg": 0.23,
+   "ten_sam_obszar": 0.43,
+   "ten_sam_wariant": 0.04
+  }
+ },
+ {
+  "id": 528,
+  "branza": "Fryzjer",
+  "podmiot": "Endermologia LPG - 10 zabiegów na ciało",
+  "kandydat": "Pakiet Endermologia LPG 2 Partie",
+  "human": null,
+  "final": "powiazane",
+  "sedzia": "powiazane",
+  "score": 1.01,
+  "cechy": {
+   "ten_sam_zabieg": 0.72,
+   "ten_sam_obszar": 0.24,
+   "ten_sam_wariant": 0.08
+  }
+ },
+ {
+  "id": 558,
+  "branza": "Salon Kosmetyczny",
+  "podmiot": "Refresh (linie rzęs). Od 3.5-18miesięcy po zabiegu",
+  "kandydat": "Przedłużanie rzęs 3D/4D",
+  "human": null,
+  "final": "niepewne",
+  "sedzia": "powiazane",
+  "score": 0.99,
+  "cechy": {
+   "ten_sam_zabieg": 0.21,
+   "ten_sam_obszar": 0.22,
+   "ten_sam_wariant": 0.02
+  }
+ },
+ {
+  "id": 42,
+  "branza": "Masaż",
+  "podmiot": "Masaż stóp z refleksologią",
+  "kandydat": "Masaż zdrowotny",
+  "human": "powiazane",
+  "final": "niepewne",
+  "sedzia": "powiazane",
+  "score": 0.91,
+  "cechy": {
+   "ten_sam_zabieg": 0.17,
+   "ten_sam_obszar": 0.08,
+   "ten_sam_wariant": 0.07
+  }
+ },
+ {
+  "id": 86,
+  "branza": "Tatuaż i Piercing",
+  "podmiot": "Laminowanie rzęs+farbowanie",
+  "kandydat": "Laminacja brwi i rzęs",
+  "human": "powiazane",
+  "final": "powiazane",
+  "sedzia": "powiazane",
+  "score": 0.98,
+  "cechy": {
+   "ten_sam_zabieg": 0.3,
+   "ten_sam_obszar": 0.18,
+   "ten_sam_wariant": 0.08
+  }
+ },
+ {
+  "id": 529,
+  "branza": "Fryzjer",
+  "podmiot": "Endermologia LPG- Pakiet 5 zabiegów na ciało",
+  "kandydat": "Masaż LPG 10 zabiegów",
+  "human": null,
+  "final": "niepewne",
+  "sedzia": "powiazane",
+  "score": 1.0,
+  "cechy": {
+   "ten_sam_zabieg": 0.77,
+   "ten_sam_obszar": 0.27,
+   "ten_sam_wariant": 0.01
+  }
+ },
+ {
+  "id": 530,
+  "branza": "Salon Kosmetyczny",
+  "podmiot": "Uzupełnienie długich paznokci powyżej 3 tygodni",
+  "kandydat": "Uzupełnienie paznokci do 3 tyg.",
+  "human": null,
+  "final": "powiazane",
+  "sedzia": "powiazane",
+  "score": 1.0,
+  "cechy": {
+   "ten_sam_zabieg": 0.32,
+   "ten_sam_obszar": 0.34,
+   "ten_sam_wariant": 0.07
+  }
+ },
+ {
+  "id": 531,
+  "branza": "Masaż",
+  "podmiot": "Masaż twarzy z refleksologią + masaż pleców i stóp",
+  "kandydat": "Od stóp do głów: Tajski Masaż Stóp + Kobido",
+  "human": null,
+  "final": "powiazane",
+  "sedzia": "powiazane",
+  "score": 0.94,
+  "cechy": {
+   "ten_sam_zabieg": 0.11,
+   "ten_sam_obszar": 0.37,
+   "ten_sam_wariant": 0.15
+  }
+ },
+ {
+  "id": 532,
+  "branza": "Paznokcie",
+  "podmiot": "Manicure męski",
+  "kandydat": "Pedicure męski",
+  "human": null,
+  "final": "rozne",
+  "sedzia": "rozne",
+  "score": 0.14,
+  "cechy": {
+   "ten_sam_zabieg": 0.15,
+   "ten_sam_obszar": 0.04,
+   "ten_sam_wariant": 0.11
+  }
+ },
+ {
+  "id": 533,
+  "branza": "Salon Kosmetyczny",
+  "podmiot": "Refresh OCZY. Od 3.5-18miesięcy po zabiegu",
+  "kandydat": "Tongue (16+)",
+  "human": null,
+  "final": "rozne",
+  "sedzia": "rozne",
+  "score": 0.0,
+  "cechy": {
+   "ten_sam_zabieg": 0.02,
+   "ten_sam_obszar": 0.04,
+   "ten_sam_wariant": 0.02
+  }
+ },
+ {
+  "id": 534,
+  "branza": "Fryzjer",
+  "podmiot": "Endermologia LPG Alliance jeden zabieg na ciało",
+  "kandydat": "Endermologia LPG 2 Partie",
+  "human": null,
+  "final": "powiazane",
+  "sedzia": "powiazane",
+  "score": 0.99,
+  "cechy": {
+   "ten_sam_zabieg": 0.6,
+   "ten_sam_obszar": 0.21,
+   "ten_sam_wariant": 0.04
+  }
+ },
+ {
+  "id": 535,
+  "branza": "Paznokcie",
+  "podmiot": "Przedłużenie paznokci akrylem do 4dł +hybryda",
+  "kandydat": "Uzupełnienie paznokci+hybryda na pazn. u stóp",
+  "human": null,
+  "final": "niepewne",
+  "sedzia": "powiazane",
+  "score": 0.74,
+  "cechy": {
+   "ten_sam_zabieg": 0.2,
+   "ten_sam_obszar": 0.04,
+   "ten_sam_wariant": 0.02
+  }
+ },
+ {
+  "id": 536,
+  "branza": "Tatuaż i Piercing",
+  "podmiot": "Laminowanie rzęs",
+  "kandydat": "Laminacja rzęs z koloryzacją",
+  "human": null,
+  "final": "powiazane",
+  "sedzia": "powiazane",
+  "score": 1.03,
+  "cechy": {
+   "ten_sam_zabieg": 0.33,
+   "ten_sam_obszar": 0.22,
+   "ten_sam_wariant": 0.11
+  }
+ },
+ {
+  "id": 537,
+  "branza": "Salon Kosmetyczny",
+  "podmiot": "Manicure hybrydowy",
+  "kandydat": "Manicure hybrydowy",
+  "human": null,
+  "final": "tozsame",
+  "sedzia": "tozsame",
+  "score": 1.92,
+  "cechy": {
+   "ten_sam_zabieg": 0.84,
+   "ten_sam_obszar": 0.73,
+   "ten_sam_wariant": 0.43
+  }
+ },
+ {
+  "id": 539,
+  "branza": "Barber shop",
+  "podmiot": "Depilacja woskiem",
+  "kandydat": "Depilacja woskiem – uda",
+  "human": null,
+  "final": "powiazane",
+  "sedzia": "powiazane",
+  "score": 1.0,
+  "cechy": {
+   "ten_sam_zabieg": 0.8,
+   "ten_sam_obszar": 0.08,
+   "ten_sam_wariant": 0.11
+  }
+ },
+ {
+  "id": 540,
+  "branza": "Barber shop",
+  "podmiot": "Strzyżenie włosów",
+  "kandydat": "Strzyżenie damskie włosy długie",
+  "human": null,
+  "final": "powiazane",
+  "sedzia": "powiazane",
+  "score": 0.97,
+  "cechy": {
+   "ten_sam_zabieg": 0.3,
+   "ten_sam_obszar": 0.24,
+   "ten_sam_wariant": 0.07
+  }
+ },
+ {
+  "id": 546,
+  "branza": "Fryzjer",
+  "podmiot": "MAKIJAŻ PERMANENTNY BRWI",
+  "kandydat": "KOREKTA makijażu permanentnego od roku do 2lat",
+  "human": "powiazane",
+  "final": "niepewne",
+  "sedzia": "powiazane",
+  "score": 0.96,
+  "cechy": {
+   "ten_sam_zabieg": 0.26,
+   "ten_sam_obszar": 0.18,
+   "ten_sam_wariant": 0.02
+  }
+ },
+ {
+  "id": 542,
+  "branza": "Tatuaż i Piercing",
+  "podmiot": "Przedłużanie rzęs 1:3",
+  "kandydat": "Przedłużanie rzęs 1:1",
+  "human": null,
+  "final": "powiazane",
+  "sedzia": "powiazane",
+  "score": 1.0,
+  "cechy": {
+   "ten_sam_zabieg": 0.24,
+   "ten_sam_obszar": 0.44,
+   "ten_sam_wariant": 0.05
+  }
+ },
+ {
+  "id": 544,
+  "branza": "Salon Kosmetyczny",
+  "podmiot": "Peeling chemiczny ClearChoice Green Tea",
+  "kandydat": "Peeling węglowy",
+  "human": null,
+  "final": "rozne",
+  "sedzia": "powiazane",
+  "score": 0.77,
+  "cechy": {
+   "ten_sam_zabieg": 0.07,
+   "ten_sam_obszar": 0.25,
+   "ten_sam_wariant": 0.04
+  }
+ },
+ {
+  "id": 545,
+  "branza": "Masaż",
+  "podmiot": "Lifting twarzy  bez skalpela PROGELIFT",
+  "kandydat": "PRO XN Terapia rozjaśniająca- boost up- twarz, ...",
+  "human": null,
+  "final": "niepewne",
+  "sedzia": "rozne",
+  "score": 0.02,
+  "cechy": {
+   "ten_sam_zabieg": 0.04,
+   "ten_sam_obszar": 0.23,
+   "ten_sam_wariant": 0.03
+  }
+ },
+ {
+  "id": 548,
+  "branza": "Fryzjer",
+  "podmiot": "Endermologia LPG- Pakiet 5 zabiegów na ciało",
+  "kandydat": "Endermologia Lpg Alliance - 6 zabiegów - 40 min",
+  "human": "powiazane",
+  "final": "niepewne",
+  "sedzia": "powiazane",
+  "score": 0.98,
+  "cechy": {
+   "ten_sam_zabieg": 0.69,
+   "ten_sam_obszar": 0.43,
+   "ten_sam_wariant": 0.02
+  }
+ },
+ {
+  "id": 547,
+  "branza": "Salon Kosmetyczny",
+  "podmiot": "Mezoterapia mikroigłowa z egzosomami DERMALOGICA",
+  "kandydat": "Mezoterapia mikroigłowa",
+  "human": null,
+  "final": "powiazane",
+  "sedzia": "powiazane",
+  "score": 1.18,
+  "cechy": {
+   "ten_sam_zabieg": 0.78,
+   "ten_sam_obszar": 0.33,
+   "ten_sam_wariant": 0.15
+  }
+ },
+ {
+  "id": 553,
+  "branza": "Fryzjer",
+  "podmiot": "Endermologia LPG dla MĘŻCZYZN - 1 zabieg",
+  "kandydat": "Pakiet Endermologia LPG Całe Ciało",
+  "human": "powiazane",
+  "final": "niepewne",
+  "sedzia": "powiazane",
+  "score": 0.96,
+  "cechy": {
+   "ten_sam_zabieg": 0.64,
+   "ten_sam_obszar": 0.13,
+   "ten_sam_wariant": 0.04
+  }
+ },
+ {
+  "id": 549,
+  "branza": "Paznokcie",
+  "podmiot": "Uzupełnienie długich paznokci",
+  "kandydat": "Uzupełnienie Paznokcie+Pyłek 1-2 długości",
+  "human": null,
+  "final": "niepewne",
+  "sedzia": "powiazane",
+  "score": 1.19,
+  "cechy": {
+   "ten_sam_zabieg": 0.52,
+   "ten_sam_obszar": 0.4,
+   "ten_sam_wariant": 0.23
+  }
+ },
+ {
+  "id": 550,
+  "branza": "Masaż",
+  "podmiot": "Lekka głowa NOWOŚĆ",
+  "kandydat": "Masaż twarzy, szyi i dekoltu z efektem odnowy skór",
+  "human": null,
+  "final": "niepewne",
+  "sedzia": "powiazane",
+  "score": 0.64,
+  "cechy": {
+   "ten_sam_zabieg": 0.12,
+   "ten_sam_obszar": 0.11,
+   "ten_sam_wariant": 0.06
+  }
+ },
+ {
+  "id": 552,
+  "branza": "Fryzjer",
+  "podmiot": "INTRAJECT Globalny zabieg restrukturyzacyjny",
+  "kandydat": "Re:modeling",
+  "human": null,
+  "final": "powiazane",
+  "sedzia": "rozne",
+  "score": 0.15,
+  "cechy": {
+   "ten_sam_zabieg": 0.05,
+   "ten_sam_obszar": 0.15,
+   "ten_sam_wariant": 0.04
+  }
+ },
+ {
+  "id": 554,
+  "branza": "Fryzjer",
+  "podmiot": "Osocze bogatopłytkowe+fibryna twarz,szyja,dekolt",
+  "kandydat": "Mezoterapia igłowa kolagenem  cała twarz",
+  "human": null,
+  "final": "powiazane",
+  "sedzia": "rozne",
+  "score": 0.06,
+  "cechy": {
+   "ten_sam_zabieg": 0.04,
+   "ten_sam_obszar": 0.07,
+   "ten_sam_wariant": 0.03
+  }
+ },
+ {
+  "id": 555,
+  "branza": "Masaż",
+  "podmiot": "Masaż stóp z refleksologią",
+  "kandydat": "Tajski masaż stóp – głęboki relaks nóg",
+  "human": null,
+  "final": "powiazane",
+  "sedzia": "powiazane",
+  "score": 1.07,
+  "cechy": {
+   "ten_sam_zabieg": 0.21,
+   "ten_sam_obszar": 0.45,
+   "ten_sam_wariant": 0.13
+  }
+ },
+ {
+  "id": 556,
+  "branza": "Tatuaż i Piercing",
+  "podmiot": "Przedłużanie rzęs 1:4",
+  "kandydat": "Przedłużanie rzęs 3:1-4:1",
+  "human": null,
+  "final": "niepewne",
+  "sedzia": "powiazane",
+  "score": 1.1,
+  "cechy": {
+   "ten_sam_zabieg": 0.35,
+   "ten_sam_obszar": 0.49,
+   "ten_sam_wariant": 0.11
+  }
+ },
+ {
+  "id": 557,
+  "branza": "Salon Kosmetyczny",
+  "podmiot": "Odnowienie (linie rzęs).Od półtora roku od zabiegu",
+  "kandydat": "Laminowanie rzęs",
+  "human": null,
+  "final": "rozne",
+  "sedzia": "powiazane",
+  "score": 1.02,
+  "cechy": {
+   "ten_sam_zabieg": 0.44,
+   "ten_sam_obszar": 0.43,
+   "ten_sam_wariant": 0.04
+  }
+ },
+ {
+  "id": 541,
+  "branza": "Masaż",
+  "podmiot": "Lekka głowa NOWOŚĆ",
+  "kandydat": "Masaż głowy nawilżająco-relaksujący",
+  "human": "rozne",
+  "final": "niepewne",
+  "sedzia": "powiazane",
+  "score": 0.94,
+  "cechy": {
+   "ten_sam_zabieg": 0.19,
+   "ten_sam_obszar": 0.36,
+   "ten_sam_wariant": 0.08
+  }
+ },
+ {
+  "id": 1,
+  "branza": "Paznokcie",
+  "podmiot": "Zdobienie na 2 paznokciach (delikatne)",
+  "kandydat": "Przedłużanie paznokci żelem",
+  "human": null,
+  "final": "rozne",
+  "sedzia": "rozne",
+  "score": 0.03,
+  "cechy": {
+   "ten_sam_zabieg": 0.06,
+   "ten_sam_obszar": 0.11,
+   "ten_sam_wariant": 0.03
+  }
+ },
+ {
+  "id": 2,
+  "branza": "Salon Kosmetyczny",
+  "podmiot": "Przedłużanie paznokci akrylożel (do 2 na formie)",
+  "kandydat": "przedłużenie paznokci akrylem/żelem na szablonie",
+  "human": null,
+  "final": "powiazane",
+  "sedzia": "tozsame",
+  "score": 1.6,
+  "cechy": {
+   "ten_sam_zabieg": 0.82,
+   "ten_sam_obszar": 0.83,
+   "ten_sam_wariant": 0.45
+  }
+ },
+ {
+  "id": 3,
+  "branza": "Tatuaż i Piercing",
+  "podmiot": "Rzęsy Mokry efekt 2D",
+  "kandydat": "Modelowanie włosów krótkich",
+  "human": null,
+  "final": "rozne",
+  "sedzia": "rozne",
+  "score": 0.0,
+  "cechy": {
+   "ten_sam_zabieg": 0.01,
+   "ten_sam_obszar": 0.02,
+   "ten_sam_wariant": 0.01
+  }
+ },
+ {
+  "id": 4,
+  "branza": "Tatuaż i Piercing",
+  "podmiot": "Kolorowe rzęsy",
+  "kandydat": "henna rzęsy",
+  "human": null,
+  "final": "niepewne",
+  "sedzia": "rozne",
+  "score": 0.29,
+  "cechy": {
+   "ten_sam_zabieg": 0.05,
+   "ten_sam_obszar": 0.29,
+   "ten_sam_wariant": 0.04
+  }
+ },
+ {
+  "id": 6,
+  "branza": "Fryzjer",
+  "podmiot": "Wygładzenie bruzdy wargowo-nosowej",
+  "kandydat": "Peeling węglowy",
+  "human": null,
+  "final": "rozne",
+  "sedzia": "rozne",
+  "score": 0.0,
+  "cechy": {
+   "ten_sam_zabieg": 0.02,
+   "ten_sam_obszar": 0.04,
+   "ten_sam_wariant": 0.02
+  }
+ },
+ {
+  "id": 7,
+  "branza": "Paznokcie",
+  "podmiot": "Manicure męski",
+  "kandydat": "Manicure męski",
+  "human": null,
+  "final": "tozsame",
+  "sedzia": "tozsame",
+  "score": 1.92,
+  "cechy": {
+   "ten_sam_zabieg": 0.62,
+   "ten_sam_obszar": 0.73,
+   "ten_sam_wariant": 0.42
+  }
+ },
+ {
+  "id": 8,
+  "branza": "Salon Kosmetyczny",
+  "podmiot": "Peeling chemiczny Acne Peel",
+  "kandydat": "Kwas przeciwtrądzikowy",
+  "human": null,
+  "final": "powiazane",
+  "sedzia": "tozsame",
+  "score": 1.71,
+  "cechy": {
+   "ten_sam_zabieg": 0.79,
+   "ten_sam_obszar": 0.62,
+   "ten_sam_wariant": 0.3
+  }
+ },
+ {
+  "id": 9,
+  "branza": "Barber shop",
+  "podmiot": "Strzyżenie damskie krótkie (5-10 cm) włosy",
+  "kandydat": "Strzyżenie damskie włosy krótkie (do ucha)",
+  "human": null,
+  "final": "powiazane",
+  "sedzia": "powiazane",
+  "score": 1.43,
+  "cechy": {
+   "ten_sam_zabieg": 0.6,
+   "ten_sam_obszar": 0.49,
+   "ten_sam_wariant": 0.36
+  }
+ },
+ {
+  "id": 10,
+  "branza": "Barber shop",
+  "podmiot": "Trymowanie brody",
+  "kandydat": "Strzyżenie brody",
+  "human": null,
+  "final": "niepewne",
+  "sedzia": "powiazane",
+  "score": 1.49,
+  "cechy": {
+   "ten_sam_zabieg": 0.52,
+   "ten_sam_obszar": 0.64,
+   "ten_sam_wariant": 0.2
+  }
+ },
+ {
+  "id": 11,
+  "branza": "Barber shop",
+  "podmiot": "Farbowanie włosów  Balejaż męski",
+  "kandydat": "Baleyage + strzyżenie [420zł - 580zł]",
+  "human": null,
+  "final": "niepewne",
+  "sedzia": "powiazane",
+  "score": 0.65,
+  "cechy": {
+   "ten_sam_zabieg": 0.3,
+   "ten_sam_obszar": 0.23,
+   "ten_sam_wariant": 0.05
+  }
+ },
+ {
+  "id": 12,
+  "branza": "Salon Kosmetyczny",
+  "podmiot": "Manicure hybrydowy french",
+  "kandydat": "Manicure hybrydowy",
+  "human": null,
+  "final": "niepewne",
+  "sedzia": "powiazane",
+  "score": 1.01,
+  "cechy": {
+   "ten_sam_zabieg": 0.64,
+   "ten_sam_obszar": 0.28,
+   "ten_sam_wariant": 0.17
+  }
+ },
+ {
+  "id": 13,
+  "branza": "Paznokcie",
+  "podmiot": "Pedicure męski",
+  "kandydat": "Manicure męski",
+  "human": null,
+  "final": "rozne",
+  "sedzia": "rozne",
+  "score": 0.15,
+  "cechy": {
+   "ten_sam_zabieg": 0.12,
+   "ten_sam_obszar": 0.04,
+   "ten_sam_wariant": 0.08
+  }
+ },
+ {
+  "id": 14,
+  "branza": "Barber shop",
+  "podmiot": "Depilacja woskiem",
+  "kandydat": "Depilacja woskiem uszu i nosa",
+  "human": null,
+  "final": "niepewne",
+  "sedzia": "powiazane",
+  "score": 0.95,
+  "cechy": {
+   "ten_sam_zabieg": 0.64,
+   "ten_sam_obszar": 0.05,
+   "ten_sam_wariant": 0.08
+  }
+ },
+ {
+  "id": 15,
+  "branza": "Paznokcie",
+  "podmiot": "Manicure hybrydowy",
+  "kandydat": "Pedicure tylko palce+hybryda",
+  "human": null,
+  "final": "rozne",
+  "sedzia": "rozne",
+  "score": 0.13,
+  "cechy": {
+   "ten_sam_zabieg": 0.16,
+   "ten_sam_obszar": 0.04,
+   "ten_sam_wariant": 0.05
+  }
+ },
+ {
+  "id": 16,
+  "branza": "Barber shop",
+  "podmiot": "Strzyżenie męskie tylko nożyczki z myciem i model.",
+  "kandydat": "strzyżenie męski ( tylko nożyczki )",
+  "human": null,
+  "final": "tozsame",
+  "sedzia": "powiazane",
+  "score": 1.03,
+  "cechy": {
+   "ten_sam_zabieg": 0.58,
+   "ten_sam_obszar": 0.13,
+   "ten_sam_wariant": 0.16
+  }
+ },
+ {
+  "id": 17,
+  "branza": "Paznokcie",
+  "podmiot": "Pedicure hybrydowy",
+  "kandydat": "Pedicure hybrydowy",
+  "human": null,
+  "final": "tozsame",
+  "sedzia": "tozsame",
+  "score": 2.0,
+  "cechy": {
+   "ten_sam_zabieg": 0.91,
+   "ten_sam_obszar": 0.91,
+   "ten_sam_wariant": 0.64
+  }
+ },
+ {
+  "id": 18,
+  "branza": "Paznokcie",
+  "podmiot": "Pedicure klasyczny",
+  "kandydat": "Pedicure klasyczny",
+  "human": null,
+  "final": "tozsame",
+  "sedzia": "tozsame",
+  "score": 1.99,
+  "cechy": {
+   "ten_sam_zabieg": 0.87,
+   "ten_sam_obszar": 0.88,
+   "ten_sam_wariant": 0.68
+  }
+ },
+ {
+  "id": 19,
+  "branza": "Fryzjer",
+  "podmiot": "Powiększanie,modelowanie ust",
+  "kandydat": "Modelowanie ust",
+  "human": null,
+  "final": "niepewne",
+  "sedzia": "powiazane",
+  "score": 1.19,
+  "cechy": {
+   "ten_sam_zabieg": 0.32,
+   "ten_sam_obszar": 0.39,
+   "ten_sam_wariant": 0.13
+  }
+ },
+ {
+  "id": 20,
+  "branza": "Fryzjer",
+  "podmiot": "Endermologia LPG dla MĘŻCZYZN - 1 zabieg",
+  "kandydat": "Endermologie STANDARD LPG Alliance® - 15 zabiegów",
+  "human": null,
+  "final": "niepewne",
+  "sedzia": "powiazane",
+  "score": 0.99,
+  "cechy": {
+   "ten_sam_zabieg": 0.76,
+   "ten_sam_obszar": 0.17,
+   "ten_sam_wariant": 0.01
+  }
+ },
+ {
+  "id": 21,
+  "branza": "Salon Kosmetyczny",
+  "podmiot": "Uzupełnienie długich paznokci powyżej 3 tygodni",
+  "kandydat": "Przedłużanie paznokci (długość 1-3)",
+  "human": null,
+  "final": "niepewne",
+  "sedzia": "powiazane",
+  "score": 0.98,
+  "cechy": {
+   "ten_sam_zabieg": 0.23,
+   "ten_sam_obszar": 0.25,
+   "ten_sam_wariant": 0.02
+  }
+ },
+ {
+  "id": 22,
+  "branza": "Salon Kosmetyczny",
+  "podmiot": "Peeling kawitacyjny + Peeling migdałowy M.A.D",
+  "kandydat": "Rozświetlenie+rewitalizacja MD retiflash mesopeel®",
+  "human": null,
+  "final": "niepewne",
+  "sedzia": "rozne",
+  "score": 0.33,
+  "cechy": {
+   "ten_sam_zabieg": 0.1,
+   "ten_sam_obszar": 0.27,
+   "ten_sam_wariant": 0.08
+  }
+ },
+ {
+  "id": 23,
+  "branza": "Salon Kosmetyczny",
+  "podmiot": "Uzupełnienie paznokci akrylem",
+  "kandydat": "Manicure hybrydowy",
+  "human": null,
+  "final": "rozne",
+  "sedzia": "rozne",
+  "score": 0.24,
+  "cechy": {
+   "ten_sam_zabieg": 0.04,
+   "ten_sam_obszar": 0.24,
+   "ten_sam_wariant": 0.02
+  }
+ },
+ {
+  "id": 24,
+  "branza": "Masaż",
+  "podmiot": "Lekka głowa NOWOŚĆ",
+  "kandydat": "Masaż głowy",
+  "human": null,
+  "final": "niepewne",
+  "sedzia": "powiazane",
+  "score": 1.49,
+  "cechy": {
+   "ten_sam_zabieg": 0.41,
+   "ten_sam_obszar": 0.57,
+   "ten_sam_wariant": 0.18
+  }
+ },
+ {
+  "id": 559,
+  "branza": "Barber shop",
+  "podmiot": "Trwała ondulacja keratynowa męska włosy krótki",
+  "kandydat": "Keratynowe prostowanie włosy do ramion",
+  "human": null,
+  "final": "rozne",
+  "sedzia": "rozne",
+  "score": 0.09,
+  "cechy": {
+   "ten_sam_zabieg": 0.07,
+   "ten_sam_obszar": 0.2,
+   "ten_sam_wariant": 0.02
+  }
+ },
+ {
+  "id": 560,
+  "branza": "Paznokcie",
+  "podmiot": "Wzmocnienie żelowe naturalnej płytki",
+  "kandydat": "Żel na naturalnej płytce",
+  "human": null,
+  "final": "tozsame",
+  "sedzia": "powiazane",
+  "score": 1.28,
+  "cechy": {
+   "ten_sam_zabieg": 0.59,
+   "ten_sam_obszar": 0.65,
+   "ten_sam_wariant": 0.29
+  }
+ },
+ {
+  "id": 561,
+  "branza": "Fryzjer",
+  "podmiot": "Masaż tkanek głębokich",
+  "kandydat": "Masaż Tkanek Głębokich",
+  "human": null,
+  "final": "tozsame",
+  "sedzia": "tozsame",
+  "score": 1.57,
+  "cechy": {
+   "ten_sam_zabieg": 0.63,
+   "ten_sam_obszar": 0.52,
+   "ten_sam_wariant": 0.3
+  }
+ },
+ {
+  "id": 562,
+  "branza": "Paznokcie",
+  "podmiot": "Manicure męski",
+  "kandydat": "Pedicure męski",
+  "human": null,
+  "final": "rozne",
+  "sedzia": "rozne",
+  "score": 0.08,
+  "cechy": {
+   "ten_sam_zabieg": 0.14,
+   "ten_sam_obszar": 0.03,
+   "ten_sam_wariant": 0.09
+  }
+ },
+ {
+  "id": 5,
+  "branza": "Paznokcie",
+  "podmiot": "Pedicure męski",
+  "kandydat": "Pedicure męski",
+  "human": "tozsame",
+  "final": "tozsame",
+  "sedzia": "tozsame",
+  "score": 1.91,
+  "cechy": {
+   "ten_sam_zabieg": 0.62,
+   "ten_sam_obszar": 0.79,
+   "ten_sam_wariant": 0.54
+  }
+ },
+ {
+  "id": 25,
+  "branza": "Tatuaż i Piercing",
+  "podmiot": "Laminowanie rzęs+farbowanie",
+  "kandydat": "Laminacja rzęs i henna",
+  "human": null,
+  "final": "niepewne",
+  "sedzia": "tozsame",
+  "score": 1.57,
+  "cechy": {
+   "ten_sam_zabieg": 0.54,
+   "ten_sam_obszar": 0.67,
+   "ten_sam_wariant": 0.27
+  }
+ },
+ {
+  "id": 27,
+  "branza": "Paznokcie",
+  "podmiot": "Pedicure klasyczny",
+  "kandydat": "Pedicure Klasyczny SPA",
+  "human": null,
+  "final": "powiazane",
+  "sedzia": "tozsame",
+  "score": 1.68,
+  "cechy": {
+   "ten_sam_zabieg": 0.41,
+   "ten_sam_obszar": 0.3,
+   "ten_sam_wariant": 0.23
+  }
+ },
+ {
+  "id": 29,
+  "branza": "Barber shop",
+  "podmiot": "Depilacja woskiem",
+  "kandydat": "Depilacja woskiem bikini",
+  "human": null,
+  "final": "powiazane",
+  "sedzia": "powiazane",
+  "score": 0.98,
+  "cechy": {
+   "ten_sam_zabieg": 0.56,
+   "ten_sam_obszar": 0.07,
+   "ten_sam_wariant": 0.08
+  }
+ },
+ {
+  "id": 31,
+  "branza": "Barber shop",
+  "podmiot": "Depilacja woskiem",
+  "kandydat": "Depilacja woskiem - pachy",
+  "human": null,
+  "final": "powiazane",
+  "sedzia": "powiazane",
+  "score": 1.0,
+  "cechy": {
+   "ten_sam_zabieg": 0.8,
+   "ten_sam_obszar": 0.09,
+   "ten_sam_wariant": 0.16
+  }
+ },
+ {
+  "id": 32,
+  "branza": "Salon Kosmetyczny",
+  "podmiot": "Makijaż permanentny. Brwi",
+  "kandydat": "Makijaż permanentny - brwi - metoda piórkowa",
+  "human": null,
+  "final": "niepewne",
+  "sedzia": "powiazane",
+  "score": 1.41,
+  "cechy": {
+   "ten_sam_zabieg": 0.57,
+   "ten_sam_obszar": 0.72,
+   "ten_sam_wariant": 0.46
+  }
+ },
+ {
+  "id": 33,
+  "branza": "Tatuaż i Piercing",
+  "podmiot": "Przedłużanie rzęs 1:4",
+  "kandydat": "Przedłużanie rzęs 4-5:1",
+  "human": null,
+  "final": "powiazane",
+  "sedzia": "powiazane",
+  "score": 1.01,
+  "cechy": {
+   "ten_sam_zabieg": 0.22,
+   "ten_sam_obszar": 0.48,
+   "ten_sam_wariant": 0.03
+  }
+ },
+ {
+  "id": 34,
+  "branza": "Tatuaż i Piercing",
+  "podmiot": "Kolorowe rzęsy",
+  "kandydat": "Koloryzacja brwi",
+  "human": null,
+  "final": "rozne",
+  "sedzia": "rozne",
+  "score": 0.02,
+  "cechy": {
+   "ten_sam_zabieg": 0.03,
+   "ten_sam_obszar": 0.05,
+   "ten_sam_wariant": 0.02
+  }
+ },
+ {
+  "id": 35,
+  "branza": "Salon Kosmetyczny",
+  "podmiot": "Przedłużanie paznokci akrylożel (do 2 na formie)",
+  "kandydat": "Przedłużanie paznokci",
+  "human": null,
+  "final": "niepewne",
+  "sedzia": "powiazane",
+  "score": 1.01,
+  "cechy": {
+   "ten_sam_zabieg": 0.24,
+   "ten_sam_obszar": 0.28,
+   "ten_sam_wariant": 0.13
+  }
+ },
+ {
+  "id": 36,
+  "branza": "Barber shop",
+  "podmiot": "Strzyżenie damskie krótkie (5-10 cm) włosy",
+  "kandydat": "Strzyżenie włosy krótkie kręcone (do żuchwy)",
+  "human": null,
+  "final": "powiazane",
+  "sedzia": "powiazane",
+  "score": 0.98,
+  "cechy": {
+   "ten_sam_zabieg": 0.18,
+   "ten_sam_obszar": 0.32,
+   "ten_sam_wariant": 0.15
+  }
+ },
+ {
+  "id": 37,
+  "branza": "Barber shop",
+  "podmiot": "Strzyżenie  męskie  włosy średni/max do ramoin",
+  "kandydat": "Strzyżenie włosów",
+  "human": null,
+  "final": "powiazane",
+  "sedzia": "powiazane",
+  "score": 1.01,
+  "cechy": {
+   "ten_sam_zabieg": 0.58,
+   "ten_sam_obszar": 0.2,
+   "ten_sam_wariant": 0.13
+  }
+ },
+ {
+  "id": 38,
+  "branza": "Fryzjer",
+  "podmiot": "Endermologia LPG Alliance jeden zabieg na ciało",
+  "kandydat": "Endermologia EXPRESS LPG Alliance® - 5 zabiegów",
+  "human": null,
+  "final": "powiazane",
+  "sedzia": "powiazane",
+  "score": 1.0,
+  "cechy": {
+   "ten_sam_zabieg": 0.81,
+   "ten_sam_obszar": 0.14,
+   "ten_sam_wariant": 0.02
+  }
+ },
+ {
+  "id": 39,
+  "branza": "Barber shop",
+  "podmiot": "Strzyżenie długich włosów",
+  "kandydat": "Strzyżenie długich włosów z modelowaniem",
+  "human": null,
+  "final": "niepewne",
+  "sedzia": "powiazane",
+  "score": 1.02,
+  "cechy": {
+   "ten_sam_zabieg": 0.2,
+   "ten_sam_obszar": 0.13,
+   "ten_sam_wariant": 0.16
+  }
+ },
+ {
+  "id": 40,
+  "branza": "Paznokcie",
+  "podmiot": "Architektura +farbowanie+regulacja +botox",
+  "kandydat": "Stylizacja brwi+botox+henna rzęs✨",
+  "human": null,
+  "final": "niepewne",
+  "sedzia": "powiazane",
+  "score": 0.95,
+  "cechy": {
+   "ten_sam_zabieg": 0.15,
+   "ten_sam_obszar": 0.19,
+   "ten_sam_wariant": 0.13
+  }
+ },
+ {
+  "id": 41,
+  "branza": "Paznokcie",
+  "podmiot": "Manicure klasyczny",
+  "kandydat": "Manicure klasyczny (z lakierowaniem lub odżywką  )",
+  "human": null,
+  "final": "tozsame",
+  "sedzia": "powiazane",
+  "score": 1.47,
+  "cechy": {
+   "ten_sam_zabieg": 0.66,
+   "ten_sam_obszar": 0.42,
+   "ten_sam_wariant": 0.43
+  }
+ },
+ {
+  "id": 44,
+  "branza": "Salon Kosmetyczny",
+  "podmiot": "Korekta BRWI. Od 0-3 miesięcy po zabiegu",
+  "kandydat": "Rehabilitacja kobiet po zabiegach miednicy",
+  "human": null,
+  "final": "rozne",
+  "sedzia": "rozne",
+  "score": 0.06,
+  "cechy": {
+   "ten_sam_zabieg": 0.06,
+   "ten_sam_obszar": 0.14,
+   "ten_sam_wariant": 0.03
+  }
+ },
+ {
+  "id": 45,
+  "branza": "Fryzjer",
+  "podmiot": "INTRAJECT Zabieg Trychologiczny",
+  "kandydat": "Mezoterapia igłowa Twarz + Szyja",
+  "human": null,
+  "final": "rozne",
+  "sedzia": "rozne",
+  "score": 0.13,
+  "cechy": {
+   "ten_sam_zabieg": 0.09,
+   "ten_sam_obszar": 0.06,
+   "ten_sam_wariant": 0.03
+  }
+ },
+ {
+  "id": 46,
+  "branza": "Masaż",
+  "podmiot": "Masaż intensywnie liftingujacy + zabieg na twarz",
+  "kandydat": "Masaż twarzy anti-age",
+  "human": null,
+  "final": "powiazane",
+  "sedzia": "powiazane",
+  "score": 0.98,
+  "cechy": {
+   "ten_sam_zabieg": 0.24,
+   "ten_sam_obszar": 0.32,
+   "ten_sam_wariant": 0.09
+  }
+ },
+ {
+  "id": 48,
+  "branza": "Fryzjer",
+  "podmiot": "INTRAJECT Globalny zabieg restrukturyzacyjny",
+  "kandydat": "Radiofrekwencja mikroigłowa - oczy",
+  "human": null,
+  "final": "rozne",
+  "sedzia": "rozne",
+  "score": 0.0,
+  "cechy": {
+   "ten_sam_zabieg": 0.02,
+   "ten_sam_obszar": 0.04,
+   "ten_sam_wariant": 0.02
+  }
+ },
+ {
+  "id": 51,
+  "branza": "Barber shop",
+  "podmiot": "Depilacja woskiem",
+  "kandydat": "Depilacja woskiem same łydki",
+  "human": null,
+  "final": "powiazane",
+  "sedzia": "powiazane",
+  "score": 0.99,
+  "cechy": {
+   "ten_sam_zabieg": 0.68,
+   "ten_sam_obszar": 0.08,
+   "ten_sam_wariant": 0.07
+  }
+ },
+ {
+  "id": 53,
+  "branza": "Fryzjer",
+  "podmiot": "Oczyszczanie Wodorowe",
+  "kandydat": "OCZYSZCZANIE WODOROWE PODSTAWOWE",
+  "human": null,
+  "final": "niepewne",
+  "sedzia": "tozsame",
+  "score": 1.65,
+  "cechy": {
+   "ten_sam_zabieg": 0.66,
+   "ten_sam_obszar": 0.61,
+   "ten_sam_wariant": 0.28
+  }
+ },
+ {
+  "id": 55,
+  "branza": "Barber shop",
+  "podmiot": "Farbowanie Męskie Jeden Kolor",
+  "kandydat": "Farbowanie jednolite od 0",
+  "human": null,
+  "final": "niepewne",
+  "sedzia": "powiazane",
+  "score": 1.02,
+  "cechy": {
+   "ten_sam_zabieg": 0.37,
+   "ten_sam_obszar": 0.45,
+   "ten_sam_wariant": 0.2
+  }
+ },
+ {
+  "id": 57,
+  "branza": "Tatuaż i Piercing",
+  "podmiot": "Rzęsy Mokry efekt 3D",
+  "kandydat": "Uzupełnienie Mokry Efekt / Wispy Mocny",
+  "human": null,
+  "final": "powiazane",
+  "sedzia": "powiazane",
+  "score": 0.99,
+  "cechy": {
+   "ten_sam_zabieg": 0.28,
+   "ten_sam_obszar": 0.26,
+   "ten_sam_wariant": 0.03
+  }
+ },
+ {
+  "id": 59,
+  "branza": "Masaż",
+  "podmiot": "Modelujący masaż twarzy",
+  "kandydat": "Terapeutyczny masaż twarzy, głowy i karku",
+  "human": null,
+  "final": "powiazane",
+  "sedzia": "powiazane",
+  "score": 0.88,
+  "cechy": {
+   "ten_sam_zabieg": 0.16,
+   "ten_sam_obszar": 0.1,
+   "ten_sam_wariant": 0.08
+  }
+ },
+ {
+  "id": 61,
+  "branza": "Fryzjer",
+  "podmiot": "Osocze bogatopłytkowe i fibryna komórkowa twarz",
+  "kandydat": "Tropokolagen twarz",
+  "human": null,
+  "final": "niepewne",
+  "sedzia": "rozne",
+  "score": 0.09,
+  "cechy": {
+   "ten_sam_zabieg": 0.05,
+   "ten_sam_obszar": 0.25,
+   "ten_sam_wariant": 0.04
+  }
+ },
+ {
+  "id": 63,
+  "branza": "Paznokcie",
+  "podmiot": "Pedicure męski",
+  "kandydat": "Manicure męski",
+  "human": null,
+  "final": "rozne",
+  "sedzia": "rozne",
+  "score": 0.18,
+  "cechy": {
+   "ten_sam_zabieg": 0.19,
+   "ten_sam_obszar": 0.04,
+   "ten_sam_wariant": 0.13
+  }
+ },
+ {
+  "id": 65,
+  "branza": "Salon Kosmetyczny",
+  "podmiot": "Przedłużanie paznokci akrylożel (do 2 na formie)",
+  "kandydat": "Pedicure hybrydowy (same palce)",
+  "human": null,
+  "final": "rozne",
+  "sedzia": "rozne",
+  "score": 0.01,
+  "cechy": {
+   "ten_sam_zabieg": 0.02,
+   "ten_sam_obszar": 0.03,
+   "ten_sam_wariant": 0.02
+  }
+ },
+ {
+  "id": 43,
+  "branza": "Salon Kosmetyczny",
+  "podmiot": "Peeling kawitacyjny + Peeling migdałowy M.A.D",
+  "kandydat": "Peeling Biorepeel+dermapen (twarz)",
+  "human": "rozne",
+  "final": "niepewne",
+  "sedzia": "rozne",
+  "score": 0.33,
+  "cechy": {
+   "ten_sam_zabieg": 0.06,
+   "ten_sam_obszar": 0.27,
+   "ten_sam_wariant": 0.04
+  }
+ },
+ {
+  "id": 26,
+  "branza": "Paznokcie",
+  "podmiot": "Uzupełnienie z hybrydą",
+  "kandydat": "Manicure + hybryda 1 kolor",
+  "human": null,
+  "final": "powiazane",
+  "sedzia": "powiazane",
+  "score": 0.96,
+  "cechy": {
+   "ten_sam_zabieg": 0.28,
+   "ten_sam_obszar": 0.2,
+   "ten_sam_wariant": 0.02
+  }
+ },
+ {
+  "id": 28,
+  "branza": "Barber shop",
+  "podmiot": "Farbowanie Męskie Jeden Kolor",
+  "kandydat": "Tonowanie włosów rozjaśnionych KRÓTKIE",
+  "human": null,
+  "final": "rozne",
+  "sedzia": "powiazane",
+  "score": 0.53,
+  "cechy": {
+   "ten_sam_zabieg": 0.09,
+   "ten_sam_obszar": 0.21,
+   "ten_sam_wariant": 0.04
+  }
+ },
+ {
+  "id": 30,
+  "branza": "Paznokcie",
+  "podmiot": "Hybryda u stóp",
+  "kandydat": "Pedicure Hybrydowy",
+  "human": null,
+  "final": "niepewne",
+  "sedzia": "tozsame",
+  "score": 1.89,
+  "cechy": {
+   "ten_sam_zabieg": 0.8,
+   "ten_sam_obszar": 0.77,
+   "ten_sam_wariant": 0.47
+  }
+ },
+ {
+  "id": 47,
+  "branza": "Salon Kosmetyczny",
+  "podmiot": "Mezoterapia mikroigłowa z egzosomami DERMALOGICA",
+  "kandydat": "RF mikroigłowa - Twarz + szyja + dekolt",
+  "human": null,
+  "final": "rozne",
+  "sedzia": "rozne",
+  "score": 0.11,
+  "cechy": {
+   "ten_sam_zabieg": 0.08,
+   "ten_sam_obszar": 0.07,
+   "ten_sam_wariant": 0.03
+  }
+ },
+ {
+  "id": 49,
+  "branza": "Tatuaż i Piercing",
+  "podmiot": "Przedłużanie rzęs 1:4",
+  "kandydat": "Przedłużanie rzęs 3:1",
+  "human": null,
+  "final": "powiazane",
+  "sedzia": "powiazane",
+  "score": 1.02,
+  "cechy": {
+   "ten_sam_zabieg": 0.31,
+   "ten_sam_obszar": 0.56,
+   "ten_sam_wariant": 0.04
+  }
+ },
+ {
+  "id": 50,
+  "branza": "Tatuaż i Piercing",
+  "podmiot": "Rzęsy Mokry efekt 4D",
+  "kandydat": "Przedłużanie rzęs 3-4D",
+  "human": null,
+  "final": "powiazane",
+  "sedzia": "powiazane",
+  "score": 1.07,
+  "cechy": {
+   "ten_sam_zabieg": 0.3,
+   "ten_sam_obszar": 0.59,
+   "ten_sam_wariant": 0.1
+  }
+ },
+ {
+  "id": 52,
+  "branza": "Fryzjer",
+  "podmiot": "Endermologia LPG - 10 zabiegów na ciało",
+  "kandydat": "Endermologia ciało - pakiet 10 zabiegów",
+  "human": null,
+  "final": "tozsame",
+  "sedzia": "tozsame",
+  "score": 1.98,
+  "cechy": {
+   "ten_sam_zabieg": 0.88,
+   "ten_sam_obszar": 0.88,
+   "ten_sam_wariant": 0.81
+  }
+ },
+ {
+  "id": 54,
+  "branza": "Tatuaż i Piercing",
+  "podmiot": "Przedłużanie rzęs 1:3",
+  "kandydat": "Przedłużanie rzęs 1:1",
+  "human": null,
+  "final": "powiazane",
+  "sedzia": "powiazane",
+  "score": 1.0,
+  "cechy": {
+   "ten_sam_zabieg": 0.3,
+   "ten_sam_obszar": 0.25,
+   "ten_sam_wariant": 0.05
+  }
+ },
+ {
+  "id": 56,
+  "branza": "Paznokcie",
+  "podmiot": "Przedłużenie paznokci akrylem do 4dł +hybryda",
+  "kandydat": "Przedłużanie paznokci + zdobienia",
+  "human": null,
+  "final": "powiazane",
+  "sedzia": "powiazane",
+  "score": 1.0,
+  "cechy": {
+   "ten_sam_zabieg": 0.26,
+   "ten_sam_obszar": 0.36,
+   "ten_sam_wariant": 0.1
+  }
+ },
+ {
+  "id": 58,
+  "branza": "Fryzjer",
+  "podmiot": "Peeling kawitacyjny z maską algową",
+  "kandydat": "Peeling kawitacyjny twarz + szyja + dekolt (a/ma)",
+  "human": null,
+  "final": "powiazane",
+  "sedzia": "powiazane",
+  "score": 0.99,
+  "cechy": {
+   "ten_sam_zabieg": 0.57,
+   "ten_sam_obszar": 0.07,
+   "ten_sam_wariant": 0.08
+  }
+ },
+ {
+  "id": 60,
+  "branza": "Barber shop",
+  "podmiot": "Combo (włosy + broda)",
+  "kandydat": "Combo (strzyżenie włosów + trymowanie brody)",
+  "human": null,
+  "final": "tozsame",
+  "sedzia": "tozsame",
+  "score": 1.95,
+  "cechy": {
+   "ten_sam_zabieg": 0.86,
+   "ten_sam_obszar": 0.9,
+   "ten_sam_wariant": 0.75
+  }
+ },
+ {
+  "id": 64,
+  "branza": "Fryzjer",
+  "podmiot": "Oczyszczanie Wodorowe",
+  "kandydat": "﻿Oczyszczanie wodorowe - Twarz",
+  "human": null,
+  "final": "tozsame",
+  "sedzia": "tozsame",
+  "score": 1.96,
+  "cechy": {
+   "ten_sam_zabieg": 0.82,
+   "ten_sam_obszar": 0.82,
+   "ten_sam_wariant": 0.42
+  }
+ },
+ {
+  "id": 68,
+  "branza": "Tatuaż i Piercing",
+  "podmiot": "Henna rzęs",
+  "kandydat": "Henna rzęs + brwi + regulacja brwi",
+  "human": null,
+  "final": "powiazane",
+  "sedzia": "powiazane",
+  "score": 0.99,
+  "cechy": {
+   "ten_sam_zabieg": 0.25,
+   "ten_sam_obszar": 0.09,
+   "ten_sam_wariant": 0.05
+  }
+ },
+ {
+  "id": 70,
+  "branza": "Salon Kosmetyczny",
+  "podmiot": "Uzupełnienie paznokci akrylożelem",
+  "kandydat": "Uzupełnienie żelowe - paznokci średnie",
+  "human": null,
+  "final": "powiazane",
+  "sedzia": "powiazane",
+  "score": 1.09,
+  "cechy": {
+   "ten_sam_zabieg": 0.54,
+   "ten_sam_obszar": 0.59,
+   "ten_sam_wariant": 0.23
+  }
+ },
+ {
+  "id": 73,
+  "branza": "Salon Kosmetyczny",
+  "podmiot": "Makijaż permanentny. Brwi",
+  "kandydat": "Makijaż permanentny pudrowe brwi",
+  "human": null,
+  "final": "niepewne",
+  "sedzia": "powiazane",
+  "score": 1.48,
+  "cechy": {
+   "ten_sam_zabieg": 0.68,
+   "ten_sam_obszar": 0.81,
+   "ten_sam_wariant": 0.39
+  }
+ },
+ {
+  "id": 78,
+  "branza": "Barber shop",
+  "podmiot": "Strzyżenie damskie krótkie (5-10 cm) włosy",
+  "kandydat": "Strzyżenie damskie włosy krótkie",
+  "human": null,
+  "final": "tozsame",
+  "sedzia": "powiazane",
+  "score": 1.43,
+  "cechy": {
+   "ten_sam_zabieg": 0.62,
+   "ten_sam_obszar": 0.64,
+   "ten_sam_wariant": 0.42
+  }
+ },
+ {
+  "id": 81,
+  "branza": "Paznokcie",
+  "podmiot": "Pedicure + hybryda",
+  "kandydat": "PEDICURE KWASOWY + HYBRYDA",
+  "human": null,
+  "final": "powiazane",
+  "sedzia": "powiazane",
+  "score": 1.06,
+  "cechy": {
+   "ten_sam_zabieg": 0.28,
+   "ten_sam_obszar": 0.41,
+   "ten_sam_wariant": 0.23
+  }
+ },
+ {
+  "id": 87,
+  "branza": "Paznokcie",
+  "podmiot": "Przedłużenie paznokci akrylem do 2długosci+hybryda",
+  "kandydat": "Przedłużenie paznokci - do 2 linii na formie",
+  "human": null,
+  "final": "powiazane",
+  "sedzia": "powiazane",
+  "score": 0.99,
+  "cechy": {
+   "ten_sam_zabieg": 0.09,
+   "ten_sam_obszar": 0.23,
+   "ten_sam_wariant": 0.13
+  }
+ },
+ {
+  "id": 90,
+  "branza": "Fryzjer",
+  "podmiot": "Oczyszczanie manualne twarzy",
+  "kandydat": "Oczyszczanie manualne + peeling Kawitacyjny",
+  "human": null,
+  "final": "powiazane",
+  "sedzia": "powiazane",
+  "score": 0.97,
+  "cechy": {
+   "ten_sam_zabieg": 0.22,
+   "ten_sam_obszar": 0.23,
+   "ten_sam_wariant": 0.12
+  }
+ },
+ {
+  "id": 95,
+  "branza": "Paznokcie",
+  "podmiot": "Lami+regulacja+botox",
+  "kandydat": "Botox włosy do pasa",
+  "human": null,
+  "final": "rozne",
+  "sedzia": "rozne",
+  "score": 0.04,
+  "cechy": {
+   "ten_sam_zabieg": 0.05,
+   "ten_sam_obszar": 0.02,
+   "ten_sam_wariant": 0.02
+  }
+ },
+ {
+  "id": 99,
+  "branza": "Masaż",
+  "podmiot": "Masaż twarzy z refleksologią + masaż pleców i stóp",
+  "kandydat": "Masaż leczniczy pleców dla Dwojga 90 min",
+  "human": null,
+  "final": "niepewne",
+  "sedzia": "rozne",
+  "score": 0.12,
+  "cechy": {
+   "ten_sam_zabieg": 0.05,
+   "ten_sam_obszar": 0.05,
+   "ten_sam_wariant": 0.03
+  }
+ },
+ {
+  "id": 100,
+  "branza": "Masaż",
+  "podmiot": "Lekka głowa NOWOŚĆ",
+  "kandydat": "Masaż głowy",
+  "human": null,
+  "final": "niepewne",
+  "sedzia": "powiazane",
+  "score": 1.43,
+  "cechy": {
+   "ten_sam_zabieg": 0.47,
+   "ten_sam_obszar": 0.6,
+   "ten_sam_wariant": 0.15
+  }
+ },
+ {
+  "id": 102,
+  "branza": "Fryzjer",
+  "podmiot": "Endermologia LPG Alliance jeden zabieg na ciało",
+  "kandydat": "Endermologia Alliance 40 min",
+  "human": null,
+  "final": "niepewne",
+  "sedzia": "powiazane",
+  "score": 1.15,
+  "cechy": {
+   "ten_sam_zabieg": 0.62,
+   "ten_sam_obszar": 0.34,
+   "ten_sam_wariant": 0.14
+  }
+ },
+ {
+  "id": 106,
+  "branza": "Fryzjer",
+  "podmiot": "Oczyszczanie wodorowe + manualne",
+  "kandydat": "Optymalne Oczyszczanie",
+  "human": null,
+  "final": "powiazane",
+  "sedzia": "powiazane",
+  "score": 0.92,
+  "cechy": {
+   "ten_sam_zabieg": 0.13,
+   "ten_sam_obszar": 0.37,
+   "ten_sam_wariant": 0.1
+  }
+ },
+ {
+  "id": 108,
+  "branza": "Fryzjer",
+  "podmiot": "Peeling kawitacyjny jako dodatek do zabiegu",
+  "kandydat": "Peeling kawitacyjny + sono twarz,szyja,dekolt",
+  "human": null,
+  "final": "powiazane",
+  "sedzia": "powiazane",
+  "score": 0.97,
+  "cechy": {
+   "ten_sam_zabieg": 0.64,
+   "ten_sam_obszar": 0.09,
+   "ten_sam_wariant": 0.08
+  }
+ },
+ {
+  "id": 112,
+  "branza": "Fryzjer",
+  "podmiot": "Endermologia LPG dla MĘŻCZYZN - 1 zabieg",
+  "kandydat": "Endermologia ciało - pakiet 10 zabiegów",
+  "human": null,
+  "final": "powiazane",
+  "sedzia": "powiazane",
+  "score": 0.97,
+  "cechy": {
+   "ten_sam_zabieg": 0.76,
+   "ten_sam_obszar": 0.13,
+   "ten_sam_wariant": 0.01
+  }
+ },
+ {
+  "id": 84,
+  "branza": "Barber shop",
+  "podmiot": "Trwała ondulacja keratynowa męska włosy do karku",
+  "kandydat": "Krioterapia",
+  "human": "rozne",
+  "final": "rozne",
+  "sedzia": "rozne",
+  "score": 0.03,
+  "cechy": {
+   "ten_sam_zabieg": 0.03,
+   "ten_sam_obszar": 0.07,
+   "ten_sam_wariant": 0.02
+  }
+ },
+ {
+  "id": 67,
+  "branza": "Fryzjer",
+  "podmiot": "Oczyszczanie manualne pleców",
+  "kandydat": "Oczyszczanie manualne twarz+maska GRATIS",
+  "human": null,
+  "final": "niepewne",
+  "sedzia": "rozne",
+  "score": 0.41,
+  "cechy": {
+   "ten_sam_zabieg": 0.28,
+   "ten_sam_obszar": 0.03,
+   "ten_sam_wariant": 0.05
+  }
+ },
+ {
+  "id": 69,
+  "branza": "Tatuaż i Piercing",
+  "podmiot": "Rzęsy Mokry efekt 3D",
+  "kandydat": "Przedłużanie rzęs 3d",
+  "human": null,
+  "final": "tozsame",
+  "sedzia": "powiazane",
+  "score": 1.27,
+  "cechy": {
+   "ten_sam_zabieg": 0.39,
+   "ten_sam_obszar": 0.54,
+   "ten_sam_wariant": 0.14
+  }
+ },
+ {
+  "id": 71,
+  "branza": "Paznokcie",
+  "podmiot": "Dopełnienie żelem Do 3-4 długości",
+  "kandydat": "Dopełnienie żelowe/ akrylozel",
+  "human": null,
+  "final": "tozsame",
+  "sedzia": "powiazane",
+  "score": 1.06,
+  "cechy": {
+   "ten_sam_zabieg": 0.48,
+   "ten_sam_obszar": 0.5,
+   "ten_sam_wariant": 0.24
+  }
+ },
+ {
+  "id": 72,
+  "branza": "Masaż",
+  "podmiot": "Masaż nóg",
+  "kandydat": "Masaż ciała",
+  "human": null,
+  "final": "powiazane",
+  "sedzia": "powiazane",
+  "score": 0.72,
+  "cechy": {
+   "ten_sam_zabieg": 0.31,
+   "ten_sam_obszar": 0.05,
+   "ten_sam_wariant": 0.1
+  }
+ },
+ {
+  "id": 74,
+  "branza": "Tatuaż i Piercing",
+  "podmiot": "Laminowanie rzęs+farbowanie",
+  "kandydat": "Laminacja rzęs",
+  "human": null,
+  "final": "powiazane",
+  "sedzia": "powiazane",
+  "score": 0.99,
+  "cechy": {
+   "ten_sam_zabieg": 0.35,
+   "ten_sam_obszar": 0.13,
+   "ten_sam_wariant": 0.09
+  }
+ },
+ {
+  "id": 75,
+  "branza": "Tatuaż i Piercing",
+  "podmiot": "Kolorowe rzęsy",
+  "kandydat": "Kolorowe rzęsy",
+  "human": null,
+  "final": "tozsame",
+  "sedzia": "powiazane",
+  "score": 1.39,
+  "cechy": {
+   "ten_sam_zabieg": 0.25,
+   "ten_sam_obszar": 0.49,
+   "ten_sam_wariant": 0.27
+  }
+ },
+ {
+  "id": 76,
+  "branza": "Paznokcie",
+  "podmiot": "Manicure hybrydowy",
+  "kandydat": "Pedicure hybrydowy",
+  "human": null,
+  "final": "rozne",
+  "sedzia": "rozne",
+  "score": 0.46,
+  "cechy": {
+   "ten_sam_zabieg": 0.44,
+   "ten_sam_obszar": 0.04,
+   "ten_sam_wariant": 0.2
+  }
+ },
+ {
+  "id": 77,
+  "branza": "Salon Kosmetyczny",
+  "podmiot": "Uzupełnienie długich paznokci powyżej 3 tygodni",
+  "kandydat": "Przedłużanie paznokci 1-3",
+  "human": null,
+  "final": "powiazane",
+  "sedzia": "powiazane",
+  "score": 0.99,
+  "cechy": {
+   "ten_sam_zabieg": 0.32,
+   "ten_sam_obszar": 0.29,
+   "ten_sam_wariant": 0.03
+  }
+ },
+ {
+  "id": 80,
+  "branza": "Salon Kosmetyczny",
+  "podmiot": "Utwardzenie naturalnych  paznokci żelem",
+  "kandydat": "UZUPEŁNIENIE PAZNOKCI PRZEDŁUŻONYCH >2 DŁUGOŚCI",
+  "human": null,
+  "final": "niepewne",
+  "sedzia": "powiazane",
+  "score": 0.63,
+  "cechy": {
+   "ten_sam_zabieg": 0.16,
+   "ten_sam_obszar": 0.17,
+   "ten_sam_wariant": 0.02
+  }
+ },
+ {
+  "id": 82,
+  "branza": "Tatuaż i Piercing",
+  "podmiot": "Przedłużanie rzęs 1:4",
+  "kandydat": "Przedłużanie rzęs 3:1",
+  "human": null,
+  "final": "powiazane",
+  "sedzia": "powiazane",
+  "score": 1.02,
+  "cechy": {
+   "ten_sam_zabieg": 0.33,
+   "ten_sam_obszar": 0.57,
+   "ten_sam_wariant": 0.03
+  }
+ },
+ {
+  "id": 83,
+  "branza": "Salon Kosmetyczny",
+  "podmiot": "Uzupełnienie paznokci żelem",
+  "kandydat": "Uzupełnienie przedłużanych paznokci (by Liliia)",
+  "human": null,
+  "final": "tozsame",
+  "sedzia": "tozsame",
+  "score": 1.57,
+  "cechy": {
+   "ten_sam_zabieg": 0.62,
+   "ten_sam_obszar": 0.63,
+   "ten_sam_wariant": 0.42
+  }
+ },
+ {
+  "id": 85,
+  "branza": "Paznokcie",
+  "podmiot": "Regulacja (wosk/pęseta)",
+  "kandydat": "Regulacja brwi",
+  "human": null,
+  "final": "tozsame",
+  "sedzia": "tozsame",
+  "score": 1.59,
+  "cechy": {
+   "ten_sam_zabieg": 0.64,
+   "ten_sam_obszar": 0.75,
+   "ten_sam_wariant": 0.45
+  }
+ },
+ {
+  "id": 88,
+  "branza": "Paznokcie",
+  "podmiot": "Uzupełnienie z hybrydą",
+  "kandydat": "Manicure żelowy / uzupełnienie żelowe",
+  "human": null,
+  "final": "powiazane",
+  "sedzia": "powiazane",
+  "score": 1.01,
+  "cechy": {
+   "ten_sam_zabieg": 0.18,
+   "ten_sam_obszar": 0.51,
+   "ten_sam_wariant": 0.18
+  }
+ },
+ {
+  "id": 89,
+  "branza": "Barber shop",
+  "podmiot": "Depilacja woskiem",
+  "kandydat": "Depilacja woskiem",
+  "human": null,
+  "final": "tozsame",
+  "sedzia": "tozsame",
+  "score": 1.84,
+  "cechy": {
+   "ten_sam_zabieg": 0.89,
+   "ten_sam_obszar": 0.42,
+   "ten_sam_wariant": 0.39
+  }
+ },
+ {
+  "id": 91,
+  "branza": "Fryzjer",
+  "podmiot": "Endermologia LPG Alliance jeden zabieg na ciało",
+  "kandydat": "Endermologii Alliance (40 min)",
+  "human": null,
+  "final": "powiazane",
+  "sedzia": "powiazane",
+  "score": 1.24,
+  "cechy": {
+   "ten_sam_zabieg": 0.76,
+   "ten_sam_obszar": 0.35,
+   "ten_sam_wariant": 0.16
+  }
+ },
+ {
+  "id": 93,
+  "branza": "Fryzjer",
+  "podmiot": "Kwas mlekowy",
+  "kandydat": "Kwas Migdałowy z czystą witaminą C - Clarena Twarz",
+  "human": null,
+  "final": "niepewne",
+  "sedzia": "powiazane",
+  "score": 0.77,
+  "cechy": {
+   "ten_sam_zabieg": 0.19,
+   "ten_sam_obszar": 0.31,
+   "ten_sam_wariant": 0.04
+  }
+ },
+ {
+  "id": 94,
+  "branza": "Barber shop",
+  "podmiot": "Depilacja woskiem",
+  "kandydat": "Depilacja  woskiem – bikini",
+  "human": null,
+  "final": "powiazane",
+  "sedzia": "powiazane",
+  "score": 0.99,
+  "cechy": {
+   "ten_sam_zabieg": 0.78,
+   "ten_sam_obszar": 0.09,
+   "ten_sam_wariant": 0.13
+  }
+ },
+ {
+  "id": 96,
+  "branza": "Paznokcie",
+  "podmiot": "Lami+regulacja+farbowanie",
+  "kandydat": "Farbka + regulacja",
+  "human": null,
+  "final": "powiazane",
+  "sedzia": "powiazane",
+  "score": 0.82,
+  "cechy": {
+   "ten_sam_zabieg": 0.13,
+   "ten_sam_obszar": 0.24,
+   "ten_sam_wariant": 0.13
+  }
+ },
+ {
+  "id": 97,
+  "branza": "Tatuaż i Piercing",
+  "podmiot": "Henna brwi pudrowe|farbka+regulacja",
+  "kandydat": "Regulacja brwi z geometrią + henna (farba)",
+  "human": null,
+  "final": "tozsame",
+  "sedzia": "powiazane",
+  "score": 1.45,
+  "cechy": {
+   "ten_sam_zabieg": 0.56,
+   "ten_sam_obszar": 0.73,
+   "ten_sam_wariant": 0.49
+  }
+ },
+ {
+  "id": 98,
+  "branza": "Barber shop",
+  "podmiot": "Trwała ondulacja keratynowa męska włosy do karku",
+  "kandydat": "ZABIEG AUTORSKI ÉCLAT",
+  "human": null,
+  "final": "rozne",
+  "sedzia": "rozne",
+  "score": 0.04,
+  "cechy": {
+   "ten_sam_zabieg": 0.05,
+   "ten_sam_obszar": 0.08,
+   "ten_sam_wariant": 0.02
+  }
+ },
+ {
+  "id": 101,
+  "branza": "Salon Kosmetyczny",
+  "podmiot": "Korekta BRWI. Od 0-3 miesięcy po zabiegu",
+  "kandydat": "Uzupełnenie rzęs metoda 4:1/5:1 (DO 2 TYGODNI)",
+  "human": null,
+  "final": "rozne",
+  "sedzia": "rozne",
+  "score": 0.12,
+  "cechy": {
+   "ten_sam_zabieg": 0.03,
+   "ten_sam_obszar": 0.15,
+   "ten_sam_wariant": 0.03
+  }
+ },
+ {
+  "id": 103,
+  "branza": "Masaż",
+  "podmiot": "Lekka głowa NOWOŚĆ",
+  "kandydat": "Masaż głowy",
+  "human": null,
+  "final": "niepewne",
+  "sedzia": "powiazane",
+  "score": 1.43,
+  "cechy": {
+   "ten_sam_zabieg": 0.47,
+   "ten_sam_obszar": 0.6,
+   "ten_sam_wariant": 0.15
+  }
+ },
+ {
+  "id": 104,
+  "branza": "Fryzjer",
+  "podmiot": "Endermologia LPG Alliance jeden zabieg na ciało",
+  "kandydat": "LPG endermolift - Zabieg na okolice oczu i ust",
+  "human": null,
+  "final": "rozne",
+  "sedzia": "powiazane",
+  "score": 0.66,
+  "cechy": {
+   "ten_sam_zabieg": 0.38,
+   "ten_sam_obszar": 0.03,
+   "ten_sam_wariant": 0.04
+  }
+ },
+ {
+  "id": 105,
+  "branza": "Barber shop",
+  "podmiot": "Strzyżenie włosów",
+  "kandydat": "Strzyżenie damskie włosy średnie",
+  "human": null,
+  "final": "powiazane",
+  "sedzia": "powiazane",
+  "score": 0.99,
+  "cechy": {
+   "ten_sam_zabieg": 0.32,
+   "ten_sam_obszar": 0.34,
+   "ten_sam_wariant": 0.09
+  }
+ },
+ {
+  "id": 107,
+  "branza": "Salon Kosmetyczny",
+  "podmiot": "Uzupełnienie paznokci akrylem",
+  "kandydat": "Manicure hybrydowy",
+  "human": null,
+  "final": "rozne",
+  "sedzia": "rozne",
+  "score": 0.24,
+  "cechy": {
+   "ten_sam_zabieg": 0.04,
+   "ten_sam_obszar": 0.24,
+   "ten_sam_wariant": 0.02
+  }
+ },
+ {
+  "id": 79,
+  "branza": "Fryzjer",
+  "podmiot": "Oczyszczanie manualne pleców",
+  "kandydat": "PROMOCJA Kwas+Oczyszczanie wodorowe",
+  "human": "rozne",
+  "final": "niepewne",
+  "sedzia": "rozne",
+  "score": 0.25,
+  "cechy": {
+   "ten_sam_zabieg": 0.04,
+   "ten_sam_obszar": 0.07,
+   "ten_sam_wariant": 0.03
+  }
+ },
+ {
+  "id": 92,
+  "branza": "Masaż",
+  "podmiot": "Masaż dźwiękiem-misy tybetańskie+kryształowe",
+  "kandydat": "Masaż gorącymi kamieniami",
+  "human": "powiazane",
+  "final": "rozne",
+  "sedzia": "rozne",
+  "score": 0.14,
+  "cechy": {
+   "ten_sam_zabieg": 0.02,
+   "ten_sam_obszar": 0.25,
+   "ten_sam_wariant": 0.04
+  }
+ },
+ {
+  "id": 109,
+  "branza": "Tatuaż i Piercing",
+  "podmiot": "Przedłużanie rzęs 1:3",
+  "kandydat": "Przedłużanie rzęs 3/4D",
+  "human": null,
+  "final": "powiazane",
+  "sedzia": "powiazane",
+  "score": 1.03,
+  "cechy": {
+   "ten_sam_zabieg": 0.18,
+   "ten_sam_obszar": 0.58,
+   "ten_sam_wariant": 0.03
+  }
+ },
+ {
+  "id": 110,
+  "branza": "Barber shop",
+  "podmiot": "Odsiwianie brody",
+  "kandydat": "Strzyżenie brody i pielęgnacja",
+  "human": null,
+  "final": "rozne",
+  "sedzia": "powiazane",
+  "score": 0.72,
+  "cechy": {
+   "ten_sam_zabieg": 0.18,
+   "ten_sam_obszar": 0.19,
+   "ten_sam_wariant": 0.06
+  }
+ },
+ {
+  "id": 114,
+  "branza": "Masaż",
+  "podmiot": "Masaż intensywnie liftingujacy + zabieg na twarz",
+  "kandydat": "🔥 Mezoterapia igłowa - Mesotox - Strefa T",
+  "human": null,
+  "final": "rozne",
+  "sedzia": "rozne",
+  "score": 0.0,
+  "cechy": {
+   "ten_sam_zabieg": 0.02,
+   "ten_sam_obszar": 0.14,
+   "ten_sam_wariant": 0.03
+  }
+ },
+ {
+  "id": 116,
+  "branza": "Fryzjer",
+  "podmiot": "INTRAJECT Zabieg Trychologiczny",
+  "kandydat": "Oczyszczanie wodorowe Twarz+szyja",
+  "human": null,
+  "final": "niepewne",
+  "sedzia": "rozne",
+  "score": 0.0,
+  "cechy": {
+   "ten_sam_zabieg": 0.02,
+   "ten_sam_obszar": 0.04,
+   "ten_sam_wariant": 0.02
+  }
+ },
+ {
+  "id": 182,
+  "branza": "Masaż",
+  "podmiot": "Masaż twarzy oraz głowy z refleksologią.",
+  "kandydat": "Masaż stóp z elementami refleksologii",
+  "human": null,
+  "final": "rozne",
+  "sedzia": "rozne",
+  "score": 0.14,
+  "cechy": {
+   "ten_sam_zabieg": 0.12,
+   "ten_sam_obszar": 0.03,
+   "ten_sam_wariant": 0.05
+  }
+ },
+ {
+  "id": 185,
+  "branza": "Salon Kosmetyczny",
+  "podmiot": "Makijaż permanentny. Brwi",
+  "kandydat": "Makijaż permanentny kreska zagęszczając linię rzęs",
+  "human": null,
+  "final": "niepewne",
+  "sedzia": "rozne",
+  "score": 0.3,
+  "cechy": {
+   "ten_sam_zabieg": 0.38,
+   "ten_sam_obszar": 0.06,
+   "ten_sam_wariant": 0.08
+  }
+ },
+ {
+  "id": 187,
+  "branza": "Tatuaż i Piercing",
+  "podmiot": "Laminowanie rzęs+farbowanie",
+  "kandydat": "Laminacja rzęs + botoks+farbowanie",
+  "human": null,
+  "final": "powiazane",
+  "sedzia": "powiazane",
+  "score": 1.0,
+  "cechy": {
+   "ten_sam_zabieg": 0.27,
+   "ten_sam_obszar": 0.14,
+   "ten_sam_wariant": 0.1
+  }
+ },
+ {
+  "id": 192,
+  "branza": "Barber shop",
+  "podmiot": "Depilacja woskiem",
+  "kandydat": "Depilacja wąsik",
+  "human": null,
+  "final": "powiazane",
+  "sedzia": "powiazane",
+  "score": 0.99,
+  "cechy": {
+   "ten_sam_zabieg": 0.29,
+   "ten_sam_obszar": 0.11,
+   "ten_sam_wariant": 0.09
+  }
+ },
+ {
+  "id": 193,
+  "branza": "Fryzjer",
+  "podmiot": "Oczyszczanie manualne twarzy",
+  "kandydat": "PEELING KAWITACYJNY (Twarz)",
+  "human": null,
+  "final": "powiazane",
+  "sedzia": "rozne",
+  "score": 0.46,
+  "cechy": {
+   "ten_sam_zabieg": 0.03,
+   "ten_sam_obszar": 0.2,
+   "ten_sam_wariant": 0.04
+  }
+ },
+ {
+  "id": 195,
+  "branza": "Masaż",
+  "podmiot": "Masaż relaksacyjny TRIO",
+  "kandydat": "Masaż antystresowy",
+  "human": null,
+  "final": "powiazane",
+  "sedzia": "powiazane",
+  "score": 0.99,
+  "cechy": {
+   "ten_sam_zabieg": 0.34,
+   "ten_sam_obszar": 0.32,
+   "ten_sam_wariant": 0.08
+  }
+ },
+ {
+  "id": 198,
+  "branza": "Barber shop",
+  "podmiot": "Strzyżenie włosów",
+  "kandydat": "Strzyżenie damskie włosy średniej długości",
+  "human": null,
+  "final": "powiazane",
+  "sedzia": "powiazane",
+  "score": 0.98,
+  "cechy": {
+   "ten_sam_zabieg": 0.25,
+   "ten_sam_obszar": 0.2,
+   "ten_sam_wariant": 0.04
+  }
+ },
+ {
+  "id": 202,
+  "branza": "Barber shop",
+  "podmiot": "Strzyżenie  męskie  włosy dlugie/ ponizej ramion",
+  "kandydat": "Strzyżenie damskie – krótkie włosy",
+  "human": null,
+  "final": "rozne",
+  "sedzia": "rozne",
+  "score": 0.45,
+  "cechy": {
+   "ten_sam_zabieg": 0.13,
+   "ten_sam_obszar": 0.28,
+   "ten_sam_wariant": 0.02
+  }
+ },
+ {
+  "id": 204,
+  "branza": "Barber shop",
+  "podmiot": "Strzyżenie długich włosów",
+  "kandydat": "Strzyżenie długich włosów nożyczkami",
+  "human": null,
+  "final": "niepewne",
+  "sedzia": "powiazane",
+  "score": 1.24,
+  "cechy": {
+   "ten_sam_zabieg": 0.44,
+   "ten_sam_obszar": 0.58,
+   "ten_sam_wariant": 0.49
+  }
+ },
+ {
+  "id": 206,
+  "branza": "Paznokcie",
+  "podmiot": "Pedicure hybrydowy",
+  "kandydat": "Pedicure hybrydowy",
+  "human": null,
+  "final": "tozsame",
+  "sedzia": "tozsame",
+  "score": 1.99,
+  "cechy": {
+   "ten_sam_zabieg": 0.84,
+   "ten_sam_obszar": 0.87,
+   "ten_sam_wariant": 0.52
+  }
+ },
+ {
+  "id": 62,
+  "branza": "Masaż",
+  "podmiot": "Masaż intensywnie liftingujacy + zabieg na twarz",
+  "kandydat": "Fala TECAR - zabieg WINBACK Neocare - okolica oka",
+  "human": "rozne",
+  "final": "niepewne",
+  "sedzia": "rozne",
+  "score": 0.23,
+  "cechy": {
+   "ten_sam_zabieg": 0.03,
+   "ten_sam_obszar": 0.16,
+   "ten_sam_wariant": 0.03
+  }
+ },
+ {
+  "id": 210,
+  "branza": "Barber shop",
+  "podmiot": "Strzyżenie włosów",
+  "kandydat": "Strzyżenie - włosy długie",
+  "human": "powiazane",
+  "final": "niepewne",
+  "sedzia": "powiazane",
+  "score": 1.02,
+  "cechy": {
+   "ten_sam_zabieg": 0.43,
+   "ten_sam_obszar": 0.32,
+   "ten_sam_wariant": 0.09
+  }
+ },
+ {
+  "id": 217,
+  "branza": "Paznokcie",
+  "podmiot": "Manicure klasyczny",
+  "kandydat": "Manicure klasyczny",
+  "human": "tozsame",
+  "final": "tozsame",
+  "sedzia": "tozsame",
+  "score": 1.72,
+  "cechy": {
+   "ten_sam_zabieg": 0.73,
+   "ten_sam_obszar": 0.63,
+   "ten_sam_wariant": 0.57
+  }
+ },
+ {
+  "id": 111,
+  "branza": "Masaż",
+  "podmiot": "Masaż nóg",
+  "kandydat": "Rytuał Dotyku i Ciepła",
+  "human": null,
+  "final": "rozne",
+  "sedzia": "rozne",
+  "score": 0.17,
+  "cechy": {
+   "ten_sam_zabieg": 0.12,
+   "ten_sam_obszar": 0.08,
+   "ten_sam_wariant": 0.04
+  }
+ },
+ {
+  "id": 113,
+  "branza": "Paznokcie",
+  "podmiot": "Pedicure hybrydowy + stopy",
+  "kandydat": "Pedicure Hybrydowy",
+  "human": null,
+  "final": "niepewne",
+  "sedzia": "powiazane",
+  "score": 1.15,
+  "cechy": {
+   "ten_sam_zabieg": 0.54,
+   "ten_sam_obszar": 0.23,
+   "ten_sam_wariant": 0.18
+  }
+ },
+ {
+  "id": 115,
+  "branza": "Paznokcie",
+  "podmiot": "Przedłużanie paznokci Do 1-2 długości",
+  "kandydat": "Przedłużanie paznokci na tipsy żelowe (3-5)",
+  "human": null,
+  "final": "powiazane",
+  "sedzia": "powiazane",
+  "score": 1.0,
+  "cechy": {
+   "ten_sam_zabieg": 0.2,
+   "ten_sam_obszar": 0.28,
+   "ten_sam_wariant": 0.03
+  }
+ },
+ {
+  "id": 118,
+  "branza": "Masaż",
+  "podmiot": "Masaż relaksacyjny TRIO",
+  "kandydat": "Masaż Relaksacyjny",
+  "human": null,
+  "final": "powiazane",
+  "sedzia": "powiazane",
+  "score": 1.04,
+  "cechy": {
+   "ten_sam_zabieg": 0.55,
+   "ten_sam_obszar": 0.3,
+   "ten_sam_wariant": 0.15
+  }
+ },
+ {
+  "id": 120,
+  "branza": "Tatuaż i Piercing",
+  "podmiot": "Rzęsy Mokry efekt 3D",
+  "kandydat": "Uzupełnienie rzęs „Kim effect” do 3 tyg",
+  "human": null,
+  "final": "powiazane",
+  "sedzia": "powiazane",
+  "score": 0.99,
+  "cechy": {
+   "ten_sam_zabieg": 0.15,
+   "ten_sam_obszar": 0.32,
+   "ten_sam_wariant": 0.02
+  }
+ },
+ {
+  "id": 184,
+  "branza": "Barber shop",
+  "podmiot": "Strzyżenie męskie maszynka+nożyczki bez mycia",
+  "kandydat": "Strzyżenie męskie maszynka (nakładka 0-1)",
+  "human": null,
+  "final": "powiazane",
+  "sedzia": "powiazane",
+  "score": 1.0,
+  "cechy": {
+   "ten_sam_zabieg": 0.18,
+   "ten_sam_obszar": 0.22,
+   "ten_sam_wariant": 0.1
+  }
+ },
+ {
+  "id": 188,
+  "branza": "Paznokcie",
+  "podmiot": "Manicure hybrydowy",
+  "kandydat": "Pedicure hybrydowy  (Palce+Stopy)",
+  "human": null,
+  "final": "rozne",
+  "sedzia": "rozne",
+  "score": 0.36,
+  "cechy": {
+   "ten_sam_zabieg": 0.33,
+   "ten_sam_obszar": 0.03,
+   "ten_sam_wariant": 0.06
+  }
+ },
+ {
+  "id": 190,
+  "branza": "Barber shop",
+  "podmiot": "Trwała ondulacja keratynowa męska włosy do ramion",
+  "kandydat": "Nanoplastia / Nanoplastyka",
+  "human": null,
+  "final": "rozne",
+  "sedzia": "rozne",
+  "score": 0.14,
+  "cechy": {
+   "ten_sam_zabieg": 0.05,
+   "ten_sam_obszar": 0.16,
+   "ten_sam_wariant": 0.02
+  }
+ },
+ {
+  "id": 194,
+  "branza": "Barber shop",
+  "podmiot": "Strzyżenie męskie maszynka+nożyczki bez mycia",
+  "kandydat": "Strzyżenie męskie włosów krótkich/shaver",
+  "human": null,
+  "final": "powiazane",
+  "sedzia": "powiazane",
+  "score": 1.0,
+  "cechy": {
+   "ten_sam_zabieg": 0.25,
+   "ten_sam_obszar": 0.38,
+   "ten_sam_wariant": 0.13
+  }
+ },
+ {
+  "id": 197,
+  "branza": "Barber shop",
+  "podmiot": "Strzyżenie męskie tylko nożyczki z myciem i model.",
+  "kandydat": "Strzyżenie damskie  włosy do łopatek +modelowanie",
+  "human": null,
+  "final": "rozne",
+  "sedzia": "rozne",
+  "score": 0.21,
+  "cechy": {
+   "ten_sam_zabieg": 0.06,
+   "ten_sam_obszar": 0.12,
+   "ten_sam_wariant": 0.02
+  }
+ },
+ {
+  "id": 199,
+  "branza": "Tatuaż i Piercing",
+  "podmiot": "Laminowanie rzęs",
+  "kandydat": "Laminacja rzęs + botox",
+  "human": null,
+  "final": "powiazane",
+  "sedzia": "powiazane",
+  "score": 1.05,
+  "cechy": {
+   "ten_sam_zabieg": 0.34,
+   "ten_sam_obszar": 0.15,
+   "ten_sam_wariant": 0.11
+  }
+ },
+ {
+  "id": 201,
+  "branza": "Paznokcie",
+  "podmiot": "Zmiana hybrydy",
+  "kandydat": "Żel (krótkie) + french",
+  "human": null,
+  "final": "rozne",
+  "sedzia": "powiazane",
+  "score": 0.83,
+  "cechy": {
+   "ten_sam_zabieg": 0.13,
+   "ten_sam_obszar": 0.29,
+   "ten_sam_wariant": 0.06
+  }
+ },
+ {
+  "id": 203,
+  "branza": "Masaż",
+  "podmiot": "Masaż  pleców",
+  "kandydat": "Masaż pleców + bańki chińskie",
+  "human": null,
+  "final": "powiazane",
+  "sedzia": "powiazane",
+  "score": 0.99,
+  "cechy": {
+   "ten_sam_zabieg": 0.14,
+   "ten_sam_obszar": 0.12,
+   "ten_sam_wariant": 0.1
+  }
+ },
+ {
+  "id": 207,
+  "branza": "Masaż",
+  "podmiot": "Masaż  pleców",
+  "kandydat": "Masaż leczniczy pleców i karku",
+  "human": null,
+  "final": "niepewne",
+  "sedzia": "powiazane",
+  "score": 1.0,
+  "cechy": {
+   "ten_sam_zabieg": 0.54,
+   "ten_sam_obszar": 0.13,
+   "ten_sam_wariant": 0.13
+  }
+ },
+ {
+  "id": 66,
+  "branza": "Fryzjer",
+  "podmiot": "Lysiwave - Mikrofale",
+  "kandydat": "Mezoterapia mikroigłowa - Twarz + szyja + dekolt",
+  "human": "rozne",
+  "final": "niepewne",
+  "sedzia": "rozne",
+  "score": 0.0,
+  "cechy": {
+   "ten_sam_zabieg": 0.02,
+   "ten_sam_obszar": 0.04,
+   "ten_sam_wariant": 0.02
+  }
+ },
+ {
+  "id": 415,
+  "branza": "Masaż",
+  "podmiot": "Masaż  pleców",
+  "kandydat": "Masaż Profilaktyczny",
+  "human": "powiazane",
+  "final": "powiazane",
+  "sedzia": "powiazane",
+  "score": 0.51,
+  "cechy": {
+   "ten_sam_zabieg": 0.16,
+   "ten_sam_obszar": 0.13,
+   "ten_sam_wariant": 0.07
+  }
+ },
+ {
+  "id": 117,
+  "branza": "Barber shop",
+  "podmiot": "Strzyżenie włosów",
+  "kandydat": "Strzyżenie damskie włosy długie",
+  "human": null,
+  "final": "powiazane",
+  "sedzia": "powiazane",
+  "score": 0.97,
+  "cechy": {
+   "ten_sam_zabieg": 0.3,
+   "ten_sam_obszar": 0.24,
+   "ten_sam_wariant": 0.07
+  }
+ },
+ {
+  "id": 119,
+  "branza": "Barber shop",
+  "podmiot": "Depilacja woskiem",
+  "kandydat": "Depilacja wąsik",
+  "human": null,
+  "final": "niepewne",
+  "sedzia": "powiazane",
+  "score": 0.98,
+  "cechy": {
+   "ten_sam_zabieg": 0.58,
+   "ten_sam_obszar": 0.09,
+   "ten_sam_wariant": 0.13
+  }
+ },
+ {
+  "id": 121,
+  "branza": "Masaż",
+  "podmiot": "Masaż brzucha + misa tybetańska",
+  "kandydat": "Masaż Transbukalny",
+  "human": null,
+  "final": "niepewne",
+  "sedzia": "rozne",
+  "score": 0.42,
+  "cechy": {
+   "ten_sam_zabieg": 0.12,
+   "ten_sam_obszar": 0.13,
+   "ten_sam_wariant": 0.07
+  }
+ },
+ {
+  "id": 122,
+  "branza": "Salon Kosmetyczny",
+  "podmiot": "Usunięcie manicure hybrydowego i manicure klasyczn",
+  "kandydat": "Usunięcie żelu / akrylu + manicure klasyczny",
+  "human": null,
+  "final": "niepewne",
+  "sedzia": "powiazane",
+  "score": 1.15,
+  "cechy": {
+   "ten_sam_zabieg": 0.38,
+   "ten_sam_obszar": 0.58,
+   "ten_sam_wariant": 0.42
+  }
+ },
+ {
+  "id": 123,
+  "branza": "Barber shop",
+  "podmiot": "Strzyżenie  męskie  włosy dlugie/ ponizej ramion",
+  "kandydat": "Strzyżenie damskie bardzo długie",
+  "human": null,
+  "final": "rozne",
+  "sedzia": "rozne",
+  "score": 0.45,
+  "cechy": {
+   "ten_sam_zabieg": 0.22,
+   "ten_sam_obszar": 0.32,
+   "ten_sam_wariant": 0.13
+  }
+ },
+ {
+  "id": 124,
+  "branza": "Fryzjer",
+  "podmiot": "Oczyszczanie manualne twarzy",
+  "kandydat": "Oczyszczanie wodorowe + Peeling kawitacyjny",
+  "human": null,
+  "final": "powiazane",
+  "sedzia": "powiazane",
+  "score": 0.71,
+  "cechy": {
+   "ten_sam_zabieg": 0.05,
+   "ten_sam_obszar": 0.09,
+   "ten_sam_wariant": 0.05
+  }
+ },
+ {
+  "id": 126,
+  "branza": "Tatuaż i Piercing",
+  "podmiot": "Przedłużanie rzęs 1:4",
+  "kandydat": "Przedłużanie rzęs 4:1",
+  "human": null,
+  "final": "niepewne",
+  "sedzia": "powiazane",
+  "score": 1.05,
+  "cechy": {
+   "ten_sam_zabieg": 0.31,
+   "ten_sam_obszar": 0.55,
+   "ten_sam_wariant": 0.08
+  }
+ },
+ {
+  "id": 127,
+  "branza": "Fryzjer",
+  "podmiot": "Masaż klasyczny",
+  "kandydat": "Masaż Klasyczny",
+  "human": null,
+  "final": "tozsame",
+  "sedzia": "tozsame",
+  "score": 1.96,
+  "cechy": {
+   "ten_sam_zabieg": 0.7,
+   "ten_sam_obszar": 0.58,
+   "ten_sam_wariant": 0.34
+  }
+ },
+ {
+  "id": 128,
+  "branza": "Salon Kosmetyczny",
+  "podmiot": "Makijaż permanentny. Brwi",
+  "kandydat": "Korekta Makijaż permanentny brwi",
+  "human": null,
+  "final": "powiazane",
+  "sedzia": "powiazane",
+  "score": 1.02,
+  "cechy": {
+   "ten_sam_zabieg": 0.59,
+   "ten_sam_obszar": 0.39,
+   "ten_sam_wariant": 0.16
+  }
+ },
+ {
+  "id": 129,
+  "branza": "Masaż",
+  "podmiot": "Lifting twarzy  bez skalpela PROGELIFT",
+  "kandydat": "Neolift twarz + szyja + dekolt",
+  "human": null,
+  "final": "powiazane",
+  "sedzia": "powiazane",
+  "score": 1.0,
+  "cechy": {
+   "ten_sam_zabieg": 0.44,
+   "ten_sam_obszar": 0.13,
+   "ten_sam_wariant": 0.08
+  }
+ },
+ {
+  "id": 130,
+  "branza": "Tatuaż i Piercing",
+  "podmiot": "Rzęsy Mokry efekt 2D",
+  "kandydat": "Przedłużanie Mokry Efekt / Wispy Mocny",
+  "human": null,
+  "final": "powiazane",
+  "sedzia": "powiazane",
+  "score": 1.05,
+  "cechy": {
+   "ten_sam_zabieg": 0.42,
+   "ten_sam_obszar": 0.59,
+   "ten_sam_wariant": 0.14
+  }
+ },
+ {
+  "id": 131,
+  "branza": "Tatuaż i Piercing",
+  "podmiot": "Rzęsy Mokry efekt 3D",
+  "kandydat": "Efekt 3D",
+  "human": null,
+  "final": "niepewne",
+  "sedzia": "rozne",
+  "score": 0.08,
+  "cechy": {
+   "ten_sam_zabieg": 0.05,
+   "ten_sam_obszar": 0.04,
+   "ten_sam_wariant": 0.06
+  }
+ },
+ {
+  "id": 132,
+  "branza": "Barber shop",
+  "podmiot": "Depilacja woskiem",
+  "kandydat": "Depilacja woskiem- twarz",
+  "human": null,
+  "final": "powiazane",
+  "sedzia": "powiazane",
+  "score": 0.99,
+  "cechy": {
+   "ten_sam_zabieg": 0.66,
+   "ten_sam_obszar": 0.1,
+   "ten_sam_wariant": 0.13
+  }
+ },
+ {
+  "id": 133,
+  "branza": "Tatuaż i Piercing",
+  "podmiot": "Przedłużanie rzęs 1:4",
+  "kandydat": "Przedłużanie rzęs 2:1",
+  "human": null,
+  "final": "powiazane",
+  "sedzia": "powiazane",
+  "score": 1.02,
+  "cechy": {
+   "ten_sam_zabieg": 0.22,
+   "ten_sam_obszar": 0.48,
+   "ten_sam_wariant": 0.04
+  }
+ },
+ {
+  "id": 135,
+  "branza": "Masaż",
+  "podmiot": "Lifting twarzy  bez skalpela PROGELIFT",
+  "kandydat": "Mangolift Collagen Therapy - twarz + szyja + de...",
+  "human": null,
+  "final": "powiazane",
+  "sedzia": "powiazane",
+  "score": 0.73,
+  "cechy": {
+   "ten_sam_zabieg": 0.13,
+   "ten_sam_obszar": 0.2,
+   "ten_sam_wariant": 0.06
+  }
+ },
+ {
+  "id": 136,
+  "branza": "Masaż",
+  "podmiot": "Masaż dźwiękiem - misy tybetańskie+kryształowe",
+  "kandydat": "Masaż AUTORSKI",
+  "human": null,
+  "final": "rozne",
+  "sedzia": "powiazane",
+  "score": 0.62,
+  "cechy": {
+   "ten_sam_zabieg": 0.05,
+   "ten_sam_obszar": 0.17,
+   "ten_sam_wariant": 0.05
+  }
+ },
+ {
+  "id": 137,
+  "branza": "Salon Kosmetyczny",
+  "podmiot": "Manicure hybrydowy french",
+  "kandydat": "Pedicure hybrydowy -zdobienie french",
+  "human": null,
+  "final": "niepewne",
+  "sedzia": "rozne",
+  "score": 0.29,
+  "cechy": {
+   "ten_sam_zabieg": 0.29,
+   "ten_sam_obszar": 0.05,
+   "ten_sam_wariant": 0.09
+  }
+ },
+ {
+  "id": 138,
+  "branza": "Tatuaż i Piercing",
+  "podmiot": "Rzęsy Efekt Kim",
+  "kandydat": "Efekt Kim light",
+  "human": null,
+  "final": "powiazane",
+  "sedzia": "powiazane",
+  "score": 1.47,
+  "cechy": {
+   "ten_sam_zabieg": 0.35,
+   "ten_sam_obszar": 0.55,
+   "ten_sam_wariant": 0.19
+  }
+ },
+ {
+  "id": 139,
+  "branza": "Tatuaż i Piercing",
+  "podmiot": "Rzęsy Efekt Anime",
+  "kandydat": "Rzęsy Mokry Efekt Uzupełnienie(do 3 tygodni)",
+  "human": null,
+  "final": "niepewne",
+  "sedzia": "powiazane",
+  "score": 0.99,
+  "cechy": {
+   "ten_sam_zabieg": 0.24,
+   "ten_sam_obszar": 0.43,
+   "ten_sam_wariant": 0.02
+  }
+ },
+ {
+  "id": 141,
+  "branza": "Tatuaż i Piercing",
+  "podmiot": "Przedłużanie rzęs 1:2",
+  "kandydat": "Przedłużanie rzęs 1:5",
+  "human": null,
+  "final": "niepewne",
+  "sedzia": "powiazane",
+  "score": 1.0,
+  "cechy": {
+   "ten_sam_zabieg": 0.41,
+   "ten_sam_obszar": 0.45,
+   "ten_sam_wariant": 0.03
+  }
+ },
+ {
+  "id": 142,
+  "branza": "Barber shop",
+  "podmiot": "Trwała ondulacja keratynowa męska włosy krótki",
+  "kandydat": "Włosy kręcone, krótkie",
+  "human": null,
+  "final": "rozne",
+  "sedzia": "powiazane",
+  "score": 0.76,
+  "cechy": {
+   "ten_sam_zabieg": 0.29,
+   "ten_sam_obszar": 0.47,
+   "ten_sam_wariant": 0.2
+  }
+ },
+ {
+  "id": 143,
+  "branza": "Paznokcie",
+  "podmiot": "Lami+regulacja+botox",
+  "kandydat": "Laminacja + regulacja brwi + botoks",
+  "human": null,
+  "final": "tozsame",
+  "sedzia": "tozsame",
+  "score": 1.93,
+  "cechy": {
+   "ten_sam_zabieg": 0.73,
+   "ten_sam_obszar": 0.83,
+   "ten_sam_wariant": 0.53
+  }
+ },
+ {
+  "id": 144,
+  "branza": "Paznokcie",
+  "podmiot": "Manicure klasyczny",
+  "kandydat": "Pedicure klasyczny z malowaniem",
+  "human": null,
+  "final": "niepewne",
+  "sedzia": "rozne",
+  "score": 0.03,
+  "cechy": {
+   "ten_sam_zabieg": 0.05,
+   "ten_sam_obszar": 0.02,
+   "ten_sam_wariant": 0.05
+  }
+ },
+ {
+  "id": 145,
+  "branza": "Barber shop",
+  "podmiot": "Strzyżenie damskie krótkie (5-10 cm) włosy",
+  "kandydat": "Strzyżenie damskie włosy długie",
+  "human": null,
+  "final": "niepewne",
+  "sedzia": "powiazane",
+  "score": 0.99,
+  "cechy": {
+   "ten_sam_zabieg": 0.32,
+   "ten_sam_obszar": 0.36,
+   "ten_sam_wariant": 0.03
+  }
+ },
+ {
+  "id": 146,
+  "branza": "Tatuaż i Piercing",
+  "podmiot": "Laminowanie rzęs",
+  "kandydat": "Laminacja rzęs",
+  "human": null,
+  "final": "tozsame",
+  "sedzia": "tozsame",
+  "score": 1.94,
+  "cechy": {
+   "ten_sam_zabieg": 0.72,
+   "ten_sam_obszar": 0.78,
+   "ten_sam_wariant": 0.28
+  }
+ },
+ {
+  "id": 134,
+  "branza": "Tatuaż i Piercing",
+  "podmiot": "Przedłużanie rzęs 1:2",
+  "kandydat": "Przedłużanie rzęs 2D",
+  "human": "powiazane",
+  "final": "niepewne",
+  "sedzia": "powiazane",
+  "score": 1.11,
+  "cechy": {
+   "ten_sam_zabieg": 0.33,
+   "ten_sam_obszar": 0.68,
+   "ten_sam_wariant": 0.22
+  }
+ },
+ {
+  "id": 140,
+  "branza": "Fryzjer",
+  "podmiot": "Endermologia LPG - 10 zabiegów na ciało",
+  "kandydat": "Pakiet Endermologia Infinity + ONDA PRO",
+  "human": "powiazane",
+  "final": "powiazane",
+  "sedzia": "powiazane",
+  "score": 0.91,
+  "cechy": {
+   "ten_sam_zabieg": 0.33,
+   "ten_sam_obszar": 0.17,
+   "ten_sam_wariant": 0.03
+  }
+ },
+ {
+  "id": 147,
+  "branza": "Barber shop",
+  "podmiot": "Depilacja woskiem",
+  "kandydat": "Pachy - depilacja woskiem",
+  "human": null,
+  "final": "niepewne",
+  "sedzia": "powiazane",
+  "score": 1.02,
+  "cechy": {
+   "ten_sam_zabieg": 0.81,
+   "ten_sam_obszar": 0.14,
+   "ten_sam_wariant": 0.24
+  }
+ },
+ {
+  "id": 151,
+  "branza": "Salon Kosmetyczny",
+  "podmiot": "Uzupełnienie długich paznokci powyżej 3 tygodni",
+  "kandydat": "Uzupełnienie paznokci żelowych krótkich",
+  "human": null,
+  "final": "powiazane",
+  "sedzia": "powiazane",
+  "score": 1.0,
+  "cechy": {
+   "ten_sam_zabieg": 0.25,
+   "ten_sam_obszar": 0.23,
+   "ten_sam_wariant": 0.04
+  }
+ },
+ {
+  "id": 154,
+  "branza": "Tatuaż i Piercing",
+  "podmiot": "Laminowanie rzęs",
+  "kandydat": "Lifting rzęs &botoks &laminacja",
+  "human": null,
+  "final": "powiazane",
+  "sedzia": "powiazane",
+  "score": 1.11,
+  "cechy": {
+   "ten_sam_zabieg": 0.26,
+   "ten_sam_obszar": 0.32,
+   "ten_sam_wariant": 0.1
+  }
+ },
+ {
+  "id": 156,
+  "branza": "Paznokcie",
+  "podmiot": "Manicure męski",
+  "kandydat": "manicure męski",
+  "human": null,
+  "final": "tozsame",
+  "sedzia": "tozsame",
+  "score": 1.98,
+  "cechy": {
+   "ten_sam_zabieg": 0.69,
+   "ten_sam_obszar": 0.87,
+   "ten_sam_wariant": 0.58
+  }
+ },
+ {
+  "id": 158,
+  "branza": "Salon Kosmetyczny",
+  "podmiot": "Peeling kawitacyjny + M.A.D z vitamina C",
+  "kandydat": "Kwas migdałowy",
+  "human": null,
+  "final": "niepewne",
+  "sedzia": "rozne",
+  "score": 0.12,
+  "cechy": {
+   "ten_sam_zabieg": 0.03,
+   "ten_sam_obszar": 0.13,
+   "ten_sam_wariant": 0.03
+  }
+ },
+ {
+  "id": 160,
+  "branza": "Salon Kosmetyczny",
+  "podmiot": "Uzupełnienie paznokci żelem",
+  "kandydat": "Uzupełnienie żelowe",
+  "human": null,
+  "final": "tozsame",
+  "sedzia": "tozsame",
+  "score": 1.53,
+  "cechy": {
+   "ten_sam_zabieg": 0.83,
+   "ten_sam_obszar": 0.72,
+   "ten_sam_wariant": 0.58
+  }
+ },
+ {
+  "id": 162,
+  "branza": "Salon Kosmetyczny",
+  "podmiot": "Manicure klasyczny",
+  "kandydat": "Manicure klasyczny",
+  "human": null,
+  "final": "tozsame",
+  "sedzia": "tozsame",
+  "score": 1.85,
+  "cechy": {
+   "ten_sam_zabieg": 0.7,
+   "ten_sam_obszar": 0.73,
+   "ten_sam_wariant": 0.56
+  }
+ },
+ {
+  "id": 164,
+  "branza": "Salon Kosmetyczny",
+  "podmiot": "Manicure hybrydowy french",
+  "kandydat": "Manicure hybrydowy french na naturalnej płytce",
+  "human": null,
+  "final": "powiazane",
+  "sedzia": "tozsame",
+  "score": 1.71,
+  "cechy": {
+   "ten_sam_zabieg": 0.8,
+   "ten_sam_obszar": 0.71,
+   "ten_sam_wariant": 0.47
+  }
+ },
+ {
+  "id": 167,
+  "branza": "Masaż",
+  "podmiot": "Masaż dźwiękiem-misy tybetańskie+kryształowe",
+  "kandydat": "Masaż dźwiękiem: misy tybetańskie i dzwonki Koshi",
+  "human": null,
+  "final": "powiazane",
+  "sedzia": "powiazane",
+  "score": 1.38,
+  "cechy": {
+   "ten_sam_zabieg": 0.62,
+   "ten_sam_obszar": 0.43,
+   "ten_sam_wariant": 0.28
+  }
+ },
+ {
+  "id": 170,
+  "branza": "Tatuaż i Piercing",
+  "podmiot": "Przedłużanie rzęs 1:1",
+  "kandydat": "Przedłużanie rzęs – metoda 2D",
+  "human": null,
+  "final": "powiazane",
+  "sedzia": "powiazane",
+  "score": 1.0,
+  "cechy": {
+   "ten_sam_zabieg": 0.1,
+   "ten_sam_obszar": 0.62,
+   "ten_sam_wariant": 0.07
+  }
+ },
+ {
+  "id": 173,
+  "branza": "Fryzjer",
+  "podmiot": "Peeling kawitacyjny z maską algową",
+  "kandydat": "Peeling kawitacyjny + masaż twarzy + maska algowa",
+  "human": null,
+  "final": "powiazane",
+  "sedzia": "powiazane",
+  "score": 1.05,
+  "cechy": {
+   "ten_sam_zabieg": 0.6,
+   "ten_sam_obszar": 0.13,
+   "ten_sam_wariant": 0.18
+  }
+ },
+ {
+  "id": 125,
+  "branza": "Barber shop",
+  "podmiot": "Strzyżenie  męskie  włosy dlugie/ ponizej ramion",
+  "kandydat": "Strzyżenie damskie - Włosy bardzo długie",
+  "human": "powiazane",
+  "final": "rozne",
+  "sedzia": "rozne",
+  "score": 0.48,
+  "cechy": {
+   "ten_sam_zabieg": 0.2,
+   "ten_sam_obszar": 0.39,
+   "ten_sam_wariant": 0.15
+  }
+ },
+ {
+  "id": 176,
+  "branza": "Fryzjer",
+  "podmiot": "Leczenie bruksizmu botoksem",
+  "kandydat": "ZDROWY KRĘGOSŁUP 🙏🏻",
+  "human": "rozne",
+  "final": "rozne",
+  "sedzia": "rozne",
+  "score": 0.0,
+  "cechy": {
+   "ten_sam_zabieg": 0.01,
+   "ten_sam_obszar": 0.03,
+   "ten_sam_wariant": 0.02
+  }
+ },
+ {
+  "id": 179,
+  "branza": "Fryzjer",
+  "podmiot": "INTRAJECT - Niechirurgiczny Lifting",
+  "kandydat": "RF mikroigłowy - twarz+szyja",
+  "human": "rozne",
+  "final": "niepewne",
+  "sedzia": "rozne",
+  "score": 0.14,
+  "cechy": {
+   "ten_sam_zabieg": 0.04,
+   "ten_sam_obszar": 0.17,
+   "ten_sam_wariant": 0.03
+  }
+ },
+ {
+  "id": 196,
+  "branza": "Tatuaż i Piercing",
+  "podmiot": "Przedłużanie rzęs 1:2",
+  "kandydat": "Przedłużanie rzęs 3:1",
+  "human": "powiazane",
+  "final": "powiazane",
+  "sedzia": "powiazane",
+  "score": 1.0,
+  "cechy": {
+   "ten_sam_zabieg": 0.22,
+   "ten_sam_obszar": 0.54,
+   "ten_sam_wariant": 0.03
+  }
+ },
+ {
+  "id": 148,
+  "branza": "Barber shop",
+  "podmiot": "Farbowanie Męskie Jeden Kolor",
+  "kandydat": "Długie włosy balejage/sombre/szatusz+strzyżenie",
+  "human": null,
+  "final": "rozne",
+  "sedzia": "rozne",
+  "score": 0.05,
+  "cechy": {
+   "ten_sam_zabieg": 0.02,
+   "ten_sam_obszar": 0.14,
+   "ten_sam_wariant": 0.02
+  }
+ },
+ {
+  "id": 150,
+  "branza": "Salon Kosmetyczny",
+  "podmiot": "Manicure klasyczny",
+  "kandydat": "Manicure + lakier klasyczny",
+  "human": null,
+  "final": "niepewne",
+  "sedzia": "powiazane",
+  "score": 1.0,
+  "cechy": {
+   "ten_sam_zabieg": 0.32,
+   "ten_sam_obszar": 0.2,
+   "ten_sam_wariant": 0.16
+  }
+ },
+ {
+  "id": 152,
+  "branza": "Paznokcie",
+  "podmiot": "Uzupełnienie paznokci",
+  "kandydat": "Manicure klasyczny",
+  "human": null,
+  "final": "rozne",
+  "sedzia": "rozne",
+  "score": 0.33,
+  "cechy": {
+   "ten_sam_zabieg": 0.06,
+   "ten_sam_obszar": 0.25,
+   "ten_sam_wariant": 0.02
+  }
+ },
+ {
+  "id": 155,
+  "branza": "Salon Kosmetyczny",
+  "podmiot": "Manicure hybrydowy french",
+  "kandydat": "Manicure hybrydowy french + usunięcie hybrydy",
+  "human": null,
+  "final": "powiazane",
+  "sedzia": "powiazane",
+  "score": 1.0,
+  "cechy": {
+   "ten_sam_zabieg": 0.41,
+   "ten_sam_obszar": 0.16,
+   "ten_sam_wariant": 0.06
+  }
+ },
+ {
+  "id": 159,
+  "branza": "Paznokcie",
+  "podmiot": "Manicure męski",
+  "kandydat": "Pedicure męski",
+  "human": null,
+  "final": "rozne",
+  "sedzia": "rozne",
+  "score": 0.1,
+  "cechy": {
+   "ten_sam_zabieg": 0.15,
+   "ten_sam_obszar": 0.04,
+   "ten_sam_wariant": 0.09
+  }
+ },
+ {
+  "id": 163,
+  "branza": "Barber shop",
+  "podmiot": "Strzyżenie męskie maszynka+nożyczki bez mycia",
+  "kandydat": "Strzyżenie nożyczkami",
+  "human": null,
+  "final": "powiazane",
+  "sedzia": "powiazane",
+  "score": 0.98,
+  "cechy": {
+   "ten_sam_zabieg": 0.1,
+   "ten_sam_obszar": 0.28,
+   "ten_sam_wariant": 0.07
+  }
+ },
+ {
+  "id": 168,
+  "branza": "Paznokcie",
+  "podmiot": "Zdobienie na 2 paznokciach (delikatne)",
+  "kandydat": "zdobienie na wszystkich paznokciach (folia, pyłek)",
+  "human": null,
+  "final": "rozne",
+  "sedzia": "powiazane",
+  "score": 0.65,
+  "cechy": {
+   "ten_sam_zabieg": 0.07,
+   "ten_sam_obszar": 0.04,
+   "ten_sam_wariant": 0.03
+  }
+ },
+ {
+  "id": 171,
+  "branza": "Fryzjer",
+  "podmiot": "Endermologia LPG Alliance jeden zabieg na ciało",
+  "kandydat": "LPG Alliance Endermologia - Zabieg spersonaliz...",
+  "human": null,
+  "final": "tozsame",
+  "sedzia": "powiazane",
+  "score": 1.39,
+  "cechy": {
+   "ten_sam_zabieg": 0.83,
+   "ten_sam_obszar": 0.33,
+   "ten_sam_wariant": 0.24
+  }
+ },
+ {
+  "id": 174,
+  "branza": "Salon Kosmetyczny",
+  "podmiot": "Utwardzenie naturalnych  paznokci żelem",
+  "kandydat": "Uzupełnienie żelowe",
+  "human": null,
+  "final": "niepewne",
+  "sedzia": "powiazane",
+  "score": 0.95,
+  "cechy": {
+   "ten_sam_zabieg": 0.37,
+   "ten_sam_obszar": 0.34,
+   "ten_sam_wariant": 0.06
+  }
+ },
+ {
+  "id": 177,
+  "branza": "Paznokcie",
+  "podmiot": "Architektura +farbowanie+regulacja +botox",
+  "kandydat": "Farbka na brwi",
+  "human": null,
+  "final": "niepewne",
+  "sedzia": "powiazane",
+  "score": 0.93,
+  "cechy": {
+   "ten_sam_zabieg": 0.18,
+   "ten_sam_obszar": 0.17,
+   "ten_sam_wariant": 0.09
+  }
+ },
+ {
+  "id": 180,
+  "branza": "Barber shop",
+  "podmiot": "Strzyżenie damskie krótkie (5-10 cm) włosy",
+  "kandydat": "Strzyżenie damskie długich włosów",
+  "human": "powiazane",
+  "final": "niepewne",
+  "sedzia": "powiazane",
+  "score": 0.99,
+  "cechy": {
+   "ten_sam_zabieg": 0.22,
+   "ten_sam_obszar": 0.43,
+   "ten_sam_wariant": 0.02
+  }
+ },
+ {
+  "id": 149,
+  "branza": "Fryzjer",
+  "podmiot": "Endermologia LPG Alliance jeden zabieg na ciało",
+  "kandydat": "Endermologia® LPG Alliance - zabieg na twarz En...",
+  "human": null,
+  "final": "niepewne",
+  "sedzia": "powiazane",
+  "score": 0.76,
+  "cechy": {
+   "ten_sam_zabieg": 0.6,
+   "ten_sam_obszar": 0.03,
+   "ten_sam_wariant": 0.06
+  }
+ },
+ {
+  "id": 157,
+  "branza": "Tatuaż i Piercing",
+  "podmiot": "Przedłużanie rzęs 1:1",
+  "kandydat": "Przedłużanie rzęs 1:1",
+  "human": null,
+  "final": "tozsame",
+  "sedzia": "tozsame",
+  "score": 1.92,
+  "cechy": {
+   "ten_sam_zabieg": 0.66,
+   "ten_sam_obszar": 0.81,
+   "ten_sam_wariant": 0.59
+  }
+ },
+ {
+  "id": 161,
+  "branza": "Tatuaż i Piercing",
+  "podmiot": "Rzęsy Efekt Kim",
+  "kandydat": "EFEKT MOKRYCH RZĘS",
+  "human": null,
+  "final": "niepewne",
+  "sedzia": "powiazane",
+  "score": 1.0,
+  "cechy": {
+   "ten_sam_zabieg": 0.18,
+   "ten_sam_obszar": 0.57,
+   "ten_sam_wariant": 0.06
+  }
+ },
+ {
+  "id": 165,
+  "branza": "Tatuaż i Piercing",
+  "podmiot": "Przedłużanie rzęs 1:2",
+  "kandydat": "Przedłużanie rzęs 1:1",
+  "human": null,
+  "final": "niepewne",
+  "sedzia": "powiazane",
+  "score": 1.0,
+  "cechy": {
+   "ten_sam_zabieg": 0.29,
+   "ten_sam_obszar": 0.33,
+   "ten_sam_wariant": 0.04
+  }
+ },
+ {
+  "id": 166,
+  "branza": "Fryzjer",
+  "podmiot": "Masaż klasyczny",
+  "kandydat": "Masaż Klasyczny Ciała",
+  "human": null,
+  "final": "niepewne",
+  "sedzia": "powiazane",
+  "score": 1.28,
+  "cechy": {
+   "ten_sam_zabieg": 0.53,
+   "ten_sam_obszar": 0.3,
+   "ten_sam_wariant": 0.2
+  }
+ },
+ {
+  "id": 169,
+  "branza": "Tatuaż i Piercing",
+  "podmiot": "Przedłużanie rzęs 1:1",
+  "kandydat": "Przedłużanie rzęs 1:1",
+  "human": null,
+  "final": "tozsame",
+  "sedzia": "tozsame",
+  "score": 1.91,
+  "cechy": {
+   "ten_sam_zabieg": 0.67,
+   "ten_sam_obszar": 0.77,
+   "ten_sam_wariant": 0.63
+  }
+ },
+ {
+  "id": 172,
+  "branza": "Tatuaż i Piercing",
+  "podmiot": "Laminowanie rzęs+farbowanie",
+  "kandydat": "Laminacja brwi + farbowanie",
+  "human": null,
+  "final": "rozne",
+  "sedzia": "rozne",
+  "score": 0.27,
+  "cechy": {
+   "ten_sam_zabieg": 0.17,
+   "ten_sam_obszar": 0.04,
+   "ten_sam_wariant": 0.09
+  }
+ },
+ {
+  "id": 175,
+  "branza": "Fryzjer",
+  "podmiot": "Peeling kawitacyjny z maską algową",
+  "kandydat": "Peeling Kawitacyjny+maska algowa",
+  "human": null,
+  "final": "tozsame",
+  "sedzia": "tozsame",
+  "score": 1.96,
+  "cechy": {
+   "ten_sam_zabieg": 0.84,
+   "ten_sam_obszar": 0.76,
+   "ten_sam_wariant": 0.55
+  }
+ },
+ {
+  "id": 178,
+  "branza": "Salon Kosmetyczny",
+  "podmiot": "Manicure hybrydowy",
+  "kandydat": "Manicure hybrydowy (french/babyboomer)",
+  "human": null,
+  "final": "niepewne",
+  "sedzia": "powiazane",
+  "score": 1.19,
+  "cechy": {
+   "ten_sam_zabieg": 0.75,
+   "ten_sam_obszar": 0.41,
+   "ten_sam_wariant": 0.29
+  }
+ },
+ {
+  "id": 153,
+  "branza": "Salon Kosmetyczny",
+  "podmiot": "Makijaż permanentny. Usta",
+  "kandydat": "Makijaż permanentny brwi + usta",
+  "human": "powiazane",
+  "final": "niepewne",
+  "sedzia": "powiazane",
+  "score": 0.89,
+  "cechy": {
+   "ten_sam_zabieg": 0.46,
+   "ten_sam_obszar": 0.08,
+   "ten_sam_wariant": 0.13
+  }
+ }
+]
