@@ -1,0 +1,280 @@
+{
+ "lacznie": {
+  "v8": {
+   "par": 4101,
+   "precyzja_ta_sama_proc": 53.2,
+   "czulosc_ta_sama_proc": 63.0,
+   "trafnosc_proc": 84.5,
+   "mowi_ta_sama": 814
+  },
+  "v9": {
+   "par": 4101,
+   "precyzja_ta_sama_proc": 57.7,
+   "czulosc_ta_sama_proc": 64.8,
+   "trafnosc_proc": 86.1,
+   "mowi_ta_sama": 771
+  }
+ },
+ "per_branza": {
+  "Barber shop": {
+   "v8": {
+    "par": 374,
+    "precyzja_ta_sama_proc": 61.5,
+    "czulosc_ta_sama_proc": 71.1,
+    "trafnosc_proc": 91.2,
+    "mowi_ta_sama": 52
+   },
+   "v9": {
+    "par": 374,
+    "precyzja_ta_sama_proc": 69.6,
+    "czulosc_ta_sama_proc": 71.1,
+    "trafnosc_proc": 92.8,
+    "mowi_ta_sama": 46
+   }
+  },
+  "Brwi i rzęsy": {
+   "v8": {
+    "par": 710,
+    "precyzja_ta_sama_proc": 42.3,
+    "czulosc_ta_sama_proc": 64.3,
+    "trafnosc_proc": 83.0,
+    "mowi_ta_sama": 149
+   },
+   "v9": {
+    "par": 710,
+    "precyzja_ta_sama_proc": 47.1,
+    "czulosc_ta_sama_proc": 65.3,
+    "trafnosc_proc": 85.1,
+    "mowi_ta_sama": 136
+   }
+  },
+  "Depilacja": {
+   "v8": {
+    "par": 440,
+    "precyzja_ta_sama_proc": 42.4,
+    "czulosc_ta_sama_proc": 48.3,
+    "trafnosc_proc": 84.5,
+    "mowi_ta_sama": 66
+   },
+   "v9": {
+    "par": 440,
+    "precyzja_ta_sama_proc": 50.7,
+    "czulosc_ta_sama_proc": 62.1,
+    "trafnosc_proc": 87.0,
+    "mowi_ta_sama": 71
+   }
+  },
+  "Fryzjer": {
+   "v8": {
+    "par": 437,
+    "precyzja_ta_sama_proc": 95.9,
+    "czulosc_ta_sama_proc": 45.6,
+    "trafnosc_proc": 86.7,
+    "mowi_ta_sama": 49
+   },
+   "v9": {
+    "par": 437,
+    "precyzja_ta_sama_proc": 96.0,
+    "czulosc_ta_sama_proc": 46.6,
+    "trafnosc_proc": 87.0,
+    "mowi_ta_sama": 50
+   }
+  },
+  "Masaż": {
+   "v8": {
+    "par": 458,
+    "precyzja_ta_sama_proc": 11.1,
+    "czulosc_ta_sama_proc": 50.0,
+    "trafnosc_proc": 86.2,
+    "mowi_ta_sama": 63
+   },
+   "v9": {
+    "par": 458,
+    "precyzja_ta_sama_proc": 11.5,
+    "czulosc_ta_sama_proc": 42.9,
+    "trafnosc_proc": 88.2,
+    "mowi_ta_sama": 52
+   }
+  },
+  "Medycyna Estetyczna": {
+   "v8": {
+    "par": 317,
+    "precyzja_ta_sama_proc": 26.7,
+    "czulosc_ta_sama_proc": 57.1,
+    "trafnosc_proc": 95.6,
+    "mowi_ta_sama": 15
+   },
+   "v9": {
+    "par": 317,
+    "precyzja_ta_sama_proc": 42.9,
+    "czulosc_ta_sama_proc": 42.9,
+    "trafnosc_proc": 97.5,
+    "mowi_ta_sama": 7
+   }
+  },
+  "Paznokcie": {
+   "v8": {
+    "par": 560,
+    "precyzja_ta_sama_proc": 80.3,
+    "czulosc_ta_sama_proc": 68.3,
+    "trafnosc_proc": 86.1,
+    "mowi_ta_sama": 137
+   },
+   "v9": {
+    "par": 560,
+    "precyzja_ta_sama_proc": 83.7,
+    "czulosc_ta_sama_proc": 70.2,
+    "trafnosc_proc": 87.5,
+    "mowi_ta_sama": 135
+   }
+  },
+  "Podologia": {
+   "v8": {
+    "par": 245,
+    "precyzja_ta_sama_proc": 7.9,
+    "czulosc_ta_sama_proc": 87.5,
+    "trafnosc_proc": 66.1,
+    "mowi_ta_sama": 89
+   },
+   "v9": {
+    "par": 245,
+    "precyzja_ta_sama_proc": 8.0,
+    "czulosc_ta_sama_proc": 87.5,
+    "trafnosc_proc": 66.5,
+    "mowi_ta_sama": 88
+   }
+  },
+  "Salon Kosmetyczny": {
+   "v8": {
+    "par": 560,
+    "precyzja_ta_sama_proc": 69.6,
+    "czulosc_ta_sama_proc": 69.9,
+    "trafnosc_proc": 79.1,
+    "mowi_ta_sama": 194
+   },
+   "v9": {
+    "par": 560,
+    "precyzja_ta_sama_proc": 73.1,
+    "czulosc_ta_sama_proc": 70.5,
+    "trafnosc_proc": 80.9,
+    "mowi_ta_sama": 186
+   }
+  }
+ },
+ "bilans": {
+  "poprawione": 94,
+  "pogorszone": 27
+ },
+ "pogorszone_przyklady": [
+  [
+   "Uzupełnienie rzęs 2:1",
+   "Uzupełnienie rzęs 2:1 do 3 tyg .",
+   "tozsame",
+   "powiazane",
+   "tozsame"
+  ],
+  [
+   "Manicure hybrydowy",
+   "Manicure hybrydowy  (jednolity)",
+   "tozsame",
+   "niepelne",
+   "tozsame"
+  ],
+  [
+   "Ściągnięcie żelu + Manicure z odżywką",
+   "Ściągnięcie żelu+ manicure klasyczny z odżywka",
+   "tozsame",
+   "powiazane",
+   "tozsame"
+  ],
+  [
+   "Ściągnięcie żelu + Manicure z odżywką",
+   "Ściągnięcie żelu + manicure klasyczny",
+   "niepelne",
+   "tozsame",
+   "powiazane"
+  ],
+  [
+   "Ściągnięcie żelu + Manicure z odżywką",
+   "Ściągnięcie żelu + manicure klasyczny",
+   "powiazane",
+   "tozsame",
+   "powiazane"
+  ],
+  [
+   "Henna brwi + rzęs z regulacją",
+   "Koloryzacja henną + regulacja brwi",
+   "tozsame",
+   "niepelne",
+   "tozsame"
+  ],
+  [
+   "Pedicure bez hybrydy",
+   "Pedicure",
+   "niepelne",
+   "tozsame",
+   "powiazane"
+  ],
+  [
+   "Pedicure bez hybrydy",
+   "Pedicure  bez malowania",
+   "niepelne",
+   "tozsame",
+   "powiazane"
+  ],
+  [
+   "Premium (Bikini Głębokie + Pachy+Nogi Całe)",
+   "Bikini głębokie+Pachy+Nogi Całe",
+   "tozsame",
+   "niepelne",
+   "tozsame"
+  ],
+  [
+   "Premium (Bikini Głębokie + Pachy+Nogi Całe)",
+   "Bikini głębokie+pachy+całe nogi",
+   "tozsame",
+   "niepelne",
+   "tozsame"
+  ],
+  [
+   "Premium (Bikini Głębokie + Pachy+Nogi Całe)",
+   "Bikini głębokie + pachy + nogi całe",
+   "niepelne",
+   "tozsame",
+   "powiazane"
+  ],
+  [
+   "Premium (Bikini Głębokie + Pachy+Nogi Całe)",
+   "Pachy+bikini głębokie+ całe nogi 4+1 gratis",
+   "niepelne",
+   "tozsame",
+   "powiazane"
+  ],
+  [
+   "Smart (Bikini Głębokie + Pachy)",
+   "Bikini głębokie+Pachy",
+   "niepelne",
+   "tozsame",
+   "powiazane"
+  ],
+  [
+   "Smart (Bikini Głębokie + Pachy)",
+   "Bikini głębokie+pachy",
+   "niepelne",
+   "tozsame",
+   "powiazane"
+  ],
+  [
+   "Depilacja Laserowa Ręce Całe 6+2🎁",
+   "Depilacja laserowa - Całe ręce (Kobiety)",
+   "niepelne",
+   "tozsame",
+   "powiazane"
+  ]
+ ],
+ "koszt_v9": {
+  "tok_rodzaj": 5717,
+  "tok_cechy": 2585,
+  "usd": 1.051
+ }
+}

@@ -149,3 +149,32 @@ async def test_bez_bazy_dziala_w_pamieci_sesji():
     sesja = pamiec.OcenaPar(None, _Klient(), budzet_usd=1.0)
     out = await sesja.ocen([(MANI, PEDI)])
     assert len(out) == 1
+
+
+# ---------- sędzia v3: czas trwania nie jest różnicą (decyzja Alexa 28.09) ----------
+from services.typesafe_ocena.pytania import PYTANIA, WERSJA_V3, pytania_dla  # noqa: E402
+
+
+def test_v3_mowi_ze_sam_czas_nie_rozroznia():
+    v3 = pytania_dla(WERSJA_V3)
+    srodek, ta_sama = v3["relacja"].criteria[1], v3["relacja"].criteria[2]
+    assert "60 vs 90 minutes" in srodek and "duration" in ta_sama
+    assert pytania_dla(WERSJA) is PYTANIA  # domyślnie bez zmian
+
+
+class _KlientPytania(_Klient):
+    def __init__(self) -> None:
+        super().__init__()
+        self.pytania: list[dict[str, Any]] = []
+
+    async def system_one(self, state, questions, model=None):
+        self.pytania.append(questions)
+        return await super().system_one(state, questions, model)
+
+
+async def test_ocena_v3_pyta_v3_i_zapisuje_wersje_3():
+    baza, klient = _Baza(), _KlientPytania()
+    sesja = pamiec.OcenaPar(baza, klient, budzet_usd=1.0, wersja=WERSJA_V3)
+    await sesja.ocen([(MANI, PEDI)])
+    assert klient.pytania[0] is pytania_dla(WERSJA_V3)
+    assert baza.zapisane[0]["wersja"] == WERSJA_V3

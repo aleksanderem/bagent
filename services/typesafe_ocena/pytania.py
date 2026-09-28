@@ -49,9 +49,38 @@ POZIOMY = [
 WERDYKTY = ("rozne", "powiazane", "tozsame")
 
 
-def _pytania() -> dict[str, Any]:
+# v3 (28.09.2026, decyzja Alexa): ten sam zabieg o innym czasie trwania to TA SAMA
+# usługa — cenę i tak liczymy za minutę. v2 wymieniał „length” wśród różnic, co
+# model mógł czytać jako czas; v3 mówi wprost: długość włosów/paznokci tak, czas nie.
+WERSJA_V3 = 3
+POZIOMY_V3 = [
+    POZIOMY[0],
+    "The same kind of treatment, but the names or categories state a concrete difference that "
+    "changes what the client gets: a different area or scope, hair or nail length, size or volume, "
+    "stage (e.g. first application vs refill), number of sessions, a package, or a different technique. "
+    "Also when the two names differ and one of them is so generic that it could mean several different "
+    "treatments. Identical names are not a difference, and neither is a different duration of the same "
+    "treatment (e.g. 60 vs 90 minutes): prices are compared per minute.",
+    # Reszta słowo w słowo jak v2 — pierwsza wersja v3 („details that do not change the
+    # treatment itself”) luzowała sędziego także poza czasem (kalibracja 28.09:
+    # „Efekt Kim” = „Efekt Kim light”), więc zmiana ogranicza się do czasu.
+    "The same service: both names describe the same treatment and differ only in spelling, word "
+    "order, marketing additions, session duration (e.g. 60 vs 90 minutes) or details that do not "
+    "change what the client gets.",
+]
+
+
+def _pytania(poziomy: list[str] = POZIOMY, wariant_bez_czasu: bool = False) -> dict[str, Any]:
     # Pytania tak/nie są diagnostyczne (czym para się różni) — oceniane niezależnie,
     # nie wpływają na skalę; decyzję daje wyłącznie skala.
+    wariant = (
+        f"Are {A} and {B} the same variant: the same size or hair/nail length, the same stage (e.g. first "
+        "application, refill, removal) and the same number of sessions included? The duration of a session "
+        "does not count."
+        if wariant_bez_czasu else
+        f"Are {A} and {B} the same variant: the same size or length, the same stage (e.g. first "
+        "application, refill, removal) and the same number of sessions included?"
+    )
     return {
         "relacja": Score(
             instructions=(
@@ -59,7 +88,7 @@ def _pytania() -> dict[str, Any]:
                 "(names in Polish), relate to each other, considering the name, the price-list category "
                 "and the salon type?"
             ),
-            criteria=POZIOMY,
+            criteria=poziomy,
         ),
         "ten_sam_zabieg": Noul(
             instructions=f"Are {A} and {B} the same kind of treatment performed with the same technique?"
@@ -67,16 +96,17 @@ def _pytania() -> dict[str, Any]:
         "ten_sam_obszar": Noul(
             instructions=f"Do {A} and {B} cover the same body area and the same scope?"
         ),
-        "ten_sam_wariant": Noul(
-            instructions=(
-                f"Are {A} and {B} the same variant: the same size or length, the same stage (e.g. first "
-                "application, refill, removal) and the same number of sessions included?"
-            )
-        ),
+        "ten_sam_wariant": Noul(instructions=wariant),
     }
 
 
 PYTANIA = _pytania()
+PYTANIA_V3 = _pytania(POZIOMY_V3, wariant_bez_czasu=True)
+
+
+def pytania_dla(wersja: int) -> dict[str, Any]:
+    """Pytania sędziego danej wersji (v2 domyślnie, v3 = czas trwania nie jest różnicą)."""
+    return {WERSJA: PYTANIA, WERSJA_V3: PYTANIA_V3}[wersja]
 
 
 def _norm(text: str | None) -> str:

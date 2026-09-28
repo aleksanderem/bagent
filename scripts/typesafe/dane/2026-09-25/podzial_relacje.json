@@ -1,0 +1,3542 @@
+[
+ {
+  "a": "barber",
+  "b": "golenie królewskie",
+  "relacja": "b_odmiana_a",
+  "p": 0.97,
+  "rozklad": {
+   "a_odmiana_b": 0.02,
+   "ten_sam": 0.01,
+   "rozne": 0.0,
+   "b_odmiana_a": 0.97
+  }
+ },
+ {
+  "a": "barber",
+  "b": "strzyżenie",
+  "relacja": "rozne",
+  "p": 0.93,
+  "rozklad": {
+   "ten_sam": 0.0,
+   "b_odmiana_a": 0.05,
+   "rozne": 0.93,
+   "a_odmiana_b": 0.02
+  }
+ },
+ {
+  "a": "bieżnia vacu",
+  "b": "vacu",
+  "relacja": "a_odmiana_b",
+  "p": 0.56,
+  "rozklad": {
+   "ten_sam": 0.32,
+   "b_odmiana_a": 0.07,
+   "rozne": 0.04,
+   "a_odmiana_b": 0.56
+  }
+ },
+ {
+  "a": "bioenergoterapia",
+  "b": "terapia komplementarna",
+  "relacja": "a_odmiana_b",
+  "p": 0.94,
+  "rozklad": {
+   "ten_sam": 0.01,
+   "b_odmiana_a": 0.01,
+   "rozne": 0.04,
+   "a_odmiana_b": 0.94
+  }
+ },
+ {
+  "a": "biorewitalizacja",
+  "b": "biostymulacja",
+  "relacja": "rozne",
+  "p": 0.82,
+  "rozklad": {
+   "a_odmiana_b": 0.11,
+   "ten_sam": 0.01,
+   "rozne": 0.82,
+   "b_odmiana_a": 0.06
+  }
+ },
+ {
+  "a": "biorewitalizacja",
+  "b": "mezoterapia igłowa",
+  "relacja": "rozne",
+  "p": 0.68,
+  "rozklad": {
+   "ten_sam": 0.01,
+   "b_odmiana_a": 0.1,
+   "rozne": 0.68,
+   "a_odmiana_b": 0.21
+  }
+ },
+ {
+  "a": "biorewitalizacja",
+  "b": "redermalizacja",
+  "relacja": "rozne",
+  "p": 0.81,
+  "rozklad": {
+   "ten_sam": 0.02,
+   "b_odmiana_a": 0.14,
+   "rozne": 0.81,
+   "a_odmiana_b": 0.03
+  }
+ },
+ {
+  "a": "biorewitalizacja",
+  "b": "stymulatory tkankowe",
+  "relacja": "rozne",
+  "p": 0.67,
+  "rozklad": {
+   "a_odmiana_b": 0.25,
+   "ten_sam": 0.01,
+   "rozne": 0.67,
+   "b_odmiana_a": 0.07
+  }
+ },
+ {
+  "a": "biostymulacja",
+  "b": "lifting",
+  "relacja": "rozne",
+  "p": 1.0,
+  "rozklad": {
+   "ten_sam": 0.0,
+   "b_odmiana_a": 0.0,
+   "rozne": 1.0,
+   "a_odmiana_b": 0.0
+  }
+ },
+ {
+  "a": "biostymulacja",
+  "b": "mezoterapia igłowa",
+  "relacja": "rozne",
+  "p": 0.87,
+  "rozklad": {
+   "ten_sam": 0.01,
+   "b_odmiana_a": 0.02,
+   "rozne": 0.87,
+   "a_odmiana_b": 0.1
+  }
+ },
+ {
+  "a": "biostymulacja",
+  "b": "stymulatory tkankowe",
+  "relacja": "a_odmiana_b",
+  "p": 0.59,
+  "rozklad": {
+   "a_odmiana_b": 0.59,
+   "ten_sam": 0.15,
+   "rozne": 0.16,
+   "b_odmiana_a": 0.1
+  }
+ },
+ {
+  "a": "buzzcut",
+  "b": "strzyżenie",
+  "relacja": "a_odmiana_b",
+  "p": 1.0,
+  "rozklad": {
+   "b_odmiana_a": 0.0,
+   "a_odmiana_b": 1.0,
+   "rozne": 0.0,
+   "ten_sam": 0.0
+  }
+ },
+ {
+  "a": "chirurgia",
+  "b": "leczenie kanałowe",
+  "relacja": "rozne",
+  "p": 0.87,
+  "rozklad": {
+   "a_odmiana_b": 0.0,
+   "ten_sam": 0.0,
+   "rozne": 0.87,
+   "b_odmiana_a": 0.13
+  }
+ },
+ {
+  "a": "chirurgia",
+  "b": "nacięcie ropnia",
+  "relacja": "rozne",
+  "p": 0.64,
+  "rozklad": {
+   "b_odmiana_a": 0.34,
+   "a_odmiana_b": 0.02,
+   "rozne": 0.64,
+   "ten_sam": 0.0
+  }
+ },
+ {
+  "a": "chirurgia",
+  "b": "podcięcie wędzidełka",
+  "relacja": "b_odmiana_a",
+  "p": 0.61,
+  "rozklad": {
+   "ten_sam": 0.0,
+   "b_odmiana_a": 0.61,
+   "rozne": 0.36,
+   "a_odmiana_b": 0.03
+  }
+ },
+ {
+  "a": "coaching",
+  "b": "coaching rodzicielski",
+  "relacja": "b_odmiana_a",
+  "p": 0.76,
+  "rozklad": {
+   "ten_sam": 0.0,
+   "b_odmiana_a": 0.76,
+   "rozne": 0.23,
+   "a_odmiana_b": 0.01
+  }
+ },
+ {
+  "a": "cover",
+  "b": "koloryzacja",
+  "relacja": "a_odmiana_b",
+  "p": 0.71,
+  "rozklad": {
+   "ten_sam": 0.01,
+   "b_odmiana_a": 0.12,
+   "rozne": 0.16,
+   "a_odmiana_b": 0.71
+  }
+ },
+ {
+  "a": "czyszczenie",
+  "b": "czyszczenie chemiczne",
+  "relacja": "b_odmiana_a",
+  "p": 0.66,
+  "rozklad": {
+   "a_odmiana_b": 0.03,
+   "ten_sam": 0.0,
+   "rozne": 0.31,
+   "b_odmiana_a": 0.66
+  }
+ },
+ {
+  "a": "czyszczenie",
+  "b": "detailing",
+  "relacja": "rozne",
+  "p": 0.85,
+  "rozklad": {
+   "ten_sam": 0.0,
+   "b_odmiana_a": 0.14,
+   "rozne": 0.85,
+   "a_odmiana_b": 0.01
+  }
+ },
+ {
+  "a": "czyszczenie",
+  "b": "higienizacja",
+  "relacja": "rozne",
+  "p": 0.92,
+  "rozklad": {
+   "b_odmiana_a": 0.03,
+   "a_odmiana_b": 0.05,
+   "rozne": 0.92,
+   "ten_sam": 0.0
+  }
+ },
+ {
+  "a": "czyszczenie",
+  "b": "impregnacja",
+  "relacja": "rozne",
+  "p": 0.98,
+  "rozklad": {
+   "ten_sam": 0.0,
+   "b_odmiana_a": 0.01,
+   "rozne": 0.98,
+   "a_odmiana_b": 0.01
+  }
+ },
+ {
+  "a": "czyszczenie",
+  "b": "pranie tapicerki",
+  "relacja": "rozne",
+  "p": 0.98,
+  "rozklad": {
+   "a_odmiana_b": 0.0,
+   "ten_sam": 0.0,
+   "rozne": 0.98,
+   "b_odmiana_a": 0.02
+  }
+ },
+ {
+  "a": "czyszczenie",
+  "b": "sprzątanie po remoncie",
+  "relacja": "rozne",
+  "p": 1.0,
+  "rozklad": {
+   "ten_sam": 0.0,
+   "b_odmiana_a": 0.0,
+   "rozne": 1.0,
+   "a_odmiana_b": 0.0
+  }
+ },
+ {
+  "a": "czyszczenie",
+  "b": "zabieg oczyszczający",
+  "relacja": "a_odmiana_b",
+  "p": 0.49,
+  "rozklad": {
+   "b_odmiana_a": 0.4,
+   "a_odmiana_b": 0.49,
+   "rozne": 0.01,
+   "ten_sam": 0.1
+  }
+ },
+ {
+  "a": "dekoloryzacja",
+  "b": "koloryzacja",
+  "relacja": "rozne",
+  "p": 0.9,
+  "rozklad": {
+   "ten_sam": 0.0,
+   "b_odmiana_a": 0.01,
+   "rozne": 0.9,
+   "a_odmiana_b": 0.09
+  }
+ },
+ {
+  "a": "koloryzacja",
+  "b": "rozjaśnianie",
+  "relacja": "rozne",
+  "p": 0.7,
+  "rozklad": {
+   "a_odmiana_b": 0.03,
+   "rozne": 0.7,
+   "b_odmiana_a": 0.26,
+   "ten_sam": 0.01
+  }
+ },
+ {
+  "a": "koloryzacja",
+  "b": "stylizacja brwi",
+  "relacja": "rozne",
+  "p": 0.56,
+  "rozklad": {
+   "a_odmiana_b": 0.18,
+   "rozne": 0.56,
+   "b_odmiana_a": 0.25,
+   "ten_sam": 0.01
+  }
+ },
+ {
+  "a": "konsultacja dermatologiczna",
+  "b": "konsultacja dietetyczna",
+  "relacja": "rozne",
+  "p": 0.97,
+  "rozklad": {
+   "a_odmiana_b": 0.02,
+   "rozne": 0.97,
+   "b_odmiana_a": 0.01,
+   "ten_sam": 0.0
+  }
+ },
+ {
+  "a": "konsultacja dermatologiczna",
+  "b": "konsultacja podologiczna",
+  "relacja": "rozne",
+  "p": 0.99,
+  "rozklad": {
+   "a_odmiana_b": 0.0,
+   "rozne": 0.99,
+   "b_odmiana_a": 0.01,
+   "ten_sam": 0.0
+  }
+ },
+ {
+  "a": "konsultacja dermatologiczna",
+  "b": "liposukcja ultradźwiękowa",
+  "relacja": "rozne",
+  "p": 0.8,
+  "rozklad": {
+   "a_odmiana_b": 0.04,
+   "rozne": 0.8,
+   "b_odmiana_a": 0.14,
+   "ten_sam": 0.02
+  }
+ },
+ {
+  "a": "konsultacja dermatologiczna",
+  "b": "makijaż permanentny",
+  "relacja": "rozne",
+  "p": 0.99,
+  "rozklad": {
+   "a_odmiana_b": 0.0,
+   "rozne": 0.99,
+   "b_odmiana_a": 0.01,
+   "ten_sam": 0.0
+  }
+ },
+ {
+  "a": "konsultacja dermatologiczna",
+  "b": "oczyszczanie wodorowe",
+  "relacja": "rozne",
+  "p": 1.0,
+  "rozklad": {
+   "a_odmiana_b": 0.0,
+   "b_odmiana_a": 0.0,
+   "rozne": 1.0,
+   "ten_sam": 0.0
+  }
+ },
+ {
+  "a": "konsultacja dermatologiczna",
+  "b": "zabieg podologiczny",
+  "relacja": "rozne",
+  "p": 0.98,
+  "rozklad": {
+   "a_odmiana_b": 0.0,
+   "rozne": 0.98,
+   "b_odmiana_a": 0.02,
+   "ten_sam": 0.0
+  }
+ },
+ {
+  "a": "konsultacja dietetyczna",
+  "b": "konsultacja podologiczna",
+  "relacja": "rozne",
+  "p": 0.91,
+  "rozklad": {
+   "a_odmiana_b": 0.0,
+   "rozne": 0.91,
+   "b_odmiana_a": 0.09,
+   "ten_sam": 0.0
+  }
+ },
+ {
+  "a": "konsultacja dietetyczna",
+  "b": "makijaż permanentny",
+  "relacja": "rozne",
+  "p": 1.0,
+  "rozklad": {
+   "a_odmiana_b": 0.0,
+   "rozne": 1.0,
+   "b_odmiana_a": 0.0,
+   "ten_sam": 0.0
+  }
+ },
+ {
+  "a": "konsultacja dietetyczna",
+  "b": "zabieg podologiczny",
+  "relacja": "rozne",
+  "p": 0.99,
+  "rozklad": {
+   "a_odmiana_b": 0.0,
+   "rozne": 0.99,
+   "b_odmiana_a": 0.01,
+   "ten_sam": 0.0
+  }
+ },
+ {
+  "a": "konsultacja fizjoterapeutyczna",
+  "b": "makijaż permanentny",
+  "relacja": "rozne",
+  "p": 1.0,
+  "rozklad": {
+   "a_odmiana_b": 0.0,
+   "rozne": 1.0,
+   "b_odmiana_a": 0.0,
+   "ten_sam": 0.0
+  }
+ },
+ {
+  "a": "konsultacja podologiczna",
+  "b": "makijaż permanentny",
+  "relacja": "rozne",
+  "p": 1.0,
+  "rozklad": {
+   "a_odmiana_b": 0.0,
+   "rozne": 1.0,
+   "b_odmiana_a": 0.0,
+   "ten_sam": 0.0
+  }
+ },
+ {
+  "a": "konsultacja podologiczna",
+  "b": "pedicure",
+  "relacja": "rozne",
+  "p": 0.97,
+  "rozklad": {
+   "a_odmiana_b": 0.03,
+   "b_odmiana_a": 0.0,
+   "rozne": 0.97,
+   "ten_sam": 0.0
+  }
+ },
+ {
+  "a": "konsultacja podologiczna",
+  "b": "zabieg podologiczny",
+  "relacja": "a_odmiana_b",
+  "p": 0.49,
+  "rozklad": {
+   "a_odmiana_b": 0.49,
+   "rozne": 0.4,
+   "b_odmiana_a": 0.1,
+   "ten_sam": 0.01
+  }
+ },
+ {
+  "a": "konsultacja psychologiczna",
+  "b": "psychiatria",
+  "relacja": "rozne",
+  "p": 0.91,
+  "rozklad": {
+   "a_odmiana_b": 0.08,
+   "rozne": 0.91,
+   "b_odmiana_a": 0.01,
+   "ten_sam": 0.0
+  }
+ },
+ {
+  "a": "konsultacja psychologiczna",
+  "b": "psychoterapia",
+  "relacja": "rozne",
+  "p": 0.4,
+  "rozklad": {
+   "a_odmiana_b": 0.25,
+   "rozne": 0.4,
+   "b_odmiana_a": 0.32,
+   "ten_sam": 0.03
+  }
+ },
+ {
+  "a": "konturowanie",
+  "b": "trymowanie brody",
+  "relacja": "rozne",
+  "p": 1.0,
+  "rozklad": {
+   "a_odmiana_b": 0.0,
+   "rozne": 1.0,
+   "b_odmiana_a": 0.0,
+   "ten_sam": 0.0
+  }
+ },
+ {
+  "a": "korekta paznokci",
+  "b": "manicure żelowy",
+  "relacja": "b_odmiana_a",
+  "p": 0.58,
+  "rozklad": {
+   "a_odmiana_b": 0.05,
+   "rozne": 0.35,
+   "b_odmiana_a": 0.58,
+   "ten_sam": 0.02
+  }
+ },
+ {
+  "a": "korepetycje",
+  "b": "korepetycje coachingowe",
+  "relacja": "b_odmiana_a",
+  "p": 0.6,
+  "rozklad": {
+   "a_odmiana_b": 0.17,
+   "b_odmiana_a": 0.6,
+   "rozne": 0.22,
+   "ten_sam": 0.01
+  }
+ },
+ {
+  "a": "korona",
+  "b": "korona porcelanowa",
+  "relacja": "b_odmiana_a",
+  "p": 0.92,
+  "rozklad": {
+   "a_odmiana_b": 0.04,
+   "rozne": 0.03,
+   "b_odmiana_a": 0.92,
+   "ten_sam": 0.01
+  }
+ },
+ {
+  "a": "korona",
+  "b": "protetyka",
+  "relacja": "rozne",
+  "p": 0.48,
+  "rozklad": {
+   "a_odmiana_b": 0.18,
+   "rozne": 0.48,
+   "b_odmiana_a": 0.32,
+   "ten_sam": 0.02
+  }
+ },
+ {
+  "a": "kriolipoliza",
+  "b": "lipoliza iniekcyjna",
+  "relacja": "rozne",
+  "p": 0.97,
+  "rozklad": {
+   "a_odmiana_b": 0.03,
+   "rozne": 0.97,
+   "b_odmiana_a": 0.0,
+   "ten_sam": 0.0
+  }
+ },
+ {
+  "a": "kurs",
+  "b": "makijaż",
+  "relacja": "rozne",
+  "p": 0.97,
+  "rozklad": {
+   "a_odmiana_b": 0.01,
+   "rozne": 0.97,
+   "b_odmiana_a": 0.02,
+   "ten_sam": 0.0
+  }
+ },
+ {
+  "a": "kurs",
+  "b": "szkoła rodzenia",
+  "relacja": "rozne",
+  "p": 1.0,
+  "rozklad": {
+   "a_odmiana_b": 0.0,
+   "rozne": 1.0,
+   "b_odmiana_a": 0.0,
+   "ten_sam": 0.0
+  }
+ },
+ {
+  "a": "ajurwedyjski",
+  "b": "masaż",
+  "relacja": "a_odmiana_b",
+  "p": 0.93,
+  "rozklad": {
+   "a_odmiana_b": 0.93,
+   "ten_sam": 0.0,
+   "rozne": 0.05,
+   "b_odmiana_a": 0.02
+  }
+ },
+ {
+  "a": "akupunktura",
+  "b": "akupunktura japońska",
+  "relacja": "a_odmiana_b",
+  "p": 0.42,
+  "rozklad": {
+   "a_odmiana_b": 0.42,
+   "ten_sam": 0.03,
+   "rozne": 0.19,
+   "b_odmiana_a": 0.36
+  }
+ },
+ {
+  "a": "akupunktura",
+  "b": "akupunktura lecznicza",
+  "relacja": "a_odmiana_b",
+  "p": 0.83,
+  "rozklad": {
+   "a_odmiana_b": 0.83,
+   "ten_sam": 0.0,
+   "rozne": 0.17,
+   "b_odmiana_a": 0.0
+  }
+ },
+ {
+  "a": "akupunktura",
+  "b": "dry needling",
+  "relacja": "rozne",
+  "p": 0.65,
+  "rozklad": {
+   "a_odmiana_b": 0.22,
+   "ten_sam": 0.02,
+   "rozne": 0.65,
+   "b_odmiana_a": 0.11
+  }
+ },
+ {
+  "a": "akupunktura",
+  "b": "moksoterapia",
+  "relacja": "rozne",
+  "p": 0.93,
+  "rozklad": {
+   "ten_sam": 0.0,
+   "a_odmiana_b": 0.01,
+   "rozne": 0.93,
+   "b_odmiana_a": 0.06
+  }
+ },
+ {
+  "a": "akupunktura",
+  "b": "pinezkowanie",
+  "relacja": "b_odmiana_a",
+  "p": 0.81,
+  "rozklad": {
+   "a_odmiana_b": 0.13,
+   "ten_sam": 0.03,
+   "rozne": 0.02,
+   "b_odmiana_a": 0.81
+  }
+ },
+ {
+  "a": "analiza pierwiastkowa włosa",
+  "b": "badanie",
+  "relacja": "a_odmiana_b",
+  "p": 0.48,
+  "rozklad": {
+   "a_odmiana_b": 0.48,
+   "ten_sam": 0.02,
+   "rozne": 0.21,
+   "b_odmiana_a": 0.29
+  }
+ },
+ {
+  "a": "analiza skóry",
+  "b": "diagnoza",
+  "relacja": "rozne",
+  "p": 0.59,
+  "rozklad": {
+   "a_odmiana_b": 0.02,
+   "ten_sam": 0.01,
+   "rozne": 0.59,
+   "b_odmiana_a": 0.38
+  }
+ },
+ {
+  "a": "analiza składu ciała",
+  "b": "diagnoza",
+  "relacja": "rozne",
+  "p": 0.71,
+  "rozklad": {
+   "a_odmiana_b": 0.02,
+   "ten_sam": 0.0,
+   "rozne": 0.71,
+   "b_odmiana_a": 0.27
+  }
+ },
+ {
+  "a": "aparat retencyjny",
+  "b": "ortodoncja",
+  "relacja": "rozne",
+  "p": 0.47,
+  "rozklad": {
+   "ten_sam": 0.01,
+   "a_odmiana_b": 0.43,
+   "rozne": 0.47,
+   "b_odmiana_a": 0.09
+  }
+ },
+ {
+  "a": "aplikacja wosku",
+  "b": "detailing",
+  "relacja": "rozne",
+  "p": 0.79,
+  "rozklad": {
+   "ten_sam": 0.0,
+   "a_odmiana_b": 0.17,
+   "rozne": 0.79,
+   "b_odmiana_a": 0.04
+  }
+ },
+ {
+  "a": "badania krwi",
+  "b": "badanie",
+  "relacja": "rozne",
+  "p": 0.59,
+  "rozklad": {
+   "a_odmiana_b": 0.37,
+   "ten_sam": 0.01,
+   "rozne": 0.59,
+   "b_odmiana_a": 0.03
+  }
+ },
+ {
+  "a": "badania sti",
+  "b": "diagnoza",
+  "relacja": "rozne",
+  "p": 0.58,
+  "rozklad": {
+   "a_odmiana_b": 0.07,
+   "ten_sam": 0.05,
+   "rozne": 0.58,
+   "b_odmiana_a": 0.3
+  }
+ },
+ {
+  "a": "badanie",
+  "b": "badanie wzroku",
+  "relacja": "rozne",
+  "p": 0.42,
+  "rozklad": {
+   "a_odmiana_b": 0.22,
+   "ten_sam": 0.01,
+   "rozne": 0.42,
+   "b_odmiana_a": 0.35
+  }
+ },
+ {
+  "a": "badanie",
+  "b": "diagnoza",
+  "relacja": "b_odmiana_a",
+  "p": 0.54,
+  "rozklad": {
+   "a_odmiana_b": 0.07,
+   "ten_sam": 0.01,
+   "rozne": 0.38,
+   "b_odmiana_a": 0.54
+  }
+ },
+ {
+  "a": "badanie",
+  "b": "mikroskopowe badanie żywej kropli krwi",
+  "relacja": "rozne",
+  "p": 0.61,
+  "rozklad": {
+   "a_odmiana_b": 0.08,
+   "ten_sam": 0.01,
+   "rozne": 0.61,
+   "b_odmiana_a": 0.3
+  }
+ },
+ {
+  "a": "badanie",
+  "b": "skanowanie",
+  "relacja": "rozne",
+  "p": 0.85,
+  "rozklad": {
+   "a_odmiana_b": 0.07,
+   "ten_sam": 0.0,
+   "rozne": 0.85,
+   "b_odmiana_a": 0.08
+  }
+ },
+ {
+  "a": "badanie",
+  "b": "test moxo",
+  "relacja": "rozne",
+  "p": 0.95,
+  "rozklad": {
+   "a_odmiana_b": 0.03,
+   "ten_sam": 0.01,
+   "rozne": 0.95,
+   "b_odmiana_a": 0.01
+  }
+ },
+ {
+  "a": "badanie",
+  "b": "test oddechowy",
+  "relacja": "rozne",
+  "p": 0.93,
+  "rozklad": {
+   "a_odmiana_b": 0.03,
+   "ten_sam": 0.0,
+   "rozne": 0.93,
+   "b_odmiana_a": 0.04
+  }
+ },
+ {
+  "a": "badanie",
+  "b": "zabieg podologiczny",
+  "relacja": "a_odmiana_b",
+  "p": 0.43,
+  "rozklad": {
+   "a_odmiana_b": 0.43,
+   "ten_sam": 0.01,
+   "rozne": 0.33,
+   "b_odmiana_a": 0.23
+  }
+ },
+ {
+  "a": "badanie wzroku",
+  "b": "diagnoza",
+  "relacja": "rozne",
+  "p": 0.95,
+  "rozklad": {
+   "ten_sam": 0.0,
+   "a_odmiana_b": 0.0,
+   "rozne": 0.95,
+   "b_odmiana_a": 0.05
+  }
+ },
+ {
+  "a": "baleyage",
+  "b": "koloryzacja",
+  "relacja": "a_odmiana_b",
+  "p": 0.81,
+  "rozklad": {
+   "a_odmiana_b": 0.81,
+   "ten_sam": 0.0,
+   "rozne": 0.17,
+   "b_odmiana_a": 0.01
+  }
+ },
+ {
+  "a": "baleyage",
+  "b": "koloryzacja wielotonowa",
+  "relacja": "a_odmiana_b",
+  "p": 0.85,
+  "rozklad": {
+   "a_odmiana_b": 0.85,
+   "ten_sam": 0.08,
+   "rozne": 0.02,
+   "b_odmiana_a": 0.05
+  }
+ },
+ {
+  "a": "baleyage",
+  "b": "refleksy",
+  "relacja": "a_odmiana_b",
+  "p": 0.71,
+  "rozklad": {
+   "a_odmiana_b": 0.71,
+   "ten_sam": 0.01,
+   "rozne": 0.21,
+   "b_odmiana_a": 0.07
+  }
+ },
+ {
+  "a": "baleyage",
+  "b": "rozjaśnianie",
+  "relacja": "a_odmiana_b",
+  "p": 0.97,
+  "rozklad": {
+   "ten_sam": 0.01,
+   "a_odmiana_b": 0.97,
+   "rozne": 0.01,
+   "b_odmiana_a": 0.01
+  }
+ },
+ {
+  "a": "elektroterapia",
+  "b": "jonoforeza",
+  "relacja": "b_odmiana_a",
+  "p": 0.93,
+  "rozklad": {
+   "ten_sam": 0.01,
+   "rozne": 0.04,
+   "b_odmiana_a": 0.93,
+   "a_odmiana_b": 0.02
+  }
+ },
+ {
+  "a": "elektroterapia",
+  "b": "magnetoterapia",
+  "relacja": "b_odmiana_a",
+  "p": 0.58,
+  "rozklad": {
+   "ten_sam": 0.01,
+   "rozne": 0.4,
+   "b_odmiana_a": 0.58,
+   "a_odmiana_b": 0.01
+  }
+ },
+ {
+  "a": "emdr",
+  "b": "psychoterapia",
+  "relacja": "a_odmiana_b",
+  "p": 0.85,
+  "rozklad": {
+   "ten_sam": 0.01,
+   "rozne": 0.13,
+   "b_odmiana_a": 0.01,
+   "a_odmiana_b": 0.85
+  }
+ },
+ {
+  "a": "endermologia",
+  "b": "masaż",
+  "relacja": "a_odmiana_b",
+  "p": 0.5,
+  "rozklad": {
+   "ten_sam": 0.01,
+   "rozne": 0.48,
+   "b_odmiana_a": 0.01,
+   "a_odmiana_b": 0.5
+  }
+ },
+ {
+  "a": "endosfera",
+  "b": "masaż podciśnieniowy",
+  "relacja": "b_odmiana_a",
+  "p": 0.57,
+  "rozklad": {
+   "ten_sam": 0.06,
+   "rozne": 0.32,
+   "b_odmiana_a": 0.57,
+   "a_odmiana_b": 0.05
+  }
+ },
+ {
+  "a": "fale radiowe",
+  "b": "termolifting",
+  "relacja": "b_odmiana_a",
+  "p": 0.7,
+  "rozklad": {
+   "ten_sam": 0.18,
+   "rozne": 0.06,
+   "b_odmiana_a": 0.7,
+   "a_odmiana_b": 0.06
+  }
+ },
+ {
+  "a": "fluoryzacja",
+  "b": "higienizacja",
+  "relacja": "rozne",
+  "p": 0.94,
+  "rozklad": {
+   "ten_sam": 0.0,
+   "rozne": 0.94,
+   "b_odmiana_a": 0.0,
+   "a_odmiana_b": 0.06
+  }
+ },
+ {
+  "a": "haloterapia",
+  "b": "terapia komplementarna",
+  "relacja": "a_odmiana_b",
+  "p": 0.64,
+  "rozklad": {
+   "ten_sam": 0.0,
+   "rozne": 0.35,
+   "b_odmiana_a": 0.01,
+   "a_odmiana_b": 0.64
+  }
+ },
+ {
+  "a": "head spa",
+  "b": "spa",
+  "relacja": "a_odmiana_b",
+  "p": 0.97,
+  "rozklad": {
+   "ten_sam": 0.0,
+   "rozne": 0.03,
+   "b_odmiana_a": 0.0,
+   "a_odmiana_b": 0.97
+  }
+ },
+ {
+  "a": "higienizacja",
+  "b": "polerowanie zębów",
+  "relacja": "rozne",
+  "p": 0.53,
+  "rozklad": {
+   "ten_sam": 0.01,
+   "rozne": 0.53,
+   "b_odmiana_a": 0.45,
+   "a_odmiana_b": 0.01
+  }
+ },
+ {
+  "a": "hipnoterapia",
+  "b": "psychoterapia",
+  "relacja": "rozne",
+  "p": 0.83,
+  "rozklad": {
+   "ten_sam": 0.0,
+   "rozne": 0.83,
+   "b_odmiana_a": 0.0,
+   "a_odmiana_b": 0.17
+  }
+ },
+ {
+  "a": "implantacja",
+  "b": "protetyka",
+  "relacja": "rozne",
+  "p": 0.93,
+  "rozklad": {
+   "ten_sam": 0.0,
+   "rozne": 0.93,
+   "b_odmiana_a": 0.06,
+   "a_odmiana_b": 0.01
+  }
+ },
+ {
+  "a": "ipl",
+  "b": "laseroterapia",
+  "relacja": "rozne",
+  "p": 0.66,
+  "rozklad": {
+   "ten_sam": 0.01,
+   "rozne": 0.66,
+   "b_odmiana_a": 0.08,
+   "a_odmiana_b": 0.25
+  }
+ },
+ {
+  "a": "joga",
+  "b": "trening",
+  "relacja": "rozne",
+  "p": 0.79,
+  "rozklad": {
+   "ten_sam": 0.0,
+   "rozne": 0.79,
+   "b_odmiana_a": 0.02,
+   "a_odmiana_b": 0.19
+  }
+ },
+ {
+  "a": "karboksyterapia",
+  "b": "mezoterapia igłowa",
+  "relacja": "rozne",
+  "p": 1.0,
+  "rozklad": {
+   "ten_sam": 0.0,
+   "rozne": 1.0,
+   "b_odmiana_a": 0.0,
+   "a_odmiana_b": 0.0
+  }
+ },
+ {
+  "a": "keratynowe prostowanie",
+  "b": "nanoplastia",
+  "relacja": "rozne",
+  "p": 0.93,
+  "rozklad": {
+   "ten_sam": 0.01,
+   "rozne": 0.93,
+   "b_odmiana_a": 0.06,
+   "a_odmiana_b": 0.0
+  }
+ },
+ {
+  "a": "keratynowe prostowanie",
+  "b": "prostowanie",
+  "relacja": "a_odmiana_b",
+  "p": 0.99,
+  "rozklad": {
+   "ten_sam": 0.0,
+   "rozne": 0.0,
+   "b_odmiana_a": 0.01,
+   "a_odmiana_b": 0.99
+  }
+ },
+ {
+  "a": "klamra ortonyksyjna",
+  "b": "zabieg podologiczny",
+  "relacja": "rozne",
+  "p": 0.67,
+  "rozklad": {
+   "ten_sam": 0.0,
+   "rozne": 0.67,
+   "b_odmiana_a": 0.0,
+   "a_odmiana_b": 0.33
+  }
+ },
+ {
+  "a": "kobido",
+  "b": "masaż",
+  "relacja": "a_odmiana_b",
+  "p": 1.0,
+  "rozklad": {
+   "ten_sam": 0.0,
+   "rozne": 0.0,
+   "b_odmiana_a": 0.0,
+   "a_odmiana_b": 1.0
+  }
+ },
+ {
+  "a": "kobido",
+  "b": "taping",
+  "relacja": "rozne",
+  "p": 1.0,
+  "rozklad": {
+   "ten_sam": 0.0,
+   "rozne": 1.0,
+   "b_odmiana_a": 0.0,
+   "a_odmiana_b": 0.0
+  }
+ },
+ {
+  "a": "koloryzacja",
+  "b": "koloryzacja globalna",
+  "relacja": "b_odmiana_a",
+  "p": 0.68,
+  "rozklad": {
+   "ten_sam": 0.0,
+   "rozne": 0.26,
+   "b_odmiana_a": 0.68,
+   "a_odmiana_b": 0.06
+  }
+ },
+ {
+  "a": "koloryzacja",
+  "b": "koloryzacja wielotonowa",
+  "relacja": "b_odmiana_a",
+  "p": 0.84,
+  "rozklad": {
+   "ten_sam": 0.0,
+   "rozne": 0.1,
+   "b_odmiana_a": 0.84,
+   "a_odmiana_b": 0.06
+  }
+ },
+ {
+  "a": "koloryzacja",
+  "b": "nitkowanie",
+  "relacja": "rozne",
+  "p": 0.99,
+  "rozklad": {
+   "ten_sam": 0.0,
+   "rozne": 0.99,
+   "b_odmiana_a": 0.01,
+   "a_odmiana_b": 0.0
+  }
+ },
+ {
+  "a": "koloryzacja",
+  "b": "refleksy",
+  "relacja": "b_odmiana_a",
+  "p": 0.52,
+  "rozklad": {
+   "ten_sam": 0.01,
+   "rozne": 0.44,
+   "b_odmiana_a": 0.52,
+   "a_odmiana_b": 0.03
+  }
+ },
+ {
+  "a": "koloryzacja",
+  "b": "regulacja brwi",
+  "relacja": "rozne",
+  "p": 0.82,
+  "rozklad": {
+   "ten_sam": 0.0,
+   "rozne": 0.82,
+   "b_odmiana_a": 0.07,
+   "a_odmiana_b": 0.11
+  }
+ },
+ {
+  "a": "kąpiel",
+  "b": "kąpiel ozonowa",
+  "relacja": "rozne",
+  "p": 0.67,
+  "rozklad": {
+   "ten_sam": 0.0,
+   "b_odmiana_a": 0.32,
+   "rozne": 0.67,
+   "a_odmiana_b": 0.01
+  }
+ },
+ {
+  "a": "kąpiel",
+  "b": "pielęgnacja",
+  "relacja": "rozne",
+  "p": 0.78,
+  "rozklad": {
+   "ten_sam": 0.0,
+   "b_odmiana_a": 0.02,
+   "rozne": 0.78,
+   "a_odmiana_b": 0.2
+  }
+ },
+ {
+  "a": "laminacja",
+  "b": "lifting",
+  "relacja": "ten_sam",
+  "p": 0.62,
+  "rozklad": {
+   "ten_sam": 0.62,
+   "b_odmiana_a": 0.11,
+   "rozne": 0.24,
+   "a_odmiana_b": 0.03
+  }
+ },
+ {
+  "a": "laser",
+  "b": "laser frakcyjny",
+  "relacja": "b_odmiana_a",
+  "p": 0.75,
+  "rozklad": {
+   "ten_sam": 0.0,
+   "b_odmiana_a": 0.75,
+   "rozne": 0.22,
+   "a_odmiana_b": 0.03
+  }
+ },
+ {
+  "a": "laseroterapia",
+  "b": "usuwanie tatuażu",
+  "relacja": "rozne",
+  "p": 0.95,
+  "rozklad": {
+   "ten_sam": 0.0,
+   "b_odmiana_a": 0.05,
+   "rozne": 0.95,
+   "a_odmiana_b": 0.0
+  }
+ },
+ {
+  "a": "leczenie kanałowe",
+  "b": "resekcja wierzchołka korzenia",
+  "relacja": "b_odmiana_a",
+  "p": 0.66,
+  "rozklad": {
+   "ten_sam": 0.0,
+   "b_odmiana_a": 0.66,
+   "rozne": 0.34,
+   "a_odmiana_b": 0.0
+  }
+ },
+ {
+  "a": "lifting",
+  "b": "mezoterapia igłowa",
+  "relacja": "rozne",
+  "p": 1.0,
+  "rozklad": {
+   "ten_sam": 0.0,
+   "b_odmiana_a": 0.0,
+   "rozne": 1.0,
+   "a_odmiana_b": 0.0
+  }
+ },
+ {
+  "a": "lifting",
+  "b": "stymulatory tkankowe",
+  "relacja": "rozne",
+  "p": 1.0,
+  "rozklad": {
+   "ten_sam": 0.0,
+   "b_odmiana_a": 0.0,
+   "rozne": 1.0,
+   "a_odmiana_b": 0.0
+  }
+ },
+ {
+  "a": "lifting",
+  "b": "termolifting",
+  "relacja": "rozne",
+  "p": 0.92,
+  "rozklad": {
+   "ten_sam": 0.0,
+   "b_odmiana_a": 0.08,
+   "rozne": 0.92,
+   "a_odmiana_b": 0.0
+  }
+ },
+ {
+  "a": "lipoliza",
+  "b": "lipoliza iniekcyjna",
+  "relacja": "b_odmiana_a",
+  "p": 0.96,
+  "rozklad": {
+   "ten_sam": 0.02,
+   "b_odmiana_a": 0.96,
+   "rozne": 0.0,
+   "a_odmiana_b": 0.02
+  }
+ },
+ {
+  "a": "lipoliza iniekcyjna",
+  "b": "mezoterapia igłowa",
+  "relacja": "rozne",
+  "p": 0.99,
+  "rozklad": {
+   "ten_sam": 0.0,
+   "b_odmiana_a": 0.0,
+   "rozne": 0.99,
+   "a_odmiana_b": 0.01
+  }
+ },
+ {
+  "a": "liposukcja",
+  "b": "liposukcja kawitacyjna",
+  "relacja": "b_odmiana_a",
+  "p": 0.96,
+  "rozklad": {
+   "ten_sam": 0.0,
+   "b_odmiana_a": 0.96,
+   "rozne": 0.04,
+   "a_odmiana_b": 0.0
+  }
+ },
+ {
+  "a": "liposukcja",
+  "b": "liposukcja ultradźwiękowa",
+  "relacja": "b_odmiana_a",
+  "p": 0.94,
+  "rozklad": {
+   "ten_sam": 0.0,
+   "b_odmiana_a": 0.94,
+   "rozne": 0.06,
+   "a_odmiana_b": 0.0
+  }
+ },
+ {
+  "a": "makijaż",
+  "b": "makijaż permanentny",
+  "relacja": "rozne",
+  "p": 0.66,
+  "rozklad": {
+   "ten_sam": 0.0,
+   "b_odmiana_a": 0.34,
+   "rozne": 0.66,
+   "a_odmiana_b": 0.0
+  }
+ },
+ {
+  "a": "makijaż",
+  "b": "makijaż próbny",
+  "relacja": "b_odmiana_a",
+  "p": 0.98,
+  "rozklad": {
+   "ten_sam": 0.01,
+   "b_odmiana_a": 0.98,
+   "rozne": 0.0,
+   "a_odmiana_b": 0.01
+  }
+ },
+ {
+  "a": "makijaż",
+  "b": "makijaż własny",
+  "relacja": "b_odmiana_a",
+  "p": 0.51,
+  "rozklad": {
+   "ten_sam": 0.03,
+   "b_odmiana_a": 0.51,
+   "rozne": 0.29,
+   "a_odmiana_b": 0.17
+  }
+ },
+ {
+  "a": "makijaż permanentny",
+  "b": "odświeżenie makijażu permanentnego",
+  "relacja": "b_odmiana_a",
+  "p": 0.96,
+  "rozklad": {
+   "ten_sam": 0.01,
+   "b_odmiana_a": 0.96,
+   "rozne": 0.02,
+   "a_odmiana_b": 0.01
+  }
+ },
+ {
+  "a": "makijaż permanentny",
+  "b": "usuwanie",
+  "relacja": "rozne",
+  "p": 0.98,
+  "rozklad": {
+   "ten_sam": 0.0,
+   "b_odmiana_a": 0.02,
+   "rozne": 0.98,
+   "a_odmiana_b": 0.0
+  }
+ },
+ {
+  "a": "makijaż permanentny",
+  "b": "wybielanie zębów",
+  "relacja": "rozne",
+  "p": 1.0,
+  "rozklad": {
+   "ten_sam": 0.0,
+   "b_odmiana_a": 0.0,
+   "rozne": 1.0,
+   "a_odmiana_b": 0.0
+  }
+ },
+ {
+  "a": "makijaż permanentny",
+  "b": "zabieg podologiczny",
+  "relacja": "rozne",
+  "p": 1.0,
+  "rozklad": {
+   "ten_sam": 0.0,
+   "b_odmiana_a": 0.0,
+   "rozne": 1.0,
+   "a_odmiana_b": 0.0
+  }
+ },
+ {
+  "a": "malowanie paznokci",
+  "b": "manicure klasyczny",
+  "relacja": "a_odmiana_b",
+  "p": 0.72,
+  "rozklad": {
+   "ten_sam": 0.08,
+   "b_odmiana_a": 0.13,
+   "rozne": 0.07,
+   "a_odmiana_b": 0.72
+  }
+ },
+ {
+  "a": "manicure",
+  "b": "manicure hybrydowy",
+  "relacja": "b_odmiana_a",
+  "p": 0.95,
+  "rozklad": {
+   "ten_sam": 0.0,
+   "b_odmiana_a": 0.95,
+   "rozne": 0.03,
+   "a_odmiana_b": 0.02
+  }
+ },
+ {
+  "a": "manicure",
+  "b": "manicure japoński",
+  "relacja": "b_odmiana_a",
+  "p": 1.0,
+  "rozklad": {
+   "ten_sam": 0.0,
+   "b_odmiana_a": 1.0,
+   "rozne": 0.0,
+   "a_odmiana_b": 0.0
+  }
+ },
+ {
+  "a": "manicure",
+  "b": "manicure klasyczny",
+  "relacja": "b_odmiana_a",
+  "p": 1.0,
+  "rozklad": {
+   "ten_sam": 0.0,
+   "b_odmiana_a": 1.0,
+   "rozne": 0.0,
+   "a_odmiana_b": 0.0
+  }
+ },
+ {
+  "a": "manicure",
+  "b": "manicure kombinowany",
+  "relacja": "b_odmiana_a",
+  "p": 0.98,
+  "rozklad": {
+   "ten_sam": 0.0,
+   "b_odmiana_a": 0.98,
+   "rozne": 0.0,
+   "a_odmiana_b": 0.02
+  }
+ },
+ {
+  "a": "dekontaminacja lakieru",
+  "b": "detailing",
+  "relacja": "a_odmiana_b",
+  "p": 0.57,
+  "rozklad": {
+   "ten_sam": 0.01,
+   "rozne": 0.41,
+   "a_odmiana_b": 0.57,
+   "b_odmiana_a": 0.01
+  }
+ },
+ {
+  "a": "depilacja",
+  "b": "depilacja cukrem lub woskiem",
+  "relacja": "b_odmiana_a",
+  "p": 1.0,
+  "rozklad": {
+   "ten_sam": 0.0,
+   "rozne": 0.0,
+   "a_odmiana_b": 0.0,
+   "b_odmiana_a": 1.0
+  }
+ },
+ {
+  "a": "depilacja",
+  "b": "depilacja laserem diodowym",
+  "relacja": "b_odmiana_a",
+  "p": 1.0,
+  "rozklad": {
+   "ten_sam": 0.0,
+   "rozne": 0.0,
+   "a_odmiana_b": 0.0,
+   "b_odmiana_a": 1.0
+  }
+ },
+ {
+  "a": "depilacja",
+  "b": "depilacja laserowa",
+  "relacja": "b_odmiana_a",
+  "p": 0.98,
+  "rozklad": {
+   "a_odmiana_b": 0.01,
+   "rozne": 0.01,
+   "ten_sam": 0.0,
+   "b_odmiana_a": 0.98
+  }
+ },
+ {
+  "a": "depilacja",
+  "b": "depilacja laserowa vectus",
+  "relacja": "b_odmiana_a",
+  "p": 1.0,
+  "rozklad": {
+   "ten_sam": 0.0,
+   "rozne": 0.0,
+   "a_odmiana_b": 0.0,
+   "b_odmiana_a": 1.0
+  }
+ },
+ {
+  "a": "depilacja",
+  "b": "depilacja woskiem",
+  "relacja": "b_odmiana_a",
+  "p": 1.0,
+  "rozklad": {
+   "ten_sam": 0.0,
+   "rozne": 0.0,
+   "a_odmiana_b": 0.0,
+   "b_odmiana_a": 1.0
+  }
+ },
+ {
+  "a": "depilacja cukrem lub woskiem",
+  "b": "depilacja woskiem",
+  "relacja": "b_odmiana_a",
+  "p": 0.97,
+  "rozklad": {
+   "a_odmiana_b": 0.02,
+   "rozne": 0.01,
+   "ten_sam": 0.0,
+   "b_odmiana_a": 0.97
+  }
+ },
+ {
+  "a": "depilacja laserowa",
+  "b": "depilacja laserowa vectus",
+  "relacja": "b_odmiana_a",
+  "p": 0.92,
+  "rozklad": {
+   "ten_sam": 0.03,
+   "rozne": 0.02,
+   "a_odmiana_b": 0.03,
+   "b_odmiana_a": 0.92
+  }
+ },
+ {
+  "a": "depilacja laserowa",
+  "b": "depilacja woskiem",
+  "relacja": "rozne",
+  "p": 1.0,
+  "rozklad": {
+   "a_odmiana_b": 0.0,
+   "rozne": 1.0,
+   "ten_sam": 0.0,
+   "b_odmiana_a": 0.0
+  }
+ },
+ {
+  "a": "depilacja laserowa",
+  "b": "elektroepilacja",
+  "relacja": "rozne",
+  "p": 1.0,
+  "rozklad": {
+   "a_odmiana_b": 0.0,
+   "rozne": 1.0,
+   "ten_sam": 0.0,
+   "b_odmiana_a": 0.0
+  }
+ },
+ {
+  "a": "depilacja laserowa",
+  "b": "laserowa",
+  "relacja": "a_odmiana_b",
+  "p": 0.86,
+  "rozklad": {
+   "ten_sam": 0.07,
+   "rozne": 0.0,
+   "a_odmiana_b": 0.86,
+   "b_odmiana_a": 0.07
+  }
+ },
+ {
+  "a": "depilacja laserowa",
+  "b": "strzyżenie",
+  "relacja": "rozne",
+  "p": 1.0,
+  "rozklad": {
+   "a_odmiana_b": 0.0,
+   "rozne": 1.0,
+   "ten_sam": 0.0,
+   "b_odmiana_a": 0.0
+  }
+ },
+ {
+  "a": "depilacja laserowa",
+  "b": "woskowanie",
+  "relacja": "rozne",
+  "p": 1.0,
+  "rozklad": {
+   "ten_sam": 0.0,
+   "rozne": 1.0,
+   "a_odmiana_b": 0.0,
+   "b_odmiana_a": 0.0
+  }
+ },
+ {
+  "a": "depilacja laserowa vectus",
+  "b": "laserowa",
+  "relacja": "a_odmiana_b",
+  "p": 0.97,
+  "rozklad": {
+   "ten_sam": 0.02,
+   "rozne": 0.0,
+   "a_odmiana_b": 0.97,
+   "b_odmiana_a": 0.01
+  }
+ },
+ {
+  "a": "depilacja woskiem",
+  "b": "strzyżenie",
+  "relacja": "rozne",
+  "p": 1.0,
+  "rozklad": {
+   "ten_sam": 0.0,
+   "rozne": 1.0,
+   "a_odmiana_b": 0.0,
+   "b_odmiana_a": 0.0
+  }
+ },
+ {
+  "a": "depilacja woskiem",
+  "b": "woskowanie",
+  "relacja": "ten_sam",
+  "p": 0.64,
+  "rozklad": {
+   "ten_sam": 0.64,
+   "rozne": 0.0,
+   "a_odmiana_b": 0.29,
+   "b_odmiana_a": 0.07
+  }
+ },
+ {
+  "a": "dermatoskopia",
+  "b": "diagnoza",
+  "relacja": "rozne",
+  "p": 0.98,
+  "rozklad": {
+   "ten_sam": 0.0,
+   "rozne": 0.98,
+   "a_odmiana_b": 0.01,
+   "b_odmiana_a": 0.01
+  }
+ },
+ {
+  "a": "detailing",
+  "b": "detailing wnętrza",
+  "relacja": "rozne",
+  "p": 0.67,
+  "rozklad": {
+   "ten_sam": 0.01,
+   "rozne": 0.67,
+   "a_odmiana_b": 0.15,
+   "b_odmiana_a": 0.17
+  }
+ },
+ {
+  "a": "detailing",
+  "b": "oklejanie folią ochronną",
+  "relacja": "rozne",
+  "p": 1.0,
+  "rozklad": {
+   "ten_sam": 0.0,
+   "rozne": 1.0,
+   "a_odmiana_b": 0.0,
+   "b_odmiana_a": 0.0
+  }
+ },
+ {
+  "a": "diagnoza",
+  "b": "diagnoza adhd",
+  "relacja": "rozne",
+  "p": 1.0,
+  "rozklad": {
+   "ten_sam": 0.0,
+   "rozne": 1.0,
+   "a_odmiana_b": 0.0,
+   "b_odmiana_a": 0.0
+  }
+ },
+ {
+  "a": "diagnoza",
+  "b": "konsultacja podologiczna",
+  "relacja": "a_odmiana_b",
+  "p": 0.6,
+  "rozklad": {
+   "ten_sam": 0.24,
+   "rozne": 0.02,
+   "a_odmiana_b": 0.6,
+   "b_odmiana_a": 0.14
+  }
+ },
+ {
+  "a": "diagnoza",
+  "b": "rtg",
+  "relacja": "rozne",
+  "p": 1.0,
+  "rozklad": {
+   "a_odmiana_b": 0.0,
+   "rozne": 1.0,
+   "ten_sam": 0.0,
+   "b_odmiana_a": 0.0
+  }
+ },
+ {
+  "a": "diagnoza",
+  "b": "tomografia cbct",
+  "relacja": "rozne",
+  "p": 1.0,
+  "rozklad": {
+   "ten_sam": 0.0,
+   "rozne": 1.0,
+   "a_odmiana_b": 0.0,
+   "b_odmiana_a": 0.0
+  }
+ },
+ {
+  "a": "diagnoza",
+  "b": "zabieg podologiczny",
+  "relacja": "a_odmiana_b",
+  "p": 0.56,
+  "rozklad": {
+   "ten_sam": 0.03,
+   "rozne": 0.26,
+   "a_odmiana_b": 0.56,
+   "b_odmiana_a": 0.15
+  }
+ },
+ {
+  "a": "drenaż limfatyczny",
+  "b": "masaż",
+  "relacja": "a_odmiana_b",
+  "p": 0.77,
+  "rozklad": {
+   "ten_sam": 0.0,
+   "rozne": 0.22,
+   "a_odmiana_b": 0.77,
+   "b_odmiana_a": 0.01
+  }
+ },
+ {
+  "a": "masaż",
+  "b": "terapia manualna",
+  "relacja": "rozne",
+  "p": 0.7,
+  "rozklad": {
+   "ten_sam": 0.0,
+   "rozne": 0.7,
+   "b_odmiana_a": 0.24,
+   "a_odmiana_b": 0.06
+  }
+ },
+ {
+  "a": "medytacja",
+  "b": "mindfulness",
+  "relacja": "ten_sam",
+  "p": 0.55,
+  "rozklad": {
+   "ten_sam": 0.55,
+   "rozne": 0.12,
+   "b_odmiana_a": 0.15,
+   "a_odmiana_b": 0.18
+  }
+ },
+ {
+  "a": "mezoterapia",
+  "b": "mezoterapia bezigłowa",
+  "relacja": "b_odmiana_a",
+  "p": 1.0,
+  "rozklad": {
+   "ten_sam": 0.0,
+   "rozne": 0.0,
+   "b_odmiana_a": 1.0,
+   "a_odmiana_b": 0.0
+  }
+ },
+ {
+  "a": "mezoterapia",
+  "b": "mezoterapia igłowa",
+  "relacja": "b_odmiana_a",
+  "p": 1.0,
+  "rozklad": {
+   "ten_sam": 0.0,
+   "rozne": 0.0,
+   "b_odmiana_a": 1.0,
+   "a_odmiana_b": 0.0
+  }
+ },
+ {
+  "a": "mezoterapia igłowa",
+  "b": "mikronakłuwanie",
+  "relacja": "b_odmiana_a",
+  "p": 0.53,
+  "rozklad": {
+   "ten_sam": 0.15,
+   "rozne": 0.26,
+   "b_odmiana_a": 0.53,
+   "a_odmiana_b": 0.06
+  }
+ },
+ {
+  "a": "mezoterapia igłowa",
+  "b": "stymulatory tkankowe",
+  "relacja": "rozne",
+  "p": 0.91,
+  "rozklad": {
+   "ten_sam": 0.0,
+   "rozne": 0.91,
+   "b_odmiana_a": 0.05,
+   "a_odmiana_b": 0.04
+  }
+ },
+ {
+  "a": "mezoterapia igłowa",
+  "b": "trychologia",
+  "relacja": "rozne",
+  "p": 0.63,
+  "rozklad": {
+   "ten_sam": 0.01,
+   "rozne": 0.63,
+   "b_odmiana_a": 0.24,
+   "a_odmiana_b": 0.12
+  }
+ },
+ {
+  "a": "mikrodermabrazja",
+  "b": "mikrodermabrazja diamentowa",
+  "relacja": "b_odmiana_a",
+  "p": 0.97,
+  "rozklad": {
+   "ten_sam": 0.01,
+   "rozne": 0.0,
+   "b_odmiana_a": 0.97,
+   "a_odmiana_b": 0.02
+  }
+ },
+ {
+  "a": "mikrodermabrazja",
+  "b": "peeling chemiczny",
+  "relacja": "rozne",
+  "p": 0.99,
+  "rozklad": {
+   "ten_sam": 0.0,
+   "rozne": 0.99,
+   "b_odmiana_a": 0.0,
+   "a_odmiana_b": 0.01
+  }
+ },
+ {
+  "a": "modelowanie",
+  "b": "modelowanie brody",
+  "relacja": "rozne",
+  "p": 0.93,
+  "rozklad": {
+   "ten_sam": 0.0,
+   "rozne": 0.93,
+   "b_odmiana_a": 0.07,
+   "a_odmiana_b": 0.0
+  }
+ },
+ {
+  "a": "modelowanie",
+  "b": "stylizacja włosów",
+  "relacja": "a_odmiana_b",
+  "p": 0.63,
+  "rozklad": {
+   "ten_sam": 0.27,
+   "rozne": 0.02,
+   "b_odmiana_a": 0.08,
+   "a_odmiana_b": 0.63
+  }
+ },
+ {
+  "a": "modelowanie",
+  "b": "upięcie",
+  "relacja": "rozne",
+  "p": 0.65,
+  "rozklad": {
+   "ten_sam": 0.03,
+   "rozne": 0.65,
+   "b_odmiana_a": 0.27,
+   "a_odmiana_b": 0.05
+  }
+ },
+ {
+  "a": "naprawa",
+  "b": "naprawa paznokcia",
+  "relacja": "b_odmiana_a",
+  "p": 0.96,
+  "rozklad": {
+   "ten_sam": 0.01,
+   "rozne": 0.01,
+   "b_odmiana_a": 0.96,
+   "a_odmiana_b": 0.02
+  }
+ },
+ {
+  "a": "naprawa paznokcia",
+  "b": "przedłużanie paznokci",
+  "relacja": "rozne",
+  "p": 0.98,
+  "rozklad": {
+   "ten_sam": 0.0,
+   "rozne": 0.98,
+   "b_odmiana_a": 0.0,
+   "a_odmiana_b": 0.02
+  }
+ },
+ {
+  "a": "naprawa paznokcia",
+  "b": "zabieg podologiczny",
+  "relacja": "rozne",
+  "p": 1.0,
+  "rozklad": {
+   "ten_sam": 0.0,
+   "rozne": 1.0,
+   "b_odmiana_a": 0.0,
+   "a_odmiana_b": 0.0
+  }
+ },
+ {
+  "a": "nitkowanie",
+  "b": "stylizacja brwi",
+  "relacja": "rozne",
+  "p": 0.5,
+  "rozklad": {
+   "ten_sam": 0.01,
+   "rozne": 0.5,
+   "b_odmiana_a": 0.04,
+   "a_odmiana_b": 0.45
+  }
+ },
+ {
+  "a": "oczyszczanie",
+  "b": "oczyszczanie manualne",
+  "relacja": "b_odmiana_a",
+  "p": 1.0,
+  "rozklad": {
+   "ten_sam": 0.0,
+   "rozne": 0.0,
+   "b_odmiana_a": 1.0,
+   "a_odmiana_b": 0.0
+  }
+ },
+ {
+  "a": "oczyszczanie",
+  "b": "oczyszczanie wodorowe",
+  "relacja": "b_odmiana_a",
+  "p": 0.99,
+  "rozklad": {
+   "ten_sam": 0.0,
+   "rozne": 0.01,
+   "b_odmiana_a": 0.99,
+   "a_odmiana_b": 0.0
+  }
+ },
+ {
+  "a": "oczyszczanie manualne",
+  "b": "oczyszczanie wodorowe",
+  "relacja": "rozne",
+  "p": 0.99,
+  "rozklad": {
+   "ten_sam": 0.0,
+   "rozne": 0.99,
+   "b_odmiana_a": 0.01,
+   "a_odmiana_b": 0.0
+  }
+ },
+ {
+  "a": "oczyszczanie manualne",
+  "b": "zabieg oczyszczający",
+  "relacja": "a_odmiana_b",
+  "p": 0.99,
+  "rozklad": {
+   "ten_sam": 0.01,
+   "rozne": 0.0,
+   "b_odmiana_a": 0.0,
+   "a_odmiana_b": 0.99
+  }
+ },
+ {
+  "a": "odbudowa zęba",
+  "b": "stomatologia zachowawcza",
+  "relacja": "a_odmiana_b",
+  "p": 0.85,
+  "rozklad": {
+   "ten_sam": 0.01,
+   "rozne": 0.13,
+   "b_odmiana_a": 0.01,
+   "a_odmiana_b": 0.85
+  }
+ },
+ {
+  "a": "opalanie w solarium",
+  "b": "solarium",
+  "relacja": "ten_sam",
+  "p": 0.74,
+  "rozklad": {
+   "ten_sam": 0.74,
+   "rozne": 0.01,
+   "b_odmiana_a": 0.08,
+   "a_odmiana_b": 0.17
+  }
+ },
+ {
+  "a": "pedicure",
+  "b": "pedicure hybrydowy",
+  "relacja": "b_odmiana_a",
+  "p": 0.99,
+  "rozklad": {
+   "ten_sam": 0.0,
+   "rozne": 0.01,
+   "b_odmiana_a": 0.99,
+   "a_odmiana_b": 0.0
+  }
+ },
+ {
+  "a": "pedicure",
+  "b": "pedicure leczniczy",
+  "relacja": "b_odmiana_a",
+  "p": 0.78,
+  "rozklad": {
+   "ten_sam": 0.0,
+   "rozne": 0.22,
+   "b_odmiana_a": 0.78,
+   "a_odmiana_b": 0.0
+  }
+ },
+ {
+  "a": "pedicure",
+  "b": "zabieg podologiczny",
+  "relacja": "rozne",
+  "p": 0.54,
+  "rozklad": {
+   "ten_sam": 0.0,
+   "rozne": 0.54,
+   "b_odmiana_a": 0.43,
+   "a_odmiana_b": 0.03
+  }
+ },
+ {
+  "a": "manicure",
+  "b": "manicure żelowy",
+  "relacja": "b_odmiana_a",
+  "p": 1.0,
+  "rozklad": {
+   "rozne": 0.0,
+   "ten_sam": 0.0,
+   "a_odmiana_b": 0.0,
+   "b_odmiana_a": 1.0
+  }
+ },
+ {
+  "a": "manicure hybrydowy",
+  "b": "manicure klasyczny",
+  "relacja": "rozne",
+  "p": 0.98,
+  "rozklad": {
+   "ten_sam": 0.0,
+   "rozne": 0.98,
+   "b_odmiana_a": 0.0,
+   "a_odmiana_b": 0.02
+  }
+ },
+ {
+  "a": "manicure hybrydowy",
+  "b": "pedicure hybrydowy",
+  "relacja": "rozne",
+  "p": 0.99,
+  "rozklad": {
+   "rozne": 0.99,
+   "ten_sam": 0.0,
+   "a_odmiana_b": 0.0,
+   "b_odmiana_a": 0.01
+  }
+ },
+ {
+  "a": "manicure hybrydowy",
+  "b": "zdobienie paznokci",
+  "relacja": "rozne",
+  "p": 0.82,
+  "rozklad": {
+   "ten_sam": 0.0,
+   "rozne": 0.82,
+   "b_odmiana_a": 0.16,
+   "a_odmiana_b": 0.02
+  }
+ },
+ {
+  "a": "manicure japoński",
+  "b": "manicure klasyczny",
+  "relacja": "rozne",
+  "p": 0.87,
+  "rozklad": {
+   "rozne": 0.87,
+   "ten_sam": 0.0,
+   "b_odmiana_a": 0.0,
+   "a_odmiana_b": 0.13
+  }
+ },
+ {
+  "a": "manicure klasyczny",
+  "b": "manicure kombinowany",
+  "relacja": "rozne",
+  "p": 0.82,
+  "rozklad": {
+   "rozne": 0.82,
+   "ten_sam": 0.02,
+   "b_odmiana_a": 0.12,
+   "a_odmiana_b": 0.04
+  }
+ },
+ {
+  "a": "manicure klasyczny",
+  "b": "manicure żelowy",
+  "relacja": "rozne",
+  "p": 0.97,
+  "rozklad": {
+   "ten_sam": 0.0,
+   "rozne": 0.97,
+   "a_odmiana_b": 0.0,
+   "b_odmiana_a": 0.03
+  }
+ },
+ {
+  "a": "manicure klasyczny",
+  "b": "zdobienie paznokci",
+  "relacja": "rozne",
+  "p": 0.95,
+  "rozklad": {
+   "rozne": 0.95,
+   "ten_sam": 0.0,
+   "b_odmiana_a": 0.05,
+   "a_odmiana_b": 0.0
+  }
+ },
+ {
+  "a": "manicure żelowy",
+  "b": "naprawa paznokcia",
+  "relacja": "rozne",
+  "p": 0.84,
+  "rozklad": {
+   "ten_sam": 0.0,
+   "rozne": 0.84,
+   "a_odmiana_b": 0.07,
+   "b_odmiana_a": 0.09
+  }
+ },
+ {
+  "a": "manicure żelowy",
+  "b": "przedłużanie paznokci",
+  "relacja": "rozne",
+  "p": 0.86,
+  "rozklad": {
+   "rozne": 0.86,
+   "ten_sam": 0.0,
+   "b_odmiana_a": 0.03,
+   "a_odmiana_b": 0.11
+  }
+ },
+ {
+  "a": "manual",
+  "b": "nauka jazdy",
+  "relacja": "rozne",
+  "p": 0.97,
+  "rozklad": {
+   "ten_sam": 0.0,
+   "rozne": 0.97,
+   "a_odmiana_b": 0.01,
+   "b_odmiana_a": 0.02
+  }
+ },
+ {
+  "a": "masaż",
+  "b": "masaż antycellulitowy",
+  "relacja": "b_odmiana_a",
+  "p": 0.88,
+  "rozklad": {
+   "rozne": 0.12,
+   "ten_sam": 0.0,
+   "a_odmiana_b": 0.0,
+   "b_odmiana_a": 0.88
+  }
+ },
+ {
+  "a": "masaż",
+  "b": "masaż bańką chińską",
+  "relacja": "b_odmiana_a",
+  "p": 0.73,
+  "rozklad": {
+   "rozne": 0.26,
+   "ten_sam": 0.0,
+   "b_odmiana_a": 0.73,
+   "a_odmiana_b": 0.01
+  }
+ },
+ {
+  "a": "masaż",
+  "b": "masaż gorącą świecą",
+  "relacja": "b_odmiana_a",
+  "p": 0.96,
+  "rozklad": {
+   "rozne": 0.04,
+   "ten_sam": 0.0,
+   "a_odmiana_b": 0.0,
+   "b_odmiana_a": 0.96
+  }
+ },
+ {
+  "a": "masaż",
+  "b": "masaż japoński",
+  "relacja": "b_odmiana_a",
+  "p": 0.93,
+  "rozklad": {
+   "rozne": 0.06,
+   "ten_sam": 0.0,
+   "b_odmiana_a": 0.93,
+   "a_odmiana_b": 0.01
+  }
+ },
+ {
+  "a": "masaż",
+  "b": "masaż leczniczy",
+  "relacja": "b_odmiana_a",
+  "p": 0.5,
+  "rozklad": {
+   "ten_sam": 0.0,
+   "rozne": 0.47,
+   "a_odmiana_b": 0.03,
+   "b_odmiana_a": 0.5
+  }
+ },
+ {
+  "a": "masaż",
+  "b": "masaż liftingujący",
+  "relacja": "b_odmiana_a",
+  "p": 0.74,
+  "rozklad": {
+   "rozne": 0.24,
+   "ten_sam": 0.01,
+   "a_odmiana_b": 0.01,
+   "b_odmiana_a": 0.74
+  }
+ },
+ {
+  "a": "masaż",
+  "b": "masaż miodowy",
+  "relacja": "b_odmiana_a",
+  "p": 0.95,
+  "rozklad": {
+   "rozne": 0.05,
+   "ten_sam": 0.0,
+   "a_odmiana_b": 0.0,
+   "b_odmiana_a": 0.95
+  }
+ },
+ {
+  "a": "masaż",
+  "b": "masaż podciśnieniowy",
+  "relacja": "b_odmiana_a",
+  "p": 0.68,
+  "rozklad": {
+   "rozne": 0.32,
+   "ten_sam": 0.0,
+   "b_odmiana_a": 0.68,
+   "a_odmiana_b": 0.0
+  }
+ },
+ {
+  "a": "masaż",
+  "b": "masaż powięziowy",
+  "relacja": "b_odmiana_a",
+  "p": 0.72,
+  "rozklad": {
+   "rozne": 0.27,
+   "ten_sam": 0.0,
+   "b_odmiana_a": 0.72,
+   "a_odmiana_b": 0.01
+  }
+ },
+ {
+  "a": "masaż",
+  "b": "masaż prenatalny",
+  "relacja": "b_odmiana_a",
+  "p": 0.97,
+  "rozklad": {
+   "ten_sam": 0.0,
+   "rozne": 0.03,
+   "a_odmiana_b": 0.0,
+   "b_odmiana_a": 0.97
+  }
+ },
+ {
+  "a": "masaż",
+  "b": "masaż próżniowy",
+  "relacja": "b_odmiana_a",
+  "p": 0.87,
+  "rozklad": {
+   "rozne": 0.13,
+   "ten_sam": 0.0,
+   "a_odmiana_b": 0.0,
+   "b_odmiana_a": 0.87
+  }
+ },
+ {
+  "a": "masaż",
+  "b": "masaż stemplami ziołowymi",
+  "relacja": "b_odmiana_a",
+  "p": 0.94,
+  "rozklad": {
+   "ten_sam": 0.0,
+   "rozne": 0.06,
+   "a_odmiana_b": 0.0,
+   "b_odmiana_a": 0.94
+  }
+ },
+ {
+  "a": "masaż",
+  "b": "masaż transbukalny",
+  "relacja": "b_odmiana_a",
+  "p": 0.76,
+  "rozklad": {
+   "rozne": 0.22,
+   "ten_sam": 0.01,
+   "b_odmiana_a": 0.76,
+   "a_odmiana_b": 0.01
+  }
+ },
+ {
+  "a": "masaż",
+  "b": "refleksologia",
+  "relacja": "b_odmiana_a",
+  "p": 0.65,
+  "rozklad": {
+   "rozne": 0.34,
+   "ten_sam": 0.0,
+   "b_odmiana_a": 0.65,
+   "a_odmiana_b": 0.01
+  }
+ },
+ {
+  "a": "pedicure leczniczy",
+  "b": "zabieg podologiczny",
+  "relacja": "a_odmiana_b",
+  "p": 0.75,
+  "rozklad": {
+   "b_odmiana_a": 0.15,
+   "ten_sam": 0.07,
+   "rozne": 0.03,
+   "a_odmiana_b": 0.75
+  }
+ },
+ {
+  "a": "peeling",
+  "b": "peeling chemiczny",
+  "relacja": "b_odmiana_a",
+  "p": 1.0,
+  "rozklad": {
+   "b_odmiana_a": 1.0,
+   "ten_sam": 0.0,
+   "rozne": 0.0,
+   "a_odmiana_b": 0.0
+  }
+ },
+ {
+  "a": "peeling",
+  "b": "peeling ciała",
+  "relacja": "b_odmiana_a",
+  "p": 0.99,
+  "rozklad": {
+   "b_odmiana_a": 0.99,
+   "ten_sam": 0.0,
+   "rozne": 0.0,
+   "a_odmiana_b": 0.01
+  }
+ },
+ {
+  "a": "peeling",
+  "b": "peeling enzymatyczny",
+  "relacja": "b_odmiana_a",
+  "p": 1.0,
+  "rozklad": {
+   "b_odmiana_a": 1.0,
+   "ten_sam": 0.0,
+   "rozne": 0.0,
+   "a_odmiana_b": 0.0
+  }
+ },
+ {
+  "a": "peeling",
+  "b": "peeling kawitacyjny",
+  "relacja": "b_odmiana_a",
+  "p": 1.0,
+  "rozklad": {
+   "b_odmiana_a": 1.0,
+   "ten_sam": 0.0,
+   "rozne": 0.0,
+   "a_odmiana_b": 0.0
+  }
+ },
+ {
+  "a": "peeling",
+  "b": "peeling węglowy",
+  "relacja": "b_odmiana_a",
+  "p": 1.0,
+  "rozklad": {
+   "b_odmiana_a": 1.0,
+   "ten_sam": 0.0,
+   "rozne": 0.0,
+   "a_odmiana_b": 0.0
+  }
+ },
+ {
+  "a": "peeling chemiczny",
+  "b": "peeling kawitacyjny",
+  "relacja": "rozne",
+  "p": 0.92,
+  "rozklad": {
+   "b_odmiana_a": 0.08,
+   "ten_sam": 0.0,
+   "rozne": 0.92,
+   "a_odmiana_b": 0.0
+  }
+ },
+ {
+  "a": "peeling chemiczny",
+  "b": "peeling węglowy",
+  "relacja": "rozne",
+  "p": 0.51,
+  "rozklad": {
+   "b_odmiana_a": 0.49,
+   "ten_sam": 0.0,
+   "rozne": 0.51,
+   "a_odmiana_b": 0.0
+  }
+ },
+ {
+  "a": "peeling chemiczny",
+  "b": "rytuał",
+  "relacja": "rozne",
+  "p": 0.99,
+  "rozklad": {
+   "b_odmiana_a": 0.0,
+   "ten_sam": 0.0,
+   "rozne": 0.99,
+   "a_odmiana_b": 0.01
+  }
+ },
+ {
+  "a": "peeling chemiczny",
+  "b": "zabieg nawilżający",
+  "relacja": "rozne",
+  "p": 1.0,
+  "rozklad": {
+   "b_odmiana_a": 0.0,
+   "ten_sam": 0.0,
+   "rozne": 1.0,
+   "a_odmiana_b": 0.0
+  }
+ },
+ {
+  "a": "peeling kawitacyjny",
+  "b": "zabieg oczyszczający",
+  "relacja": "a_odmiana_b",
+  "p": 0.94,
+  "rozklad": {
+   "b_odmiana_a": 0.01,
+   "ten_sam": 0.0,
+   "rozne": 0.05,
+   "a_odmiana_b": 0.94
+  }
+ },
+ {
+  "a": "periodontologia",
+  "b": "szynowanie zębów",
+  "relacja": "b_odmiana_a",
+  "p": 0.66,
+  "rozklad": {
+   "b_odmiana_a": 0.66,
+   "ten_sam": 0.01,
+   "rozne": 0.32,
+   "a_odmiana_b": 0.01
+  }
+ },
+ {
+  "a": "pielęgnacja",
+  "b": "pielęgnacja psa",
+  "relacja": "rozne",
+  "p": 0.96,
+  "rozklad": {
+   "b_odmiana_a": 0.04,
+   "ten_sam": 0.0,
+   "rozne": 0.96,
+   "a_odmiana_b": 0.0
+  }
+ },
+ {
+  "a": "pielęgnacja",
+  "b": "wyczesywanie",
+  "relacja": "rozne",
+  "p": 0.92,
+  "rozklad": {
+   "b_odmiana_a": 0.07,
+   "ten_sam": 0.0,
+   "rozne": 0.92,
+   "a_odmiana_b": 0.01
+  }
+ },
+ {
+  "a": "pielęgnacja",
+  "b": "zabieg oczyszczający",
+  "relacja": "b_odmiana_a",
+  "p": 0.73,
+  "rozklad": {
+   "b_odmiana_a": 0.73,
+   "ten_sam": 0.04,
+   "rozne": 0.16,
+   "a_odmiana_b": 0.07
+  }
+ },
+ {
+  "a": "pilates",
+  "b": "trening",
+  "relacja": "a_odmiana_b",
+  "p": 0.65,
+  "rozklad": {
+   "b_odmiana_a": 0.01,
+   "ten_sam": 0.0,
+   "rozne": 0.34,
+   "a_odmiana_b": 0.65
+  }
+ },
+ {
+  "a": "polerowanie",
+  "b": "polerowanie włosów",
+  "relacja": "b_odmiana_a",
+  "p": 0.84,
+  "rozklad": {
+   "b_odmiana_a": 0.84,
+   "ten_sam": 0.08,
+   "rozne": 0.03,
+   "a_odmiana_b": 0.05
+  }
+ },
+ {
+  "a": "polerowanie",
+  "b": "polerowanie zębów",
+  "relacja": "b_odmiana_a",
+  "p": 0.71,
+  "rozklad": {
+   "b_odmiana_a": 0.71,
+   "ten_sam": 0.01,
+   "rozne": 0.22,
+   "a_odmiana_b": 0.06
+  }
+ },
+ {
+  "a": "polerowanie włosów",
+  "b": "strzyżenie",
+  "relacja": "rozne",
+  "p": 0.94,
+  "rozklad": {
+   "b_odmiana_a": 0.0,
+   "ten_sam": 0.0,
+   "rozne": 0.94,
+   "a_odmiana_b": 0.06
+  }
+ },
+ {
+  "a": "pranie",
+  "b": "pranie tapicerki",
+  "relacja": "b_odmiana_a",
+  "p": 0.9,
+  "rozklad": {
+   "b_odmiana_a": 0.9,
+   "ten_sam": 0.0,
+   "rozne": 0.05,
+   "a_odmiana_b": 0.05
+  }
+ },
+ {
+  "a": "prostowanie",
+  "b": "prostowanie felg",
+  "relacja": "rozne",
+  "p": 0.99,
+  "rozklad": {
+   "b_odmiana_a": 0.01,
+   "ten_sam": 0.0,
+   "rozne": 0.99,
+   "a_odmiana_b": 0.0
+  }
+ },
+ {
+  "a": "prostowanie",
+  "b": "stylizacja włosów",
+  "relacja": "a_odmiana_b",
+  "p": 0.97,
+  "rozklad": {
+   "b_odmiana_a": 0.01,
+   "ten_sam": 0.0,
+   "rozne": 0.02,
+   "a_odmiana_b": 0.97
+  }
+ },
+ {
+  "a": "przedłużanie",
+  "b": "przedłużanie paznokci",
+  "relacja": "b_odmiana_a",
+  "p": 0.98,
+  "rozklad": {
+   "b_odmiana_a": 0.98,
+   "ten_sam": 0.0,
+   "rozne": 0.01,
+   "a_odmiana_b": 0.01
+  }
+ },
+ {
+  "a": "przedłużanie",
+  "b": "przedłużanie rzęs",
+  "relacja": "b_odmiana_a",
+  "p": 0.96,
+  "rozklad": {
+   "b_odmiana_a": 0.96,
+   "ten_sam": 0.0,
+   "rozne": 0.03,
+   "a_odmiana_b": 0.01
+  }
+ },
+ {
+  "a": "przedłużanie paznokci",
+  "b": "zabieg podologiczny",
+  "relacja": "rozne",
+  "p": 1.0,
+  "rozklad": {
+   "b_odmiana_a": 0.0,
+   "ten_sam": 0.0,
+   "rozne": 1.0,
+   "a_odmiana_b": 0.0
+  }
+ },
+ {
+  "a": "przegląd pojazdu",
+  "b": "zawieszenie",
+  "relacja": "rozne",
+  "p": 0.94,
+  "rozklad": {
+   "ten_sam": 0.0,
+   "rozne": 0.94,
+   "b_odmiana_a": 0.06,
+   "a_odmiana_b": 0.0
+  }
+ },
+ {
+  "a": "przeróbki odzieży",
+  "b": "wymiana suwaka",
+  "relacja": "rozne",
+  "p": 0.95,
+  "rozklad": {
+   "b_odmiana_a": 0.05,
+   "rozne": 0.95,
+   "ten_sam": 0.0,
+   "a_odmiana_b": 0.0
+  }
+ },
+ {
+  "a": "psychoterapia",
+  "b": "somatic experiencing",
+  "relacja": "rozne",
+  "p": 0.78,
+  "rozklad": {
+   "ten_sam": 0.0,
+   "rozne": 0.78,
+   "b_odmiana_a": 0.22,
+   "a_odmiana_b": 0.0
+  }
+ },
+ {
+  "a": "psychoterapia",
+  "b": "terapia psychosomatyczna",
+  "relacja": "rozne",
+  "p": 0.72,
+  "rozklad": {
+   "b_odmiana_a": 0.27,
+   "rozne": 0.72,
+   "ten_sam": 0.0,
+   "a_odmiana_b": 0.01
+  }
+ },
+ {
+  "a": "redermalizacja",
+  "b": "stymulator",
+  "relacja": "a_odmiana_b",
+  "p": 0.54,
+  "rozklad": {
+   "b_odmiana_a": 0.13,
+   "rozne": 0.3,
+   "ten_sam": 0.03,
+   "a_odmiana_b": 0.54
+  }
+ },
+ {
+  "a": "regulacja",
+  "b": "regulacja brwi",
+  "relacja": "b_odmiana_a",
+  "p": 0.61,
+  "rozklad": {
+   "ten_sam": 0.07,
+   "rozne": 0.11,
+   "b_odmiana_a": 0.61,
+   "a_odmiana_b": 0.21
+  }
+ },
+ {
+  "a": "regulacja",
+  "b": "stylizacja brwi",
+  "relacja": "b_odmiana_a",
+  "p": 0.43,
+  "rozklad": {
+   "b_odmiana_a": 0.43,
+   "rozne": 0.22,
+   "ten_sam": 0.01,
+   "a_odmiana_b": 0.34
+  }
+ },
+ {
+  "a": "regulacja brwi",
+  "b": "stylizacja brwi",
+  "relacja": "b_odmiana_a",
+  "p": 0.37,
+  "rozklad": {
+   "b_odmiana_a": 0.37,
+   "rozne": 0.07,
+   "ten_sam": 0.29,
+   "a_odmiana_b": 0.27
+  }
+ },
+ {
+  "a": "rekonstrukcja",
+  "b": "rekonstrukcja włosów",
+  "relacja": "ten_sam",
+  "p": 0.47,
+  "rozklad": {
+   "ten_sam": 0.47,
+   "rozne": 0.01,
+   "b_odmiana_a": 0.4,
+   "a_odmiana_b": 0.12
+  }
+ },
+ {
+  "a": "rtg",
+  "b": "zdjęcie rtg",
+  "relacja": "b_odmiana_a",
+  "p": 0.43,
+  "rozklad": {
+   "ten_sam": 0.14,
+   "rozne": 0.33,
+   "b_odmiana_a": 0.43,
+   "a_odmiana_b": 0.1
+  }
+ },
+ {
+  "a": "rytuał",
+  "b": "zabieg nawilżający",
+  "relacja": "rozne",
+  "p": 0.71,
+  "rozklad": {
+   "ten_sam": 0.02,
+   "rozne": 0.71,
+   "b_odmiana_a": 0.11,
+   "a_odmiana_b": 0.16
+  }
+ },
+ {
+  "a": "sauna",
+  "b": "sauna infrared",
+  "relacja": "b_odmiana_a",
+  "p": 1.0,
+  "rozklad": {
+   "ten_sam": 0.0,
+   "rozne": 0.0,
+   "b_odmiana_a": 1.0,
+   "a_odmiana_b": 0.0
+  }
+ },
+ {
+  "a": "sesja normobaryczna",
+  "b": "tlenoterapia hiperbaryczna",
+  "relacja": "a_odmiana_b",
+  "p": 0.66,
+  "rozklad": {
+   "ten_sam": 0.01,
+   "rozne": 0.3,
+   "b_odmiana_a": 0.03,
+   "a_odmiana_b": 0.66
+  }
+ },
+ {
+  "a": "stomatologia",
+  "b": "stomatologia zachowawcza",
+  "relacja": "b_odmiana_a",
+  "p": 0.97,
+  "rozklad": {
+   "b_odmiana_a": 0.97,
+   "rozne": 0.03,
+   "ten_sam": 0.0,
+   "a_odmiana_b": 0.0
+  }
+ },
+ {
+  "a": "strzyżenie",
+  "b": "strzyżenie damskie",
+  "relacja": "rozne",
+  "p": 0.66,
+  "rozklad": {
+   "ten_sam": 0.0,
+   "rozne": 0.66,
+   "b_odmiana_a": 0.3,
+   "a_odmiana_b": 0.04
+  }
+ },
+ {
+  "a": "strzyżenie",
+  "b": "woskowanie",
+  "relacja": "rozne",
+  "p": 1.0,
+  "rozklad": {
+   "ten_sam": 0.0,
+   "rozne": 1.0,
+   "b_odmiana_a": 0.0,
+   "a_odmiana_b": 0.0
+  }
+ },
+ {
+  "a": "stylizacja brwi",
+  "b": "stylizacja brwi i rzęs",
+  "relacja": "a_odmiana_b",
+  "p": 0.42,
+  "rozklad": {
+   "ten_sam": 0.0,
+   "rozne": 0.39,
+   "b_odmiana_a": 0.19,
+   "a_odmiana_b": 0.42
+  }
+ },
+ {
+  "a": "stylizacja włosów",
+  "b": "trwała ondulacja",
+  "relacja": "rozne",
+  "p": 0.69,
+  "rozklad": {
+   "ten_sam": 0.0,
+   "rozne": 0.69,
+   "b_odmiana_a": 0.29,
+   "a_odmiana_b": 0.02
+  }
+ },
+ {
+  "a": "stylizacja włosów",
+  "b": "upięcie",
+  "relacja": "b_odmiana_a",
+  "p": 0.85,
+  "rozklad": {
+   "ten_sam": 0.01,
+   "rozne": 0.13,
+   "b_odmiana_a": 0.85,
+   "a_odmiana_b": 0.01
+  }
+ },
+ {
+  "a": "stymulator",
+  "b": "stymulatory tkankowe",
+  "relacja": "a_odmiana_b",
+  "p": 0.79,
+  "rozklad": {
+   "b_odmiana_a": 0.08,
+   "rozne": 0.04,
+   "ten_sam": 0.09,
+   "a_odmiana_b": 0.79
+  }
+ },
+ {
+  "a": "tamponada",
+  "b": "zabieg podologiczny",
+  "relacja": "a_odmiana_b",
+  "p": 0.7,
+  "rozklad": {
+   "ten_sam": 0.01,
+   "rozne": 0.28,
+   "b_odmiana_a": 0.01,
+   "a_odmiana_b": 0.7
+  }
+ },
+ {
+  "a": "terapia",
+  "b": "terapia bicom",
+  "relacja": "b_odmiana_a",
+  "p": 0.95,
+  "rozklad": {
+   "b_odmiana_a": 0.95,
+   "rozne": 0.04,
+   "ten_sam": 0.0,
+   "a_odmiana_b": 0.01
+  }
+ },
+ {
+  "a": "terapia",
+  "b": "terapia blizn",
+  "relacja": "b_odmiana_a",
+  "p": 0.99,
+  "rozklad": {
+   "ten_sam": 0.0,
+   "rozne": 0.01,
+   "b_odmiana_a": 0.99,
+   "a_odmiana_b": 0.0
+  }
+ },
+ {
+  "a": "terapia",
+  "b": "terapia dożylna",
+  "relacja": "b_odmiana_a",
+  "p": 0.95,
+  "rozklad": {
+   "ten_sam": 0.0,
+   "rozne": 0.04,
+   "b_odmiana_a": 0.95,
+   "a_odmiana_b": 0.01
+  }
+ },
+ {
+  "a": "terapia",
+  "b": "terapia enzymatyczna",
+  "relacja": "b_odmiana_a",
+  "p": 0.99,
+  "rozklad": {
+   "ten_sam": 0.0,
+   "rozne": 0.01,
+   "b_odmiana_a": 0.99,
+   "a_odmiana_b": 0.0
+  }
+ },
+ {
+  "a": "terapia",
+  "b": "terapia komplementarna",
+  "relacja": "b_odmiana_a",
+  "p": 0.93,
+  "rozklad": {
+   "ten_sam": 0.01,
+   "rozne": 0.02,
+   "a_odmiana_b": 0.03,
+   "b_odmiana_a": 0.93
+  }
+ },
+ {
+  "a": "terapia",
+  "b": "terapia manualna",
+  "relacja": "b_odmiana_a",
+  "p": 0.98,
+  "rozklad": {
+   "ten_sam": 0.0,
+   "rozne": 0.02,
+   "b_odmiana_a": 0.98,
+   "a_odmiana_b": 0.0
+  }
+ },
+ {
+  "a": "terapia",
+  "b": "terapia manualna i praca z powięzią",
+  "relacja": "b_odmiana_a",
+  "p": 0.91,
+  "rozklad": {
+   "ten_sam": 0.0,
+   "rozne": 0.07,
+   "a_odmiana_b": 0.02,
+   "b_odmiana_a": 0.91
+  }
+ },
+ {
+  "a": "terapia",
+  "b": "terapia pedagogiczna",
+  "relacja": "rozne",
+  "p": 0.58,
+  "rozklad": {
+   "ten_sam": 0.0,
+   "rozne": 0.58,
+   "a_odmiana_b": 0.01,
+   "b_odmiana_a": 0.41
+  }
+ },
+ {
+  "a": "terapia",
+  "b": "terapia psychosomatyczna",
+  "relacja": "b_odmiana_a",
+  "p": 0.91,
+  "rozklad": {
+   "ten_sam": 0.0,
+   "rozne": 0.09,
+   "a_odmiana_b": 0.0,
+   "b_odmiana_a": 0.91
+  }
+ },
+ {
+  "a": "terapia",
+  "b": "terapia tecar",
+  "relacja": "b_odmiana_a",
+  "p": 0.96,
+  "rozklad": {
+   "ten_sam": 0.0,
+   "rozne": 0.03,
+   "b_odmiana_a": 0.96,
+   "a_odmiana_b": 0.01
+  }
+ },
+ {
+  "a": "terapia",
+  "b": "terapia tkanek miękkich",
+  "relacja": "b_odmiana_a",
+  "p": 0.97,
+  "rozklad": {
+   "ten_sam": 0.0,
+   "rozne": 0.02,
+   "a_odmiana_b": 0.01,
+   "b_odmiana_a": 0.97
+  }
+ },
+ {
+  "a": "terapia",
+  "b": "terapia w gabinecie",
+  "relacja": "b_odmiana_a",
+  "p": 0.96,
+  "rozklad": {
+   "ten_sam": 0.01,
+   "rozne": 0.01,
+   "a_odmiana_b": 0.02,
+   "b_odmiana_a": 0.96
+  }
+ },
+ {
+  "a": "terapia",
+  "b": "terapia wisceralna",
+  "relacja": "b_odmiana_a",
+  "p": 0.98,
+  "rozklad": {
+   "ten_sam": 0.0,
+   "rozne": 0.02,
+   "b_odmiana_a": 0.98,
+   "a_odmiana_b": 0.0
+  }
+ },
+ {
+  "a": "terapia",
+  "b": "terapia wodorowa",
+  "relacja": "b_odmiana_a",
+  "p": 0.98,
+  "rozklad": {
+   "ten_sam": 0.0,
+   "rozne": 0.02,
+   "a_odmiana_b": 0.0,
+   "b_odmiana_a": 0.98
+  }
+ },
+ {
+  "a": "terapia manualna",
+  "b": "terapia manualna i praca z powięzią",
+  "relacja": "a_odmiana_b",
+  "p": 0.5,
+  "rozklad": {
+   "ten_sam": 0.01,
+   "rozne": 0.26,
+   "a_odmiana_b": 0.5,
+   "b_odmiana_a": 0.23
+  }
+ },
+ {
+  "a": "terapia manualna",
+  "b": "terapia wisceralna",
+  "relacja": "rozne",
+  "p": 0.94,
+  "rozklad": {
+   "ten_sam": 0.0,
+   "rozne": 0.94,
+   "a_odmiana_b": 0.01,
+   "b_odmiana_a": 0.05
+  }
+ },
+ {
+  "a": "tlenoterapia",
+  "b": "tlenoterapia hiperbaryczna",
+  "relacja": "b_odmiana_a",
+  "p": 0.95,
+  "rozklad": {
+   "ten_sam": 0.01,
+   "rozne": 0.01,
+   "b_odmiana_a": 0.95,
+   "a_odmiana_b": 0.03
+  }
+ },
+ {
+  "a": "tooth gems",
+  "b": "ściągnięcie tooth gems",
+  "relacja": "rozne",
+  "p": 0.83,
+  "rozklad": {
+   "ten_sam": 0.01,
+   "rozne": 0.83,
+   "a_odmiana_b": 0.0,
+   "b_odmiana_a": 0.16
+  }
+ },
+ {
+  "a": "trening",
+  "b": "trening medyczny",
+  "relacja": "b_odmiana_a",
+  "p": 0.65,
+  "rozklad": {
+   "ten_sam": 0.01,
+   "rozne": 0.14,
+   "a_odmiana_b": 0.2,
+   "b_odmiana_a": 0.65
+  }
+ },
+ {
+  "a": "tulip thermo climber",
+  "b": "zabieg termoaktywny",
+  "relacja": "a_odmiana_b",
+  "p": 0.39,
+  "rozklad": {
+   "ten_sam": 0.03,
+   "rozne": 0.23,
+   "b_odmiana_a": 0.35,
+   "a_odmiana_b": 0.39
+  }
+ },
+ {
+  "a": "usunięcie odcisku",
+  "b": "zabieg podologiczny",
+  "relacja": "a_odmiana_b",
+  "p": 0.89,
+  "rozklad": {
+   "ten_sam": 0.0,
+   "rozne": 0.1,
+   "a_odmiana_b": 0.89,
+   "b_odmiana_a": 0.01
+  }
+ },
+ {
+  "a": "usuwanie",
+  "b": "usuwanie brodawek wirusowych",
+  "relacja": "rozne",
+  "p": 0.95,
+  "rozklad": {
+   "ten_sam": 0.0,
+   "rozne": 0.95,
+   "a_odmiana_b": 0.0,
+   "b_odmiana_a": 0.05
+  }
+ },
+ {
+  "a": "usuwanie",
+  "b": "usuwanie tatuażu",
+  "relacja": "a_odmiana_b",
+  "p": 0.66,
+  "rozklad": {
+   "ten_sam": 0.21,
+   "rozne": 0.07,
+   "a_odmiana_b": 0.66,
+   "b_odmiana_a": 0.06
+  }
+ },
+ {
+  "a": "usuwanie",
+  "b": "usuwanie wgnieceń",
+  "relacja": "rozne",
+  "p": 0.97,
+  "rozklad": {
+   "ten_sam": 0.0,
+   "rozne": 0.97,
+   "a_odmiana_b": 0.02,
+   "b_odmiana_a": 0.01
+  }
+ },
+ {
+  "a": "usuwanie",
+  "b": "usuwanie żywicy",
+  "relacja": "rozne",
+  "p": 0.98,
+  "rozklad": {
+   "ten_sam": 0.0,
+   "rozne": 0.98,
+   "a_odmiana_b": 0.01,
+   "b_odmiana_a": 0.01
+  }
+ },
+ {
+  "a": "wkładki ortopedyczne",
+  "b": "zabieg podologiczny",
+  "relacja": "rozne",
+  "p": 0.96,
+  "rozklad": {
+   "ten_sam": 0.0,
+   "rozne": 0.96,
+   "a_odmiana_b": 0.03,
+   "b_odmiana_a": 0.01
+  }
+ },
+ {
+  "a": "wolumetria",
+  "b": "wypełnianie zmarszczek",
+  "relacja": "rozne",
+  "p": 0.39,
+  "rozklad": {
+   "ten_sam": 0.01,
+   "rozne": 0.39,
+   "a_odmiana_b": 0.32,
+   "b_odmiana_a": 0.28
+  }
+ },
+ {
+  "a": "wulkanizacja",
+  "b": "wymiana opon",
+  "relacja": "rozne",
+  "p": 0.7,
+  "rozklad": {
+   "ten_sam": 0.01,
+   "rozne": 0.7,
+   "a_odmiana_b": 0.04,
+   "b_odmiana_a": 0.25
+  }
+ },
+ {
+  "a": "wymiana",
+  "b": "wymiana amortyzatora",
+  "relacja": "rozne",
+  "p": 0.85,
+  "rozklad": {
+   "ten_sam": 0.0,
+   "rozne": 0.85,
+   "a_odmiana_b": 0.02,
+   "b_odmiana_a": 0.13
+  }
+ },
+ {
+  "a": "wymiana",
+  "b": "wymiana baterii",
+  "relacja": "rozne",
+  "p": 0.66,
+  "rozklad": {
+   "ten_sam": 0.01,
+   "rozne": 0.66,
+   "a_odmiana_b": 0.04,
+   "b_odmiana_a": 0.29
+  }
+ },
+ {
+  "a": "wymiana",
+  "b": "wymiana klocków hamulcowych",
+  "relacja": "b_odmiana_a",
+  "p": 0.53,
+  "rozklad": {
+   "ten_sam": 0.01,
+   "rozne": 0.41,
+   "b_odmiana_a": 0.53,
+   "a_odmiana_b": 0.05
+  }
+ },
+ {
+  "a": "wymiana",
+  "b": "wymiana oleju",
+  "relacja": "rozne",
+  "p": 0.55,
+  "rozklad": {
+   "ten_sam": 0.01,
+   "rozne": 0.55,
+   "b_odmiana_a": 0.41,
+   "a_odmiana_b": 0.03
+  }
+ },
+ {
+  "a": "wymiana",
+  "b": "wymiana opon",
+  "relacja": "b_odmiana_a",
+  "p": 0.64,
+  "rozklad": {
+   "ten_sam": 0.01,
+   "rozne": 0.33,
+   "b_odmiana_a": 0.64,
+   "a_odmiana_b": 0.02
+  }
+ },
+ {
+  "a": "wymiana",
+  "b": "wymiana sprzęgła",
+  "relacja": "rozne",
+  "p": 0.9,
+  "rozklad": {
+   "ten_sam": 0.0,
+   "rozne": 0.9,
+   "b_odmiana_a": 0.08,
+   "a_odmiana_b": 0.02
+  }
+ },
+ {
+  "a": "wymiana",
+  "b": "wymiana suwaka",
+  "relacja": "b_odmiana_a",
+  "p": 0.61,
+  "rozklad": {
+   "ten_sam": 0.04,
+   "rozne": 0.26,
+   "b_odmiana_a": 0.61,
+   "a_odmiana_b": 0.09
+  }
+ },
+ {
+  "a": "wymiana",
+  "b": "wymiana wyświetlacza",
+  "relacja": "b_odmiana_a",
+  "p": 0.58,
+  "rozklad": {
+   "ten_sam": 0.0,
+   "rozne": 0.37,
+   "b_odmiana_a": 0.58,
+   "a_odmiana_b": 0.05
+  }
+ },
+ {
+  "a": "wymiana",
+  "b": "wymiana łączników stabilizatora",
+  "relacja": "rozne",
+  "p": 0.87,
+  "rozklad": {
+   "ten_sam": 0.0,
+   "rozne": 0.87,
+   "b_odmiana_a": 0.11,
+   "a_odmiana_b": 0.02
+  }
+ },
+ {
+  "a": "wymiana amortyzatora",
+  "b": "wymiana łączników stabilizatora",
+  "relacja": "rozne",
+  "p": 1.0,
+  "rozklad": {
+   "ten_sam": 0.0,
+   "rozne": 1.0,
+   "b_odmiana_a": 0.0,
+   "a_odmiana_b": 0.0
+  }
+ },
+ {
+  "a": "wymiana opon",
+  "b": "wyważanie kół",
+  "relacja": "rozne",
+  "p": 0.54,
+  "rozklad": {
+   "ten_sam": 0.01,
+   "rozne": 0.54,
+   "b_odmiana_a": 0.4,
+   "a_odmiana_b": 0.05
+  }
+ },
+ {
+  "a": "zabieg",
+  "b": "zabieg nawilżający",
+  "relacja": "b_odmiana_a",
+  "p": 1.0,
+  "rozklad": {
+   "ten_sam": 0.0,
+   "rozne": 0.0,
+   "a_odmiana_b": 0.0,
+   "b_odmiana_a": 1.0
+  }
+ },
+ {
+  "a": "zabieg",
+  "b": "zabieg oczyszczający",
+  "relacja": "b_odmiana_a",
+  "p": 1.0,
+  "rozklad": {
+   "ten_sam": 0.0,
+   "rozne": 0.0,
+   "b_odmiana_a": 1.0,
+   "a_odmiana_b": 0.0
+  }
+ },
+ {
+  "a": "zabieg",
+  "b": "zabieg parafinowy",
+  "relacja": "b_odmiana_a",
+  "p": 1.0,
+  "rozklad": {
+   "ten_sam": 0.0,
+   "rozne": 0.0,
+   "b_odmiana_a": 1.0,
+   "a_odmiana_b": 0.0
+  }
+ },
+ {
+  "a": "zabieg",
+  "b": "zabieg podologiczny",
+  "relacja": "b_odmiana_a",
+  "p": 0.98,
+  "rozklad": {
+   "ten_sam": 0.0,
+   "rozne": 0.02,
+   "b_odmiana_a": 0.98,
+   "a_odmiana_b": 0.0
+  }
+ },
+ {
+  "a": "zabieg",
+  "b": "zabieg rozświetlający",
+  "relacja": "b_odmiana_a",
+  "p": 1.0,
+  "rozklad": {
+   "ten_sam": 0.0,
+   "rozne": 0.0,
+   "b_odmiana_a": 1.0,
+   "a_odmiana_b": 0.0
+  }
+ },
+ {
+  "a": "zabieg",
+  "b": "zabieg terapeutyczny",
+  "relacja": "b_odmiana_a",
+  "p": 0.99,
+  "rozklad": {
+   "ten_sam": 0.0,
+   "rozne": 0.01,
+   "b_odmiana_a": 0.99,
+   "a_odmiana_b": 0.0
+  }
+ },
+ {
+  "a": "zabieg",
+  "b": "zabieg termoaktywny",
+  "relacja": "b_odmiana_a",
+  "p": 1.0,
+  "rozklad": {
+   "ten_sam": 0.0,
+   "rozne": 0.0,
+   "b_odmiana_a": 1.0,
+   "a_odmiana_b": 0.0
+  }
+ },
+ {
+  "a": "zabieg",
+  "b": "zabieg wyszczuplający",
+  "relacja": "b_odmiana_a",
+  "p": 1.0,
+  "rozklad": {
+   "ten_sam": 0.0,
+   "rozne": 0.0,
+   "b_odmiana_a": 1.0,
+   "a_odmiana_b": 0.0
+  }
+ },
+ {
+  "a": "zabieg",
+  "b": "znieczulenie",
+  "relacja": "rozne",
+  "p": 0.79,
+  "rozklad": {
+   "ten_sam": 0.0,
+   "rozne": 0.79,
+   "b_odmiana_a": 0.2,
+   "a_odmiana_b": 0.01
+  }
+ },
+ {
+  "a": "zabieg nawilżający",
+  "b": "zabieg parafinowy",
+  "relacja": "b_odmiana_a",
+  "p": 0.48,
+  "rozklad": {
+   "ten_sam": 0.11,
+   "rozne": 0.17,
+   "b_odmiana_a": 0.48,
+   "a_odmiana_b": 0.24
+  }
+ }
+]

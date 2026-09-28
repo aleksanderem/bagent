@@ -18,6 +18,7 @@ import argparse
 import csv
 import gzip
 import json
+import re
 import sys
 from collections import Counter, defaultdict
 from pathlib import Path
@@ -42,6 +43,21 @@ ZESTAW = ("," , "+", "/", "&")  # wartość z separatorem = zestaw kilku zabieg�
 RODZAJ_TEZ = 0.3  # krok 1 niepewny: rodzaj_zabiegu z p ≥ 0,3 też trafia na listę rodzajów
 
 
+def rdzenie(s: str) -> frozenset[str]:
+    """Rdzenie słów (pierwsze 5 liter) — polska odmiana nie rozdziela tego samego słowa."""
+    return frozenset(w[:5] for w in re.split(r"[\s,+/&()-]+", s.lower()) if w)
+
+
+def ogolniejsze(v: str, kotwica: str) -> bool:
+    """Wartość ogólniejsza od kotwicy („manicure” vs „manicure hybrydowy”) nie jest
+    jej synonimem. 26.09: krok 2 wchłonął tak ogólne rodzaje w szczegółowe
+    (manicure → manicure hybrydowy, depilacja → depilacja laserowa, peeling →
+    peeling chemiczny), więc drzewu brakowało poziomu ogólnego, a samo „Manicure”
+    było liczone jak hybrydowy — fałszywa „ta sama usługa”."""
+    rv, rk = rdzenie(v), rdzenie(kotwica)
+    return bool(rv) and rv < rk
+
+
 def norm(v) -> str:
     return " ".join(str(v).lower().split()).strip(" .,;")
 
@@ -60,7 +76,7 @@ def main() -> None:
         k = v
         for _ in range(20):
             nxt = m.get(k, {}).get("kotwica", k)
-            if nxt == k:
+            if nxt == k or ogolniejsze(k, nxt):
                 break
             k = nxt
         return k

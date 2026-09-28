@@ -1,0 +1,36 @@
+{
+ "A": {
+  "par": 4101,
+  "precyzja_ta_sama_proc": 53.2,
+  "czulosc_ta_sama_proc": 63.0,
+  "trafnosc_proc": 84.5,
+  "mowi_ta_sama": 814
+ },
+ "C25": {
+  "par": 4101,
+  "precyzja_ta_sama_proc": 53.8,
+  "czulosc_ta_sama_proc": 52.1,
+  "trafnosc_proc": 84.5,
+  "mowi_ta_sama": 666
+ },
+ "C10": {
+  "par": 4101,
+  "precyzja_ta_sama_proc": 50.4,
+  "czulosc_ta_sama_proc": 52.7,
+  "trafnosc_proc": 83.4,
+  "mowi_ta_sama": 718,
+  "tok_rodzaj_na_usluge": 1854,
+  "usd_na_usluge": 0.000136,
+  "sekund": 50
+ },
+ "C5": {
+  "par": 4101,
+  "precyzja_ta_sama_proc": 54.7,
+  "czulosc_ta_sama_proc": 56.2,
+  "trafnosc_proc": 84.9,
+  "mowi_ta_sama": 706,
+  "tok_rodzaj_na_usluge": 2400,
+  "usd_na_usluge": 0.000159,
+  "sekund": 62
+ }
+}

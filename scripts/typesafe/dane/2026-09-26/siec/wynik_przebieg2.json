@@ -1,0 +1,337 @@
+{
+ "sieci": {
+  "dzis": {
+   "limit": 80,
+   "prog": 0.68
+  },
+  "srednia": {
+   "limit": 150,
+   "prog": 0.6
+  },
+  "szeroka": {
+   "limit": 300,
+   "prog": 0.5
+  }
+ },
+ "lacznie": {
+  "wierszy": 144,
+  "dzis": {
+   "wiersze_3plus_proc": 52.1,
+   "wiersze_5plus_proc": 42.4,
+   "mediana_salonow_tozsamych": 3.0,
+   "kandydatow_srednio": 49.0
+  },
+  "srednia": {
+   "wiersze_3plus_proc": 59.7,
+   "wiersze_5plus_proc": 50.0,
+   "mediana_salonow_tozsamych": 4.5,
+   "kandydatow_srednio": 113.4
+  },
+  "szeroka": {
+   "wiersze_3plus_proc": 67.4,
+   "wiersze_5plus_proc": 54.9,
+   "mediana_salonow_tozsamych": 6.0,
+   "kandydatow_srednio": 266.3
+  },
+  "silnik_wiersze_z_cena_proc": 73.6
+ },
+ "per_branza": {
+  "Barber shop": {
+   "wierszy": 12,
+   "dzis": {
+    "wiersze_3plus_proc": 41.7,
+    "wiersze_5plus_proc": 8.3,
+    "mediana_salonow_tozsamych": 1.5,
+    "kandydatow_srednio": 24.2
+   },
+   "srednia": {
+    "wiersze_3plus_proc": 50.0,
+    "wiersze_5plus_proc": 8.3,
+    "mediana_salonow_tozsamych": 2.5,
+    "kandydatow_srednio": 80.8
+   },
+   "szeroka": {
+    "wiersze_3plus_proc": 66.7,
+    "wiersze_5plus_proc": 8.3,
+    "mediana_salonow_tozsamych": 3.0,
+    "kandydatow_srednio": 238.1
+   },
+   "silnik_wiersze_z_cena_proc": 41.7
+  },
+  "Brwi i rzęsy": {
+   "wierszy": 12,
+   "dzis": {
+    "wiersze_3plus_proc": 66.7,
+    "wiersze_5plus_proc": 66.7,
+    "mediana_salonow_tozsamych": 11.0,
+    "kandydatow_srednio": 70.5
+   },
+   "srednia": {
+    "wiersze_3plus_proc": 83.3,
+    "wiersze_5plus_proc": 75.0,
+    "mediana_salonow_tozsamych": 16.5,
+    "kandydatow_srednio": 142.8
+   },
+   "szeroka": {
+    "wiersze_3plus_proc": 83.3,
+    "wiersze_5plus_proc": 83.3,
+    "mediana_salonow_tozsamych": 31.5,
+    "kandydatow_srednio": 300
+   },
+   "silnik_wiersze_z_cena_proc": 83.3
+  },
+  "Depilacja": {
+   "wierszy": 12,
+   "dzis": {
+    "wiersze_3plus_proc": 58.3,
+    "wiersze_5plus_proc": 58.3,
+    "mediana_salonow_tozsamych": 7.0,
+    "kandydatow_srednio": 60
+   },
+   "srednia": {
+    "wiersze_3plus_proc": 58.3,
+    "wiersze_5plus_proc": 58.3,
+    "mediana_salonow_tozsamych": 9.5,
+    "kandydatow_srednio": 119.3
+   },
+   "szeroka": {
+    "wiersze_3plus_proc": 75.0,
+    "wiersze_5plus_proc": 66.7,
+    "mediana_salonow_tozsamych": 12.5,
+    "kandydatow_srednio": 260.9
+   },
+   "silnik_wiersze_z_cena_proc": 66.7
+  },
+  "Fryzjer": {
+   "wierszy": 12,
+   "dzis": {
+    "wiersze_3plus_proc": 83.3,
+    "wiersze_5plus_proc": 83.3,
+    "mediana_salonow_tozsamych": 28.0,
+    "kandydatow_srednio": 80
+   },
+   "srednia": {
+    "wiersze_3plus_proc": 91.7,
+    "wiersze_5plus_proc": 83.3,
+    "mediana_salonow_tozsamych": 38.5,
+    "kandydatow_srednio": 150
+   },
+   "szeroka": {
+    "wiersze_3plus_proc": 91.7,
+    "wiersze_5plus_proc": 83.3,
+    "mediana_salonow_tozsamych": 49.0,
+    "kandydatow_srednio": 300
+   },
+   "silnik_wiersze_z_cena_proc": 100.0
+  },
+  "Masaż": {
+   "wierszy": 24,
+   "dzis": {
+    "wiersze_3plus_proc": 12.5,
+    "wiersze_5plus_proc": 4.2,
+    "mediana_salonow_tozsamych": 0.0,
+    "kandydatow_srednio": 10.8
+   },
+   "srednia": {
+    "wiersze_3plus_proc": 16.7,
+    "wiersze_5plus_proc": 8.3,
+    "mediana_salonow_tozsamych": 0.0,
+    "kandydatow_srednio": 59.6
+   },
+   "szeroka": {
+    "wiersze_3plus_proc": 25.0,
+    "wiersze_5plus_proc": 12.5,
+    "mediana_salonow_tozsamych": 0.0,
+    "kandydatow_srednio": 233
+   },
+   "silnik_wiersze_z_cena_proc": 58.3
+  },
+  "Medycyna Estetyczna": {
+   "wierszy": 24,
+   "dzis": {
+    "wiersze_3plus_proc": 37.5,
+    "wiersze_5plus_proc": 29.2,
+    "mediana_salonow_tozsamych": 0.5,
+    "kandydatow_srednio": 40.4
+   },
+   "srednia": {
+    "wiersze_3plus_proc": 45.8,
+    "wiersze_5plus_proc": 41.7,
+    "mediana_salonow_tozsamych": 1.5,
+    "kandydatow_srednio": 97.3
+   },
+   "szeroka": {
+    "wiersze_3plus_proc": 58.3,
+    "wiersze_5plus_proc": 50.0,
+    "mediana_salonow_tozsamych": 4.5,
+    "kandydatow_srednio": 236.4
+   },
+   "silnik_wiersze_z_cena_proc": 58.3
+  },
+  "Paznokcie": {
+   "wierszy": 12,
+   "dzis": {
+    "wiersze_3plus_proc": 75.0,
+    "wiersze_5plus_proc": 66.7,
+    "mediana_salonow_tozsamych": 8.0,
+    "kandydatow_srednio": 80
+   },
+   "srednia": {
+    "wiersze_3plus_proc": 75.0,
+    "wiersze_5plus_proc": 75.0,
+    "mediana_salonow_tozsamych": 15.5,
+    "kandydatow_srednio": 150
+   },
+   "szeroka": {
+    "wiersze_3plus_proc": 83.3,
+    "wiersze_5plus_proc": 75.0,
+    "mediana_salonow_tozsamych": 25.5,
+    "kandydatow_srednio": 300
+   },
+   "silnik_wiersze_z_cena_proc": 100.0
+  },
+  "Podologia": {
+   "wierszy": 12,
+   "dzis": {
+    "wiersze_3plus_proc": 50.0,
+    "wiersze_5plus_proc": 41.7,
+    "mediana_salonow_tozsamych": 2.5,
+    "kandydatow_srednio": 29.5
+   },
+   "srednia": {
+    "wiersze_3plus_proc": 58.3,
+    "wiersze_5plus_proc": 50.0,
+    "mediana_salonow_tozsamych": 5.5,
+    "kandydatow_srednio": 104.3
+   },
+   "szeroka": {
+    "wiersze_3plus_proc": 58.3,
+    "wiersze_5plus_proc": 58.3,
+    "mediana_salonow_tozsamych": 8.0,
+    "kandydatow_srednio": 258.2
+   },
+   "silnik_wiersze_z_cena_proc": 75.0
+  },
+  "Salon Kosmetyczny": {
+   "wierszy": 24,
+   "dzis": {
+    "wiersze_3plus_proc": 75.0,
+    "wiersze_5plus_proc": 58.3,
+    "mediana_salonow_tozsamych": 7.0,
+    "kandydatow_srednio": 70.6
+   },
+   "srednia": {
+    "wiersze_3plus_proc": 87.5,
+    "wiersze_5plus_proc": 75.0,
+    "mediana_salonow_tozsamych": 16.0,
+    "kandydatow_srednio": 150
+   },
+   "szeroka": {
+    "wiersze_3plus_proc": 91.7,
+    "wiersze_5plus_proc": 79.2,
+    "mediana_salonow_tozsamych": 21.0,
+    "kandydatow_srednio": 300
+   },
+   "silnik_wiersze_z_cena_proc": 91.7
+  }
+ },
+ "miernik_sedzia": {
+  "nowe_tylko_szersza": {
+   "par": 150,
+   "sedzia_tozsame_proc": 46.7,
+   "sedzia_powiazane_proc": 52.0,
+   "sedzia_rozne_proc": 1.3,
+   "powod_taksonomii_gdy_sedzia_tozsame": {
+    "identyczna nazwa": 52,
+    "wszystkie cechy równe": 18
+   }
+  },
+  "z_dzisiejszej": {
+   "par": 150,
+   "sedzia_tozsame_proc": 60.0,
+   "sedzia_powiazane_proc": 38.0,
+   "sedzia_rozne_proc": 2.0,
+   "powod_taksonomii_gdy_sedzia_tozsame": {
+    "identyczna nazwa": 48,
+    "wszystkie cechy równe": 42
+   }
+  },
+  "odrzucone_podobne_0_68plus": {
+   "par": 150,
+   "sedzia_tozsame_proc": 10.7,
+   "sedzia_powiazane_proc": 76.0,
+   "sedzia_rozne_proc": 13.3,
+   "powod_taksonomii_gdy_sedzia_tozsame": {
+    "odbiorca": 5,
+    "dodatek": 4,
+    "inny rodzaj": 3,
+    "czas": 2,
+    "zestaw": 1,
+    "obszar": 1
+   }
+  },
+  "odrzucone_mniej_podobne": {
+   "par": 150,
+   "sedzia_tozsame_proc": 0.0,
+   "sedzia_powiazane_proc": 35.3,
+   "sedzia_rozne_proc": 64.7,
+   "powod_taksonomii_gdy_sedzia_tozsame": {}
+  }
+ },
+ "par_tozsamych_nowych": 2824,
+ "par_tozsamych_z_dzisiejszej": 1751,
+ "par_odrzuconych": {
+  "podobne_0_68plus": 16594,
+  "mniej_podobne": 17184
+ },
+ "powody_odrzucenia": {
+  "dzis": {
+   "inny rodzaj": 1321,
+   "obszar": 742,
+   "czas": 608,
+   "rodzaj ogólny": 466,
+   "zestaw": 453,
+   "odbiorca": 357,
+   "objetosc": 345,
+   "ta sama rodzina": 275,
+   "dodatek": 271,
+   "dlugosc": 166,
+   "cel": 93,
+   "etap": 71
+  },
+  "srednia": {
+   "inny rodzaj": 4134,
+   "obszar": 1680,
+   "zestaw": 1380,
+   "rodzaj ogólny": 1351,
+   "czas": 1139,
+   "objetosc": 690,
+   "dodatek": 685,
+   "odbiorca": 671,
+   "ta sama rodzina": 637,
+   "dlugosc": 362,
+   "cel": 251,
+   "etap": 191
+  },
+  "szeroka": {
+   "inny rodzaj": 12624,
+   "obszar": 3813,
+   "zestaw": 3711,
+   "rodzaj ogólny": 3224,
+   "czas": 2010,
+   "ta sama rodzina": 1819,
+   "dodatek": 1753,
+   "objetosc": 1321,
+   "odbiorca": 1300,
+   "dlugosc": 686,
+   "cel": 473,
+   "etap": 431
+  }
+ },
+ "destylacja": {
+  "uslug_w_pamieci": 22376,
+  "koszt_usd": 0.667,
+  "bledow": 0
+ },
+ "sedzia_koszt_usd": 0.0151
+}

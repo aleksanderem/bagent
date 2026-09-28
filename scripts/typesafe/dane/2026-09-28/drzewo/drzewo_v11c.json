@@ -1,0 +1,3465 @@
+{
+ "wersja": 11,
+ "grupy": {
+  "włosy": {
+   "what": "strzyżenie, koloryzacja, stylizacja, upięcia, pielęgnacja i przedłużanie włosów na głowie, trychologia",
+   "not_for": "broda i golenie, brwi, rzęsy, usuwanie owłosienia z ciała",
+   "examples": [
+    "strzyżenie damskie",
+    "koloryzacja",
+    "baleyage",
+    "keratynowe prostowanie",
+    "upięcie",
+    "przedłużanie włosów"
+   ]
+  },
+  "broda i golenie": {
+   "what": "zarost: trymowanie i modelowanie brody, golenie brzytwą, koloryzacja brody",
+   "not_for": "strzyżenie włosów na głowie",
+   "examples": [
+    "trymowanie brody",
+    "golenie brzytwą",
+    "modelowanie brody",
+    "odsiwianie brody"
+   ]
+  },
+  "paznokcie": {
+   "what": "manicure i pedicure kosmetyczny, stylizacja, przedłużanie, uzupełnianie i zdobienie paznokci dłoni i stóp",
+   "not_for": "leczenie stóp i chorób paznokci: wrastające paznokcie, grzybica, odciski",
+   "examples": [
+    "manicure hybrydowy",
+    "pedicure klasyczny",
+    "przedłużanie paznokci żelem",
+    "uzupełnienie żelu",
+    "zdobienie"
+   ]
+  },
+  "stopy — podologia": {
+   "what": "leczenie stóp i paznokci: wrastające paznokcie, grzybica, onycholiza, odciski, modzele, brodawki, pękające pięty, pedicure leczniczy",
+   "not_for": "pedicure kosmetyczny i malowanie paznokci",
+   "examples": [
+    "pedicure podologiczny",
+    "klamra ortonyksyjna",
+    "usunięcie odcisku",
+    "terapia brodawek",
+    "opracowanie paznokci grzybiczych"
+   ]
+  },
+  "brwi i rzęsy": {
+   "what": "henna, regulacja, laminacja i stylizacja brwi; przedłużanie, lifting, laminacja i farbowanie rzęs",
+   "not_for": "makijaż permanentny brwi, makijaż okolicznościowy",
+   "examples": [
+    "henna brwi",
+    "laminacja brwi",
+    "przedłużanie rzęs 1:1",
+    "lifting rzęs",
+    "regulacja brwi"
+   ]
+  },
+  "twarz — pielęgnacja": {
+   "what": "zabiegi pielęgnacyjne twarzy, szyi i dekoltu bez igieł: oczyszczanie, peelingi, mikrodermabrazja, maski, infuzja tlenowa, zabiegi nawilżające",
+   "not_for": "iniekcje i zabiegi lekarskie, masaż jako osobna usługa",
+   "examples": [
+    "oczyszczanie wodorowe",
+    "peeling kawitacyjny",
+    "mikrodermabrazja",
+    "zabieg nawilżający twarzy",
+    "oxygeneo"
+   ]
+  },
+  "ciało — modelowanie i pielęgnacja": {
+   "what": "zabiegi na ciało bez igieł: modelowanie sylwetki, cellulit, ujędrnianie, endermologia, kriolipoliza, body wrapping, peeling ciała",
+   "not_for": "masaż, depilacja, iniekcje",
+   "examples": [
+    "endermologia LPG",
+    "kriolipoliza",
+    "body wrapping",
+    "fale radiowe na brzuch",
+    "peeling całego ciała"
+   ]
+  },
+  "medycyna estetyczna": {
+   "what": "zabiegi z igłą lub lekarskie: toksyna botulinowa, kwas hialuronowy, stymulatory tkankowe, mezoterapia igłowa, osocze, nici, lipoliza iniekcyjna, radiofrekwencja mikroigłowa, lasery ablacyjne",
+   "not_for": "zabiegi kosmetyczne bez igieł, botoks na włosy",
+   "examples": [
+    "botoks",
+    "powiększanie ust",
+    "wolumetria",
+    "mezoterapia igłowa",
+    "nici PDO",
+    "osocze bogatopłytkowe"
+   ]
+  },
+  "depilacja": {
+   "what": "usuwanie owłosienia z ciała i twarzy: wosk, pasta cukrowa, laser, IPL, elektroepilacja",
+   "not_for": "regulacja brwi, golenie i trymowanie brody",
+   "examples": [
+    "depilacja woskiem nóg",
+    "depilacja laserowa pach",
+    "pasta cukrowa bikini",
+    "elektroepilacja"
+   ]
+  },
+  "masaż": {
+   "what": "masaże ciała, twarzy i części ciała: klasyczny, relaksacyjny, leczniczy, drenaż limfatyczny, masaże orientalne i gorącymi kamieniami",
+   "not_for": "fizjoterapia i rehabilitacja, rytuały spa łączące kilka zabiegów",
+   "examples": [
+    "masaż klasyczny",
+    "masaż relaksacyjny",
+    "drenaż limfatyczny",
+    "masaż tajski",
+    "masaż gorącymi kamieniami"
+   ]
+  },
+  "fizjoterapia": {
+   "what": "rehabilitacja i terapia narządu ruchu: terapia manualna, osteopatia, fala uderzeniowa, taping, suche igłowanie, fizjoterapia uroginekologiczna, elektroterapia",
+   "not_for": "masaż relaksacyjny",
+   "examples": [
+    "terapia manualna",
+    "fala uderzeniowa",
+    "kinesiotaping",
+    "osteopatia",
+    "konsultacja fizjoterapeutyczna"
+   ]
+  },
+  "makijaż": {
+   "what": "makijaż okolicznościowy, ślubny, wieczorowy, dzienny i nauka makijażu",
+   "not_for": "makijaż permanentny",
+   "examples": [
+    "makijaż ślubny",
+    "makijaż wieczorowy",
+    "makijaż próbny",
+    "lekcja makijażu"
+   ]
+  },
+  "makijaż permanentny i tatuaż": {
+   "what": "pigmentacja skóry: makijaż permanentny brwi, ust i kresek, tatuaż, a także usuwanie makijażu permanentnego i tatuażu",
+   "not_for": "henna brwi, przekłuwanie",
+   "examples": [
+    "makijaż permanentny brwi",
+    "brwi pudrowe",
+    "tatuaż",
+    "laserowe usuwanie tatuażu",
+    "dopigmentowanie"
+   ]
+  },
+  "piercing": {
+   "what": "przekłuwanie uszu i ciała, wymiana i skracanie biżuterii",
+   "not_for": "tatuaż",
+   "examples": [
+    "przekłucie uszu",
+    "helix",
+    "przekłucie nosa",
+    "wymiana biżuterii"
+   ]
+  },
+  "stomatologia": {
+   "what": "leczenie, higiena i estetyka zębów: higienizacja, wybielanie, leczenie kanałowe, ortodoncja, protetyka, implanty",
+   "not_for": "biżuteria nazębna bez zabiegu stomatologicznego",
+   "examples": [
+    "higienizacja",
+    "wybielanie zębów",
+    "leczenie kanałowe",
+    "wypełnienie",
+    "aparat ortodontyczny"
+   ]
+  },
+  "zdrowie i psychologia": {
+   "what": "konsultacje i usługi lekarzy, psychologów i psychoterapeutów, badania, akupunktura i terapie niekonwencjonalne",
+   "not_for": "fizjoterapia, dietetyka",
+   "examples": [
+    "konsultacja psychologiczna",
+    "psychoterapia",
+    "konsultacja dermatologiczna",
+    "badania krwi",
+    "akupunktura"
+   ]
+  },
+  "dietetyka i trening": {
+   "what": "konsultacje dietetyczne, trening personalny, joga i zajęcia ruchowe, analiza składu ciała",
+   "not_for": "zabiegi modelujące ciało",
+   "examples": [
+    "konsultacja dietetyczna",
+    "trening personalny",
+    "joga",
+    "analiza składu ciała"
+   ]
+  },
+  "spa i wellness": {
+   "what": "rytuały spa łączące kilka zabiegów, sauna, kąpiele, solarium, pakiety relaksacyjne",
+   "not_for": "pojedynczy masaż albo pojedynczy zabieg na twarz",
+   "examples": [
+    "rytuał spa",
+    "sauna",
+    "kąpiel relaksacyjna",
+    "solarium"
+   ]
+  },
+  "zwierzęta": {
+   "what": "pielęgnacja, kąpiel i strzyżenie zwierząt",
+   "not_for": "usługi dla ludzi",
+   "examples": [
+    "strzyżenie psa",
+    "kąpiel psa",
+    "trymowanie psa",
+    "pielęgnacja kota"
+   ]
+  },
+  "szkolenia i kursy": {
+   "what": "szkolenia i kursy dla osób uczących się zawodu",
+   "not_for": "zabieg wykonywany klientowi",
+   "examples": [
+    "szkolenie z przedłużania rzęs",
+    "kurs makijażu",
+    "szkolenie z modelowania ust"
+   ]
+  },
+  "inne usługi": {
+   "what": "usługi spoza urody i zdrowia: motoryzacja, korepetycje, nauka jazdy, wynajem sali, sprzątanie",
+   "not_for": "usługi urody i zdrowia",
+   "examples": [
+    "detailing samochodu",
+    "korepetycje",
+    "nauka jazdy",
+    "wynajem sali"
+   ]
+  }
+ },
+ "zabiegi": {
+  "masaż": {
+   "masaż": {
+    "n": 866,
+    "examples": [
+     "masaż relaksacyjny",
+     "masaż gorącymi kamieniami",
+     "masaż twarzy"
+    ],
+    "odmiany": {
+     "kobido": {
+      "n": 164,
+      "examples": [
+       "masaż kobido",
+       "kobido",
+       "masaż twarzy kobido"
+      ],
+      "odmiany": {
+       "transbukalny": {
+        "n": 9,
+        "examples": [
+         "Kobido + masaż transbukalny",
+         "Masaż twarzy Kobido + masaż transbukalny",
+         "Kobido Trans"
+        ],
+        "odmiany": {}
+       },
+       "lift": {
+        "n": 7,
+        "examples": [
+         "Masaż Kobido Classic Lift",
+         "Kobido Lift + maska (90 minut)",
+         "Kobido Lift (60 minut)"
+        ],
+        "odmiany": {}
+       },
+       "kinesiotaping": {
+        "n": 5,
+        "examples": [
+         "Masaż Kobido + kinesiotaping",
+         "Masaż Kobido up + kinesiotaping",
+         "Masaż Kobido + Kinesiotaping"
+        ],
+        "odmiany": {}
+       }
+      }
+     },
+     "drenaż limfatyczny": {
+      "n": 99,
+      "examples": [
+       "drenaż limfatyczny",
+       "drenaż limfatyczny manualny",
+       "drenaż limfatyczny twarzy"
+      ]
+     },
+     "masaż leczniczy": {
+      "n": 93,
+      "examples": [
+       "masaż leczniczy",
+       "masaż tkanek głębokich",
+       "masaż terapeutyczny"
+      ],
+      "odmiany": {
+       "głębokich": {
+        "n": 18,
+        "examples": [
+         "Autorski masaż tkanek głębokich",
+         "Masaż tkanek głębokich/leczniczy",
+         "Masaż Głęboki relaks (plecy i głowa)"
+        ],
+        "odmiany": {}
+       },
+       "napięć": {
+        "n": 6,
+        "examples": [
+         "Zmęczenie, napięcie mięśni → masaż ciała",
+         "Masaż twarzy – terapia napięć",
+         "MASAŻ KLASYCZNY – TERAPIA NAPIĘĆ"
+        ],
+        "odmiany": {}
+       },
+       "sportowy": {
+        "n": 5,
+        "examples": [
+         "Masaż Sportowy/regeneracyjny",
+         "Masaż sportowy",
+         "Masaż sportowy tkanek głębokich"
+        ],
+        "odmiany": {}
+       },
+       "klasyczny": {
+        "n": 4,
+        "examples": [
+         "Terapeutyczny Masaż Klasyczny",
+         "Masaż klasyczny (leczniczy)",
+         "Masaż klasyczny/ relaksacyjny/leczniczy 1h"
+        ],
+        "odmiany": {}
+       }
+      }
+     },
+     "masaż bańką chińską": {
+      "n": 101,
+      "examples": [
+       "masaż bańką chińską",
+       "masaż antycellulitowy bańką chińską",
+       "antycellulitowy masaż bańką chińską"
+      ],
+      "odmiany": {
+       "bańka": {
+        "n": 22,
+        "examples": [
+         "Bańki ogniowe na odporność",
+         "Masaż pleców + bańki próżniowe",
+         "Bańki ogniowe DODATEK do masażu pleców, nóg i stóp"
+        ],
+        "odmiany": {}
+       },
+       "antycellulitowy": {
+        "n": 13,
+        "examples": [
+         "Antycellulitowy masaż bańką chińską",
+         "Masaż bańką chińską antycellulitowy",
+         "Masaż Antycellulitowy Bańką"
+        ],
+        "odmiany": {}
+       }
+      }
+     },
+     "refleksologia": {
+      "n": 53,
+      "examples": [
+       "refleksologia stóp",
+       "masaż stóp z elementami refleksologii",
+       "masaż stóp z elementami refleksoterapii"
+      ]
+     },
+     "masaż antycellulitowy": {
+      "n": 46,
+      "examples": [
+       "masaż antycellulitowy",
+       "madero- masaz antycellulitowy - 90 min.",
+       "masaż antycelulitowy"
+      ]
+     },
+     "masaż liftingujący": {
+      "n": 43,
+      "examples": [
+       "facemodeling",
+       "face lift-up therapy",
+       "facemodeling®"
+      ],
+      "odmiany": {
+       "facelift": {
+        "n": 6,
+        "examples": [
+         "💆‍♀Liftingujący masaż twarzy FaceLift ±60 min•",
+         "FACELIFT Marie Margo®",
+         "FaceLift Marie Margo - rytuał rozszerzony"
+        ],
+        "odmiany": {}
+       },
+       "facemodeling": {
+        "n": 6,
+        "examples": [
+         "FACEMODELING",
+         "FACEMODELING® MASTER - odmładzająca terapia twarzy",
+         "Facemodeling"
+        ],
+        "odmiany": {}
+       }
+      }
+     },
+     "masaż transbukalny": {
+      "n": 27,
+      "examples": [
+       "masaż transbukalny",
+       "masaż transbukalny z elementami faceliftingu",
+       "masaż transbukalny + lifting czoła i powiek"
+      ]
+     },
+     "masaż gorącą świecą": {
+      "n": 26,
+      "examples": [
+       "masaż gorącą świecą",
+       "masaż świecą",
+       "masaż ciała świecą lorient"
+      ]
+     },
+     "masaż powięziowy": {
+      "n": 25,
+      "examples": [
+       "masaż powięziowy",
+       "siła relaksu – powięziowy masaż tkanek głębokich",
+       "masaż tkanek głębokich / mięśniowo - powięziowy"
+      ]
+     },
+     "ajurwedyjski": {
+      "n": 23,
+      "examples": [
+       "masaż peelingujący",
+       "sekret ajurwedy dla dwojga",
+       "masaż kosmetyczny-peelingujący"
+      ],
+      "odmiany": {
+       "gorącymi": {
+        "n": 5,
+        "examples": [
+         "masaż całego ciała gorącymi olejami -Abhyanga",
+         "masaż pleców gorącymi olejami -Abhyanga",
+         "Masaż gorącymi kamieniami całego ciała-Ratnaabhyan"
+        ],
+        "odmiany": {}
+       },
+       "relaksacyjny": {
+        "n": 4,
+        "examples": [
+         "masaż relaksacyjny z peelingiem ciała",
+         "Masaż relaksacyjny z peelingiem",
+         "Masaż Relaksacyjny na bazie 99,9% Aloesu + peeling"
+        ],
+        "odmiany": {}
+       },
+       "kamieniami": {
+        "n": 3,
+        "examples": [
+         "Ratnaabyanga - masaż kamieniami",
+         "Masaż gorącymi kamieniami całego ciała-Ratnaabhyan",
+         "Masaż pleców gorącymi kamieniami"
+        ],
+        "odmiany": {}
+       }
+      }
+     },
+     "masaż stemplami ziołowymi": {
+      "n": 13,
+      "examples": [
+       "masaż stemplami ziołowymi",
+       "masaż gorącymi stemplami ziołowymi",
+       "masaż stemplami ziołowymi dla dwojga"
+      ]
+     },
+     "masaż prenatalny": {
+      "n": 9,
+      "examples": [
+       "masaż dla kobiet w ciąży",
+       "🤰masaż dla kobiet w ciąży/ massage for pregnant",
+       "masaż prenatalny"
+      ]
+     },
+     "masaż miodowy": {
+      "n": 6,
+      "examples": [
+       "masaż miodem",
+       "masaz miodowy",
+       "masaż miodowy"
+      ]
+     },
+     "masaż japoński": {
+      "n": 6,
+      "examples": [
+       "japoński lifting twarzy +transbukalny +tapy",
+       "masaż shiatsu zen dla dzieci (od 5 roku życia)",
+       "masaż twarzy tsuboki"
+      ]
+     },
+     "endermologia": {
+      "n": 3,
+      "examples": [
+       "masaż dermotlenowy",
+       "dermomasaż twarzy",
+       "masaż endermolift lpg –twarz+ szyja+ dekolt 60 min"
+      ]
+     }
+    }
+   },
+   "endomasaż": {
+    "n": 15,
+    "examples": [
+     "dermomasaż uda + pośladki",
+     "dermomasaż brzuch + boczki",
+     "dermomasaż - uda + pośladki + brzuch z boczkami"
+    ],
+    "odmiany": {}
+   },
+   "maderoterapia": {
+    "n": 13,
+    "examples": [
+     "maderoterapia twarzy (maderolift)",
+     "masaż maderolift z falami radiowymi",
+     "maderoterapia ujędrniająco drenujący"
+    ],
+    "odmiany": {}
+   },
+   "access bars": {
+    "n": 13,
+    "examples": [
+     "access bars",
+     "3 access bars",
+     "acces bars"
+    ],
+    "odmiany": {}
+   },
+   "peeling ciała": {
+    "n": 3,
+    "examples": [
+     "peeling ciała w masażu relaksacyjnym",
+     "masaż peelingujący",
+     "peeling z masażem"
+    ],
+    "odmiany": {}
+   },
+   "terapia blizn": {
+    "n": 3,
+    "examples": [
+     "terapia blizny",
+     "🟫 terapia blizn",
+     "terapia blizn"
+    ],
+    "odmiany": {}
+   }
+  },
+  "stopy — podologia": {
+   "zabieg": {
+    "n": 5,
+    "examples": [
+     "opracowanie odcisku, modzeli, tamponada",
+     "skalpel",
+     "pododysk"
+    ],
+    "odmiany": {
+     "zabieg podologiczny": {
+      "n": 401,
+      "examples": [
+       "terapia onycholizy",
+       "podstawowy zabieg podologiczny",
+       "rozszerzony zabieg podologiczny"
+      ],
+      "odmiany": {
+       "skalpelem": {
+        "n": 12,
+        "examples": [
+         "Opracowanie skalpelem stóp",
+         "Pedicure skalpelem",
+         "Opracowanie pięt skalpelem"
+        ],
+        "odmiany": {}
+       },
+       "krwiaka": {
+        "n": 11,
+        "examples": [
+         "Krwiak podpaznokciowy - usunięcie",
+         "Usuwanie krwiaka podpaznokciowego\n\ndo 24 godzin",
+         "Odbarczenie krwiaka podpaznokciowego/Opatrunek"
+        ],
+        "odmiany": {}
+       },
+       "zrogowaceń": {
+        "n": 9,
+        "examples": [
+         "Opracowanie podeszwy stóp (Usunięcie zrogowaceń)",
+         "Opracowanie zrogowaceń- Zabieg zaawansowany",
+         "Opracowanie zrogowaciałych podeszw / rozpadlin"
+        ],
+        "odmiany": {}
+       },
+       "pękających": {
+        "n": 6,
+        "examples": [
+         "Pękające pięty- rozpadliny",
+         "Opracowanie pękających pięt",
+         "Pękające pięty"
+        ],
+        "odmiany": {}
+       }
+      }
+     },
+     "usunięcie odcisku": {
+      "n": 27,
+      "examples": [
+       "usunięcie odcisku",
+       "usuwanie odcisków",
+       "usunięcie odcisków i modzeli"
+      ]
+     },
+     "tamponada": {
+      "n": 15,
+      "examples": [
+       "tamponada",
+       "założenie tamponady",
+       "tamponada sucha 1 szt."
+      ]
+     }
+    }
+   },
+   "pedicure": {
+    "n": 12,
+    "examples": [
+     "obcięcie i oszlifowanie paznokci zdrowych",
+     "pedicure podstawowy",
+     "opracowanie oraz obcięcie paznokci"
+    ],
+    "odmiany": {
+     "pedicure leczniczy": {
+      "n": 186,
+      "examples": [
+       "pedicure podologiczny",
+       "pedicure leczniczy",
+       "pedicure podologiczny podstawowy"
+      ]
+     },
+     "pedicure hybrydowy": {
+      "n": 5,
+      "examples": [
+       "pedicure hybrydowy plus skalpel(usuwanie odcisków)",
+       "pedicure hybrydowy",
+       "pedicure podologiczny skalpelem z hybrydą"
+      ]
+     }
+    }
+   },
+   "brodawki wirusowe": {
+    "n": 106,
+    "examples": [
+     "terapia brodawek wirusowych",
+     "brodawki wirusowe",
+     "terapia brodawki wirusowej"
+    ],
+    "odmiany": {}
+   },
+   "klamra ortonyksyjna": {
+    "n": 94,
+    "examples": [
+     "wrastający paznokieć",
+     "terapia wrastającego paznokcia",
+     "kontrola wrastającego paznokcia"
+    ],
+    "odmiany": {
+     "podcięcie": {
+      "n": 36,
+      "examples": [
+       "Podcięcie 1 wrastającego paznokcia",
+       "podcięcie wrastającego paznokcia z opatrunkiem",
+       "Podcięcie Wrastającego Paznokcia + Opatrunek"
+      ],
+      "odmiany": {}
+     },
+     "wycięcie": {
+      "n": 6,
+      "examples": [
+       "Opracowanie i wycięcie wrastającego paznokcia",
+       "Wycięcie wrastającego paznokcia.",
+       "Wrastające paznokcie-wycięcie fragmentu paznokcia"
+      ],
+      "odmiany": {}
+     },
+     "tamponada": {
+      "n": 5,
+      "examples": [
+       "Podcięcie i tamponada wrastającego paznokcia",
+       "Podcięcie wrastającego paznokcia +tamponada",
+       "Korekta wrastającego paznokcia- tamponada"
+      ],
+      "odmiany": {}
+     },
+     "klinowe": {
+      "n": 4,
+      "examples": [
+       "Klinowe Podcięcie Wrastającego Paznokcia",
+       "PODCIĘCIE KLINOWE WRASTAJĄCEGO PAZNOKCIA",
+       "Podcięcie klinowe wrastającego paznokcia"
+      ],
+      "odmiany": {}
+     },
+     "przerośniętych": {
+      "n": 4,
+      "examples": [
+       "Paznokcie przerośnięte - głębokie opracowanie",
+       "Opracowanie paznokci przerośniętych/ onychogryfoza",
+       "Skrócenie i opracowanie paznokci przerośniętych"
+      ],
+      "odmiany": {}
+     }
+    }
+   },
+   "naprawa paznokcia": {
+    "n": 22,
+    "examples": [
+     "naprawa paznokcia u stopy",
+     "rekonstrukcja płytki paznokcia",
+     "rekonstrukcja/ naprawa paznokcia u stopy"
+    ],
+    "odmiany": {}
+   },
+   "konsultacja podologiczna": {
+    "n": 19,
+    "examples": [
+     "konsultacja podologiczna",
+     "wizyta kontrolna",
+     "konsultacja"
+    ],
+    "odmiany": {
+     "diagnoza": {
+      "n": 6,
+      "examples": [
+       "badanie mykologiczne",
+       "konsultacja podologiczna",
+       "badanie mykologiczne i pobranie materiału"
+      ]
+     }
+    }
+   },
+   "badanie": {
+    "n": 5,
+    "examples": [
+     "badanie mykologiczne z pobraniem materiału",
+     "pobranie materiału do badania mykologicznego",
+     "badanie mykologiczne"
+    ],
+    "odmiany": {}
+   },
+   "manicure": {
+    "n": 3,
+    "examples": [
+     "onycholiza - opracowanie 1 paznokcia",
+     "onycholiza - opracowanie 2 paznokci",
+     "manicure leczniczy"
+    ],
+    "odmiany": {
+     "onycholizy": {
+      "n": 49,
+      "examples": [
+       "Zabieg Pielęgnacyjny+ Onycholiza",
+       "Usuwanie onycholizy",
+       "Onycholiza"
+      ],
+      "odmiany": {}
+     },
+     "oczyszczenie": {
+      "n": 24,
+      "examples": [
+       "Oczyszczenie paznokcia zmienionego chorobowo",
+       "Oczyszczenie paznokci zmienionych chorobowo",
+       "Oczyszczenie paznokcia z onycholizą"
+      ],
+      "odmiany": {}
+     },
+     "grzybiczych": {
+      "n": 9,
+      "examples": [
+       "Oczyszczanie paznokcia grzybiczego",
+       "Opracowanie paznokci  grzybiczych i bakteryjnych 2",
+       "Opracowanie paznokcie grzybiczych i bakteryjnych 3"
+      ],
+      "odmiany": {}
+     },
+     "bakteryjnych": {
+      "n": 4,
+      "examples": [
+       "ONYCHOLIZA/ZIELONA BAKTERIA",
+       "Opracowanie paznokci  grzybiczych i bakteryjnych 2",
+       "Opracowanie paznokcie grzybiczych i bakteryjnych 3"
+      ],
+      "odmiany": {}
+     }
+    }
+   }
+  },
+  "depilacja": {
+   "depilacja": {
+    "n": 110,
+    "examples": [
+     "ręce",
+     "ręce do łokcia",
+     "depilacja wąsika"
+    ],
+    "odmiany": {
+     "depilacja laserowa": {
+      "n": 313,
+      "examples": [
+       "depilacja laserowa całe ręce",
+       "depilacja laserowa ręce",
+       "ręce do łokcia"
+      ]
+     },
+     "depilacja woskiem": {
+      "n": 103,
+      "examples": [
+       "ręce",
+       "bikini głębokie",
+       "ręce do łokcia"
+      ]
+     },
+     "depilacja laserowa vectus": {
+      "n": 24,
+      "examples": [
+       "depilacja laserowa brzuch",
+       "łydki + kolana + stopy",
+       "łydki"
+      ]
+     }
+    }
+   },
+   "woskowanie": {
+    "n": 21,
+    "examples": [
+     "depilacja woskiem - broda",
+     "broda",
+     "depilacja woskiem wąsik/broda/policzka/żuchwa"
+    ],
+    "odmiany": {
+     "woskiem": {
+      "n": 6,
+      "examples": [
+       "Depilacja woskiem - wąsik",
+       "Depilacja woskiem - brwi",
+       "Konchowanie + depilacja uszu woskiem dla Mężczyzn"
+      ],
+      "odmiany": {}
+     },
+     "wosk": {
+      "n": 3,
+      "examples": [
+       "Ręce do łokcia (wosk)",
+       "Ręce do łokci wosk",
+       "Wosk ręce"
+      ],
+      "odmiany": {}
+     }
+    }
+   },
+   "elektroepilacja": {
+    "n": 3,
+    "examples": [
+     "konsultacja+ próba 30min",
+     "elektroepilacja 2 godziny",
+     "elektroepilacja 1 godzina"
+    ],
+    "odmiany": {}
+   }
+  },
+  "brwi i rzęsy": {
+   "przedłużanie": {
+    "n": 7,
+    "examples": [
+     "zdjęcie rzęs",
+     "szybkie uzupełnienie",
+     "zdjęcie wszystkich rzęs"
+    ],
+    "odmiany": {
+     "przedłużanie rzęs": {
+      "n": 209,
+      "examples": [
+       "przedłużanie rzęs 1:1",
+       "przedłużanie rzęs 2:1",
+       "uzupełnienie rzęs 1:1 do 3 tyg"
+      ]
+     }
+    }
+   },
+   "stylizacja brwi i rzęs": {
+    "n": 130,
+    "examples": [
+     "henna brwi i rzęs z regulacją",
+     "henna rzęs i brwi z regulacją",
+     "henna brwi i rzęs + regulacja"
+    ],
+    "odmiany": {}
+   },
+   "stylizacja brwi": {
+    "n": 129,
+    "examples": [
+     "regulacja brwi",
+     "henna brwi + regulacja",
+     "henna + regulacja brwi"
+    ],
+    "odmiany": {
+     "regulacja": {
+      "n": 107,
+      "examples": [
+       "Farbka brwi+regulacja",
+       "Farbka brwi + regulacja",
+       "Koloryzacja Farbką+ Geometria+ Regulacja"
+      ],
+      "odmiany": {}
+     },
+     "henna": {
+      "n": 47,
+      "examples": [
+       "Henna brwi + regulacja",
+       "Henna pudrowa z regulacja i geometria",
+       "Henna pudrowa brwi z regulacją (pęsetą/wosk)"
+      ],
+      "odmiany": {}
+     },
+     "geometria": {
+      "n": 10,
+      "examples": [
+       "Henna pudrowa z regulacja i geometria",
+       "Regulacja Brwi+ Geometria",
+       "Henna Pudrowa + Geometria + Regulacja"
+      ],
+      "odmiany": {}
+     },
+     "woskiem": {
+      "n": 8,
+      "examples": [
+       "Regulacja Brwi (woskiem+pęseta)",
+       "Henna brwi / Regulacja woskiem",
+       "Regulacja brwi manualna/ woskiem"
+      ],
+      "odmiany": {}
+     },
+     "depilacja": {
+      "n": 4,
+      "examples": [
+       "Regulacja brwi i depilacja wąsika",
+       "Henna brwi+regulacja+depilacja wąsika/twarzy",
+       "Farbowanie + depilacja"
+      ],
+      "odmiany": {}
+     }
+    }
+   },
+   "regulacja": {
+    "n": 3,
+    "examples": [
+     "regulacja",
+     "henna z regulacją"
+    ],
+    "odmiany": {
+     "regulacja brwi": {
+      "n": 103,
+      "examples": [
+       "regulacja brwi",
+       "regulacja brwi woskiem",
+       "regulacja brwi męskich"
+      ]
+     }
+    }
+   },
+   "laminacja": {
+    "n": 88,
+    "examples": [
+     "laminacja brwi",
+     "laminacja rzęs",
+     "laminacja brwi z farbką"
+    ],
+    "odmiany": {
+     "farbka": {
+      "n": 30,
+      "examples": [
+       "Laminacja brwi bez farbowania +regulacja",
+       "Laminacja brwi z regulacją i farbowaniem",
+       "Laminacja brwi + regulacja + farbowanie"
+      ],
+      "odmiany": {}
+     },
+     "botox": {
+      "n": 3,
+      "examples": [
+       "Laminacja Brwi + Farbka + Botox",
+       "Laminacja brwi + farbka + botox",
+       "Laminacja Brwi + Botox + Farbka"
+      ],
+      "odmiany": {}
+     }
+    }
+   },
+   "koloryzacja": {
+    "n": 59,
+    "examples": [
+     "henna brwi",
+     "henna rzęs",
+     "farbowanie rzęs"
+    ],
+    "odmiany": {
+     "henna": {
+      "n": 35,
+      "examples": [
+       "Henna",
+       "henna pudrowa brwi",
+       "HENNA PUDROWA"
+      ],
+      "odmiany": {}
+     },
+     "farbka": {
+      "n": 23,
+      "examples": [
+       "Farbka na brwi",
+       "Farbowanie rzęs farbka",
+       "Farbka na rzęsy + brwi + wosk STAŁE KLIENTKI"
+      ],
+      "odmiany": {}
+     }
+    }
+   },
+   "lifting": {
+    "n": 18,
+    "examples": [
+     "zdjęcie rzęs",
+     "lifting rzęs",
+     "lifting rzęs + koloryzacja + botox"
+    ],
+    "odmiany": {}
+   },
+   "nitkowanie": {
+    "n": 10,
+    "examples": [
+     "regulacja brwi pęsetą",
+     "strzyżenie, nitkowanie i przycinanie brwi",
+     "brwi"
+    ],
+    "odmiany": {}
+   },
+   "eyeliner": {
+    "n": 3,
+    "examples": [
+     "kreska zagęszczająca linię rzęs",
+     "efekt strzałki/linera",
+     "korekta"
+    ],
+    "odmiany": {}
+   }
+  },
+  "paznokcie": {
+   "pedicure": {
+    "n": 88,
+    "examples": [
+     "pedicure bez malowania",
+     "pedicure",
+     "pedicure bez hybrydy"
+    ],
+    "odmiany": {
+     "pedicure hybrydowy": {
+      "n": 191,
+      "examples": [
+       "pedicure hybrydowy",
+       "pedicure hybrydowy spa",
+       "pedicure hybrydowy (tylko palce)"
+      ]
+     },
+     "pedicure leczniczy": {
+      "n": 18,
+      "examples": [
+       "opracowanie podeszwy",
+       "pedicure z opracowaniem małych zrogowaceń",
+       "🩷 usunięcie rekonstrukcji + nowa rekonstrukcja"
+      ]
+     }
+    }
+   },
+   "manicure": {
+    "n": 59,
+    "examples": [
+     "ściągnięcie żelu/hybrydy + manicure higieniczny",
+     "opiłowanie i polerowanie paznokci",
+     "usunięcie stylizacji"
+    ],
+    "odmiany": {
+     "manicure hybrydowy": {
+      "n": 190,
+      "examples": [
+       "manicure hybrydowy",
+       "manicure hybrydowy kolor",
+       "manicure hybrydowy ze wzmocnieniem"
+      ],
+      "odmiany": {
+       "ściągnięcie": {
+        "n": 8,
+        "examples": [
+         "Ściągnięcie hybrydy (z opracowaniem)",
+         "Ściągnięcie hybrydy (manicure + odżywka ) ze stóp",
+         "Manicure hybrydowy + ściągnięcie"
+        ],
+        "odmiany": {}
+       },
+       "budującą": {
+        "n": 6,
+        "examples": [
+         "Manicure hybrydowy z bazą budującą(nadbudowa)",
+         "Manicure hybrydowy + baza budująca (ANIA)",
+         "Manicure hybrydowy z bazą budującą"
+        ],
+        "odmiany": {}
+       }
+      }
+     },
+     "manicure klasyczny": {
+      "n": 42,
+      "examples": [
+       "manicure męski",
+       "ściągnięcie żelu + manicure klasyczny",
+       "ściągnięcie hybrydy/żelu + manicure klasyczny"
+      ],
+      "odmiany": {
+       "ściągnięcie": {
+        "n": 41,
+        "examples": [
+         "Ściągnięcie hybrydy/żelu u rąk+manicure klasyczny",
+         "Ściągnięcie żelu+ manicure klasyczny z odżywka",
+         "Ściąganie żelu/hybrydy+manicure kosmetyczny"
+        ],
+        "odmiany": {}
+       },
+       "higieniczny": {
+        "n": 11,
+        "examples": [
+         "Usunięcie żelu/hybrydy+manicure higieniczny",
+         "100zlŚciągnięcie żelu/hybrydy+manicure higieniczny",
+         "Ściągnięcie żelu/hybrydy + Manicure higieniczny"
+        ],
+        "odmiany": {}
+       },
+       "kosmetyczny": {
+        "n": 3,
+        "examples": [
+         "Ściąganie żelu/hybrydy+manicure kosmetyczny",
+         "Ściąganie żelu/hybrydy + manicure kosmetyczny",
+         "Ściągnięcie hybrydy/żelu + manicure kosmetyczny"
+        ],
+        "odmiany": {}
+       }
+      }
+     },
+     "manicure żelowy": {
+      "n": 36,
+      "examples": [
+       "ściągniecie żelu wykończone odżywką (+manicure)",
+       "usunięcie żelu + manicure",
+       "ściągnięcie żelu +manicure"
+      ]
+     },
+     "malowanie paznokci": {
+      "n": 21,
+      "examples": [
+       "manicure z malowaniem",
+       "manicure z malowaniem lakierem klasycznym",
+       "manicure z malowaniem zwykłym lakierem"
+      ]
+     },
+     "manicure japoński": {
+      "n": 8,
+      "examples": [
+       "manicure japoński",
+       "ściągnięcie hybrydy / żelu + manicure japoński",
+       "zdjęcie hybrydy oraz manicure japoński"
+      ]
+     },
+     "manicure kombinowany": {
+      "n": 5,
+      "examples": [
+       "zdjęcie + manicure kombinowany",
+       "manicure cążkowy, frezarkowy",
+       "frezowanie stóp"
+      ]
+     }
+    }
+   },
+   "naprawa paznokcia": {
+    "n": 103,
+    "examples": [
+     "naprawa paznokcia",
+     "rekonstrukcja paznokcia",
+     "rekonstrukcja paznokci obgryzionych"
+    ],
+    "odmiany": {}
+   },
+   "zabieg parafinowy": {
+    "n": 73,
+    "examples": [
+     "parafina na dłonie",
+     "zabieg parafinowy na dłonie",
+     "zabieg parafinowy"
+    ],
+    "odmiany": {}
+   },
+   "korekta paznokci": {
+    "n": 50,
+    "examples": [
+     "uzupełnienie żelowe",
+     "uzupełnienie paznokci żelowych",
+     "uzupełnienie paznokci(długość 1-2)"
+    ],
+    "odmiany": {}
+   },
+   "przedłużanie paznokci": {
+    "n": 22,
+    "examples": [
+     "przedłużanie paznokcie do 1",
+     "usunięcie przedłużonych paznokci",
+     "przedłużanie paznokci krótki (tylko gotówka)"
+    ],
+    "odmiany": {}
+   },
+   "zdobienie paznokci": {
+    "n": 21,
+    "examples": [
+     "zdobienia",
+     "zdobienia paznokci",
+     "french manicure/pedicure"
+    ],
+    "odmiany": {
+     "french": {
+      "n": 6,
+      "examples": [
+       "Manicure hybrydowy french",
+       "Pedicure kwasem Callupeel+french",
+       "Pedicure flesz/palcy/french"
+      ],
+      "odmiany": {}
+     },
+     "pedicure": {
+      "n": 4,
+      "examples": [
+       "Pedicure kwasem Callupeel+french",
+       "Pedicure flesz/palcy/french",
+       "French pedicure"
+      ],
+      "odmiany": {}
+     },
+     "manicure": {
+      "n": 3,
+      "examples": [
+       "Manicure hybrydowy french",
+       "Manicure Hybrydowy+ Żel+ French/ Zdobienie",
+       "French Manicure/pedicure"
+      ],
+      "odmiany": {}
+     }
+    }
+   },
+   "malowanie hybrydowe": {
+    "n": 15,
+    "examples": [
+     "zdjęcie hybrydy bez manicure",
+     "malowanie paznokci stóp lakierem hybrydowym",
+     "malowanie hybrydowe (stopy)"
+    ],
+    "odmiany": {
+     "pedicure": {
+      "n": 68,
+      "examples": [
+       "Pedicure SPA z malowaniem paznokci hybryda",
+       "Pedicure Hybrydowy Bez Opracowywania Podeszwy",
+       "Pedicure hybrydowy bez opracowania podeszwy stopy"
+      ],
+      "odmiany": {}
+     },
+     "manicure": {
+      "n": 8,
+      "examples": [
+       "Ściągnięcie hybrydy u stóp (bez manicure)",
+       "Manicure + pedicure malowanie 1 kolor",
+       "Manicure hybrydowy (Malowanie lakierem hybrydowym)"
+      ],
+      "odmiany": {}
+     },
+     "frezowanie": {
+      "n": 4,
+      "examples": [
+       "Pedicure hybrydowy + frezowanie podeszwy",
+       "Pedicure hybrydowy (bez frezowania podeszwy)",
+       "Pedicure SPA (hybryda + frezowanie)"
+      ],
+      "odmiany": {}
+     },
+     "ściągnięcie": {
+      "n": 3,
+      "examples": [
+       "Ściągnięcie hybrydy u stóp (bez manicure)",
+       "Ściągnięcie hybry/żelu u rąk (bez manicure)",
+       "Ściągnięcie hybrydy"
+      ],
+      "odmiany": {}
+     }
+    }
+   },
+   "spa": {
+    "n": 3,
+    "examples": [
+     "spa",
+     "owocowe spa dla stóp",
+     "zabieg spa na dłonie"
+    ],
+    "odmiany": {}
+   }
+  },
+  "włosy": {
+   "strzyżenie": {
+    "n": 158,
+    "examples": [
+     "strzyżenie męskie",
+     "strzyżenie damskie",
+     "strzyżenie damskie średnie"
+    ],
+    "odmiany": {
+     "buzzcut": {
+      "n": 32,
+      "examples": [
+       "strzyżenie na jedną długość",
+       "buzz cut",
+       "strzyżenie maszynką na jedną długość"
+      ]
+     }
+    }
+   },
+   "koloryzacja": {
+    "n": 23,
+    "examples": [
+     "koloryzacja + olaplex: cennik opis poniżej ( z...",
+     "koloryzacja cennik opis poniżej:",
+     "koloryzacja i pielęgnacja premium"
+    ],
+    "odmiany": {
+     "koloryzacja wielotonowa": {
+      "n": 87,
+      "examples": [
+       "air touch",
+       "airtouch",
+       "air touch włosy do ramion"
+      ]
+     },
+     "koloryzacja globalna": {
+      "n": 49,
+      "examples": [
+       "farbowanie włosy długie",
+       "koloryzacja jednolita włosy krótkie",
+       "farbowanie całkowite ze strzyżeniem"
+      ]
+     },
+     "refleksy": {
+      "n": 39,
+      "examples": [
+       "odrost",
+       "refleksy",
+       "refleksy- włosy bardzo długie"
+      ]
+     },
+     "cover": {
+      "n": 6,
+      "examples": [
+       "cover",
+       "cover włosów + strzyżenie",
+       "(vege) farbowanie odrost - bez amoniaku oliwia"
+      ]
+     }
+    }
+   },
+   "rozjaśnianie": {
+    "n": 26,
+    "examples": [
+     "rozjaśnianie włosów",
+     "koloryzacja męska rozjaśnianie + tonowanie",
+     "krótkie włosy farba+pojaśnienie+strzyżenie"
+    ],
+    "odmiany": {
+     "baleyage": {
+      "n": 75,
+      "examples": [
+       "air touch",
+       "baleyage",
+       "airtouch"
+      ]
+     }
+    }
+   },
+   "dekoloryzacja": {
+    "n": 29,
+    "examples": [
+     "dekoloryzacja + koloryzacja włosy średnie",
+     "dekoloryzacja + farbowanie",
+     "premium "
+    ],
+    "odmiany": {}
+   },
+   "stylizacja włosów": {
+    "n": 27,
+    "examples": [
+     "air touch",
+     "airtouch",
+     "promocja air touch na włosach naturalnych"
+    ],
+    "odmiany": {
+     "prostowanie": {
+      "n": 20,
+      "examples": [
+       "prostowanie włosów",
+       "prostowanie włosów prostownicą",
+       "polerowana włosów średnich+prostowanie"
+      ]
+     },
+     "upięcie": {
+      "n": 20,
+      "examples": [
+       "upięcia włosów",
+       "upięcia okolicznościowe",
+       "upięcie okolicznościowe"
+      ]
+     },
+     "keratynowe prostowanie": {
+      "n": 20,
+      "examples": [
+       "keratynowe prostowanie włosów",
+       "keratynowe prostowanie bio",
+       "keratynowe prostowanie włosów - do łopatek"
+      ]
+     },
+     "modelowanie": {
+      "n": 20,
+      "examples": [
+       "modelowanie włosy średnie",
+       "modelowanie i stylizacja włosów męskich",
+       "modelowanie włosów bardzo długich"
+      ]
+     }
+    }
+   },
+   "tuszowanie siwizny": {
+    "n": 25,
+    "examples": [
+     "combo",
+     "odsiwianie włosów",
+     "combo + cover włosów i brody"
+    ],
+    "odmiany": {}
+   },
+   "sombre": {
+    "n": 23,
+    "examples": [
+     "ombre",
+     "airtouch/sombre/ombre/baleyage/freehand matylda",
+     "rozjaśnienie+ ombre 2-3kolory"
+    ],
+    "odmiany": {
+     "baleyage": {
+      "n": 26,
+      "examples": [
+       "Baleyage",
+       "Baleyage/Ombre/Sombre",
+       "BALEYAGE bez strzyżenia włosy bardzo długie"
+      ],
+      "odmiany": {}
+     },
+     "ombre": {
+      "n": 5,
+      "examples": [
+       "Baleyage/Ombre/Sombre",
+       "Ombre|Sombre- Włosy bardzo długie- Justyna",
+       "Airtouch/Sombre/Ombre/Baleyage/FreeHand Zespół"
+      ],
+      "odmiany": {}
+     },
+     "airtouch": {
+      "n": 3,
+      "examples": [
+       "Airtouch/Sombre/Ombre/Baleyage/FreeHand Zespół",
+       "Koloryzację Airtouch/ Balayage/ Sombre/",
+       "Airtouch/Sombre/Ombre/Baleyage/FreeHand Matylda"
+      ],
+      "odmiany": {}
+     }
+    }
+   },
+   "usługa kompleksowa": {
+    "n": 21,
+    "examples": [
+     "strzyżenie + tonowanie/pigmentacja + modelowanie",
+     "strzyżenie włosy+farba",
+     "pakiet trio"
+    ],
+    "odmiany": {
+     "strzyżenie": {
+      "n": 6,
+      "examples": [
+       "Odrostu + strzyżenie + modelowanie",
+       "Strzyżenie włosów oraz brody +farbowanie",
+       "Baleyage + koloryzacja globalna + strzyżenie"
+      ],
+      "odmiany": {}
+     },
+     "farbowanie": {
+      "n": 3,
+      "examples": [
+       "Strzyżenie włosów oraz brody +farbowanie",
+       "Farbowanie całkowite ze strzyżeniem",
+       "Farbowanie + strzyżenie + modelowanie"
+      ],
+      "odmiany": {}
+     }
+    }
+   },
+   "nanoplastia": {
+    "n": 20,
+    "examples": [
+     "nanoplastia",
+     "nanoplastia włosów nano goldo",
+     "braliz nanoplastia wł. średnie"
+    ],
+    "odmiany": {}
+   },
+   "rekonstrukcja włosów": {
+    "n": 20,
+    "examples": [
+     "regeneracja - włosy średnie",
+     "pielęgnacja włosów jolli",
+     "regeneracja (ampułka i maska) - włosy krótkie"
+    ],
+    "odmiany": {}
+   },
+   "trwała ondulacja": {
+    "n": 20,
+    "examples": [
+     "trwała ondulacja + strzyżenie",
+     "trwała ondulacja ze strzyżeniem",
+     "trwała +strzyżenie +modelowanie"
+    ],
+    "odmiany": {}
+   },
+   "trychologia": {
+    "n": 18,
+    "examples": [
+     "piling skóry głowy",
+     "peeling skóry głowy+maska wzmacniająca+masaż głowy",
+     "krioterapia włosów —włosy średnie"
+    ],
+    "odmiany": {}
+   },
+   "przedłużanie": {
+    "n": 14,
+    "examples": [
+     "zagęszczanie włosów",
+     "polupermanent ( odrosty + długość)",
+     "założenie włosów klientki do 100 gram"
+    ],
+    "odmiany": {}
+   },
+   "spa": {
+    "n": 5,
+    "examples": [
+     "davines naturaltech well being",
+     "davines naturaltech nourishing",
+     "davines heart of glass"
+    ],
+    "odmiany": {
+     "head spa": {
+      "n": 11,
+      "examples": [
+       "mycie głowy (z masażem)",
+       "head spa",
+       "‼️nowość‼️ head spa (spa dla skóry głowy i włosów)"
+      ]
+     }
+    }
+   },
+   "botoks": {
+    "n": 8,
+    "examples": [
+     "kriorekonstrukcja/zimny botoks dla włosów",
+     "botoks na włosy",
+     "botox do koloryzacji"
+    ],
+    "odmiany": {}
+   },
+   "konsultacja trychologiczna": {
+    "n": 6,
+    "examples": [
+     "konsultacja trychologiczna",
+     "konsultacja trychologiczna- dobór pielęgnacji",
+     "konsultacja trychologiczna + zabieg oczyszczający"
+    ],
+    "odmiany": {}
+   },
+   "wyczesywanie": {
+    "n": 6,
+    "examples": [
+     "czesanie okolicznościowe włosy średniej długości",
+     "czesanie okolicznościowe włosy długie",
+     "czesanie wł. długie"
+    ],
+    "odmiany": {}
+   },
+   "pielęgnacja": {
+    "n": 5,
+    "examples": [
+     "airtouch + profesjonalna pielęgnacja tylko 800 zł!",
+     "konsultacja",
+     "mycie włosów+ maska+ suszenie włosów"
+    ],
+    "odmiany": {}
+   },
+   "barber": {
+    "n": 3,
+    "examples": [
+     "combo (strzyżenie włosów, gorący ręcznik, brzytwa)",
+     "the platinum experience",
+     "full service"
+    ],
+    "odmiany": {
+     "golenie królewskie": {
+      "n": 3,
+      "examples": [
+       "combo strzyżenie włosów+broda (golenie brzytwą)",
+       "relax combo frisor (+hot towel shave)",
+       "combo frisor (haircut+ beard trim+hot towel shave)"
+      ]
+     }
+    }
+   },
+   "trichoskopia": {
+    "n": 3,
+    "examples": [
+     "analiza skóry i włosów kamerą diagnostyczna k-scan",
+     "diagnoza kamerą k-scan",
+     "konsultacja + badanie skóry głowy mikrokamerą"
+    ],
+    "odmiany": {}
+   }
+  },
+  "twarz — pielęgnacja": {
+   "peeling": {
+    "n": 49,
+    "examples": [
+     "perfect peel",
+     "peeling",
+     "6-etapowe oczyszczanie wodorowe"
+    ],
+    "odmiany": {
+     "peeling kawitacyjny": {
+      "n": 138,
+      "examples": [
+       "peeling kawitacyjny",
+       "peeling kawitacyjny + maska",
+       "peeling kawitacyjny twarzy"
+      ]
+     },
+     "peeling chemiczny": {
+      "n": 106,
+      "examples": [
+       "biorepeel",
+       "peeling chemiczny",
+       "kwas glikolowy"
+      ],
+      "odmiany": {
+       "peel": {
+        "n": 35,
+        "examples": [
+         "Q PEEL PEELIG BIOSTYMULUJĄCY",
+         "Mango Peel (60min)",
+         "Sake Peel"
+        ],
+        "odmiany": {}
+       },
+       "biorepeel": {
+        "n": 9,
+        "examples": [
+         "Peeling Chemiczny Twarz | Amico, BioRePeel, PRX",
+         "BioRe Peel",
+         "PEELING BIOREPEEL"
+        ],
+        "odmiany": {}
+       },
+       "migdałowy": {
+        "n": 6,
+        "examples": [
+         "Peeling - kwas migdałowy Renlive",
+         "Peeling chemiczny z kwasem migdałowym | Twarz +...",
+         "Peeling migdałowy 40%"
+        ],
+        "odmiany": {}
+       },
+       "mango": {
+        "n": 5,
+        "examples": [
+         "Mango Peel (60min)",
+         "Mango Peel pakiet 4 zabiegów",
+         "DERMAQUEST MangoPeel (terapia przebarwień)"
+        ],
+        "odmiany": {}
+       },
+       "biopeeling": {
+        "n": 4,
+        "examples": [
+         "BIOPEELING DEDYKOWANY",
+         "BIOPEELING DOBRANY INDYWIDUALNIE",
+         "+ BESTSELLER Biopeeling dodatek do oczyszczania w."
+        ],
+        "odmiany": {}
+       }
+      }
+     },
+     "peeling węglowy": {
+      "n": 36,
+      "examples": [
+       "peeling węglowy",
+       "peeling węglowy black doll",
+       "laserowy peeling węglowy"
+      ]
+     },
+     "peeling enzymatyczny": {
+      "n": 14,
+      "examples": [
+       "peeling enzymatyczny",
+       "peeling enzymatyczny (twarz)💪",
+       "peeling enzymatyczny + peeling tca(z retinolem)"
+      ]
+     }
+    }
+   },
+   "oczyszczanie": {
+    "n": 28,
+    "examples": [
+     "oczyszczanie pleców",
+     "pełnia oczyszczenia",
+     "głębokie oczyszczanie twarzy"
+    ],
+    "odmiany": {
+     "oczyszczanie wodorowe": {
+      "n": 106,
+      "examples": [
+       "oczyszczanie wodorowe",
+       "oczyszczanie wodorowe + infuzja tlenowa",
+       "oczyszczanie wodorowe twarz"
+      ]
+     },
+     "oczyszczanie manualne": {
+      "n": 29,
+      "examples": [
+       "oczyszczanie manualne",
+       "oczyszczanie manualne twarzy",
+       "oczyszczanie manualne pleców + maska algowa"
+      ]
+     }
+    }
+   },
+   "pielęgnacja": {
+    "n": 75,
+    "examples": [
+     "maska algowa",
+     "ekspresowa maska alginatowa na twarz",
+     "subtelny czekoladowy relaks "
+    ],
+    "odmiany": {
+     "maska": {
+      "n": 38,
+      "examples": [
+       "Maseczka algowa na twarz",
+       "Algi maseczka",
+       "Karboksyterapia bezigłowa + maseczka algowa"
+      ],
+      "odmiany": {}
+     },
+     "masaż": {
+      "n": 5,
+      "examples": [
+       "Algowa Moc z masażem",
+       "Masaż twarzy, peeling lub maska algowa",
+       "Maska Algowa + Masaż Twarzy"
+      ],
+      "odmiany": {}
+     }
+    }
+   },
+   "fale radiowe": {
+    "n": 40,
+    "examples": [
+     "glow touch",
+     "lift skin",
+     "bio electro peeling + rf twarz, szyja, dekolt"
+    ],
+    "odmiany": {
+     "termolifting": {
+      "n": 9,
+      "examples": [
+       "termolifting z peelingiem kawitacyjnym",
+       "zaffiro seria 3 zabiegów na twarz",
+       "thermolifting - fala radiowa rf (wersja rozszer..."
+      ]
+     }
+    }
+   },
+   "mikrodermabrazja": {
+    "n": 32,
+    "examples": [
+     "mikrodermabrazja",
+     "mikrodermabrazja twarz + szyja",
+     "mikrodermabrazja twarzy + serum + maska algowa"
+    ],
+    "odmiany": {
+     "mikrodermabrazja diamentowa": {
+      "n": 23,
+      "examples": [
+       "mikrodermabrazja diamentowa",
+       "mikrodermabrazja diamentowa - serum + maska algowa",
+       "mikrodermabrazja diamentowa + maska algowa"
+      ]
+     }
+    }
+   },
+   "zabieg": {
+    "n": 26,
+    "examples": [
+     "ręce",
+     "zabieg supreme c",
+     "top zabieg od 13 lat! age smart classic"
+    ],
+    "odmiany": {
+     "zabieg oczyszczający": {
+      "n": 22,
+      "examples": [
+       "zabieg oczyszczający",
+       "oczyszczanie wodorowe - podstawowe",
+       "oczyszczanie wodorowe + rytuały"
+      ]
+     },
+     "zabieg nawilżający": {
+      "n": 22,
+      "examples": [
+       "zabieg \"intensywne nawilżenie\"",
+       "rewitalizacja i nawilżenie ust",
+       "nawilżenie i regeneracja"
+      ]
+     },
+     "zabieg rozświetlający": {
+      "n": 21,
+      "examples": [
+       "zabieg bankietowy",
+       "🌸 zabieg odżywczo-rozjaśniający",
+       "rozświetlenie po zimie"
+      ]
+     },
+     "zabieg terapeutyczny": {
+      "n": 21,
+      "examples": [
+       "acne lift - zabieg na trądzik",
+       "pca skin maska terapeutyczna",
+       "zabieg na trądzik - estgen"
+      ]
+     }
+    }
+   },
+   "rytuał": {
+    "n": 25,
+    "examples": [
+     "4-etapowa odnowa skóry",
+     "chwila dla siebie",
+     "zabieg oczyszczająco-rozświetlający glass skin"
+    ],
+    "odmiany": {}
+   },
+   "geneo": {
+    "n": 44,
+    "examples": [
+     "dotlenienie + lifting",
+     "oczyszczenie i wyrównanie kolorytu",
+     "oksybrazja tlenowo-wodna z peelingiem"
+    ],
+    "odmiany": {}
+   },
+   "mezoterapia bezigłowa": {
+    "n": 19,
+    "examples": [
+     "mezoterapia bezigłowa",
+     "mezoterapia bezigłowa (twarz)",
+     "mezoterapia bezigłowa twarz+szyja+dekolt"
+    ],
+    "odmiany": {}
+   },
+   "sonoforeza": {
+    "n": 18,
+    "examples": [
+     "ultradźwiękowe oczyszczanie twarzy",
+     "ultradźwięki - terapia dla twarzy",
+     "odmładzająco-odżywczy zabieg 10 w 1 “like a botox”"
+    ],
+    "odmiany": {}
+   },
+   "biorewitalizacja": {
+    "n": 15,
+    "examples": [
+     "zabieg rewitalizujący- cera dojrzała",
+     "biopeptide",
+     "terapia odmładzająco- przeciwstarzeniowa"
+    ],
+    "odmiany": {}
+   },
+   "masaż": {
+    "n": 14,
+    "examples": [
+     "twarz z kolagenem",
+     "procedura anti-aging",
+     "morskie działanie anti-aging"
+    ],
+    "odmiany": {
+     "masaż liftingujący": {
+      "n": 7,
+      "examples": [
+       "zabieg pielęgnacyjny + masaż liftingujący",
+       "masaż twarzy liftingujący + peeling + maska",
+       "masaż liftingujący +maska skin simply nutrion"
+      ]
+     },
+     "kobido": {
+      "n": 4,
+      "examples": [
+       "kobido+kawitacja+maska",
+       "zabieg oczyszczający + masaż kobido",
+       "kobido z światłoterapią led"
+      ]
+     },
+     "endermologia": {
+      "n": 3,
+      "examples": [
+       "endermolift okolica oka",
+       "hydration booster - 1 zabieg",
+       "twarz + szyja"
+      ]
+     }
+    }
+   },
+   "terapia": {
+    "n": 12,
+    "examples": [
+     "terapia trądziku",
+     "hydra repulp treatment",
+     "kompleksowa terapia leczenia trądziku plecy"
+    ],
+    "odmiany": {
+     "terapia blizn": {
+      "n": 6,
+      "examples": [
+       "terapia blizn potrądzikowych",
+       "konsultacja blizny",
+       "0/4 terapia trądzikowa, blizny"
+      ]
+     },
+     "terapia wodorowa": {
+      "n": 5,
+      "examples": [
+       "intensywna rewitalizacja wodorowa twarz + dekolt",
+       "zabieg wodorowy all inclusive twarz+szyja+dekolt",
+       "pakiet 3x infuzja wodorowa"
+      ]
+     },
+     "terapia enzymatyczna": {
+      "n": 3,
+      "examples": [
+       "zabieg twarz terapia enzymatyczna multi repair",
+       "exo-matrix enzym system",
+       "✨terapia enzymatyczna"
+      ]
+     }
+    }
+   },
+   "ipl": {
+    "n": 11,
+    "examples": [
+     "anti redness reducing treatment /trądzik różowaty",
+     "twarz szyja dekolt",
+     "fotoodmładzanie twarz + szyja"
+    ],
+    "odmiany": {}
+   },
+   "laseroterapia": {
+    "n": 9,
+    "examples": [
+     "fotoodmładzanie skóry",
+     "🟤usuwanie przebarwień / twarz + szyja + dekolt",
+     "zabieg na przebarwienia"
+    ],
+    "odmiany": {}
+   },
+   "laser": {
+    "n": 8,
+    "examples": [
+     "nos + policzki (najczęstsza strefa naczynkowa)",
+     "neuro sensi therapy - dla skóry naczyniowych i ...",
+     "zabieg dla cery naczynkowej"
+    ],
+    "odmiany": {}
+   },
+   "lifting": {
+    "n": 6,
+    "examples": [
+     "hydrolifting terapia",
+     "facelift program basic",
+     "3 d lift"
+    ],
+    "odmiany": {}
+   },
+   "medycyna estetyczna": {
+    "n": 4,
+    "examples": [
+     "konsultacja kosmetologiczna",
+     "konsultacja bez zabiegu + beauty plan",
+     "konsultacja kosmetologiczna (wersja podstawowa)"
+    ],
+    "odmiany": {}
+   },
+   "podstawowe": {
+    "n": 3,
+    "examples": [
+     "zabieg odmładzający basic",
+     "konsultacja kosmetologiczna (podstawowa)",
+     "konsultacja podstawowa (stacjonarna)"
+    ],
+    "odmiany": {}
+   },
+   "hifu": {
+    "n": 3,
+    "examples": [
+     "zabieg liftingujący hifu owal + podbródek",
+     "zabieg liftingujący hifu twarz + szyja + dekolt",
+     "hifu 4d prime – bezinwazyjny lifting skóry"
+    ],
+    "odmiany": {}
+   },
+   "konsultacja dermatologiczna": {
+    "n": 3,
+    "examples": [
+     "konsultacja holistyczna",
+     "holistyczna konsultacja dla skór trądzikowych"
+    ],
+    "odmiany": {}
+   }
+  },
+  "spa i wellness": {
+   "masaż": {
+    "n": 48,
+    "examples": [
+     "masaż + peeling",
+     "peeling+algi+masaż ciała+masaż twarzy z maską",
+     "wiosenny reset iii"
+    ],
+    "odmiany": {
+     "kobido": {
+      "n": 4,
+      "examples": [
+       "vip (masaż, kobido, refleksologia stóp)",
+       "pakiet małe spa (masaż ciała z peelingiem+ kobido)",
+       "pakiet czego pragną kobiety (kobido + peeling e..."
+      ]
+     }
+    }
+   },
+   "rytuał": {
+    "n": 35,
+    "examples": [
+     "7-etapowa odnowa",
+     "zimowy reset, wiosenny blask",
+     "day spa"
+    ],
+    "odmiany": {}
+   },
+   "spa": {
+    "n": 10,
+    "examples": [
+     "spa twarzy, dłoni i stóp",
+     "pakiet premium-reset ciała i głowy",
+     "pakiet spa \"sekret harmonii duszy i ciała\""
+    ],
+    "odmiany": {
+     "head spa": {
+      "n": 18,
+      "examples": [
+       "head & spa ( pakiet lux )",
+       "head spa basic",
+       "head spa basic dla dwojga"
+      ]
+     }
+    }
+   },
+   "peeling ciała": {
+    "n": 12,
+    "examples": [
+     "peeling z masażem",
+     "królewski blask (peeling ciała + masaż twarzy)",
+     "peeling ciała + masaż tajski dla dwojga 120min"
+    ],
+    "odmiany": {}
+   },
+   "kąpiel": {
+    "n": 9,
+    "examples": [
+     "strefa spa dla dwojga z floatingiem",
+     "renewing - skóra i sierść w optymalnej kondycji",
+     "dermo calm - szybka regeneracja skóry i sierści"
+    ],
+    "odmiany": {}
+   },
+   "zabieg parafinowy": {
+    "n": 6,
+    "examples": [
+     "parafina na dłonie",
+     "kąpiel parafinowa dłoni z peelingiem i masażem",
+     "kąpiel dłoni w parafinie"
+    ],
+    "odmiany": {}
+   },
+   "kompleksowy": {
+    "n": 3,
+    "examples": [
+     "wiosna 2026 atrakcyjny pakiet",
+     "vip package (każda usługa z cennika)",
+     "pakiety"
+    ],
+    "odmiany": {}
+   }
+  },
+  "broda i golenie": {
+   "trymowanie brody": {
+    "n": 45,
+    "examples": [
+     "strzyżenie brody",
+     "broda",
+     "strzyżenie brody maszynka"
+    ],
+    "odmiany": {
+     "strzyżenie": {
+      "n": 12,
+      "examples": [
+       "Strzyżenie brody maszynka",
+       "Strzyżenie brody i wąsów (maszynką)",
+       "Junior strzyżenie brody"
+      ],
+      "odmiany": {}
+     },
+     "brzytwy": {
+      "n": 3,
+      "examples": [
+       "Strzyżenie brody Z Użyciem Brzytwy",
+       "Strzyżenie brody bez brzytwy",
+       "Strzyżenie Brody Z Brzytwą"
+      ],
+      "odmiany": {}
+     }
+    }
+   },
+   "tuszowanie siwizny": {
+    "n": 36,
+    "examples": [
+     "odsiwianie/farbowanie brody",
+     "odsiwianie brody",
+     "combo + farbowanie brody"
+    ],
+    "odmiany": {}
+   },
+   "golenie brzytwą": {
+    "n": 14,
+    "examples": [
+     "golenie głowy",
+     "golenie całej głowy brzytwą",
+     "golenie głowy brzytwą"
+    ],
+    "odmiany": {}
+   },
+   "barber": {
+    "n": 6,
+    "examples": [
+     "broda - golenie i trymowanie brody",
+     "golenie i trymowanie brody",
+     "combo (z brzytwą)"
+    ],
+    "odmiany": {
+     "golenie królewskie": {
+      "n": 5,
+      "examples": [
+       "golenie głowy +strzyżenie brody",
+       "golenie głowy+strzyżenie brody",
+       "golenie na zero, strzyżenie i farbowanie brody"
+      ]
+     }
+    }
+   },
+   "konturowanie": {
+    "n": 5,
+    "examples": [
+     "konturowanie brody",
+     "konturowanie brody (krótki zarost)",
+     "konturowanie zarostu (krótki zarost)"
+    ],
+    "odmiany": {}
+   },
+   "modelowanie brody": {
+    "n": 5,
+    "examples": [
+     "broda- konkurowanie",
+     "broda (z brzytwą)",
+     "modelowanie brody"
+    ],
+    "odmiany": {}
+   },
+   "koloryzacja": {
+    "n": 4,
+    "examples": [
+     "farbowanie brody",
+     "farbowanie brody - broda długa",
+     "koloryzacja brody"
+    ],
+    "odmiany": {}
+   }
+  },
+  "ciało — modelowanie i pielęgnacja": {
+   "peeling ciała": {
+    "n": 42,
+    "examples": [
+     "peeling ciała",
+     "peeling całego ciała",
+     "peeling ciała z masażem"
+    ],
+    "odmiany": {}
+   },
+   "masaż": {
+    "n": 4,
+    "examples": [
+     "szczotkowanie ciała- lekkość i gładka skóra 🌿",
+     "pielęgnacyjny zabieg o sezonowym aromacie",
+     "masaż na peelingu+ samoopalacz"
+    ],
+    "odmiany": {
+     "endermologia": {
+      "n": 20,
+      "examples": [
+       "endermologia",
+       "endermologia 30 minut",
+       "endermologia 40 minut"
+      ]
+     },
+     "masaż antycellulitowy": {
+      "n": 14,
+      "examples": [
+       "maderoterpia 90 min",
+       "intensywna terapia antycellulitowa!",
+       "maderoterpia ciała 60 minut"
+      ]
+     },
+     "masaż próżniowy": {
+      "n": 4,
+      "examples": [
+       "primelle (modelowanie sylwetki)",
+       "masaż próżniowy + fala radiowa",
+       "masaż próżniowy + lipolaser"
+      ]
+     }
+    }
+   },
+   "liposukcja kawitacyjna": {
+    "n": 20,
+    "examples": [
+     "liposukcja kawitacyjna - modelowanie sylwetki",
+     "liposukcja kawitacyjna brzuch",
+     "liposukcja kawitacyjna"
+    ],
+    "odmiany": {}
+   },
+   "elektrostymulacja": {
+    "n": 16,
+    "examples": [
+     "emshape",
+     "elektrostymulacja",
+     "elektrostymulacja mięśni + fala radiowa"
+    ],
+    "odmiany": {}
+   },
+   "kriolipoliza": {
+    "n": 16,
+    "examples": [
+     "kriolipoliza",
+     "kriolipoliza cooltech 70min 2 głowice, 1 partia",
+     "kriolipoliza kontrastowa jedna partia ciała"
+    ],
+    "odmiany": {}
+   },
+   "fale radiowe": {
+    "n": 14,
+    "examples": [
+     "ręce powyżej łokci",
+     "terapia radiofalowa- 1 zabieg",
+     "fala radiowa rf"
+    ],
+    "odmiany": {
+     "termolifting": {
+      "n": 8,
+      "examples": [
+       "fale radiowe rf bezigłowy - ramiona / pelikany",
+       "fale radiowe rf bezigłowy - kolana",
+       "fale radiowe rf bezigłowy - uda całość"
+      ]
+     }
+    }
+   },
+   "endomasaż": {
+    "n": 14,
+    "examples": [
+     "endomasaż + fala radiowa + podczerwień",
+     "lpg zabieg na dekolt i biust",
+     "endomasaż uda + pośladki + brzuch"
+    ],
+    "odmiany": {}
+   },
+   "fala akustyczna": {
+    "n": 14,
+    "examples": [
+     "pakiet 6+2 brzuch - fala akustyczna",
+     "fala akustyczna - brzuch + boczki",
+     "pakiet 6+2 ramiona - fala akustyczna"
+    ],
+    "odmiany": {}
+   },
+   "zabieg": {
+    "n": 3,
+    "examples": [
+     "różany ogród",
+     "energetyzujący zabieg \"orzeźwiająca pomarańcza\"",
+     "pielęgnacyjny zabieg na ciało"
+    ],
+    "odmiany": {
+     "zabieg wyszczuplający": {
+      "n": 13,
+      "examples": [
+       "rytuał wyszczuplający",
+       "talia osy (9 zabiegów na brzuch i boczki)",
+       "eximia brzuch + boczki (seria 10+3 zabiegi)"
+      ]
+     },
+     "zabieg termoaktywny": {
+      "n": 5,
+      "examples": [
+       "termoaktywny zabieg na brzuch, uda i pośladki",
+       "thermogenique",
+       "abbys termoaktywny zabieg wyszczuplajacy"
+      ]
+     }
+    }
+   },
+   "body wrapping": {
+    "n": 11,
+    "examples": [
+     "body wrapping + drenaż limfatyczny",
+     "ujędrniający zabieg \"powabna czekolada\"",
+     "pakiet 6 zabiegów bandażowania ciała arosha"
+    ],
+    "odmiany": {}
+   },
+   "lipolaser": {
+    "n": 10,
+    "examples": [
+     "lipolaser",
+     "lipoliza laserowa na tkankę tłuszczową",
+     "lipolaser dowolna partia 30 min"
+    ],
+    "odmiany": {}
+   },
+   "fala uderzeniowa": {
+    "n": 5,
+    "examples": [
+     "fala uderzeniowa antycellulitowa",
+     "fala uderzeniowa - brzuch + boczki + motyle",
+     "konsultacja do zabiegów na ciało"
+    ],
+    "odmiany": {}
+   },
+   "hifu": {
+    "n": 5,
+    "examples": [
+     "hifu wewn. część ud",
+     "hifu uda przyśrodkowo do 1/2 długości",
+     "plecy (tzw. motylki)"
+    ],
+    "odmiany": {}
+   },
+   "liposukcja ultradźwiękowa": {
+    "n": 4,
+    "examples": [
+     "liposukcja ultradźwiękowa 30min",
+     "liposukcja ultradźwiękowa",
+     "magnifico liposukcja ultradźwiękowa + masaż pró..."
+    ],
+    "odmiany": {}
+   },
+   "oczyszczanie": {
+    "n": 4,
+    "examples": [
+     "oczyszczanie pleców",
+     "oxynergy oczyszczanie pleców"
+    ],
+    "odmiany": {}
+   },
+   "lipoliza": {
+    "n": 3,
+    "examples": [
+     "3x sonotermolipoliza 1 okolica + drenaż gratis !",
+     "3x sonotermolipoliza 2 okolice + drenaż gratis",
+     "pakiet 12 zabiegów lipolizy karmelowej"
+    ],
+    "odmiany": {}
+   },
+   "endosfera": {
+    "n": 3,
+    "examples": [
+     "pakiet 6 zabiegów endosfera therapia",
+     "endospheres therapy",
+     "pakiet 10 zabiegów endosfera therapia"
+    ],
+    "odmiany": {}
+   }
+  },
+  "medycyna estetyczna": {
+   "mezoterapia": {
+    "n": 21,
+    "examples": [
+     "mesoeclat – zabieg liftingujący",
+     "mezoterapia",
+     "włosy- mezoterapia dr cyj"
+    ],
+    "odmiany": {
+     "mezoterapia igłowa": {
+      "n": 41,
+      "examples": [
+       "mezoterapia mikroigłowa + peeling chemiczny",
+       "mezoterapia mikroigłowa + biorepeel",
+       "oczyszczanie wodorowe + mezoterapia mikroigłowa"
+      ],
+      "odmiany": {
+       "mikroigłowa": {
+        "n": 15,
+        "examples": [
+         "TWARZ, SZYJA, DEKOLT - mezoterapia mikroigłowa",
+         "Biorepeel + mezoterapia mikroigłowa",
+         "Mezoterapia mikroigłowa + BioRePeel CL3"
+        ],
+        "odmiany": {}
+       },
+       "biorepeel": {
+        "n": 10,
+        "examples": [
+         "Biorepeel + mezoterapia mikroigłowa",
+         "Mezoterapia mikroigłowa + BioRePeel CL3",
+         "BioRePeel + PEN (wygładzenie i rewitalizacja)"
+        ],
+        "odmiany": {}
+       }
+      }
+     },
+     "mikronakłuwanie": {
+      "n": 23,
+      "examples": [
+       "dermapen 4.0 + ampułka + maska twarz+szyja + dekol",
+       "dermapen 4.0 + ampułka + maska twarz",
+       "dermapen 4.0 + ampułka + maska twarz + szyja"
+      ]
+     }
+    }
+   },
+   "powiększanie ust": {
+    "n": 36,
+    "examples": [
+     "modelowanie ust",
+     "modelowanie ust 1ml",
+     "powiększanie ust"
+    ],
+    "odmiany": {}
+   },
+   "radiofrekwencja mikroigłowa": {
+    "n": 26,
+    "examples": [
+     "regeneracja 360 twarz+szyja+dekolt",
+     "regeneracja 360 dłonie",
+     "regeneracja 360 blizny"
+    ],
+    "odmiany": {}
+   },
+   "wolumetria": {
+    "n": 23,
+    "examples": [
+     "wolumetria",
+     "kwas hialuronowy",
+     "wolumetria twarzy"
+    ],
+    "odmiany": {}
+   },
+   "stymulatory tkankowe": {
+    "n": 22,
+    "examples": [
+     "dives ami 200",
+     "ejal 40 - 2ml",
+     "electri"
+    ],
+    "odmiany": {
+     "biostymulacja": {
+      "n": 20,
+      "examples": [
+       "stymulator tkankowy nucleofill strong",
+       "polinukleotydy 1 ml blizny potrądznikowe",
+       "lifting 3d twarzy+biostymulacja"
+      ]
+     },
+     "redermalizacja": {
+      "n": 20,
+      "examples": [
+       "stymulator tkankowy xela rederm",
+       "xela rederm 1,1%",
+       "biostymulujący zabieg redermalizujący z kwasem bur"
+      ]
+     },
+     "stymulator": {
+      "n": 20,
+      "examples": [
+       "kwas polimlekowy",
+       "karisma",
+       "karisma stymulator tkankowy rh collagen"
+      ]
+     }
+    }
+   },
+   "botox": {
+    "n": 21,
+    "examples": [
+     "zabieg foxy eyes",
+     "foxy eyes",
+     "regulacja brwi +botox"
+    ],
+    "odmiany": {}
+   },
+   "rozpuszczenie": {
+    "n": 21,
+    "examples": [
+     "hialuronidaza",
+     "rozpuszczanie kwasu hialuronowego",
+     "hialuronidaza - rozpuszczanie kwasu hialuronowego"
+    ],
+    "odmiany": {}
+   },
+   "laser": {
+    "n": 11,
+    "examples": [
+     "zamykanie naczynek",
+     "laserowe zamykanie naczynek",
+     "usuwanie przebarwień"
+    ],
+    "odmiany": {
+     "laser frakcyjny": {
+      "n": 20,
+      "examples": [
+       "laser frakcyjny 30% taniej promocja",
+       "er:yag - twarz + szyja + dekolt",
+       "er:yag - grzbiet dłoni"
+      ]
+     }
+    }
+   },
+   "lipoliza": {
+    "n": 13,
+    "examples": [
+     "lipoliza podbródka",
+     "lipoliza",
+     "lipoliza uda"
+    ],
+    "odmiany": {
+     "lipoliza iniekcyjna": {
+      "n": 20,
+      "examples": [
+       "lipoliza iniekcyjna",
+       "lipoliza iniekcyjna podbródek",
+       "✨lipoliza iniekcyjna uda"
+      ]
+     }
+    }
+   },
+   "nici liftingujące": {
+    "n": 20,
+    "examples": [
+     "nici pdo 40 sztuk",
+     "nici pdo 20 sztuk",
+     "nici pdo 30 sztuk"
+    ],
+    "odmiany": {}
+   },
+   "osocze bogatopłytkowe": {
+    "n": 19,
+    "examples": [
+     "fibryna",
+     "osocze bogatopłytkowe+ fibryna -twarz plus oczy",
+     "wypełniacz autologiczny atr - bio full face"
+    ],
+    "odmiany": {}
+   },
+   "wypełnianie zmarszczek": {
+    "n": 19,
+    "examples": [
+     "nowość!!! kwas polimlekowy, powiększenie pośladków",
+     "dolina łez",
+     "tropokolagen .needle shaping"
+    ],
+    "odmiany": {}
+   },
+   "karboksyterapia": {
+    "n": 17,
+    "examples": [
+     "karboksyterapia szyja + dekolt",
+     "redukcja rozstępów",
+     "karboksyterapia zabieg na twarz, szyję"
+    ],
+    "odmiany": {}
+   },
+   "laseroterapia": {
+    "n": 16,
+    "examples": [
+     "resurfacing twarzy laserem pikosekundowym",
+     "głęboki resurfacing nd:yag",
+     "głęboki resurfacing nd:yag + frakcyjny er:yag"
+    ],
+    "odmiany": {
+     "yag": {
+      "n": 9,
+      "examples": [
+       "ER:YAG - Twarz + Szyja + Dekolt",
+       "ER:YAG - Blizna",
+       "ER:YAG - Twarz + Szyja"
+      ],
+      "odmiany": {}
+     },
+     "resurfacing": {
+      "n": 4,
+      "examples": [
+       "Twarz LASER CO2-  resurfacing",
+       "Głęboki resurfacing Nd:Yag + frakcyjny Er:Yag",
+       "Resurfacing twarzy laserem pikosekundowym"
+      ],
+      "odmiany": {}
+     }
+    }
+   },
+   "elektrokoagulacja": {
+    "n": 16,
+    "examples": [
+     "usuwanie brodawek/włókniaków 1 zmiana",
+     "elektrokoagulacja - włókniaki, brodawki, naczynka",
+     "usuwanie włókniaków/ naczyniaki rubinowe/ brodawki"
+    ],
+    "odmiany": {}
+   },
+   "biorewitalizacja": {
+    "n": 14,
+    "examples": [
+     "rewitalizacja ust bez powiększania",
+     "regenerująco - odżywcza dives skin repair",
+     "cytocare 532 / pink glow"
+    ],
+    "odmiany": {}
+   },
+   "plazma": {
+    "n": 14,
+    "examples": [
+     "terapia przeciwtrądzikowa dr platon",
+     "estetyka twarzy- zimna plazma",
+     "plazma jet korekta powiek górnych i dolnych"
+    ],
+    "odmiany": {}
+   },
+   "medycyna estetyczna": {
+    "n": 12,
+    "examples": [
+     "wizyta kontrolna po zabiegu",
+     "estetican face",
+     "konsultacja przed zabiegiem"
+    ],
+    "odmiany": {}
+   },
+   "botoks": {
+    "n": 12,
+    "examples": [
+     "botoks platinum/organic",
+     "infuzja tlenowa🪄 plus botox🧞‍♂️",
+     "✨btx pakiet 2"
+    ],
+    "odmiany": {}
+   },
+   "hifu": {
+    "n": 12,
+    "examples": [
+     "hifu cała twarz",
+     "smas lifting ultraformer – hifu twarz",
+     "hifu średnia partia"
+    ],
+    "odmiany": {}
+   },
+   "ipl": {
+    "n": 8,
+    "examples": [
+     "fotoodmładzanie+wolumetria- twarz + szyja + dekolt",
+     "fotoodmładzanie twarz + szyja + dekolt",
+     "redukcja przebarwień ipl - plecy (część górna l..."
+    ],
+    "odmiany": {}
+   },
+   "liposukcja": {
+    "n": 6,
+    "examples": [
+     "liposukcja",
+     "liposukcja uda + pośladki",
+     "liposukcja podbródka"
+    ],
+    "odmiany": {}
+   },
+   "akupunktura": {
+    "n": 5,
+    "examples": [
+     "biolifting i biopeeling + akupunktura estetyczna",
+     "zabieg pinezkowania - zmarszczki, bruzdy, blizny",
+     "pinezkowanie"
+    ],
+    "odmiany": {}
+   },
+   "kroplówka": {
+    "n": 5,
+    "examples": [
+     "wlew energetyczny energy boost",
+     "wlew przeciwstarzeniowy anty - aging",
+     "kroplówka z solcoserylem - dializatem krwi cieląt"
+    ],
+    "odmiany": {}
+   },
+   "dr cyj hair filler": {
+    "n": 4,
+    "examples": [
+     "peptydowa mezoterapia - dr cyj hair filler",
+     "mezoterapia głowy hair filler",
+     "mezoterapia dr. cyj hair filler 1 ml"
+    ],
+    "odmiany": {}
+   },
+   "termolifting": {
+    "n": 4,
+    "examples": [
+     "thermage™ - termolifting szyja",
+     "zaffiro seria 3 zabiegów na twarz, podbródek i ...",
+     "thermage™ - termolifting oczy"
+    ],
+    "odmiany": {}
+   },
+   "masaż": {
+    "n": 3,
+    "examples": [
+     "anti-aging z komórkami macierzystymi",
+     "pinezkowanie estetyczne twarzy",
+     "masaż twarzy ampułka + maska algowa"
+    ],
+    "odmiany": {}
+   },
+   "trychologia": {
+    "n": 3,
+    "examples": [
+     "polinukleotydy przeciw łysieniu i wypadaniu włosów",
+     "dermapen™ 4 skóra głowy (pakiet 5 zab)",
+     "dermapen + ampułka na skórę głowy"
+    ],
+    "odmiany": {}
+   }
+  },
+  "makijaż": {
+   "makijaż": {
+    "n": 37,
+    "examples": [
+     "makijaż okolicznościowy",
+     "makijaż ślubny",
+     "makijaż wieczorowy"
+    ],
+    "odmiany": {}
+   }
+  },
+  "makijaż permanentny i tatuaż": {
+   "makijaż permanentny": {
+    "n": 21,
+    "examples": [
+     "makijaż permanentny brwi",
+     "makijaż permanentny",
+     "makijaż permanentny kreska"
+    ],
+    "odmiany": {
+     "odświeżenie makijażu permanentnego": {
+      "n": 33,
+      "examples": [
+       "korekta makijażu permanentnego",
+       "dopigmentowanie ust po 6 tygodniach",
+       "korekta makijażu permanentnego brwi"
+      ]
+     }
+    }
+   },
+   "usuwanie tatuażu": {
+    "n": 11,
+    "examples": [
+     "🧪usuwanie / korekta starego makijażu permanentnego",
+     "usunięcie makijażu permanentnego (remover)",
+     "usuwanie makijażu permanentnego remover"
+    ],
+    "odmiany": {
+     "usuwanie": {
+      "n": 18,
+      "examples": [
+       "usuwanie makijażu permanentnego brwi",
+       "usuwanie starego makijażu permanentnego",
+       "usuwanie laserowe makijażu permanentnego - kreska"
+      ]
+     }
+    }
+   },
+   "pigmentacja": {
+    "n": 17,
+    "examples": [
+     "dopigmentowanie do 3 miesięcy",
+     "combo z repigmentacją brody",
+     "dopigmentowanie po 8 tygodniach do 3m-cy"
+    ],
+    "odmiany": {}
+   }
+  },
+  "fizjoterapia": {
+   "fala uderzeniowa": {
+    "n": 31,
+    "examples": [
+     "fala uderzeniowa - uda tył + pośladki",
+     "fala uderzeniowa - nad kolanami",
+     "fala uderzeniowa - uda przód lub tył"
+    ],
+    "odmiany": {}
+   },
+   "konsultacja fizjoterapeutyczna": {
+    "n": 11,
+    "examples": [
+     "pierwsza wizyta fizjoterapeutyczna",
+     "wizyta fizjoterapeutyczna kontynuacja",
+     "pierwsza wizyta"
+    ],
+    "odmiany": {}
+   },
+   "masaż": {
+    "n": 3,
+    "examples": [
+     "banki na stawy/nerw kulszowy/kręgosłup",
+     "zdrowy kręgosłup",
+     "masaż po operacji plastycznej"
+    ],
+    "odmiany": {
+     "masaż leczniczy": {
+      "n": 9,
+      "examples": [
+       "masaż leczniczy + terapia manualna",
+       "masaż leczniczy",
+       "terapia w bólach pleców"
+      ]
+     },
+     "masaż bańką chińską": {
+      "n": 7,
+      "examples": [
+       "terapia z użyciem baniek chińskich",
+       "masaż bańką chińską - uda+pośladki+brzuch",
+       "masaż bańką chińską - uda"
+      ]
+     }
+    }
+   },
+   "terapia": {
+    "n": 6,
+    "examples": [
+     "holistyczna terapia ciała",
+     "rehabilitacja ortopedyczno – urazowa",
+     "fizjoterapia rehabilitacja sportowa"
+    ],
+    "odmiany": {
+     "terapia blizn": {
+      "n": 9,
+      "examples": [
+       "terapia blizny",
+       "terapia blizny / mobilizacja blizny",
+       "terapia blizn"
+      ]
+     },
+     "terapia manualna": {
+      "n": 8,
+      "examples": [
+       "terapia manualna",
+       "spersonalizowana terapia manualna",
+       "terapia powięziowa"
+      ]
+     }
+    }
+   },
+   "uroginekologiczna": {
+    "n": 7,
+    "examples": [
+     "fizjoterapia po porodzie",
+     "fizjoterapia w ciąży",
+     "ćwiczenia dla kobiet po porodzie"
+    ],
+    "odmiany": {}
+   },
+   "trening medyczny": {
+    "n": 4,
+    "examples": [
+     "trening medyczny",
+     "korekcja wad postawy dzieci i dorosłych",
+     "ćwiczenia korekcyjne"
+    ],
+    "odmiany": {}
+   },
+   "elektrostymulacja": {
+    "n": 3,
+    "examples": [
+     "elektrostymulacja",
+     "elektrostymulacja punktowa"
+    ],
+    "odmiany": {}
+   }
+  },
+  "piercing": {
+   "piercing": {
+    "n": 20,
+    "examples": [
+     "przekłuwanie uszu",
+     "przekłuwanie uszu z kolczykami",
+     "przekłuwanie sutka"
+    ],
+    "odmiany": {}
+   },
+   "downsize": {
+    "n": 3,
+    "examples": [
+     "zamykanie naczyń-nos",
+     "włożenie/wyjęcie biżuterii klienta",
+     "skrócenie kolczyka wykonanego w innym salonie"
+    ],
+    "odmiany": {}
+   }
+  },
+  "zdrowie i psychologia": {
+   "access bars": {
+    "n": 14,
+    "examples": [
+     "access bars",
+     "access bars ®",
+     "access bars® - zabieg energetyczny"
+    ],
+    "odmiany": {}
+   },
+   "masaż": {
+    "n": 7,
+    "examples": [
+     "bańki ogniowe",
+     "bańki ogniowe na rwę kulszową",
+     "świecowanie lub konchowanie uszu z masażem głowy"
+    ],
+    "odmiany": {
+     "masaż bańką chińską": {
+      "n": 13,
+      "examples": [
+       "terapia bańką chińską",
+       "bańki ogniowe regeneracja/odporność/ulga w bólu",
+       "bańki"
+      ]
+     },
+     "refleksologia": {
+      "n": 8,
+      "examples": [
+       "refleksologia stóp",
+       "refleksoterapia stóp 60 min",
+       "refleksologia stóp i dłoni"
+      ]
+     }
+    }
+   },
+   "rozmowa": {
+    "n": 10,
+    "examples": [
+     "konsultacja",
+     "konsultacja kontrolna",
+     "darmowa konsultacja przed zabiegiem"
+    ],
+    "odmiany": {}
+   },
+   "konsultacja dermatologiczna": {
+    "n": 10,
+    "examples": [
+     "konsultacja dermatologiczna",
+     "kontynuacja terapii",
+     "konsultacja holistyczna"
+    ],
+    "odmiany": {}
+   },
+   "medycyna estetyczna": {
+    "n": 7,
+    "examples": [
+     "wizyta kontrolna po zabiegu",
+     "konsultacja kosmetologiczna - ciało",
+     "konsultacja z lekarzem medycyny estetycznej"
+    ],
+    "odmiany": {}
+   },
+   "czyszczenie": {
+    "n": 4,
+    "examples": [
+     "świecowanie uszu",
+     "świecowanie / konchowanie uszu",
+     "konchy - świecowanie i woskowanie uszu"
+    ],
+    "odmiany": {}
+   },
+   "akupunktura lecznicza": {
+    "n": 3,
+    "examples": [
+     "akupunktura",
+     "akupunktura enterodermalna twarzy i szyi"
+    ],
+    "odmiany": {
+     "akupunktura": {
+      "n": 4,
+      "examples": [
+       "akupunktura blizny pooperacyjne ,trądzikowe",
+       "neurolifting akupunkturowy",
+       "akupunktura blizny pooperacyjne potrądzikowe"
+      ]
+     }
+    }
+   },
+   "kroplówka": {
+    "n": 3,
+    "examples": [
+     "wlew skomponowany indywidualnie wg.ankiety zdrowia",
+     "wlew detoksykacyjny detox & liver support",
+     "wlew regeneracyjny dla sportowców muscle recovery"
+    ],
+    "odmiany": {}
+   }
+  },
+  "zwierzęta": {
+   "pielęgnacja psa": {
+    "n": 7,
+    "examples": [
+     "wyczesywanie + kąpiel",
+     "strzyżenie lub wyczesanie psa wielorasowego sredni",
+     "kapiel+wyczesanie lub strzyżenie małych psów wiel"
+    ],
+    "odmiany": {}
+   },
+   "czyszczenie": {
+    "n": 5,
+    "examples": [
+     "czyszczenie uszu",
+     "czyszczenie uszu duży pies",
+     "czyszczenie uszu mały pies"
+    ],
+    "odmiany": {}
+   }
+  },
+  "szkolenia i kursy": {
+   "kurs": {
+    "n": 5,
+    "examples": [
+     "szkolenia przedłużania rzęs 1:1",
+     "szkolenie rzesy",
+     "kurs stylizacji rzęs , brwi"
+    ],
+    "odmiany": {}
+   },
+   "trening": {
+    "n": 3,
+    "examples": [
+     "szkolenie podologiczne premium indywidualne 2 dni",
+     "szkolenie podologiczne premium indywidualne",
+     "szkolenie podologiczne i stopnia"
+    ],
+    "odmiany": {}
+   }
+  },
+  "inne usługi": {
+   "wymiana": {
+    "n": 5,
+    "examples": [
+     "wymiana czujnika cofania",
+     "wymiana żarówek",
+     "wymiana przekładni kierowniczej"
+    ],
+    "odmiany": {}
+   }
+  },
+  "stomatologia": {
+   "higienizacja": {
+    "n": 4,
+    "examples": [
+     "🌸 higienizacja kids 🌸",
+     "pakiet higienizacji ( skaling+piaskowanie+ fluor)",
+     "pakiet:scaling+piaskowanie+polerowanie+fluoryzacja"
+    ],
+    "odmiany": {}
+   },
+   "fluoryzacja": {
+    "n": 3,
+    "examples": [
+     "lakierowanie zębów mlecznych u dzieci",
+     "lakowanie zębów stałych",
+     "lakierowanie zębów u młodzieży i dorosłych"
+    ],
+    "odmiany": {}
+   }
+  }
+ },
+ "scalenia": [
+  {
+   "rodzic": [
+    "depilacja",
+    "depilacja"
+   ],
+   "a": "depilacja laserowa",
+   "b": "depilacja woskiem",
+   "p": 0.05
+  },
+  {
+   "rodzic": [
+    "twarz — pielęgnacja"
+   ],
+   "a": "geneo",
+   "b": "infuzja tlenowa",
+   "p": 0.51
+  },
+  {
+   "rodzic": [
+    "twarz — pielęgnacja"
+   ],
+   "a": "pielęgnacja",
+   "b": "sonoforeza",
+   "p": 0.07
+  },
+  {
+   "rodzic": [
+    "włosy"
+   ],
+   "a": "sombre",
+   "b": "usługa kompleksowa",
+   "p": 0.04
+  },
+  {
+   "rodzic": [
+    "broda i golenie"
+   ],
+   "a": "pigmentacja",
+   "b": "tuszowanie siwizny",
+   "p": 0.63
+  },
+  {
+   "rodzic": [
+    "włosy",
+    "koloryzacja"
+   ],
+   "a": "koloryzacja wielotonowa",
+   "b": "refleksy",
+   "p": 0.12
+  },
+  {
+   "rodzic": [
+    "brwi i rzęsy"
+   ],
+   "a": "koloryzacja",
+   "b": "stylizacja brwi",
+   "p": 0.09
+  },
+  {
+   "rodzic": [
+    "brwi i rzęsy"
+   ],
+   "a": "stylizacja brwi",
+   "b": "stylizacja brwi i rzęs",
+   "p": 0.07
+  },
+  {
+   "rodzic": [
+    "depilacja",
+    "depilacja"
+   ],
+   "a": "depilacja laserem diodowym",
+   "b": "depilacja laserowa vectus",
+   "p": 0.43
+  },
+  {
+   "rodzic": [
+    "stopy — podologia"
+   ],
+   "a": "manicure",
+   "b": "naprawa paznokcia",
+   "p": 0.14
+  },
+  {
+   "rodzic": [
+    "masaż",
+    "masaż"
+   ],
+   "a": "kobido",
+   "b": "masaż liftingujący",
+   "p": 0.3
+  },
+  {
+   "rodzic": [
+    "paznokcie",
+    "manicure"
+   ],
+   "a": "manicure klasyczny",
+   "b": "manicure żelowy",
+   "p": 0.31
+  },
+  {
+   "rodzic": [
+    "paznokcie",
+    "manicure"
+   ],
+   "a": "manicure hybrydowy",
+   "b": "manicure klasyczny",
+   "p": 0.06
+  },
+  {
+   "rodzic": [
+    "włosy",
+    "stylizacja włosów"
+   ],
+   "a": "keratynowe prostowanie",
+   "b": "modelowanie",
+   "p": 0.06
+  },
+  {
+   "rodzic": [
+    "masaż",
+    "masaż"
+   ],
+   "a": "kobido",
+   "b": "masaż transbukalny",
+   "p": 0.06
+  },
+  {
+   "rodzic": [
+    "masaż",
+    "masaż"
+   ],
+   "a": "masaż leczniczy",
+   "b": "masaż powięziowy",
+   "p": 0.36
+  },
+  {
+   "rodzic": [
+    "włosy",
+    "koloryzacja"
+   ],
+   "a": "cover",
+   "b": "refleksy",
+   "p": 0.1
+  },
+  {
+   "rodzic": [
+    "stopy — podologia",
+    "zabieg"
+   ],
+   "a": "usunięcie odcisku",
+   "b": "zabieg podologiczny",
+   "p": 0.07
+  },
+  {
+   "rodzic": [
+    "twarz — pielęgnacja",
+    "peeling"
+   ],
+   "a": "peeling chemiczny",
+   "b": "peeling enzymatyczny",
+   "p": 0.09
+  },
+  {
+   "rodzic": [
+    "broda i golenie"
+   ],
+   "a": "trymowanie brody",
+   "b": "tuszowanie siwizny",
+   "p": 0.04
+  },
+  {
+   "rodzic": [
+    "broda i golenie"
+   ],
+   "a": "modelowanie brody",
+   "b": "trymowanie brody",
+   "p": 0.4
+  },
+  {
+   "rodzic": [
+    "brwi i rzęsy"
+   ],
+   "a": "koloryzacja",
+   "b": "stylizacja brwi i rzęs",
+   "p": 0.15
+  },
+  {
+   "rodzic": [
+    "masaż",
+    "masaż"
+   ],
+   "a": "masaż bańką chińską",
+   "b": "masaż próżniowy",
+   "p": 0.55
+  },
+  {
+   "rodzic": [
+    "depilacja",
+    "depilacja"
+   ],
+   "a": "depilacja laserowa",
+   "b": "depilacja laserowa vectus",
+   "p": 0.36
+  },
+  {
+   "rodzic": [
+    "twarz — pielęgnacja"
+   ],
+   "a": "pielęgnacja",
+   "b": "rytuał",
+   "p": 0.29
+  },
+  {
+   "rodzic": [
+    "ciało — modelowanie i pielęgnacja",
+    "masaż"
+   ],
+   "a": "masaż antycellulitowy",
+   "b": "masaż próżniowy",
+   "p": 0.2
+  },
+  {
+   "rodzic": [
+    "masaż",
+    "masaż"
+   ],
+   "a": "ajurwedyjski",
+   "b": "masaż stemplami ziołowymi",
+   "p": 0.09
+  },
+  {
+   "rodzic": [
+    "depilacja",
+    "depilacja"
+   ],
+   "a": "depilacja laserem diodowym",
+   "b": "depilacja laserowa",
+   "p": 0.68
+  },
+  {
+   "rodzic": [
+    "masaż",
+    "masaż"
+   ],
+   "a": "masaż gorącą świecą",
+   "b": "masaż stemplami ziołowymi",
+   "p": 0.05
+  },
+  {
+   "rodzic": [
+    "depilacja",
+    "depilacja"
+   ],
+   "a": "depilacja laserem diodowym",
+   "b": "depilacja woskiem",
+   "p": 0.03
+  },
+  {
+   "rodzic": [
+    "masaż",
+    "masaż"
+   ],
+   "a": "masaż podciśnieniowy",
+   "b": "masaż próżniowy",
+   "p": 0.8
+  },
+  {
+   "rodzic": [
+    "stopy — podologia",
+    "pedicure"
+   ],
+   "a": "pedicure hybrydowy",
+   "b": "pedicure leczniczy",
+   "p": 0.17
+  },
+  {
+   "rodzic": [
+    "włosy"
+   ],
+   "a": "dekoloryzacja",
+   "b": "usługa kompleksowa",
+   "p": 0.06
+  },
+  {
+   "rodzic": [
+    "masaż",
+    "masaż"
+   ],
+   "a": "masaż leczniczy",
+   "b": "masaż stemplami ziołowymi",
+   "p": 0.06
+  },
+  {
+   "rodzic": [
+    "masaż",
+    "masaż"
+   ],
+   "a": "masaż gorącą świecą",
+   "b": "masaż miodowy",
+   "p": 0.03
+  },
+  {
+   "rodzic": [
+    "stopy — podologia"
+   ],
+   "a": "badanie",
+   "b": "manicure",
+   "p": 0.03
+  },
+  {
+   "rodzic": [
+    "broda i golenie"
+   ],
+   "a": "pigmentacja",
+   "b": "trymowanie brody",
+   "p": 0.05
+  },
+  {
+   "rodzic": [
+    "masaż",
+    "masaż"
+   ],
+   "a": "masaż bańką chińską",
+   "b": "masaż podciśnieniowy",
+   "p": 0.53
+  }
+ ]
+}

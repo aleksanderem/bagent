@@ -1,0 +1,2530 @@
+[
+ {
+  "branza": "Barber shop",
+  "usluga": "Królewski kompleks",
+  "kategoria": "Barberzy",
+  "sciezka": "włosy › strzyżenie › maszynką › włosy › ogolnie › męskie › — › —",
+  "konkurenci": [
+   {
+    "nazwa": "Królewski kompleks",
+    "kategoria": "𝑨𝑳𝑬𝑿- 𝑻𝑶𝑷 𝑩𝑨𝑹𝑩𝑬𝑹 ",
+    "werdykt": "tozsame",
+    "poziom": 5,
+    "powod": "identyczna nazwa",
+    "sciezka": "włosy › strzyżenie › maszynką › włosy › ogolnie › męskie › — › —"
+   },
+   {
+    "nazwa": "Królewski Kompleks (włosy + broda)",
+    "kategoria": "Strefa męska ",
+    "werdykt": "tozsame",
+    "poziom": 5,
+    "powod": "ta sama ścieżka",
+    "sciezka": "włosy › strzyżenie › maszynką › włosy › ogolnie › męskie › — › —"
+   },
+   {
+    "nazwa": "Królewski kompleks Combo (włosy + broda)",
+    "kategoria": "Strefa męska",
+    "werdykt": "tozsame",
+    "poziom": 5,
+    "powod": "ta sama ścieżka",
+    "sciezka": "włosy › strzyżenie › maszynką › włosy › ogolnie › męskie › — › —"
+   },
+   {
+    "nazwa": "Combo (strzyzenie meskie + strzyzenie brody)",
+    "kategoria": "",
+    "werdykt": "tozsame",
+    "poziom": 5,
+    "powod": "ta sama ścieżka",
+    "sciezka": "włosy › strzyżenie › maszynką › włosy › ogolnie › męskie › — › —"
+   },
+   {
+    "nazwa": "Combo Premium",
+    "kategoria": "",
+    "werdykt": "tozsame",
+    "poziom": 5,
+    "powod": "ta sama ścieżka",
+    "sciezka": "włosy › strzyżenie › maszynką › włosy › ogolnie › męskie › — › —"
+   },
+   {
+    "nazwa": "Combo Premium",
+    "kategoria": "",
+    "werdykt": "tozsame",
+    "poziom": 5,
+    "powod": "ta sama ścieżka",
+    "sciezka": "włosy › strzyżenie › maszynką › włosy › ogolnie › męskie › — › —"
+   },
+   {
+    "nazwa": "Strzyżenie włosów i brody",
+    "kategoria": "",
+    "werdykt": "powiazane",
+    "poziom": 5,
+    "powod": "dodatek",
+    "sciezka": "włosy › strzyżenie › maszynką › włosy › ogolnie › męskie › — › —"
+   },
+   {
+    "nazwa": "Combo Premium Maszynka + Broda",
+    "kategoria": "",
+    "werdykt": "tozsame",
+    "poziom": 5,
+    "powod": "ta sama ścieżka",
+    "sciezka": "włosy › strzyżenie › maszynką › włosy › ogolnie › męskie › — › —"
+   },
+   {
+    "nazwa": "Męskie strzyżenie Combo PREMIUM DELUXE",
+    "kategoria": "Barber",
+    "werdykt": "tozsame",
+    "poziom": 5,
+    "powod": "ta sama ścieżka",
+    "sciezka": "włosy › strzyżenie › maszynką › włosy › ogolnie › męskie › — › —"
+   },
+   {
+    "nazwa": "Komplet włosy +broda+ parafina na dłonie",
+    "kategoria": "Wszystkie usługi",
+    "werdykt": "tozsame",
+    "poziom": 5,
+    "powod": "ta sama ścieżka",
+    "sciezka": "włosy › strzyżenie › maszynką › włosy › ogolnie › męskie › — › —"
+   },
+   {
+    "nazwa": "Combo standard",
+    "kategoria": "",
+    "werdykt": "tozsame",
+    "poziom": 5,
+    "powod": "ta sama ścieżka",
+    "sciezka": "włosy › strzyżenie › maszynką › włosy › ogolnie › męskie › — › —"
+   },
+   {
+    "nazwa": "Komplet królewski strzyżenie włosów+brody+depilacja woskiem+parafina na dłonie",
+    "kategoria": "Wszystkie usługi",
+    "werdykt": "tozsame",
+    "poziom": 5,
+    "powod": "ta sama ścieżka",
+    "sciezka": "włosy › strzyżenie › maszynką › włosy › ogolnie › męskie › — › —"
+   }
+  ]
+ },
+ {
+  "branza": "Barber shop",
+  "usluga": "Total Blond (całość od zera)",
+  "kategoria": "Anastazja - Fryzjer Damski",
+  "sciezka": "włosy › dekoloryzacja › — › włosów › krótkie › — › — › —",
+  "konkurenci": [
+   {
+    "nazwa": "Total blond (Krótkie włosy)+Toner",
+    "kategoria": "Total blond",
+    "werdykt": "powiazane",
+    "poziom": 5,
+    "powod": "zestaw",
+    "sciezka": "włosy › dekoloryzacja › — › włosów › krótkie › — › — › —"
+   },
+   {
+    "nazwa": "Total Blond (Rozjaśnianie całościowe) + Strzyżenie",
+    "kategoria": "Blondy i Rozjaśnianie (Włosy krótkie)",
+    "werdykt": "powiazane",
+    "poziom": 5,
+    "powod": "zestaw",
+    "sciezka": "włosy › dekoloryzacja › — › włosów › krótkie › — › — › —"
+   },
+   {
+    "nazwa": "Total Blond Włosy Krótki",
+    "kategoria": "Koloryzacja ",
+    "werdykt": "tozsame",
+    "poziom": 5,
+    "powod": "ta sama ścieżka",
+    "sciezka": "włosy › dekoloryzacja › — › włosów › krótkie › — › — › —"
+   },
+   {
+    "nazwa": "Total Blond Włosy Krótkie",
+    "kategoria": "Koloryzacja",
+    "werdykt": "powiazane",
+    "poziom": 5,
+    "powod": "zestaw",
+    "sciezka": "włosy › dekoloryzacja › — › włosów › krótkie › — › — › —"
+   },
+   {
+    "nazwa": "Total Blond  + strzyżenie + modelowanie + Olaplex",
+    "kategoria": "💎 Diamentowe pakiety koloryzacji  ze strzyżeniem 💎",
+    "werdykt": "powiazane",
+    "poziom": 3,
+    "powod": "zestaw",
+    "sciezka": "włosy › dekoloryzacja › — › włosów › ogolnie › — › — › —"
+   },
+   {
+    "nazwa": "Total Blond + strzyżenie + modelowanie + Olaplex",
+    "kategoria": "💎 Diamentowe pakiety koloryzacji ze strzyżeniem  💎",
+    "werdykt": "powiazane",
+    "poziom": 3,
+    "powod": "zestaw",
+    "sciezka": "włosy › dekoloryzacja › — › włosów › ogolnie › — › — › —"
+   },
+   {
+    "nazwa": "total blond - rozjaśnianie całość włosów",
+    "kategoria": "",
+    "werdykt": "powiazane",
+    "poziom": 3,
+    "powod": "zestaw",
+    "sciezka": "włosy › dekoloryzacja › — › włosów › ogolnie › — › — › —"
+   },
+   {
+    "nazwa": "Total Blond + Olaplex",
+    "kategoria": "💎 Koloryzacja włosów 💎",
+    "werdykt": "powiazane",
+    "poziom": 3,
+    "powod": "zestaw",
+    "sciezka": "włosy › dekoloryzacja › — › włosów › ogolnie › — › — › —"
+   },
+   {
+    "nazwa": "Total Blond + Olaplex",
+    "kategoria": "💎 Koloryzacja włosów 💎",
+    "werdykt": "powiazane",
+    "poziom": 3,
+    "powod": "zestaw",
+    "sciezka": "włosy › dekoloryzacja › — › włosów › ogolnie › — › — › —"
+   },
+   {
+    "nazwa": "Total Blond odrostu do 2cm+ strzyż+model",
+    "kategoria": "💎 Diamentowe pakiety koloryzacji  ze strzyżeniem 💎",
+    "werdykt": "powiazane",
+    "poziom": 3,
+    "powod": "zestaw",
+    "sciezka": "włosy › dekoloryzacja › — › włosów › ogolnie › — › — › —"
+   },
+   {
+    "nazwa": "Total Blond ( dekoloryzacja całości + Koloryzacja)",
+    "kategoria": "KOLORYZACJA ",
+    "werdykt": "powiazane",
+    "poziom": 3,
+    "powod": "zestaw",
+    "sciezka": "włosy › dekoloryzacja › — › włosów › ogolnie › — › — › —"
+   },
+   {
+    "nazwa": "Total Blond odrostu do 2 cm",
+    "kategoria": "💎 Koloryzacja włosów 💎",
+    "werdykt": "niepelne",
+    "poziom": 3,
+    "powod": "wielkość nieustalony",
+    "sciezka": "włosy › dekoloryzacja › — › włosów › ogolnie › — › — › —"
+   }
+  ]
+ },
+ {
+  "branza": "Barber shop",
+  "usluga": "Strzyżenie + odsiwianie",
+  "kategoria": "",
+  "sciezka": "broda i golenie › cover › — › — › — › — › — › —",
+  "konkurenci": [
+   {
+    "nazwa": "Strzyżenie",
+    "kategoria": "Damskie Izy For Me",
+    "werdykt": "powiazane",
+    "poziom": 0,
+    "powod": "zestaw",
+    "sciezka": "włosy › strzyżenie › ogolnie › włosy › ogolnie › damskie › — › —"
+   },
+   {
+    "nazwa": "Strzyżenie",
+    "kategoria": "Męskie  Izy For Me",
+    "werdykt": "powiazane",
+    "poziom": 0,
+    "powod": "zestaw",
+    "sciezka": "włosy › strzyżenie › ogolnie › włosy › ogolnie › męskie › — › —"
+   },
+   {
+    "nazwa": "Strzyżenie damskie",
+    "kategoria": "Damskie",
+    "werdykt": "powiazane",
+    "poziom": 0,
+    "powod": "zestaw",
+    "sciezka": "włosy › strzyżenie › ogolnie › włosy › ogolnie › damskie › — › —"
+   }
+  ]
+ },
+ {
+  "branza": "Brwi i rzęsy",
+  "usluga": "Architektura brwi z farba",
+  "kategoria": "",
+  "sciezka": "brwi i rzęsy › henna › ogolnie › brwi › — › — › — › —",
+  "konkurenci": [
+   {
+    "nazwa": "Architektura brwi",
+    "kategoria": "",
+    "werdykt": "tozsame",
+    "poziom": 5,
+    "powod": "ta sama ścieżka",
+    "sciezka": "brwi i rzęsy › henna › ogolnie › brwi › — › — › — › —"
+   },
+   {
+    "nazwa": "Architektura brwi + henna pudrowa",
+    "kategoria": "HENNA / REGULACJA ",
+    "werdykt": "niepelne",
+    "poziom": 2,
+    "powod": "metoda nieustalony",
+    "sciezka": "brwi i rzęsy › henna › pudrowa › brwi › — › — › — › —"
+   },
+   {
+    "nazwa": "Henna pudrowa brwi z architekturą",
+    "kategoria": "STYLIZACJA BRWI KLAUDIA",
+    "werdykt": "niepelne",
+    "poziom": 2,
+    "powod": "metoda nieustalony",
+    "sciezka": "brwi i rzęsy › henna › pudrowa › brwi › — › — › — › —"
+   },
+   {
+    "nazwa": "Henna pudrowa brwi z architekturą",
+    "kategoria": "STYLIZACJA BRWI OLA",
+    "werdykt": "niepelne",
+    "poziom": 2,
+    "powod": "metoda nieustalony",
+    "sciezka": "brwi i rzęsy › henna › pudrowa › brwi › — › — › — › —"
+   },
+   {
+    "nazwa": "Architektura brwi (Henna pudrowa)",
+    "kategoria": "STYLIZACJA BRWI I RZĘS",
+    "werdykt": "niepelne",
+    "poziom": 2,
+    "powod": "metoda nieustalony",
+    "sciezka": "brwi i rzęsy › henna › pudrowa › brwi › — › — › — › —"
+   },
+   {
+    "nazwa": "Architektura i geometria brwi + farbka",
+    "kategoria": "Stylizacja brwi",
+    "werdykt": "rozne",
+    "poziom": 1,
+    "powod": "inny zabieg",
+    "sciezka": "brwi i rzęsy › farbka › — › — › — › — › — › —"
+   },
+   {
+    "nazwa": "Farbka i architektura brwi",
+    "kategoria": "STYLIZACJA BRWI KLAUDIA",
+    "werdykt": "rozne",
+    "poziom": 1,
+    "powod": "inny zabieg",
+    "sciezka": "brwi i rzęsy › farbka › — › — › — › — › — › —"
+   },
+   {
+    "nazwa": "Farbka i architektura brwi",
+    "kategoria": "STYLIZACJA BRWI OLA",
+    "werdykt": "rozne",
+    "poziom": 1,
+    "powod": "inny zabieg",
+    "sciezka": "brwi i rzęsy › farbka › — › — › — › — › — › —"
+   },
+   {
+    "nazwa": "Architektura i geometria brwi",
+    "kategoria": "Stylizacja brwi ",
+    "werdykt": "rozne",
+    "poziom": 1,
+    "powod": "inny zabieg",
+    "sciezka": "brwi i rzęsy › stylizacja › ogolnie › brwi › — › — › — › ogolnie"
+   },
+   {
+    "nazwa": "Architektura i regulacja brwi woskiem",
+    "kategoria": "STYLIZACJA BRWI OLA",
+    "werdykt": "rozne",
+    "poziom": 1,
+    "powod": "inny zabieg",
+    "sciezka": "brwi i rzęsy › regulacja › woskiem › brwi › — › — › — › —"
+   }
+  ]
+ },
+ {
+  "branza": "Brwi i rzęsy",
+  "usluga": "Uzupełnienie rzęs 1:1",
+  "kategoria": "",
+  "sciezka": "brwi i rzęsy › przedłużanie › metoda 1:1 › rzęs › 1:1 › — › ogolnie › uzupełnienie",
+  "konkurenci": [
+   {
+    "nazwa": "Uzupełnienie rzęs 1:1",
+    "kategoria": "uzupełnienie rzęs",
+    "werdykt": "tozsame",
+    "poziom": 5,
+    "powod": "identyczna nazwa",
+    "sciezka": "brwi i rzęsy › przedłużanie › metoda 1:1 › rzęs › 1:1 › — › ogolnie › uzupełnienie"
+   },
+   {
+    "nazwa": "Uzupełnienie rzęs 1:1",
+    "kategoria": "Przedłużanie rzęs ",
+    "werdykt": "tozsame",
+    "poziom": 5,
+    "powod": "identyczna nazwa",
+    "sciezka": "brwi i rzęsy › przedłużanie › metoda 1:1 › rzęs › 1:1 › — › ogolnie › uzupełnienie"
+   },
+   {
+    "nazwa": "Uzupełnienie rzęs 1:1",
+    "kategoria": "Przedłużanie rzęs",
+    "werdykt": "tozsame",
+    "poziom": 5,
+    "powod": "identyczna nazwa",
+    "sciezka": "brwi i rzęsy › przedłużanie › metoda 1:1 › rzęs › 1:1 › — › ogolnie › uzupełnienie"
+   },
+   {
+    "nazwa": "Uzupełnienie rzęs 1:1",
+    "kategoria": "Stylizacja rzęs ",
+    "werdykt": "tozsame",
+    "poziom": 5,
+    "powod": "identyczna nazwa",
+    "sciezka": "brwi i rzęsy › przedłużanie › metoda 1:1 › rzęs › 1:1 › — › ogolnie › uzupełnienie"
+   },
+   {
+    "nazwa": "Uzupełnienie rzęs 1:1",
+    "kategoria": "Uzupełnienie rzęs",
+    "werdykt": "tozsame",
+    "poziom": 5,
+    "powod": "identyczna nazwa",
+    "sciezka": "brwi i rzęsy › przedłużanie › metoda 1:1 › rzęs › 1:1 › — › ogolnie › uzupełnienie"
+   },
+   {
+    "nazwa": "Uzupełnienie rzęs 1:1",
+    "kategoria": "Przedłużanie rzęs - Stylistka Kornelia ",
+    "werdykt": "tozsame",
+    "poziom": 5,
+    "powod": "identyczna nazwa",
+    "sciezka": "brwi i rzęsy › przedłużanie › metoda 1:1 › rzęs › 1:1 › — › ogolnie › uzupełnienie"
+   },
+   {
+    "nazwa": "Uzupełnienie rzęs metodą 1:1",
+    "kategoria": "",
+    "werdykt": "tozsame",
+    "poziom": 5,
+    "powod": "ta sama ścieżka",
+    "sciezka": "brwi i rzęsy › przedłużanie › metoda 1:1 › rzęs › 1:1 › — › ogolnie › uzupełnienie"
+   },
+   {
+    "nazwa": "Uzupełnienie rzęs 1:1 do 2 tygodni",
+    "kategoria": "",
+    "werdykt": "tozsame",
+    "poziom": 5,
+    "powod": "ta sama ścieżka",
+    "sciezka": "brwi i rzęsy › przedłużanie › metoda 1:1 › rzęs › 1:1 › — › ogolnie › uzupełnienie"
+   },
+   {
+    "nazwa": "Uzupełnienie rzęs 1:1 do 3 tygodni",
+    "kategoria": "",
+    "werdykt": "tozsame",
+    "poziom": 5,
+    "powod": "ta sama ścieżka",
+    "sciezka": "brwi i rzęsy › przedłużanie › metoda 1:1 › rzęs › 1:1 › — › ogolnie › uzupełnienie"
+   },
+   {
+    "nazwa": "Uzupełnienie 1:1",
+    "kategoria": "",
+    "werdykt": "tozsame",
+    "poziom": 5,
+    "powod": "ta sama ścieżka",
+    "sciezka": "brwi i rzęsy › przedłużanie › metoda 1:1 › rzęs › 1:1 › — › ogolnie › uzupełnienie"
+   },
+   {
+    "nazwa": "Przedłużenie rzęs metoda klasyczne 1:1",
+    "kategoria": "",
+    "werdykt": "tozsame",
+    "poziom": 5,
+    "powod": "ta sama ścieżka",
+    "sciezka": "brwi i rzęsy › przedłużanie › metoda 1:1 › rzęs › 1:1 › — › ogolnie › uzupełnienie"
+   },
+   {
+    "nazwa": "Założenie rzęs 1:1",
+    "kategoria": "Stylizacja rzęs ",
+    "werdykt": "niepelne",
+    "poziom": 4,
+    "powod": "etap nieustalony",
+    "sciezka": "brwi i rzęsy › przedłużanie › metoda 1:1 › rzęs › 1:1 › — › ogolnie › ogolnie"
+   }
+  ]
+ },
+ {
+  "branza": "Brwi i rzęsy",
+  "usluga": "Uzupełnianie set on wet efekt mascary",
+  "kategoria": "",
+  "sciezka": "brwi i rzęsy › przedłużanie › efekt mokrych › rzęs › ogolnie › — › efekt › uzupełnienie",
+  "konkurenci": [
+   {
+    "nazwa": "Uzupełnienie mokry efekt 💦 ,delikatny efekt’",
+    "kategoria": "",
+    "werdykt": "tozsame",
+    "poziom": 5,
+    "powod": "ta sama ścieżka",
+    "sciezka": "brwi i rzęsy › przedłużanie › efekt mokrych › rzęs › ogolnie › — › efekt › uzupełnienie"
+   },
+   {
+    "nazwa": "Uzupełnienie rzęs Wispy",
+    "kategoria": "Uzupełnienie rzęs",
+    "werdykt": "powiazane",
+    "poziom": 2,
+    "powod": "inny poziom: metoda",
+    "sciezka": "brwi i rzęsy › przedłużanie › wispy › rzęs › ogolnie › — › ogolnie › uzupełnienie"
+   },
+   {
+    "nazwa": "Uzupełnienie rzęs Wet-look",
+    "kategoria": "Uzupełnienie rzęs",
+    "werdykt": "powiazane",
+    "poziom": 2,
+    "powod": "inny poziom: metoda",
+    "sciezka": "brwi i rzęsy › przedłużanie › wet look › rzęs › ogolnie › — › efekt › uzupełnienie"
+   },
+   {
+    "nazwa": "Uzupełnienie rzęs Wet-look do 2 tygodni",
+    "kategoria": "",
+    "werdykt": "powiazane",
+    "poziom": 2,
+    "powod": "inny poziom: metoda",
+    "sciezka": "brwi i rzęsy › przedłużanie › wet look › rzęs › ogolnie › — › efekt › uzupełnienie"
+   }
+  ]
+ },
+ {
+  "branza": "Depilacja",
+  "usluga": "Terapia LED – leczenie trądziku - jedna sesja 30 minut",
+  "kategoria": "Terapia medyczną lampą LED CELLUMA",
+  "sciezka": "twarz — pielęgnacja › leczenie › — › — › — › — › trądziku › —",
+  "konkurenci": [
+   {
+    "nazwa": "Leczenie trądziku i stanów zapalnych twarz+s+d",
+    "kategoria": "Technologie estetyczne",
+    "werdykt": "tozsame",
+    "poziom": 5,
+    "powod": "ta sama ścieżka",
+    "sciezka": "twarz — pielęgnacja › leczenie › — › — › — › — › trądziku › —"
+   },
+   {
+    "nazwa": "Protokół terapia trądzik i przebarwienia",
+    "kategoria": "Zabieg światłoterapia LED ",
+    "werdykt": "tozsame",
+    "poziom": 5,
+    "powod": "ta sama ścieżka",
+    "sciezka": "twarz — pielęgnacja › leczenie › — › — › — › — › trądziku › —"
+   },
+   {
+    "nazwa": "Leczenie trądziku i stanów zapalnych twarz+szyja",
+    "kategoria": "Technologie estetyczne",
+    "werdykt": "tozsame",
+    "poziom": 5,
+    "powod": "ta sama ścieżka",
+    "sciezka": "twarz — pielęgnacja › leczenie › — › — › — › — › trądziku › —"
+   },
+   {
+    "nazwa": "Leczenie trądziku i stanów zapalnych twarz",
+    "kategoria": "Technologie estetyczne",
+    "werdykt": "tozsame",
+    "poziom": 5,
+    "powod": "ta sama ścieżka",
+    "sciezka": "twarz — pielęgnacja › leczenie › — › — › — › — › trądziku › —"
+   },
+   {
+    "nazwa": "Anti Acne- Medestelle + Lampa Led CELLUMA",
+    "kategoria": "ZABIEGI OCZYSZCZAJĄCE I REGULUJĄCE",
+    "werdykt": "powiazane",
+    "poziom": 5,
+    "powod": "zestaw",
+    "sciezka": "twarz — pielęgnacja › leczenie › — › — › — › — › trądziku › —"
+   },
+   {
+    "nazwa": "Terapia Fotodynamiczna Estgen Z Lampą Celluma Pro",
+    "kategoria": "",
+    "werdykt": "powiazane",
+    "poziom": 5,
+    "powod": "dodatek",
+    "sciezka": "twarz — pielęgnacja › leczenie › — › — › — › — › trądziku › —"
+   },
+   {
+    "nazwa": "Zabieg łagodząco-wyciszający",
+    "kategoria": "Skóra naczyniowa i trądzik różowaty",
+    "werdykt": "tozsame",
+    "poziom": 5,
+    "powod": "ta sama ścieżka",
+    "sciezka": "twarz — pielęgnacja › leczenie › — › — › — › — › trądziku › —"
+   },
+   {
+    "nazwa": "Leczenie trądziku e-light",
+    "kategoria": "Kosmetologia",
+    "werdykt": "tozsame",
+    "poziom": 5,
+    "powod": "ta sama ścieżka",
+    "sciezka": "twarz — pielęgnacja › leczenie › — › — › — › — › trądziku › —"
+   },
+   {
+    "nazwa": "Laserowe leczenie trądziku (IPL)",
+    "kategoria": "• Terapia przeciwtrądzikowa",
+    "werdykt": "tozsame",
+    "poziom": 5,
+    "powod": "ta sama ścieżka",
+    "sciezka": "twarz — pielęgnacja › leczenie › — › — › — › — › trądziku › —"
+   },
+   {
+    "nazwa": "Acne Control - Terapia przeciwtrądzikowa",
+    "kategoria": "Zabiegi na twarz",
+    "werdykt": "tozsame",
+    "poziom": 5,
+    "powod": "ta sama ścieżka",
+    "sciezka": "twarz — pielęgnacja › leczenie › — › — › — › — › trądziku › —"
+   },
+   {
+    "nazwa": "Acne clear Twarz 3 zabiegi",
+    "kategoria": "ŚWIATŁO SZEROKOPASMOWE ",
+    "werdykt": "powiazane",
+    "poziom": 5,
+    "powod": "pakiet i pojedyncza wizyta",
+    "sciezka": "twarz — pielęgnacja › leczenie › — › — › — › — › trądziku › —"
+   },
+   {
+    "nazwa": "Acne clear Twarz, Szyja 3 zabiegi",
+    "kategoria": "ŚWIATŁO SZEROKOPASMOWE ",
+    "werdykt": "powiazane",
+    "poziom": 5,
+    "powod": "pakiet i pojedyncza wizyta",
+    "sciezka": "twarz — pielęgnacja › leczenie › — › — › — › — › trądziku › —"
+   }
+  ]
+ },
+ {
+  "branza": "Depilacja",
+  "usluga": "Mezoterapia mikroigłowa",
+  "kategoria": "Kosmetologia",
+  "sciezka": "medycyna estetyczna › mezoterapia › mikroigłowa › ogolnie › — › — › ogolnie › —",
+  "konkurenci": [
+   {
+    "nazwa": "Mezoterapia mikroigłowa",
+    "kategoria": "Zabiegi dla mężczyzn VEGAN",
+    "werdykt": "tozsame",
+    "poziom": 5,
+    "powod": "identyczna nazwa",
+    "sciezka": "medycyna estetyczna › mezoterapia › mikroigłowa › twarz › — › — › ogolnie › —"
+   },
+   {
+    "nazwa": "Mezoterapia mikroigłowa",
+    "kategoria": "Mezoterapia mikroigłowa",
+    "werdykt": "tozsame",
+    "poziom": 5,
+    "powod": "identyczna nazwa",
+    "sciezka": "medycyna estetyczna › mezoterapia › mikroigłowa › twarz szyja dekolt › — › — › ogolnie › —"
+   },
+   {
+    "nazwa": "Mezoterapia mikroigłowa",
+    "kategoria": "ZABIEGI NA TWARZ",
+    "werdykt": "tozsame",
+    "poziom": 5,
+    "powod": "identyczna nazwa",
+    "sciezka": "medycyna estetyczna › mezoterapia › mikroigłowa › twarz › — › — › ogolnie › —"
+   },
+   {
+    "nazwa": "Mezoterapia mikroigłowa",
+    "kategoria": "",
+    "werdykt": "tozsame",
+    "poziom": 5,
+    "powod": "identyczna nazwa",
+    "sciezka": "medycyna estetyczna › mezoterapia › mikroigłowa › twarz szyja dekolt › — › — › ogolnie › —"
+   },
+   {
+    "nazwa": "Mezoterapia mikroigłowa",
+    "kategoria": "Zabiegi pielęgnacyjne AntyAge",
+    "werdykt": "tozsame",
+    "poziom": 5,
+    "powod": "identyczna nazwa",
+    "sciezka": "medycyna estetyczna › mezoterapia › mikroigłowa › ogolnie › — › — › ogolnie › —"
+   },
+   {
+    "nazwa": "Mezoterapia mikroigłowa",
+    "kategoria": "Mezoterapia - DERMAPEN ",
+    "werdykt": "tozsame",
+    "poziom": 5,
+    "powod": "identyczna nazwa",
+    "sciezka": "medycyna estetyczna › mezoterapia › mikroigłowa › twarz › — › — › ogolnie › —"
+   },
+   {
+    "nazwa": "Mezoterapia mikroigłowa",
+    "kategoria": "Kosmetyka",
+    "werdykt": "tozsame",
+    "poziom": 5,
+    "powod": "identyczna nazwa",
+    "sciezka": "medycyna estetyczna › mezoterapia › mikroigłowa › ogolnie › — › — › ogolnie › —"
+   },
+   {
+    "nazwa": "Mezoterapia mikroigłowa",
+    "kategoria": "",
+    "werdykt": "tozsame",
+    "poziom": 5,
+    "powod": "identyczna nazwa",
+    "sciezka": "medycyna estetyczna › mezoterapia › mikroigłowa › twarz szyja dekolt › — › — › ogolnie › —"
+   },
+   {
+    "nazwa": "✨Mezoterapia Mikroigłowa",
+    "kategoria": "✨Mezoterapia Mikroigłowa i Nanoigłowa✨",
+    "werdykt": "tozsame",
+    "poziom": 5,
+    "powod": "identyczna nazwa",
+    "sciezka": "medycyna estetyczna › mezoterapia › mikroigłowa › twarz › — › — › ogolnie › —"
+   },
+   {
+    "nazwa": "Mezoterapia mikroigłowa",
+    "kategoria": "Kosmetologia",
+    "werdykt": "tozsame",
+    "poziom": 5,
+    "powod": "identyczna nazwa",
+    "sciezka": "medycyna estetyczna › mezoterapia › mikroigłowa › twarz szyja dekolt › — › — › ogolnie › —"
+   },
+   {
+    "nazwa": "Mezoterapia Mikroigłowa",
+    "kategoria": "ZABIEGI NA TWARZ",
+    "werdykt": "tozsame",
+    "poziom": 5,
+    "powod": "identyczna nazwa",
+    "sciezka": "medycyna estetyczna › mezoterapia › mikroigłowa › twarz › — › — › ogolnie › —"
+   },
+   {
+    "nazwa": "Mezoterapia mikroigłowa",
+    "kategoria": "Zabiegi na twarz ",
+    "werdykt": "tozsame",
+    "poziom": 5,
+    "powod": "identyczna nazwa",
+    "sciezka": "medycyna estetyczna › mezoterapia › mikroigłowa › twarz › — › — › ogolnie › —"
+   }
+  ]
+ },
+ {
+  "branza": "Depilacja",
+  "usluga": "Depilacja laserowa - Pachy",
+  "kategoria": "Depilacja laserowa-Popularne",
+  "sciezka": "depilacja › depilacja › laserowa › pachy › ogolnie › ogolnie › — › —",
+  "konkurenci": [
+   {
+    "nazwa": "Depilacja laserowa - Pachy",
+    "kategoria": "DEPILACJA LASEROWA LIGHTSHEER DESIRE",
+    "werdykt": "tozsame",
+    "poziom": 5,
+    "powod": "identyczna nazwa",
+    "sciezka": "depilacja › depilacja › laserowa › pachy › ogolnie › ogolnie › — › —"
+   },
+   {
+    "nazwa": "Depilacja Laserowa - Pachy",
+    "kategoria": "Depilacja Laserowa",
+    "werdykt": "tozsame",
+    "poziom": 5,
+    "powod": "identyczna nazwa",
+    "sciezka": "depilacja › depilacja › laserowa › pachy › ogolnie › ogolnie › — › —"
+   },
+   {
+    "nazwa": "Depilacja laserowa - pachy",
+    "kategoria": "DEPILACJA LASEROWA (dioda 4D)",
+    "werdykt": "tozsame",
+    "poziom": 5,
+    "powod": "identyczna nazwa",
+    "sciezka": "depilacja › depilacja › laserowa › pachy › ogolnie › ogolnie › — › —"
+   },
+   {
+    "nazwa": "Depilacja laserowa - pachy",
+    "kategoria": "Depilacja laserowa",
+    "werdykt": "tozsame",
+    "poziom": 5,
+    "powod": "identyczna nazwa",
+    "sciezka": "depilacja › depilacja › laserowa › pachy › ogolnie › ogolnie › — › —"
+   },
+   {
+    "nazwa": "Depilacja laserowa - pachy",
+    "kategoria": "DEPILACJA LASEROWA",
+    "werdykt": "tozsame",
+    "poziom": 5,
+    "powod": "identyczna nazwa",
+    "sciezka": "depilacja › depilacja › laserowa › pachy › ogolnie › ogolnie › — › —"
+   },
+   {
+    "nazwa": "Depilacja laserowa -pachy",
+    "kategoria": "",
+    "werdykt": "tozsame",
+    "poziom": 5,
+    "powod": "identyczna nazwa",
+    "sciezka": "depilacja › depilacja › laserowa › pachy › ogolnie › ogolnie › — › —"
+   },
+   {
+    "nazwa": "Depilacja laserowa – pachy",
+    "kategoria": "DEPILACJA LASEROWA ",
+    "werdykt": "tozsame",
+    "poziom": 5,
+    "powod": "identyczna nazwa",
+    "sciezka": "depilacja › depilacja › laserowa › pachy › ogolnie › ogolnie › — › —"
+   },
+   {
+    "nazwa": "Depilacja laserowa Pachy",
+    "kategoria": "Depilacja laserowa sPTF+",
+    "werdykt": "tozsame",
+    "poziom": 5,
+    "powod": "identyczna nazwa",
+    "sciezka": "depilacja › depilacja › laserowa › pachy › ogolnie › ogolnie › — › —"
+   },
+   {
+    "nazwa": "Depilacja laserowa Pachy",
+    "kategoria": "Depilacja laserowa MEDIOSTAR Monolith dla kobiet",
+    "werdykt": "tozsame",
+    "poziom": 5,
+    "powod": "identyczna nazwa",
+    "sciezka": "depilacja › depilacja › laserowa › pachy › ogolnie › kobiet › — › —"
+   },
+   {
+    "nazwa": "Depilacja Laserowa Pachy",
+    "kategoria": "Depilacja laserowa męska",
+    "werdykt": "tozsame",
+    "poziom": 5,
+    "powod": "identyczna nazwa",
+    "sciezka": "depilacja › depilacja › laserowa › pachy › ogolnie › męska › — › —"
+   },
+   {
+    "nazwa": "Depilacja Laserowa Pachy",
+    "kategoria": " Depilacja laserowa damska",
+    "werdykt": "tozsame",
+    "poziom": 5,
+    "powod": "identyczna nazwa",
+    "sciezka": "depilacja › depilacja › laserowa › pachy › ogolnie › damska › — › —"
+   },
+   {
+    "nazwa": "Epilacja laserowa - Pachy",
+    "kategoria": "EPILACJA LASEROWA MEDILASE PRO",
+    "werdykt": "tozsame",
+    "poziom": 5,
+    "powod": "ta sama ścieżka",
+    "sciezka": "depilacja › depilacja › laserowa › pachy › ogolnie › ogolnie › — › —"
+   }
+  ]
+ },
+ {
+  "branza": "Fryzjer",
+  "usluga": "Manicure klasyczny",
+  "kategoria": "Manicure ,pedicure",
+  "sciezka": "paznokcie › manicure › klasyczny › dłonie › ogolnie › ogolnie › — › ogolnie",
+  "konkurenci": [
+   {
+    "nazwa": "Manicure klasyczny",
+    "kategoria": "STYLIZACJA PAZNOKCI DŁONI 💅",
+    "werdykt": "tozsame",
+    "poziom": 5,
+    "powod": "identyczna nazwa",
+    "sciezka": "paznokcie › manicure › klasyczny › dłonie › ogolnie › ogolnie › — › ogolnie"
+   },
+   {
+    "nazwa": "Manicure klasyczny",
+    "kategoria": "",
+    "werdykt": "tozsame",
+    "poziom": 5,
+    "powod": "identyczna nazwa",
+    "sciezka": "paznokcie › manicure › klasyczny › dłonie › ogolnie › ogolnie › — › ogolnie"
+   },
+   {
+    "nazwa": "Manicure klasyczny",
+    "kategoria": "",
+    "werdykt": "tozsame",
+    "poziom": 5,
+    "powod": "identyczna nazwa",
+    "sciezka": "paznokcie › manicure › klasyczny › dłonie › ogolnie › ogolnie › — › ogolnie"
+   },
+   {
+    "nazwa": "Manicure klasyczny",
+    "kategoria": "",
+    "werdykt": "tozsame",
+    "poziom": 5,
+    "powod": "identyczna nazwa",
+    "sciezka": "paznokcie › manicure › klasyczny › dłonie › ogolnie › ogolnie › — › ogolnie"
+   },
+   {
+    "nazwa": "Manicure klasyczny",
+    "kategoria": "Świat paznokci Oli",
+    "werdykt": "tozsame",
+    "poziom": 5,
+    "powod": "identyczna nazwa",
+    "sciezka": "paznokcie › manicure › klasyczny › dłonie › ogolnie › ogolnie › — › ogolnie"
+   },
+   {
+    "nazwa": "Manicure klasyczny",
+    "kategoria": "Kosmetyka",
+    "werdykt": "tozsame",
+    "poziom": 5,
+    "powod": "identyczna nazwa",
+    "sciezka": "paznokcie › manicure › klasyczny › paznokcie › ogolnie › ogolnie › — › ogolnie"
+   },
+   {
+    "nazwa": "Manicure klasyczny",
+    "kategoria": "STYLIZACJA I PIELĘGNACJA PAZNOKCI DŁONI I STÓP",
+    "werdykt": "tozsame",
+    "poziom": 5,
+    "powod": "identyczna nazwa",
+    "sciezka": "paznokcie › manicure › klasyczny › dłonie › ogolnie › ogolnie › — › ogolnie"
+   },
+   {
+    "nazwa": "Manicure klasyczny",
+    "kategoria": "Paznokcie ",
+    "werdykt": "tozsame",
+    "poziom": 5,
+    "powod": "identyczna nazwa",
+    "sciezka": "paznokcie › manicure › klasyczny › paznokcie › ogolnie › ogolnie › — › ogolnie"
+   },
+   {
+    "nazwa": "Manicure klasyczny",
+    "kategoria": "STYLIZACJA PAZNOKCI INSRTUKTORKA",
+    "werdykt": "tozsame",
+    "poziom": 5,
+    "powod": "identyczna nazwa",
+    "sciezka": "paznokcie › manicure › klasyczny › paznokcie › ogolnie › ogolnie › — › ogolnie"
+   },
+   {
+    "nazwa": "Manicure klasyczny",
+    "kategoria": "Pielęgnacja dłoni i stóp ",
+    "werdykt": "tozsame",
+    "poziom": 5,
+    "powod": "identyczna nazwa",
+    "sciezka": "paznokcie › manicure › klasyczny › dłonie › ogolnie › ogolnie › — › ogolnie"
+   },
+   {
+    "nazwa": "Manicure klasyczny",
+    "kategoria": "",
+    "werdykt": "tozsame",
+    "poziom": 5,
+    "powod": "identyczna nazwa",
+    "sciezka": "paznokcie › manicure › klasyczny › dłonie › ogolnie › ogolnie › — › ogolnie"
+   },
+   {
+    "nazwa": "Manicure klasyczny",
+    "kategoria": "",
+    "werdykt": "tozsame",
+    "poziom": 5,
+    "powod": "identyczna nazwa",
+    "sciezka": "paznokcie › manicure › klasyczny › dłonie › ogolnie › ogolnie › — › ogolnie"
+   }
+  ]
+ },
+ {
+  "branza": "Fryzjer",
+  "usluga": "Dekolor+kolor (długie)",
+  "kategoria": "",
+  "sciezka": "włosy › dekoloryzacja › — › włosów › długie › — › — › —",
+  "konkurenci": [
+   {
+    "nazwa": "Dekoloryzacja + kolor komplet Długie",
+    "kategoria": "",
+    "werdykt": "tozsame",
+    "poziom": 5,
+    "powod": "ta sama ścieżka",
+    "sciezka": "włosy › dekoloryzacja › — › włosów › długie › — › — › —"
+   },
+   {
+    "nazwa": "Dekoloryzacja + kolor ( włosy długie )",
+    "kategoria": "Koloryzacja ( cena bez strzyżenia )",
+    "werdykt": "tozsame",
+    "poziom": 5,
+    "powod": "ta sama ścieżka",
+    "sciezka": "włosy › dekoloryzacja › — › włosów › długie › — › — › —"
+   },
+   {
+    "nazwa": "Dekoloryzacja + kolor komplet B.Długie",
+    "kategoria": "",
+    "werdykt": "tozsame",
+    "poziom": 5,
+    "powod": "ta sama ścieżka",
+    "sciezka": "włosy › dekoloryzacja › — › włosów › długie › — › — › —"
+   },
+   {
+    "nazwa": "dekoloryzacja  z koloryzacą wł długie",
+    "kategoria": "Koloryzacja",
+    "werdykt": "tozsame",
+    "poziom": 5,
+    "powod": "ta sama ścieżka",
+    "sciezka": "włosy › dekoloryzacja › — › włosów › długie › — › — › —"
+   },
+   {
+    "nazwa": "DEKOLORYZACJA+KOLOR WŁ.DŁUGIE",
+    "kategoria": "Fryzjerstwo",
+    "werdykt": "tozsame",
+    "poziom": 5,
+    "powod": "ta sama ścieżka",
+    "sciezka": "włosy › dekoloryzacja › — › włosów › długie › — › — › —"
+   },
+   {
+    "nazwa": "Dekoloryzacja farb.wlosów(długich)",
+    "kategoria": "Fryzjer",
+    "werdykt": "powiazane",
+    "poziom": 5,
+    "powod": "zestaw",
+    "sciezka": "włosy › dekoloryzacja › — › włosów › długie › — › — › —"
+   },
+   {
+    "nazwa": "Dekoloryzacja (długie)",
+    "kategoria": "Fryzjerstwo",
+    "werdykt": "powiazane",
+    "poziom": 5,
+    "powod": "zestaw",
+    "sciezka": "włosy › dekoloryzacja › — › włosów › długie › — › — › —"
+   },
+   {
+    "nazwa": "Dekoloryzacja plus kolor docelowy włosy długie",
+    "kategoria": "Koloryzacja ",
+    "werdykt": "tozsame",
+    "poziom": 5,
+    "powod": "ta sama ścieżka",
+    "sciezka": "włosy › dekoloryzacja › — › włosów › długie › — › — › —"
+   },
+   {
+    "nazwa": "Ściąganie koloruDekoloryzacja Wlosy długie",
+    "kategoria": "",
+    "werdykt": "tozsame",
+    "poziom": 5,
+    "powod": "ta sama ścieżka",
+    "sciezka": "włosy › dekoloryzacja › — › włosów › długie › — › — › —"
+   },
+   {
+    "nazwa": "DEKOLORYZACJA +kolor ( ton) włosy długie",
+    "kategoria": "DEKOLORYZACJA ❤️❤️❤️",
+    "werdykt": "tozsame",
+    "poziom": 5,
+    "powod": "ta sama ścieżka",
+    "sciezka": "włosy › dekoloryzacja › — › włosów › długie › — › — › —"
+   },
+   {
+    "nazwa": "Dekoloryzacja + farbowanie - włosy długie",
+    "kategoria": "Koloryzacja i farbowanie włosów",
+    "werdykt": "tozsame",
+    "poziom": 5,
+    "powod": "ta sama ścieżka",
+    "sciezka": "włosy › dekoloryzacja › — › włosów › długie › — › — › —"
+   },
+   {
+    "nazwa": "dekoloryzacja + tonowanie włosy długie",
+    "kategoria": "Fryzjerstwo",
+    "werdykt": "tozsame",
+    "poziom": 5,
+    "powod": "ta sama ścieżka",
+    "sciezka": "włosy › dekoloryzacja › — › włosów › długie › — › — › —"
+   }
+  ]
+ },
+ {
+  "branza": "Fryzjer",
+  "usluga": "Zabieg pielęgnacyjny Wella SP włosy długie.",
+  "kategoria": "Zabiegi pielęgnacyjne dla włosów",
+  "sciezka": "włosy › regeneracja › — › włosów › ogolnie › — › — › —",
+  "konkurenci": [
+   {
+    "nazwa": "Keratynowe prostowanie włosy krótkie",
+    "kategoria": "Regeneracja 🌟 i keratyna 🌟",
+    "werdykt": "rozne",
+    "poziom": 1,
+    "powod": "inny zabieg",
+    "sciezka": "włosy › prostowanie › keratynowe › włosów › ogolnie › — › — › —"
+   },
+   {
+    "nazwa": "Keratynowe prostowanie włosy długie",
+    "kategoria": "Regeneracja 🌟 i keratyna 🌟",
+    "werdykt": "rozne",
+    "poziom": 1,
+    "powod": "inny zabieg",
+    "sciezka": "włosy › prostowanie › keratynowe › włosów › długie › — › — › —"
+   },
+   {
+    "nazwa": "Jeden kolor+modelowanie wł. długie, bardzo długie",
+    "kategoria": "Koloryzacja",
+    "werdykt": "powiazane",
+    "poziom": 1,
+    "powod": "zestaw",
+    "sciezka": "włosy › koloryzacja › ogolnie › włosów › długie › damskie › — › —"
+   },
+   {
+    "nazwa": "Pielęgnacja włosów",
+    "kategoria": "FRYZJER DAMSKI",
+    "werdykt": "rozne",
+    "poziom": 1,
+    "powod": "inny zabieg",
+    "sciezka": "włosy › pielęgnacja › — › włosów › — › — › — › —"
+   },
+   {
+    "nazwa": "Keratynowe prostowanie włosy średnie",
+    "kategoria": "Regeneracja 🌟 i keratyna 🌟",
+    "werdykt": "rozne",
+    "poziom": 1,
+    "powod": "inny zabieg",
+    "sciezka": "włosy › prostowanie › keratynowe › włosów › ogolnie › — › — › —"
+   },
+   {
+    "nazwa": "Refleksy . Wlosy długie",
+    "kategoria": "Koloryzacja włosów ",
+    "werdykt": "rozne",
+    "poziom": 1,
+    "powod": "inny zabieg",
+    "sciezka": "włosy › koloryzacja › refleksami › włosów › długie › ogolnie › — › —"
+   },
+   {
+    "nazwa": "Pasemka Długie",
+    "kategoria": "Pasemka (po konsultacji)",
+    "werdykt": "rozne",
+    "poziom": 1,
+    "powod": "inny zabieg",
+    "sciezka": "włosy › pasemka › — › — › — › — › — › —"
+   },
+   {
+    "nazwa": "Zabieg pielęgnacyjny Olaplex wł. długie",
+    "kategoria": "Marlena",
+    "werdykt": "rozne",
+    "poziom": 1,
+    "powod": "inny zabieg",
+    "sciezka": "włosy › pielęgnacja › — › włosów › — › — › — › —"
+   },
+   {
+    "nazwa": "Jeden kolor+modelowanie wł.średniej długości",
+    "kategoria": "Koloryzacja",
+    "werdykt": "powiazane",
+    "poziom": 1,
+    "powod": "zestaw",
+    "sciezka": "włosy › koloryzacja › ogolnie › włosów › jeden › ogolnie › — › —"
+   },
+   {
+    "nazwa": "Pasemka włosy krótkie",
+    "kategoria": "Strzyżenie damskie",
+    "werdykt": "rozne",
+    "poziom": 1,
+    "powod": "inny zabieg",
+    "sciezka": "włosy › pasemka › — › — › — › — › — › —"
+   },
+   {
+    "nazwa": "Pasemka krótkie",
+    "kategoria": "Pasemka (po konsultacji)",
+    "werdykt": "rozne",
+    "poziom": 1,
+    "powod": "inny zabieg",
+    "sciezka": "włosy › pasemka › — › — › — › — › — › —"
+   },
+   {
+    "nazwa": "Keratynowe prostowanie włosów długich",
+    "kategoria": "Pielęgnacja",
+    "werdykt": "rozne",
+    "poziom": 1,
+    "powod": "inny zabieg",
+    "sciezka": "włosy › prostowanie › keratynowe › włosów › długie › — › — › —"
+   }
+  ]
+ },
+ {
+  "branza": "Masaż",
+  "usluga": "Pakiet z peelingiem",
+  "kategoria": "Pakiety SPA",
+  "sciezka": "ciało — modelowanie i pielęgnacja › peeling › ogolnie › ciała › — › — › — › —",
+  "konkurenci": [
+   {
+    "nazwa": "Pakiet z peelingiem",
+    "kategoria": "Pakiety SPA",
+    "werdykt": "powiazane",
+    "poziom": 0,
+    "powod": "zestaw",
+    "sciezka": "masaż › masaż › tajski › ciała › ogolnie › ogolnie › relaksacyjny › —"
+   },
+   {
+    "nazwa": "Pakiet peeling kawitacyjny i kwasowy",
+    "kategoria": "Zabieg pielęgnacyjny",
+    "werdykt": "powiazane",
+    "poziom": 0,
+    "powod": "zestaw",
+    "sciezka": "twarz — pielęgnacja › peeling › kawitacyjny › twarz › — › — › — › —"
+   },
+   {
+    "nazwa": "Oczyszczanie twarzy + peeling",
+    "kategoria": "Oczyszczanie twarzy i pielegnacja",
+    "werdykt": "powiazane",
+    "poziom": 0,
+    "powod": "zestaw",
+    "sciezka": "twarz — pielęgnacja › oczyszczanie › ogolnie › twarzy › — › — › — › —"
+   },
+   {
+    "nazwa": "Pakiet pielęgnacyjny",
+    "kategoria": "Masaże i rytuały",
+    "werdykt": "powiazane",
+    "poziom": 0,
+    "powod": "zestaw",
+    "sciezka": "spa i wellness › rytuał › — › — › — › — › — › —"
+   },
+   {
+    "nazwa": "Peeling Kawitacyjny +Ampułka+Maska",
+    "kategoria": "",
+    "werdykt": "rozne",
+    "poziom": 0,
+    "powod": "inny zabieg",
+    "sciezka": "twarz — pielęgnacja › peeling › kawitacyjny › twarz › — › — › — › —"
+   },
+   {
+    "nazwa": "Depilacka pakiet",
+    "kategoria": "Depilacja męska",
+    "werdykt": "powiazane",
+    "poziom": 0,
+    "powod": "pakiet i pojedyncza wizyta",
+    "sciezka": "depilacja › ogolnie › ogolnie › ogolnie › ogolnie › ogolnie › ogolnie › ogolnie"
+   },
+   {
+    "nazwa": "Depilacka pakiet",
+    "kategoria": "Depilacja kobiety",
+    "werdykt": "powiazane",
+    "poziom": 0,
+    "powod": "pakiet i pojedyncza wizyta",
+    "sciezka": "depilacja › ogolnie › ogolnie › ogolnie › ogolnie › ogolnie › ogolnie › ogolnie"
+   },
+   {
+    "nazwa": "Depilacka pakiet",
+    "kategoria": "Depilacja męska",
+    "werdykt": "powiazane",
+    "poziom": 0,
+    "powod": "pakiet i pojedyncza wizyta",
+    "sciezka": "depilacja › ogolnie › ogolnie › ogolnie › ogolnie › ogolnie › ogolnie › ogolnie"
+   },
+   {
+    "nazwa": "Depilacka pakiet",
+    "kategoria": "Depilacja kobiety",
+    "werdykt": "powiazane",
+    "poziom": 0,
+    "powod": "pakiet i pojedyncza wizyta",
+    "sciezka": "depilacja › ogolnie › ogolnie › ogolnie › ogolnie › ogolnie › ogolnie › ogolnie"
+   },
+   {
+    "nazwa": "Depilacka pakiet",
+    "kategoria": "Depilacja męska",
+    "werdykt": "powiazane",
+    "poziom": 0,
+    "powod": "pakiet i pojedyncza wizyta",
+    "sciezka": "depilacja › ogolnie › ogolnie › ogolnie › ogolnie › ogolnie › ogolnie › ogolnie"
+   },
+   {
+    "nazwa": "Depilacka pakiet",
+    "kategoria": "Depilacja kobiety",
+    "werdykt": "powiazane",
+    "poziom": 0,
+    "powod": "pakiet i pojedyncza wizyta",
+    "sciezka": "depilacja › ogolnie › ogolnie › ogolnie › ogolnie › ogolnie › ogolnie › ogolnie"
+   },
+   {
+    "nazwa": "Parafina na dłonie + peeling",
+    "kategoria": "Dłonie",
+    "werdykt": "powiazane",
+    "poziom": 0,
+    "powod": "zestaw",
+    "sciezka": "paznokcie › ogolnie › ogolnie › ogolnie › ogolnie › ogolnie › ogolnie › ogolnie"
+   }
+  ]
+ },
+ {
+  "branza": "Masaż",
+  "usluga": "Oczyszczanie twarzy z peelingiem medycznym",
+  "kategoria": "Zabiegi na twarz",
+  "sciezka": "twarz — pielęgnacja › oczyszczanie › manualne › twarzy › — › — › — › —",
+  "konkurenci": [
+   {
+    "nazwa": "Oczyszczanie manualne + kwasy PURLÉS®",
+    "kategoria": "Kosmetologia ",
+    "werdykt": "tozsame",
+    "poziom": 5,
+    "powod": "ta sama ścieżka",
+    "sciezka": "twarz — pielęgnacja › oczyszczanie › manualne › twarzy › — › — › — › —"
+   },
+   {
+    "nazwa": "Oczyszczanie manualne twarz i szyja",
+    "kategoria": "Oczyszczanie manualne",
+    "werdykt": "powiazane",
+    "poziom": 5,
+    "powod": "dodatek",
+    "sciezka": "twarz — pielęgnacja › oczyszczanie › manualne › twarzy › — › — › — › —"
+   },
+   {
+    "nazwa": "Oczyszczanie manualne twarz, szyja i dekolt",
+    "kategoria": "Oczyszczanie manualne",
+    "werdykt": "tozsame",
+    "poziom": 5,
+    "powod": "ta sama ścieżka",
+    "sciezka": "twarz — pielęgnacja › oczyszczanie › manualne › twarzy › — › — › — › —"
+   },
+   {
+    "nazwa": "Oczyszczanie manualne twarzy",
+    "kategoria": "Kosmetologia ",
+    "werdykt": "powiazane",
+    "poziom": 5,
+    "powod": "dodatek",
+    "sciezka": "twarz — pielęgnacja › oczyszczanie › manualne › twarzy › — › — › — › —"
+   },
+   {
+    "nazwa": "Oczyszczanie manualne",
+    "kategoria": "Zabiegi dla mężczyzn ",
+    "werdykt": "powiazane",
+    "poziom": 5,
+    "powod": "dodatek",
+    "sciezka": "twarz — pielęgnacja › oczyszczanie › manualne › twarzy › — › — › — › —"
+   },
+   {
+    "nazwa": "Oczyszczanie manualne + peeling chemiczny",
+    "kategoria": "Kosmetyka pielęgnacyjna",
+    "werdykt": "tozsame",
+    "poziom": 5,
+    "powod": "ta sama ścieżka",
+    "sciezka": "twarz — pielęgnacja › oczyszczanie › manualne › twarzy › — › — › — › —"
+   },
+   {
+    "nazwa": "Oczyszczanie twarzy",
+    "kategoria": "Zabiegi kosmetyczne",
+    "werdykt": "powiazane",
+    "poziom": 5,
+    "powod": "dodatek",
+    "sciezka": "twarz — pielęgnacja › oczyszczanie › manualne › twarzy › — › — › — › —"
+   },
+   {
+    "nazwa": "Oczyszczanie manualne twarzy",
+    "kategoria": "",
+    "werdykt": "powiazane",
+    "poziom": 5,
+    "powod": "dodatek",
+    "sciezka": "twarz — pielęgnacja › oczyszczanie › manualne › twarzy › — › — › — › —"
+   },
+   {
+    "nazwa": "Oczyszczanie manualne plecy",
+    "kategoria": "Oczyszczanie manualne",
+    "werdykt": "powiazane",
+    "poziom": 5,
+    "powod": "dodatek",
+    "sciezka": "twarz — pielęgnacja › oczyszczanie › manualne › twarzy › — › — › — › —"
+   },
+   {
+    "nazwa": "Oczyszczanie twarzy+Kwasy",
+    "kategoria": "Zabiegi kosmetyczne",
+    "werdykt": "tozsame",
+    "poziom": 5,
+    "powod": "ta sama ścieżka",
+    "sciezka": "twarz — pielęgnacja › oczyszczanie › manualne › twarzy › — › — › — › —"
+   },
+   {
+    "nazwa": "Oczyszczanie manualne twarzy",
+    "kategoria": "ZABIEGI NA TWARZ",
+    "werdykt": "powiazane",
+    "poziom": 5,
+    "powod": "dodatek",
+    "sciezka": "twarz — pielęgnacja › oczyszczanie › manualne › twarzy › — › — › — › —"
+   },
+   {
+    "nazwa": "Oczyszczanie manualne",
+    "kategoria": "Zabiegi oczyszczające i przeciwtrądzikowe",
+    "werdykt": "powiazane",
+    "poziom": 5,
+    "powod": "dodatek",
+    "sciezka": "twarz — pielęgnacja › oczyszczanie › manualne › twarzy › — › — › — › —"
+   }
+  ]
+ },
+ {
+  "branza": "Masaż",
+  "usluga": "Karisma",
+  "kategoria": "BIOSTYMULATORY mezoterapia igłowa",
+  "sciezka": "medycyna estetyczna › mezoterapia › igłowa › ogolnie › — › — › ogolnie › —",
+  "konkurenci": [
+   {
+    "nazwa": "Karisma",
+    "kategoria": "STYMULATORY TKANKOWE",
+    "werdykt": "tozsame",
+    "poziom": 5,
+    "powod": "identyczna nazwa",
+    "sciezka": "medycyna estetyczna › stymulacja › karisma › skóry twarzy › — › — › ujędrnianie › —"
+   },
+   {
+    "nazwa": "Karisma",
+    "kategoria": "Mezoterapia igłowa- rewitalizacja i stymulacja",
+    "werdykt": "tozsame",
+    "poziom": 5,
+    "powod": "identyczna nazwa",
+    "sciezka": "medycyna estetyczna › mezoterapia › igłowa › ogolnie › — › — › ogolnie › —"
+   },
+   {
+    "nazwa": "Karisma",
+    "kategoria": "Stymulatory",
+    "werdykt": "tozsame",
+    "poziom": 5,
+    "powod": "identyczna nazwa",
+    "sciezka": "medycyna estetyczna › stymulacja › karisma › skóry twarzy › — › — › ujędrnianie › —"
+   },
+   {
+    "nazwa": "Karisma",
+    "kategoria": "STYMULATORY TKANKOWE - twarz ",
+    "werdykt": "tozsame",
+    "poziom": 5,
+    "powod": "identyczna nazwa",
+    "sciezka": "medycyna estetyczna › mezoterapia › igłowa › twarz › — › — › ogolnie › —"
+   },
+   {
+    "nazwa": "Karisma",
+    "kategoria": "Stymulatory tkankowe￼",
+    "werdykt": "tozsame",
+    "poziom": 5,
+    "powod": "identyczna nazwa",
+    "sciezka": "medycyna estetyczna › stymulacja › karisma › skóry twarzy › — › — › ujędrnianie › —"
+   },
+   {
+    "nazwa": "Karisma",
+    "kategoria": "Stymulatory tkankowe twarz",
+    "werdykt": "tozsame",
+    "poziom": 5,
+    "powod": "identyczna nazwa",
+    "sciezka": "medycyna estetyczna › stymulacja › karisma › skóry twarzy › — › — › ujędrnianie › —"
+   },
+   {
+    "nazwa": "Karisma",
+    "kategoria": "Stymulatory tkankowe",
+    "werdykt": "tozsame",
+    "poziom": 5,
+    "powod": "identyczna nazwa",
+    "sciezka": "medycyna estetyczna › stymulacja › karisma › skóry twarzy › — › — › ujędrnianie › —"
+   },
+   {
+    "nazwa": "Karisma",
+    "kategoria": "",
+    "werdykt": "tozsame",
+    "poziom": 5,
+    "powod": "identyczna nazwa",
+    "sciezka": "medycyna estetyczna › stymulacja › karisma › skóry twarzy › — › — › ujędrnianie › —"
+   },
+   {
+    "nazwa": "Karisma",
+    "kategoria": "ZABIEG NA TWARZ STYMULATOR TKANKOWY",
+    "werdykt": "tozsame",
+    "poziom": 5,
+    "powod": "identyczna nazwa",
+    "sciezka": "medycyna estetyczna › stymulacja › karisma › skóry twarzy › — › — › ujędrnianie › —"
+   },
+   {
+    "nazwa": "Karisma",
+    "kategoria": "Medycyna estetyczna",
+    "werdykt": "tozsame",
+    "poziom": 5,
+    "powod": "identyczna nazwa",
+    "sciezka": "medycyna estetyczna › stymulacja › karisma › skóry twarzy › — › — › ujędrnianie › —"
+   },
+   {
+    "nazwa": "Karisma",
+    "kategoria": "STYMULATORY TKANKOWE",
+    "werdykt": "tozsame",
+    "poziom": 5,
+    "powod": "identyczna nazwa",
+    "sciezka": "medycyna estetyczna › stymulacja › karisma › skóry twarzy › — › — › ujędrnianie › —"
+   },
+   {
+    "nazwa": "Karisma",
+    "kategoria": "Stymulatory tkankowe",
+    "werdykt": "tozsame",
+    "poziom": 5,
+    "powod": "identyczna nazwa",
+    "sciezka": "medycyna estetyczna › stymulacja › karisma › skóry twarzy › — › — › ujędrnianie › —"
+   }
+  ]
+ },
+ {
+  "branza": "Medycyna Estetyczna",
+  "usluga": "Depilacja laserowa - baczki",
+  "kategoria": "epilacja laserowa",
+  "sciezka": "depilacja › depilacja › laserowa › baki › ogolnie › ogolnie › — › —",
+  "konkurenci": [
+   {
+    "nazwa": "Depilacja laserowa - baczki",
+    "kategoria": "DEPILACJA",
+    "werdykt": "tozsame",
+    "poziom": 5,
+    "powod": "identyczna nazwa",
+    "sciezka": "depilacja › depilacja › laserowa › baki › ogolnie › ogolnie › — › —"
+   },
+   {
+    "nazwa": "Depilacja laserowa - baczki",
+    "kategoria": "Depilacja laserowa - laser diodowy",
+    "werdykt": "tozsame",
+    "poziom": 5,
+    "powod": "identyczna nazwa",
+    "sciezka": "depilacja › depilacja › laserowa › baki › ogolnie › ogolnie › — › —"
+   },
+   {
+    "nazwa": "Depilacja laserowa - Baczki",
+    "kategoria": "Depilacja laserowa",
+    "werdykt": "tozsame",
+    "poziom": 5,
+    "powod": "identyczna nazwa",
+    "sciezka": "depilacja › depilacja › laserowa › baki › ogolnie › ogolnie › — › —"
+   },
+   {
+    "nazwa": "Depilacja laserowa baczki",
+    "kategoria": "",
+    "werdykt": "tozsame",
+    "poziom": 5,
+    "powod": "identyczna nazwa",
+    "sciezka": "depilacja › depilacja › laserowa › baki › ogolnie › ogolnie › — › —"
+   },
+   {
+    "nazwa": "Depilacja laserowa - baki",
+    "kategoria": "Depilacja laserowa Diolaze XL",
+    "werdykt": "tozsame",
+    "poziom": 5,
+    "powod": "ta sama ścieżka",
+    "sciezka": "depilacja › depilacja › laserowa › baki › ogolnie › ogolnie › — › —"
+   },
+   {
+    "nazwa": "🪒Depilacja laserowa - baczki laser diodowy",
+    "kategoria": "DEPILACJA LASEROWA - LASER DIODOWY lub ND-YAG",
+    "werdykt": "tozsame",
+    "poziom": 5,
+    "powod": "ta sama ścieżka",
+    "sciezka": "depilacja › depilacja › laserowa › baki › ogolnie › ogolnie › — › —"
+   },
+   {
+    "nazwa": "Depilacja laserowa - Baki",
+    "kategoria": "Depilacja laserowa VECTUS - PROMOCJA I wizyta -50%",
+    "werdykt": "tozsame",
+    "poziom": 5,
+    "powod": "ta sama ścieżka",
+    "sciezka": "depilacja › depilacja › laserowa › baki › ogolnie › ogolnie › — › —"
+   },
+   {
+    "nazwa": "Depilacja laserowa - Baki",
+    "kategoria": "Depilacja Laserowa VECTUS",
+    "werdykt": "tozsame",
+    "poziom": 5,
+    "powod": "ta sama ścieżka",
+    "sciezka": "depilacja › depilacja › laserowa › baki › ogolnie › ogolnie › — › —"
+   },
+   {
+    "nazwa": "Depilacja Laserowa / Baki",
+    "kategoria": "LightSheer™ DUET™",
+    "werdykt": "tozsame",
+    "poziom": 5,
+    "powod": "ta sama ścieżka",
+    "sciezka": "depilacja › depilacja › laserowa › baki › ogolnie › ogolnie › — › —"
+   },
+   {
+    "nazwa": "Depilacja laserowa/ Baki ok",
+    "kategoria": "Depilacja Laserowa",
+    "werdykt": "tozsame",
+    "poziom": 5,
+    "powod": "ta sama ścieżka",
+    "sciezka": "depilacja › depilacja › laserowa › baki › ogolnie › ogolnie › — › —"
+   },
+   {
+    "nazwa": "Depilacja laserowa - łydki",
+    "kategoria": "DEPILACJA",
+    "werdykt": "powiazane",
+    "poziom": 3,
+    "powod": "inny poziom: obszar",
+    "sciezka": "depilacja › depilacja › laserowa › łydki › ogolnie › ogolnie › — › —"
+   },
+   {
+    "nazwa": "Depilacja laserowa - POŚLADKI",
+    "kategoria": "Depilacja laserowa",
+    "werdykt": "powiazane",
+    "poziom": 3,
+    "powod": "inny poziom: obszar",
+    "sciezka": "depilacja › depilacja › laserowa › pośladki › ogolnie › ogolnie › — › —"
+   }
+  ]
+ },
+ {
+  "branza": "Medycyna Estetyczna",
+  "usluga": "Uzupełnienie rzęs 1:1 lampą UV",
+  "kategoria": "Rzęsy",
+  "sciezka": "brwi i rzęsy › przedłużanie › metoda 1:1 › rzęs › 1:1 › — › ogolnie › uzupełnienie",
+  "konkurenci": [
+   {
+    "nazwa": "Uzupełnienie rzęs 1:1",
+    "kategoria": "Przedłużanie rzęs UV",
+    "werdykt": "powiazane",
+    "poziom": 5,
+    "powod": "dodatek",
+    "sciezka": "brwi i rzęsy › przedłużanie › metoda 1:1 › rzęs › 1:1 › — › ogolnie › uzupełnienie"
+   },
+   {
+    "nazwa": "Uzupełnienie rzęs 1:1",
+    "kategoria": "Usługi stacjonarne ",
+    "werdykt": "powiazane",
+    "poziom": 5,
+    "powod": "dodatek",
+    "sciezka": "brwi i rzęsy › przedłużanie › metoda 1:1 › rzęs › 1:1 › — › ogolnie › uzupełnienie"
+   },
+   {
+    "nazwa": "Uzupełnienie Rzęs 1:1 Do 4 Tygodni Metoda Uv",
+    "kategoria": "",
+    "werdykt": "powiazane",
+    "poziom": 5,
+    "powod": "dodatek",
+    "sciezka": "brwi i rzęsy › przedłużanie › metoda 1:1 › rzęs › 1:1 › — › ogolnie › uzupełnienie"
+   },
+   {
+    "nazwa": "Uzupełnienie rzęs do 2 tygodni 1:1",
+    "kategoria": "",
+    "werdykt": "powiazane",
+    "poziom": 5,
+    "powod": "dodatek",
+    "sciezka": "brwi i rzęsy › przedłużanie › metoda 1:1 › rzęs › 1:1 › — › ogolnie › uzupełnienie"
+   },
+   {
+    "nazwa": "Uzupełnienie rzęs 1:1",
+    "kategoria": "",
+    "werdykt": "tozsame",
+    "poziom": 5,
+    "powod": "ta sama ścieżka",
+    "sciezka": "brwi i rzęsy › przedłużanie › metoda 1:1 › rzęs › 1:1 › — › ogolnie › uzupełnienie"
+   },
+   {
+    "nazwa": "Przedłużanie rzęs 1:1 Metoda Uv",
+    "kategoria": "",
+    "werdykt": "niepelne",
+    "poziom": 3,
+    "powod": "cel nieustalony",
+    "sciezka": "brwi i rzęsy › przedłużanie › metoda 1:1 › rzęs › 1:1 › — › efekt › ogolnie"
+   },
+   {
+    "nazwa": "Uzupełnienie rzęs 3:1 uv",
+    "kategoria": "",
+    "werdykt": "powiazane",
+    "poziom": 2,
+    "powod": "inny poziom: metoda",
+    "sciezka": "brwi i rzęsy › przedłużanie › 3d › rzęs › 3:1 › — › efekt › uzupełnienie"
+   },
+   {
+    "nazwa": "Uzupełnienie rzęs 4-6D uv",
+    "kategoria": "",
+    "werdykt": "powiazane",
+    "poziom": 2,
+    "powod": "inny poziom: metoda",
+    "sciezka": "brwi i rzęsy › przedłużanie › 6d › rzęs › 4-6d › — › ogolnie › uzupełnienie"
+   },
+   {
+    "nazwa": "Uzupełnienie rzęs 2:1",
+    "kategoria": "Stylizacja rzęs metoda Uv",
+    "werdykt": "powiazane",
+    "poziom": 2,
+    "powod": "inny poziom: metoda",
+    "sciezka": "brwi i rzęsy › przedłużanie › metoda › rzęs › 2:1 › — › ogolnie › uzupełnienie"
+   },
+   {
+    "nazwa": "Uzupełnienie rzęs 3:1",
+    "kategoria": "Stylistka Kateryna Azarova ",
+    "werdykt": "powiazane",
+    "poziom": 2,
+    "powod": "inny poziom: metoda",
+    "sciezka": "brwi i rzęsy › przedłużanie › 3d › rzęs › 3:1 › — › ogolnie › uzupełnienie"
+   },
+   {
+    "nazwa": "Uzupełnienie rzęs mega volume uv",
+    "kategoria": "",
+    "werdykt": "powiazane",
+    "poziom": 2,
+    "powod": "inny poziom: metoda",
+    "sciezka": "brwi i rzęsy › przedłużanie › 6d › rzęs › mega › — › ogolnie › uzupełnienie"
+   },
+   {
+    "nazwa": "Uzupełnienie rzęs efekt eyeliner uv",
+    "kategoria": "",
+    "werdykt": "niepelne",
+    "poziom": 2,
+    "powod": "metoda nieustalony",
+    "sciezka": "brwi i rzęsy › przedłużanie › ogolnie › rzęs › ogolnie › — › efekt › uzupełnienie"
+   }
+  ]
+ },
+ {
+  "branza": "Medycyna Estetyczna",
+  "usluga": "Laserowe odmładzanie skóry, Lifting",
+  "kategoria": "Laseroterapia",
+  "sciezka": "medycyna estetyczna › lifting › ogolnie › ogolnie › — › — › — › —",
+  "konkurenci": [
+   {
+    "nazwa": "Radiofrekwencja mikroigłowa",
+    "kategoria": "Zabiegi pielęgnacyjne",
+    "werdykt": "niepelne",
+    "poziom": 2,
+    "powod": "metoda nieustalony",
+    "sciezka": "medycyna estetyczna › lifting › radiofrekwencja mikroigłowa › twarzy › — › — › — › —"
+   },
+   {
+    "nazwa": "Kwas Polimlekowy PLLA (Infini Premium / Sculptra)",
+    "kategoria": "Mezoterapia",
+    "werdykt": "niepelne",
+    "poziom": 2,
+    "powod": "metoda nieustalony",
+    "sciezka": "medycyna estetyczna › lifting › niechirurgiczny › twarzy › — › — › — › —"
+   },
+   {
+    "nazwa": "Laser tulowy",
+    "kategoria": "Nowości ",
+    "werdykt": "rozne",
+    "poziom": 1,
+    "powod": "inny zabieg",
+    "sciezka": "medycyna estetyczna › laseroterapia › — › twarz › — › — › — › —"
+   },
+   {
+    "nazwa": "Twarz + Szyja + Dekolt",
+    "kategoria": "Mezoterapia mikroigłowa",
+    "werdykt": "rozne",
+    "poziom": 1,
+    "powod": "inny zabieg",
+    "sciezka": "medycyna estetyczna › mezoterapia › mikroigłowa › twarz szyja dekolt › — › — › ogolnie › —"
+   },
+   {
+    "nazwa": "Twarz + Szyja",
+    "kategoria": "Mezoterapia mikroigłowa",
+    "werdykt": "rozne",
+    "poziom": 1,
+    "powod": "inny zabieg",
+    "sciezka": "medycyna estetyczna › mezoterapia › mikroigłowa › twarz szyja dekolt › — › — › ogolnie › —"
+   },
+   {
+    "nazwa": "Oczyszczanie wodorowe + Mezoterapia mikroigłowa",
+    "kategoria": "Czerwcowe PROMOCJE",
+    "werdykt": "rozne",
+    "poziom": 1,
+    "powod": "inny zabieg",
+    "sciezka": "medycyna estetyczna › mezoterapia › mikroigłowa › twarz › — › — › ogolnie › —"
+   },
+   {
+    "nazwa": "ClearLift Twarz",
+    "kategoria": "Laser frakcyjny nieablacyjny ClearLift",
+    "werdykt": "rozne",
+    "poziom": 1,
+    "powod": "inny zabieg",
+    "sciezka": "medycyna estetyczna › laseroterapia › — › twarz › — › — › — › —"
+   },
+   {
+    "nazwa": "Laserowe zamykanie naczynek - QuadroStarPRO Yellow",
+    "kategoria": "Nowości ",
+    "werdykt": "rozne",
+    "poziom": 1,
+    "powod": "inny zabieg",
+    "sciezka": "medycyna estetyczna › zamykanie › laserowe › twarz › — › — › naczynek › —"
+   },
+   {
+    "nazwa": "Laserowe usuwanie naczynek, przebarwień - Twarz",
+    "kategoria": "BESTSELLERY",
+    "werdykt": "rozne",
+    "poziom": 1,
+    "powod": "inny zabieg",
+    "sciezka": "medycyna estetyczna › zamykanie › laserowe › twarz › — › — › naczynek › —"
+   },
+   {
+    "nazwa": "Mezoterapia mikroigłowa",
+    "kategoria": "",
+    "werdykt": "rozne",
+    "poziom": 1,
+    "powod": "inny zabieg",
+    "sciezka": "medycyna estetyczna › mezoterapia › mikroigłowa › ogolnie › — › — › ogolnie › —"
+   },
+   {
+    "nazwa": "SQT Zabieg Rewitalizujący",
+    "kategoria": "SQT Biomicroneedling",
+    "werdykt": "rozne",
+    "poziom": 1,
+    "powod": "inny zabieg",
+    "sciezka": "medycyna estetyczna › mezoterapia › mikroigłowa › twarz › — › — › ogolnie › —"
+   },
+   {
+    "nazwa": "Wyrównanie kolorytu skóry + napięcie",
+    "kategoria": "Mezoterapia Igłowa",
+    "werdykt": "rozne",
+    "poziom": 1,
+    "powod": "inny zabieg",
+    "sciezka": "medycyna estetyczna › mezoterapia › igłowa › twarz › — › — › ogolnie › —"
+   }
+  ]
+ },
+ {
+  "branza": "Paznokcie",
+  "usluga": "Przedłużanie Paznokci metoda Żelowa",
+  "kategoria": "Przedłużanie Paznokci",
+  "sciezka": "paznokcie › przedłużanie › żelowe › paznokci › ogolnie › — › — › ogolnie",
+  "konkurenci": [
+   {
+    "nazwa": "Przedłużanie paznokci",
+    "kategoria": "Stylizacja paznokci ",
+    "werdykt": "tozsame",
+    "poziom": 5,
+    "powod": "ta sama ścieżka",
+    "sciezka": "paznokcie › przedłużanie › żelowe › paznokci › ogolnie › — › — › ogolnie"
+   },
+   {
+    "nazwa": "Przedłużenie żelowe",
+    "kategoria": "Manicure",
+    "werdykt": "tozsame",
+    "poziom": 5,
+    "powod": "ta sama ścieżka",
+    "sciezka": "paznokcie › przedłużanie › żelowe › paznokci › ogolnie › — › — › ogolnie"
+   },
+   {
+    "nazwa": "Przedłużanie paznokci metodą żelową",
+    "kategoria": "MANICURE",
+    "werdykt": "tozsame",
+    "poziom": 5,
+    "powod": "ta sama ścieżka",
+    "sciezka": "paznokcie › przedłużanie › żelowe › paznokci › ogolnie › — › — › ogolnie"
+   },
+   {
+    "nazwa": "Przedłużanie paznokci",
+    "kategoria": "",
+    "werdykt": "tozsame",
+    "poziom": 5,
+    "powod": "ta sama ścieżka",
+    "sciezka": "paznokcie › przedłużanie › żelowe › paznokci › ogolnie › — › — › ogolnie"
+   },
+   {
+    "nazwa": "Przedłużanie paznokci ze zdobieniem ( wzorkami)",
+    "kategoria": "STYLIZACJA PAZNOKCI ",
+    "werdykt": "tozsame",
+    "poziom": 5,
+    "powod": "ta sama ścieżka",
+    "sciezka": "paznokcie › przedłużanie › żelowe › paznokci › ogolnie › — › — › ogolnie"
+   },
+   {
+    "nazwa": "przedłużanie paznokci - żelem",
+    "kategoria": "Pielęgnacja dłoni i stóp",
+    "werdykt": "tozsame",
+    "poziom": 5,
+    "powod": "ta sama ścieżka",
+    "sciezka": "paznokcie › przedłużanie › żelowe › paznokci › ogolnie › — › — › ogolnie"
+   },
+   {
+    "nazwa": "Przedłużanie paznokci metoda żelowa",
+    "kategoria": "MANICURE",
+    "werdykt": "tozsame",
+    "poziom": 5,
+    "powod": "identyczna nazwa",
+    "sciezka": "paznokcie › przedłużanie › żelowe › paznokci › ogolnie › — › — › ogolnie"
+   },
+   {
+    "nazwa": "Przedłużanie paznokci żelem",
+    "kategoria": "MANICURE",
+    "werdykt": "tozsame",
+    "poziom": 5,
+    "powod": "ta sama ścieżka",
+    "sciezka": "paznokcie › przedłużanie › żelowe › paznokci › ogolnie › — › — › ogolnie"
+   },
+   {
+    "nazwa": "Przedłużanie paznokci żelem",
+    "kategoria": "ALICJA",
+    "werdykt": "tozsame",
+    "poziom": 5,
+    "powod": "ta sama ścieżka",
+    "sciezka": "paznokcie › przedłużanie › żelowe › paznokci › ogolnie › — › — › ogolnie"
+   },
+   {
+    "nazwa": "Przedłużanie paznokci",
+    "kategoria": "STYLIZACJA PAZNOKCI ",
+    "werdykt": "tozsame",
+    "poziom": 5,
+    "powod": "ta sama ścieżka",
+    "sciezka": "paznokcie › przedłużanie › żelowe › paznokci › ogolnie › — › — › ogolnie"
+   },
+   {
+    "nazwa": "Przedłużanie paznokci żelem + french konstrukcyjny",
+    "kategoria": "",
+    "werdykt": "tozsame",
+    "poziom": 5,
+    "powod": "ta sama ścieżka",
+    "sciezka": "paznokcie › przedłużanie › żelowe › paznokci › ogolnie › — › — › ogolnie"
+   },
+   {
+    "nazwa": "Przedłużanie paznokci",
+    "kategoria": "Stylizacja paznokci ",
+    "werdykt": "tozsame",
+    "poziom": 5,
+    "powod": "ta sama ścieżka",
+    "sciezka": "paznokcie › przedłużanie › żelowe › paznokci › ogolnie › — › — › ogolnie"
+   }
+  ]
+ },
+ {
+  "branza": "Paznokcie",
+  "usluga": "Usuwanie Lakieru Hybrydowego",
+  "kategoria": "Dłonie",
+  "sciezka": "paznokcie › usunięcie › hybrydy › paznokcie › — › — › — › —",
+  "konkurenci": [
+   {
+    "nazwa": "Usuwanie lakieru hybrydowego",
+    "kategoria": "Pielęgnacja dłoni",
+    "werdykt": "tozsame",
+    "poziom": 5,
+    "powod": "identyczna nazwa",
+    "sciezka": "paznokcie › usunięcie › hybrydy › paznokcie › — › — › — › —"
+   },
+   {
+    "nazwa": "Usunięcie hybrydy plus manicure",
+    "kategoria": "",
+    "werdykt": "powiazane",
+    "poziom": 5,
+    "powod": "dodatek",
+    "sciezka": "paznokcie › usunięcie › hybrydy › paznokcie › — › — › — › —"
+   },
+   {
+    "nazwa": "Hybryda u stóp",
+    "kategoria": "Stylizacja Paznokci",
+    "werdykt": "rozne",
+    "poziom": 1,
+    "powod": "inny zabieg",
+    "sciezka": "paznokcie › pedicure › hybrydowy › stóp › ogolnie › ogolnie › ogolnie › zdjęcie"
+   },
+   {
+    "nazwa": "Usunięcie lakieru hybrydowego",
+    "kategoria": "Manicure",
+    "werdykt": "rozne",
+    "poziom": 0,
+    "powod": "nie porównujemy: dodatek",
+    "sciezka": "paznokcie › usunięcie › hybrydy › paznokcie › — › — › — › —"
+   },
+   {
+    "nazwa": "Usunięcie masy hybrydowej u stóp + odżywka",
+    "kategoria": "PEDICURE",
+    "werdykt": "powiazane",
+    "poziom": 0,
+    "powod": "dodatek",
+    "sciezka": "stopy — podologia › pedicure › podologiczny › stopy › ogolnie › — › leczniczy › —"
+   },
+   {
+    "nazwa": "Usuwanie żelu/akrylu/hybrydy",
+    "kategoria": "Manicure",
+    "werdykt": "rozne",
+    "poziom": 0,
+    "powod": "nie porównujemy: dodatek",
+    "sciezka": "paznokcie › usunięcie › ogolnie › paznokcie › — › — › — › —"
+   }
+  ]
+ },
+ {
+  "branza": "Paznokcie",
+  "usluga": "Vit.C + Aha 35% (Zabieg pielęgnacyjny + mezoterapia bezigłowa) rewitalizujący zabieg na twarz, szyję i okolice oczu",
+  "kategoria": "Kosmetyka",
+  "sciezka": "twarz — pielęgnacja › mezoterapia › bezigłowa › — › — › — › — › —",
+  "konkurenci": [
+   {
+    "nazwa": "Vital C",
+    "kategoria": "Kosmetologia",
+    "werdykt": "powiazane",
+    "poziom": 1,
+    "powod": "zestaw",
+    "sciezka": "twarz — pielęgnacja › peeling › chemiczny › ogolnie › — › — › — › —"
+   },
+   {
+    "nazwa": "Witaminowy koktail z 30 % wit C Image Skincare",
+    "kategoria": "ZABIEGI OCZYSZCZAJĄCE I ZŁUSZCZAJĄCE 💆🏻",
+    "werdykt": "powiazane",
+    "poziom": 1,
+    "powod": "zestaw",
+    "sciezka": "twarz — pielęgnacja › peeling › chemiczny › ogolnie › — › — › — › —"
+   },
+   {
+    "nazwa": "Terapia VITAMIN C - PEEL – blask i regeneracja",
+    "kategoria": "PEELINGI CHEMICZNE i MEDYCZNE",
+    "werdykt": "powiazane",
+    "poziom": 1,
+    "powod": "zestaw",
+    "sciezka": "twarz — pielęgnacja › peeling › chemiczny › ogolnie › — › — › — › —"
+   },
+   {
+    "nazwa": "Retinol 5%  i 100% aktywną witaminą C",
+    "kategoria": "Zabieg z użyciem kwasów ",
+    "werdykt": "powiazane",
+    "poziom": 1,
+    "powod": "zestaw",
+    "sciezka": "twarz — pielęgnacja › peeling › kwasami › twarz › — › — › — › —"
+   },
+   {
+    "nazwa": "Vit C - Peel Exfoliation",
+    "kategoria": "ZABIEGI KOSMETYCZNE",
+    "werdykt": "powiazane",
+    "poziom": 1,
+    "powod": "zestaw",
+    "sciezka": "twarz — pielęgnacja › peeling › kwasami › twarz › — › — › — › —"
+   },
+   {
+    "nazwa": "Zabieg złuszczający Retinol z wit C 💥💯",
+    "kategoria": "Kosmetyka",
+    "werdykt": "powiazane",
+    "poziom": 1,
+    "powod": "zestaw",
+    "sciezka": "twarz — pielęgnacja › eksfoliacja › kwasami › ogolnie › — › — › — › —"
+   },
+   {
+    "nazwa": "Hyaluro C-Peel - nawilżanie i witaminizowanie",
+    "kategoria": "Zabiegi na twarz",
+    "werdykt": "powiazane",
+    "poziom": 1,
+    "powod": "zestaw",
+    "sciezka": "twarz — pielęgnacja › peeling › chemiczny › twarz › — › — › — › —"
+   },
+   {
+    "nazwa": "Retinol C Infusion Peel",
+    "kategoria": "Zabiegi złuszczające",
+    "werdykt": "powiazane",
+    "poziom": 1,
+    "powod": "zestaw",
+    "sciezka": "twarz — pielęgnacja › peeling › dermaquest › twarz › — › — › — › —"
+   },
+   {
+    "nazwa": "Terapia z VIT.C- PEEL MISSION- regeneracja i blask",
+    "kategoria": "TERAPIE KWASAMI PEEL MISSION",
+    "werdykt": "powiazane",
+    "poziom": 1,
+    "powod": "zestaw",
+    "sciezka": "twarz — pielęgnacja › peeling › kwasami › ogolnie › — › — › — › —"
+   },
+   {
+    "nazwa": "Bioterapia naprawcza z kwasami, witaminą C i dermapenem \"Witaminowe wygładzenie\"",
+    "kategoria": "Zabiegi kosmetyczne na twarz",
+    "werdykt": "powiazane",
+    "poziom": 1,
+    "powod": "zestaw",
+    "sciezka": "twarz — pielęgnacja › peeling › kwasami › twarz › — › — › — › —"
+   },
+   {
+    "nazwa": "Zabieg rozświetlający z witaminą C",
+    "kategoria": "TWARZ",
+    "werdykt": "powiazane",
+    "poziom": 1,
+    "powod": "zestaw",
+    "sciezka": "twarz — pielęgnacja › pielęgnacja › — › twarzy › — › — › — › —"
+   },
+   {
+    "nazwa": "Rozjaśniający zabieg z Vit. C  Peel Mission",
+    "kategoria": "ZABIEGI BANKIETOWE",
+    "werdykt": "powiazane",
+    "poziom": 1,
+    "powod": "zestaw",
+    "sciezka": "twarz — pielęgnacja › peeling › kwasami › twarz › — › — › — › —"
+   }
+  ]
+ },
+ {
+  "branza": "Podologia",
+  "usluga": "Masaż z terapią ruchem",
+  "kategoria": "FIZJOTERAPIA / MASAŻ",
+  "sciezka": "fizjoterapia › masaż › ogolnie › — › — › — › — › —",
+  "konkurenci": [
+   {
+    "nazwa": "Masaż leczniczy + konsultacja",
+    "kategoria": "",
+    "werdykt": "tozsame",
+    "poziom": 5,
+    "powod": "ta sama ścieżka",
+    "sciezka": "fizjoterapia › masaż › ogolnie › — › — › — › — › —"
+   },
+   {
+    "nazwa": "Masaż rehabilitacyjny",
+    "kategoria": "FIZJOTERAPIA",
+    "werdykt": "powiazane",
+    "poziom": 2,
+    "powod": "zestaw",
+    "sciezka": "fizjoterapia › masaż › fizjoterapia › — › — › — › — › —"
+   },
+   {
+    "nazwa": "Terapia powięziowa",
+    "kategoria": "Fizjoterapia",
+    "werdykt": "powiazane",
+    "poziom": 2,
+    "powod": "zestaw",
+    "sciezka": "fizjoterapia › masaż › fizjoterapia › — › — › — › — › —"
+   },
+   {
+    "nazwa": "Masaż Rehabilitacyjny",
+    "kategoria": "FIZJOTERAPIA",
+    "werdykt": "powiazane",
+    "poziom": 2,
+    "powod": "zestaw",
+    "sciezka": "fizjoterapia › masaż › fizjoterapia › — › — › — › — › —"
+   },
+   {
+    "nazwa": "Terapia tkanek miękkich",
+    "kategoria": "",
+    "werdykt": "powiazane",
+    "poziom": 1,
+    "powod": "zestaw",
+    "sciezka": "fizjoterapia › terapia › manualna › tkanek miękkich › — › — › — › —"
+   },
+   {
+    "nazwa": "Masaż tkanek głębokich",
+    "kategoria": "",
+    "werdykt": "powiazane",
+    "poziom": 0,
+    "powod": "zestaw",
+    "sciezka": "masaż › masaż › głębokich › tkanek › ogolnie › ogolnie › terapeutyczny › —"
+   },
+   {
+    "nazwa": "Masaż tkanek głębokich",
+    "kategoria": "MASAŻE ",
+    "werdykt": "powiazane",
+    "poziom": 0,
+    "powod": "zestaw",
+    "sciezka": "masaż › masaż › głębokich › tkanek › ogolnie › ogolnie › terapeutyczny › —"
+   },
+   {
+    "nazwa": "Masaż tkanek głębokich",
+    "kategoria": "",
+    "werdykt": "powiazane",
+    "poziom": 0,
+    "powod": "zestaw",
+    "sciezka": "masaż › masaż › głębokich › tkanek › ogolnie › ogolnie › leczniczy › —"
+   },
+   {
+    "nazwa": "Masaż tkanek głębokich",
+    "kategoria": "Specjalistyczne Terapie Manualne ",
+    "werdykt": "powiazane",
+    "poziom": 0,
+    "powod": "zestaw",
+    "sciezka": "masaż › masaż › głębokich › tkanek › ogolnie › ogolnie › terapeutyczny › —"
+   },
+   {
+    "nazwa": "Masaż tkanek głębokich",
+    "kategoria": "Masaż",
+    "werdykt": "powiazane",
+    "poziom": 0,
+    "powod": "zestaw",
+    "sciezka": "masaż › masaż › głębokich › tkanek › ogolnie › ogolnie › leczniczy › —"
+   },
+   {
+    "nazwa": "Masaż terapeutyczny",
+    "kategoria": "",
+    "werdykt": "powiazane",
+    "poziom": 0,
+    "powod": "zestaw",
+    "sciezka": "masaż › masaż › ogolnie › ciała › ogolnie › ogolnie › terapeutyczny › —"
+   },
+   {
+    "nazwa": "Masaż tkanek głębokich",
+    "kategoria": "MASAŻE CIAŁA",
+    "werdykt": "powiazane",
+    "poziom": 0,
+    "powod": "zestaw",
+    "sciezka": "masaż › masaż › głębokich › ciała › ogolnie › ogolnie › terapeutyczny › —"
+   }
+  ]
+ },
+ {
+  "branza": "Podologia",
+  "usluga": "KONTROLA PODOLOGICZNA",
+  "kategoria": "KONSULTACJE I WIZYTY KONTROLNE ",
+  "sciezka": "stopy — podologia › ogolnie › ogolnie › ogolnie › ogolnie › ogolnie › ogolnie › ogolnie",
+  "konkurenci": [
+   {
+    "nazwa": "KONTROLNA WIZYTA PODOLOGICZNA",
+    "kategoria": "PODOLOG",
+    "werdykt": "rozne",
+    "poziom": 0,
+    "powod": "nie porównujemy: konsultacja",
+    "sciezka": "stopy — podologia › ogolnie › ogolnie › ogolnie › ogolnie › ogolnie › ogolnie › ogolnie"
+   },
+   {
+    "nazwa": "Wizyta kontrolna",
+    "kategoria": "Podologia",
+    "werdykt": "rozne",
+    "poziom": 0,
+    "powod": "nie porównujemy: konsultacja",
+    "sciezka": "stopy — podologia › pedicure › podologiczny › stopy › ogolnie › — › leczniczy › —"
+   },
+   {
+    "nazwa": "Kontrola podologiczna",
+    "kategoria": "PODOLOGIA",
+    "werdykt": "rozne",
+    "poziom": 0,
+    "powod": "nie porównujemy: konsultacja",
+    "sciezka": "stopy — podologia › ogolnie › ogolnie › ogolnie › ogolnie › ogolnie › ogolnie › ogolnie"
+   },
+   {
+    "nazwa": "Kontrola po zabiegu",
+    "kategoria": "ZABIEGI",
+    "werdykt": "rozne",
+    "poziom": 0,
+    "powod": "nie porównujemy: konsultacja",
+    "sciezka": "stopy — podologia › ogolnie › ogolnie › ogolnie › ogolnie › ogolnie › ogolnie › ogolnie"
+   },
+   {
+    "nazwa": "Wizyta kontrola z wrastającym paznokciem",
+    "kategoria": "",
+    "werdykt": "rozne",
+    "poziom": 0,
+    "powod": "nie porównujemy: konsultacja",
+    "sciezka": "stopy — podologia › opracowanie › ogolnie › paznokci › ogolnie › — › wrastającego › —"
+   },
+   {
+    "nazwa": "Wizyta kontrolna po zabiegu",
+    "kategoria": "ZABIEGI PODOLOGICZNE 🔹 KONSULTACJE",
+    "werdykt": "rozne",
+    "poziom": 0,
+    "powod": "nie porównujemy: konsultacja",
+    "sciezka": "stopy — podologia › ogolnie › ogolnie › ogolnie › ogolnie › ogolnie › ogolnie › ogolnie"
+   },
+   {
+    "nazwa": "Podologiczna wizyta kontrolna",
+    "kategoria": "PODOLOGIA",
+    "werdykt": "rozne",
+    "poziom": 0,
+    "powod": "nie porównujemy: konsultacja",
+    "sciezka": "stopy — podologia › ogolnie › ogolnie › ogolnie › ogolnie › ogolnie › ogolnie › ogolnie"
+   },
+   {
+    "nazwa": "Konsultacja podologa",
+    "kategoria": "Podologia i pielęgnacja stóp",
+    "werdykt": "rozne",
+    "poziom": 0,
+    "powod": "nie porównujemy: konsultacja",
+    "sciezka": "stopy — podologia › pedicure › podologiczny › stopy › ogolnie › — › leczniczy › —"
+   },
+   {
+    "nazwa": "Kontrola podologiczna",
+    "kategoria": "PODOLOGIA",
+    "werdykt": "rozne",
+    "poziom": 0,
+    "powod": "nie porównujemy: konsultacja",
+    "sciezka": "stopy — podologia › ogolnie › ogolnie › ogolnie › ogolnie › ogolnie › ogolnie › ogolnie"
+   },
+   {
+    "nazwa": "Wizyta kontrolna - podologia",
+    "kategoria": "Stopy - Podologia dla Kobiet i Mężczyzn",
+    "werdykt": "rozne",
+    "poziom": 0,
+    "powod": "nie porównujemy: konsultacja",
+    "sciezka": "stopy — podologia › pedicure › podologiczny › stopy › ogolnie › — › leczniczy › —"
+   },
+   {
+    "nazwa": "Wizyta Kontrolna - Podologiczna",
+    "kategoria": "PODOLOGIA",
+    "werdykt": "rozne",
+    "poziom": 0,
+    "powod": "nie porównujemy: konsultacja",
+    "sciezka": "stopy — podologia › ogolnie › ogolnie › ogolnie › ogolnie › ogolnie › ogolnie › ogolnie"
+   },
+   {
+    "nazwa": "Kontrola i przestawienie klamry ortonyksyjnej",
+    "kategoria": "PODOLOGIA",
+    "werdykt": "rozne",
+    "poziom": 0,
+    "powod": "nie porównujemy: konsultacja",
+    "sciezka": "stopy — podologia › przełożenie › klamry › paznokieć › — › — › — › —"
+   }
+  ]
+ },
+ {
+  "branza": "Podologia",
+  "usluga": "WRASTAJĄCE PAZNOKCIE (DWA)",
+  "kategoria": "",
+  "sciezka": "stopy — podologia › podcięcie › — › paznokcia › — › — › wrastającego › —",
+  "konkurenci": [
+   {
+    "nazwa": "Podcięcie wrastającego paznokcia",
+    "kategoria": "PODOLOGIA & PEDICURE SPECJALISTYCZNY",
+    "werdykt": "powiazane",
+    "poziom": 5,
+    "powod": "dodatek",
+    "sciezka": "stopy — podologia › podcięcie › — › paznokcia › — › — › wrastającego › —"
+   },
+   {
+    "nazwa": "Terapia wrastającego paznokcia",
+    "kategoria": "Podologia",
+    "werdykt": "powiazane",
+    "poziom": 1,
+    "powod": "dodatek",
+    "sciezka": "stopy — podologia › opracowanie › ogolnie › paznokci › ogolnie › — › wrastającego › —"
+   }
+  ]
+ },
+ {
+  "branza": "Salon Kosmetyczny",
+  "usluga": "Peeling kawitacyjny PRO",
+  "kategoria": "Peeling kawitacyjny",
+  "sciezka": "twarz — pielęgnacja › peeling › kawitacyjny › twarz › — › — › — › —",
+  "konkurenci": [
+   {
+    "nazwa": "Peeling kawitacyjny",
+    "kategoria": "Zabiegi na twarz ",
+    "werdykt": "powiazane",
+    "poziom": 5,
+    "powod": "dodatek",
+    "sciezka": "twarz — pielęgnacja › peeling › kawitacyjny › twarz › — › — › — › —"
+   },
+   {
+    "nazwa": "Peeling kawitacyjny",
+    "kategoria": "Kosmetologia twarzy",
+    "werdykt": "powiazane",
+    "poziom": 5,
+    "powod": "dodatek",
+    "sciezka": "twarz — pielęgnacja › peeling › kawitacyjny › twarz › — › — › — › —"
+   },
+   {
+    "nazwa": "Peeling kawitacyjny",
+    "kategoria": "Zabiegi na twarz",
+    "werdykt": "powiazane",
+    "poziom": 5,
+    "powod": "dodatek",
+    "sciezka": "twarz — pielęgnacja › peeling › kawitacyjny › twarz › — › — › — › —"
+   },
+   {
+    "nazwa": "Peeling kawitacyjny+Sonoforeza+Serum",
+    "kategoria": "Kosmetologia twarzy",
+    "werdykt": "tozsame",
+    "poziom": 5,
+    "powod": "ta sama ścieżka",
+    "sciezka": "twarz — pielęgnacja › peeling › kawitacyjny › twarz › — › — › — › —"
+   },
+   {
+    "nazwa": "Peeling kawitacyjny",
+    "kategoria": "Pielęgnacja twarzy",
+    "werdykt": "powiazane",
+    "poziom": 5,
+    "powod": "dodatek",
+    "sciezka": "twarz — pielęgnacja › peeling › kawitacyjny › twarz › — › — › — › —"
+   },
+   {
+    "nazwa": "Peeling kawitacyjny",
+    "kategoria": "PIELĘGNACJA TWARZY",
+    "werdykt": "powiazane",
+    "poziom": 5,
+    "powod": "dodatek",
+    "sciezka": "twarz — pielęgnacja › peeling › kawitacyjny › twarz › — › — › — › —"
+   },
+   {
+    "nazwa": "Peeling kawitacyjny twarz",
+    "kategoria": "Zabiegi na twarz",
+    "werdykt": "powiazane",
+    "poziom": 5,
+    "powod": "dodatek",
+    "sciezka": "twarz — pielęgnacja › peeling › kawitacyjny › twarz › — › — › — › —"
+   },
+   {
+    "nazwa": "Peeling kawitacyjny twarz + szyja + dekold",
+    "kategoria": "Zabiegi na twarz",
+    "werdykt": "tozsame",
+    "poziom": 5,
+    "powod": "ta sama ścieżka",
+    "sciezka": "twarz — pielęgnacja › peeling › kawitacyjny › twarz › — › — › — › —"
+   },
+   {
+    "nazwa": "Peeling kawitacyjny + sonoforeza",
+    "kategoria": "BOOSKIE ZABIEGI NA TWARZ",
+    "werdykt": "tozsame",
+    "poziom": 5,
+    "powod": "ta sama ścieżka",
+    "sciezka": "twarz — pielęgnacja › peeling › kawitacyjny › twarz › — › — › — › —"
+   },
+   {
+    "nazwa": "PEELING KAWITACYJNY - twarz+szyja",
+    "kategoria": "ZABIEGI NA TWARZ",
+    "werdykt": "tozsame",
+    "poziom": 5,
+    "powod": "ta sama ścieżka",
+    "sciezka": "twarz — pielęgnacja › peeling › kawitacyjny › twarz › — › — › — › —"
+   },
+   {
+    "nazwa": "PEELING KAWITACYJNY - twarz+szyja+dekolt",
+    "kategoria": "ZABIEGI NA TWARZ",
+    "werdykt": "tozsame",
+    "poziom": 5,
+    "powod": "ta sama ścieżka",
+    "sciezka": "twarz — pielęgnacja › peeling › kawitacyjny › twarz › — › — › — › —"
+   },
+   {
+    "nazwa": "Peeling kawitacyjny + serum + maska",
+    "kategoria": "Zabiegi na twarz",
+    "werdykt": "tozsame",
+    "poziom": 5,
+    "powod": "ta sama ścieżka",
+    "sciezka": "twarz — pielęgnacja › peeling › kawitacyjny › twarz › — › — › — › —"
+   }
+  ]
+ },
+ {
+  "branza": "Salon Kosmetyczny",
+  "usluga": "Plazma QRS lifting powieka górna dolna kurze łapki",
+  "kategoria": "Plazma QRS",
+  "sciezka": "medycyna estetyczna › lifting › ogolnie › twarzy › — › — › — › —",
+  "konkurenci": [
+   {
+    "nazwa": "Plazma powieka góra i dół",
+    "kategoria": "Plazma",
+    "werdykt": "tozsame",
+    "poziom": 5,
+    "powod": "ta sama ścieżka",
+    "sciezka": "medycyna estetyczna › lifting › ogolnie › twarzy › — › — › — › —"
+   },
+   {
+    "nazwa": "Plasma-LIFTING POWIEK",
+    "kategoria": "Plasma",
+    "werdykt": "tozsame",
+    "poziom": 5,
+    "powod": "ta sama ścieżka",
+    "sciezka": "medycyna estetyczna › lifting › ogolnie › twarzy › — › — › — › —"
+   },
+   {
+    "nazwa": "Plazma powieka dolna",
+    "kategoria": "Plazma",
+    "werdykt": "tozsame",
+    "poziom": 5,
+    "powod": "ta sama ścieżka",
+    "sciezka": "medycyna estetyczna › lifting › ogolnie › twarzy › — › — › — › —"
+   },
+   {
+    "nazwa": "Plazma powieka górna",
+    "kategoria": "Plazma",
+    "werdykt": "tozsame",
+    "poziom": 5,
+    "powod": "ta sama ścieżka",
+    "sciezka": "medycyna estetyczna › lifting › ogolnie › twarzy › — › — › — › —"
+   },
+   {
+    "nazwa": "Bezoperacyjny lifting powiek PLASMA IQ",
+    "kategoria": "Kosmetologia estetyczna ",
+    "werdykt": "tozsame",
+    "poziom": 5,
+    "powod": "ta sama ścieżka",
+    "sciezka": "medycyna estetyczna › lifting › ogolnie › twarzy › — › — › — › —"
+   },
+   {
+    "nazwa": "Resurfacing powieki/bruzdy",
+    "kategoria": "Laser M'ONDUNIQ",
+    "werdykt": "tozsame",
+    "poziom": 5,
+    "powod": "ta sama ścieżka",
+    "sciezka": "medycyna estetyczna › lifting › ogolnie › twarzy › — › — › — › —"
+   },
+   {
+    "nazwa": "Morpheus8 twarz radiofrekwencja pierwszy zabieg",
+    "kategoria": "Radiofrekwencja mikroigłowa Morpheus 8",
+    "werdykt": "niepelne",
+    "poziom": 2,
+    "powod": "metoda nieustalony",
+    "sciezka": "medycyna estetyczna › lifting › radiofrekwencja mikroigłowa › twarzy › — › — › — › —"
+   },
+   {
+    "nazwa": "Morpheus8 twarz + szyja pierwszy zabieg",
+    "kategoria": "Radiofrekwencja mikroigłowa Morpheus 8",
+    "werdykt": "niepelne",
+    "poziom": 2,
+    "powod": "metoda nieustalony",
+    "sciezka": "medycyna estetyczna › lifting › radiofrekwencja mikroigłowa › twarzy › — › — › — › —"
+   },
+   {
+    "nazwa": "Morpheus8 twarz + szyja + dekolt pierwszy zabieg",
+    "kategoria": "Radiofrekwencja mikroigłowa Morpheus 8",
+    "werdykt": "niepelne",
+    "poziom": 2,
+    "powod": "metoda nieustalony",
+    "sciezka": "medycyna estetyczna › lifting › radiofrekwencja mikroigłowa › twarzy › — › — › — › —"
+   },
+   {
+    "nazwa": "Morpheus8 ciało jeden obszar pierwszy zabieg",
+    "kategoria": "Radiofrekwencja mikroigłowa Morpheus 8",
+    "werdykt": "niepelne",
+    "poziom": 2,
+    "powod": "metoda nieustalony",
+    "sciezka": "medycyna estetyczna › lifting › radiofrekwencja mikroigłowa › ogolnie › — › — › — › —"
+   },
+   {
+    "nazwa": "Laserowe usuwanie brodawek, włókniaków 7-20 szt",
+    "kategoria": "Plazma",
+    "werdykt": "rozne",
+    "poziom": 1,
+    "powod": "inny zabieg",
+    "sciezka": "medycyna estetyczna › usuwanie › laserowe › ogolnie › — › — › ogolnie › —"
+   },
+   {
+    "nazwa": "PLASMA LIFT",
+    "kategoria": "PIELĘGNACJA TWARZY KOSMETYKA",
+    "werdykt": "rozne",
+    "poziom": 0,
+    "powod": "inny zabieg",
+    "sciezka": "twarz — pielęgnacja › lifting › ogolnie › twarzy › — › — › — › —"
+   }
+  ]
+ },
+ {
+  "branza": "Salon Kosmetyczny",
+  "usluga": "Makijaż Wieczorowy",
+  "kategoria": "Makijaże ",
+  "sciezka": "makijaż › makijaż › ogolnie › — › — › ogolnie › wieczorowy › ogolnie",
+  "konkurenci": [
+   {
+    "nazwa": "Wieczorowy makijaż",
+    "kategoria": "Makijaż ",
+    "werdykt": "tozsame",
+    "poziom": 5,
+    "powod": "ta sama ścieżka",
+    "sciezka": "makijaż › makijaż › ogolnie › — › — › ogolnie › wieczorowy › ogolnie"
+   },
+   {
+    "nazwa": "Makijaż Wieczorowy",
+    "kategoria": "",
+    "werdykt": "tozsame",
+    "poziom": 5,
+    "powod": "identyczna nazwa",
+    "sciezka": "makijaż › makijaż › ogolnie › — › — › ogolnie › wieczorowy › ogolnie"
+   },
+   {
+    "nazwa": "Makijaż wieczorowy",
+    "kategoria": "Makijaż okolicznościowy",
+    "werdykt": "tozsame",
+    "poziom": 5,
+    "powod": "identyczna nazwa",
+    "sciezka": "makijaż › makijaż › ogolnie › — › — › ogolnie › wieczorowy › ogolnie"
+   },
+   {
+    "nazwa": "Makijaż wieczorowy",
+    "kategoria": "",
+    "werdykt": "tozsame",
+    "poziom": 5,
+    "powod": "identyczna nazwa",
+    "sciezka": "makijaż › makijaż › ogolnie › — › — › ogolnie › wieczorowy › ogolnie"
+   },
+   {
+    "nazwa": "Makijaż wieczorowy",
+    "kategoria": "MAKIJAŻE OKOLICZNOŚCIOWE",
+    "werdykt": "tozsame",
+    "poziom": 5,
+    "powod": "identyczna nazwa",
+    "sciezka": "makijaż › makijaż › ogolnie › — › — › ogolnie › wieczorowy › ogolnie"
+   },
+   {
+    "nazwa": "Makijaż wieczorowy",
+    "kategoria": "MAKIJAŻ",
+    "werdykt": "tozsame",
+    "poziom": 5,
+    "powod": "identyczna nazwa",
+    "sciezka": "makijaż › makijaż › ogolnie › — › — › ogolnie › wieczorowy › ogolnie"
+   },
+   {
+    "nazwa": "Makijaż wieczorowy",
+    "kategoria": "Makijaż ",
+    "werdykt": "tozsame",
+    "poziom": 5,
+    "powod": "identyczna nazwa",
+    "sciezka": "makijaż › makijaż › ogolnie › — › — › ogolnie › wieczorowy › ogolnie"
+   },
+   {
+    "nazwa": "Makijaż wieczorowy/imprezowy",
+    "kategoria": "Wizaż",
+    "werdykt": "tozsame",
+    "poziom": 5,
+    "powod": "ta sama ścieżka",
+    "sciezka": "makijaż › makijaż › ogolnie › — › — › ogolnie › wieczorowy › ogolnie"
+   },
+   {
+    "nazwa": "Makijaż wieczorowy, okolicznościowy",
+    "kategoria": "Kosmetyka",
+    "werdykt": "tozsame",
+    "poziom": 5,
+    "powod": "ta sama ścieżka",
+    "sciezka": "makijaż › makijaż › ogolnie › — › — › ogolnie › wieczorowy › ogolnie"
+   },
+   {
+    "nazwa": "Makijaż - WIECZOROWY",
+    "kategoria": "Makijaż",
+    "werdykt": "tozsame",
+    "poziom": 5,
+    "powod": "identyczna nazwa",
+    "sciezka": "makijaż › makijaż › ogolnie › — › — › ogolnie › okazjonalny › ogolnie"
+   },
+   {
+    "nazwa": "Makijaż wieczorowy",
+    "kategoria": "Makijaż ",
+    "werdykt": "tozsame",
+    "poziom": 5,
+    "powod": "identyczna nazwa",
+    "sciezka": "makijaż › makijaż › ogolnie › — › — › ogolnie › wieczorowy › ogolnie"
+   },
+   {
+    "nazwa": "Makijaż wieczorowy",
+    "kategoria": "Makijaż",
+    "werdykt": "tozsame",
+    "poziom": 5,
+    "powod": "identyczna nazwa",
+    "sciezka": "makijaż › makijaż › ogolnie › — › — › ogolnie › wieczorowy › ogolnie"
+   }
+  ]
+ }
+]

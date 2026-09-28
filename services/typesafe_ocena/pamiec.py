@@ -18,7 +18,7 @@ from typing import Any
 
 from services.posthog_analytics import capture_ai_generation
 
-from .pytania import MODEL, PYTANIA, WERSJA, para_klucz, stan, uporzadkuj, wynik
+from .pytania import MODEL, WERSJA, para_klucz, pytania_dla, stan, uporzadkuj, wynik
 
 logger = logging.getLogger(__name__)
 
@@ -39,9 +39,11 @@ Para = tuple[Strona, Strona]
 class OcenaPar:
     """Jedna sesja oceny: wspólna pamięć, budżet i licznik kosztu."""
 
-    def __init__(self, db: Any, client: Any, budzet_usd: float) -> None:
+    def __init__(self, db: Any, client: Any, budzet_usd: float, wersja: int = WERSJA) -> None:
         self.db = db              # klient Supabase (table().select/upsert) albo None
         self.client = client      # AsyncTypeSafeClient
+        self.wersja = wersja      # wersja pytań sędziego — osobny klucz w pamięci ocen
+        self.pytania = pytania_dla(wersja)
         self.budzet_tokenow = int(budzet_usd / USD_ZA_TOKEN)
         self.tokeny = 0
         self.z_pamieci = 0
@@ -82,7 +84,7 @@ class OcenaPar:
             for i in range(0, len(klucze), _ODCZYT_PACZKA):
                 rows = (
                     self.db.table(TABELA).select("para_klucz,wynik")
-                    .eq("wersja", WERSJA).in_("para_klucz", klucze[i : i + _ODCZYT_PACZKA])
+                    .eq("wersja", self.wersja).in_("para_klucz", klucze[i : i + _ODCZYT_PACZKA])
                     .execute().data or []
                 )
                 out.update({r["para_klucz"]: r["wynik"] for r in rows if r.get("wynik")})
@@ -101,7 +103,7 @@ class OcenaPar:
                     self.pominietych += 1
                     return
                 try:
-                    res = await self.client.system_one(stan(a, b), PYTANIA, model=MODEL)
+                    res = await self.client.system_one(stan(a, b), self.pytania, model=MODEL)
                 except Exception as e:  # noqa: BLE001 — jedna para bez oceny, reszta idzie dalej
                     logger.warning("ocena pary: %s: %s", type(e).__name__, str(e)[:160])
                     self.pominietych += 1
@@ -112,7 +114,7 @@ class OcenaPar:
             srednia[0] = max(srednia[0], tok)
             w = wynik(res)
             self._wyniki[klucz] = w
-            wiersze.append(_wiersz(klucz, a, b, w, tok))
+            wiersze.append(_wiersz(klucz, a, b, w, tok, self.wersja))
 
         await asyncio.gather(*[jedna(k, a, b) for k, (a, b) in pary.items()])
         return wiersze
@@ -129,11 +131,11 @@ class OcenaPar:
             logger.warning("%s: zapis nieudany (%s): %s", TABELA, type(e).__name__, str(e)[:160])
 
 
-def _wiersz(klucz: str, a: Strona, b: Strona, w: dict[str, Any], tokeny: int) -> dict[str, Any]:
+def _wiersz(klucz: str, a: Strona, b: Strona, w: dict[str, Any], tokeny: int, wersja: int = WERSJA) -> dict[str, Any]:
     x, y = uporzadkuj(a, b)
     return {
         "para_klucz": klucz,
-        "wersja": WERSJA,
+        "wersja": wersja,
         "a_nazwa": x["nazwa"], "a_kategoria": x["kategoria_w_cenniku"] or None, "a_typ_salonu": x["typ_salonu"] or None,
         "b_nazwa": y["nazwa"], "b_kategoria": y["kategoria_w_cenniku"] or None, "b_typ_salonu": y["typ_salonu"] or None,
         "werdykt": w["werdykt"],

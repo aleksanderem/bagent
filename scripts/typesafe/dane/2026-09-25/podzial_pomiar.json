@@ -1,0 +1,136 @@
+{
+ "spojnosc_v7": {
+  "par": 3224,
+  "scisle_proc": 79.5,
+  "zgodnie_proc": 81.1
+ },
+ "spojnosc_v8": {
+  "par": 3224,
+  "scisle_proc": 82.8,
+  "zgodnie_proc": 87.0
+ },
+ "final|wszystkie|v7": {
+  "n": 393,
+  "trafnosc": 88.0,
+  "wychwycone": 62.7,
+  "precyzja": 76.5
+ },
+ "final|wszystkie|v8": {
+  "n": 393,
+  "trafnosc": 90.6,
+  "wychwycone": 71.1,
+  "precyzja": 81.9
+ },
+ "final|wszystkie|sedzia": {
+  "n": 393,
+  "trafnosc": 92.4,
+  "wychwycone": 74.7,
+  "precyzja": 87.3
+ },
+ "final|przyjete|v7": {
+  "n": 174,
+  "trafnosc": 81.0,
+  "wychwycone": 64.7,
+  "precyzja": 83.0
+ },
+ "final|przyjete|v8": {
+  "n": 174,
+  "trafnosc": 86.2,
+  "wychwycone": 73.5,
+  "precyzja": 89.3
+ },
+ "final|przyjete|sedzia": {
+  "n": 174,
+  "trafnosc": 87.9,
+  "wychwycone": 77.9,
+  "precyzja": 89.8
+ },
+ "final|przyjete_nieparzyste|v7": {
+  "n": 88,
+  "trafnosc": 78.4,
+  "wychwycone": 62.2,
+  "precyzja": 82.1
+ },
+ "final|przyjete_nieparzyste|v8": {
+  "n": 88,
+  "trafnosc": 81.8,
+  "wychwycone": 67.6,
+  "precyzja": 86.2
+ },
+ "final|przyjete_nieparzyste|sedzia": {
+  "n": 88,
+  "trafnosc": 88.6,
+  "wychwycone": 78.4,
+  "precyzja": 93.5
+ },
+ "human|wszystkie|v7": {
+  "n": 49,
+  "trafnosc": 83.7,
+  "wychwycone": 41.7,
+  "precyzja": 83.3
+ },
+ "human|wszystkie|v8": {
+  "n": 49,
+  "trafnosc": 85.7,
+  "wychwycone": 50.0,
+  "precyzja": 85.7
+ },
+ "human|wszystkie|sedzia": {
+  "n": 49,
+  "trafnosc": 89.8,
+  "wychwycone": 58.3,
+  "precyzja": 100.0
+ },
+ "human|przyjete|v7": {
+  "n": 14,
+  "trafnosc": 78.6,
+  "wychwycone": 25.0,
+  "precyzja": 100.0
+ },
+ "human|przyjete|v8": {
+  "n": 14,
+  "trafnosc": 85.7,
+  "wychwycone": 50.0,
+  "precyzja": 100.0
+ },
+ "human|przyjete|sedzia": {
+  "n": 14,
+  "trafnosc": 85.7,
+  "wychwycone": 50.0,
+  "precyzja": 100.0
+ },
+ "human|przyjete_nieparzyste|v7": {
+  "n": 11,
+  "trafnosc": 81.8,
+  "wychwycone": 33.3,
+  "precyzja": 100.0
+ },
+ "human|przyjete_nieparzyste|v8": {
+  "n": 11,
+  "trafnosc": 90.9,
+  "wychwycone": 66.7,
+  "precyzja": 100.0
+ },
+ "human|przyjete_nieparzyste|sedzia": {
+  "n": 11,
+  "trafnosc": 90.9,
+  "wychwycone": 66.7,
+  "precyzja": 100.0
+ },
+ "rozstrzygniete_v7_proc": 75.7,
+ "rozstrzygniete_v8_proc": 78.7,
+ "powody_v8": {
+  "inny rodzaj": 140,
+  "obszar": 77,
+  "zestaw": 49,
+  "wszystkie cechy równe": 42,
+  "identyczna nazwa": 40,
+  "dodatek": 36,
+  "objetosc": 32,
+  "dlugosc": 25,
+  "odbiorca": 20,
+  "czas": 20,
+  "rodzaj ogólny": 19,
+  "ta sama rodzina": 16
+ }
+}

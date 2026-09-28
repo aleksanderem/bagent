@@ -1,0 +1,758 @@
+[
+ {
+  "branza": "Barber shop",
+  "a": "Strzyżenie Głowy i Brody +Brzytwa [Julia Senior Barber]",
+  "b": "Strzyżenie męskie + mycie głowy [Barber]",
+  "v13": "tozsame (ta sama ścieżka)",
+  "v12b": "powiazane (inny poziom: obszar)",
+  "sciezka_a_v13": "sylwetki: strzyżenie › męskie",
+  "sciezka_b_v13": "sylwetki: strzyżenie › męskie"
+ },
+ {
+  "branza": "Barber shop",
+  "a": "Strzyżenie Głowy i Brody +Brzytwa [Julia Senior Barber]",
+  "b": "Strzyżenie + Broda []",
+  "v13": "tozsame (ta sama ścieżka)",
+  "v12b": "powiazane (inny poziom: obszar)",
+  "sciezka_a_v13": "sylwetki: strzyżenie › męskie",
+  "sciezka_b_v13": "sylwetki: strzyżenie › męskie"
+ },
+ {
+  "branza": "Barber shop",
+  "a": "Strzyżenie Głowy i Brody +Brzytwa [Julia Senior Barber]",
+  "b": "Strzyżenie + (Mycie głowy z masażem + stylizacja) []",
+  "v13": "tozsame (ta sama ścieżka)",
+  "v12b": "powiazane (inny poziom: obszar)",
+  "sciezka_a_v13": "sylwetki: strzyżenie › męskie",
+  "sciezka_b_v13": "sylwetki: strzyżenie › męskie"
+ },
+ {
+  "branza": "Barber shop",
+  "a": "Strzyżenie Głowy i Brody [Aleksander Senior Barber]",
+  "b": "Strzyżenie brody i golenie głowy na mokro []",
+  "v13": "tozsame (ta sama ścieżka)",
+  "v12b": "rozne (inny zabieg)",
+  "sciezka_a_v13": "sylwetki: strzyżenie › męskie",
+  "sciezka_b_v13": "sylwetki: strzyżenie › męskie"
+ },
+ {
+  "branza": "Barber shop",
+  "a": "Strzyżenie Głowy i Brody +Brzytwa [Julia Senior Barber]",
+  "b": "Strzyżenie męskie +mycie głowy [Usługi męskie]",
+  "v13": "tozsame (ta sama ścieżka)",
+  "v12b": "powiazane (inny poziom: obszar)",
+  "sciezka_a_v13": "sylwetki: strzyżenie › męskie",
+  "sciezka_b_v13": "sylwetki: strzyżenie › męskie"
+ },
+ {
+  "branza": "Barber shop",
+  "a": "Strzyżenie Głowy i Brody [Aleksander Senior Barber]",
+  "b": "Łysy z brodą [MASTER Barber Łukasz ,,Zjava’’]",
+  "v13": "tozsame (ta sama ścieżka)",
+  "v12b": "powiazane (inny poziom: obszar)",
+  "sciezka_a_v13": "sylwetki: strzyżenie › męskie",
+  "sciezka_b_v13": "sylwetki: strzyżenie › męskie"
+ },
+ {
+  "branza": "Barber shop",
+  "a": "Strzyżenie Głowy i Brody +Brzytwa [Julia Senior Barber]",
+  "b": "Strzyżenie Męskie + Strzyżenie Brody [Fryzjerstwo - Strzyżenie]",
+  "v13": "tozsame (ta sama ścieżka)",
+  "v12b": "powiazane (inny poziom: obszar)",
+  "sciezka_a_v13": "sylwetki: strzyżenie › męskie",
+  "sciezka_b_v13": "sylwetki: strzyżenie › męskie"
+ },
+ {
+  "branza": "Barber shop",
+  "a": "Strzyżenie Męskie Włosy Długie [Julia Senior Barber]",
+  "b": "Strzyżenie włosów męskie z długich na krótkie [STRZYŻENIE WŁOSÓW ]",
+  "v13": "tozsame (ta sama ścieżka)",
+  "v12b": "powiazane (inny poziom: wielkość)",
+  "sciezka_a_v13": "sylwetki: strzyżenie › długie · męskie",
+  "sciezka_b_v13": "sylwetki: strzyżenie › długie · męskie"
+ },
+ {
+  "branza": "Barber shop",
+  "a": "Strzyżenie Męskie Włosy Długie [Julia Senior Barber]",
+  "b": "Strzyżenie Męskie - Długie Włosy [Fryzjerstwo - Strzyżenie]",
+  "v13": "tozsame (ta sama ścieżka)",
+  "v12b": "tozsame (ta sama ścieżka)",
+  "sciezka_a_v13": "sylwetki: strzyżenie › długie · męskie",
+  "sciezka_b_v13": "sylwetki: strzyżenie › długie · męskie"
+ },
+ {
+  "branza": "Barber shop",
+  "a": "Strzyżenie combo + wosk ( uszy, nos) []",
+  "b": "Combo (włosy+broda) []",
+  "v13": "tozsame (ta sama ścieżka)",
+  "v12b": "tozsame (ta sama ścieżka)",
+  "sciezka_a_v13": "sylwetki: strzyżenie › męskie",
+  "sciezka_b_v13": "sylwetki: strzyżenie › męskie"
+ },
+ {
+  "branza": "Brwi i rzęsy",
+  "a": "Regulacja brwi nitką [Stylizacja brwi]",
+  "b": "Regulacja brwi [Stylizacja Brwi]",
+  "v13": "niepelne (metoda nieustalony)",
+  "v12b": "tozsame (ta sama ścieżka)",
+  "sciezka_a_v13": "kosmetyczna: regulacja › inne › brwi",
+  "sciezka_b_v13": "kosmetyczna: regulacja › brwi"
+ },
+ {
+  "branza": "Brwi i rzęsy",
+  "a": "Regulacja brwi nitką [Stylizacja brwi]",
+  "b": "Regulacja brwi [PIELĘGNACJA BRWI I RZĘS]",
+  "v13": "niepelne (metoda nieustalony)",
+  "v12b": "tozsame (ta sama ścieżka)",
+  "sciezka_a_v13": "kosmetyczna: regulacja › inne › brwi",
+  "sciezka_b_v13": "kosmetyczna: regulacja › brwi"
+ },
+ {
+  "branza": "Brwi i rzęsy",
+  "a": "Makijaż permanentny brwi metodą pudrową [Permanentny makijaż]",
+  "b": "Makijaż permanentny brwi metodą ombre/pudrową [Makijaż permanentny brwi]",
+  "v13": "tozsame (ta sama ścieżka)",
+  "v12b": "powiazane (inny poziom: metoda)",
+  "sciezka_a_v13": "twarzy: makijaż permanentny › ombre",
+  "sciezka_b_v13": "twarzy: makijaż permanentny › ombre"
+ },
+ {
+  "branza": "Brwi i rzęsy",
+  "a": "Regulacja brwi nitką [Stylizacja brwi]",
+  "b": "Regulacja brwi []",
+  "v13": "niepelne (metoda nieustalony)",
+  "v12b": "tozsame (ta sama ścieżka)",
+  "sciezka_a_v13": "kosmetyczna: regulacja › inne › brwi",
+  "sciezka_b_v13": "kosmetyczna: regulacja › brwi"
+ },
+ {
+  "branza": "Brwi i rzęsy",
+  "a": "Regulacja brwi nitką [Stylizacja brwi]",
+  "b": "Regulacja brwi [Stylizacja brwi]",
+  "v13": "niepelne (metoda nieustalony)",
+  "v12b": "tozsame (ta sama ścieżka)",
+  "sciezka_a_v13": "kosmetyczna: regulacja › inne › brwi",
+  "sciezka_b_v13": "kosmetyczna: regulacja › brwi"
+ },
+ {
+  "branza": "Brwi i rzęsy",
+  "a": "Regulacja brwi nitką [Stylizacja brwi]",
+  "b": "Regulacja brwi [Stylizacja brwi ]",
+  "v13": "niepelne (metoda nieustalony)",
+  "v12b": "tozsame (ta sama ścieżka)",
+  "sciezka_a_v13": "kosmetyczna: regulacja › inne › brwi",
+  "sciezka_b_v13": "kosmetyczna: regulacja › brwi"
+ },
+ {
+  "branza": "Brwi i rzęsy",
+  "a": "Regulacja brwi nitką [Stylizacja brwi]",
+  "b": "Regulacja brwi [Stylizacja oprawy oka ]",
+  "v13": "niepelne (metoda nieustalony)",
+  "v12b": "tozsame (ta sama ścieżka)",
+  "sciezka_a_v13": "kosmetyczna: regulacja › inne › brwi",
+  "sciezka_b_v13": "kosmetyczna: regulacja › brwi"
+ },
+ {
+  "branza": "Brwi i rzęsy",
+  "a": "Regulacja brwi nitką [Stylizacja brwi]",
+  "b": "Regulacja brwi []",
+  "v13": "niepelne (metoda nieustalony)",
+  "v12b": "tozsame (ta sama ścieżka)",
+  "sciezka_a_v13": "kosmetyczna: regulacja › inne › brwi",
+  "sciezka_b_v13": "kosmetyczna: regulacja › brwi"
+ },
+ {
+  "branza": "Brwi i rzęsy",
+  "a": "Koreańska Laminacja Rzęs [Stylizacja rzęs ]",
+  "b": "Koreańska laminacja rzęs []",
+  "v13": "tozsame (ta sama ścieżka)",
+  "v12b": "tozsame (identyczna nazwa)",
+  "sciezka_a_v13": "kosmetyczna: laminacja › koreańska › rzęs",
+  "sciezka_b_v13": "kosmetyczna: laminacja › koreańska › rzęs"
+ },
+ {
+  "branza": "Brwi i rzęsy",
+  "a": "Koreańska Laminacja Rzęs [Stylizacja rzęs ]",
+  "b": "Koreanska laminacja rzęs []",
+  "v13": "tozsame (ta sama ścieżka)",
+  "v12b": "tozsame (ta sama ścieżka)",
+  "sciezka_a_v13": "kosmetyczna: laminacja › koreańska › rzęs",
+  "sciezka_b_v13": "kosmetyczna: laminacja › koreańska › rzęs"
+ },
+ {
+  "branza": "Depilacja",
+  "a": "Bikini + pachy + nogi + szpara + pośladki + twarz [PROMOCJE]",
+  "b": "Depilacja laser 4-wiązkowy [DEPILACJA LASEROWA EPILIQUS (laser 4 wiązkowy)]",
+  "v13": "tozsame (ta sama ścieżka)",
+  "v12b": "niepelne (obszar nieustalony)",
+  "sciezka_a_v13": "owłosienia: usuwanie",
+  "sciezka_b_v13": "owłosienia: usuwanie"
+ },
+ {
+  "branza": "Depilacja",
+  "a": "Bikini + pachy + nogi + szpara + pośladki + twarz [PROMOCJE]",
+  "b": "Bikini + pachy + całe nogi [Depilacja laserowa]",
+  "v13": "tozsame (ta sama ścieżka)",
+  "v12b": "niepelne (wielkość nieustalony)",
+  "sciezka_a_v13": "owłosienia: usuwanie",
+  "sciezka_b_v13": "owłosienia: usuwanie"
+ },
+ {
+  "branza": "Depilacja",
+  "a": "Bikini głębokie + pachy [PROMOCJE]",
+  "b": "Depilacja laserowa bikini głębokie []",
+  "v13": "powiazane (inny poziom: gdzie i ile)",
+  "v12b": "tozsame (ta sama ścieżka)",
+  "sciezka_a_v13": "cała twarz: depilacja › laserowa › bikini głębokie · pachy",
+  "sciezka_b_v13": "cała twarz: depilacja › laserowa › bikini głębokie"
+ },
+ {
+  "branza": "Depilacja",
+  "a": "Bikini głębokie + pachy [PROMOCJE]",
+  "b": "! Depilacja laserowa bikini + pachy (-36%) [Promocje]",
+  "v13": "tozsame (ta sama ścieżka)",
+  "v12b": "powiazane (inny poziom: obszar)",
+  "sciezka_a_v13": "cała twarz: depilacja › laserowa › bikini głębokie · pachy",
+  "sciezka_b_v13": "cała twarz: depilacja › laserowa › bikini głębokie · pachy"
+ },
+ {
+  "branza": "Depilacja",
+  "a": "Depilacja pastą cukrową nóg []",
+  "b": "Depilacja nóg do kolana [Depilacja pastą cukrową]",
+  "v13": "tozsame (ta sama ścieżka)",
+  "v12b": "niepelne (wielkość nieustalony)",
+  "sciezka_a_v13": "cała twarz: depilacja › pastą cukrową › nóg",
+  "sciezka_b_v13": "cała twarz: depilacja › pastą cukrową › nóg"
+ },
+ {
+  "branza": "Depilacja",
+  "a": "Bikini + pachy + nogi + szpara + pośladki + twarz [PROMOCJE]",
+  "b": "Bikini + pachy + całe nogi + przedramię [Depilacja laserowa]",
+  "v13": "tozsame (ta sama ścieżka)",
+  "v12b": "niepelne (wielkość nieustalony)",
+  "sciezka_a_v13": "owłosienia: usuwanie",
+  "sciezka_b_v13": "owłosienia: usuwanie"
+ },
+ {
+  "branza": "Depilacja",
+  "a": "Bikini głębokie + pachy [PROMOCJE]",
+  "b": "Pachy, bikini głębokie [Depilacja laserowa ]",
+  "v13": "tozsame (ta sama ścieżka)",
+  "v12b": "powiazane (dodatek)",
+  "sciezka_a_v13": "cała twarz: depilacja › laserowa › bikini głębokie · pachy",
+  "sciezka_b_v13": "cała twarz: depilacja › laserowa › bikini głębokie · pachy"
+ },
+ {
+  "branza": "Depilacja",
+  "a": "Laserowa epilacja nogi całość []",
+  "b": "Depilacja laserowa całe nogi,całe ręce,pachy [Depilacja laserowa ]",
+  "v13": "powiazane (inny poziom: gdzie i ile)",
+  "v12b": "tozsame (ta sama ścieżka)",
+  "sciezka_a_v13": "cała twarz: depilacja › laserowa › całe · nogi",
+  "sciezka_b_v13": "cała twarz: depilacja › laserowa › całe · nogi · pachy"
+ },
+ {
+  "branza": "Depilacja",
+  "a": "Laserowa epilacja nogi całość []",
+  "b": "Depilacja laserowa Primelase całe nogi [Primelase - epilacja laserowa]",
+  "v13": "tozsame (ta sama ścieżka)",
+  "v12b": "tozsame (ta sama ścieżka)",
+  "sciezka_a_v13": "cała twarz: depilacja › laserowa › całe · nogi",
+  "sciezka_b_v13": "cała twarz: depilacja › laserowa › całe · nogi"
+ },
+ {
+  "branza": "Depilacja",
+  "a": "Laserowa epilacja nogi całość []",
+  "b": "Całe nogi (łydki + kolana + uda) [Depilacja laserowa VECTUS]",
+  "v13": "tozsame (ta sama ścieżka)",
+  "v12b": "tozsame (ta sama ścieżka)",
+  "sciezka_a_v13": "cała twarz: depilacja › laserowa › całe · nogi",
+  "sciezka_b_v13": "cała twarz: depilacja › laserowa › całe · nogi"
+ },
+ {
+  "branza": "Fryzjer",
+  "a": "Strzyżenie męskie [Męskie]",
+  "b": "Strzyżenie samych boków []",
+  "v13": "tozsame (ta sama ścieżka)",
+  "v12b": "powiazane (inny poziom: obszar)",
+  "sciezka_a_v13": "sylwetki: strzyżenie › męskie",
+  "sciezka_b_v13": "sylwetki: strzyżenie › męskie"
+ },
+ {
+  "branza": "Fryzjer",
+  "a": "Strzyżenie dziewczynka pierwsze lub do 2 lat [Damskie]",
+  "b": "Strzyżenie chlopca 0-3 [Męskie]",
+  "v13": "niepelne (gdzie i ile spoza listy)",
+  "v12b": "tozsame (ta sama ścieżka)",
+  "sciezka_a_v13": "sylwetki: strzyżenie › inne",
+  "sciezka_b_v13": "sylwetki: strzyżenie › męskie"
+ },
+ {
+  "branza": "Fryzjer",
+  "a": "Strzyżenie męskie [Męskie]",
+  "b": "Strzyżenie męskie krótkich włosów []",
+  "v13": "tozsame (ta sama ścieżka)",
+  "v12b": "niepelne (wielkość nieustalony)",
+  "sciezka_a_v13": "sylwetki: strzyżenie › męskie",
+  "sciezka_b_v13": "sylwetki: strzyżenie › męskie"
+ },
+ {
+  "branza": "Fryzjer",
+  "a": "Depilacja woskiem wąsik [Depilacja woskiem]",
+  "b": "Depilacja wąsik [Depilacja woskiem]",
+  "v13": "tozsame (ta sama ścieżka)",
+  "v12b": "niepelne (dla kogo nieustalony)",
+  "sciezka_a_v13": "cała twarz: depilacja › woskiem › wąsik",
+  "sciezka_b_v13": "cała twarz: depilacja › woskiem › wąsik"
+ },
+ {
+  "branza": "Fryzjer",
+  "a": "Strzyżenie dziewczynka pierwsze lub do 2 lat [Damskie]",
+  "b": "Strzyżenie dziecka (dziewczynka) [DAMSKIE]",
+  "v13": "niepelne (gdzie i ile spoza listy)",
+  "v12b": "tozsame (ta sama ścieżka)",
+  "sciezka_a_v13": "sylwetki: strzyżenie › inne",
+  "sciezka_b_v13": "sylwetki: strzyżenie › damskie"
+ },
+ {
+  "branza": "Fryzjer",
+  "a": "Strzyżenie dziewczynka pierwsze lub do 2 lat [Damskie]",
+  "b": "Strzyżenie chłopców []",
+  "v13": "niepelne (gdzie i ile spoza listy)",
+  "v12b": "tozsame (ta sama ścieżka)",
+  "sciezka_a_v13": "sylwetki: strzyżenie › inne",
+  "sciezka_b_v13": "sylwetki: strzyżenie › męskie"
+ },
+ {
+  "branza": "Fryzjer",
+  "a": "Depilacja woskiem wąsik [Depilacja woskiem]",
+  "b": "Depilacja wąsik [DEPILACJA -WOSK]",
+  "v13": "powiazane (inny poziom: gdzie i ile)",
+  "v12b": "tozsame (ta sama ścieżka)",
+  "sciezka_a_v13": "cała twarz: depilacja › woskiem › wąsik",
+  "sciezka_b_v13": "cała twarz: depilacja › woskiem › wąsika"
+ },
+ {
+  "branza": "Fryzjer",
+  "a": "Depilacja woskiem wąsik [Depilacja woskiem]",
+  "b": "Depilacja wąsik [Depilacja woskiem]",
+  "v13": "tozsame (ta sama ścieżka)",
+  "v12b": "niepelne (dla kogo nieustalony)",
+  "sciezka_a_v13": "cała twarz: depilacja › woskiem › wąsik",
+  "sciezka_b_v13": "cała twarz: depilacja › woskiem › wąsik"
+ },
+ {
+  "branza": "Fryzjer",
+  "a": "Depilacja woskiem wąsik [Depilacja woskiem]",
+  "b": "Depilacja woskiem wąsik [Brwi i rzęsy ]",
+  "v13": "tozsame (ta sama ścieżka)",
+  "v12b": "tozsame (identyczna nazwa)",
+  "sciezka_a_v13": "cała twarz: depilacja › woskiem › wąsik",
+  "sciezka_b_v13": "cała twarz: depilacja › woskiem › wąsik"
+ },
+ {
+  "branza": "Fryzjer",
+  "a": "Depilacja woskiem wąsik [Depilacja woskiem]",
+  "b": "Depilacja woskiem wąsik []",
+  "v13": "tozsame (ta sama ścieżka)",
+  "v12b": "tozsame (identyczna nazwa)",
+  "sciezka_a_v13": "cała twarz: depilacja › woskiem › wąsik",
+  "sciezka_b_v13": "cała twarz: depilacja › woskiem › wąsik"
+ },
+ {
+  "branza": "Masaż",
+  "a": "Masaż Kobido + Masaż Głowy I Uszu [MASAŻE TWARZY]",
+  "b": "Kobido+japońska pielęgnacja [Masaż twarzy ]",
+  "v13": "tozsame (ta sama ścieżka)",
+  "v12b": "powiazane (inny poziom: cel)",
+  "sciezka_a_v13": "twarzy: masaż › kobido",
+  "sciezka_b_v13": "twarzy: masaż › kobido"
+ },
+ {
+  "branza": "Masaż",
+  "a": "Balajaz + toner włosy średnie ( do ramion ) [Fryzjerstwo ]",
+  "b": "Włosy średnie Balayage (do ramion )sombre ,pasemka [Balayage , pasemka, sombre zawiera strzyżenie]",
+  "v13": "niepelne (metoda spoza listy)",
+  "v12b": "tozsame (ta sama ścieżka)",
+  "sciezka_a_v13": "koloru: koloryzacja › inne › średnie",
+  "sciezka_b_v13": "koloru: koloryzacja › inne › średnie"
+ },
+ {
+  "branza": "Masaż",
+  "a": "Żwacze, Bruksizm [USUWANIE ZMARSZCZEK]",
+  "b": "BTX Usuwanie Zmarszczek Mimicznych 1 okolica [Medycyna Estetyczna]",
+  "v13": "rozne (inny zabieg)",
+  "v12b": "tozsame (ta sama ścieżka)",
+  "sciezka_a_v13": "anti aging: mezoterapia",
+  "sciezka_b_v13": "anti aging: botoks › botox › 1 okolica"
+ },
+ {
+  "branza": "Masaż",
+  "a": "Masaż Kobido + Masaż Głowy I Uszu [MASAŻE TWARZY]",
+  "b": "Masaż Kobido Premium [Masaż Kobido]",
+  "v13": "tozsame (ta sama ścieżka)",
+  "v12b": "powiazane (inny poziom: cel)",
+  "sciezka_a_v13": "twarzy: masaż › kobido",
+  "sciezka_b_v13": "twarzy: masaż › kobido"
+ },
+ {
+  "branza": "Masaż",
+  "a": "Modelowanie włosów średnich ( do ramion) [Fryzjerstwo ]",
+  "b": "Modelowanie włosy średnie [Modelowanie]",
+  "v13": "niepelne (metoda nieustalony)",
+  "v12b": "tozsame (ta sama ścieżka)",
+  "sciezka_a_v13": "włosów: stylizacja › inne › średnie",
+  "sciezka_b_v13": "włosów: stylizacja › średnie"
+ },
+ {
+  "branza": "Masaż",
+  "a": "Modelowanie włosów średnich ( do ramion) [Fryzjerstwo ]",
+  "b": "Modelowanie włosów średnich [Fryzjerstwo ]",
+  "v13": "niepelne (metoda nieustalony)",
+  "v12b": "tozsame (ta sama ścieżka)",
+  "sciezka_a_v13": "włosów: stylizacja › inne › średnie",
+  "sciezka_b_v13": "włosów: stylizacja › średnie"
+ },
+ {
+  "branza": "Masaż",
+  "a": "Masaż Kobido + Masaż Głowy I Uszu [MASAŻE TWARZY]",
+  "b": "Masaż pleców + Kobido []",
+  "v13": "tozsame (ta sama ścieżka)",
+  "v12b": "powiazane (inny poziom: obszar)",
+  "sciezka_a_v13": "twarzy: masaż › kobido",
+  "sciezka_b_v13": "twarzy: masaż › kobido"
+ },
+ {
+  "branza": "Masaż",
+  "a": "Masaż Kobido + Zabieg Rozświetlający ARKANA [MASAŻE TWARZY]",
+  "b": "Kobido/Gua Sha express [Podstawowe ]",
+  "v13": "tozsame (ta sama ścieżka)",
+  "v12b": "powiazane (inny poziom: cel)",
+  "sciezka_a_v13": "twarzy: masaż › kobido",
+  "sciezka_b_v13": "twarzy: masaż › kobido"
+ },
+ {
+  "branza": "Masaż",
+  "a": "Masaż Kobido + Masaż Głowy I Uszu [MASAŻE TWARZY]",
+  "b": "masaż Kobido + maska [popularne usługi]",
+  "v13": "tozsame (ta sama ścieżka)",
+  "v12b": "tozsame (ta sama ścieżka)",
+  "sciezka_a_v13": "twarzy: masaż › kobido",
+  "sciezka_b_v13": "twarzy: masaż › kobido"
+ },
+ {
+  "branza": "Masaż",
+  "a": "Masaż Kobido + Masaż Głowy I Uszu [MASAŻE TWARZY]",
+  "b": "Kobido [Masaż twarzy]",
+  "v13": "tozsame (ta sama ścieżka)",
+  "v12b": "tozsame (ta sama ścieżka)",
+  "sciezka_a_v13": "twarzy: masaż › kobido",
+  "sciezka_b_v13": "twarzy: masaż › kobido"
+ },
+ {
+  "branza": "Medycyna Estetyczna",
+  "a": "Manicure hybrydowy [Stylizacja paznokci]",
+  "b": "Manicure hybrydowy []",
+  "v13": "niepelne (gdzie i ile nieustalony)",
+  "v12b": "tozsame (identyczna nazwa)",
+  "sciezka_a_v13": "paznokci: manicure › hybrydowy",
+  "sciezka_b_v13": "paznokci: manicure › hybrydowy"
+ },
+ {
+  "branza": "Medycyna Estetyczna",
+  "a": "Laserowe rozjaśnianie przebarwień [Zabiegi Systemem Laserowym YagQSwich]",
+  "b": "Laserowe usuwanie przebarwień [FOTONA StarWalker zabiegi laserowe PICO-NAO-KTP]",
+  "v13": "rozne (inny zabieg)",
+  "v12b": "tozsame (ta sama ścieżka)",
+  "sciezka_a_v13": "twarzy: laseroterapia",
+  "sciezka_b_v13": "twarzy: usuwanie › laserowe › przebarwienia · przebarwień"
+ },
+ {
+  "branza": "Medycyna Estetyczna",
+  "a": "Manicure hybrydowy [Stylizacja paznokci]",
+  "b": "Manicure hybrydowy [Manicure hybrydowy ]",
+  "v13": "niepelne (gdzie i ile nieustalony)",
+  "v12b": "tozsame (identyczna nazwa)",
+  "sciezka_a_v13": "paznokci: manicure › hybrydowy",
+  "sciezka_b_v13": "paznokci: manicure › hybrydowy › inne"
+ },
+ {
+  "branza": "Medycyna Estetyczna",
+  "a": "Lipoliza iniekcyjna [Lipoliza iniekcyjna]",
+  "b": "Lipoliza policzki [Lipoliza iniekcyjna ]",
+  "v13": "niepelne (gdzie i ile spoza listy)",
+  "v12b": "tozsame (ta sama ścieżka)",
+  "sciezka_a_v13": "ciała: lipoliza › iniekcyjna › podbródek",
+  "sciezka_b_v13": "ciała: lipoliza › iniekcyjna › inne"
+ },
+ {
+  "branza": "Medycyna Estetyczna",
+  "a": "Lipoliza iniekcyjna [Lipoliza iniekcyjna]",
+  "b": "Lipoliza iniekcyjna 5ml [Lipoliza iniekcyjna]",
+  "v13": "niepelne (gdzie i ile nieustalony)",
+  "v12b": "tozsame (ta sama ścieżka)",
+  "sciezka_a_v13": "ciała: lipoliza › iniekcyjna › podbródek",
+  "sciezka_b_v13": "ciała: lipoliza › iniekcyjna"
+ },
+ {
+  "branza": "Medycyna Estetyczna",
+  "a": "Laserowe rozjaśnianie przebarwień [Zabiegi Systemem Laserowym YagQSwich]",
+  "b": "Nieablacyjny resurfacing twarz [Nieablacyjny resurfacing (Nd:YAG 1064)]",
+  "v13": "tozsame (ta sama ścieżka)",
+  "v12b": "rozne (inny zabieg)",
+  "sciezka_a_v13": "twarzy: laseroterapia",
+  "sciezka_b_v13": "twarzy: laseroterapia"
+ },
+ {
+  "branza": "Medycyna Estetyczna",
+  "a": "Manicure hybrydowy [Stylizacja paznokci]",
+  "b": "Manicure hybrydowy [Stylizacja paznokci]",
+  "v13": "niepelne (gdzie i ile nieustalony)",
+  "v12b": "tozsame (identyczna nazwa)",
+  "sciezka_a_v13": "paznokci: manicure › hybrydowy",
+  "sciezka_b_v13": "paznokci: manicure › hybrydowy"
+ },
+ {
+  "branza": "Medycyna Estetyczna",
+  "a": "Manicure hybrydowy [Stylizacja paznokci]",
+  "b": "Manicure hybrydowy []",
+  "v13": "niepelne (gdzie i ile nieustalony)",
+  "v12b": "tozsame (identyczna nazwa)",
+  "sciezka_a_v13": "paznokci: manicure › hybrydowy",
+  "sciezka_b_v13": "paznokci: manicure › hybrydowy"
+ },
+ {
+  "branza": "Medycyna Estetyczna",
+  "a": "Mezoterapia osoczem - skóra głowy [Mezoterapia - zabiegi autologiczne]",
+  "b": "Mezoterapia igłowa skóry głowy osoczem bogatopłytk [Zabiegi autologiczne]",
+  "v13": "tozsame (ta sama ścieżka)",
+  "v12b": "tozsame (ta sama ścieżka)",
+  "sciezka_a_v13": "anti aging: mezoterapia › igłowa › skóry głowy",
+  "sciezka_b_v13": "anti aging: mezoterapia › igłowa › skóry głowy"
+ },
+ {
+  "branza": "Medycyna Estetyczna",
+  "a": "Lipoliza iniekcyjna [Lipoliza iniekcyjna]",
+  "b": "Podbródek [Lipoliza Iniekcyjna]",
+  "v13": "tozsame (ta sama ścieżka)",
+  "v12b": "tozsame (ta sama ścieżka)",
+  "sciezka_a_v13": "ciała: lipoliza › iniekcyjna › podbródek",
+  "sciezka_b_v13": "ciała: lipoliza › iniekcyjna › podbródek"
+ },
+ {
+  "branza": "Paznokcie",
+  "a": "Pedicure hybrydowy kolor [Pedicure]",
+  "b": "Pedicure hybrydowy cały (1 kolor) []",
+  "v13": "niepelne (gdzie i ile nieustalony)",
+  "v12b": "tozsame (ta sama ścieżka)",
+  "sciezka_a_v13": "dłonie: pedicure › hybrydowy",
+  "sciezka_b_v13": "dłonie: pedicure › hybrydowy › inne"
+ },
+ {
+  "branza": "Paznokcie",
+  "a": "Pedicure hybrydowy [STOPY]",
+  "b": "Pedicure hybrydowy [Pedicure ]",
+  "v13": "niepelne (gdzie i ile spoza listy)",
+  "v12b": "tozsame (identyczna nazwa)",
+  "sciezka_a_v13": "dłonie: pedicure › hybrydowy › inne",
+  "sciezka_b_v13": "dłonie: pedicure › hybrydowy › inne"
+ },
+ {
+  "branza": "Paznokcie",
+  "a": "Pedicure hybrydowy [STOPY]",
+  "b": "Pedicure hybrydowy [Pedicure]",
+  "v13": "niepelne (gdzie i ile nieustalony)",
+  "v12b": "tozsame (identyczna nazwa)",
+  "sciezka_a_v13": "dłonie: pedicure › hybrydowy › inne",
+  "sciezka_b_v13": "dłonie: pedicure › hybrydowy"
+ },
+ {
+  "branza": "Paznokcie",
+  "a": "Pedicure hybrydowy kolor [Pedicure]",
+  "b": "Pedicure hybrydowy jeden kolor []",
+  "v13": "niepelne (gdzie i ile nieustalony)",
+  "v12b": "tozsame (ta sama ścieżka)",
+  "sciezka_a_v13": "dłonie: pedicure › hybrydowy",
+  "sciezka_b_v13": "dłonie: pedicure › hybrydowy"
+ },
+ {
+  "branza": "Paznokcie",
+  "a": "Pedicure hybrydowy kolor [Pedicure]",
+  "b": "Pedicure hybrydowy jeden kolor [Pedicure hybrydowy ]",
+  "v13": "niepelne (gdzie i ile nieustalony)",
+  "v12b": "tozsame (ta sama ścieżka)",
+  "sciezka_a_v13": "dłonie: pedicure › hybrydowy",
+  "sciezka_b_v13": "dłonie: pedicure › hybrydowy"
+ },
+ {
+  "branza": "Paznokcie",
+  "a": "Manicure męski [Manicure klasyczny]",
+  "b": "Manicure męski []",
+  "v13": "niepelne (etap spoza listy)",
+  "v12b": "tozsame (identyczna nazwa)",
+  "sciezka_a_v13": "paznokci: manicure › klasyczny › męski › inne",
+  "sciezka_b_v13": "paznokci: manicure › klasyczny › męski › inne"
+ },
+ {
+  "branza": "Paznokcie",
+  "a": "Pedicure hybrydowy [STOPY]",
+  "b": "PEDICURE HYBRYDOWY []",
+  "v13": "niepelne (gdzie i ile spoza listy)",
+  "v12b": "tozsame (identyczna nazwa)",
+  "sciezka_a_v13": "dłonie: pedicure › hybrydowy › inne",
+  "sciezka_b_v13": "dłonie: pedicure › hybrydowy › inne"
+ },
+ {
+  "branza": "Paznokcie",
+  "a": "Manicure I Pedicure w jednym czasie [Manicure hybrydowy]",
+  "b": "Manicure+Poł Pedicure hybrydowy na 4 ręcę [Manicure]",
+  "v13": "niepelne (gdzie i ile nieustalony)",
+  "v12b": "tozsame (ta sama ścieżka)",
+  "sciezka_a_v13": "paznokci: manicure › hybrydowy",
+  "sciezka_b_v13": "paznokci: manicure › hybrydowy › inne"
+ },
+ {
+  "branza": "Podologia",
+  "a": "Pedicure leczniczy PZP [PEDICURE ]",
+  "b": "Pedicure Leczniczy+SPA [💅🏾 PEDICURE🦶🏽]",
+  "v13": "niepelne (gdzie i ile spoza listy)",
+  "v12b": "tozsame (ta sama ścieżka)",
+  "sciezka_a_v13": "paznokieć: podologiczny › inne",
+  "sciezka_b_v13": "paznokieć: podologiczny › inne"
+ },
+ {
+  "branza": "Podologia",
+  "a": "Pedicure leczniczy PZP [PEDICURE ]",
+  "b": "Pedicure podologiczny/leczniczy - Podstawowy [Podologia ]",
+  "v13": "niepelne (gdzie i ile spoza listy)",
+  "v12b": "tozsame (ta sama ścieżka)",
+  "sciezka_a_v13": "paznokieć: podologiczny › inne",
+  "sciezka_b_v13": "paznokieć: podologiczny › inne"
+ },
+ {
+  "branza": "Podologia",
+  "a": "Pedicure leczniczy PZP [PEDICURE ]",
+  "b": "Pedicure medycyny []",
+  "v13": "niepelne (gdzie i ile spoza listy)",
+  "v12b": "tozsame (ta sama ścieżka)",
+  "sciezka_a_v13": "paznokieć: podologiczny › inne",
+  "sciezka_b_v13": "paznokieć: podologiczny › inne"
+ },
+ {
+  "branza": "Podologia",
+  "a": "Pedicure leczniczy PZP [PEDICURE ]",
+  "b": "Zabieg leczniczy podeszwy stóp [LECZNICZE OPRACOWANIE PIĘT/ PODESZWY STOPY]",
+  "v13": "rozne (inny zabieg)",
+  "v12b": "tozsame (ta sama ścieżka)",
+  "sciezka_a_v13": "paznokieć: podologiczny › inne",
+  "sciezka_b_v13": "pedicure: opracowanie › podologiczny"
+ },
+ {
+  "branza": "Podologia",
+  "a": "Pedicure leczniczy PZP [PEDICURE ]",
+  "b": "PEDICURE PODOLOGICZNY / LECZNICZY [PEDICURE PODOLOGICZNY / LECZNICZY ]",
+  "v13": "niepelne (gdzie i ile spoza listy)",
+  "v12b": "tozsame (ta sama ścieżka)",
+  "sciezka_a_v13": "paznokieć: podologiczny › inne",
+  "sciezka_b_v13": "paznokieć: podologiczny › inne"
+ },
+ {
+  "branza": "Podologia",
+  "a": "Pedicure leczniczy PZP [PEDICURE ]",
+  "b": "Pedicure podologiczny []",
+  "v13": "rozne (inny zabieg)",
+  "v12b": "tozsame (ta sama ścieżka)",
+  "sciezka_a_v13": "paznokieć: podologiczny › inne",
+  "sciezka_b_v13": "dłonie: pedicure › podologiczny › inne"
+ },
+ {
+  "branza": "Podologia",
+  "a": "Pedicure leczniczy PZP [PEDICURE ]",
+  "b": "Pedicure Leczniczy z malowaniem []",
+  "v13": "rozne (inny zabieg)",
+  "v12b": "tozsame (ta sama ścieżka)",
+  "sciezka_a_v13": "paznokieć: podologiczny › inne",
+  "sciezka_b_v13": "dłonie: pedicure › hybrydowy › inne"
+ },
+ {
+  "branza": "Podologia",
+  "a": "Pedicure leczniczy PZP [PEDICURE ]",
+  "b": "Pedicure Podologiczny /leczniczy - Podstawowy + [Podologia ]",
+  "v13": "niepelne (gdzie i ile spoza listy)",
+  "v12b": "tozsame (ta sama ścieżka)",
+  "sciezka_a_v13": "paznokieć: podologiczny › inne",
+  "sciezka_b_v13": "paznokieć: podologiczny › inne › inne"
+ },
+ {
+  "branza": "Salon Kosmetyczny",
+  "a": "Hybryda stopy [Pedicure]",
+  "b": "Pedicure hybrydowy [Pedicure]",
+  "v13": "niepelne (gdzie i ile spoza listy)",
+  "v12b": "tozsame (ta sama ścieżka)",
+  "sciezka_a_v13": "dłonie: pedicure › hybrydowy › inne",
+  "sciezka_b_v13": "dłonie: pedicure › hybrydowy › inne"
+ },
+ {
+  "branza": "Salon Kosmetyczny",
+  "a": "Hybryda stopy [Pedicure]",
+  "b": "pedicure hybrydowy []",
+  "v13": "niepelne (gdzie i ile spoza listy)",
+  "v12b": "tozsame (ta sama ścieżka)",
+  "sciezka_a_v13": "dłonie: pedicure › hybrydowy › inne",
+  "sciezka_b_v13": "dłonie: pedicure › hybrydowy › inne"
+ },
+ {
+  "branza": "Salon Kosmetyczny",
+  "a": "Hybryda stopy [Pedicure]",
+  "b": "Hybryda na paznokciach u stóp [Pedicure]",
+  "v13": "niepelne (gdzie i ile spoza listy)",
+  "v12b": "tozsame (ta sama ścieżka)",
+  "sciezka_a_v13": "dłonie: pedicure › hybrydowy › inne",
+  "sciezka_b_v13": "dłonie: pedicure › hybrydowy › inne"
+ },
+ {
+  "branza": "Salon Kosmetyczny",
+  "a": "Hybryda stopy [Pedicure]",
+  "b": "Hybryda stopy [Pielęgnacja stóp 👣]",
+  "v13": "niepelne (gdzie i ile spoza listy)",
+  "v12b": "tozsame (identyczna nazwa)",
+  "sciezka_a_v13": "dłonie: pedicure › hybrydowy › inne",
+  "sciezka_b_v13": "dłonie: pedicure › hybrydowy › inne"
+ },
+ {
+  "branza": "Salon Kosmetyczny",
+  "a": "Manicure hybrydowy długość średnia [Manicure]",
+  "b": "Manicure hybrydowy [Manicure]",
+  "v13": "niepelne (gdzie i ile nieustalony)",
+  "v12b": "tozsame (ta sama ścieżka)",
+  "sciezka_a_v13": "paznokci: manicure › hybrydowy › inne › inne",
+  "sciezka_b_v13": "paznokci: manicure › hybrydowy › inne"
+ },
+ {
+  "branza": "Salon Kosmetyczny",
+  "a": "Hybryda stopy [Pedicure]",
+  "b": "Hybryda u stóp [Pedicure]",
+  "v13": "powiazane (inny poziom: metoda)",
+  "v12b": "tozsame (ta sama ścieżka)",
+  "sciezka_a_v13": "dłonie: pedicure › hybrydowy › inne",
+  "sciezka_b_v13": "dłonie: pedicure › frezowanie › inne"
+ },
+ {
+  "branza": "Salon Kosmetyczny",
+  "a": "Hybryda stopy [Pedicure]",
+  "b": "Pedicure hybrydowy [STOPY]",
+  "v13": "niepelne (gdzie i ile spoza listy)",
+  "v12b": "tozsame (ta sama ścieżka)",
+  "sciezka_a_v13": "dłonie: pedicure › hybrydowy › inne",
+  "sciezka_b_v13": "dłonie: pedicure › hybrydowy › inne"
+ },
+ {
+  "branza": "Salon Kosmetyczny",
+  "a": "Nowa stylizacja długość salonowa [Manicure]",
+  "b": "Przedłużanie paznokci (średnie) [Przedłużanie paznokci]",
+  "v13": "niepelne (gdzie i ile spoza listy)",
+  "v12b": "tozsame (ta sama ścieżka)",
+  "sciezka_a_v13": "dłonie: przedłużanie › formie › długie › inne",
+  "sciezka_b_v13": "dłonie: przedłużanie › formie › inne › inne"
+ }
+]

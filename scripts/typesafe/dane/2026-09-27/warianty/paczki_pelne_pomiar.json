@@ -1,0 +1,22 @@
+{
+ "usług": 3008,
+ "brak": 5,
+ "tok_na_usluge": 7542,
+ "usd": 0.953,
+ "sekund": 86,
+ "zgodnosc_rodzaju_z_pojedynczymi_proc": 86.4,
+ "paczki": {
+  "par": 4101,
+  "precyzja_ta_sama_proc": 52.9,
+  "czulosc_ta_sama_proc": 54.3,
+  "trafnosc_proc": 84.2,
+  "mowi_ta_sama": 705
+ },
+ "pojedynczo": {
+  "par": 4101,
+  "precyzja_ta_sama_proc": 57.7,
+  "czulosc_ta_sama_proc": 64.8,
+  "trafnosc_proc": 86.1,
+  "mowi_ta_sama": 771
+ }
+}

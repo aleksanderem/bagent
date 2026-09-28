@@ -1,0 +1,577 @@
+{
+ "koszt_usd": {
+  "v13": 2.722,
+  "v12b": 1.789
+ },
+ "salony": [
+  [
+   "Paznokcie",
+   9967,
+   "Warszawa"
+  ],
+  [
+   "Barber shop",
+   64081,
+   "Szczecin"
+  ],
+  [
+   "Depilacja",
+   220846,
+   "Rzeszów"
+  ],
+  [
+   "Podologia",
+   308282,
+   "Piła"
+  ],
+  [
+   "Masaż",
+   78355,
+   "Gdańsk"
+  ],
+  [
+   "Brwi i rzęsy",
+   110396,
+   "Osielsko"
+  ],
+  [
+   "Salon Kosmetyczny",
+   4517,
+   "Chrzanów"
+  ],
+  [
+   "Fryzjer",
+   69431,
+   "Słupsk"
+  ],
+  [
+   "Medycyna Estetyczna",
+   3645,
+   "Opole"
+  ],
+  [
+   "Paznokcie",
+   97563,
+   "Kielce"
+  ],
+  [
+   "Barber shop",
+   35183,
+   "Płock"
+  ],
+  [
+   "Depilacja",
+   234320,
+   "Bydgoszcz"
+  ],
+  [
+   "Podologia",
+   103900,
+   "Suchy Dwór"
+  ],
+  [
+   "Masaż",
+   153341,
+   "Zielona Góra"
+  ],
+  [
+   "Brwi i rzęsy",
+   69262,
+   "Wrocław"
+  ],
+  [
+   "Salon Kosmetyczny",
+   20820,
+   "Olsztyn"
+  ],
+  [
+   "Fryzjer",
+   2614,
+   "Poznań"
+  ],
+  [
+   "Medycyna Estetyczna",
+   153253,
+   "Gdynia"
+  ]
+ ],
+ "par": 5439,
+ "uslug": 4936,
+ "per_branza": {
+  "RAZEM": {
+   "par": 5439,
+   "v13": {
+    "werdykty": {
+     "niepelne": 1540,
+     "powiazane": 1907,
+     "rozne": 1540,
+     "tozsame": 452
+    },
+    "pokrycie": {
+     "poziom_5": 33.3,
+     "poziom_4": 37.0,
+     "poziom_3": 61.1,
+     "poziom_2": 74.1,
+     "uslug": 54
+    }
+   },
+   "v12b": {
+    "werdykty": {
+     "tozsame": 975,
+     "niepelne": 649,
+     "powiazane": 2237,
+     "rozne": 1578
+    },
+    "pokrycie": {
+     "poziom_5": 64.8,
+     "poziom_4": 74.1,
+     "poziom_3": 79.6,
+     "poziom_2": 79.6,
+     "uslug": 54
+    }
+   },
+   "bilans_tozsame": {
+    "tylko_v13": 181,
+    "tylko_v12b": 704
+   },
+   "spojnosc_v13": "276/409",
+   "powody_v13": {
+    "inny zabieg": 952,
+    "zestaw": 803,
+    "metoda nieustalony": 502,
+    "nie porównujemy: dodatek": 491,
+    "ta sama ścieżka": 452,
+    "inny poziom: gdzie i ile": 419,
+    "gdzie i ile nieustalony": 386,
+    "dodatek": 386
+   }
+  },
+  "Barber shop": {
+   "par": 566,
+   "v13": {
+    "werdykty": {
+     "powiazane": 296,
+     "rozne": 117,
+     "tozsame": 145,
+     "niepelne": 8
+    },
+    "pokrycie": {
+     "poziom_5": 83.3,
+     "poziom_4": 83.3,
+     "poziom_3": 83.3,
+     "poziom_2": 83.3,
+     "uslug": 6
+    }
+   },
+   "v12b": {
+    "werdykty": {
+     "powiazane": 336,
+     "rozne": 127,
+     "tozsame": 95,
+     "niepelne": 8
+    },
+    "pokrycie": {
+     "poziom_5": 83.3,
+     "poziom_4": 83.3,
+     "poziom_3": 83.3,
+     "poziom_2": 83.3,
+     "uslug": 6
+    }
+   },
+   "bilans_tozsame": {
+    "tylko_v13": 50,
+    "tylko_v12b": 0
+   },
+   "spojnosc_v13": "32/32",
+   "powody_v13": {
+    "zestaw": 167,
+    "ta sama ścieżka": 145,
+    "inny zabieg": 117,
+    "inny poziom: gdzie i ile": 82,
+    "dodatek": 47,
+    "zabieg nieustalony": 8
+   }
+  },
+  "Brwi i rzęsy": {
+   "par": 720,
+   "v13": {
+    "werdykty": {
+     "tozsame": 69,
+     "powiazane": 253,
+     "niepelne": 260,
+     "rozne": 138
+    },
+    "pokrycie": {
+     "poziom_5": 33.3,
+     "poziom_4": 33.3,
+     "poziom_3": 33.3,
+     "poziom_2": 83.3,
+     "uslug": 6
+    }
+   },
+   "v12b": {
+    "werdykty": {
+     "tozsame": 154,
+     "powiazane": 342,
+     "niepelne": 23,
+     "rozne": 201
+    },
+    "pokrycie": {
+     "poziom_5": 83.3,
+     "poziom_4": 100.0,
+     "poziom_3": 100.0,
+     "poziom_2": 100.0,
+     "uslug": 6
+    }
+   },
+   "bilans_tozsame": {
+    "tylko_v13": 39,
+    "tylko_v12b": 124
+   },
+   "spojnosc_v13": "18/23",
+   "powody_v13": {
+    "metoda nieustalony": 240,
+    "inny zabieg": 128,
+    "zestaw": 124,
+    "dodatek": 124,
+    "ta sama ścieżka": 69,
+    "metoda spoza listy": 20,
+    "nie porównujemy: konsultacja": 9,
+    "inny poziom: gdzie i ile": 3
+   }
+  },
+  "Depilacja": {
+   "par": 720,
+   "v13": {
+    "werdykty": {
+     "powiazane": 357,
+     "niepelne": 179,
+     "rozne": 144,
+     "tozsame": 40
+    },
+    "pokrycie": {
+     "poziom_5": 66.7,
+     "poziom_4": 66.7,
+     "poziom_3": 83.3,
+     "poziom_2": 100.0,
+     "uslug": 6
+    }
+   },
+   "v12b": {
+    "werdykty": {
+     "powiazane": 504,
+     "niepelne": 163,
+     "tozsame": 47,
+     "rozne": 6
+    },
+    "pokrycie": {
+     "poziom_5": 66.7,
+     "poziom_4": 66.7,
+     "poziom_3": 100.0,
+     "poziom_2": 100.0,
+     "uslug": 6
+    }
+   },
+   "bilans_tozsame": {
+    "tylko_v13": 20,
+    "tylko_v12b": 27
+   },
+   "spojnosc_v13": "2/10",
+   "powody_v13": {
+    "inny poziom: gdzie i ile": 194,
+    "inny zabieg": 143,
+    "metoda nieustalony": 141,
+    "inny poziom: metoda": 102,
+    "ta sama ścieżka": 40,
+    "zestaw": 38,
+    "pakiet i pojedyncza wizyta": 19,
+    "gdzie i ile spoza listy": 16
+   }
+  },
+  "Fryzjer": {
+   "par": 559,
+   "v13": {
+    "werdykty": {
+     "tozsame": 119,
+     "powiazane": 126,
+     "niepelne": 182,
+     "rozne": 132
+    },
+    "pokrycie": {
+     "poziom_5": 33.3,
+     "poziom_4": 33.3,
+     "poziom_3": 50.0,
+     "poziom_2": 50.0,
+     "uslug": 6
+    }
+   },
+   "v12b": {
+    "werdykty": {
+     "tozsame": 120,
+     "powiazane": 129,
+     "niepelne": 178,
+     "rozne": 132
+    },
+    "pokrycie": {
+     "poziom_5": 50.0,
+     "poziom_4": 66.7,
+     "poziom_3": 66.7,
+     "poziom_2": 66.7,
+     "uslug": 6
+    }
+   },
+   "bilans_tozsame": {
+    "tylko_v13": 25,
+    "tylko_v12b": 26
+   },
+   "spojnosc_v13": "82/83",
+   "powody_v13": {
+    "nie porównujemy: dodatek": 120,
+    "ta sama ścieżka": 119,
+    "zabieg nieustalony": 115,
+    "inny poziom: gdzie i ile": 57,
+    "gdzie i ile spoza listy": 49,
+    "dodatek": 47,
+    "zestaw": 17,
+    "metoda nieustalony": 13
+   }
+  },
+  "Masaż": {
+   "par": 720,
+   "v13": {
+    "werdykty": {
+     "powiazane": 394,
+     "rozne": 160,
+     "niepelne": 125,
+     "tozsame": 41
+    },
+    "pokrycie": {
+     "poziom_5": 33.3,
+     "poziom_4": 33.3,
+     "poziom_3": 50.0,
+     "poziom_2": 83.3,
+     "uslug": 6
+    }
+   },
+   "v12b": {
+    "werdykty": {
+     "powiazane": 448,
+     "rozne": 198,
+     "tozsame": 43,
+     "niepelne": 31
+    },
+    "pokrycie": {
+     "poziom_5": 66.7,
+     "poziom_4": 100.0,
+     "poziom_3": 100.0,
+     "poziom_2": 100.0,
+     "uslug": 6
+    }
+   },
+   "bilans_tozsame": {
+    "tylko_v13": 35,
+    "tylko_v12b": 37
+   },
+   "spojnosc_v13": "0/2",
+   "powody_v13": {
+    "zestaw": 294,
+    "inny zabieg": 152,
+    "metoda spoza listy": 77,
+    "dodatek": 64,
+    "ta sama ścieżka": 41,
+    "metoda nieustalony": 36,
+    "pakiet i pojedyncza wizyta": 30,
+    "gdzie i ile nieustalony": 7
+   }
+  },
+  "Medycyna Estetyczna": {
+   "par": 492,
+   "v13": {
+    "werdykty": {
+     "niepelne": 183,
+     "powiazane": 180,
+     "rozne": 91,
+     "tozsame": 38
+    },
+    "pokrycie": {
+     "poziom_5": 50.0,
+     "poziom_4": 50.0,
+     "poziom_3": 66.7,
+     "poziom_2": 83.3,
+     "uslug": 6
+    }
+   },
+   "v12b": {
+    "werdykty": {
+     "rozne": 115,
+     "tozsame": 171,
+     "niepelne": 55,
+     "powiazane": 151
+    },
+    "pokrycie": {
+     "poziom_5": 83.3,
+     "poziom_4": 83.3,
+     "poziom_3": 83.3,
+     "poziom_2": 83.3,
+     "uslug": 6
+    }
+   },
+   "bilans_tozsame": {
+    "tylko_v13": 12,
+    "tylko_v12b": 145
+   },
+   "spojnosc_v13": "56/94",
+   "powody_v13": {
+    "gdzie i ile nieustalony": 122,
+    "inny zabieg": 90,
+    "inny poziom: gdzie i ile": 70,
+    "inny poziom: metoda": 57,
+    "ta sama ścieżka": 38,
+    "gdzie i ile spoza listy": 37,
+    "dodatek": 36,
+    "zabieg nieustalony": 19
+   }
+  },
+  "Paznokcie": {
+   "par": 720,
+   "v13": {
+    "werdykty": {
+     "niepelne": 351,
+     "powiazane": 85,
+     "rozne": 284
+    },
+    "pokrycie": {
+     "poziom_5": 0.0,
+     "poziom_4": 16.7,
+     "poziom_3": 66.7,
+     "poziom_2": 66.7,
+     "uslug": 6
+    }
+   },
+   "v12b": {
+    "werdykty": {
+     "tozsame": 239,
+     "niepelne": 91,
+     "powiazane": 91,
+     "rozne": 299
+    },
+    "pokrycie": {
+     "poziom_5": 66.7,
+     "poziom_4": 66.7,
+     "poziom_3": 66.7,
+     "poziom_2": 66.7,
+     "uslug": 6
+    }
+   },
+   "bilans_tozsame": {
+    "tylko_v13": 0,
+    "tylko_v12b": 239
+   },
+   "spojnosc_v13": "84/153",
+   "powody_v13": {
+    "nie porównujemy: dodatek": 239,
+    "gdzie i ile nieustalony": 179,
+    "etap spoza listy": 59,
+    "zestaw": 58,
+    "metoda nieustalony": 54,
+    "gdzie i ile spoza listy": 53,
+    "inny zabieg": 45,
+    "inny poziom: metoda": 24
+   }
+  },
+  "Podologia": {
+   "par": 442,
+   "v13": {
+    "werdykty": {
+     "niepelne": 60,
+     "rozne": 343,
+     "powiazane": 39
+    },
+    "pokrycie": {
+     "poziom_5": 0.0,
+     "poziom_4": 0.0,
+     "poziom_3": 33.3,
+     "poziom_2": 33.3,
+     "uslug": 6
+    }
+   },
+   "v12b": {
+    "werdykty": {
+     "tozsame": 32,
+     "rozne": 359,
+     "powiazane": 37,
+     "niepelne": 14
+    },
+    "pokrycie": {
+     "poziom_5": 16.7,
+     "poziom_4": 16.7,
+     "poziom_3": 33.3,
+     "poziom_2": 33.3,
+     "uslug": 6
+    }
+   },
+   "bilans_tozsame": {
+    "tylko_v13": 0,
+    "tylko_v12b": 32
+   },
+   "spojnosc_v13": "0/10",
+   "powody_v13": {
+    "inny zabieg": 139,
+    "nie porównujemy: dodatek": 121,
+    "nie porównujemy: konsultacja": 83,
+    "gdzie i ile spoza listy": 31,
+    "zestaw": 26,
+    "gdzie i ile nieustalony": 14,
+    "brak destylacji": 9,
+    "dodatek": 8
+   }
+  },
+  "Salon Kosmetyczny": {
+   "par": 500,
+   "v13": {
+    "werdykty": {
+     "powiazane": 177,
+     "rozne": 131,
+     "niepelne": 192
+    },
+    "pokrycie": {
+     "poziom_5": 0.0,
+     "poziom_4": 16.7,
+     "poziom_3": 83.3,
+     "poziom_2": 83.3,
+     "uslug": 6
+    }
+   },
+   "v12b": {
+    "werdykty": {
+     "powiazane": 199,
+     "niepelne": 86,
+     "rozne": 141,
+     "tozsame": 74
+    },
+    "pokrycie": {
+     "poziom_5": 66.7,
+     "poziom_4": 83.3,
+     "poziom_3": 83.3,
+     "poziom_2": 83.3,
+     "uslug": 6
+    }
+   },
+   "bilans_tozsame": {
+    "tylko_v13": 0,
+    "tylko_v12b": 74
+   },
+   "spojnosc_v13": "2/2",
+   "powody_v13": {
+    "inny zabieg": 126,
+    "gdzie i ile spoza listy": 120,
+    "zestaw": 67,
+    "dodatek": 53,
+    "gdzie i ile nieustalony": 47,
+    "inny poziom: metoda": 44,
+    "metoda nieustalony": 15,
+    "inny poziom: gdzie i ile": 13
+   }
+  }
+ }
+}

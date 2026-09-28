@@ -1,0 +1,259 @@
+{
+ "koszt_usd": 2.021,
+ "bledow": 1,
+ "pozycja": {
+  "zabieg": 5129,
+  "konsultacja": 121,
+  "pakiet": 113,
+  "inne": 5,
+  "dodatek": 16,
+  "produkt": 4
+ },
+ "per_branza": {
+  "RAZEM": {
+   "par": 5662,
+   "werdykty": {
+    "rozne": 1564,
+    "tozsame": 1134,
+    "powiazane": 2395,
+    "niepelne": 569
+   },
+   "poziom_pokrycia": {
+    "0": 935,
+    "1": 1360,
+    "2": 732,
+    "3": 1070,
+    "4": 16,
+    "5": 1549
+   },
+   "pokrycie": {
+    "poziom_5": 50.5,
+    "poziom_4": 62.9,
+    "poziom_3": 71.1,
+    "poziom_2": 77.3,
+    "uslug": 97
+   },
+   "spojnosc_tej_samej_nazwy": "363/371"
+  },
+  "Barber shop": {
+   "par": 487,
+   "werdykty": {
+    "powiazane": 157,
+    "tozsame": 90,
+    "rozne": 147,
+    "niepelne": 93
+   },
+   "poziom_pokrycia": {
+    "0": 73,
+    "1": 121,
+    "2": 54,
+    "3": 87,
+    "5": 152
+   },
+   "pokrycie": {
+    "poziom_5": 62.5,
+    "poziom_4": 75.0,
+    "poziom_3": 75.0,
+    "poziom_2": 75.0,
+    "uslug": 8
+   },
+   "spojnosc_tej_samej_nazwy": "17/17"
+  },
+  "Brwi i rzęsy": {
+   "par": 190,
+   "werdykty": {
+    "powiazane": 96,
+    "tozsame": 20,
+    "rozne": 48,
+    "niepelne": 26
+   },
+   "poziom_pokrycia": {
+    "0": 26,
+    "1": 45,
+    "2": 75,
+    "3": 11,
+    "4": 6,
+    "5": 27
+   },
+   "pokrycie": {
+    "poziom_5": 20.0,
+    "poziom_4": 20.0,
+    "poziom_3": 30.0,
+    "poziom_2": 60.0,
+    "uslug": 10
+   },
+   "spojnosc_tej_samej_nazwy": "6/6"
+  },
+  "Depilacja": {
+   "par": 960,
+   "werdykty": {
+    "tozsame": 238,
+    "niepelne": 138,
+    "powiazane": 535,
+    "rozne": 49
+   },
+   "poziom_pokrycia": {
+    "0": 20,
+    "1": 52,
+    "2": 171,
+    "3": 383,
+    "5": 334
+   },
+   "pokrycie": {
+    "poziom_5": 75.0,
+    "poziom_4": 83.3,
+    "poziom_3": 100.0,
+    "poziom_2": 100.0,
+    "uslug": 12
+   },
+   "spojnosc_tej_samej_nazwy": "97/97"
+  },
+  "Fryzjer": {
+   "par": 833,
+   "werdykty": {
+    "tozsame": 258,
+    "powiazane": 263,
+    "rozne": 260,
+    "niepelne": 52
+   },
+   "poziom_pokrycia": {
+    "0": 6,
+    "1": 368,
+    "2": 20,
+    "3": 111,
+    "5": 328
+   },
+   "pokrycie": {
+    "poziom_5": 58.3,
+    "poziom_4": 75.0,
+    "poziom_3": 83.3,
+    "poziom_2": 91.7,
+    "uslug": 12
+   },
+   "spojnosc_tej_samej_nazwy": "88/90"
+  },
+  "Masaż": {
+   "par": 863,
+   "werdykty": {
+    "rozne": 234,
+    "niepelne": 111,
+    "powiazane": 455,
+    "tozsame": 63
+   },
+   "poziom_pokrycia": {
+    "0": 242,
+    "1": 148,
+    "2": 190,
+    "3": 182,
+    "5": 101
+   },
+   "pokrycie": {
+    "poziom_5": 33.3,
+    "poziom_4": 50.0,
+    "poziom_3": 83.3,
+    "poziom_2": 83.3,
+    "uslug": 12
+   },
+   "spojnosc_tej_samej_nazwy": "26/27"
+  },
+  "Medycyna Estetyczna": {
+   "par": 532,
+   "werdykty": {
+    "tozsame": 85,
+    "rozne": 187,
+    "niepelne": 46,
+    "powiazane": 214
+   },
+   "poziom_pokrycia": {
+    "0": 132,
+    "1": 60,
+    "2": 90,
+    "3": 145,
+    "4": 1,
+    "5": 104
+   },
+   "pokrycie": {
+    "poziom_5": 54.5,
+    "poziom_4": 72.7,
+    "poziom_3": 72.7,
+    "poziom_2": 72.7,
+    "uslug": 11
+   },
+   "spojnosc_tej_samej_nazwy": "14/14"
+  },
+  "Paznokcie": {
+   "par": 646,
+   "werdykty": {
+    "powiazane": 206,
+    "rozne": 189,
+    "tozsame": 209,
+    "niepelne": 42
+   },
+   "poziom_pokrycia": {
+    "0": 112,
+    "1": 206,
+    "2": 65,
+    "3": 26,
+    "4": 7,
+    "5": 230
+   },
+   "pokrycie": {
+    "poziom_5": 50.0,
+    "poziom_4": 66.7,
+    "poziom_3": 66.7,
+    "poziom_2": 66.7,
+    "uslug": 12
+   },
+   "spojnosc_tej_samej_nazwy": "82/82"
+  },
+  "Podologia": {
+   "par": 481,
+   "werdykty": {
+    "rozne": 273,
+    "tozsame": 26,
+    "powiazane": 148,
+    "niepelne": 34
+   },
+   "poziom_pokrycia": {
+    "0": 251,
+    "1": 119,
+    "2": 22,
+    "3": 59,
+    "5": 30
+   },
+   "pokrycie": {
+    "poziom_5": 25.0,
+    "poziom_4": 25.0,
+    "poziom_3": 25.0,
+    "poziom_2": 50.0,
+    "uslug": 8
+   },
+   "spojnosc_tej_samej_nazwy": "1/6"
+  },
+  "Salon Kosmetyczny": {
+   "par": 670,
+   "werdykty": {
+    "powiazane": 321,
+    "tozsame": 145,
+    "rozne": 177,
+    "niepelne": 27
+   },
+   "poziom_pokrycia": {
+    "0": 73,
+    "1": 241,
+    "2": 45,
+    "3": 66,
+    "4": 2,
+    "5": 243
+   },
+   "pokrycie": {
+    "poziom_5": 66.7,
+    "poziom_4": 83.3,
+    "poziom_3": 83.3,
+    "poziom_2": 83.3,
+    "uslug": 12
+   },
+   "spojnosc_tej_samej_nazwy": "32/32"
+  }
+ }
+}

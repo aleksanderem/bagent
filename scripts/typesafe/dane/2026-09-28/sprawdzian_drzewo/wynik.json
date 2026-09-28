@@ -1,0 +1,771 @@
+{
+ "koszt_usd": {
+  "v9": 0.892,
+  "drzewo": 0.581,
+  "sedzia_v3": 0.096
+ },
+ "salony": [
+  {
+   "branza": "Fryzjer",
+   "salon": 77293,
+   "miasto": "Warszawa",
+   "mediana_ceny_zl": 165
+  },
+  {
+   "branza": "Depilacja",
+   "salon": 8001,
+   "miasto": "Gdańsk",
+   "mediana_ceny_zl": 350
+  },
+  {
+   "branza": "Masaż",
+   "salon": 87016,
+   "miasto": "Ciechanów",
+   "mediana_ceny_zl": 259
+  },
+  {
+   "branza": "Medycyna Estetyczna",
+   "salon": 142728,
+   "miasto": "Białystok",
+   "mediana_ceny_zl": 800
+  },
+  {
+   "branza": "Paznokcie",
+   "salon": 99737,
+   "miasto": "Bytów",
+   "mediana_ceny_zl": 75
+  },
+  {
+   "branza": "Brwi i rzęsy",
+   "salon": 102852,
+   "miasto": "Łódź",
+   "mediana_ceny_zl": 150
+  },
+  {
+   "branza": "Podologia",
+   "salon": 256876,
+   "miasto": "Kutno",
+   "mediana_ceny_zl": 120
+  },
+  {
+   "branza": "Salon Kosmetyczny",
+   "salon": 10841,
+   "miasto": "Kraków",
+   "mediana_ceny_zl": 330
+  },
+  {
+   "branza": "Barber shop",
+   "salon": 93083,
+   "miasto": "Nakło Nad Notecią",
+   "mediana_ceny_zl": 45
+  },
+  {
+   "branza": "Fryzjer",
+   "salon": 74101,
+   "miasto": "Skarżysko-Kamienna",
+   "mediana_ceny_zl": 70
+  },
+  {
+   "branza": "Depilacja",
+   "salon": 276753,
+   "miasto": "Olsztyn",
+   "mediana_ceny_zl": 250
+  },
+  {
+   "branza": "Masaż",
+   "salon": 158020,
+   "miasto": "Chotomów",
+   "mediana_ceny_zl": 190
+  },
+  {
+   "branza": "Medycyna Estetyczna",
+   "salon": 180121,
+   "miasto": "Czechowice-Dziedzice",
+   "mediana_ceny_zl": 270
+  },
+  {
+   "branza": "Paznokcie",
+   "salon": 80193,
+   "miasto": "Wrocław",
+   "mediana_ceny_zl": 150
+  },
+  {
+   "branza": "Brwi i rzęsy",
+   "salon": 110099,
+   "miasto": "Kielce",
+   "mediana_ceny_zl": 160
+  },
+  {
+   "branza": "Podologia",
+   "salon": 177392,
+   "miasto": "Szczecinek",
+   "mediana_ceny_zl": 115
+  },
+  {
+   "branza": "Salon Kosmetyczny",
+   "salon": 37359,
+   "miasto": "Osielsko",
+   "mediana_ceny_zl": 300
+  },
+  {
+   "branza": "Barber shop",
+   "salon": 10240,
+   "miasto": "Kalisz",
+   "mediana_ceny_zl": 125
+  }
+ ],
+ "per_branza": {
+  "RAZEM": {
+   "v9": {
+    "par": 3319,
+    "precyzja": 63.1,
+    "czulosc": 74.5,
+    "trafnosc": 80.3,
+    "mowi_ta_sama": 1118
+   },
+   "v11b": {
+    "par": 3319,
+    "precyzja": 68.8,
+    "czulosc": 72.8,
+    "trafnosc": 82.8,
+    "mowi_ta_sama": 1002
+   },
+   "v11b_czas": {
+    "par": 3319,
+    "precyzja": 70.1,
+    "czulosc": 69.6,
+    "trafnosc": 82.9,
+    "mowi_ta_sama": 939
+   },
+   "bilans_v9_v11b": {
+    "lepiej": 220,
+    "gorzej": 136
+   },
+   "bilans_v9_v11b_czas": {
+    "lepiej": 189,
+    "gorzej": 104
+   },
+   "pokrycie": {
+    "v9": {
+     "wg_wersji": {
+      "uslug": 78,
+      "z_cena_proc": 44.9
+     },
+     "potwierdzone": {
+      "uslug": 78,
+      "z_cena_proc": 33.3
+     }
+    },
+    "v11b": {
+     "wg_wersji": {
+      "uslug": 78,
+      "z_cena_proc": 44.9
+     },
+     "potwierdzone": {
+      "uslug": 78,
+      "z_cena_proc": 35.9
+     }
+    }
+   },
+   "salonow": 18,
+   "par": 3319
+  },
+  "Barber shop": {
+   "v9": {
+    "par": 172,
+    "precyzja": 71.9,
+    "czulosc": 59.0,
+    "trafnosc": 85.5,
+    "mowi_ta_sama": 32
+   },
+   "v11b": {
+    "par": 172,
+    "precyzja": 91.3,
+    "czulosc": 53.8,
+    "trafnosc": 88.4,
+    "mowi_ta_sama": 23
+   },
+   "v11b_czas": {
+    "par": 172,
+    "precyzja": 91.3,
+    "czulosc": 53.8,
+    "trafnosc": 88.4,
+    "mowi_ta_sama": 23
+   },
+   "bilans_v9_v11b": {
+    "lepiej": 8,
+    "gorzej": 3
+   },
+   "bilans_v9_v11b_czas": {
+    "lepiej": 8,
+    "gorzej": 3
+   },
+   "pokrycie": {
+    "v9": {
+     "wg_wersji": {
+      "uslug": 9,
+      "z_cena_proc": 33.3
+     },
+     "potwierdzone": {
+      "uslug": 9,
+      "z_cena_proc": 33.3
+     }
+    },
+    "v11b": {
+     "wg_wersji": {
+      "uslug": 9,
+      "z_cena_proc": 33.3
+     },
+     "potwierdzone": {
+      "uslug": 9,
+      "z_cena_proc": 33.3
+     }
+    }
+   },
+   "salonow": 2,
+   "par": 172
+  },
+  "Brwi i rzęsy": {
+   "v9": {
+    "par": 413,
+    "precyzja": 38.5,
+    "czulosc": 80.6,
+    "trafnosc": 77.7,
+    "mowi_ta_sama": 130
+   },
+   "v11b": {
+    "par": 413,
+    "precyzja": 36.8,
+    "czulosc": 67.7,
+    "trafnosc": 77.7,
+    "mowi_ta_sama": 114
+   },
+   "v11b_czas": {
+    "par": 413,
+    "precyzja": 39.8,
+    "czulosc": 66.1,
+    "trafnosc": 79.9,
+    "mowi_ta_sama": 103
+   },
+   "bilans_v9_v11b": {
+    "lepiej": 45,
+    "gorzej": 45
+   },
+   "bilans_v9_v11b_czas": {
+    "lepiej": 44,
+    "gorzej": 35
+   },
+   "pokrycie": {
+    "v9": {
+     "wg_wersji": {
+      "uslug": 8,
+      "z_cena_proc": 50.0
+     },
+     "potwierdzone": {
+      "uslug": 8,
+      "z_cena_proc": 50.0
+     }
+    },
+    "v11b": {
+     "wg_wersji": {
+      "uslug": 8,
+      "z_cena_proc": 62.5
+     },
+     "potwierdzone": {
+      "uslug": 8,
+      "z_cena_proc": 62.5
+     }
+    }
+   },
+   "salonow": 2,
+   "par": 413
+  },
+  "Depilacja": {
+   "v9": {
+    "par": 415,
+    "precyzja": 50.8,
+    "czulosc": 78.0,
+    "trafnosc": 90.4,
+    "mowi_ta_sama": 63
+   },
+   "v11b": {
+    "par": 415,
+    "precyzja": 49.3,
+    "czulosc": 80.5,
+    "trafnosc": 89.9,
+    "mowi_ta_sama": 67
+   },
+   "v11b_czas": {
+    "par": 415,
+    "precyzja": 49.3,
+    "czulosc": 80.5,
+    "trafnosc": 89.9,
+    "mowi_ta_sama": 67
+   },
+   "bilans_v9_v11b": {
+    "lepiej": 1,
+    "gorzej": 3
+   },
+   "bilans_v9_v11b_czas": {
+    "lepiej": 1,
+    "gorzej": 3
+   },
+   "pokrycie": {
+    "v9": {
+     "wg_wersji": {
+      "uslug": 10,
+      "z_cena_proc": 60.0
+     },
+     "potwierdzone": {
+      "uslug": 10,
+      "z_cena_proc": 20.0
+     }
+    },
+    "v11b": {
+     "wg_wersji": {
+      "uslug": 10,
+      "z_cena_proc": 60.0
+     },
+     "potwierdzone": {
+      "uslug": 10,
+      "z_cena_proc": 20.0
+     }
+    }
+   },
+   "salonow": 2,
+   "par": 415
+  },
+  "Fryzjer": {
+   "v9": {
+    "par": 417,
+    "precyzja": 97.8,
+    "czulosc": 91.4,
+    "trafnosc": 92.6,
+    "mowi_ta_sama": 273
+   },
+   "v11b": {
+    "par": 417,
+    "precyzja": 97.6,
+    "czulosc": 96.9,
+    "trafnosc": 96.2,
+    "mowi_ta_sama": 290
+   },
+   "v11b_czas": {
+    "par": 417,
+    "precyzja": 97.8,
+    "czulosc": 91.4,
+    "trafnosc": 92.6,
+    "mowi_ta_sama": 273
+   },
+   "bilans_v9_v11b": {
+    "lepiej": 16,
+    "gorzej": 1
+   },
+   "bilans_v9_v11b_czas": {
+    "lepiej": 0,
+    "gorzej": 0
+   },
+   "pokrycie": {
+    "v9": {
+     "wg_wersji": {
+      "uslug": 9,
+      "z_cena_proc": 55.6
+     },
+     "potwierdzone": {
+      "uslug": 9,
+      "z_cena_proc": 55.6
+     }
+    },
+    "v11b": {
+     "wg_wersji": {
+      "uslug": 9,
+      "z_cena_proc": 55.6
+     },
+     "potwierdzone": {
+      "uslug": 9,
+      "z_cena_proc": 55.6
+     }
+    }
+   },
+   "salonow": 2,
+   "par": 417
+  },
+  "Masaż": {
+   "v9": {
+    "par": 416,
+    "precyzja": 50.0,
+    "czulosc": 8.6,
+    "trafnosc": 83.2,
+    "mowi_ta_sama": 12
+   },
+   "v11b": {
+    "par": 416,
+    "precyzja": 50.0,
+    "czulosc": 5.7,
+    "trafnosc": 83.2,
+    "mowi_ta_sama": 8
+   },
+   "v11b_czas": {
+    "par": 416,
+    "precyzja": 50.0,
+    "czulosc": 5.7,
+    "trafnosc": 83.2,
+    "mowi_ta_sama": 8
+   },
+   "bilans_v9_v11b": {
+    "lepiej": 2,
+    "gorzej": 2
+   },
+   "bilans_v9_v11b_czas": {
+    "lepiej": 2,
+    "gorzej": 2
+   },
+   "pokrycie": {
+    "v9": {
+     "wg_wersji": {
+      "uslug": 10,
+      "z_cena_proc": 20.0
+     },
+     "potwierdzone": {
+      "uslug": 10,
+      "z_cena_proc": 10.0
+     }
+    },
+    "v11b": {
+     "wg_wersji": {
+      "uslug": 10,
+      "z_cena_proc": 20.0
+     },
+     "potwierdzone": {
+      "uslug": 10,
+      "z_cena_proc": 10.0
+     }
+    }
+   },
+   "salonow": 2,
+   "par": 416
+  },
+  "Medycyna Estetyczna": {
+   "v9": {
+    "par": 401,
+    "precyzja": 74.8,
+    "czulosc": 84.2,
+    "trafnosc": 89.5,
+    "mowi_ta_sama": 107
+   },
+   "v11b": {
+    "par": 401,
+    "precyzja": 72.9,
+    "czulosc": 90.5,
+    "trafnosc": 89.8,
+    "mowi_ta_sama": 118
+   },
+   "v11b_czas": {
+    "par": 401,
+    "precyzja": 75.9,
+    "czulosc": 86.3,
+    "trafnosc": 90.3,
+    "mowi_ta_sama": 108
+   },
+   "bilans_v9_v11b": {
+    "lepiej": 18,
+    "gorzej": 17
+   },
+   "bilans_v9_v11b_czas": {
+    "lepiej": 14,
+    "gorzej": 11
+   },
+   "pokrycie": {
+    "v9": {
+     "wg_wersji": {
+      "uslug": 8,
+      "z_cena_proc": 50.0
+     },
+     "potwierdzone": {
+      "uslug": 8,
+      "z_cena_proc": 25.0
+     }
+    },
+    "v11b": {
+     "wg_wersji": {
+      "uslug": 8,
+      "z_cena_proc": 50.0
+     },
+     "potwierdzone": {
+      "uslug": 8,
+      "z_cena_proc": 50.0
+     }
+    }
+   },
+   "salonow": 2,
+   "par": 401
+  },
+  "Paznokcie": {
+   "v9": {
+    "par": 428,
+    "precyzja": 31.3,
+    "czulosc": 84.7,
+    "trafnosc": 54.0,
+    "mowi_ta_sama": 265
+   },
+   "v11b": {
+    "par": 428,
+    "precyzja": 38.1,
+    "czulosc": 84.7,
+    "trafnosc": 65.0,
+    "mowi_ta_sama": 218
+   },
+   "v11b_czas": {
+    "par": 428,
+    "precyzja": 38.6,
+    "czulosc": 77.6,
+    "trafnosc": 66.6,
+    "mowi_ta_sama": 197
+   },
+   "bilans_v9_v11b": {
+    "lepiej": 70,
+    "gorzej": 23
+   },
+   "bilans_v9_v11b_czas": {
+    "lepiej": 63,
+    "gorzej": 9
+   },
+   "pokrycie": {
+    "v9": {
+     "wg_wersji": {
+      "uslug": 10,
+      "z_cena_proc": 50.0
+     },
+     "potwierdzone": {
+      "uslug": 10,
+      "z_cena_proc": 40.0
+     }
+    },
+    "v11b": {
+     "wg_wersji": {
+      "uslug": 10,
+      "z_cena_proc": 40.0
+     },
+     "potwierdzone": {
+      "uslug": 10,
+      "z_cena_proc": 30.0
+     }
+    }
+   },
+   "salonow": 2,
+   "par": 428
+  },
+  "Podologia": {
+   "v9": {
+    "par": 58,
+    "precyzja": 25.0,
+    "czulosc": 100.0,
+    "trafnosc": 79.3,
+    "mowi_ta_sama": 16
+   },
+   "v11b": {
+    "par": 58,
+    "precyzja": 12.5,
+    "czulosc": 25.0,
+    "trafnosc": 82.8,
+    "mowi_ta_sama": 8
+   },
+   "v11b_czas": {
+    "par": 58,
+    "precyzja": 12.5,
+    "czulosc": 25.0,
+    "trafnosc": 82.8,
+    "mowi_ta_sama": 8
+   },
+   "bilans_v9_v11b": {
+    "lepiej": 5,
+    "gorzej": 3
+   },
+   "bilans_v9_v11b_czas": {
+    "lepiej": 5,
+    "gorzej": 3
+   },
+   "pokrycie": {
+    "v9": {
+     "wg_wersji": {
+      "uslug": 5,
+      "z_cena_proc": 20.0
+     },
+     "potwierdzone": {
+      "uslug": 5,
+      "z_cena_proc": 0.0
+     }
+    },
+    "v11b": {
+     "wg_wersji": {
+      "uslug": 5,
+      "z_cena_proc": 20.0
+     },
+     "potwierdzone": {
+      "uslug": 5,
+      "z_cena_proc": 0.0
+     }
+    }
+   },
+   "salonow": 2,
+   "par": 58
+  },
+  "Salon Kosmetyczny": {
+   "v9": {
+    "par": 599,
+    "precyzja": 72.7,
+    "czulosc": 65.3,
+    "trafnosc": 75.8,
+    "mowi_ta_sama": 220
+   },
+   "v11b": {
+    "par": 599,
+    "precyzja": 87.2,
+    "czulosc": 55.5,
+    "trafnosc": 78.5,
+    "mowi_ta_sama": 156
+   },
+   "v11b_czas": {
+    "par": 599,
+    "precyzja": 87.5,
+    "czulosc": 54.3,
+    "trafnosc": 78.1,
+    "mowi_ta_sama": 152
+   },
+   "bilans_v9_v11b": {
+    "lepiej": 55,
+    "gorzej": 39
+   },
+   "bilans_v9_v11b_czas": {
+    "lepiej": 52,
+    "gorzej": 38
+   },
+   "pokrycie": {
+    "v9": {
+     "wg_wersji": {
+      "uslug": 9,
+      "z_cena_proc": 55.6
+     },
+     "potwierdzone": {
+      "uslug": 9,
+      "z_cena_proc": 55.6
+     }
+    },
+    "v11b": {
+     "wg_wersji": {
+      "uslug": 9,
+      "z_cena_proc": 55.6
+     },
+     "potwierdzone": {
+      "uslug": 9,
+      "z_cena_proc": 55.6
+     }
+    }
+   },
+   "salonow": 2,
+   "par": 599
+  }
+ },
+ "bledy_wezlow": [
+  [
+   "paznokcie › korekta paznokci",
+   242,
+   126
+  ],
+  [
+   "masaż › masaż",
+   326,
+   69
+  ],
+  [
+   "twarz — pielęgnacja › peeling",
+   435,
+   65
+  ],
+  [
+   "brwi i rzęsy › laminacja",
+   301,
+   61
+  ],
+  [
+   "depilacja › depilacja",
+   268,
+   40
+  ],
+  [
+   "brwi i rzęsy › koloryzacja",
+   247,
+   39
+  ],
+  [
+   "medycyna estetyczna › stymulatory tkankowe",
+   80,
+   35
+  ],
+  [
+   "brwi i rzęsy › stylizacja brwi",
+   80,
+   26
+  ],
+  [
+   "paznokcie › manicure",
+   90,
+   18
+  ],
+  [
+   "włosy › strzyżenie",
+   267,
+   17
+  ],
+  [
+   "paznokcie › pedicure",
+   112,
+   13
+  ],
+  [
+   "brwi i rzęsy › regulacja",
+   80,
+   11
+  ],
+  [
+   "włosy › dekoloryzacja",
+   80,
+   8
+  ],
+  [
+   "włosy › botoks",
+   80,
+   7
+  ],
+  [
+   "medycyna estetyczna › wolumetria",
+   23,
+   6
+  ],
+  [
+   "twarz — pielęgnacja › oczyszczanie",
+   80,
+   6
+  ],
+  [
+   "medycyna estetyczna › powiększanie ust",
+   27,
+   4
+  ],
+  [
+   "broda i golenie › tuszowanie siwizny",
+   42,
+   4
+  ],
+  [
+   "makijaż permanentny i tatuaż › makijaż permanentny",
+   160,
+   3
+  ],
+  [
+   "medycyna estetyczna › botoks",
+   24,
+   3
+  ]
+ ]
+}

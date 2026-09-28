@@ -1,0 +1,351 @@
+{
+ "koszt": {
+  "A": {
+   "nowych_uslug": 2751,
+   "tok_rodzaj_na_usluge": 5895,
+   "tok_cechy_na_usluge": 1379,
+   "usd": 0.841,
+   "usd_na_usluge": 0.000306,
+   "sekund": 111
+  },
+  "D": {
+   "nowych_uslug": 3013,
+   "tok_rodzaj_na_usluge": 3385,
+   "tok_cechy_na_usluge": 1378,
+   "usd": 0.603,
+   "usd_na_usluge": 0.0002,
+   "sekund": 116
+  },
+  "E": {
+   "nowych_uslug": 3013,
+   "tok_rodzaj_na_usluge": 1833,
+   "tok_cechy_na_usluge": 1405,
+   "usd": 0.41,
+   "usd_na_usluge": 0.000136,
+   "sekund": 116
+  },
+  "C": {
+   "nowych_uslug": 3013,
+   "tok_rodzaj_na_usluge": 1575,
+   "tok_cechy_na_usluge": 1406,
+   "usd": 0.377,
+   "usd_na_usluge": 0.000125,
+   "sekund": 40
+  }
+ },
+ "sedzia_usd": 0.1096,
+ "wydane_usd": 2.34,
+ "lacznie": {
+  "A": {
+   "par": 4101,
+   "precyzja_ta_sama_proc": 58.2,
+   "czulosc_ta_sama_proc": 60.8,
+   "trafnosc_proc": 86.1,
+   "mowi_ta_sama": 718
+  },
+  "D": {
+   "par": 4101,
+   "precyzja_ta_sama_proc": 58.4,
+   "czulosc_ta_sama_proc": 63.8,
+   "trafnosc_proc": 86.3,
+   "mowi_ta_sama": 750
+  },
+  "E": {
+   "par": 4101,
+   "precyzja_ta_sama_proc": 56.2,
+   "czulosc_ta_sama_proc": 54.9,
+   "trafnosc_proc": 85.3,
+   "mowi_ta_sama": 671
+  },
+  "C": {
+   "par": 4101,
+   "precyzja_ta_sama_proc": 57.9,
+   "czulosc_ta_sama_proc": 49.5,
+   "trafnosc_proc": 85.5,
+   "mowi_ta_sama": 587
+  }
+ },
+ "per_branza": {
+  "Barber shop": {
+   "A": {
+    "par": 374,
+    "precyzja_ta_sama_proc": 65.9,
+    "czulosc_ta_sama_proc": 64.4,
+    "trafnosc_proc": 91.7,
+    "mowi_ta_sama": 44
+   },
+   "D": {
+    "par": 374,
+    "precyzja_ta_sama_proc": 54.5,
+    "czulosc_ta_sama_proc": 66.7,
+    "trafnosc_proc": 89.3,
+    "mowi_ta_sama": 55
+   },
+   "E": {
+    "par": 374,
+    "precyzja_ta_sama_proc": 50.0,
+    "czulosc_ta_sama_proc": 66.7,
+    "trafnosc_proc": 88.0,
+    "mowi_ta_sama": 60
+   },
+   "C": {
+    "par": 374,
+    "precyzja_ta_sama_proc": 62.2,
+    "czulosc_ta_sama_proc": 51.1,
+    "trafnosc_proc": 90.4,
+    "mowi_ta_sama": 37
+   }
+  },
+  "Brwi i rzęsy": {
+   "A": {
+    "par": 710,
+    "precyzja_ta_sama_proc": 45.1,
+    "czulosc_ta_sama_proc": 61.2,
+    "trafnosc_proc": 84.4,
+    "mowi_ta_sama": 133
+   },
+   "D": {
+    "par": 710,
+    "precyzja_ta_sama_proc": 48.4,
+    "czulosc_ta_sama_proc": 78.6,
+    "trafnosc_proc": 85.5,
+    "mowi_ta_sama": 159
+   },
+   "E": {
+    "par": 710,
+    "precyzja_ta_sama_proc": 52.4,
+    "czulosc_ta_sama_proc": 76.5,
+    "trafnosc_proc": 87.2,
+    "mowi_ta_sama": 143
+   },
+   "C": {
+    "par": 710,
+    "precyzja_ta_sama_proc": 52.8,
+    "czulosc_ta_sama_proc": 57.1,
+    "trafnosc_proc": 87.0,
+    "mowi_ta_sama": 106
+   }
+  },
+  "Depilacja": {
+   "A": {
+    "par": 440,
+    "precyzja_ta_sama_proc": 45.0,
+    "czulosc_ta_sama_proc": 46.6,
+    "trafnosc_proc": 85.5,
+    "mowi_ta_sama": 60
+   },
+   "D": {
+    "par": 440,
+    "precyzja_ta_sama_proc": 37.5,
+    "czulosc_ta_sama_proc": 36.2,
+    "trafnosc_proc": 83.6,
+    "mowi_ta_sama": 56
+   },
+   "E": {
+    "par": 440,
+    "precyzja_ta_sama_proc": 39.3,
+    "czulosc_ta_sama_proc": 37.9,
+    "trafnosc_proc": 84.1,
+    "mowi_ta_sama": 56
+   },
+   "C": {
+    "par": 440,
+    "precyzja_ta_sama_proc": 44.6,
+    "czulosc_ta_sama_proc": 43.1,
+    "trafnosc_proc": 85.5,
+    "mowi_ta_sama": 56
+   }
+  },
+  "Fryzjer": {
+   "A": {
+    "par": 437,
+    "precyzja_ta_sama_proc": 97.9,
+    "czulosc_ta_sama_proc": 45.6,
+    "trafnosc_proc": 87.0,
+    "mowi_ta_sama": 48
+   },
+   "D": {
+    "par": 437,
+    "precyzja_ta_sama_proc": 94.0,
+    "czulosc_ta_sama_proc": 45.6,
+    "trafnosc_proc": 86.5,
+    "mowi_ta_sama": 50
+   },
+   "E": {
+    "par": 437,
+    "precyzja_ta_sama_proc": 97.8,
+    "czulosc_ta_sama_proc": 43.7,
+    "trafnosc_proc": 86.5,
+    "mowi_ta_sama": 46
+   },
+   "C": {
+    "par": 437,
+    "precyzja_ta_sama_proc": 89.1,
+    "czulosc_ta_sama_proc": 47.6,
+    "trafnosc_proc": 86.3,
+    "mowi_ta_sama": 55
+   }
+  },
+  "Masaż": {
+   "A": {
+    "par": 458,
+    "precyzja_ta_sama_proc": 13.0,
+    "czulosc_ta_sama_proc": 42.9,
+    "trafnosc_proc": 89.5,
+    "mowi_ta_sama": 46
+   },
+   "D": {
+    "par": 458,
+    "precyzja_ta_sama_proc": 26.9,
+    "czulosc_ta_sama_proc": 50.0,
+    "trafnosc_proc": 94.3,
+    "mowi_ta_sama": 26
+   },
+   "E": {
+    "par": 458,
+    "precyzja_ta_sama_proc": 23.1,
+    "czulosc_ta_sama_proc": 42.9,
+    "trafnosc_proc": 93.9,
+    "mowi_ta_sama": 26
+   },
+   "C": {
+    "par": 458,
+    "precyzja_ta_sama_proc": 14.3,
+    "czulosc_ta_sama_proc": 35.7,
+    "trafnosc_proc": 91.5,
+    "mowi_ta_sama": 35
+   }
+  },
+  "Medycyna Estetyczna": {
+   "A": {
+    "par": 317,
+    "precyzja_ta_sama_proc": 27.3,
+    "czulosc_ta_sama_proc": 42.9,
+    "trafnosc_proc": 96.2,
+    "mowi_ta_sama": 11
+   },
+   "D": {
+    "par": 317,
+    "precyzja_ta_sama_proc": 27.3,
+    "czulosc_ta_sama_proc": 42.9,
+    "trafnosc_proc": 96.2,
+    "mowi_ta_sama": 11
+   },
+   "E": {
+    "par": 317,
+    "precyzja_ta_sama_proc": 16.7,
+    "czulosc_ta_sama_proc": 42.9,
+    "trafnosc_proc": 94.0,
+    "mowi_ta_sama": 18
+   },
+   "C": {
+    "par": 317,
+    "precyzja_ta_sama_proc": 30.0,
+    "czulosc_ta_sama_proc": 42.9,
+    "trafnosc_proc": 96.5,
+    "mowi_ta_sama": 10
+   }
+  },
+  "Paznokcie": {
+   "A": {
+    "par": 560,
+    "precyzja_ta_sama_proc": 82.6,
+    "czulosc_ta_sama_proc": 67.7,
+    "trafnosc_proc": 86.6,
+    "mowi_ta_sama": 132
+   },
+   "D": {
+    "par": 560,
+    "precyzja_ta_sama_proc": 69.8,
+    "czulosc_ta_sama_proc": 70.2,
+    "trafnosc_proc": 82.7,
+    "mowi_ta_sama": 162
+   },
+   "E": {
+    "par": 560,
+    "precyzja_ta_sama_proc": 86.4,
+    "czulosc_ta_sama_proc": 70.8,
+    "trafnosc_proc": 88.4,
+    "mowi_ta_sama": 132
+   },
+   "C": {
+    "par": 560,
+    "precyzja_ta_sama_proc": 79.6,
+    "czulosc_ta_sama_proc": 50.9,
+    "trafnosc_proc": 82.1,
+    "mowi_ta_sama": 103
+   }
+  },
+  "Podologia": {
+   "A": {
+    "par": 245,
+    "precyzja_ta_sama_proc": 11.5,
+    "czulosc_ta_sama_proc": 87.5,
+    "trafnosc_proc": 77.6,
+    "mowi_ta_sama": 61
+   },
+   "D": {
+    "par": 245,
+    "precyzja_ta_sama_proc": 15.7,
+    "czulosc_ta_sama_proc": 100.0,
+    "trafnosc_proc": 82.4,
+    "mowi_ta_sama": 51
+   },
+   "E": {
+    "par": 245,
+    "precyzja_ta_sama_proc": 9.7,
+    "czulosc_ta_sama_proc": 75.0,
+    "trafnosc_proc": 76.3,
+    "mowi_ta_sama": 62
+   },
+   "C": {
+    "par": 245,
+    "precyzja_ta_sama_proc": 13.3,
+    "czulosc_ta_sama_proc": 75.0,
+    "trafnosc_proc": 83.3,
+    "mowi_ta_sama": 45
+   }
+  },
+  "Salon Kosmetyczny": {
+   "A": {
+    "par": 560,
+    "precyzja_ta_sama_proc": 71.0,
+    "czulosc_ta_sama_proc": 67.4,
+    "trafnosc_proc": 79.3,
+    "mowi_ta_sama": 183
+   },
+   "D": {
+    "par": 560,
+    "precyzja_ta_sama_proc": 73.3,
+    "czulosc_ta_sama_proc": 68.4,
+    "trafnosc_proc": 80.5,
+    "mowi_ta_sama": 180
+   },
+   "E": {
+    "par": 560,
+    "precyzja_ta_sama_proc": 59.4,
+    "czulosc_ta_sama_proc": 39.4,
+    "trafnosc_proc": 69.8,
+    "mowi_ta_sama": 128
+   },
+   "C": {
+    "par": 560,
+    "precyzja_ta_sama_proc": 65.0,
+    "czulosc_ta_sama_proc": 47.2,
+    "trafnosc_proc": 73.0,
+    "mowi_ta_sama": 140
+   }
+  }
+ },
+ "sedzia_rozklad": {
+  "powiazane": 2826,
+  "tozsame": 687,
+  "rozne": 588
+ },
+ "zgodnosc_rodzaju_z_A_proc": {
+  "A": 100.0,
+  "D": 79.0,
+  "E": 77.0,
+  "C": 79.5
+ }
+}
