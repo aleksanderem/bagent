@@ -22,7 +22,7 @@ def test_pytanie_o_zamiane_podaje_obie_oferty_i_obie_strony_roznicy() -> None:
     q = pytanie_zamiany("Głowy", "włosów", "Strzyżenie Głowy i Brody", "Strzyżenie włosów i brody")
     assert all(s in q.instructions for s in ("„Głowy”", "„włosów”", "Strzyżenie Głowy i Brody", "Strzyżenie włosów i brody"))
     assert "`oferta_a" in q.instructions and "`oferta_b" in q.instructions
-    assert set(q.criteria) == {"to_samo", "wezsze", "szersze", "inne"}  # relacja 4-stanowa jak w słowniku
+    assert set(q.criteria) == {"to_samo", "wezsze", "szersze", "inne", "nie_wiadomo"}  # relacja jak w słowniku + brak wiedzy
 
 
 def test_zamiana_rownowazna_tylko_przy_pewnym_to_samo() -> None:

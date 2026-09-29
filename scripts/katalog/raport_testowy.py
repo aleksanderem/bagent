@@ -183,7 +183,7 @@ async def wyciagnij(out: Path, rownolegle: int) -> None:
     print("wyciąganie: " + ", ".join(f"{k}: {v}" for k, v in st.items()))
 
 
-USTAWIENIA = {"slownik": None, "kategorie": False}
+USTAWIENIA = {"slownik": None, "kategorie": False, "slowa": None}
 
 
 def podpisy(out: Path) -> tuple[dict, dict[int, dict], list[Oferta], dict[str, dict], dict]:
@@ -191,11 +191,14 @@ def podpisy(out: Path) -> tuple[dict, dict[int, dict], list[Oferta], dict[str, d
     tp.OUT = out
     rek, _ = tp.rekordy("p12", oferty)
     kon = km.kontekst(oferty, out / "kategorie.json") if USTAWIENIA["kategorie"] else {}
-    return salon, us, oferty, rek, {o.id: podpis(rek[o.id], USTAWIENIA["slownik"], kon.get(o.id)) for o in oferty if o.id in rek}
+    slowa = kr.slownictwo_rynku(rek, USTAWIENIA["slownik"])
+    USTAWIENIA["slowa"] = slowa
+    return salon, us, oferty, rek, {o.id: podpis(rek[o.id], USTAWIENIA["slownik"], kon.get(o.id), slowa) for o in oferty if o.id in rek}
 
 
 def klasy_raportu(out: Path, budzet: float) -> None:
     salon, us, oferty, rek, pod = podpisy(out)
+    kon = km.kontekst(oferty, out / "kategorie.json") if USTAWIENIA["kategorie"] else {}
     bid = salon["podmiot"]["booksy_id"]
     wlasne = [o for o in oferty if us[_usluga(o)]["booksy_id"] == bid and o.id in pod]
     obce = [o for o in oferty if us[_usluga(o)]["booksy_id"] != bid and o.id in pod]
@@ -210,11 +213,14 @@ def klasy_raportu(out: Path, budzet: float) -> None:
                 o_z, o_bez = (s, c) if strona is pod[s.id] else (c, s)
                 u = us[_usluga(o_z)]
                 klasy[k] = {"klasa": klasa, "par": 1, "oferta": o_z.id,
-                            "dopisek": kr._dopisek(rek[o_z.id], klasa[1], set(klasa[2].split())),
+                            "dopisek": kr._dopisek(rek[o_z.id], klasa[1], set(klasa[2].split()), kon.get(o_z.id),
+                                                   USTAWIENIA["slownik"]),
                             "zabieg": (rek[o_z.id].get("zabieg") or {}).get("fraza") or "", "druga": o_bez.nazwa,
                             "stan": stan_v12({**u, "warianty": [{"label": o_z.wariant}] if o_z.wariant else []})}
     koszt = asyncio.run(kr.zapytaj(klasy, budzet, out / f"klasy_p{kr.WERSJA_PYTANIA}.json"))
-    print(f"klas {len(klasy)}, koszt {koszt:.4f} USD")
+    zam = kr.zamiany_ofert([(s, c) for s in wlasne for c in obce], rek, USTAWIENIA["slownik"], kon, USTAWIENIA["slowa"])
+    koszt += asyncio.run(kr.zapytaj_zamiany(zam, budzet, out / f"zamiany_p{kr.WERSJA_ZAMIANY}.json"))
+    print(f"klas {len(klasy)}, zamian {len(zam)}, koszt {koszt:.4f} USD")
 
 
 def minuty(o: Oferta, us: dict[int, dict]) -> float | None:
@@ -235,11 +241,13 @@ def _statystyki(ceny: list[float]) -> dict:
 
 
 def licz(out: Path) -> None:
-    from services.katalog_uslug.klasy import NIE_ZMIENIA, rozstrzygnij
+    from services.katalog_uslug.klasy import NIE_ZMIENIA, rozstrzygnij, zamiana_rownowazna
     salon, us, oferty, rek, pod = podpisy(out)
-    plik_klas = out / f"klasy_p{kr.WERSJA_PYTANIA}.json"
+    plik_klas, plik_zam = out / f"klasy_p{kr.WERSJA_PYTANIA}.json", out / f"zamiany_p{kr.WERSJA_ZAMIANY}.json"
     rozstrz = json.loads(plik_klas.read_text(encoding="utf-8")) if plik_klas.exists() else {}
-    klasy = Klasy(opisowe={tuple(v["klasa"]) for v in rozstrz.values() if rozstrzygnij(v.get("score")) == NIE_ZMIENIA})
+    zam = json.loads(plik_zam.read_text(encoding="utf-8")) if plik_zam.exists() else {}
+    klasy = Klasy(opisowe={tuple(v["klasa"]) for v in rozstrz.values() if rozstrzygnij(v.get("score")) == NIE_ZMIENIA},
+                  rownowazne={tuple(v["klasa"]) for v in zam.values() if zamiana_rownowazna(v)})
     bid = salon["podmiot"]["booksy_id"]
     nazwy = {k["booksy_id"]: k["nazwa"] for k in salon["konkurenci"]}
     wlasne = [o for o in oferty if us[_usluga(o)]["booksy_id"] == bid]

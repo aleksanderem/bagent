@@ -200,17 +200,6 @@
    "pozycja": "zabieg",
    "ta_sama": [
     {
-     "salon": "Ogon Tattoo",
-     "booksy_id": 289358,
-     "id_oferty": "48818360",
-     "nazwa": "Sesja całodniowa",
-     "wariant": "",
-     "cena": 1500,
-     "min": 480.0,
-     "zl_min": 3.125,
-     "powod": "równe podpisy"
-    },
-    {
      "salon": "Inktoriam Tattoo & Piercing Collective",
      "booksy_id": 257373,
      "id_oferty": "54329710",
@@ -413,6 +402,17 @@
     {
      "salon": "Ogon Tattoo",
      "booksy_id": 289358,
+     "id_oferty": "48818360",
+     "nazwa": "Sesja całodniowa",
+     "wariant": "",
+     "cena": 1500,
+     "min": 480.0,
+     "zl_min": 3.125,
+     "powod": "inne: „calodni sesj” tylko po jednej stronie"
+    },
+    {
+     "salon": "Ogon Tattoo",
+     "booksy_id": 289358,
      "id_oferty": "48818361",
      "nazwa": "Tatuaż średni/duży",
      "wariant": "",
@@ -600,19 +600,19 @@
    ],
    "min": 60.0,
    "ta_sama_stat": {
-    "n": 3,
-    "mediana": 400,
-    "p25": 169,
-    "p75": 294,
-    "rynkowa": 188,
+    "n": 2,
+    "mediana": 350,
+    "p25": 213,
+    "p75": 338,
+    "rynkowa": 275,
     "rynkowa_z": "zł/min × czas"
    },
    "podobne_stat": {
     "n": 8,
-    "mediana": 450,
+    "mediana": 500,
     "p25": 138,
     "p75": 250,
-    "rynkowa": 200,
+    "rynkowa": 197,
     "rynkowa_z": "zł/min × czas"
    }
   },
@@ -623,7 +623,41 @@
    "wariant": "",
    "cena": 1500,
    "pozycja": "zabieg",
-   "ta_sama": [],
+   "ta_sama": [
+    {
+     "salon": "FAME Tattoo",
+     "booksy_id": 109104,
+     "id_oferty": "44182978",
+     "nazwa": "Sesja całodzienna",
+     "wariant": "",
+     "cena": 1200,
+     "min": 360.0,
+     "zl_min": 3.333,
+     "powod": "inna nazwa tego samego: „calodni” / „calodzienn”"
+    },
+    {
+     "salon": "Seven Sins TATTOO & Piercing",
+     "booksy_id": 204751,
+     "id_oferty": "48678319",
+     "nazwa": "Całodzienna sesja tatuażu",
+     "wariant": "",
+     "cena": 1900,
+     "min": 480.0,
+     "zl_min": 3.958,
+     "powod": "inna nazwa tego samego: „calodni” / „calodzienn”"
+    },
+    {
+     "salon": "Ogon Tattoo",
+     "booksy_id": 289358,
+     "id_oferty": "48818360",
+     "nazwa": "Sesja całodniowa",
+     "wariant": "",
+     "cena": 1500,
+     "min": 480.0,
+     "zl_min": 3.125,
+     "powod": "równe podpisy"
+    }
+   ],
    "podobne": [
     {
      "salon": "FAME Tattoo",
@@ -646,17 +680,6 @@
      "min": 60.0,
      "zl_min": 5.0,
      "powod": "różne słowa: calodni sesj / maly"
-    },
-    {
-     "salon": "FAME Tattoo",
-     "booksy_id": 109104,
-     "id_oferty": "44182978",
-     "nazwa": "Sesja całodzienna",
-     "wariant": "",
-     "cena": 1200,
-     "min": 360.0,
-     "zl_min": 3.333,
-     "powod": "różne słowa: calodni / calodzienn"
     },
     {
      "salon": "FAME Tattoo",
@@ -700,7 +723,7 @@
      "cena": 100,
      "min": 60.0,
      "zl_min": 1.667,
-     "powod": "różne słowa: calodni sesj / czarn maly"
+     "powod": "różne słowa: calodni sesj / cena czarn maly"
     },
     {
      "salon": "Seven Sins TATTOO & Piercing",
@@ -747,17 +770,6 @@
      "powod": "różne słowa: calodni sesj / 15cm"
     },
     {
-     "salon": "Seven Sins TATTOO & Piercing",
-     "booksy_id": 204751,
-     "id_oferty": "48678319",
-     "nazwa": "Całodzienna sesja tatuażu",
-     "wariant": "",
-     "cena": 1900,
-     "min": 480.0,
-     "zl_min": 3.958,
-     "powod": "różne słowa: calodni / calodzienn"
-    },
-    {
      "salon": "Tuż Tusz Tattoo & Piercing Poznań",
      "booksy_id": 16738,
      "id_oferty": "48817354",
@@ -766,7 +778,7 @@
      "cena": 300,
      "min": 60.0,
      "zl_min": 5.0,
-     "powod": "różne słowa: calodni sesj / maly"
+     "powod": "różne słowa: calodni sesj / do maly"
     },
     {
      "salon": "Tuż Tusz Tattoo & Piercing Poznań",
@@ -777,7 +789,7 @@
      "cena": 450,
      "min": 120.0,
      "zl_min": 3.75,
-     "powod": "różne słowa: calodni sesj / maly"
+     "powod": "różne słowa: calodni sesj / do maly"
     },
     {
      "salon": "Ogon Tattoo",
@@ -800,17 +812,6 @@
      "min": 120.0,
      "zl_min": 3.333,
      "powod": "różne słowa: calodni sesj / 10cm ok sredn"
-    },
-    {
-     "salon": "Ogon Tattoo",
-     "booksy_id": 289358,
-     "id_oferty": "48818360",
-     "nazwa": "Sesja całodniowa",
-     "wariant": "",
-     "cena": 1500,
-     "min": 480.0,
-     "zl_min": 3.125,
-     "powod": "sesje: „sesj” tylko po jednej stronie"
     },
     {
      "salon": "Ogon Tattoo",
@@ -898,7 +899,7 @@
      "cena": 750,
      "min": 300.0,
      "zl_min": 2.5,
-     "powod": "różne słowa: calodni sesj / 15cm do"
+     "powod": "różne słowa: calodni sesj / 1 15cm do"
     },
     {
      "salon": "Inktoriam Tattoo & Piercing Collective",
@@ -986,7 +987,7 @@
      "cena": 450,
      "min": 120.0,
      "zl_min": 3.75,
-     "powod": "różne słowa: calodni sesj / 5 cm dlugosc do"
+     "powod": "różne słowa: calodni sesj / 5 cm dlugosc do dwa napis slow"
     },
     {
      "salon": "Alwa Tattoo",
@@ -1008,7 +1009,7 @@
      "cena": 950,
      "min": 180.0,
      "zl_min": 5.278,
-     "powod": "różne słowa: calodni sesj / 20x15 cm rozmiar"
+     "powod": "różne słowa: calodni sesj / 20x15 cm kompozycj kwiat rozmiar"
     },
     {
      "salon": "Alwa Tattoo",
@@ -1024,14 +1025,19 @@
    ],
    "min": 420.0,
    "ta_sama_stat": {
-    "n": 0
+    "n": 3,
+    "mediana": 1500,
+    "p25": 1356,
+    "p75": 1531,
+    "rynkowa": 1400,
+    "rynkowa_z": "zł/min × czas"
    },
    "podobne_stat": {
     "n": 10,
-    "mediana": 450,
-    "p25": 1013,
-    "p75": 1750,
-    "rynkowa": 1378,
+    "mediana": 400,
+    "p25": 1005,
+    "p75": 1816,
+    "rynkowa": 1400,
     "rynkowa_z": "zł/min × czas"
    }
   },
@@ -1052,17 +1058,6 @@
      "cena": 30,
      "min": 20.0,
      "zl_min": 1.5,
-     "powod": "równe podpisy"
-    },
-    {
-     "salon": "Inkora",
-     "booksy_id": 339705,
-     "id_oferty": "52488637",
-     "nazwa": "Wymiana kolczyka",
-     "wariant": "",
-     "cena": 50,
-     "min": 30.0,
-     "zl_min": 1.667,
      "powod": "równe podpisy"
     }
    ],
@@ -1110,34 +1105,23 @@
      "min": 20.0,
      "zl_min": 1.5,
      "powod": "różne słowa: kolczyk / 2 5 bizuter podstaw szt"
-    },
-    {
-     "salon": "Pierce Me Up Now - Piercing Poznań",
-     "booksy_id": 93074,
-     "id_oferty": "54330426",
-     "nazwa": "WYMIANA 1 KOLCZYKA",
-     "wariant": "",
-     "cena": 40,
-     "min": 10.0,
-     "zl_min": 4.0,
-     "powod": "pozycja: zabieg / dodatek"
     }
    ],
    "min": 20.0,
    "ta_sama_stat": {
-    "n": 2,
-    "mediana": 40,
-    "p25": 31,
-    "p75": 33,
-    "rynkowa": 32,
+    "n": 1,
+    "mediana": 30,
+    "p25": 30,
+    "p75": 30,
+    "rynkowa": 30,
     "rynkowa_z": "zł/min × czas"
    },
    "podobne_stat": {
-    "n": 4,
-    "mediana": 28,
-    "p25": 28,
-    "p75": 65,
-    "rynkowa": 44,
+    "n": 3,
+    "mediana": 25,
+    "p25": 27,
+    "p75": 44,
+    "rynkowa": 28,
     "rynkowa_z": "zł/min × czas"
    }
   },
@@ -1149,17 +1133,6 @@
    "cena": 160,
    "pozycja": "zabieg",
    "ta_sama": [
-    {
-     "salon": "Pimp My Holes",
-     "booksy_id": 218888,
-     "id_oferty": "46995549",
-     "nazwa": "Bridge",
-     "wariant": "",
-     "cena": 160,
-     "min": 45.0,
-     "zl_min": 3.556,
-     "powod": "równe podpisy"
-    },
     {
      "salon": "Poznań Piercing @poznanpiercing poznanpiercing",
      "booksy_id": 224089,
@@ -1180,21 +1153,38 @@
      "cena": 150,
      "min": 50.0,
      "zl_min": 3.0,
-     "powod": "równe podpisy"
+     "powod": "dopisek nie zmienia usługi: twarz"
     }
    ],
-   "podobne": [],
+   "podobne": [
+    {
+     "salon": "Pimp My Holes",
+     "booksy_id": 218888,
+     "id_oferty": "46995549",
+     "nazwa": "Bridge",
+     "wariant": "",
+     "cena": 160,
+     "min": 45.0,
+     "zl_min": 3.556,
+     "powod": "gdzie_ile: „nos” tylko po jednej stronie"
+    }
+   ],
    "min": 30.0,
    "ta_sama_stat": {
-    "n": 3,
-    "mediana": 160,
-    "p25": 98,
-    "p75": 151,
-    "rynkowa": 107,
+    "n": 2,
+    "mediana": 205,
+    "p25": 116,
+    "p75": 169,
+    "rynkowa": 142,
     "rynkowa_z": "zł/min × czas"
    },
    "podobne_stat": {
-    "n": 0
+    "n": 1,
+    "mediana": 160,
+    "p25": 107,
+    "p75": 107,
+    "rynkowa": 107,
+    "rynkowa_z": "zł/min × czas"
    }
   },
   {
@@ -1215,7 +1205,7 @@
      "cena": 100,
      "min": 30.0,
      "zl_min": 3.333,
-     "powod": "gdzie_ile: „chrzastk” tylko po jednej stronie"
+     "powod": "różne słowa: chrzastk / miesiac"
     },
     {
      "salon": "Pimp My Holes",
@@ -1248,7 +1238,7 @@
      "cena": 250,
      "min": 20.0,
      "zl_min": 12.5,
-     "powod": "różne słowa: chrzastk / 2 earlob piercing platk ucha x"
+     "powod": "różne słowa: chrzastk / 2 earlob piercing platk ucha uszu x"
     },
     {
      "salon": "Seven Sins TATTOO & Piercing",
@@ -1292,7 +1282,7 @@
      "cena": 150,
      "min": 20.0,
      "zl_min": 7.5,
-     "powod": "różne słowa: chrzastk / rook"
+     "powod": "różne słowa: chrzastk / piercing rook"
     },
     {
      "salon": "Seven Sins TATTOO & Piercing",
@@ -1325,7 +1315,7 @@
      "cena": 150,
      "min": 30.0,
      "zl_min": 5.0,
-     "powod": "różne słowa: chrzastk / snug"
+     "powod": "różne słowa: chrzastk / piercing snug"
     },
     {
      "salon": "Seven Sins TATTOO & Piercing",
@@ -1347,7 +1337,7 @@
      "cena": 160,
      "min": 30.0,
      "zl_min": 5.333,
-     "powod": "nazwa bez treści (combo / pakiet / premium) bez składu"
+     "powod": "różne słowa: chrzastk / navel pepk piercing standard"
     },
     {
      "salon": "safe.and.fancy_piercing_POZNAŃ",
@@ -1391,7 +1381,7 @@
      "cena": 130,
      "min": 40.0,
      "zl_min": 3.25,
-     "powod": "różne słowa: chrzastk / aleksandr platk ucha"
+     "powod": "różne słowa: chrzastk / 14 aleksandr platk ucha"
     },
     {
      "salon": "Ale_piercerka",
@@ -1402,7 +1392,7 @@
      "cena": 150,
      "min": 40.0,
      "zl_min": 3.75,
-     "powod": "różne słowa: chrzastk / platk ucha"
+     "powod": "różne słowa: chrzastk / 14 platk ucha"
     },
     {
      "salon": "Ale_piercerka",
@@ -1446,7 +1436,7 @@
      "cena": 160,
      "min": 40.0,
      "zl_min": 4.0,
-     "powod": "różne słowa: chrzastk / helix"
+     "powod": "różne słowa: chrzastk / 15 helix"
     },
     {
      "salon": "Ale_piercerka",
@@ -1457,7 +1447,7 @@
      "cena": 140,
      "min": 40.0,
      "zl_min": 3.5,
-     "powod": "różne słowa: chrzastk / conch"
+     "powod": "różne słowa: chrzastk / 15 conch"
     },
     {
      "salon": "Ale_piercerka",
@@ -1479,7 +1469,7 @@
      "cena": 160,
      "min": 40.0,
      "zl_min": 4.0,
-     "powod": "różne słowa: chrzastk / tragus"
+     "powod": "różne słowa: chrzastk / 15 tragus"
     },
     {
      "salon": "Ale_piercerka",
@@ -1490,7 +1480,7 @@
      "cena": 140,
      "min": 40.0,
      "zl_min": 3.5,
-     "powod": "różne słowa: chrzastk / tragus"
+     "powod": "różne słowa: chrzastk / 15 tragus"
     },
     {
      "salon": "Ale_piercerka",
@@ -1523,7 +1513,7 @@
      "cena": 140,
      "min": 40.0,
      "zl_min": 3.5,
-     "powod": "różne słowa: chrzastk / flat"
+     "powod": "różne słowa: chrzastk / 15 flat"
     },
     {
      "salon": "Ale_piercerka",
@@ -1545,7 +1535,7 @@
      "cena": 140,
      "min": 40.0,
      "zl_min": 3.5,
-     "powod": "różne słowa: chrzastk / rook"
+     "powod": "różne słowa: chrzastk / 16 rook"
     },
     {
      "salon": "Ale_piercerka",
@@ -1556,7 +1546,7 @@
      "cena": 160,
      "min": 40.0,
      "zl_min": 4.0,
-     "powod": "różne słowa: chrzastk / rook"
+     "powod": "różne słowa: chrzastk / 16 rook"
     },
     {
      "salon": "Ale_piercerka",
@@ -1578,7 +1568,7 @@
      "cena": 170,
      "min": 40.0,
      "zl_min": 4.25,
-     "powod": "różne słowa: chrzastk / daith"
+     "powod": "różne słowa: chrzastk / 18 daith"
     },
     {
      "salon": "Ale_piercerka",
@@ -1600,7 +1590,7 @@
      "cena": 160,
      "min": 40.0,
      "zl_min": 4.0,
-     "powod": "różne słowa: chrzastk / septum"
+     "powod": "różne słowa: chrzastk / 14 septum"
     },
     {
      "salon": "Ale_piercerka",
@@ -1633,7 +1623,7 @@
      "cena": 140,
      "min": 40.0,
      "zl_min": 3.5,
-     "powod": "różne słowa: chrzastk / labret medus monr warg"
+     "powod": "różne słowa: chrzastk / 15 labret medus monr warg"
     },
     {
      "salon": "Ale_piercerka",
@@ -1644,7 +1634,7 @@
      "cena": 140,
      "min": 40.0,
      "zl_min": 3.5,
-     "powod": "różne słowa: chrzastk / ashl warg"
+     "powod": "różne słowa: chrzastk / 15 ashl warg"
     },
     {
      "salon": "Ale_piercerka",
@@ -1666,7 +1656,7 @@
      "cena": 160,
      "min": 40.0,
      "zl_min": 4.0,
-     "powod": "różne słowa: chrzastk / jezyk"
+     "powod": "różne słowa: chrzastk / 14 jezyk"
     },
     {
      "salon": "Ale_piercerka",
@@ -1677,7 +1667,7 @@
      "cena": 160,
      "min": 40.0,
      "zl_min": 4.0,
-     "powod": "różne słowa: chrzastk / brew"
+     "powod": "różne słowa: chrzastk / 15 brew"
     },
     {
      "salon": "Ale_piercerka",
@@ -1688,7 +1678,7 @@
      "cena": 140,
      "min": 40.0,
      "zl_min": 3.5,
-     "powod": "różne słowa: chrzastk / brew"
+     "powod": "różne słowa: chrzastk / 15 brew"
     },
     {
      "salon": "Ale_piercerka",
@@ -1699,7 +1689,7 @@
      "cena": 160,
      "min": 40.0,
      "zl_min": 4.0,
-     "powod": "różne słowa: chrzastk / pepk"
+     "powod": "różne słowa: chrzastk / 16 pepk"
     },
     {
      "salon": "Ale_piercerka",
@@ -1732,7 +1722,7 @@
      "cena": 160,
      "min": 40.0,
      "zl_min": 4.0,
-     "powod": "różne słowa: chrzastk / 1 sutek"
+     "powod": "różne słowa: chrzastk / 1 18 sutek"
     },
     {
      "salon": "Ale_piercerka",
@@ -1776,7 +1766,7 @@
      "cena": 310,
      "min": 45.0,
      "zl_min": 6.889,
-     "powod": "różne słowa: chrzastk / 2 kompozycj nowych zlozon"
+     "powod": "różne słowa: chrzastk / 2 kompozycj nowych uszy zlozon"
     },
     {
      "salon": "Miss Kitty Piercing",
@@ -1787,7 +1777,7 @@
      "cena": 420,
      "min": 60.0,
      "zl_min": 7.0,
-     "powod": "różne słowa: chrzastk / 3 kompozycj nowych zlozon"
+     "powod": "różne słowa: chrzastk / 3 kompozycj nowych uszy zlozon"
     },
     {
      "salon": "Pierce Me Up Now - Piercing Poznań",
@@ -1985,7 +1975,7 @@
      "cena": 160,
      "min": 45.0,
      "zl_min": 3.556,
-     "powod": "różne słowa: chrzastk / labret standard"
+     "powod": "różne słowa: chrzastk / labret standard warg"
     },
     {
      "salon": "Pierce Me Up Now - Piercing Poznań",
@@ -2040,7 +2030,7 @@
      "cena": 160,
      "min": 45.0,
      "zl_min": 3.556,
-     "powod": "różne słowa: chrzastk / tong web"
+     "powod": "różne słowa: chrzastk / tong warg web"
     },
     {
      "salon": "Pierce Me Up Now - Piercing Poznań",
@@ -2062,7 +2052,7 @@
      "cena": 600,
      "min": 90.0,
      "zl_min": 6.667,
-     "powod": "różne słowa: chrzastk / bites canin"
+     "powod": "różne słowa: chrzastk / bites canin warg"
     },
     {
      "salon": "Pierce Me Up Now - Piercing Poznań",
@@ -2095,7 +2085,7 @@
      "cena": 300,
      "min": 60.0,
      "zl_min": 5.0,
-     "powod": "różne słowa: chrzastk / mantis"
+     "powod": "różne słowa: chrzastk / mantis nosa"
     },
     {
      "salon": "Pierce Me Up Now - Piercing Poznań",
@@ -2315,7 +2305,29 @@
      "cena": 150,
      "min": 40.0,
      "zl_min": 3.75,
-     "powod": "równe podpisy"
+     "powod": "dopisek nie zmienia usługi: 14"
+    },
+    {
+     "salon": "DACHU STUDIO",
+     "booksy_id": 288798,
+     "id_oferty": "54329748#0",
+     "nazwa": "Piercing ucha",
+     "wariant": "LOBE",
+     "cena": 100,
+     "min": 20.0,
+     "zl_min": 5.0,
+     "powod": "inna nazwa tego samego: „lobe piercing” / „platk przekluwan”"
+    },
+    {
+     "salon": "Diana Piercing&Tatuaz",
+     "booksy_id": 270179,
+     "id_oferty": "54331378",
+     "nazwa": "Przekłucie ucha. Lobe",
+     "wariant": "",
+     "cena": 120,
+     "min": 30.0,
+     "zl_min": 4.0,
+     "powod": "inna nazwa tego samego: „lobe” / „platk”"
     }
    ],
    "podobne": [
@@ -2328,7 +2340,7 @@
      "cena": 100,
      "min": 30.0,
      "zl_min": 3.333,
-     "powod": "gdzie_ile: „platk ucha” tylko po jednej stronie"
+     "powod": "różne słowa: platk ucha / miesiac"
     },
     {
      "salon": "Pimp My Holes",
@@ -2361,7 +2373,7 @@
      "cena": 250,
      "min": 20.0,
      "zl_min": 12.5,
-     "powod": "gdzie_ile: „2 x” tylko po jednej stronie"
+     "powod": "gdzie_ile: „2 uszu x” tylko po jednej stronie"
     },
     {
      "salon": "Seven Sins TATTOO & Piercing",
@@ -2394,7 +2406,7 @@
      "cena": 150,
      "min": 20.0,
      "zl_min": 7.5,
-     "powod": "różne słowa: platk ucha / rook"
+     "powod": "różne słowa: platk ucha / piercing rook"
     },
     {
      "salon": "Seven Sins TATTOO & Piercing",
@@ -2427,7 +2439,7 @@
      "cena": 150,
      "min": 30.0,
      "zl_min": 5.0,
-     "powod": "różne słowa: platk ucha / snug"
+     "powod": "różne słowa: platk ucha / piercing snug"
     },
     {
      "salon": "Seven Sins TATTOO & Piercing",
@@ -2449,7 +2461,7 @@
      "cena": 160,
      "min": 30.0,
      "zl_min": 5.333,
-     "powod": "nazwa bez treści (combo / pakiet / premium) bez składu"
+     "powod": "różne słowa: platk ucha / navel pepk piercing standard"
     },
     {
      "salon": "safe.and.fancy_piercing_POZNAŃ",
@@ -2493,7 +2505,7 @@
      "cena": 130,
      "min": 40.0,
      "zl_min": 3.25,
-     "powod": "inne: „aleksandr” tylko po jednej stronie"
+     "powod": "inne: „14 aleksandr” tylko po jednej stronie"
     },
     {
      "salon": "Ale_piercerka",
@@ -2537,7 +2549,7 @@
      "cena": 160,
      "min": 40.0,
      "zl_min": 4.0,
-     "powod": "różne słowa: platk ucha / helix"
+     "powod": "różne słowa: platk ucha / 15 helix"
     },
     {
      "salon": "Ale_piercerka",
@@ -2548,7 +2560,7 @@
      "cena": 140,
      "min": 40.0,
      "zl_min": 3.5,
-     "powod": "różne słowa: platk ucha / conch"
+     "powod": "różne słowa: platk ucha / 15 conch"
     },
     {
      "salon": "Ale_piercerka",
@@ -2570,7 +2582,7 @@
      "cena": 160,
      "min": 40.0,
      "zl_min": 4.0,
-     "powod": "różne słowa: platk ucha / tragus"
+     "powod": "różne słowa: platk ucha / 15 tragus"
     },
     {
      "salon": "Ale_piercerka",
@@ -2581,7 +2593,7 @@
      "cena": 140,
      "min": 40.0,
      "zl_min": 3.5,
-     "powod": "różne słowa: platk ucha / tragus"
+     "powod": "różne słowa: platk ucha / 15 tragus"
     },
     {
      "salon": "Ale_piercerka",
@@ -2614,7 +2626,7 @@
      "cena": 140,
      "min": 40.0,
      "zl_min": 3.5,
-     "powod": "różne słowa: platk ucha / flat"
+     "powod": "różne słowa: platk ucha / 15 flat"
     },
     {
      "salon": "Ale_piercerka",
@@ -2636,7 +2648,7 @@
      "cena": 140,
      "min": 40.0,
      "zl_min": 3.5,
-     "powod": "różne słowa: platk ucha / rook"
+     "powod": "różne słowa: platk ucha / 16 rook"
     },
     {
      "salon": "Ale_piercerka",
@@ -2647,7 +2659,7 @@
      "cena": 160,
      "min": 40.0,
      "zl_min": 4.0,
-     "powod": "różne słowa: platk ucha / rook"
+     "powod": "różne słowa: platk ucha / 16 rook"
     },
     {
      "salon": "Ale_piercerka",
@@ -2669,7 +2681,7 @@
      "cena": 170,
      "min": 40.0,
      "zl_min": 4.25,
-     "powod": "różne słowa: platk ucha / daith"
+     "powod": "różne słowa: platk ucha / 18 daith"
     },
     {
      "salon": "Ale_piercerka",
@@ -2691,7 +2703,7 @@
      "cena": 160,
      "min": 40.0,
      "zl_min": 4.0,
-     "powod": "różne słowa: platk ucha / septum"
+     "powod": "różne słowa: platk ucha / 14 septum"
     },
     {
      "salon": "Ale_piercerka",
@@ -2724,7 +2736,7 @@
      "cena": 140,
      "min": 40.0,
      "zl_min": 3.5,
-     "powod": "różne słowa: platk ucha / labret medus monr warg"
+     "powod": "różne słowa: platk ucha / 15 labret medus monr warg"
     },
     {
      "salon": "Ale_piercerka",
@@ -2735,7 +2747,7 @@
      "cena": 140,
      "min": 40.0,
      "zl_min": 3.5,
-     "powod": "różne słowa: platk ucha / ashl warg"
+     "powod": "różne słowa: platk ucha / 15 ashl warg"
     },
     {
      "salon": "Ale_piercerka",
@@ -2757,7 +2769,7 @@
      "cena": 160,
      "min": 40.0,
      "zl_min": 4.0,
-     "powod": "różne słowa: platk ucha / jezyk"
+     "powod": "różne słowa: platk ucha / 14 jezyk"
     },
     {
      "salon": "Ale_piercerka",
@@ -2768,7 +2780,7 @@
      "cena": 160,
      "min": 40.0,
      "zl_min": 4.0,
-     "powod": "różne słowa: platk ucha / brew"
+     "powod": "różne słowa: platk ucha / 15 brew"
     },
     {
      "salon": "Ale_piercerka",
@@ -2779,7 +2791,7 @@
      "cena": 140,
      "min": 40.0,
      "zl_min": 3.5,
-     "powod": "różne słowa: platk ucha / brew"
+     "powod": "różne słowa: platk ucha / 15 brew"
     },
     {
      "salon": "Ale_piercerka",
@@ -2790,7 +2802,7 @@
      "cena": 160,
      "min": 40.0,
      "zl_min": 4.0,
-     "powod": "różne słowa: platk ucha / pepk"
+     "powod": "różne słowa: platk ucha / 16 pepk"
     },
     {
      "salon": "Ale_piercerka",
@@ -2823,7 +2835,7 @@
      "cena": 160,
      "min": 40.0,
      "zl_min": 4.0,
-     "powod": "różne słowa: platk ucha / 1 sutek"
+     "powod": "różne słowa: platk ucha / 1 18 sutek"
     },
     {
      "salon": "Ale_piercerka",
@@ -2867,7 +2879,7 @@
      "cena": 310,
      "min": 45.0,
      "zl_min": 6.889,
-     "powod": "różne słowa: platk ucha / 2 kompozycj nowych zlozon"
+     "powod": "różne słowa: platk ucha / 2 kompozycj nowych uszy zlozon"
     },
     {
      "salon": "Miss Kitty Piercing",
@@ -2878,7 +2890,7 @@
      "cena": 420,
      "min": 60.0,
      "zl_min": 7.0,
-     "powod": "różne słowa: platk ucha / 3 kompozycj nowych zlozon"
+     "powod": "różne słowa: platk ucha / 3 kompozycj nowych uszy zlozon"
     },
     {
      "salon": "Pierce Me Up Now - Piercing Poznań",
@@ -3076,7 +3088,7 @@
      "cena": 160,
      "min": 45.0,
      "zl_min": 3.556,
-     "powod": "różne słowa: platk ucha / labret standard"
+     "powod": "różne słowa: platk ucha / labret standard warg"
     },
     {
      "salon": "Pierce Me Up Now - Piercing Poznań",
@@ -3131,7 +3143,7 @@
      "cena": 160,
      "min": 45.0,
      "zl_min": 3.556,
-     "powod": "różne słowa: platk ucha / tong web"
+     "powod": "różne słowa: platk ucha / tong warg web"
     },
     {
      "salon": "Pierce Me Up Now - Piercing Poznań",
@@ -3153,7 +3165,7 @@
      "cena": 600,
      "min": 90.0,
      "zl_min": 6.667,
-     "powod": "różne słowa: platk ucha / bites canin"
+     "powod": "różne słowa: platk ucha / bites canin warg"
     },
     {
      "salon": "Pierce Me Up Now - Piercing Poznań",
@@ -3186,7 +3198,7 @@
      "cena": 300,
      "min": 60.0,
      "zl_min": 5.0,
-     "powod": "różne słowa: platk ucha / mantis"
+     "powod": "różne słowa: platk ucha / mantis nosa"
     },
     {
      "salon": "Pierce Me Up Now - Piercing Poznań",
@@ -3264,17 +3276,6 @@
      "min": 45.0,
      "zl_min": 4.0,
      "powod": "różne słowa: platk ucha / bridg"
-    },
-    {
-     "salon": "Diana Piercing&Tatuaz",
-     "booksy_id": 270179,
-     "id_oferty": "54331378",
-     "nazwa": "Przekłucie ucha. Lobe",
-     "wariant": "",
-     "cena": 120,
-     "min": 30.0,
-     "zl_min": 4.0,
-     "powod": "różne słowa: platk / lobe"
     },
     {
      "salon": "Diana Piercing&Tatuaz",
@@ -3367,11 +3368,11 @@
    ],
    "min": 30.0,
    "ta_sama_stat": {
-    "n": 2,
-    "mediana": 140,
-    "p25": 133,
-    "p75": 174,
-    "rynkowa": 154,
+    "n": 4,
+    "mediana": 125,
+    "p25": 118,
+    "p75": 161,
+    "rynkowa": 135,
     "rynkowa_z": "zł/min × czas"
    },
    "podobne_stat": {
@@ -3390,7 +3391,19 @@
    "wariant": "",
    "cena": 150,
    "pozycja": "zabieg",
-   "ta_sama": [],
+   "ta_sama": [
+    {
+     "salon": "Pyotereq Piercing",
+     "booksy_id": 318388,
+     "id_oferty": "52487322",
+     "nazwa": "Symetryczne Brwi",
+     "wariant": "",
+     "cena": 250,
+     "min": 30.0,
+     "zl_min": 8.333,
+     "powod": "inna nazwa tego samego: „piercing symetryczn” / „przekluwan”"
+    }
+   ],
    "podobne": [
     {
      "salon": "Pimp My Holes",
@@ -3401,7 +3414,7 @@
      "cena": 100,
      "min": 30.0,
      "zl_min": 3.333,
-     "powod": "gdzie_ile: „brwi” tylko po jednej stronie"
+     "powod": "różne słowa: brwi / miesiac"
     },
     {
      "salon": "Pimp My Holes",
@@ -3434,7 +3447,7 @@
      "cena": 250,
      "min": 20.0,
      "zl_min": 12.5,
-     "powod": "różne słowa: brwi / 2 earlob piercing platk ucha x"
+     "powod": "różne słowa: brwi / 2 earlob piercing platk ucha uszu x"
     },
     {
      "salon": "Seven Sins TATTOO & Piercing",
@@ -3478,7 +3491,7 @@
      "cena": 150,
      "min": 20.0,
      "zl_min": 7.5,
-     "powod": "różne słowa: brwi / rook"
+     "powod": "różne słowa: brwi / piercing rook"
     },
     {
      "salon": "Seven Sins TATTOO & Piercing",
@@ -3511,7 +3524,7 @@
      "cena": 150,
      "min": 30.0,
      "zl_min": 5.0,
-     "powod": "różne słowa: brwi / snug"
+     "powod": "różne słowa: brwi / piercing snug"
     },
     {
      "salon": "Seven Sins TATTOO & Piercing",
@@ -3533,7 +3546,7 @@
      "cena": 160,
      "min": 30.0,
      "zl_min": 5.333,
-     "powod": "nazwa bez treści (combo / pakiet / premium) bez składu"
+     "powod": "różne słowa: brwi / navel pepk piercing standard"
     },
     {
      "salon": "safe.and.fancy_piercing_POZNAŃ",
@@ -3577,7 +3590,7 @@
      "cena": 130,
      "min": 40.0,
      "zl_min": 3.25,
-     "powod": "różne słowa: brwi / aleksandr platk ucha"
+     "powod": "różne słowa: brwi / 14 aleksandr platk ucha"
     },
     {
      "salon": "Ale_piercerka",
@@ -3588,7 +3601,7 @@
      "cena": 150,
      "min": 40.0,
      "zl_min": 3.75,
-     "powod": "różne słowa: brwi / platk ucha"
+     "powod": "różne słowa: brwi / 14 platk ucha"
     },
     {
      "salon": "Ale_piercerka",
@@ -3632,7 +3645,7 @@
      "cena": 160,
      "min": 40.0,
      "zl_min": 4.0,
-     "powod": "różne słowa: brwi / helix"
+     "powod": "różne słowa: brwi / 15 helix"
     },
     {
      "salon": "Ale_piercerka",
@@ -3643,7 +3656,7 @@
      "cena": 140,
      "min": 40.0,
      "zl_min": 3.5,
-     "powod": "różne słowa: brwi / conch"
+     "powod": "różne słowa: brwi / 15 conch"
     },
     {
      "salon": "Ale_piercerka",
@@ -3665,7 +3678,7 @@
      "cena": 160,
      "min": 40.0,
      "zl_min": 4.0,
-     "powod": "różne słowa: brwi / tragus"
+     "powod": "różne słowa: brwi / 15 tragus"
     },
     {
      "salon": "Ale_piercerka",
@@ -3676,7 +3689,7 @@
      "cena": 140,
      "min": 40.0,
      "zl_min": 3.5,
-     "powod": "różne słowa: brwi / tragus"
+     "powod": "różne słowa: brwi / 15 tragus"
     },
     {
      "salon": "Ale_piercerka",
@@ -3709,7 +3722,7 @@
      "cena": 140,
      "min": 40.0,
      "zl_min": 3.5,
-     "powod": "różne słowa: brwi / flat"
+     "powod": "różne słowa: brwi / 15 flat"
     },
     {
      "salon": "Ale_piercerka",
@@ -3731,7 +3744,7 @@
      "cena": 140,
      "min": 40.0,
      "zl_min": 3.5,
-     "powod": "różne słowa: brwi / rook"
+     "powod": "różne słowa: brwi / 16 rook"
     },
     {
      "salon": "Ale_piercerka",
@@ -3742,7 +3755,7 @@
      "cena": 160,
      "min": 40.0,
      "zl_min": 4.0,
-     "powod": "różne słowa: brwi / rook"
+     "powod": "różne słowa: brwi / 16 rook"
     },
     {
      "salon": "Ale_piercerka",
@@ -3764,7 +3777,7 @@
      "cena": 170,
      "min": 40.0,
      "zl_min": 4.25,
-     "powod": "różne słowa: brwi / daith"
+     "powod": "różne słowa: brwi / 18 daith"
     },
     {
      "salon": "Ale_piercerka",
@@ -3786,7 +3799,7 @@
      "cena": 160,
      "min": 40.0,
      "zl_min": 4.0,
-     "powod": "różne słowa: brwi / septum"
+     "powod": "różne słowa: brwi / 14 septum"
     },
     {
      "salon": "Ale_piercerka",
@@ -3819,7 +3832,7 @@
      "cena": 140,
      "min": 40.0,
      "zl_min": 3.5,
-     "powod": "różne słowa: brwi / labret medus monr warg"
+     "powod": "różne słowa: brwi / 15 labret medus monr warg"
     },
     {
      "salon": "Ale_piercerka",
@@ -3830,7 +3843,7 @@
      "cena": 140,
      "min": 40.0,
      "zl_min": 3.5,
-     "powod": "różne słowa: brwi / ashl warg"
+     "powod": "różne słowa: brwi / 15 ashl warg"
     },
     {
      "salon": "Ale_piercerka",
@@ -3852,7 +3865,7 @@
      "cena": 160,
      "min": 40.0,
      "zl_min": 4.0,
-     "powod": "różne słowa: brwi / jezyk"
+     "powod": "różne słowa: brwi / 14 jezyk"
     },
     {
      "salon": "Ale_piercerka",
@@ -3863,7 +3876,7 @@
      "cena": 160,
      "min": 40.0,
      "zl_min": 4.0,
-     "powod": "różne słowa: brwi / brew"
+     "powod": "różne słowa: brwi / 15 brew"
     },
     {
      "salon": "Ale_piercerka",
@@ -3874,7 +3887,7 @@
      "cena": 140,
      "min": 40.0,
      "zl_min": 3.5,
-     "powod": "różne słowa: brwi / brew"
+     "powod": "różne słowa: brwi / 15 brew"
     },
     {
      "salon": "Ale_piercerka",
@@ -3885,7 +3898,7 @@
      "cena": 160,
      "min": 40.0,
      "zl_min": 4.0,
-     "powod": "różne słowa: brwi / pepk"
+     "powod": "różne słowa: brwi / 16 pepk"
     },
     {
      "salon": "Ale_piercerka",
@@ -3918,7 +3931,7 @@
      "cena": 160,
      "min": 40.0,
      "zl_min": 4.0,
-     "powod": "różne słowa: brwi / 1 sutek"
+     "powod": "różne słowa: brwi / 1 18 sutek"
     },
     {
      "salon": "Ale_piercerka",
@@ -3962,7 +3975,7 @@
      "cena": 310,
      "min": 45.0,
      "zl_min": 6.889,
-     "powod": "różne słowa: brwi / 2 kompozycj nowych zlozon"
+     "powod": "różne słowa: brwi / 2 kompozycj nowych uszy zlozon"
     },
     {
      "salon": "Miss Kitty Piercing",
@@ -3973,7 +3986,7 @@
      "cena": 420,
      "min": 60.0,
      "zl_min": 7.0,
-     "powod": "różne słowa: brwi / 3 kompozycj nowych zlozon"
+     "powod": "różne słowa: brwi / 3 kompozycj nowych uszy zlozon"
     },
     {
      "salon": "Pierce Me Up Now - Piercing Poznań",
@@ -4171,7 +4184,7 @@
      "cena": 160,
      "min": 45.0,
      "zl_min": 3.556,
-     "powod": "różne słowa: brwi / labret standard"
+     "powod": "różne słowa: brwi / labret standard warg"
     },
     {
      "salon": "Pierce Me Up Now - Piercing Poznań",
@@ -4226,7 +4239,7 @@
      "cena": 160,
      "min": 45.0,
      "zl_min": 3.556,
-     "powod": "różne słowa: brwi / tong web"
+     "powod": "różne słowa: brwi / tong warg web"
     },
     {
      "salon": "Pierce Me Up Now - Piercing Poznań",
@@ -4248,7 +4261,7 @@
      "cena": 600,
      "min": 90.0,
      "zl_min": 6.667,
-     "powod": "różne słowa: brwi / bites canin"
+     "powod": "różne słowa: brwi / bites canin warg"
     },
     {
      "salon": "Pierce Me Up Now - Piercing Poznań",
@@ -4281,7 +4294,7 @@
      "cena": 300,
      "min": 60.0,
      "zl_min": 5.0,
-     "powod": "różne słowa: brwi / mantis"
+     "powod": "różne słowa: brwi / mantis nosa"
     },
     {
      "salon": "Pierce Me Up Now - Piercing Poznań",
@@ -4462,7 +4475,12 @@
    ],
    "min": 30.0,
    "ta_sama_stat": {
-    "n": 0
+    "n": 1,
+    "mediana": 250,
+    "p25": 250,
+    "p75": 250,
+    "rynkowa": 250,
+    "rynkowa_z": "zł/min × czas"
    },
    "podobne_stat": {
     "n": 8,
@@ -4512,7 +4530,7 @@
      "cena": 130,
      "min": 30.0,
      "zl_min": 4.333,
-     "powod": "równe podpisy"
+     "powod": "dopisek nie zmienia usługi: 15 od roku zyci"
     },
     {
      "salon": "Pierce Me Up Now - Piercing Poznań",
@@ -4524,6 +4542,17 @@
      "min": 30.0,
      "zl_min": 4.667,
      "powod": "dopisek nie zmienia usługi: 1 x"
+    },
+    {
+     "salon": "Diana Piercing&Tatuaz",
+     "booksy_id": 270179,
+     "id_oferty": "54331381",
+     "nazwa": "Przekłucie ucha. Helix",
+     "wariant": "",
+     "cena": 150,
+     "min": 30.0,
+     "zl_min": 5.0,
+     "powod": "inna nazwa tego samego: „piercing” / „przekluwan ucha”"
     }
    ],
    "podobne": [
@@ -4679,7 +4708,7 @@
      "cena": 320,
      "min": 35.0,
      "zl_min": 9.143,
-     "powod": "różne słowa: helix / mantis"
+     "powod": "różne słowa: helix / mantis nosa"
     },
     {
      "salon": "Seven Sins TATTOO & Piercing",
@@ -4690,7 +4719,7 @@
      "cena": 150,
      "min": 30.0,
      "zl_min": 5.0,
-     "powod": "różne słowa: helix / monr"
+     "powod": "różne słowa: helix / monr warg"
     },
     {
      "salon": "Seven Sins TATTOO & Piercing",
@@ -4712,7 +4741,7 @@
      "cena": 300,
      "min": 30.0,
      "zl_min": 10.0,
-     "powod": "różne słowa: helix / bites snak"
+     "powod": "różne słowa: helix / bites snak warg"
     },
     {
      "salon": "Seven Sins TATTOO & Piercing",
@@ -4899,7 +4928,7 @@
      "cena": 180,
      "min": 45.0,
      "zl_min": 4.0,
-     "powod": "różne słowa: helix / industrial"
+     "powod": "różne słowa: helix / industrial uszy"
     },
     {
      "salon": "Tuż Tusz Tattoo & Piercing Poznań",
@@ -4921,7 +4950,7 @@
      "cena": 180,
      "min": 45.0,
      "zl_min": 4.0,
-     "powod": "różne słowa: helix / ufo"
+     "powod": "różne słowa: helix / ufo uszy"
     },
     {
      "salon": "Tuż Tusz Tattoo & Piercing Poznań",
@@ -4976,7 +5005,7 @@
      "cena": 160,
      "min": 30.0,
      "zl_min": 5.333,
-     "powod": "różne słowa: helix / madonn medus monr"
+     "powod": "różne słowa: helix / madonn medus monr ust"
     },
     {
      "salon": "Tuż Tusz Tattoo & Piercing Poznań",
@@ -5009,7 +5038,7 @@
      "cena": 170,
      "min": 30.0,
      "zl_min": 5.667,
-     "powod": "różne słowa: helix / navel revers"
+     "powod": "różne słowa: helix / cial navel revers"
     },
     {
      "salon": "Tuż Tusz Tattoo & Piercing Poznań",
@@ -5097,7 +5126,7 @@
      "cena": 140,
      "min": 30.0,
      "zl_min": 4.667,
-     "powod": "różne słowa: helix / antitragus tragus"
+     "powod": "różne słowa: helix / 15 antitragus lat od tragus"
     },
     {
      "salon": "safe.and.fancy_piercing_POZNAŃ",
@@ -5130,7 +5159,7 @@
      "cena": 160,
      "min": 45.0,
      "zl_min": 3.556,
-     "powod": "różne słowa: helix / orbital"
+     "powod": "różne słowa: helix / 16 lat od orbital"
     },
     {
      "salon": "safe.and.fancy_piercing_POZNAŃ",
@@ -5141,7 +5170,7 @@
      "cena": 160,
      "min": 40.0,
      "zl_min": 4.0,
-     "powod": "różne słowa: helix / bridg"
+     "powod": "różne słowa: helix / bridg od"
     },
     {
      "salon": "safe.and.fancy_piercing_POZNAŃ",
@@ -5152,7 +5181,7 @@
      "cena": 140,
      "min": 30.0,
      "zl_min": 4.667,
-     "powod": "różne słowa: helix / brew pojedyncz przekluwan"
+     "powod": "różne słowa: helix / 15lat brew od pojedyncz przekluwan"
     },
     {
      "salon": "safe.and.fancy_piercing_POZNAŃ",
@@ -5174,7 +5203,7 @@
      "cena": 160,
      "min": 30.0,
      "zl_min": 5.333,
-     "powod": "różne słowa: helix / septum"
+     "powod": "różne słowa: helix / 15lat od septum"
     },
     {
      "salon": "safe.and.fancy_piercing_POZNAŃ",
@@ -5185,7 +5214,7 @@
      "cena": 160,
      "min": 30.0,
      "zl_min": 5.333,
-     "powod": "różne słowa: helix / jezyk"
+     "powod": "różne słowa: helix / 15lat jezyk od"
     },
     {
      "salon": "safe.and.fancy_piercing_POZNAŃ",
@@ -5207,7 +5236,7 @@
      "cena": 140,
      "min": 30.0,
      "zl_min": 4.667,
-     "powod": "różne słowa: helix / jestrum labret vertical"
+     "powod": "różne słowa: helix / 15lat jestrum labret od vertical"
     },
     {
      "salon": "safe.and.fancy_piercing_POZNAŃ",
@@ -5218,7 +5247,7 @@
      "cena": 270,
      "min": 45.0,
      "zl_min": 6.0,
-     "powod": "różne słowa: helix / 15 angel fangs lat od"
+     "powod": "różne słowa: helix / 15 angel fangs lat od ust"
     },
     {
      "salon": "safe.and.fancy_piercing_POZNAŃ",
@@ -5229,7 +5258,7 @@
      "cena": 180,
      "min": 30.0,
      "zl_min": 6.0,
-     "powod": "różne słowa: helix / jedn przekluwan sutk"
+     "powod": "różne słowa: helix / 18 jedn lat od przekluwan sutk"
     },
     {
      "salon": "safe.and.fancy_piercing_POZNAŃ",
@@ -5284,7 +5313,7 @@
      "cena": 150,
      "min": 30.0,
      "zl_min": 5.0,
-     "powod": "różne słowa: helix / bites snak"
+     "powod": "różne słowa: helix / 15 bites od roku snak zyci"
     },
     {
      "salon": "Tattoo Mucha Studio - Matt Piercer",
@@ -5317,7 +5346,7 @@
      "cena": 130,
      "min": 30.0,
      "zl_min": 4.333,
-     "powod": "różne słowa: helix / conch"
+     "powod": "różne słowa: helix / 15 conch od roku zyci"
     },
     {
      "salon": "Tattoo Mucha Studio - Matt Piercer",
@@ -5328,7 +5357,7 @@
      "cena": 130,
      "min": 30.0,
      "zl_min": 4.333,
-     "powod": "różne słowa: helix / daith"
+     "powod": "różne słowa: helix / 15 daith od roku zyci"
     },
     {
      "salon": "Tattoo Mucha Studio - Matt Piercer",
@@ -5350,7 +5379,7 @@
      "cena": 130,
      "min": 30.0,
      "zl_min": 4.333,
-     "powod": "różne słowa: helix / rook"
+     "powod": "różne słowa: helix / 15 od roku rook zyci"
     },
     {
      "salon": "Tattoo Mucha Studio - Matt Piercer",
@@ -5361,7 +5390,7 @@
      "cena": 150,
      "min": 30.0,
      "zl_min": 5.0,
-     "powod": "różne słowa: helix / 2 angel fangs x"
+     "powod": "różne słowa: helix / 15 2 angel fangs od roku x zyci"
     },
     {
      "salon": "Tattoo Mucha Studio - Matt Piercer",
@@ -5383,7 +5412,7 @@
      "cena": 150,
      "min": 30.0,
      "zl_min": 5.0,
-     "powod": "różne słowa: helix / jezyk"
+     "powod": "różne słowa: helix / 15 jezyk od roku zyci"
     },
     {
      "salon": "Tattoo Mucha Studio - Matt Piercer",
@@ -5680,7 +5709,7 @@
      "cena": 480,
      "min": 30.0,
      "zl_min": 16.0,
-     "powod": "różne słowa: helix / jezyk podwojn"
+     "powod": "różne słowa: helix / jezyk podwojn przekluwan venom"
     },
     {
      "salon": "Pyotereq Piercing",
@@ -5801,7 +5830,7 @@
      "cena": 130,
      "min": 30.0,
      "zl_min": 4.333,
-     "powod": "różne słowa: helix / daith"
+     "powod": "różne słowa: helix / daith ucho"
     },
     {
      "salon": "Pyotereq Piercing",
@@ -5812,7 +5841,7 @@
      "cena": 140,
      "min": 30.0,
      "zl_min": 4.667,
-     "powod": "różne słowa: helix / industrial"
+     "powod": "różne słowa: helix / industrial ucho"
     },
     {
      "salon": "Pyotereq Piercing",
@@ -5856,7 +5885,7 @@
      "cena": 250,
      "min": 30.0,
      "zl_min": 8.333,
-     "powod": "różne słowa: helix / brwi"
+     "powod": "różne słowa: helix / brwi symetryczn"
     },
     {
      "salon": "Pyotereq Piercing",
@@ -6076,7 +6105,7 @@
      "cena": 140,
      "min": 50.0,
      "zl_min": 2.8,
-     "powod": "różne słowa: helix / septum"
+     "powod": "różne słowa: helix / septum twarz"
     },
     {
      "salon": "Inkora",
@@ -6153,7 +6182,7 @@
      "cena": 200,
      "min": 40.0,
      "zl_min": 5.0,
-     "powod": "różne słowa: helix / damsk hch intymn"
+     "powod": "różne słowa: helix / 18 damsk hch intymn"
     },
     {
      "salon": "Ale_piercerka",
@@ -6175,7 +6204,7 @@
      "cena": 180,
      "min": 40.0,
      "zl_min": 4.5,
-     "powod": "różne słowa: helix / christin damsk intymn"
+     "powod": "różne słowa: helix / 18 christin damsk intymn"
     },
     {
      "salon": "Ale_piercerka",
@@ -6186,7 +6215,7 @@
      "cena": 200,
      "min": 40.0,
      "zl_min": 5.0,
-     "powod": "różne słowa: helix / christin damsk intymn"
+     "powod": "różne słowa: helix / 18 christin damsk intymn"
     },
     {
      "salon": "Ale_piercerka",
@@ -6197,7 +6226,7 @@
      "cena": 180,
      "min": 40.0,
      "zl_min": 4.5,
-     "powod": "różne słowa: helix / frenum intymn mesk"
+     "powod": "różne słowa: helix / 18 frenum intymn mesk"
     },
     {
      "salon": "Ale_piercerka",
@@ -6318,7 +6347,7 @@
      "cena": 180,
      "min": 45.0,
      "zl_min": 4.0,
-     "powod": "różne słowa: helix / ufo"
+     "powod": "różne słowa: helix / ufo uszy"
     },
     {
      "salon": "Miss Kitty Piercing",
@@ -6395,7 +6424,7 @@
      "cena": 320,
      "min": 45.0,
      "zl_min": 7.111,
-     "powod": "różne słowa: helix / bites snak"
+     "powod": "różne słowa: helix / bites snak ust"
     },
     {
      "salon": "Miss Kitty Piercing",
@@ -6417,7 +6446,7 @@
      "cena": 320,
      "min": 45.0,
      "zl_min": 7.111,
-     "powod": "różne słowa: helix / angel fangs"
+     "powod": "różne słowa: helix / angel fangs ust"
     },
     {
      "salon": "Miss Kitty Piercing",
@@ -6439,7 +6468,7 @@
      "cena": 320,
      "min": 45.0,
      "zl_min": 7.111,
-     "powod": "różne słowa: helix / angel bites"
+     "powod": "różne słowa: helix / angel bites ust"
     },
     {
      "salon": "Miss Kitty Piercing",
@@ -6461,7 +6490,7 @@
      "cena": 500,
      "min": 45.0,
      "zl_min": 11.111,
-     "powod": "różne słowa: helix / bites shark"
+     "powod": "różne słowa: helix / bites shark ust"
     },
     {
      "salon": "Miss Kitty Piercing",
@@ -6692,7 +6721,7 @@
      "cena": 230,
      "min": 30.0,
      "zl_min": 7.667,
-     "powod": "różne słowa: helix / 2 lobe upper x"
+     "powod": "różne słowa: helix / 2 lobe u upper x"
     },
     {
      "salon": "Pierce Me Up Now - Piercing Poznań",
@@ -6703,7 +6732,7 @@
      "cena": 140,
      "min": 30.0,
      "zl_min": 4.667,
-     "powod": "różne słowa: helix / conch"
+     "powod": "różne słowa: helix / conch u"
     },
     {
      "salon": "Pierce Me Up Now - Piercing Poznań",
@@ -6714,7 +6743,7 @@
      "cena": 140,
      "min": 30.0,
      "zl_min": 4.667,
-     "powod": "różne słowa: helix / tragus"
+     "powod": "różne słowa: helix / tragus u"
     },
     {
      "salon": "Diana Piercing&Tatuaz",
@@ -6752,10 +6781,10 @@
    ],
    "min": 30.0,
    "ta_sama_stat": {
-    "n": 4,
-    "mediana": 145,
-    "p25": 138,
-    "p75": 176,
+    "n": 5,
+    "mediana": 150,
+    "p25": 140,
+    "p75": 160,
     "rynkowa": 150,
     "rynkowa_z": "zł/min × czas"
    },
@@ -6785,18 +6814,7 @@
      "cena": 160,
      "min": 30.0,
      "zl_min": 5.333,
-     "powod": "dopisek nie zmienia usługi: zwykl | piercing"
-    },
-    {
-     "salon": "Tuż Tusz Tattoo & Piercing Poznań",
-     "booksy_id": 16738,
-     "id_oferty": "48817331",
-     "nazwa": "Industrial",
-     "wariant": "",
-     "cena": 180,
-     "min": 45.0,
-     "zl_min": 4.0,
-     "powod": "dopisek nie zmienia usługi: piercing"
+     "powod": "dopisek nie zmienia usługi: zwykl | uszu | piercing"
     },
     {
      "salon": "safe.and.fancy_piercing_POZNAŃ",
@@ -6810,28 +6828,6 @@
      "powod": "dopisek nie zmienia usługi: piercing | 16 lat od"
     },
     {
-     "salon": "Poznań Piercing @poznanpiercing poznanpiercing",
-     "booksy_id": 224089,
-     "id_oferty": "48819399",
-     "nazwa": "INDUSTRIAL",
-     "wariant": "",
-     "cena": 220,
-     "min": 30.0,
-     "zl_min": 7.333,
-     "powod": "równe podpisy"
-    },
-    {
-     "salon": "Pyotereq Piercing",
-     "booksy_id": 318388,
-     "id_oferty": "52487317",
-     "nazwa": "Industrial",
-     "wariant": "",
-     "cena": 140,
-     "min": 30.0,
-     "zl_min": 4.667,
-     "powod": "dopisek nie zmienia usługi: piercing"
-    },
-    {
      "salon": "Inkora",
      "booksy_id": 339705,
      "id_oferty": "52488649",
@@ -6841,31 +6837,20 @@
      "min": 50.0,
      "zl_min": 3.0,
      "powod": "dopisek nie zmienia usługi: piercing"
-    },
-    {
-     "salon": "Miss Kitty Piercing",
-     "booksy_id": 345355,
-     "id_oferty": "52602049",
-     "nazwa": "Industrial",
-     "wariant": "",
-     "cena": 180,
-     "min": 45.0,
-     "zl_min": 4.0,
-     "powod": "równe podpisy"
-    },
-    {
-     "salon": "Pierce Me Up Now - Piercing Poznań",
-     "booksy_id": 93074,
-     "id_oferty": "54330380#0",
-     "nazwa": "Industrial",
-     "wariant": "Industrial",
-     "cena": 180,
-     "min": 30.0,
-     "zl_min": 6.0,
-     "powod": "równe podpisy"
     }
    ],
    "podobne": [
+    {
+     "salon": "Poznań Piercing @poznanpiercing poznanpiercing",
+     "booksy_id": 224089,
+     "id_oferty": "48819399",
+     "nazwa": "INDUSTRIAL",
+     "wariant": "",
+     "cena": 220,
+     "min": 30.0,
+     "zl_min": 7.333,
+     "powod": "gdzie_ile: „ucho” tylko po jednej stronie"
+    },
     {
      "salon": "Ale_piercerka",
      "booksy_id": 186908,
@@ -6875,7 +6860,7 @@
      "cena": 180,
      "min": 50.0,
      "zl_min": 3.6,
-     "powod": "gdzie_ile: „18” tylko po jednej stronie"
+     "powod": "gdzie_ile: „18 uszu” tylko po jednej stronie"
     },
     {
      "salon": "Ale_piercerka",
@@ -6886,7 +6871,29 @@
      "cena": 160,
      "min": 50.0,
      "zl_min": 3.2,
-     "powod": "gdzie_ile: „18” tylko po jednej stronie"
+     "powod": "gdzie_ile: „18 uszu” tylko po jednej stronie"
+    },
+    {
+     "salon": "Miss Kitty Piercing",
+     "booksy_id": 345355,
+     "id_oferty": "52602049",
+     "nazwa": "Industrial",
+     "wariant": "",
+     "cena": 180,
+     "min": 45.0,
+     "zl_min": 4.0,
+     "powod": "gdzie_ile: „uszy” tylko po jednej stronie"
+    },
+    {
+     "salon": "Pierce Me Up Now - Piercing Poznań",
+     "booksy_id": 93074,
+     "id_oferty": "54330380#0",
+     "nazwa": "Industrial",
+     "wariant": "Industrial",
+     "cena": 180,
+     "min": 30.0,
+     "zl_min": 6.0,
+     "powod": "gdzie_ile: „ucha” tylko po jednej stronie"
     },
     {
      "salon": "Pierce Me Up Now - Piercing Poznań",
@@ -6897,24 +6904,24 @@
      "cena": 310,
      "min": 45.0,
      "zl_min": 6.889,
-     "powod": "inne: „laman” tylko po jednej stronie"
+     "powod": "gdzie_ile: „ucha” tylko po jednej stronie"
     }
    ],
    "min": 30.0,
    "ta_sama_stat": {
-    "n": 8,
-    "mediana": 170,
-    "p25": 120,
-    "p75": 165,
-    "rynkowa": 130,
+    "n": 3,
+    "mediana": 160,
+    "p25": 105,
+    "p75": 140,
+    "rynkowa": 120,
     "rynkowa_z": "zł/min × czas"
    },
    "podobne_stat": {
-    "n": 2,
-    "mediana": 240,
-    "p25": 128,
-    "p75": 181,
-    "rynkowa": 154,
+    "n": 4,
+    "mediana": 200,
+    "p25": 116,
+    "p75": 200,
+    "rynkowa": 157,
     "rynkowa_z": "zł/min × czas"
    }
   },
@@ -6925,7 +6932,19 @@
    "wariant": "",
    "cena": 155,
    "pozycja": "zabieg",
-   "ta_sama": [],
+   "ta_sama": [
+    {
+     "salon": "Pierce Me Up Now - Piercing Poznań",
+     "booksy_id": 93074,
+     "id_oferty": "54330393",
+     "nazwa": "Standard labret",
+     "wariant": "",
+     "cena": 160,
+     "min": 45.0,
+     "zl_min": 3.556,
+     "powod": "dopisek nie zmienia usługi: labret standard"
+    }
+   ],
    "podobne": [
     {
      "salon": "Pimp My Holes",
@@ -6936,7 +6955,7 @@
      "cena": 100,
      "min": 30.0,
      "zl_min": 3.333,
-     "powod": "gdzie_ile: „warg” tylko po jednej stronie"
+     "powod": "różne słowa: warg / miesiac"
     },
     {
      "salon": "Pimp My Holes",
@@ -6969,7 +6988,7 @@
      "cena": 250,
      "min": 20.0,
      "zl_min": 12.5,
-     "powod": "różne słowa: warg / 2 earlob piercing platk ucha x"
+     "powod": "różne słowa: warg / 2 earlob piercing platk ucha uszu x"
     },
     {
      "salon": "Seven Sins TATTOO & Piercing",
@@ -7013,7 +7032,7 @@
      "cena": 150,
      "min": 20.0,
      "zl_min": 7.5,
-     "powod": "różne słowa: warg / rook"
+     "powod": "różne słowa: warg / piercing rook"
     },
     {
      "salon": "Seven Sins TATTOO & Piercing",
@@ -7046,7 +7065,7 @@
      "cena": 150,
      "min": 30.0,
      "zl_min": 5.0,
-     "powod": "różne słowa: warg / snug"
+     "powod": "różne słowa: warg / piercing snug"
     },
     {
      "salon": "Seven Sins TATTOO & Piercing",
@@ -7068,7 +7087,7 @@
      "cena": 160,
      "min": 30.0,
      "zl_min": 5.333,
-     "powod": "nazwa bez treści (combo / pakiet / premium) bez składu"
+     "powod": "różne słowa: warg / navel pepk piercing standard"
     },
     {
      "salon": "safe.and.fancy_piercing_POZNAŃ",
@@ -7112,7 +7131,7 @@
      "cena": 130,
      "min": 40.0,
      "zl_min": 3.25,
-     "powod": "różne słowa: warg / aleksandr platk ucha"
+     "powod": "różne słowa: warg / 14 aleksandr platk ucha"
     },
     {
      "salon": "Ale_piercerka",
@@ -7123,7 +7142,7 @@
      "cena": 150,
      "min": 40.0,
      "zl_min": 3.75,
-     "powod": "różne słowa: warg / platk ucha"
+     "powod": "różne słowa: warg / 14 platk ucha"
     },
     {
      "salon": "Ale_piercerka",
@@ -7167,7 +7186,7 @@
      "cena": 160,
      "min": 40.0,
      "zl_min": 4.0,
-     "powod": "różne słowa: warg / helix"
+     "powod": "różne słowa: warg / 15 helix"
     },
     {
      "salon": "Ale_piercerka",
@@ -7178,7 +7197,7 @@
      "cena": 140,
      "min": 40.0,
      "zl_min": 3.5,
-     "powod": "różne słowa: warg / conch"
+     "powod": "różne słowa: warg / 15 conch"
     },
     {
      "salon": "Ale_piercerka",
@@ -7200,7 +7219,7 @@
      "cena": 160,
      "min": 40.0,
      "zl_min": 4.0,
-     "powod": "różne słowa: warg / tragus"
+     "powod": "różne słowa: warg / 15 tragus"
     },
     {
      "salon": "Ale_piercerka",
@@ -7211,7 +7230,7 @@
      "cena": 140,
      "min": 40.0,
      "zl_min": 3.5,
-     "powod": "różne słowa: warg / tragus"
+     "powod": "różne słowa: warg / 15 tragus"
     },
     {
      "salon": "Ale_piercerka",
@@ -7244,7 +7263,7 @@
      "cena": 140,
      "min": 40.0,
      "zl_min": 3.5,
-     "powod": "różne słowa: warg / flat"
+     "powod": "różne słowa: warg / 15 flat"
     },
     {
      "salon": "Ale_piercerka",
@@ -7266,7 +7285,7 @@
      "cena": 140,
      "min": 40.0,
      "zl_min": 3.5,
-     "powod": "różne słowa: warg / rook"
+     "powod": "różne słowa: warg / 16 rook"
     },
     {
      "salon": "Ale_piercerka",
@@ -7277,7 +7296,7 @@
      "cena": 160,
      "min": 40.0,
      "zl_min": 4.0,
-     "powod": "różne słowa: warg / rook"
+     "powod": "różne słowa: warg / 16 rook"
     },
     {
      "salon": "Ale_piercerka",
@@ -7299,7 +7318,7 @@
      "cena": 170,
      "min": 40.0,
      "zl_min": 4.25,
-     "powod": "różne słowa: warg / daith"
+     "powod": "różne słowa: warg / 18 daith"
     },
     {
      "salon": "Ale_piercerka",
@@ -7321,7 +7340,7 @@
      "cena": 160,
      "min": 40.0,
      "zl_min": 4.0,
-     "powod": "różne słowa: warg / septum"
+     "powod": "różne słowa: warg / 14 septum"
     },
     {
      "salon": "Ale_piercerka",
@@ -7354,7 +7373,7 @@
      "cena": 140,
      "min": 40.0,
      "zl_min": 3.5,
-     "powod": "inne: „labret medus monr” tylko po jednej stronie"
+     "powod": "inne: „15 labret medus monr” tylko po jednej stronie"
     },
     {
      "salon": "Ale_piercerka",
@@ -7365,7 +7384,7 @@
      "cena": 140,
      "min": 40.0,
      "zl_min": 3.5,
-     "powod": "inne: „ashl” tylko po jednej stronie"
+     "powod": "inne: „15 ashl” tylko po jednej stronie"
     },
     {
      "salon": "Ale_piercerka",
@@ -7387,7 +7406,7 @@
      "cena": 160,
      "min": 40.0,
      "zl_min": 4.0,
-     "powod": "różne słowa: warg / jezyk"
+     "powod": "różne słowa: warg / 14 jezyk"
     },
     {
      "salon": "Ale_piercerka",
@@ -7398,7 +7417,7 @@
      "cena": 160,
      "min": 40.0,
      "zl_min": 4.0,
-     "powod": "różne słowa: warg / brew"
+     "powod": "różne słowa: warg / 15 brew"
     },
     {
      "salon": "Ale_piercerka",
@@ -7409,7 +7428,7 @@
      "cena": 140,
      "min": 40.0,
      "zl_min": 3.5,
-     "powod": "różne słowa: warg / brew"
+     "powod": "różne słowa: warg / 15 brew"
     },
     {
      "salon": "Ale_piercerka",
@@ -7420,7 +7439,7 @@
      "cena": 160,
      "min": 40.0,
      "zl_min": 4.0,
-     "powod": "różne słowa: warg / pepk"
+     "powod": "różne słowa: warg / 16 pepk"
     },
     {
      "salon": "Ale_piercerka",
@@ -7453,7 +7472,7 @@
      "cena": 160,
      "min": 40.0,
      "zl_min": 4.0,
-     "powod": "różne słowa: warg / 1 sutek"
+     "powod": "różne słowa: warg / 1 18 sutek"
     },
     {
      "salon": "Ale_piercerka",
@@ -7497,7 +7516,7 @@
      "cena": 310,
      "min": 45.0,
      "zl_min": 6.889,
-     "powod": "różne słowa: warg / 2 kompozycj nowych zlozon"
+     "powod": "różne słowa: warg / 2 kompozycj nowych uszy zlozon"
     },
     {
      "salon": "Miss Kitty Piercing",
@@ -7508,7 +7527,7 @@
      "cena": 420,
      "min": 60.0,
      "zl_min": 7.0,
-     "powod": "różne słowa: warg / 3 kompozycj nowych zlozon"
+     "powod": "różne słowa: warg / 3 kompozycj nowych uszy zlozon"
     },
     {
      "salon": "Pierce Me Up Now - Piercing Poznań",
@@ -7700,17 +7719,6 @@
     {
      "salon": "Pierce Me Up Now - Piercing Poznań",
      "booksy_id": 93074,
-     "id_oferty": "54330393",
-     "nazwa": "Standard labret",
-     "wariant": "",
-     "cena": 160,
-     "min": 45.0,
-     "zl_min": 3.556,
-     "powod": "różne słowa: warg / labret standard"
-    },
-    {
-     "salon": "Pierce Me Up Now - Piercing Poznań",
-     "booksy_id": 93074,
      "id_oferty": "54330395",
      "nazwa": "Medusa",
      "wariant": "",
@@ -7761,7 +7769,7 @@
      "cena": 160,
      "min": 45.0,
      "zl_min": 3.556,
-     "powod": "różne słowa: warg / tong web"
+     "powod": "inne: „tong web” tylko po jednej stronie"
     },
     {
      "salon": "Pierce Me Up Now - Piercing Poznań",
@@ -7783,7 +7791,7 @@
      "cena": 600,
      "min": 90.0,
      "zl_min": 6.667,
-     "powod": "różne słowa: warg / bites canin"
+     "powod": "inne: „bites canin” tylko po jednej stronie"
     },
     {
      "salon": "Pierce Me Up Now - Piercing Poznań",
@@ -7816,7 +7824,7 @@
      "cena": 300,
      "min": 60.0,
      "zl_min": 5.0,
-     "powod": "różne słowa: warg / mantis"
+     "powod": "różne słowa: warg / mantis nosa"
     },
     {
      "salon": "Pierce Me Up Now - Piercing Poznań",
@@ -7997,7 +8005,12 @@
    ],
    "min": 30.0,
    "ta_sama_stat": {
-    "n": 0
+    "n": 1,
+    "mediana": 160,
+    "p25": 107,
+    "p75": 107,
+    "rynkowa": 107,
+    "rynkowa_z": "zł/min × czas"
    },
    "podobne_stat": {
     "n": 8,
@@ -8028,39 +8041,6 @@
      "powod": "równe podpisy"
     },
     {
-     "salon": "Tuż Tusz Tattoo & Piercing Poznań",
-     "booksy_id": 16738,
-     "id_oferty": "48817347",
-     "nazwa": "Microdermal",
-     "wariant": "",
-     "cena": 180,
-     "min": 45.0,
-     "zl_min": 4.0,
-     "powod": "równe podpisy"
-    },
-    {
-     "salon": "Ale_piercerka",
-     "booksy_id": 186908,
-     "id_oferty": "52489271#1",
-     "nazwa": "Microdermal | 18+",
-     "wariant": "Aleksandra",
-     "cena": 150,
-     "min": 40.0,
-     "zl_min": 3.75,
-     "powod": "równe podpisy"
-    },
-    {
-     "salon": "Miss Kitty Piercing",
-     "booksy_id": 345355,
-     "id_oferty": "52602076",
-     "nazwa": "Microdermal",
-     "wariant": "",
-     "cena": 200,
-     "min": 45.0,
-     "zl_min": 4.444,
-     "powod": "równe podpisy"
-    },
-    {
      "salon": "DACHU STUDIO",
      "booksy_id": 288798,
      "id_oferty": "54329754",
@@ -8080,10 +8060,21 @@
      "cena": 200,
      "min": 45.0,
      "zl_min": 4.444,
-     "powod": "dopisek nie zmienia usługi: 1"
+     "powod": "dopisek nie zmienia usługi: 1 pozostal"
     }
    ],
    "podobne": [
+    {
+     "salon": "Tuż Tusz Tattoo & Piercing Poznań",
+     "booksy_id": 16738,
+     "id_oferty": "48817347",
+     "nazwa": "Microdermal",
+     "wariant": "",
+     "cena": 180,
+     "min": 45.0,
+     "zl_min": 4.0,
+     "powod": "gdzie_ile: „cial” tylko po jednej stronie"
+    },
     {
      "salon": "safe.and.fancy_piercing_POZNAŃ",
      "booksy_id": 226682,
@@ -8093,7 +8084,7 @@
      "cena": 160,
      "min": 30.0,
      "zl_min": 5.333,
-     "powod": "gdzie_ile: „18lat” tylko po jednej stronie"
+     "powod": "gdzie_ile: „18lat cial” tylko po jednej stronie"
     },
     {
      "salon": "Poznań Piercing @poznanpiercing poznanpiercing",
@@ -8115,7 +8106,7 @@
      "cena": 250,
      "min": 20.0,
      "zl_min": 12.5,
-     "powod": "etap: „nowy” tylko po jednej stronie"
+     "powod": "gdzie_ile: „cial” tylko po jednej stronie"
     },
     {
      "salon": "Ale_piercerka",
@@ -8129,6 +8120,28 @@
      "powod": "inne: „leo” tylko po jednej stronie"
     },
     {
+     "salon": "Ale_piercerka",
+     "booksy_id": 186908,
+     "id_oferty": "52489271#1",
+     "nazwa": "Microdermal | 18+",
+     "wariant": "Aleksandra",
+     "cena": 150,
+     "min": 40.0,
+     "zl_min": 3.75,
+     "powod": "gdzie_ile: „cial” tylko po jednej stronie"
+    },
+    {
+     "salon": "Miss Kitty Piercing",
+     "booksy_id": 345355,
+     "id_oferty": "52602076",
+     "nazwa": "Microdermal",
+     "wariant": "",
+     "cena": 200,
+     "min": 45.0,
+     "zl_min": 4.444,
+     "powod": "gdzie_ile: „cial” tylko po jednej stronie"
+    },
+    {
      "salon": "Pierce Me Up Now - Piercing Poznań",
      "booksy_id": 93074,
      "id_oferty": "54330417#0",
@@ -8137,24 +8150,24 @@
      "cena": 390,
      "min": 45.0,
      "zl_min": 8.667,
-     "powod": "gdzie_ile: „2” tylko po jednej stronie"
+     "powod": "gdzie_ile: „2 pozostal” tylko po jednej stronie"
     }
    ],
    "min": 30.0,
    "ta_sama_stat": {
-    "n": 6,
-    "mediana": 190,
-    "p25": 123,
-    "p75": 146,
-    "rynkowa": 133,
+    "n": 3,
+    "mediana": 200,
+    "p25": 142,
+    "p75": 175,
+    "rynkowa": 150,
     "rynkowa_z": "zł/min × czas"
    },
    "podobne_stat": {
-    "n": 4,
-    "mediana": 222,
-    "p25": 152,
-    "p75": 298,
-    "rynkowa": 210,
+    "n": 6,
+    "mediana": 190,
+    "p25": 123,
+    "p75": 235,
+    "rynkowa": 147,
     "rynkowa_z": "zł/min × czas"
    }
   },
@@ -8167,26 +8180,37 @@
    "pozycja": "zabieg",
    "ta_sama": [
     {
-     "salon": "Ale_piercerka",
-     "booksy_id": 186908,
-     "id_oferty": "52489267#0",
-     "nazwa": "Przekłucie pępka | 16+",
-     "wariant": "Leo",
+     "salon": "Seven Sins TATTOO & Piercing",
+     "booksy_id": 204751,
+     "id_oferty": "48678306#1",
+     "nazwa": "NAVEL PIERCING",
+     "wariant": "STANDARD NAVEL",
      "cena": 160,
-     "min": 40.0,
-     "zl_min": 4.0,
-     "powod": "dopisek nie zmienia usługi: piercing"
+     "min": 30.0,
+     "zl_min": 5.333,
+     "powod": "dopisek nie zmienia usługi: standard | navel"
     },
     {
-     "salon": "Ale_piercerka",
-     "booksy_id": 186908,
-     "id_oferty": "52489267#1",
-     "nazwa": "Przekłucie pępka | 16+",
-     "wariant": "Aleksandra",
-     "cena": 140,
-     "min": 40.0,
-     "zl_min": 3.5,
-     "powod": "dopisek nie zmienia usługi: piercing"
+     "salon": "Poznań Piercing @poznanpiercing poznanpiercing",
+     "booksy_id": 224089,
+     "id_oferty": "48819420",
+     "nazwa": "Pępek",
+     "wariant": "",
+     "cena": 230,
+     "min": 20.0,
+     "zl_min": 11.5,
+     "powod": "inna nazwa tego samego: „pepek” / „pepk przekluwan”"
+    },
+    {
+     "salon": "DACHU STUDIO",
+     "booksy_id": 288798,
+     "id_oferty": "54329751",
+     "nazwa": "Piercing pępek",
+     "wariant": "",
+     "cena": 150,
+     "min": 30.0,
+     "zl_min": 5.0,
+     "powod": "inna nazwa tego samego: „pepek” / „pepk przekluwan”"
     }
    ],
    "podobne": [
@@ -8353,7 +8377,7 @@
      "cena": 320,
      "min": 35.0,
      "zl_min": 9.143,
-     "powod": "różne słowa: pepk przekluwan / mantis"
+     "powod": "różne słowa: pepk przekluwan / mantis nosa"
     },
     {
      "salon": "Seven Sins TATTOO & Piercing",
@@ -8364,7 +8388,7 @@
      "cena": 150,
      "min": 30.0,
      "zl_min": 5.0,
-     "powod": "różne słowa: pepk przekluwan / monr"
+     "powod": "różne słowa: pepk przekluwan / monr warg"
     },
     {
      "salon": "Seven Sins TATTOO & Piercing",
@@ -8386,7 +8410,7 @@
      "cena": 300,
      "min": 30.0,
      "zl_min": 10.0,
-     "powod": "różne słowa: pepk przekluwan / bites snak"
+     "powod": "różne słowa: pepk przekluwan / bites snak warg"
     },
     {
      "salon": "Seven Sins TATTOO & Piercing",
@@ -8584,7 +8608,7 @@
      "cena": 180,
      "min": 45.0,
      "zl_min": 4.0,
-     "powod": "różne słowa: pepk przekluwan / industrial"
+     "powod": "różne słowa: pepk przekluwan / industrial uszy"
     },
     {
      "salon": "Tuż Tusz Tattoo & Piercing Poznań",
@@ -8606,7 +8630,7 @@
      "cena": 180,
      "min": 45.0,
      "zl_min": 4.0,
-     "powod": "różne słowa: pepk przekluwan / ufo"
+     "powod": "różne słowa: pepk przekluwan / ufo uszy"
     },
     {
      "salon": "Tuż Tusz Tattoo & Piercing Poznań",
@@ -8661,7 +8685,7 @@
      "cena": 160,
      "min": 30.0,
      "zl_min": 5.333,
-     "powod": "różne słowa: pepk przekluwan / madonn medus monr"
+     "powod": "różne słowa: pepk przekluwan / madonn medus monr ust"
     },
     {
      "salon": "Tuż Tusz Tattoo & Piercing Poznań",
@@ -8694,7 +8718,7 @@
      "cena": 170,
      "min": 30.0,
      "zl_min": 5.667,
-     "powod": "różne słowa: pepk przekluwan / navel revers"
+     "powod": "różne słowa: pepk przekluwan / cial navel revers"
     },
     {
      "salon": "Tuż Tusz Tattoo & Piercing Poznań",
@@ -8782,7 +8806,7 @@
      "cena": 140,
      "min": 30.0,
      "zl_min": 4.667,
-     "powod": "różne słowa: pepk przekluwan / antitragus tragus"
+     "powod": "różne słowa: pepk przekluwan / 15 antitragus lat od tragus"
     },
     {
      "salon": "safe.and.fancy_piercing_POZNAŃ",
@@ -8815,7 +8839,7 @@
      "cena": 160,
      "min": 45.0,
      "zl_min": 3.556,
-     "powod": "różne słowa: pepk przekluwan / orbital"
+     "powod": "różne słowa: pepk przekluwan / 16 lat od orbital"
     },
     {
      "salon": "safe.and.fancy_piercing_POZNAŃ",
@@ -8826,7 +8850,7 @@
      "cena": 160,
      "min": 40.0,
      "zl_min": 4.0,
-     "powod": "różne słowa: pepk przekluwan / bridg"
+     "powod": "różne słowa: pepk przekluwan / bridg od"
     },
     {
      "salon": "safe.and.fancy_piercing_POZNAŃ",
@@ -8837,7 +8861,7 @@
      "cena": 140,
      "min": 30.0,
      "zl_min": 4.667,
-     "powod": "różne słowa: pepk / brew pojedyncz"
+     "powod": "różne słowa: pepk / 15lat brew od pojedyncz"
     },
     {
      "salon": "safe.and.fancy_piercing_POZNAŃ",
@@ -8859,7 +8883,7 @@
      "cena": 160,
      "min": 30.0,
      "zl_min": 5.333,
-     "powod": "różne słowa: pepk przekluwan / septum"
+     "powod": "różne słowa: pepk przekluwan / 15lat od septum"
     },
     {
      "salon": "safe.and.fancy_piercing_POZNAŃ",
@@ -8870,7 +8894,7 @@
      "cena": 160,
      "min": 30.0,
      "zl_min": 5.333,
-     "powod": "różne słowa: pepk przekluwan / jezyk"
+     "powod": "różne słowa: pepk przekluwan / 15lat jezyk od"
     },
     {
      "salon": "safe.and.fancy_piercing_POZNAŃ",
@@ -8892,7 +8916,7 @@
      "cena": 140,
      "min": 30.0,
      "zl_min": 4.667,
-     "powod": "różne słowa: pepk przekluwan / jestrum labret vertical"
+     "powod": "różne słowa: pepk przekluwan / 15lat jestrum labret od vertical"
     },
     {
      "salon": "safe.and.fancy_piercing_POZNAŃ",
@@ -8903,7 +8927,7 @@
      "cena": 270,
      "min": 45.0,
      "zl_min": 6.0,
-     "powod": "różne słowa: pepk przekluwan / 15 angel fangs lat od"
+     "powod": "różne słowa: pepk przekluwan / 15 angel fangs lat od ust"
     },
     {
      "salon": "safe.and.fancy_piercing_POZNAŃ",
@@ -8914,7 +8938,7 @@
      "cena": 180,
      "min": 30.0,
      "zl_min": 6.0,
-     "powod": "różne słowa: pepk / jedn sutk"
+     "powod": "różne słowa: pepk / 18 jedn lat od sutk"
     },
     {
      "salon": "safe.and.fancy_piercing_POZNAŃ",
@@ -8969,7 +8993,7 @@
      "cena": 130,
      "min": 30.0,
      "zl_min": 4.333,
-     "powod": "różne słowa: pepk przekluwan / helix"
+     "powod": "różne słowa: pepk przekluwan / 15 helix od roku zyci"
     },
     {
      "salon": "Tattoo Mucha Studio - Matt Piercer",
@@ -8980,7 +9004,7 @@
      "cena": 150,
      "min": 30.0,
      "zl_min": 5.0,
-     "powod": "różne słowa: pepk przekluwan / bites snak"
+     "powod": "różne słowa: pepk przekluwan / 15 bites od roku snak zyci"
     },
     {
      "salon": "Tattoo Mucha Studio - Matt Piercer",
@@ -8991,7 +9015,7 @@
      "cena": 130,
      "min": 30.0,
      "zl_min": 4.333,
-     "powod": "różne słowa: pepk przekluwan / forward helix"
+     "powod": "różne słowa: pepk przekluwan / 15 forward helix od roku zyci"
     },
     {
      "salon": "Tattoo Mucha Studio - Matt Piercer",
@@ -9013,7 +9037,7 @@
      "cena": 130,
      "min": 30.0,
      "zl_min": 4.333,
-     "powod": "różne słowa: pepk przekluwan / conch"
+     "powod": "różne słowa: pepk przekluwan / 15 conch od roku zyci"
     },
     {
      "salon": "Tattoo Mucha Studio - Matt Piercer",
@@ -9024,7 +9048,7 @@
      "cena": 130,
      "min": 30.0,
      "zl_min": 4.333,
-     "powod": "różne słowa: pepk przekluwan / daith"
+     "powod": "różne słowa: pepk przekluwan / 15 daith od roku zyci"
     },
     {
      "salon": "Tattoo Mucha Studio - Matt Piercer",
@@ -9046,7 +9070,7 @@
      "cena": 130,
      "min": 30.0,
      "zl_min": 4.333,
-     "powod": "różne słowa: pepk przekluwan / rook"
+     "powod": "różne słowa: pepk przekluwan / 15 od roku rook zyci"
     },
     {
      "salon": "Tattoo Mucha Studio - Matt Piercer",
@@ -9057,7 +9081,7 @@
      "cena": 150,
      "min": 30.0,
      "zl_min": 5.0,
-     "powod": "różne słowa: pepk przekluwan / 2 angel fangs x"
+     "powod": "różne słowa: pepk przekluwan / 15 2 angel fangs od roku x zyci"
     },
     {
      "salon": "Tattoo Mucha Studio - Matt Piercer",
@@ -9079,7 +9103,7 @@
      "cena": 150,
      "min": 30.0,
      "zl_min": 5.0,
-     "powod": "różne słowa: pepk przekluwan / jezyk"
+     "powod": "różne słowa: pepk przekluwan / 15 jezyk od roku zyci"
     },
     {
      "salon": "Tattoo Mucha Studio - Matt Piercer",
@@ -9359,24 +9383,13 @@
     {
      "salon": "Poznań Piercing @poznanpiercing poznanpiercing",
      "booksy_id": 224089,
-     "id_oferty": "48819420",
-     "nazwa": "Pępek",
-     "wariant": "",
-     "cena": 230,
-     "min": 20.0,
-     "zl_min": 11.5,
-     "powod": "różne słowa: pepk przekluwan / pepek"
-    },
-    {
-     "salon": "Poznań Piercing @poznanpiercing poznanpiercing",
-     "booksy_id": 224089,
      "id_oferty": "48819422",
      "nazwa": "Venom - podwójne przekłucie języka",
      "wariant": "",
      "cena": 480,
      "min": 30.0,
      "zl_min": 16.0,
-     "powod": "różne słowa: pepk przekluwan / jezyk podwojn"
+     "powod": "różne słowa: pepk / jezyk podwojn venom"
     },
     {
      "salon": "Pyotereq Piercing",
@@ -9497,7 +9510,7 @@
      "cena": 130,
      "min": 30.0,
      "zl_min": 4.333,
-     "powod": "różne słowa: pepk przekluwan / daith"
+     "powod": "różne słowa: pepk przekluwan / daith ucho"
     },
     {
      "salon": "Pyotereq Piercing",
@@ -9508,7 +9521,7 @@
      "cena": 140,
      "min": 30.0,
      "zl_min": 4.667,
-     "powod": "różne słowa: pepk przekluwan / industrial"
+     "powod": "różne słowa: pepk przekluwan / industrial ucho"
     },
     {
      "salon": "Pyotereq Piercing",
@@ -9552,7 +9565,7 @@
      "cena": 250,
      "min": 30.0,
      "zl_min": 8.333,
-     "powod": "różne słowa: pepk przekluwan / brwi"
+     "powod": "różne słowa: pepk przekluwan / brwi symetryczn"
     },
     {
      "salon": "Pyotereq Piercing",
@@ -9772,7 +9785,7 @@
      "cena": 140,
      "min": 50.0,
      "zl_min": 2.8,
-     "powod": "różne słowa: pepk przekluwan / septum"
+     "powod": "różne słowa: pepk przekluwan / septum twarz"
     },
     {
      "salon": "Inkora",
@@ -9849,7 +9862,7 @@
      "cena": 200,
      "min": 40.0,
      "zl_min": 5.0,
-     "powod": "różne słowa: pepk przekluwan / damsk hch intymn"
+     "powod": "różne słowa: pepk przekluwan / 18 damsk hch intymn"
     },
     {
      "salon": "Ale_piercerka",
@@ -9871,7 +9884,7 @@
      "cena": 180,
      "min": 40.0,
      "zl_min": 4.5,
-     "powod": "różne słowa: pepk przekluwan / christin damsk intymn"
+     "powod": "różne słowa: pepk przekluwan / 18 christin damsk intymn"
     },
     {
      "salon": "Ale_piercerka",
@@ -9882,7 +9895,7 @@
      "cena": 200,
      "min": 40.0,
      "zl_min": 5.0,
-     "powod": "różne słowa: pepk przekluwan / christin damsk intymn"
+     "powod": "różne słowa: pepk przekluwan / 18 christin damsk intymn"
     },
     {
      "salon": "Ale_piercerka",
@@ -9893,7 +9906,7 @@
      "cena": 180,
      "min": 40.0,
      "zl_min": 4.5,
-     "powod": "różne słowa: pepk przekluwan / frenum intymn mesk"
+     "powod": "różne słowa: pepk przekluwan / 18 frenum intymn mesk"
     },
     {
      "salon": "Ale_piercerka",
@@ -10014,7 +10027,7 @@
      "cena": 180,
      "min": 45.0,
      "zl_min": 4.0,
-     "powod": "różne słowa: pepk przekluwan / ufo"
+     "powod": "różne słowa: pepk przekluwan / ufo uszy"
     },
     {
      "salon": "Miss Kitty Piercing",
@@ -10091,7 +10104,7 @@
      "cena": 320,
      "min": 45.0,
      "zl_min": 7.111,
-     "powod": "różne słowa: pepk przekluwan / bites snak"
+     "powod": "różne słowa: pepk przekluwan / bites snak ust"
     },
     {
      "salon": "Miss Kitty Piercing",
@@ -10113,7 +10126,7 @@
      "cena": 320,
      "min": 45.0,
      "zl_min": 7.111,
-     "powod": "różne słowa: pepk przekluwan / angel fangs"
+     "powod": "różne słowa: pepk przekluwan / angel fangs ust"
     },
     {
      "salon": "Miss Kitty Piercing",
@@ -10135,7 +10148,7 @@
      "cena": 320,
      "min": 45.0,
      "zl_min": 7.111,
-     "powod": "różne słowa: pepk przekluwan / angel bites"
+     "powod": "różne słowa: pepk przekluwan / angel bites ust"
     },
     {
      "salon": "Miss Kitty Piercing",
@@ -10157,7 +10170,7 @@
      "cena": 500,
      "min": 45.0,
      "zl_min": 11.111,
-     "powod": "różne słowa: pepk przekluwan / bites shark"
+     "powod": "różne słowa: pepk przekluwan / bites shark ust"
     },
     {
      "salon": "Miss Kitty Piercing",
@@ -10349,17 +10362,6 @@
     {
      "salon": "DACHU STUDIO",
      "booksy_id": 288798,
-     "id_oferty": "54329751",
-     "nazwa": "Piercing pępek",
-     "wariant": "",
-     "cena": 150,
-     "min": 30.0,
-     "zl_min": 5.0,
-     "powod": "różne słowa: pepk przekluwan / pepek"
-    },
-    {
-     "salon": "DACHU STUDIO",
-     "booksy_id": 288798,
      "id_oferty": "54329752#0",
      "nazwa": "Piercing sutki",
      "wariant": "Para",
@@ -10388,7 +10390,7 @@
      "cena": 230,
      "min": 30.0,
      "zl_min": 7.667,
-     "powod": "różne słowa: pepk przekluwan / 2 lobe upper x"
+     "powod": "różne słowa: pepk przekluwan / 2 lobe u upper x"
     },
     {
      "salon": "Pierce Me Up Now - Piercing Poznań",
@@ -10410,7 +10412,7 @@
      "cena": 140,
      "min": 30.0,
      "zl_min": 4.667,
-     "powod": "różne słowa: pepk przekluwan / conch"
+     "powod": "różne słowa: pepk przekluwan / conch u"
     },
     {
      "salon": "Pierce Me Up Now - Piercing Poznań",
@@ -10421,7 +10423,7 @@
      "cena": 140,
      "min": 30.0,
      "zl_min": 4.667,
-     "powod": "różne słowa: pepk przekluwan / tragus"
+     "powod": "różne słowa: pepk przekluwan / tragus u"
     },
     {
      "salon": "Diana Piercing&Tatuaz",
@@ -10459,16 +10461,16 @@
    ],
    "min": 30.0,
    "ta_sama_stat": {
-    "n": 1,
-    "mediana": 150,
-    "p25": 112,
-    "p75": 112,
-    "rynkowa": 112,
+    "n": 3,
+    "mediana": 160,
+    "p25": 155,
+    "p75": 252,
+    "rynkowa": 160,
     "rynkowa_z": "zł/min × czas"
    },
    "podobne_stat": {
     "n": 13,
-    "mediana": 150,
+    "mediana": 145,
     "p25": 140,
     "p75": 165,
     "rynkowa": 142,
@@ -10503,7 +10505,18 @@
      "cena": 180,
      "min": 30.0,
      "zl_min": 6.0,
-     "powod": "dopisek nie zmienia usługi: piercing | jedn"
+     "powod": "dopisek nie zmienia usługi: piercing | jedn | 18 lat od"
+    },
+    {
+     "salon": "Inkora",
+     "booksy_id": 339705,
+     "id_oferty": "52488635",
+     "nazwa": "Sutki",
+     "wariant": "",
+     "cena": 300,
+     "min": 55.0,
+     "zl_min": 5.455,
+     "powod": "inna nazwa tego samego: „piercing” / „przekluwan”"
     }
    ],
    "podobne": [
@@ -10516,7 +10529,7 @@
      "cena": 100,
      "min": 30.0,
      "zl_min": 3.333,
-     "powod": "gdzie_ile: „sutk” tylko po jednej stronie"
+     "powod": "różne słowa: sutk / miesiac"
     },
     {
      "salon": "Pimp My Holes",
@@ -10538,7 +10551,7 @@
      "cena": 250,
      "min": 20.0,
      "zl_min": 12.5,
-     "powod": "różne słowa: sutk / 2 earlob piercing platk ucha x"
+     "powod": "różne słowa: sutk / 2 earlob piercing platk ucha uszu x"
     },
     {
      "salon": "Seven Sins TATTOO & Piercing",
@@ -10582,7 +10595,7 @@
      "cena": 150,
      "min": 20.0,
      "zl_min": 7.5,
-     "powod": "różne słowa: sutk / rook"
+     "powod": "różne słowa: sutk / piercing rook"
     },
     {
      "salon": "Seven Sins TATTOO & Piercing",
@@ -10615,7 +10628,7 @@
      "cena": 150,
      "min": 30.0,
      "zl_min": 5.0,
-     "powod": "różne słowa: sutk / snug"
+     "powod": "różne słowa: sutk / piercing snug"
     },
     {
      "salon": "Seven Sins TATTOO & Piercing",
@@ -10637,7 +10650,7 @@
      "cena": 160,
      "min": 30.0,
      "zl_min": 5.333,
-     "powod": "nazwa bez treści (combo / pakiet / premium) bez składu"
+     "powod": "różne słowa: sutk / navel pepk piercing standard"
     },
     {
      "salon": "safe.and.fancy_piercing_POZNAŃ",
@@ -10681,7 +10694,7 @@
      "cena": 130,
      "min": 40.0,
      "zl_min": 3.25,
-     "powod": "różne słowa: sutk / aleksandr platk ucha"
+     "powod": "różne słowa: sutk / 14 aleksandr platk ucha"
     },
     {
      "salon": "Ale_piercerka",
@@ -10692,7 +10705,7 @@
      "cena": 150,
      "min": 40.0,
      "zl_min": 3.75,
-     "powod": "różne słowa: sutk / platk ucha"
+     "powod": "różne słowa: sutk / 14 platk ucha"
     },
     {
      "salon": "Ale_piercerka",
@@ -10736,7 +10749,7 @@
      "cena": 160,
      "min": 40.0,
      "zl_min": 4.0,
-     "powod": "różne słowa: sutk / helix"
+     "powod": "różne słowa: sutk / 15 helix"
     },
     {
      "salon": "Ale_piercerka",
@@ -10747,7 +10760,7 @@
      "cena": 140,
      "min": 40.0,
      "zl_min": 3.5,
-     "powod": "różne słowa: sutk / conch"
+     "powod": "różne słowa: sutk / 15 conch"
     },
     {
      "salon": "Ale_piercerka",
@@ -10769,7 +10782,7 @@
      "cena": 160,
      "min": 40.0,
      "zl_min": 4.0,
-     "powod": "różne słowa: sutk / tragus"
+     "powod": "różne słowa: sutk / 15 tragus"
     },
     {
      "salon": "Ale_piercerka",
@@ -10780,7 +10793,7 @@
      "cena": 140,
      "min": 40.0,
      "zl_min": 3.5,
-     "powod": "różne słowa: sutk / tragus"
+     "powod": "różne słowa: sutk / 15 tragus"
     },
     {
      "salon": "Ale_piercerka",
@@ -10813,7 +10826,7 @@
      "cena": 140,
      "min": 40.0,
      "zl_min": 3.5,
-     "powod": "różne słowa: sutk / flat"
+     "powod": "różne słowa: sutk / 15 flat"
     },
     {
      "salon": "Ale_piercerka",
@@ -10835,7 +10848,7 @@
      "cena": 140,
      "min": 40.0,
      "zl_min": 3.5,
-     "powod": "różne słowa: sutk / rook"
+     "powod": "różne słowa: sutk / 16 rook"
     },
     {
      "salon": "Ale_piercerka",
@@ -10846,7 +10859,7 @@
      "cena": 160,
      "min": 40.0,
      "zl_min": 4.0,
-     "powod": "różne słowa: sutk / rook"
+     "powod": "różne słowa: sutk / 16 rook"
     },
     {
      "salon": "Ale_piercerka",
@@ -10868,7 +10881,7 @@
      "cena": 170,
      "min": 40.0,
      "zl_min": 4.25,
-     "powod": "różne słowa: sutk / daith"
+     "powod": "różne słowa: sutk / 18 daith"
     },
     {
      "salon": "Ale_piercerka",
@@ -10890,7 +10903,7 @@
      "cena": 160,
      "min": 40.0,
      "zl_min": 4.0,
-     "powod": "różne słowa: sutk / septum"
+     "powod": "różne słowa: sutk / 14 septum"
     },
     {
      "salon": "Ale_piercerka",
@@ -10923,7 +10936,7 @@
      "cena": 140,
      "min": 40.0,
      "zl_min": 3.5,
-     "powod": "różne słowa: sutk / labret medus monr warg"
+     "powod": "różne słowa: sutk / 15 labret medus monr warg"
     },
     {
      "salon": "Ale_piercerka",
@@ -10934,7 +10947,7 @@
      "cena": 140,
      "min": 40.0,
      "zl_min": 3.5,
-     "powod": "różne słowa: sutk / ashl warg"
+     "powod": "różne słowa: sutk / 15 ashl warg"
     },
     {
      "salon": "Ale_piercerka",
@@ -10956,7 +10969,7 @@
      "cena": 160,
      "min": 40.0,
      "zl_min": 4.0,
-     "powod": "różne słowa: sutk / jezyk"
+     "powod": "różne słowa: sutk / 14 jezyk"
     },
     {
      "salon": "Ale_piercerka",
@@ -10967,7 +10980,7 @@
      "cena": 160,
      "min": 40.0,
      "zl_min": 4.0,
-     "powod": "różne słowa: sutk / brew"
+     "powod": "różne słowa: sutk / 15 brew"
     },
     {
      "salon": "Ale_piercerka",
@@ -10978,7 +10991,7 @@
      "cena": 140,
      "min": 40.0,
      "zl_min": 3.5,
-     "powod": "różne słowa: sutk / brew"
+     "powod": "różne słowa: sutk / 15 brew"
     },
     {
      "salon": "Ale_piercerka",
@@ -10989,7 +11002,7 @@
      "cena": 160,
      "min": 40.0,
      "zl_min": 4.0,
-     "powod": "różne słowa: sutk / pepk"
+     "powod": "różne słowa: sutk / 16 pepk"
     },
     {
      "salon": "Ale_piercerka",
@@ -11022,7 +11035,7 @@
      "cena": 160,
      "min": 40.0,
      "zl_min": 4.0,
-     "powod": "różne słowa: sutk / 1 sutek"
+     "powod": "różne słowa: sutk / 1 18 sutek"
     },
     {
      "salon": "Ale_piercerka",
@@ -11066,7 +11079,7 @@
      "cena": 310,
      "min": 45.0,
      "zl_min": 6.889,
-     "powod": "różne słowa: sutk / 2 kompozycj nowych zlozon"
+     "powod": "różne słowa: sutk / 2 kompozycj nowych uszy zlozon"
     },
     {
      "salon": "Miss Kitty Piercing",
@@ -11077,7 +11090,7 @@
      "cena": 420,
      "min": 60.0,
      "zl_min": 7.0,
-     "powod": "różne słowa: sutk / 3 kompozycj nowych zlozon"
+     "powod": "różne słowa: sutk / 3 kompozycj nowych uszy zlozon"
     },
     {
      "salon": "Pierce Me Up Now - Piercing Poznań",
@@ -11275,7 +11288,7 @@
      "cena": 160,
      "min": 45.0,
      "zl_min": 3.556,
-     "powod": "różne słowa: sutk / labret standard"
+     "powod": "różne słowa: sutk / labret standard warg"
     },
     {
      "salon": "Pierce Me Up Now - Piercing Poznań",
@@ -11330,7 +11343,7 @@
      "cena": 160,
      "min": 45.0,
      "zl_min": 3.556,
-     "powod": "różne słowa: sutk / tong web"
+     "powod": "różne słowa: sutk / tong warg web"
     },
     {
      "salon": "Pierce Me Up Now - Piercing Poznań",
@@ -11352,7 +11365,7 @@
      "cena": 600,
      "min": 90.0,
      "zl_min": 6.667,
-     "powod": "różne słowa: sutk / bites canin"
+     "powod": "różne słowa: sutk / bites canin warg"
     },
     {
      "salon": "Pierce Me Up Now - Piercing Poznań",
@@ -11385,7 +11398,7 @@
      "cena": 300,
      "min": 60.0,
      "zl_min": 5.0,
-     "powod": "różne słowa: sutk / mantis"
+     "powod": "różne słowa: sutk / mantis nosa"
     },
     {
      "salon": "Pierce Me Up Now - Piercing Poznań",
@@ -11566,11 +11579,11 @@
    ],
    "min": 30.0,
    "ta_sama_stat": {
-    "n": 2,
-    "mediana": 250,
-    "p25": 165,
-    "p75": 175,
-    "rynkowa": 170,
+    "n": 3,
+    "mediana": 300,
+    "p25": 162,
+    "p75": 172,
+    "rynkowa": 164,
     "rynkowa_z": "zł/min × czas"
    },
    "podobne_stat": {
@@ -11655,17 +11668,6 @@
      "min": 50.0,
      "zl_min": 2.8,
      "powod": "równe podpisy"
-    },
-    {
-     "salon": "Ale_piercerka",
-     "booksy_id": 186908,
-     "id_oferty": "52489259#0",
-     "nazwa": "Nostril 15+",
-     "wariant": "Leo",
-     "cena": 160,
-     "min": 40.0,
-     "zl_min": 4.0,
-     "powod": "dopisek nie zmienia usługi: piercing"
     },
     {
      "salon": "Miss Kitty Piercing",
@@ -11843,7 +11845,7 @@
      "cena": 320,
      "min": 35.0,
      "zl_min": 9.143,
-     "powod": "różne słowa: nostril / mantis"
+     "powod": "różne słowa: nostril / mantis nosa"
     },
     {
      "salon": "Seven Sins TATTOO & Piercing",
@@ -11854,7 +11856,7 @@
      "cena": 150,
      "min": 30.0,
      "zl_min": 5.0,
-     "powod": "różne słowa: nostril / monr"
+     "powod": "różne słowa: nostril / monr warg"
     },
     {
      "salon": "Seven Sins TATTOO & Piercing",
@@ -11876,7 +11878,7 @@
      "cena": 300,
      "min": 30.0,
      "zl_min": 10.0,
-     "powod": "różne słowa: nostril / bites snak"
+     "powod": "różne słowa: nostril / bites snak warg"
     },
     {
      "salon": "Seven Sins TATTOO & Piercing",
@@ -12074,7 +12076,7 @@
      "cena": 180,
      "min": 45.0,
      "zl_min": 4.0,
-     "powod": "różne słowa: nostril / industrial"
+     "powod": "różne słowa: nostril / industrial uszy"
     },
     {
      "salon": "Tuż Tusz Tattoo & Piercing Poznań",
@@ -12096,7 +12098,7 @@
      "cena": 180,
      "min": 45.0,
      "zl_min": 4.0,
-     "powod": "różne słowa: nostril / ufo"
+     "powod": "różne słowa: nostril / ufo uszy"
     },
     {
      "salon": "Tuż Tusz Tattoo & Piercing Poznań",
@@ -12140,7 +12142,7 @@
      "cena": 160,
      "min": 30.0,
      "zl_min": 5.333,
-     "powod": "różne słowa: nostril / madonn medus monr"
+     "powod": "różne słowa: nostril / madonn medus monr ust"
     },
     {
      "salon": "Tuż Tusz Tattoo & Piercing Poznań",
@@ -12173,7 +12175,7 @@
      "cena": 170,
      "min": 30.0,
      "zl_min": 5.667,
-     "powod": "różne słowa: nostril / navel revers"
+     "powod": "różne słowa: nostril / cial navel revers"
     },
     {
      "salon": "Tuż Tusz Tattoo & Piercing Poznań",
@@ -12261,7 +12263,7 @@
      "cena": 140,
      "min": 30.0,
      "zl_min": 4.667,
-     "powod": "różne słowa: nostril / antitragus tragus"
+     "powod": "różne słowa: nostril / 15 antitragus lat od tragus"
     },
     {
      "salon": "safe.and.fancy_piercing_POZNAŃ",
@@ -12294,7 +12296,7 @@
      "cena": 160,
      "min": 45.0,
      "zl_min": 3.556,
-     "powod": "różne słowa: nostril / orbital"
+     "powod": "różne słowa: nostril / 16 lat od orbital"
     },
     {
      "salon": "safe.and.fancy_piercing_POZNAŃ",
@@ -12305,7 +12307,7 @@
      "cena": 160,
      "min": 40.0,
      "zl_min": 4.0,
-     "powod": "różne słowa: nostril / bridg"
+     "powod": "różne słowa: nostril / bridg od"
     },
     {
      "salon": "safe.and.fancy_piercing_POZNAŃ",
@@ -12316,7 +12318,7 @@
      "cena": 140,
      "min": 30.0,
      "zl_min": 4.667,
-     "powod": "różne słowa: nostril / brew pojedyncz przekluwan"
+     "powod": "różne słowa: nostril / 15lat brew od pojedyncz przekluwan"
     },
     {
      "salon": "safe.and.fancy_piercing_POZNAŃ",
@@ -12338,7 +12340,7 @@
      "cena": 160,
      "min": 30.0,
      "zl_min": 5.333,
-     "powod": "różne słowa: nostril / septum"
+     "powod": "różne słowa: nostril / 15lat od septum"
     },
     {
      "salon": "safe.and.fancy_piercing_POZNAŃ",
@@ -12349,7 +12351,7 @@
      "cena": 160,
      "min": 30.0,
      "zl_min": 5.333,
-     "powod": "różne słowa: nostril / jezyk"
+     "powod": "różne słowa: nostril / 15lat jezyk od"
     },
     {
      "salon": "safe.and.fancy_piercing_POZNAŃ",
@@ -12371,7 +12373,7 @@
      "cena": 140,
      "min": 30.0,
      "zl_min": 4.667,
-     "powod": "różne słowa: nostril / jestrum labret vertical"
+     "powod": "różne słowa: nostril / 15lat jestrum labret od vertical"
     },
     {
      "salon": "safe.and.fancy_piercing_POZNAŃ",
@@ -12382,7 +12384,7 @@
      "cena": 270,
      "min": 45.0,
      "zl_min": 6.0,
-     "powod": "różne słowa: nostril / 15 angel fangs lat od"
+     "powod": "różne słowa: nostril / 15 angel fangs lat od ust"
     },
     {
      "salon": "safe.and.fancy_piercing_POZNAŃ",
@@ -12393,7 +12395,7 @@
      "cena": 180,
      "min": 30.0,
      "zl_min": 6.0,
-     "powod": "różne słowa: nostril / jedn przekluwan sutk"
+     "powod": "różne słowa: nostril / 18 jedn lat od przekluwan sutk"
     },
     {
      "salon": "safe.and.fancy_piercing_POZNAŃ",
@@ -12448,7 +12450,7 @@
      "cena": 130,
      "min": 30.0,
      "zl_min": 4.333,
-     "powod": "różne słowa: nostril / helix"
+     "powod": "różne słowa: nostril / 15 helix od roku zyci"
     },
     {
      "salon": "Tattoo Mucha Studio - Matt Piercer",
@@ -12459,7 +12461,7 @@
      "cena": 150,
      "min": 30.0,
      "zl_min": 5.0,
-     "powod": "różne słowa: nostril / bites snak"
+     "powod": "różne słowa: nostril / 15 bites od roku snak zyci"
     },
     {
      "salon": "Tattoo Mucha Studio - Matt Piercer",
@@ -12470,7 +12472,7 @@
      "cena": 130,
      "min": 30.0,
      "zl_min": 4.333,
-     "powod": "różne słowa: nostril / forward helix"
+     "powod": "różne słowa: nostril / 15 forward helix od roku zyci"
     },
     {
      "salon": "Tattoo Mucha Studio - Matt Piercer",
@@ -12492,7 +12494,7 @@
      "cena": 130,
      "min": 30.0,
      "zl_min": 4.333,
-     "powod": "różne słowa: nostril / conch"
+     "powod": "różne słowa: nostril / 15 conch od roku zyci"
     },
     {
      "salon": "Tattoo Mucha Studio - Matt Piercer",
@@ -12503,7 +12505,7 @@
      "cena": 130,
      "min": 30.0,
      "zl_min": 4.333,
-     "powod": "różne słowa: nostril / daith"
+     "powod": "różne słowa: nostril / 15 daith od roku zyci"
     },
     {
      "salon": "Tattoo Mucha Studio - Matt Piercer",
@@ -12525,7 +12527,7 @@
      "cena": 130,
      "min": 30.0,
      "zl_min": 4.333,
-     "powod": "różne słowa: nostril / rook"
+     "powod": "różne słowa: nostril / 15 od roku rook zyci"
     },
     {
      "salon": "Tattoo Mucha Studio - Matt Piercer",
@@ -12536,7 +12538,7 @@
      "cena": 150,
      "min": 30.0,
      "zl_min": 5.0,
-     "powod": "różne słowa: nostril / 2 angel fangs x"
+     "powod": "różne słowa: nostril / 15 2 angel fangs od roku x zyci"
     },
     {
      "salon": "Tattoo Mucha Studio - Matt Piercer",
@@ -12547,7 +12549,7 @@
      "cena": 150,
      "min": 30.0,
      "zl_min": 5.0,
-     "powod": "różne słowa: nostril / jezyk"
+     "powod": "różne słowa: nostril / 15 jezyk od roku zyci"
     },
     {
      "salon": "Tattoo Mucha Studio - Matt Piercer",
@@ -12833,7 +12835,7 @@
      "cena": 480,
      "min": 30.0,
      "zl_min": 16.0,
-     "powod": "różne słowa: nostril / jezyk podwojn"
+     "powod": "różne słowa: nostril / jezyk podwojn przekluwan venom"
     },
     {
      "salon": "Pyotereq Piercing",
@@ -12954,7 +12956,7 @@
      "cena": 130,
      "min": 30.0,
      "zl_min": 4.333,
-     "powod": "różne słowa: nostril / daith"
+     "powod": "różne słowa: nostril / daith ucho"
     },
     {
      "salon": "Pyotereq Piercing",
@@ -12965,7 +12967,7 @@
      "cena": 140,
      "min": 30.0,
      "zl_min": 4.667,
-     "powod": "różne słowa: nostril / industrial"
+     "powod": "różne słowa: nostril / industrial ucho"
     },
     {
      "salon": "Pyotereq Piercing",
@@ -12998,7 +13000,7 @@
      "cena": 250,
      "min": 30.0,
      "zl_min": 8.333,
-     "powod": "różne słowa: nostril / brwi"
+     "powod": "różne słowa: nostril / brwi symetryczn"
     },
     {
      "salon": "Pyotereq Piercing",
@@ -13207,7 +13209,7 @@
      "cena": 140,
      "min": 50.0,
      "zl_min": 2.8,
-     "powod": "różne słowa: nostril / septum"
+     "powod": "różne słowa: nostril / septum twarz"
     },
     {
      "salon": "Inkora",
@@ -13284,7 +13286,7 @@
      "cena": 200,
      "min": 40.0,
      "zl_min": 5.0,
-     "powod": "różne słowa: nostril / damsk hch intymn"
+     "powod": "różne słowa: nostril / 18 damsk hch intymn"
     },
     {
      "salon": "Ale_piercerka",
@@ -13306,7 +13308,7 @@
      "cena": 180,
      "min": 40.0,
      "zl_min": 4.5,
-     "powod": "różne słowa: nostril / christin damsk intymn"
+     "powod": "różne słowa: nostril / 18 christin damsk intymn"
     },
     {
      "salon": "Ale_piercerka",
@@ -13317,7 +13319,7 @@
      "cena": 200,
      "min": 40.0,
      "zl_min": 5.0,
-     "powod": "różne słowa: nostril / christin damsk intymn"
+     "powod": "różne słowa: nostril / 18 christin damsk intymn"
     },
     {
      "salon": "Ale_piercerka",
@@ -13328,7 +13330,7 @@
      "cena": 180,
      "min": 40.0,
      "zl_min": 4.5,
-     "powod": "różne słowa: nostril / frenum intymn mesk"
+     "powod": "różne słowa: nostril / 18 frenum intymn mesk"
     },
     {
      "salon": "Ale_piercerka",
@@ -13449,7 +13451,7 @@
      "cena": 180,
      "min": 45.0,
      "zl_min": 4.0,
-     "powod": "różne słowa: nostril / ufo"
+     "powod": "różne słowa: nostril / ufo uszy"
     },
     {
      "salon": "Miss Kitty Piercing",
@@ -13515,7 +13517,7 @@
      "cena": 320,
      "min": 45.0,
      "zl_min": 7.111,
-     "powod": "różne słowa: nostril / bites snak"
+     "powod": "różne słowa: nostril / bites snak ust"
     },
     {
      "salon": "Miss Kitty Piercing",
@@ -13537,7 +13539,7 @@
      "cena": 320,
      "min": 45.0,
      "zl_min": 7.111,
-     "powod": "różne słowa: nostril / angel fangs"
+     "powod": "różne słowa: nostril / angel fangs ust"
     },
     {
      "salon": "Miss Kitty Piercing",
@@ -13559,7 +13561,7 @@
      "cena": 320,
      "min": 45.0,
      "zl_min": 7.111,
-     "powod": "różne słowa: nostril / angel bites"
+     "powod": "różne słowa: nostril / angel bites ust"
     },
     {
      "salon": "Miss Kitty Piercing",
@@ -13581,7 +13583,7 @@
      "cena": 500,
      "min": 45.0,
      "zl_min": 11.111,
-     "powod": "różne słowa: nostril / bites shark"
+     "powod": "różne słowa: nostril / bites shark ust"
     },
     {
      "salon": "Miss Kitty Piercing",
@@ -13812,7 +13814,7 @@
      "cena": 230,
      "min": 30.0,
      "zl_min": 7.667,
-     "powod": "różne słowa: nostril / 2 lobe upper x"
+     "powod": "różne słowa: nostril / 2 lobe u upper x"
     },
     {
      "salon": "Pierce Me Up Now - Piercing Poznań",
@@ -13834,7 +13836,7 @@
      "cena": 140,
      "min": 30.0,
      "zl_min": 4.667,
-     "powod": "różne słowa: nostril / conch"
+     "powod": "różne słowa: nostril / conch u"
     },
     {
      "salon": "Pierce Me Up Now - Piercing Poznań",
@@ -13845,7 +13847,7 @@
      "cena": 140,
      "min": 30.0,
      "zl_min": 4.667,
-     "powod": "różne słowa: nostril / tragus"
+     "powod": "różne słowa: nostril / tragus u"
     },
     {
      "salon": "Diana Piercing&Tatuaz",
@@ -13883,8 +13885,8 @@
    ],
    "min": 30.0,
    "ta_sama_stat": {
-    "n": 9,
-    "mediana": 150,
+    "n": 8,
+    "mediana": 145,
     "p25": 130,
     "p75": 180,
     "rynkowa": 160,
@@ -13938,7 +13940,7 @@
      "cena": 160,
      "min": 30.0,
      "zl_min": 5.333,
-     "powod": "dopisek nie zmienia usługi: piercing"
+     "powod": "dopisek nie zmienia usługi: piercing | 15lat od"
     },
     {
      "salon": "Tattoo Mucha Studio - Matt Piercer",
@@ -13949,18 +13951,7 @@
      "cena": 150,
      "min": 30.0,
      "zl_min": 5.0,
-     "powod": "równe podpisy"
-    },
-    {
-     "salon": "Poznań Piercing @poznanpiercing poznanpiercing",
-     "booksy_id": 224089,
-     "id_oferty": "48819401",
-     "nazwa": "SEPTUM",
-     "wariant": "",
-     "cena": 200,
-     "min": 20.0,
-     "zl_min": 10.0,
-     "powod": "równe podpisy"
+     "powod": "dopisek nie zmienia usługi: 15 od roku zyci"
     },
     {
      "salon": "Poznań Piercing @poznanpiercing poznanpiercing",
@@ -13985,17 +13976,6 @@
      "powod": "dopisek nie zmienia usługi: piercing"
     },
     {
-     "salon": "Inkora",
-     "booksy_id": 339705,
-     "id_oferty": "52488651",
-     "nazwa": "Septum",
-     "wariant": "",
-     "cena": 140,
-     "min": 50.0,
-     "zl_min": 2.8,
-     "powod": "dopisek nie zmienia usługi: piercing"
-    },
-    {
      "salon": "Ale_piercerka",
      "booksy_id": 186908,
      "id_oferty": "52489260#0",
@@ -14004,18 +13984,7 @@
      "cena": 160,
      "min": 40.0,
      "zl_min": 4.0,
-     "powod": "dopisek nie zmienia usługi: przekluwan"
-    },
-    {
-     "salon": "Ale_piercerka",
-     "booksy_id": 186908,
-     "id_oferty": "52489260#1",
-     "nazwa": "Septum 14+",
-     "wariant": "Aleksandra",
-     "cena": 140,
-     "min": 40.0,
-     "zl_min": 3.5,
-     "powod": "dopisek nie zmienia usługi: 14"
+     "powod": "dopisek nie zmienia usługi: przekluwan | 14"
     },
     {
      "salon": "Pierce Me Up Now - Piercing Poznań",
@@ -14040,18 +14009,46 @@
      "powod": "dopisek nie zmienia usługi: przekluwan | nosa"
     }
    ],
-   "podobne": [],
+   "podobne": [
+    {
+     "salon": "Poznań Piercing @poznanpiercing poznanpiercing",
+     "booksy_id": 224089,
+     "id_oferty": "48819401",
+     "nazwa": "SEPTUM",
+     "wariant": "",
+     "cena": 200,
+     "min": 20.0,
+     "zl_min": 10.0,
+     "powod": "gdzie_ile: „nos” tylko po jednej stronie"
+    },
+    {
+     "salon": "Ale_piercerka",
+     "booksy_id": 186908,
+     "id_oferty": "52489260#1",
+     "nazwa": "Septum 14+",
+     "wariant": "Aleksandra",
+     "cena": 140,
+     "min": 40.0,
+     "zl_min": 3.5,
+     "powod": "gdzie_ile: „twarz” tylko po jednej stronie"
+    }
+   ],
    "min": 30.0,
    "ta_sama_stat": {
-    "n": 10,
+    "n": 9,
     "mediana": 160,
-    "p25": 135,
-    "p75": 168,
+    "p25": 150,
+    "p75": 170,
     "rynkowa": 160,
     "rynkowa_z": "zł/min × czas"
    },
    "podobne_stat": {
-    "n": 0
+    "n": 2,
+    "mediana": 170,
+    "p25": 154,
+    "p75": 251,
+    "rynkowa": 202,
+    "rynkowa_z": "zł/min × czas"
    }
   },
   {
@@ -14085,15 +14082,26 @@
      "powod": "równe podpisy"
     },
     {
-     "salon": "Inkora",
-     "booksy_id": 339705,
-     "id_oferty": "52488652",
+     "salon": "DACHU STUDIO",
+     "booksy_id": 288798,
+     "id_oferty": "54329749#2",
+     "nazwa": "Piercing twarz",
+     "wariant": "MEDUSA",
+     "cena": 150,
+     "min": 30.0,
+     "zl_min": 5.0,
+     "powod": "inna nazwa tego samego: „medus twarz” / „smil”"
+    },
+    {
+     "salon": "Pierce Me Up Now - Piercing Poznań",
+     "booksy_id": 93074,
+     "id_oferty": "54330399",
      "nazwa": "Smiley",
      "wariant": "",
-     "cena": 140,
-     "min": 50.0,
-     "zl_min": 2.8,
-     "powod": "dopisek nie zmienia usługi: piercing"
+     "cena": 160,
+     "min": 30.0,
+     "zl_min": 5.333,
+     "powod": "inna nazwa tego samego: „piercing” / „przekluwan”"
     }
    ],
    "podobne": [
@@ -14260,7 +14268,7 @@
      "cena": 320,
      "min": 35.0,
      "zl_min": 9.143,
-     "powod": "różne słowa: smil / mantis"
+     "powod": "różne słowa: smil / mantis nosa"
     },
     {
      "salon": "Seven Sins TATTOO & Piercing",
@@ -14271,7 +14279,7 @@
      "cena": 150,
      "min": 30.0,
      "zl_min": 5.0,
-     "powod": "różne słowa: smil / monr"
+     "powod": "różne słowa: smil / monr warg"
     },
     {
      "salon": "Seven Sins TATTOO & Piercing",
@@ -14293,7 +14301,7 @@
      "cena": 300,
      "min": 30.0,
      "zl_min": 10.0,
-     "powod": "różne słowa: smil / bites snak"
+     "powod": "różne słowa: smil / bites snak warg"
     },
     {
      "salon": "Seven Sins TATTOO & Piercing",
@@ -14480,7 +14488,7 @@
      "cena": 180,
      "min": 45.0,
      "zl_min": 4.0,
-     "powod": "różne słowa: smil / industrial"
+     "powod": "różne słowa: smil / industrial uszy"
     },
     {
      "salon": "Tuż Tusz Tattoo & Piercing Poznań",
@@ -14502,7 +14510,7 @@
      "cena": 180,
      "min": 45.0,
      "zl_min": 4.0,
-     "powod": "różne słowa: smil / ufo"
+     "powod": "różne słowa: smil / ufo uszy"
     },
     {
      "salon": "Tuż Tusz Tattoo & Piercing Poznań",
@@ -14557,7 +14565,7 @@
      "cena": 160,
      "min": 30.0,
      "zl_min": 5.333,
-     "powod": "różne słowa: smil / madonn medus monr"
+     "powod": "różne słowa: smil / madonn medus monr ust"
     },
     {
      "salon": "Tuż Tusz Tattoo & Piercing Poznań",
@@ -14590,7 +14598,7 @@
      "cena": 170,
      "min": 30.0,
      "zl_min": 5.667,
-     "powod": "różne słowa: smil / navel revers"
+     "powod": "różne słowa: smil / cial navel revers"
     },
     {
      "salon": "Tuż Tusz Tattoo & Piercing Poznań",
@@ -14678,7 +14686,7 @@
      "cena": 140,
      "min": 30.0,
      "zl_min": 4.667,
-     "powod": "różne słowa: smil / antitragus tragus"
+     "powod": "różne słowa: smil / 15 antitragus lat od tragus"
     },
     {
      "salon": "safe.and.fancy_piercing_POZNAŃ",
@@ -14711,7 +14719,7 @@
      "cena": 160,
      "min": 45.0,
      "zl_min": 3.556,
-     "powod": "różne słowa: smil / orbital"
+     "powod": "różne słowa: smil / 16 lat od orbital"
     },
     {
      "salon": "safe.and.fancy_piercing_POZNAŃ",
@@ -14722,7 +14730,7 @@
      "cena": 160,
      "min": 40.0,
      "zl_min": 4.0,
-     "powod": "różne słowa: smil / bridg"
+     "powod": "różne słowa: smil / bridg od"
     },
     {
      "salon": "safe.and.fancy_piercing_POZNAŃ",
@@ -14733,7 +14741,7 @@
      "cena": 140,
      "min": 30.0,
      "zl_min": 4.667,
-     "powod": "różne słowa: smil / brew pojedyncz przekluwan"
+     "powod": "różne słowa: smil / 15lat brew od pojedyncz przekluwan"
     },
     {
      "salon": "safe.and.fancy_piercing_POZNAŃ",
@@ -14755,7 +14763,7 @@
      "cena": 160,
      "min": 30.0,
      "zl_min": 5.333,
-     "powod": "różne słowa: smil / septum"
+     "powod": "różne słowa: smil / 15lat od septum"
     },
     {
      "salon": "safe.and.fancy_piercing_POZNAŃ",
@@ -14766,7 +14774,7 @@
      "cena": 160,
      "min": 30.0,
      "zl_min": 5.333,
-     "powod": "różne słowa: smil / jezyk"
+     "powod": "różne słowa: smil / 15lat jezyk od"
     },
     {
      "salon": "safe.and.fancy_piercing_POZNAŃ",
@@ -14788,7 +14796,7 @@
      "cena": 140,
      "min": 30.0,
      "zl_min": 4.667,
-     "powod": "różne słowa: smil / jestrum labret vertical"
+     "powod": "różne słowa: smil / 15lat jestrum labret od vertical"
     },
     {
      "salon": "safe.and.fancy_piercing_POZNAŃ",
@@ -14799,7 +14807,7 @@
      "cena": 270,
      "min": 45.0,
      "zl_min": 6.0,
-     "powod": "różne słowa: smil / 15 angel fangs lat od"
+     "powod": "różne słowa: smil / 15 angel fangs lat od ust"
     },
     {
      "salon": "safe.and.fancy_piercing_POZNAŃ",
@@ -14810,7 +14818,7 @@
      "cena": 180,
      "min": 30.0,
      "zl_min": 6.0,
-     "powod": "różne słowa: smil / jedn przekluwan sutk"
+     "powod": "różne słowa: smil / 18 jedn lat od przekluwan sutk"
     },
     {
      "salon": "safe.and.fancy_piercing_POZNAŃ",
@@ -14865,7 +14873,7 @@
      "cena": 130,
      "min": 30.0,
      "zl_min": 4.333,
-     "powod": "różne słowa: smil / helix"
+     "powod": "różne słowa: smil / 15 helix od roku zyci"
     },
     {
      "salon": "Tattoo Mucha Studio - Matt Piercer",
@@ -14876,7 +14884,7 @@
      "cena": 150,
      "min": 30.0,
      "zl_min": 5.0,
-     "powod": "różne słowa: smil / bites snak"
+     "powod": "różne słowa: smil / 15 bites od roku snak zyci"
     },
     {
      "salon": "Tattoo Mucha Studio - Matt Piercer",
@@ -14887,7 +14895,7 @@
      "cena": 130,
      "min": 30.0,
      "zl_min": 4.333,
-     "powod": "różne słowa: smil / forward helix"
+     "powod": "różne słowa: smil / 15 forward helix od roku zyci"
     },
     {
      "salon": "Tattoo Mucha Studio - Matt Piercer",
@@ -14909,7 +14917,7 @@
      "cena": 130,
      "min": 30.0,
      "zl_min": 4.333,
-     "powod": "różne słowa: smil / conch"
+     "powod": "różne słowa: smil / 15 conch od roku zyci"
     },
     {
      "salon": "Tattoo Mucha Studio - Matt Piercer",
@@ -14920,7 +14928,7 @@
      "cena": 130,
      "min": 30.0,
      "zl_min": 4.333,
-     "powod": "różne słowa: smil / daith"
+     "powod": "różne słowa: smil / 15 daith od roku zyci"
     },
     {
      "salon": "Tattoo Mucha Studio - Matt Piercer",
@@ -14942,7 +14950,7 @@
      "cena": 130,
      "min": 30.0,
      "zl_min": 4.333,
-     "powod": "różne słowa: smil / rook"
+     "powod": "różne słowa: smil / 15 od roku rook zyci"
     },
     {
      "salon": "Tattoo Mucha Studio - Matt Piercer",
@@ -14953,7 +14961,7 @@
      "cena": 150,
      "min": 30.0,
      "zl_min": 5.0,
-     "powod": "różne słowa: smil / 2 angel fangs x"
+     "powod": "różne słowa: smil / 15 2 angel fangs od roku x zyci"
     },
     {
      "salon": "Tattoo Mucha Studio - Matt Piercer",
@@ -14975,7 +14983,7 @@
      "cena": 150,
      "min": 30.0,
      "zl_min": 5.0,
-     "powod": "różne słowa: smil / jezyk"
+     "powod": "różne słowa: smil / 15 jezyk od roku zyci"
     },
     {
      "salon": "Tattoo Mucha Studio - Matt Piercer",
@@ -15272,7 +15280,7 @@
      "cena": 480,
      "min": 30.0,
      "zl_min": 16.0,
-     "powod": "różne słowa: smil / jezyk podwojn"
+     "powod": "różne słowa: smil / jezyk podwojn przekluwan venom"
     },
     {
      "salon": "Pyotereq Piercing",
@@ -15393,7 +15401,7 @@
      "cena": 130,
      "min": 30.0,
      "zl_min": 4.333,
-     "powod": "różne słowa: smil / daith"
+     "powod": "różne słowa: smil / daith ucho"
     },
     {
      "salon": "Pyotereq Piercing",
@@ -15404,7 +15412,7 @@
      "cena": 140,
      "min": 30.0,
      "zl_min": 4.667,
-     "powod": "różne słowa: smil / industrial"
+     "powod": "różne słowa: smil / industrial ucho"
     },
     {
      "salon": "Pyotereq Piercing",
@@ -15448,7 +15456,7 @@
      "cena": 250,
      "min": 30.0,
      "zl_min": 8.333,
-     "powod": "różne słowa: smil / brwi"
+     "powod": "różne słowa: smil / brwi symetryczn"
     },
     {
      "salon": "Pyotereq Piercing",
@@ -15668,7 +15676,7 @@
      "cena": 140,
      "min": 50.0,
      "zl_min": 2.8,
-     "powod": "różne słowa: smil / septum"
+     "powod": "różne słowa: smil / septum twarz"
     },
     {
      "salon": "Inkora",
@@ -15745,7 +15753,7 @@
      "cena": 200,
      "min": 40.0,
      "zl_min": 5.0,
-     "powod": "różne słowa: smil / damsk hch intymn"
+     "powod": "różne słowa: smil / 18 damsk hch intymn"
     },
     {
      "salon": "Ale_piercerka",
@@ -15767,7 +15775,7 @@
      "cena": 180,
      "min": 40.0,
      "zl_min": 4.5,
-     "powod": "różne słowa: smil / christin damsk intymn"
+     "powod": "różne słowa: smil / 18 christin damsk intymn"
     },
     {
      "salon": "Ale_piercerka",
@@ -15778,7 +15786,7 @@
      "cena": 200,
      "min": 40.0,
      "zl_min": 5.0,
-     "powod": "różne słowa: smil / christin damsk intymn"
+     "powod": "różne słowa: smil / 18 christin damsk intymn"
     },
     {
      "salon": "Ale_piercerka",
@@ -15789,7 +15797,7 @@
      "cena": 180,
      "min": 40.0,
      "zl_min": 4.5,
-     "powod": "różne słowa: smil / frenum intymn mesk"
+     "powod": "różne słowa: smil / 18 frenum intymn mesk"
     },
     {
      "salon": "Ale_piercerka",
@@ -15910,7 +15918,7 @@
      "cena": 180,
      "min": 45.0,
      "zl_min": 4.0,
-     "powod": "różne słowa: smil / ufo"
+     "powod": "różne słowa: smil / ufo uszy"
     },
     {
      "salon": "Miss Kitty Piercing",
@@ -15987,7 +15995,7 @@
      "cena": 320,
      "min": 45.0,
      "zl_min": 7.111,
-     "powod": "różne słowa: smil / bites snak"
+     "powod": "różne słowa: smil / bites snak ust"
     },
     {
      "salon": "Miss Kitty Piercing",
@@ -16009,7 +16017,7 @@
      "cena": 320,
      "min": 45.0,
      "zl_min": 7.111,
-     "powod": "różne słowa: smil / angel fangs"
+     "powod": "różne słowa: smil / angel fangs ust"
     },
     {
      "salon": "Miss Kitty Piercing",
@@ -16031,7 +16039,7 @@
      "cena": 320,
      "min": 45.0,
      "zl_min": 7.111,
-     "powod": "różne słowa: smil / angel bites"
+     "powod": "różne słowa: smil / angel bites ust"
     },
     {
      "salon": "Miss Kitty Piercing",
@@ -16053,7 +16061,7 @@
      "cena": 500,
      "min": 45.0,
      "zl_min": 11.111,
-     "powod": "różne słowa: smil / bites shark"
+     "powod": "różne słowa: smil / bites shark ust"
     },
     {
      "salon": "Miss Kitty Piercing",
@@ -16201,17 +16209,6 @@
     {
      "salon": "DACHU STUDIO",
      "booksy_id": 288798,
-     "id_oferty": "54329749#2",
-     "nazwa": "Piercing twarz",
-     "wariant": "MEDUSA",
-     "cena": 150,
-     "min": 30.0,
-     "zl_min": 5.0,
-     "powod": "różne słowa: smil / medus twarz"
-    },
-    {
-     "salon": "DACHU STUDIO",
-     "booksy_id": 288798,
      "id_oferty": "54329749#4",
      "nazwa": "Piercing twarz",
      "wariant": "Język",
@@ -16284,7 +16281,7 @@
      "cena": 230,
      "min": 30.0,
      "zl_min": 7.667,
-     "powod": "różne słowa: smil / 2 lobe upper x"
+     "powod": "różne słowa: smil / 2 lobe u upper x"
     },
     {
      "salon": "Pierce Me Up Now - Piercing Poznań",
@@ -16306,7 +16303,7 @@
      "cena": 140,
      "min": 30.0,
      "zl_min": 4.667,
-     "powod": "różne słowa: smil / conch"
+     "powod": "różne słowa: smil / conch u"
     },
     {
      "salon": "Pierce Me Up Now - Piercing Poznań",
@@ -16317,7 +16314,7 @@
      "cena": 140,
      "min": 30.0,
      "zl_min": 4.667,
-     "powod": "różne słowa: smil / tragus"
+     "powod": "różne słowa: smil / tragus u"
     },
     {
      "salon": "Diana Piercing&Tatuaz",
@@ -16355,16 +16352,16 @@
    ],
    "min": 30.0,
    "ta_sama_stat": {
-    "n": 3,
-    "mediana": 140,
-    "p25": 112,
-    "p75": 183,
-    "rynkowa": 140,
+    "n": 4,
+    "mediana": 150,
+    "p25": 148,
+    "p75": 176,
+    "rynkowa": 155,
     "rynkowa_z": "zł/min × czas"
    },
    "podobne_stat": {
     "n": 13,
-    "mediana": 150,
+    "mediana": 145,
     "p25": 140,
     "p75": 165,
     "rynkowa": 142,
@@ -16391,15 +16388,37 @@
      "powod": "dopisek nie zmienia usługi: tong | standard"
     },
     {
-     "salon": "Ale_piercerka",
-     "booksy_id": 186908,
-     "id_oferty": "52489265#1",
-     "nazwa": "Przekłucie języka 14+",
-     "wariant": "Leo",
-     "cena": 160,
-     "min": 40.0,
-     "zl_min": 4.0,
-     "powod": "równe podpisy"
+     "salon": "Pyotereq Piercing",
+     "booksy_id": 318388,
+     "id_oferty": "52487323",
+     "nazwa": "Język",
+     "wariant": "",
+     "cena": 140,
+     "min": 20.0,
+     "zl_min": 7.0,
+     "powod": "inna nazwa tego samego: „piercing” / „przekluwan”"
+    },
+    {
+     "salon": "Inkora",
+     "booksy_id": 339705,
+     "id_oferty": "52488653",
+     "nazwa": "Język",
+     "wariant": "",
+     "cena": 150,
+     "min": 50.0,
+     "zl_min": 3.0,
+     "powod": "inna nazwa tego samego: „piercing” / „przekluwan”"
+    },
+    {
+     "salon": "DACHU STUDIO",
+     "booksy_id": 288798,
+     "id_oferty": "54329749#4",
+     "nazwa": "Piercing twarz",
+     "wariant": "Język",
+     "cena": 150,
+     "min": 30.0,
+     "zl_min": 5.0,
+     "powod": "inna nazwa tego samego: „piercing twarz” / „przekluwan”"
     },
     {
      "salon": "Pierce Me Up Now - Piercing Poznań",
@@ -16434,7 +16453,7 @@
      "cena": 100,
      "min": 30.0,
      "zl_min": 3.333,
-     "powod": "gdzie_ile: „jezyk” tylko po jednej stronie"
+     "powod": "różne słowa: jezyk / miesiac"
     },
     {
      "salon": "Pimp My Holes",
@@ -16467,7 +16486,7 @@
      "cena": 250,
      "min": 20.0,
      "zl_min": 12.5,
-     "powod": "różne słowa: jezyk / 2 earlob piercing platk ucha x"
+     "powod": "różne słowa: jezyk / 2 earlob piercing platk ucha uszu x"
     },
     {
      "salon": "Seven Sins TATTOO & Piercing",
@@ -16511,7 +16530,7 @@
      "cena": 150,
      "min": 20.0,
      "zl_min": 7.5,
-     "powod": "różne słowa: jezyk / rook"
+     "powod": "różne słowa: jezyk / piercing rook"
     },
     {
      "salon": "Seven Sins TATTOO & Piercing",
@@ -16544,7 +16563,7 @@
      "cena": 150,
      "min": 30.0,
      "zl_min": 5.0,
-     "powod": "różne słowa: jezyk / snug"
+     "powod": "różne słowa: jezyk / piercing snug"
     },
     {
      "salon": "Seven Sins TATTOO & Piercing",
@@ -16566,7 +16585,7 @@
      "cena": 160,
      "min": 30.0,
      "zl_min": 5.333,
-     "powod": "nazwa bez treści (combo / pakiet / premium) bez składu"
+     "powod": "różne słowa: jezyk / navel pepk piercing standard"
     },
     {
      "salon": "safe.and.fancy_piercing_POZNAŃ",
@@ -16610,7 +16629,7 @@
      "cena": 130,
      "min": 40.0,
      "zl_min": 3.25,
-     "powod": "różne słowa: jezyk / aleksandr platk ucha"
+     "powod": "różne słowa: jezyk / 14 aleksandr platk ucha"
     },
     {
      "salon": "Ale_piercerka",
@@ -16621,7 +16640,7 @@
      "cena": 150,
      "min": 40.0,
      "zl_min": 3.75,
-     "powod": "różne słowa: jezyk / platk ucha"
+     "powod": "różne słowa: jezyk / 14 platk ucha"
     },
     {
      "salon": "Ale_piercerka",
@@ -16665,7 +16684,7 @@
      "cena": 160,
      "min": 40.0,
      "zl_min": 4.0,
-     "powod": "różne słowa: jezyk / helix"
+     "powod": "różne słowa: jezyk / 15 helix"
     },
     {
      "salon": "Ale_piercerka",
@@ -16676,7 +16695,7 @@
      "cena": 140,
      "min": 40.0,
      "zl_min": 3.5,
-     "powod": "różne słowa: jezyk / conch"
+     "powod": "różne słowa: jezyk / 15 conch"
     },
     {
      "salon": "Ale_piercerka",
@@ -16698,7 +16717,7 @@
      "cena": 160,
      "min": 40.0,
      "zl_min": 4.0,
-     "powod": "różne słowa: jezyk / tragus"
+     "powod": "różne słowa: jezyk / 15 tragus"
     },
     {
      "salon": "Ale_piercerka",
@@ -16709,7 +16728,7 @@
      "cena": 140,
      "min": 40.0,
      "zl_min": 3.5,
-     "powod": "różne słowa: jezyk / tragus"
+     "powod": "różne słowa: jezyk / 15 tragus"
     },
     {
      "salon": "Ale_piercerka",
@@ -16742,7 +16761,7 @@
      "cena": 140,
      "min": 40.0,
      "zl_min": 3.5,
-     "powod": "różne słowa: jezyk / flat"
+     "powod": "różne słowa: jezyk / 15 flat"
     },
     {
      "salon": "Ale_piercerka",
@@ -16764,7 +16783,7 @@
      "cena": 140,
      "min": 40.0,
      "zl_min": 3.5,
-     "powod": "różne słowa: jezyk / rook"
+     "powod": "różne słowa: jezyk / 16 rook"
     },
     {
      "salon": "Ale_piercerka",
@@ -16775,7 +16794,7 @@
      "cena": 160,
      "min": 40.0,
      "zl_min": 4.0,
-     "powod": "różne słowa: jezyk / rook"
+     "powod": "różne słowa: jezyk / 16 rook"
     },
     {
      "salon": "Ale_piercerka",
@@ -16797,7 +16816,7 @@
      "cena": 170,
      "min": 40.0,
      "zl_min": 4.25,
-     "powod": "różne słowa: jezyk / daith"
+     "powod": "różne słowa: jezyk / 18 daith"
     },
     {
      "salon": "Ale_piercerka",
@@ -16819,7 +16838,7 @@
      "cena": 160,
      "min": 40.0,
      "zl_min": 4.0,
-     "powod": "różne słowa: jezyk / septum"
+     "powod": "różne słowa: jezyk / 14 septum"
     },
     {
      "salon": "Ale_piercerka",
@@ -16852,7 +16871,7 @@
      "cena": 140,
      "min": 40.0,
      "zl_min": 3.5,
-     "powod": "różne słowa: jezyk / labret medus monr warg"
+     "powod": "różne słowa: jezyk / 15 labret medus monr warg"
     },
     {
      "salon": "Ale_piercerka",
@@ -16863,7 +16882,7 @@
      "cena": 140,
      "min": 40.0,
      "zl_min": 3.5,
-     "powod": "różne słowa: jezyk / ashl warg"
+     "powod": "różne słowa: jezyk / 15 ashl warg"
     },
     {
      "salon": "Ale_piercerka",
@@ -16879,13 +16898,24 @@
     {
      "salon": "Ale_piercerka",
      "booksy_id": 186908,
+     "id_oferty": "52489265#1",
+     "nazwa": "Przekłucie języka 14+",
+     "wariant": "Leo",
+     "cena": 160,
+     "min": 40.0,
+     "zl_min": 4.0,
+     "powod": "inne: „14” tylko po jednej stronie"
+    },
+    {
+     "salon": "Ale_piercerka",
+     "booksy_id": 186908,
      "id_oferty": "52489266#0",
      "nazwa": "Brew 15+",
      "wariant": "Leo",
      "cena": 160,
      "min": 40.0,
      "zl_min": 4.0,
-     "powod": "różne słowa: jezyk / brew"
+     "powod": "różne słowa: jezyk / 15 brew"
     },
     {
      "salon": "Ale_piercerka",
@@ -16896,7 +16926,7 @@
      "cena": 140,
      "min": 40.0,
      "zl_min": 3.5,
-     "powod": "różne słowa: jezyk / brew"
+     "powod": "różne słowa: jezyk / 15 brew"
     },
     {
      "salon": "Ale_piercerka",
@@ -16907,7 +16937,7 @@
      "cena": 160,
      "min": 40.0,
      "zl_min": 4.0,
-     "powod": "różne słowa: jezyk / pepk"
+     "powod": "różne słowa: jezyk / 16 pepk"
     },
     {
      "salon": "Ale_piercerka",
@@ -16940,7 +16970,7 @@
      "cena": 160,
      "min": 40.0,
      "zl_min": 4.0,
-     "powod": "różne słowa: jezyk / 1 sutek"
+     "powod": "różne słowa: jezyk / 1 18 sutek"
     },
     {
      "salon": "Ale_piercerka",
@@ -16984,7 +17014,7 @@
      "cena": 310,
      "min": 45.0,
      "zl_min": 6.889,
-     "powod": "różne słowa: jezyk / 2 kompozycj nowych zlozon"
+     "powod": "różne słowa: jezyk / 2 kompozycj nowych uszy zlozon"
     },
     {
      "salon": "Miss Kitty Piercing",
@@ -16995,7 +17025,7 @@
      "cena": 420,
      "min": 60.0,
      "zl_min": 7.0,
-     "powod": "różne słowa: jezyk / 3 kompozycj nowych zlozon"
+     "powod": "różne słowa: jezyk / 3 kompozycj nowych uszy zlozon"
     },
     {
      "salon": "Pierce Me Up Now - Piercing Poznań",
@@ -17182,7 +17212,7 @@
      "cena": 160,
      "min": 45.0,
      "zl_min": 3.556,
-     "powod": "różne słowa: jezyk / labret standard"
+     "powod": "różne słowa: jezyk / labret standard warg"
     },
     {
      "salon": "Pierce Me Up Now - Piercing Poznań",
@@ -17237,7 +17267,7 @@
      "cena": 160,
      "min": 45.0,
      "zl_min": 3.556,
-     "powod": "różne słowa: jezyk / tong web"
+     "powod": "różne słowa: jezyk / tong warg web"
     },
     {
      "salon": "Pierce Me Up Now - Piercing Poznań",
@@ -17259,7 +17289,7 @@
      "cena": 600,
      "min": 90.0,
      "zl_min": 6.667,
-     "powod": "różne słowa: jezyk / bites canin"
+     "powod": "różne słowa: jezyk / bites canin warg"
     },
     {
      "salon": "Pierce Me Up Now - Piercing Poznań",
@@ -17292,7 +17322,7 @@
      "cena": 300,
      "min": 60.0,
      "zl_min": 5.0,
-     "powod": "różne słowa: jezyk / mantis"
+     "powod": "różne słowa: jezyk / mantis nosa"
     },
     {
      "salon": "Pierce Me Up Now - Piercing Poznań",
@@ -17462,11 +17492,11 @@
    ],
    "min": 30.0,
    "ta_sama_stat": {
-    "n": 4,
-    "mediana": 170,
-    "p25": 135,
-    "p75": 225,
-    "rynkowa": 160,
+    "n": 6,
+    "mediana": 150,
+    "p25": 143,
+    "p75": 202,
+    "rynkowa": 165,
     "rynkowa_z": "zł/min × czas"
    },
    "podobne_stat": {
@@ -17531,6 +17561,28 @@
      "powod": "równe podpisy"
     },
     {
+     "salon": "Ale_piercerka",
+     "booksy_id": 186908,
+     "id_oferty": "52489251#0",
+     "nazwa": "Tragus 15+",
+     "wariant": "Leo",
+     "cena": 160,
+     "min": 40.0,
+     "zl_min": 4.0,
+     "powod": "inna nazwa tego samego: „15 przekluwan” / „piercing”"
+    },
+    {
+     "salon": "Ale_piercerka",
+     "booksy_id": 186908,
+     "id_oferty": "52489251#1",
+     "nazwa": "Tragus 15+",
+     "wariant": "Aleksandra",
+     "cena": 140,
+     "min": 40.0,
+     "zl_min": 3.5,
+     "powod": "inna nazwa tego samego: „15 przekluwan” / „piercing”"
+    },
+    {
      "salon": "Miss Kitty Piercing",
      "booksy_id": 345355,
      "id_oferty": "52602042",
@@ -17542,15 +17594,15 @@
      "powod": "równe podpisy"
     },
     {
-     "salon": "Pierce Me Up Now - Piercing Poznań",
-     "booksy_id": 93074,
-     "id_oferty": "54330368",
-     "nazwa": "TRAGUS 👉PROMO U KINGI",
+     "salon": "Diana Piercing&Tatuaz",
+     "booksy_id": 270179,
+     "id_oferty": "54331383",
+     "nazwa": "Przekłucie ucha. Tragus",
      "wariant": "",
-     "cena": 140,
+     "cena": 160,
      "min": 30.0,
-     "zl_min": 4.667,
-     "powod": "równe podpisy"
+     "zl_min": 5.333,
+     "powod": "inna nazwa tego samego: „piercing” / „przekluwan ucha”"
     }
    ],
    "podobne": [
@@ -17706,7 +17758,7 @@
      "cena": 320,
      "min": 35.0,
      "zl_min": 9.143,
-     "powod": "różne słowa: tragus / mantis"
+     "powod": "różne słowa: tragus / mantis nosa"
     },
     {
      "salon": "Seven Sins TATTOO & Piercing",
@@ -17717,7 +17769,7 @@
      "cena": 150,
      "min": 30.0,
      "zl_min": 5.0,
-     "powod": "różne słowa: tragus / monr"
+     "powod": "różne słowa: tragus / monr warg"
     },
     {
      "salon": "Seven Sins TATTOO & Piercing",
@@ -17739,7 +17791,7 @@
      "cena": 300,
      "min": 30.0,
      "zl_min": 10.0,
-     "powod": "różne słowa: tragus / bites snak"
+     "powod": "różne słowa: tragus / bites snak warg"
     },
     {
      "salon": "Seven Sins TATTOO & Piercing",
@@ -17937,7 +17989,7 @@
      "cena": 180,
      "min": 45.0,
      "zl_min": 4.0,
-     "powod": "różne słowa: tragus / industrial"
+     "powod": "różne słowa: tragus / industrial uszy"
     },
     {
      "salon": "Tuż Tusz Tattoo & Piercing Poznań",
@@ -17959,7 +18011,7 @@
      "cena": 180,
      "min": 45.0,
      "zl_min": 4.0,
-     "powod": "różne słowa: tragus / ufo"
+     "powod": "różne słowa: tragus / ufo uszy"
     },
     {
      "salon": "Tuż Tusz Tattoo & Piercing Poznań",
@@ -18014,7 +18066,7 @@
      "cena": 160,
      "min": 30.0,
      "zl_min": 5.333,
-     "powod": "różne słowa: tragus / madonn medus monr"
+     "powod": "różne słowa: tragus / madonn medus monr ust"
     },
     {
      "salon": "Tuż Tusz Tattoo & Piercing Poznań",
@@ -18047,7 +18099,7 @@
      "cena": 170,
      "min": 30.0,
      "zl_min": 5.667,
-     "powod": "różne słowa: tragus / navel revers"
+     "powod": "różne słowa: tragus / cial navel revers"
     },
     {
      "salon": "Tuż Tusz Tattoo & Piercing Poznań",
@@ -18168,7 +18220,7 @@
      "cena": 160,
      "min": 45.0,
      "zl_min": 3.556,
-     "powod": "różne słowa: tragus / orbital"
+     "powod": "różne słowa: tragus / 16 lat od orbital"
     },
     {
      "salon": "safe.and.fancy_piercing_POZNAŃ",
@@ -18179,7 +18231,7 @@
      "cena": 160,
      "min": 40.0,
      "zl_min": 4.0,
-     "powod": "różne słowa: tragus / bridg"
+     "powod": "różne słowa: tragus / bridg od"
     },
     {
      "salon": "safe.and.fancy_piercing_POZNAŃ",
@@ -18190,7 +18242,7 @@
      "cena": 140,
      "min": 30.0,
      "zl_min": 4.667,
-     "powod": "różne słowa: tragus / brew pojedyncz przekluwan"
+     "powod": "różne słowa: tragus / 15lat brew od pojedyncz przekluwan"
     },
     {
      "salon": "safe.and.fancy_piercing_POZNAŃ",
@@ -18212,7 +18264,7 @@
      "cena": 160,
      "min": 30.0,
      "zl_min": 5.333,
-     "powod": "różne słowa: tragus / septum"
+     "powod": "różne słowa: tragus / 15lat od septum"
     },
     {
      "salon": "safe.and.fancy_piercing_POZNAŃ",
@@ -18223,7 +18275,7 @@
      "cena": 160,
      "min": 30.0,
      "zl_min": 5.333,
-     "powod": "różne słowa: tragus / jezyk"
+     "powod": "różne słowa: tragus / 15lat jezyk od"
     },
     {
      "salon": "safe.and.fancy_piercing_POZNAŃ",
@@ -18245,7 +18297,7 @@
      "cena": 140,
      "min": 30.0,
      "zl_min": 4.667,
-     "powod": "różne słowa: tragus / jestrum labret vertical"
+     "powod": "różne słowa: tragus / 15lat jestrum labret od vertical"
     },
     {
      "salon": "safe.and.fancy_piercing_POZNAŃ",
@@ -18256,7 +18308,7 @@
      "cena": 270,
      "min": 45.0,
      "zl_min": 6.0,
-     "powod": "różne słowa: tragus / 15 angel fangs lat od"
+     "powod": "różne słowa: tragus / 15 angel fangs lat od ust"
     },
     {
      "salon": "safe.and.fancy_piercing_POZNAŃ",
@@ -18267,7 +18319,7 @@
      "cena": 180,
      "min": 30.0,
      "zl_min": 6.0,
-     "powod": "różne słowa: tragus / jedn przekluwan sutk"
+     "powod": "różne słowa: tragus / 18 jedn lat od przekluwan sutk"
     },
     {
      "salon": "safe.and.fancy_piercing_POZNAŃ",
@@ -18322,7 +18374,7 @@
      "cena": 130,
      "min": 30.0,
      "zl_min": 4.333,
-     "powod": "różne słowa: tragus / helix"
+     "powod": "różne słowa: tragus / 15 helix od roku zyci"
     },
     {
      "salon": "Tattoo Mucha Studio - Matt Piercer",
@@ -18333,7 +18385,7 @@
      "cena": 150,
      "min": 30.0,
      "zl_min": 5.0,
-     "powod": "różne słowa: tragus / bites snak"
+     "powod": "różne słowa: tragus / 15 bites od roku snak zyci"
     },
     {
      "salon": "Tattoo Mucha Studio - Matt Piercer",
@@ -18344,7 +18396,7 @@
      "cena": 130,
      "min": 30.0,
      "zl_min": 4.333,
-     "powod": "różne słowa: tragus / forward helix"
+     "powod": "różne słowa: tragus / 15 forward helix od roku zyci"
     },
     {
      "salon": "Tattoo Mucha Studio - Matt Piercer",
@@ -18366,7 +18418,7 @@
      "cena": 130,
      "min": 30.0,
      "zl_min": 4.333,
-     "powod": "różne słowa: tragus / conch"
+     "powod": "różne słowa: tragus / 15 conch od roku zyci"
     },
     {
      "salon": "Tattoo Mucha Studio - Matt Piercer",
@@ -18377,7 +18429,7 @@
      "cena": 130,
      "min": 30.0,
      "zl_min": 4.333,
-     "powod": "różne słowa: tragus / daith"
+     "powod": "różne słowa: tragus / 15 daith od roku zyci"
     },
     {
      "salon": "Tattoo Mucha Studio - Matt Piercer",
@@ -18388,7 +18440,7 @@
      "cena": 130,
      "min": 30.0,
      "zl_min": 4.333,
-     "powod": "różne słowa: tragus / rook"
+     "powod": "różne słowa: tragus / 15 od roku rook zyci"
     },
     {
      "salon": "Tattoo Mucha Studio - Matt Piercer",
@@ -18399,7 +18451,7 @@
      "cena": 150,
      "min": 30.0,
      "zl_min": 5.0,
-     "powod": "różne słowa: tragus / 2 angel fangs x"
+     "powod": "różne słowa: tragus / 15 2 angel fangs od roku x zyci"
     },
     {
      "salon": "Tattoo Mucha Studio - Matt Piercer",
@@ -18421,7 +18473,7 @@
      "cena": 150,
      "min": 30.0,
      "zl_min": 5.0,
-     "powod": "różne słowa: tragus / jezyk"
+     "powod": "różne słowa: tragus / 15 jezyk od roku zyci"
     },
     {
      "salon": "Tattoo Mucha Studio - Matt Piercer",
@@ -18718,7 +18770,7 @@
      "cena": 480,
      "min": 30.0,
      "zl_min": 16.0,
-     "powod": "różne słowa: tragus / jezyk podwojn"
+     "powod": "różne słowa: tragus / jezyk podwojn przekluwan venom"
     },
     {
      "salon": "Pyotereq Piercing",
@@ -18828,7 +18880,7 @@
      "cena": 130,
      "min": 30.0,
      "zl_min": 4.333,
-     "powod": "różne słowa: tragus / daith"
+     "powod": "różne słowa: tragus / daith ucho"
     },
     {
      "salon": "Pyotereq Piercing",
@@ -18839,7 +18891,7 @@
      "cena": 140,
      "min": 30.0,
      "zl_min": 4.667,
-     "powod": "różne słowa: tragus / industrial"
+     "powod": "różne słowa: tragus / industrial ucho"
     },
     {
      "salon": "Pyotereq Piercing",
@@ -18883,7 +18935,7 @@
      "cena": 250,
      "min": 30.0,
      "zl_min": 8.333,
-     "powod": "różne słowa: tragus / brwi"
+     "powod": "różne słowa: tragus / brwi symetryczn"
     },
     {
      "salon": "Pyotereq Piercing",
@@ -19092,7 +19144,7 @@
      "cena": 140,
      "min": 50.0,
      "zl_min": 2.8,
-     "powod": "różne słowa: tragus / septum"
+     "powod": "różne słowa: tragus / septum twarz"
     },
     {
      "salon": "Inkora",
@@ -19169,7 +19221,7 @@
      "cena": 200,
      "min": 40.0,
      "zl_min": 5.0,
-     "powod": "różne słowa: tragus / damsk hch intymn"
+     "powod": "różne słowa: tragus / 18 damsk hch intymn"
     },
     {
      "salon": "Ale_piercerka",
@@ -19191,7 +19243,7 @@
      "cena": 180,
      "min": 40.0,
      "zl_min": 4.5,
-     "powod": "różne słowa: tragus / christin damsk intymn"
+     "powod": "różne słowa: tragus / 18 christin damsk intymn"
     },
     {
      "salon": "Ale_piercerka",
@@ -19202,7 +19254,7 @@
      "cena": 200,
      "min": 40.0,
      "zl_min": 5.0,
-     "powod": "różne słowa: tragus / christin damsk intymn"
+     "powod": "różne słowa: tragus / 18 christin damsk intymn"
     },
     {
      "salon": "Ale_piercerka",
@@ -19213,7 +19265,7 @@
      "cena": 180,
      "min": 40.0,
      "zl_min": 4.5,
-     "powod": "różne słowa: tragus / frenum intymn mesk"
+     "powod": "różne słowa: tragus / 18 frenum intymn mesk"
     },
     {
      "salon": "Ale_piercerka",
@@ -19323,7 +19375,7 @@
      "cena": 180,
      "min": 45.0,
      "zl_min": 4.0,
-     "powod": "różne słowa: tragus / ufo"
+     "powod": "różne słowa: tragus / ufo uszy"
     },
     {
      "salon": "Miss Kitty Piercing",
@@ -19400,7 +19452,7 @@
      "cena": 320,
      "min": 45.0,
      "zl_min": 7.111,
-     "powod": "różne słowa: tragus / bites snak"
+     "powod": "różne słowa: tragus / bites snak ust"
     },
     {
      "salon": "Miss Kitty Piercing",
@@ -19422,7 +19474,7 @@
      "cena": 320,
      "min": 45.0,
      "zl_min": 7.111,
-     "powod": "różne słowa: tragus / angel fangs"
+     "powod": "różne słowa: tragus / angel fangs ust"
     },
     {
      "salon": "Miss Kitty Piercing",
@@ -19444,7 +19496,7 @@
      "cena": 320,
      "min": 45.0,
      "zl_min": 7.111,
-     "powod": "różne słowa: tragus / angel bites"
+     "powod": "różne słowa: tragus / angel bites ust"
     },
     {
      "salon": "Miss Kitty Piercing",
@@ -19466,7 +19518,7 @@
      "cena": 500,
      "min": 45.0,
      "zl_min": 11.111,
-     "powod": "różne słowa: tragus / bites shark"
+     "powod": "różne słowa: tragus / bites shark ust"
     },
     {
      "salon": "Miss Kitty Piercing",
@@ -19697,7 +19749,7 @@
      "cena": 230,
      "min": 30.0,
      "zl_min": 7.667,
-     "powod": "różne słowa: tragus / 2 lobe upper x"
+     "powod": "różne słowa: tragus / 2 lobe u upper x"
     },
     {
      "salon": "Pierce Me Up Now - Piercing Poznań",
@@ -19719,7 +19771,18 @@
      "cena": 140,
      "min": 30.0,
      "zl_min": 4.667,
-     "powod": "różne słowa: tragus / conch"
+     "powod": "różne słowa: tragus / conch u"
+    },
+    {
+     "salon": "Pierce Me Up Now - Piercing Poznań",
+     "booksy_id": 93074,
+     "id_oferty": "54330368",
+     "nazwa": "TRAGUS 👉PROMO U KINGI",
+     "wariant": "",
+     "cena": 140,
+     "min": 30.0,
+     "zl_min": 4.667,
+     "powod": "inne: „u” tylko po jednej stronie"
     },
     {
      "salon": "Diana Piercing&Tatuaz",
@@ -19757,11 +19820,11 @@
    ],
    "min": 30.0,
    "ta_sama_stat": {
-    "n": 6,
-    "mediana": 135,
-    "p25": 132,
-    "p75": 175,
-    "rynkowa": 150,
+    "n": 7,
+    "mediana": 150,
+    "p25": 121,
+    "p75": 170,
+    "rynkowa": 160,
     "rynkowa_z": "zł/min × czas"
    },
    "podobne_stat": {
@@ -20287,6 +20350,17 @@
    "ta_sama": [],
    "podobne": [
     {
+     "salon": "Tattoo Mucha Studio - Matt Piercer",
+     "booksy_id": 336057,
+     "id_oferty": "48818986",
+     "nazwa": "Usuwanie przebarwień",
+     "wariant": "",
+     "cena": 250,
+     "min": 45.0,
+     "zl_min": 5.556,
+     "powod": "różne słowa: 2x2 cm tatuaz / przebarwien"
+    },
+    {
      "salon": "Alinka permanent",
      "booksy_id": 241416,
      "id_oferty": "53453032",
@@ -20296,28 +20370,6 @@
      "min": 40.0,
      "zl_min": 6.25,
      "powod": "różne słowa: 2x2 cm tatuaz / kresk"
-    },
-    {
-     "salon": "Alinka permanent",
-     "booksy_id": 241416,
-     "id_oferty": "53453039",
-     "nazwa": "Laserowe usuwanie tatuażu",
-     "wariant": "",
-     "cena": 170,
-     "min": 60.0,
-     "zl_min": 2.833,
-     "powod": "gdzie_ile: „2x2 cm” tylko po jednej stronie"
-    },
-    {
-     "salon": "Alinka permanent",
-     "booksy_id": 241416,
-     "id_oferty": "53453040",
-     "nazwa": "Laserowe usuwanie ust",
-     "wariant": "",
-     "cena": 200,
-     "min": 30.0,
-     "zl_min": 6.667,
-     "powod": "różne słowa: 2x2 cm tatuaz / ust"
     }
    ],
    "min": 10.0,
@@ -20325,11 +20377,11 @@
     "n": 0
    },
    "podobne_stat": {
-    "n": 1,
-    "mediana": 200,
-    "p25": 62,
-    "p75": 62,
-    "rynkowa": 62,
+    "n": 2,
+    "mediana": 250,
+    "p25": 57,
+    "p75": 61,
+    "rynkowa": 59,
     "rynkowa_z": "zł/min × czas"
    }
   },
@@ -20351,7 +20403,29 @@
      "cena": 250,
      "min": 60.0,
      "zl_min": 4.167,
+     "powod": "różne słowa: 4х4 cm / indywidualn"
+    },
+    {
+     "salon": "Alinka permanent",
+     "booksy_id": 241416,
+     "id_oferty": "53453039",
+     "nazwa": "Laserowe usuwanie tatuażu",
+     "wariant": "",
+     "cena": 170,
+     "min": 60.0,
+     "zl_min": 2.833,
      "powod": "gdzie_ile: „4х4 cm” tylko po jednej stronie"
+    },
+    {
+     "salon": "Alinka permanent",
+     "booksy_id": 241416,
+     "id_oferty": "53453040",
+     "nazwa": "Laserowe usuwanie ust",
+     "wariant": "",
+     "cena": 200,
+     "min": 30.0,
+     "zl_min": 6.667,
+     "powod": "różne słowa: 4х4 cm / ust"
     }
    ],
    "min": 20.0,
@@ -20359,11 +20433,11 @@
     "n": 0
    },
    "podobne_stat": {
-    "n": 1,
-    "mediana": 250,
-    "p25": 83,
-    "p75": 83,
-    "rynkowa": 83,
+    "n": 2,
+    "mediana": 218,
+    "p25": 86,
+    "p75": 92,
+    "rynkowa": 89,
     "rynkowa_z": "zł/min × czas"
    }
   },
@@ -20385,7 +20459,29 @@
      "cena": 250,
      "min": 60.0,
      "zl_min": 4.167,
+     "powod": "różne słowa: 10х5 cm / indywidualn"
+    },
+    {
+     "salon": "Alinka permanent",
+     "booksy_id": 241416,
+     "id_oferty": "53453039",
+     "nazwa": "Laserowe usuwanie tatuażu",
+     "wariant": "",
+     "cena": 170,
+     "min": 60.0,
+     "zl_min": 2.833,
      "powod": "gdzie_ile: „10х5 cm” tylko po jednej stronie"
+    },
+    {
+     "salon": "Alinka permanent",
+     "booksy_id": 241416,
+     "id_oferty": "53453040",
+     "nazwa": "Laserowe usuwanie ust",
+     "wariant": "",
+     "cena": 200,
+     "min": 30.0,
+     "zl_min": 6.667,
+     "powod": "różne słowa: 10х5 cm / ust"
     }
    ],
    "min": 30.0,
@@ -20393,11 +20489,11 @@
     "n": 0
    },
    "podobne_stat": {
-    "n": 1,
-    "mediana": 250,
-    "p25": 125,
-    "p75": 125,
-    "rynkowa": 125,
+    "n": 2,
+    "mediana": 218,
+    "p25": 129,
+    "p75": 138,
+    "rynkowa": 134,
     "rynkowa_z": "zł/min × czas"
    }
   },
@@ -20411,6 +20507,17 @@
    "ta_sama": [],
    "podobne": [
     {
+     "salon": "Tattoo Mucha Studio - Matt Piercer",
+     "booksy_id": 336057,
+     "id_oferty": "48818986",
+     "nazwa": "Usuwanie przebarwień",
+     "wariant": "",
+     "cena": 250,
+     "min": 45.0,
+     "zl_min": 5.556,
+     "powod": "różne słowa: 15х7 cm tatuaz / przebarwien"
+    },
+    {
      "salon": "Alinka permanent",
      "booksy_id": 241416,
      "id_oferty": "53453032",
@@ -20420,28 +20527,6 @@
      "min": 40.0,
      "zl_min": 6.25,
      "powod": "różne słowa: 15х7 cm tatuaz / kresk"
-    },
-    {
-     "salon": "Alinka permanent",
-     "booksy_id": 241416,
-     "id_oferty": "53453039",
-     "nazwa": "Laserowe usuwanie tatuażu",
-     "wariant": "",
-     "cena": 170,
-     "min": 60.0,
-     "zl_min": 2.833,
-     "powod": "gdzie_ile: „15х7 cm” tylko po jednej stronie"
-    },
-    {
-     "salon": "Alinka permanent",
-     "booksy_id": 241416,
-     "id_oferty": "53453040",
-     "nazwa": "Laserowe usuwanie ust",
-     "wariant": "",
-     "cena": 200,
-     "min": 30.0,
-     "zl_min": 6.667,
-     "powod": "różne słowa: 15х7 cm tatuaz / ust"
     }
    ],
    "min": 45.0,
@@ -20449,11 +20534,11 @@
     "n": 0
    },
    "podobne_stat": {
-    "n": 1,
-    "mediana": 200,
-    "p25": 281,
-    "p75": 281,
-    "rynkowa": 281,
+    "n": 2,
+    "mediana": 250,
+    "p25": 258,
+    "p75": 273,
+    "rynkowa": 266,
     "rynkowa_z": "zł/min × czas"
    }
   },

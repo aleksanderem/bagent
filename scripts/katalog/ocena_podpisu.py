@@ -21,6 +21,7 @@ sys.path[:0] = [str(B), str(B / "scripts")]
 from services.katalog_uslug.ekstrakcja import WERSJA_PROMPTU, oferty_z_uslugi  # noqa: E402
 from services.katalog_uslug.normalizacja import normalizuj  # noqa: E402
 from services.katalog_uslug.podpis import TA_SAMA, Klasy, podpis, porownaj  # noqa: E402
+from services.katalog_uslug import podpis as _podpis_mod  # noqa: E402
 
 _spec = importlib.util.spec_from_file_location("test_paczek", B / "scripts" / "katalog" / "test_paczek.py")
 tp = importlib.util.module_from_spec(_spec)
@@ -46,6 +47,20 @@ def pary_ocenione() -> list[dict]:
                           "v14f": v14f.get((int(q["a"]), int(q["b"]))) if z in V14F else None,
                           "b0": normalizuj(a["nazwa"]) == normalizuj(b["nazwa"])})
     return wynik
+
+
+def slownictwo_rynku(rek: dict[str, dict], slownik: dict | None) -> frozenset[str]:
+    """Słownictwo cech z WSZYSTKICH znanych rekordów wyciągania (zbiór par, raporty, sprawdziany) — przybliżenie
+    słownictwa całego rynku, bez moich ocen."""
+    wszystkie = dict(rek)
+    for plik in (B / "scripts" / "katalog" / "dane" / "2026-09-29").glob("**/p12.json"):
+        if "paczki" in plik.parts:
+            continue
+        for v in json.loads(plik.read_text(encoding="utf-8")).values():
+            for r in (v.get("odp") or {}).get("oferty") or [] if isinstance(v, dict) else []:
+                if isinstance(r, dict):
+                    wszystkie.setdefault(f"{plik.parent.name}:{r.get('id')}", r)
+    return _podpis_mod.slownictwo(wszystkie.values(), slownik)
 
 
 def metryki(pary: list[dict], klucz) -> tuple[int, int, int, int]:
@@ -89,9 +104,10 @@ def main() -> None:
                       rownowazne={tuple(v["klasa"]) for v in zam.values() if zamiana_rownowazna(v)})
         print(f"klasy nieistotne (TypeSafe „nie zmienia”): {len(set(klasy.opisowe))} z {len(rozstrz)}; "
               f"zamiany słów „to samo”: {len(set(klasy.rownowazne))} z {len(zam)}")
+    slowa = slownictwo_rynku(rek, slownik)
     for q in pary:
         ra, rb = rek.get(q["oa"].id), rek.get(q["ob"].id)
-        q["podpis"], q["powod"] = (porownaj(podpis(ra, slownik, kon.get(q["oa"].id)), podpis(rb, slownik, kon.get(q["ob"].id)), klasy)
+        q["podpis"], q["powod"] = (porownaj(podpis(ra, slownik, kon.get(q["oa"].id), slowa), podpis(rb, slownik, kon.get(q["ob"].id), slowa), klasy)
                                     if ra and rb else ("brak", "brak rekordu"))
     for nazwa, zbior in (("wszystkie 7 zbiorów", pary), ("zbiory 3–6 (z v14f)", [q for q in pary if q["zbior"] in V14F])):
         print(f"\n{nazwa}: par {len(zbior)}")

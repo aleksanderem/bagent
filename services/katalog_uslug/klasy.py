@@ -40,7 +40,9 @@ def pytanie_klasy(poziom: str, dopisek: str, oferta: str, druga: str) -> Score:
              ["„UV” przy uzupełnianiu rzęs", "„zdjęcie” przy manicure hybrydowym", "„łydki” przy depilacji"])))
 
 
-WERSJA_ZAMIANY = 1
+WERSJA_ZAMIANY = 2  # v2: opcja „nie wiadomo” (docs TypeSafe: wyjście, gdy nic nie pasuje) — v1 bez niej wciskało nazwy
+# własne w „to samo” (raport testowy 29.09: „Cyber Bites” / „Przekłucie” 0,88, „Medusa” / „Smile” 0,87)
+NIE_WIADOMO_REL = "nie_wiadomo"
 PROG_TO_SAMO = 0.8  # ten sam ostry próg co przy scalaniu słownika synonimów (synonimy.py) — nie strojony na parach
 
 
@@ -65,7 +67,11 @@ def pytanie_zamiany(slowa_a: str, slowa_b: str, oferta_a: str, oferta_b: str) ->
                       "not_for": "ta sama rzecz inaczej nazwana", "examples": ["„całe nogi” wobec „łydek” przy depilacji"]},
             INNE: {"what": "różne rzeczy — inna usługa, metoda, obszar, rozmiar, liczba, etap albo dodatkowa część usługi",
                    "not_for": "ta sama rzecz inaczej nazwana",
-                   "examples": ["„pachy” i „łydki” przy depilacji", "„klasyczny” i „hybrydowy” przy manicure"]}})
+                   "examples": ["„pachy” i „łydki” przy depilacji", "„klasyczny” i „hybrydowy” przy manicure"]},
+            NIE_WIADOMO_REL: {"what": "z ofert i salonów nie da się rozstrzygnąć, co znaczy któreś ze słów — nazwa własna, "
+                                      "marka albo określenie branżowe, którego nic w ofercie nie wyjaśnia",
+                              "not_for": "słowa, których znaczenie wynika z ofert",
+                              "examples": ["nazwa techniki salonu bez opisu"]}})
 
 
 def zamiana_rownowazna(wpis: dict) -> bool:
@@ -77,5 +83,5 @@ def rozstrzygnij(score: float | None) -> int:
     return poziom_score(score)
 
 
-__all__ = ["NIE_WIADOMO", "NIE_ZMIENIA", "OPIS_POZIOMU", "PROG_TO_SAMO", "WERSJA_PYTANIA", "WERSJA_ZAMIANY", "ZMIENIA",
+__all__ = ["NIE_WIADOMO", "NIE_WIADOMO_REL", "NIE_ZMIENIA", "OPIS_POZIOMU", "PROG_TO_SAMO", "WERSJA_PYTANIA", "WERSJA_ZAMIANY", "ZMIENIA",
            "pytanie_klasy", "pytanie_zamiany", "rozstrzygnij", "zamiana_rownowazna"]

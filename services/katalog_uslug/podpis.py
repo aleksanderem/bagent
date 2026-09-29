@@ -113,13 +113,29 @@ def _wybrane_frazy(rek: dict[str, Any], kontekst: dict[str, Any] | None = None,
                          or r == "miejsce")]
 
 
-def podpis(rek: dict[str, Any], slownik: dict[str, str] | None = None, kontekst: dict[str, Any] | None = None) -> Podpis:
+def slownictwo(rekordy: Iterable[dict[str, Any]], slownik: dict[str, str] | None = None) -> frozenset[str]:
+    """Rdzenie słów, które w ofertach rynku są zabiegiem albo cechą (bez wykonawcy) — do rozpoznania szumu."""
+    s = slownik or {}
+    return frozenset(w for r in rekordy for rola, _zr, f in _frazy(r) if f and rola != "specjalista" for w in _slowa(f, s))
+
+
+def podpis(rek: dict[str, Any], slownik: dict[str, str] | None = None, kontekst: dict[str, Any] | None = None,
+           slownictwo: frozenset[str] | None = None) -> Podpis:
     """Słowa nazwy i wariantu, których model nie przypisał (ani do cechy, ani do szumu), wchodzą do zbioru jako „inne”
     — pomiar 29.09: to głównie słowa oczywiste („włosy” w wariancie „Włosy długie”) i pominięte „combo” / „komplet”;
-    więcej słów = mniej fałszywych „ta sama”, a blokada gubiła pary."""
+    więcej słów = mniej fałszywych „ta sama”, a blokada gubiła pary.
+
+    Tak samo słowo nazwy, które model dał do szumu, a które w innych ofertach rynku jest zabiegiem albo cechą
+    (`slownictwo`): pomiar 29.09 — 10% ofert ma w szumie słowa nazwy, często treść („przebarwień”, „masaż”, „brwi”,
+    „Symetryczne” przy piercingu brwi → fałszywa „ta sama” z pojedynczym przekłuciem). Szum spoza słownictwa rynku
+    (promocje, płatność, marketing) zostaje szumem."""
     s = slownik or {}
-    poziomy = {(poz, w) for poz, f in _wybrane_frazy(rek, kontekst) for w in _slowa(f, s)}
+    poziomy = {(poz, w) for poz, f in _wybrane_frazy(rek, kontekst, s) for w in _slowa(f, s)}
     dopisane = {("inne", w) for w in _slowa(" ".join(rek.get("nieprzypisane") or ()), s)}
+    if slownictwo:
+        w_nazwie = set(_slowa(str(rek.get("nazwa") or ""), s))
+        dopisane |= {("inne", w) for f in rek.get("szum") or () for w in _slowa(str(f), s)
+                     if w in slownictwo and w in w_nazwie}
     wlasne = {w for r, zr, f in _frazy(rek) if zr in WLASNE and r not in ("specjalista",) for w in _slowa(f, s)}
     poziomy |= dopisane
     return Podpis(frozenset(w for _p, w in poziomy), frozenset(poziomy), rek.get("pozycja") or "zabieg",

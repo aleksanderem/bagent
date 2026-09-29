@@ -3211,5 +3211,1025 @@
    "1": 0.06,
    "2": 0.86
   }
+ },
+ "[\"platk przekluwan ucha\", \"rdzen\", \"uszu\"]": {
+  "klasa": [
+   "platk przekluwan ucha",
+   "rdzen",
+   "uszu"
+  ],
+  "dopisek": "uszu",
+  "zabieg": "Przekłuwanie uszu",
+  "druga": "Przekłucie Płatka Ucha",
+  "oferta": "48678281#1",
+  "score": 0.22,
+  "rozklad": {
+   "0": 0.86,
+   "1": 0.06,
+   "2": 0.08
+  }
+ },
+ "[\"tatuaz\", \"gdzie_ile\", \"2 30 cm czcionk dlugosc do kark lekk lini od ok pisan plec stanik szerokosc zapiec\"]": {
+  "klasa": [
+   "tatuaz",
+   "gdzie_ile",
+   "2 30 cm czcionk dlugosc do kark lekk lini od ok pisan plec stanik szerokosc zapiec"
+  ],
+  "dopisek": "pleców Długość ok 30 cm (od karku do lini zapięcia stanika) czcionka pisana, lekka 2 szerokość",
+  "zabieg": "Tatuaż",
+  "druga": "Tatuaż",
+  "oferta": "55738159#0",
+  "score": 1.7,
+  "rozklad": {
+   "0": 0.14,
+   "1": 0.03,
+   "2": 0.83
+  }
+ },
+ "[\"tatuaz\", \"inne\", \"napis wzdloz\"]": {
+  "klasa": [
+   "tatuaz",
+   "inne",
+   "napis wzdloz"
+  ],
+  "dopisek": "Napis wzdłóż",
+  "zabieg": "Tatuaż",
+  "druga": "Tatuaż",
+  "oferta": "55738159#0",
+  "score": 1.87,
+  "rozklad": {
+   "0": 0.06,
+   "1": 0.01,
+   "2": 0.93
+  }
+ },
+ "[\"bridg\", \"rdzen\", \"przekluwan uszu\"]": {
+  "klasa": [
+   "bridg",
+   "rdzen",
+   "przekluwan uszu"
+  ],
+  "dopisek": "Przekłuwanie uszu",
+  "zabieg": "Przekłuwanie uszu",
+  "druga": "Bridge",
+  "oferta": "52489261#1",
+  "score": 1.93,
+  "rozklad": {
+   "0": 0.03,
+   "1": 0.01,
+   "2": 0.96
+  }
+ },
+ "[\"tatuaz\", \"inne\", \"jedn napis slow\"]": {
+  "klasa": [
+   "tatuaz",
+   "inne",
+   "jedn napis slow"
+  ],
+  "dopisek": "napis (jedno słowo)",
+  "zabieg": "Tatuaż",
+  "druga": "Tatuaż",
+  "oferta": "55738157",
+  "score": 1.9,
+  "rozklad": {
+   "0": 0.05,
+   "1": 0.01,
+   "2": 0.94
+  }
+ },
+ "[\"nostril piercing\", \"gdzie_ile\", \"high nostrils podwojn przekluwan\"]": {
+  "klasa": [
+   "nostril piercing",
+   "gdzie_ile",
+   "high nostrils podwojn przekluwan"
+  ],
+  "dopisek": "High Podwójne przekłucie high nostrils",
+  "zabieg": "Piercing",
+  "druga": "Nostril",
+  "oferta": "54330411#1",
+  "score": 1.92,
+  "rozklad": {
+   "0": 0.03,
+   "1": 0.02,
+   "2": 0.95
+  }
+ },
+ "[\"industrial\", \"rdzen\", \"przekluwan uszu\"]": {
+  "klasa": [
+   "industrial",
+   "rdzen",
+   "przekluwan uszu"
+  ],
+  "dopisek": "Przekłuwanie uszu",
+  "zabieg": "Przekłuwanie uszu",
+  "druga": "Industrial",
+  "oferta": "52488649",
+  "score": 0.75,
+  "rozklad": {
+   "0": 0.57,
+   "1": 0.12,
+   "2": 0.31
+  }
+ },
+ "[\"piercing tragus\", \"gdzie_ile\", \"vertical\"]": {
+  "klasa": [
+   "piercing tragus",
+   "gdzie_ile",
+   "vertical"
+  ],
+  "dopisek": "Vertical",
+  "zabieg": "Piercing",
+  "druga": "Tragus",
+  "oferta": "54330384",
+  "score": 1.84,
+  "rozklad": {
+   "0": 0.06,
+   "1": 0.03,
+   "2": 0.91
+  }
+ },
+ "[\"tatuaz\", \"gdzie_ile\", \"5 cm do maly sredn wielkosc\"]": {
+  "klasa": [
+   "tatuaz",
+   "gdzie_ile",
+   "5 cm do maly sredn wielkosc"
+  ],
+  "dopisek": "Mały Średnia wielkość do 5 cm",
+  "zabieg": "Tatuaż",
+  "druga": "Tatuaż",
+  "oferta": "55738157",
+  "score": 1.72,
+  "rozklad": {
+   "0": 0.13,
+   "1": 0.03,
+   "2": 0.84
+  }
+ },
+ "[\"bridg\", \"gdzie_ile\", \"twarz\"]": {
+  "klasa": [
+   "bridg",
+   "gdzie_ile",
+   "twarz"
+  ],
+  "dopisek": "Twarzy",
+  "zabieg": "Bridge",
+  "druga": "Bridge",
+  "oferta": "52488658",
+  "score": 0.25,
+  "rozklad": {
+   "0": 0.83,
+   "1": 0.1,
+   "2": 0.07
+  }
+ },
+ "[\"bridg\", \"gdzie_ile\", \"nos\"]": {
+  "klasa": [
+   "bridg",
+   "gdzie_ile",
+   "nos"
+  ],
+  "dopisek": "Nos",
+  "zabieg": "Kolczyk w nosie",
+  "druga": "Bridge",
+  "oferta": "46995549",
+  "score": 1.46,
+  "rozklad": {
+   "0": 0.25,
+   "1": 0.05,
+   "2": 0.7
+  }
+ },
+ "[\"tatuaz\", \"rdzen\", \"laser remover usuniec\"]": {
+  "klasa": [
+   "tatuaz",
+   "rdzen",
+   "laser remover usuniec"
+  ],
+  "dopisek": "Usuwanie Remover usuwanie Laserowe",
+  "zabieg": "Usuwanie tatuażu",
+  "druga": "Tatuaż",
+  "oferta": "53453041",
+  "score": 1.81,
+  "rozklad": {
+   "0": 0.08,
+   "1": 0.03,
+   "2": 0.89
+  }
+ },
+ "[\"kolczyk wymian\", \"gdzie_ile\", \"cial\"]": {
+  "klasa": [
+   "kolczyk wymian",
+   "gdzie_ile",
+   "cial"
+  ],
+  "dopisek": "CIAŁA",
+  "zabieg": "Wymiana kolczyka",
+  "druga": "Wymiana kolczyka",
+  "oferta": "52488637",
+  "score": 0.55,
+  "rozklad": {
+   "0": 0.62,
+   "1": 0.21,
+   "2": 0.17
+  }
+ },
+ "[\"tatuaz\", \"rdzen\", \"makijaz permanentn\"]": {
+  "klasa": [
+   "tatuaz",
+   "rdzen",
+   "makijaz permanentn"
+  ],
+  "dopisek": "Makijaż permanentny",
+  "zabieg": "Makijaż permanentny",
+  "druga": "Tatuaż",
+  "oferta": "53453033",
+  "score": 1.06,
+  "rozklad": {
+   "0": 0.4,
+   "1": 0.13,
+   "2": 0.47000000000000003
+  }
+ },
+ "[\"tatuaz\", \"gdzie_ile\", \"brwi\"]": {
+  "klasa": [
+   "tatuaz",
+   "gdzie_ile",
+   "brwi"
+  ],
+  "dopisek": "brwi",
+  "zabieg": "Makijaż permanentny",
+  "druga": "Tatuaż",
+  "oferta": "53453033",
+  "score": 1.47,
+  "rozklad": {
+   "0": 0.24,
+   "1": 0.05,
+   "2": 0.71
+  }
+ },
+ "[\"platk przekluwan ucha\", \"gdzie_ile\", \"2 uszu x\"]": {
+  "klasa": [
+   "platk przekluwan ucha",
+   "gdzie_ile",
+   "2 uszu x"
+  ],
+  "dopisek": "2 x uszu",
+  "zabieg": "Przekłuwanie",
+  "druga": "Przekłucie Płatka Ucha",
+  "oferta": "48678281#0",
+  "score": 1.63,
+  "rozklad": {
+   "0": 0.14,
+   "1": 0.08,
+   "2": 0.78
+  }
+ },
+ "[\"industrial\", \"gdzie_ile\", \"uszu\"]": {
+  "klasa": [
+   "industrial",
+   "gdzie_ile",
+   "uszu"
+  ],
+  "dopisek": "uszu",
+  "zabieg": "Przekłuwanie uszu",
+  "druga": "Industrial",
+  "oferta": "48678292#0",
+  "score": 0.38,
+  "rozklad": {
+   "0": 0.76,
+   "1": 0.09,
+   "2": 0.15
+  }
+ },
+ "[\"industrial\", \"gdzie_ile\", \"uszy\"]": {
+  "klasa": [
+   "industrial",
+   "gdzie_ile",
+   "uszy"
+  ],
+  "dopisek": "Uszy",
+  "zabieg": "Piercing",
+  "druga": "Industrial",
+  "oferta": "48817331",
+  "score": 0.98,
+  "rozklad": {
+   "0": 0.44,
+   "1": 0.14,
+   "2": 0.42
+  }
+ },
+ "[\"industrial\", \"gdzie_ile\", \"ucho\"]": {
+  "klasa": [
+   "industrial",
+   "gdzie_ile",
+   "ucho"
+  ],
+  "dopisek": "Ucho",
+  "zabieg": "Piercing",
+  "druga": "Industrial",
+  "oferta": "48819399",
+  "score": 0.72,
+  "rozklad": {
+   "0": 0.61,
+   "1": 0.07,
+   "2": 0.32
+  }
+ },
+ "[\"industrial\", \"gdzie_ile\", \"18 uszu\"]": {
+  "klasa": [
+   "industrial",
+   "gdzie_ile",
+   "18 uszu"
+  ],
+  "dopisek": "uszu 18+",
+  "zabieg": "Przekłuwanie uszu",
+  "druga": "Industrial",
+  "oferta": "52489257#0",
+  "score": 0.54,
+  "rozklad": {
+   "0": 0.66,
+   "1": 0.14,
+   "2": 0.2
+  }
+ },
+ "[\"przekluwan warg\", \"gdzie_ile\", \"15 twarz\"]": {
+  "klasa": [
+   "przekluwan warg",
+   "gdzie_ile",
+   "15 twarz"
+  ],
+  "dopisek": "15+ twarzy",
+  "zabieg": "Przekłucie wargi",
+  "druga": "Przekłucie Wargi",
+  "oferta": "52489263#0",
+  "score": 0.84,
+  "rozklad": {
+   "0": 0.53,
+   "1": 0.09,
+   "2": 0.38
+  }
+ },
+ "[\"przekluwan warg\", \"inne\", \"labret standard\"]": {
+  "klasa": [
+   "przekluwan warg",
+   "inne",
+   "labret standard"
+  ],
+  "dopisek": "Standard labret",
+  "zabieg": "Piercing",
+  "druga": "Przekłucie Wargi",
+  "oferta": "54330393",
+  "score": 0.43,
+  "rozklad": {
+   "0": 0.75,
+   "1": 0.07,
+   "2": 0.18
+  }
+ },
+ "[\"przekluwan warg\", \"inne\", \"tong web\"]": {
+  "klasa": [
+   "przekluwan warg",
+   "inne",
+   "tong web"
+  ],
+  "dopisek": "tongue web",
+  "zabieg": "Piercing",
+  "druga": "Przekłucie Wargi",
+  "oferta": "54330400",
+  "score": 1.75,
+  "rozklad": {
+   "0": 0.11,
+   "1": 0.02,
+   "2": 0.87
+  }
+ },
+ "[\"przekluwan warg\", \"inne\", \"bites canin\"]": {
+  "klasa": [
+   "przekluwan warg",
+   "inne",
+   "bites canin"
+  ],
+  "dopisek": "Canine Bites",
+  "zabieg": "Piercing",
+  "druga": "Przekłucie Wargi",
+  "oferta": "54330406",
+  "score": 1.7,
+  "rozklad": {
+   "0": 0.14,
+   "1": 0.03,
+   "2": 0.83
+  }
+ },
+ "[\"microdermal\", \"gdzie_ile\", \"cial\"]": {
+  "klasa": [
+   "microdermal",
+   "gdzie_ile",
+   "cial"
+  ],
+  "dopisek": "Ciało",
+  "zabieg": "Piercing",
+  "druga": "Microdermal",
+  "oferta": "48817347",
+  "score": 0.72,
+  "rozklad": {
+   "0": 0.61,
+   "1": 0.06,
+   "2": 0.33
+  }
+ },
+ "[\"microdermal\", \"gdzie_ile\", \"18lat cial\"]": {
+  "klasa": [
+   "microdermal",
+   "gdzie_ile",
+   "18lat cial"
+  ],
+  "dopisek": "+18lat Ciało",
+  "zabieg": "Microdermal",
+  "druga": "Microdermal",
+  "oferta": "48818702",
+  "score": 1.09,
+  "rozklad": {
+   "0": 0.41,
+   "1": 0.09,
+   "2": 0.5
+  }
+ },
+ "[\"microdermal\", \"gdzie_ile\", \"18 cial\"]": {
+  "klasa": [
+   "microdermal",
+   "gdzie_ile",
+   "18 cial"
+  ],
+  "dopisek": "18+ ciała",
+  "zabieg": "Microdermal",
+  "druga": "Microdermal",
+  "oferta": "52489271#0",
+  "score": 0.12,
+  "rozklad": {
+   "0": 0.91,
+   "1": 0.06,
+   "2": 0.03
+  }
+ },
+ "[\"microdermal\", \"gdzie_ile\", \"2 pozostal\"]": {
+  "klasa": [
+   "microdermal",
+   "gdzie_ile",
+   "2 pozostal"
+  ],
+  "dopisek": "2 pozostałe",
+  "zabieg": "Piercing",
+  "druga": "Microdermal",
+  "oferta": "54330417#0",
+  "score": 1.62,
+  "rozklad": {
+   "0": 0.14,
+   "1": 0.11,
+   "2": 0.75
+  }
+ },
+ "[\"microdermal\", \"gdzie_ile\", \"1 pozostal\"]": {
+  "klasa": [
+   "microdermal",
+   "gdzie_ile",
+   "1 pozostal"
+  ],
+  "dopisek": "1 pozostałe",
+  "zabieg": "Microdermal",
+  "druga": "Microdermal",
+  "oferta": "54330417#1",
+  "score": 0.49,
+  "rozklad": {
+   "0": 0.62,
+   "1": 0.27,
+   "2": 0.11
+  }
+ },
+ "[\"microdermal\", \"gdzie_ile\", \"pozostal\"]": {
+  "klasa": [
+   "microdermal",
+   "gdzie_ile",
+   "pozostal"
+  ],
+  "dopisek": "pozostałe",
+  "zabieg": "Usunięcie",
+  "druga": "Microdermal",
+  "oferta": "54330419",
+  "score": 1.01,
+  "rozklad": {
+   "0": 0.4,
+   "1": 0.18,
+   "2": 0.42
+  }
+ },
+ "[\"septum\", \"gdzie_ile\", \"twarz\"]": {
+  "klasa": [
+   "septum",
+   "gdzie_ile",
+   "twarz"
+  ],
+  "dopisek": "Twarzy",
+  "zabieg": "Piercing",
+  "druga": "Septum",
+  "oferta": "52488651",
+  "score": 0.61,
+  "rozklad": {
+   "0": 0.67,
+   "1": 0.05,
+   "2": 0.28
+  }
+ },
+ "[\"remover usuniec\", \"rdzen\", \"laser tatuaz\"]": {
+  "klasa": [
+   "remover usuniec",
+   "rdzen",
+   "laser tatuaz"
+  ],
+  "dopisek": "tatuażu Laserowe",
+  "zabieg": "Usuwanie tatuażu",
+  "druga": "Usuwanie removerem",
+  "oferta": "53453041",
+  "score": 1.82,
+  "rozklad": {
+   "0": 0.08,
+   "1": 0.02,
+   "2": 0.9
+  }
+ },
+ "[\"tatuaz\", \"inne\", \"cena czarn\"]": {
+  "klasa": [
+   "tatuaz",
+   "inne",
+   "cena czarn"
+  ],
+  "dopisek": "czarny",
+  "zabieg": "Tatuaż",
+  "druga": "Tatuaż",
+  "oferta": "48562582",
+  "score": 0.7,
+  "rozklad": {
+   "0": 0.62,
+   "1": 0.07,
+   "2": 0.31
+  }
+ },
+ "[\"tatuaz\", \"inne\", \"do\"]": {
+  "klasa": [
+   "tatuaz",
+   "inne",
+   "do"
+  ],
+  "dopisek": "do",
+  "zabieg": "Tatuaż",
+  "druga": "Tatuaż",
+  "oferta": "48817354",
+  "score": 1.74,
+  "rozklad": {
+   "0": 0.1,
+   "1": 0.06,
+   "2": 0.84
+  }
+ },
+ "[\"tatuaz\", \"inne\", \"dwa napis slow\"]": {
+  "klasa": [
+   "tatuaz",
+   "inne",
+   "dwa napis slow"
+  ],
+  "dopisek": "dwa napis slow",
+  "zabieg": "Tatuaż",
+  "druga": "Tatuaż",
+  "oferta": "55738147",
+  "score": 1.66,
+  "rozklad": {
+   "0": 0.15,
+   "1": 0.04,
+   "2": 0.81
+  }
+ },
+ "[\"tatuaz\", \"inne\", \"cena\"]": {
+  "klasa": [
+   "tatuaz",
+   "inne",
+   "cena"
+  ],
+  "dopisek": "cena",
+  "zabieg": "Tatuaż",
+  "druga": "Tatuaż",
+  "oferta": "48562583",
+  "score": 0.28,
+  "rozklad": {
+   "0": 0.83,
+   "1": 0.07,
+   "2": 0.1
+  }
+ },
+ "[\"tatuaz\", \"inne\", \"indywidualn\"]": {
+  "klasa": [
+   "tatuaz",
+   "inne",
+   "indywidualn"
+  ],
+  "dopisek": "indywidualn",
+  "zabieg": "Laserowe usuwanie tatuażu",
+  "druga": "Tatuaż",
+  "oferta": "48818985",
+  "score": 0.66,
+  "rozklad": {
+   "0": 0.63,
+   "1": 0.08,
+   "2": 0.29
+  }
+ },
+ "[\"tatuaz\", \"inne\", \"1\"]": {
+  "klasa": [
+   "tatuaz",
+   "inne",
+   "1"
+  ],
+  "dopisek": "1",
+  "zabieg": "Tatuaż",
+  "druga": "Tatuaż",
+  "oferta": "52488670",
+  "score": 1.94,
+  "rozklad": {
+   "0": 0.02,
+   "1": 0.01,
+   "2": 0.97
+  }
+ },
+ "[\"tatuaz\", \"inne\", \"kompozycj kwiat\"]": {
+  "klasa": [
+   "tatuaz",
+   "inne",
+   "kompozycj kwiat"
+  ],
+  "dopisek": "kompozycj kwiat",
+  "zabieg": "Tatuaż",
+  "druga": "Tatuaż",
+  "oferta": "55738153",
+  "score": 1.66,
+  "rozklad": {
+   "0": 0.15,
+   "1": 0.04,
+   "2": 0.81
+  }
+ },
+ "[\"kolczyk wymian\", \"inne\", \"30 zl\"]": {
+  "klasa": [
+   "kolczyk wymian",
+   "inne",
+   "30 zl"
+  ],
+  "dopisek": "30 zl",
+  "zabieg": "Wymiana kolczyka",
+  "druga": "Wymiana kolczyka",
+  "oferta": "54329713",
+  "score": 0.5,
+  "rozklad": {
+   "0": 0.7,
+   "1": 0.1,
+   "2": 0.2
+  }
+ },
+ "[\"bridg\", \"inne\", \"od\"]": {
+  "klasa": [
+   "bridg",
+   "inne",
+   "od"
+  ],
+  "dopisek": "od",
+  "zabieg": "Piercing",
+  "druga": "Bridge",
+  "oferta": "48818687",
+  "score": 0.25,
+  "rozklad": {
+   "0": 0.83,
+   "1": 0.09,
+   "2": 0.08
+  }
+ },
+ "[\"tatuaz\", \"inne\", \"napis\"]": {
+  "klasa": [
+   "tatuaz",
+   "inne",
+   "napis"
+  ],
+  "dopisek": "napis",
+  "zabieg": "Tatuaż",
+  "druga": "Tatuaż",
+  "oferta": "55738160",
+  "score": 1.85,
+  "rozklad": {
+   "0": 0.06,
+   "1": 0.03,
+   "2": 0.91
+  }
+ },
+ "[\"platk przekluwan ucha\", \"inne\", \"14\"]": {
+  "klasa": [
+   "platk przekluwan ucha",
+   "inne",
+   "14"
+  ],
+  "dopisek": "14",
+  "zabieg": "Przekłuwanie",
+  "druga": "Przekłucie Płatka Ucha",
+  "oferta": "52489247#1",
+  "score": 0.47,
+  "rozklad": {
+   "0": 0.72,
+   "1": 0.09,
+   "2": 0.19
+  }
+ },
+ "[\"przekluwan warg\", \"inne\", \"15 labret medus monr\"]": {
+  "klasa": [
+   "przekluwan warg",
+   "inne",
+   "15 labret medus monr"
+  ],
+  "dopisek": "Labret/ Medusa/ Monroe",
+  "zabieg": "Przekłucie",
+  "druga": "Przekłucie Wargi",
+  "oferta": "52489262#0",
+  "score": 0.8,
+  "rozklad": {
+   "0": 0.56,
+   "1": 0.09,
+   "2": 0.35
+  }
+ },
+ "[\"helix piercing\", \"inne\", \"15 od roku zyci\"]": {
+  "klasa": [
+   "helix piercing",
+   "inne",
+   "15 od roku zyci"
+  ],
+  "dopisek": "15 od roku zyci",
+  "zabieg": "Piercing",
+  "druga": "Helix",
+  "oferta": "48818965",
+  "score": 0.38,
+  "rozklad": {
+   "0": 0.77,
+   "1": 0.09,
+   "2": 0.14
+  }
+ },
+ "[\"przekluwan warg\", \"inne\", \"15 ashl\"]": {
+  "klasa": [
+   "przekluwan warg",
+   "inne",
+   "15 ashl"
+  ],
+  "dopisek": "Ashley",
+  "zabieg": "Przekłucie",
+  "druga": "Przekłucie Wargi",
+  "oferta": "52489264#1",
+  "score": 0.83,
+  "rozklad": {
+   "0": 0.54,
+   "1": 0.09,
+   "2": 0.37
+  }
+ },
+ "[\"przekluwan warg\", \"inne\", \"15\"]": {
+  "klasa": [
+   "przekluwan warg",
+   "inne",
+   "15"
+  ],
+  "dopisek": "15",
+  "zabieg": "Przekłucie",
+  "druga": "Przekłucie Wargi",
+  "oferta": "52489262#1",
+  "score": 0.34,
+  "rozklad": {
+   "0": 0.79,
+   "1": 0.07,
+   "2": 0.14
+  }
+ },
+ "[\"microdermal\", \"inne\", \"18\"]": {
+  "klasa": [
+   "microdermal",
+   "inne",
+   "18"
+  ],
+  "dopisek": "18",
+  "zabieg": "Piercing",
+  "druga": "Microdermal",
+  "oferta": "52489271#1",
+  "score": 0.21,
+  "rozklad": {
+   "0": 0.85,
+   "1": 0.08,
+   "2": 0.07
+  }
+ },
+ "[\"pepk piercing przekluwan\", \"poziom\", \"standard\"]": {
+  "klasa": [
+   "pepk piercing przekluwan",
+   "poziom",
+   "standard"
+  ],
+  "dopisek": "STANDARD",
+  "zabieg": "Przekłucie pępka",
+  "druga": "Przekłucie Pępka",
+  "oferta": "48678306#1",
+  "score": 0.12,
+  "rozklad": {
+   "0": 0.93,
+   "1": 0.03,
+   "2": 0.04
+  }
+ },
+ "[\"pepk piercing przekluwan\", \"inne\", \"navel\"]": {
+  "klasa": [
+   "pepk piercing przekluwan",
+   "inne",
+   "navel"
+  ],
+  "dopisek": "navel",
+  "zabieg": "Przekłucie pępka",
+  "druga": "Przekłucie Pępka",
+  "oferta": "48678306#1",
+  "score": 0.03,
+  "rozklad": {
+   "0": 0.98,
+   "1": 0.01,
+   "2": 0.01
+  }
+ },
+ "[\"przekluwan sutk\", \"inne\", \"18 lat od\"]": {
+  "klasa": [
+   "przekluwan sutk",
+   "inne",
+   "18 lat od"
+  ],
+  "dopisek": "18 lat od",
+  "zabieg": "Piercing",
+  "druga": "Przekłucie sutków",
+  "oferta": "48818700#0",
+  "score": 0.14,
+  "rozklad": {
+   "0": 0.91,
+   "1": 0.04,
+   "2": 0.05
+  }
+ },
+ "[\"przekluwan sutk\", \"inne\", \"zl\"]": {
+  "klasa": [
+   "przekluwan sutk",
+   "inne",
+   "zl"
+  ],
+  "dopisek": "zl",
+  "zabieg": "Przekłucie",
+  "druga": "Przekłucie sutków",
+  "oferta": "54329742",
+  "score": 0.38,
+  "rozklad": {
+   "0": 0.74,
+   "1": 0.14,
+   "2": 0.12
+  }
+ },
+ "[\"septum\", \"inne\", \"15lat od\"]": {
+  "klasa": [
+   "septum",
+   "inne",
+   "15lat od"
+  ],
+  "dopisek": "15lat od",
+  "zabieg": "Piercing",
+  "druga": "Septum",
+  "oferta": "48818690",
+  "score": 0.17,
+  "rozklad": {
+   "0": 0.88,
+   "1": 0.06,
+   "2": 0.06
+  }
+ },
+ "[\"septum\", \"inne\", \"15 od roku zyci\"]": {
+  "klasa": [
+   "septum",
+   "inne",
+   "15 od roku zyci"
+  ],
+  "dopisek": "15 od roku zyci",
+  "zabieg": "Septum",
+  "druga": "Septum",
+  "oferta": "48818981",
+  "score": 0.44,
+  "rozklad": {
+   "0": 0.74,
+   "1": 0.07,
+   "2": 0.19
+  }
+ },
+ "[\"jezyk przekluwan\", \"rdzen\", \"piercing\"]": {
+  "klasa": [
+   "jezyk przekluwan",
+   "rdzen",
+   "piercing"
+  ],
+  "dopisek": "Piercing",
+  "zabieg": "Piercing",
+  "druga": "Przekłucie Języka",
+  "oferta": "48819422",
+  "score": 0.47,
+  "rozklad": {
+   "0": 0.69,
+   "1": 0.15,
+   "2": 0.16
+  }
+ },
+ "[\"platk przekluwan ucha\", \"inne\", \"14 aleksandr\"]": {
+  "klasa": [
+   "platk przekluwan ucha",
+   "inne",
+   "14 aleksandr"
+  ],
+  "dopisek": "aleksandra",
+  "zabieg": "Przekłuwanie",
+  "druga": "Przekłucie Płatka Ucha",
+  "oferta": "52489247#0",
+  "score": 0.64,
+  "rozklad": {
+   "0": 0.37,
+   "1": 0.62,
+   "2": 0.01
+  }
+ },
+ "[\"jezyk przekluwan\", \"inne\", \"venom\"]": {
+  "klasa": [
+   "jezyk przekluwan",
+   "inne",
+   "venom"
+  ],
+  "dopisek": "venom",
+  "zabieg": "Piercing",
+  "druga": "Przekłucie Języka",
+  "oferta": "48819422",
+  "score": 1.58,
+  "rozklad": {
+   "0": 0.19,
+   "1": 0.05,
+   "2": 0.76
+  }
+ },
+ "[\"jezyk przekluwan\", \"inne\", \"14\"]": {
+  "klasa": [
+   "jezyk przekluwan",
+   "inne",
+   "14"
+  ],
+  "dopisek": "14",
+  "zabieg": "Przekłucie",
+  "druga": "Przekłucie Języka",
+  "oferta": "52489265#1",
+  "score": 0.6,
+  "rozklad": {
+   "0": 0.65,
+   "1": 0.11,
+   "2": 0.24
+  }
+ },
+ "[\"piercing tragus\", \"inne\", \"15 lat od\"]": {
+  "klasa": [
+   "piercing tragus",
+   "inne",
+   "15 lat od"
+  ],
+  "dopisek": "15 lat od",
+  "zabieg": "Piercing",
+  "druga": "Tragus",
+  "oferta": "48818681",
+  "score": 0.46,
+  "rozklad": {
+   "0": 0.72,
+   "1": 0.11,
+   "2": 0.17
+  }
+ },
+ "[\"piercing tragus\", \"inne\", \"u\"]": {
+  "klasa": [
+   "piercing tragus",
+   "inne",
+   "u"
+  ],
+  "dopisek": "u",
+  "zabieg": "Piercing",
+  "druga": "Tragus",
+  "oferta": "54330368",
+  "score": 0.52,
+  "rozklad": {
+   "0": 0.66,
+   "1": 0.15,
+   "2": 0.19
+  }
  }
 }

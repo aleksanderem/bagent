@@ -24,6 +24,10 @@ from services.katalog_uslug.klasy import (NIE_ZMIENIA, WERSJA_PYTANIA, WERSJA_ZA
                                           pytanie_zamiany, rozstrzygnij, zamiana_rownowazna)
 from services.katalog_uslug.normalizacja import normalizuj, rdzen_slowa  # noqa: E402
 from services.katalog_uslug.podpis import _wybrane_frazy, podpis, roznica_do_pytania, zamiana_do_pytania  # noqa: E402
+
+
+def slownictwo_rynku(rek: dict, slownik: dict | None) -> frozenset[str]:
+    return op.slownictwo_rynku(rek, slownik)
 from services.typesafe_drzewo.kontekst_v12 import stan_v12  # noqa: E402
 
 _spec = importlib.util.spec_from_file_location("ocena_podpisu", B / "scripts" / "katalog" / "ocena_podpisu.py")
@@ -55,12 +59,13 @@ def klasy_z_par(wariant: str, slownik: dict[str, str] | None = None, kon: dict |
     op.tp.OUT = op.tp.OUT.parent / f"w{WERSJA_PROMPTU}" / "wszystkie"
     pary = op.pary_ocenione()
     rek, _ = op.tp.rekordy(wariant, op.tp.oferty_probki(0))
+    slowa = slownictwo_rynku(rek, slownik)
     klasy: dict[str, dict] = {}
     for q in pary:
         ra, rb = rek.get(q["oa"].id), rek.get(q["ob"].id)
         if not (ra and rb):
             continue
-        pa, pb = podpis(ra, slownik, kon.get(q["oa"].id)), podpis(rb, slownik, kon.get(q["ob"].id))
+        pa, pb = podpis(ra, slownik, kon.get(q["oa"].id), slowa), podpis(rb, slownik, kon.get(q["ob"].id), slowa)
         for klasa, strona in roznica_do_pytania(pa, pb):
             klucz = json.dumps(klasa, ensure_ascii=False)
             if klucz in klasy:
@@ -91,17 +96,18 @@ def zamiany_z_par(wariant: str, slownik: dict[str, str] | None = None, kon: dict
     """Klasy zamiany słów (różnica po obu stronach, podpis.zamiana_slow) z ocenionych par."""
     op.tp.OUT = PLIK.parent / "wszystkie"  # ścieżka bezwzględna — klasy_z_par już ją przestawiło
     rek, _ = op.tp.rekordy(wariant, op.tp.oferty_probki(0))
-    return zamiany_ofert([(q["oa"], q["ob"]) for q in op.pary_ocenione()], rek, slownik, kon or {})
+    return zamiany_ofert([(q["oa"], q["ob"]) for q in op.pary_ocenione()], rek, slownik, kon or {},
+                         slownictwo_rynku(rek, slownik))
 
 
-def zamiany_ofert(pary: list, rek: dict, slownik: dict | None, kon: dict) -> dict[str, dict]:
+def zamiany_ofert(pary: list, rek: dict, slownik: dict | None, kon: dict, slowa: frozenset[str] | None = None) -> dict[str, dict]:
     """Klucz klasy → reprezentant (pierwsza para z tą klasą): nazwy i słowa różnicy w brzmieniu z ofert, stan obu ofert."""
     zamiany: dict[str, dict] = {}
     for oa, ob in pary:
         ra, rb = rek.get(oa.id), rek.get(ob.id)
         if not (ra and rb):
             continue
-        pa, pb = podpis(ra, slownik, kon.get(oa.id)), podpis(rb, slownik, kon.get(ob.id))
+        pa, pb = podpis(ra, slownik, kon.get(oa.id), slowa), podpis(rb, slownik, kon.get(ob.id), slowa)
         if (z := zamiana_do_pytania(pa, pb)) is None:
             continue
         klucz = json.dumps(z, ensure_ascii=False)

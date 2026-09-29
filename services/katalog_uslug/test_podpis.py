@@ -2,7 +2,7 @@
 from __future__ import annotations
 
 from services.katalog_uslug.podpis import (INNA, PODOBNA, TA_SAMA, Klasy, klasy_roznicy, podpis, porownaj,
-                                           roznica_do_pytania, zamiana_slow)
+                                           roznica_do_pytania, slownictwo, zamiana_slow)
 
 
 def rek(zabieg: str = "Strzyżenie", cechy: list[tuple[str, str]] | None = None, pozycja: str = "zabieg",
@@ -181,3 +181,12 @@ def test_zamiana_nie_dla_skladu_ani_dlugiej_roznicy() -> None:
     assert zamiana_slow(maska, ampulka) is None  # dodatek w nazwie = podobna, bez pytania
     dluga = podpis(rek(cechy=[("obszar", "włosów"), ("rozmiar", "bardzo długich"), ("dla_kogo", "damskie")]))
     assert zamiana_slow(podpis(rek(cechy=[("obszar", "głowy")])), dluga) is None  # 1 słowo / 3 słowa — inny zestaw cech
+
+
+def test_szum_z_nazwy_wraca_gdy_slowo_jest_cecha_w_innych_ofertach() -> None:
+    brwi = {**rek(zabieg="Piercing", cechy=[("obszar", "Brwi")]), "nazwa": "Symetryczne Brwi", "szum": ["Symetryczne", "PROMO"]}
+    inne_oferty = [rek(zabieg="Piercing", cechy=[("liczba", "symetryczne")]), rek(zabieg="Promocja")]
+    slowa = slownictwo(inne_oferty)
+    assert "symetryczn" in slowa and "promo" not in slowa
+    assert podpis(brwi, slownictwo=slowa).zbior == {"piercing", "brwi", "symetryczn"}  # „PROMO” zostaje szumem
+    assert podpis(brwi).zbior == {"piercing", "brwi"}  # bez słownictwa rynku — jak dotąd

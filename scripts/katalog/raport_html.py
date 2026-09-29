@@ -123,10 +123,14 @@ def main() -> None:
             rows.append(f'<tr><td><div class="name">{nazwa}</div>{dopasowania(lst_m, ocena, x["id"])}</td>'
                         f'<td class="num">{zl(x["cena"])}<div class="var">{czas}</div></td>'
                         f'<td>{znak}</td><td class="num">{zl(rynek)}{zakres}</td><td class="num">{roznica(x["cena"], rynek)}</td></tr>')
-    ocen = [v for v in ocena.values()]
+    # tylko pary, które TERAZ są „ta sama” — pamięć ocen trzyma też pary z poprzednich wersji dopasowania
+    biezace = [f'{x["id"]}|{m["id_oferty"]}' for x in w for m in x["ta_sama"]]
+    ocen = [ocena[k] for k in biezace if k in ocena]
+    bez_oceny = len(biezace) - len(ocen)
     jakosc = (f'<p>Sprawdziłem ręcznie {len(ocen)} par „ta sama” według modelu tej samej usługi: trafne '
-              f'{sum(v == "T" for v in ocen)} ({sum(v == "T" for v in ocen) / len(ocen):.0%}). Znaczek przy ofercie: '
-              f'✓ ta sama, ✗ P podobna, ✗ I inna.</p>') if ocen else ""
+              f'{sum(v == "T" for v in ocen)} ({sum(v == "T" for v in ocen) / len(ocen):.0%})'
+              + (f'; {bez_oceny} bez oceny' if bez_oceny else '') + '. Znaczek przy ofercie: '
+              '✓ ta sama, ✗ P podobna, ✗ I inna.</p>') if ocen else ""
     strona = f"""<title>{html.escape(tytul or "Test dopasowania " + p['name'][:40])}</title>
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700&display=swap">
@@ -147,7 +151,8 @@ def main() -> None:
     <h2>Jak to policzono</h2>
     <ul>
       <li>Cennik salonu i 25 najbliższych studiów tej samej branży z bazy (odczyt), każdy wariant z własną ceną to osobna oferta.</li>
-      <li>Cechy każdej oferty wyciągnął model z abonamentu Z.ai; „ta sama” = ten sam zbiór znaczących słów oferty; dopisek po jednej stronie rozstrzygnął raz TypeSafe (np. czy „do 15 cm” zmienia usługę); dodatek w nazwie = podobna.</li>
+      <li>Cechy każdej oferty wyciągnął model z abonamentu Z.ai; „ta sama” = ten sam zbiór znaczących słów oferty, uzupełniony o to, co mówi nagłówek kategorii cennika (np. „laserowa”, „PREMIUM”).</li>
+      <li>Różnicę rozstrzygał TypeSafe raz na rodzaj różnicy: dopisek po jednej stronie (czy „do 15 cm” zmienia usługę) albo inne słowo po każdej stronie (czy „głowy” i „włosów” to to samo); dodatek w nazwie = podobna.</li>
       <li>Cena rynkowa jak w produkcji: mediana ceny za minutę × czas usługi salonu, gdy znany czas; jeden głos na salon.</li>
       <li>Gdy „tej samej” są mniej niż 3 salony, pokazane są ceny podobnych usług (ten sam zabieg i metoda, inny szczegół).</li>
     </ul>

@@ -4945,5 +4945,175 @@
    "1": 0.12,
    "2": 0.08
   }
+ },
+ "[\"brwi makijaz permanentn\", \"inne\", \"3 cena po\"]": {
+  "klasa": [
+   "brwi makijaz permanentn",
+   "inne",
+   "3 cena po"
+  ],
+  "dopisek": "3 cena po",
+  "zabieg": "odświeżenie makijażu permanentnego brwi- CENA PO 3 LATACH — odświeżenie makijażu permanentnego brwi- CENA PO 3 LATACH",
+  "druga": "Makijaż permanentny brwi",
+  "oferta": "7327390",
+  "score": 1.64,
+  "rozklad": {
+   "0": 0.17,
+   "1": 0.03,
+   "2": 0.8
+  }
+ },
+ "[\"endermolog\", \"inne\", \"30\"]": {
+  "klasa": [
+   "endermolog",
+   "inne",
+   "30"
+  ],
+  "dopisek": "30",
+  "zabieg": "Endermologia INTEGRAL II 30' — Endermologia INTEGRAL II 30'",
+  "druga": "Endermologia",
+  "oferta": "5636332",
+  "score": 1.22,
+  "rozklad": {
+   "0": 0.3,
+   "1": 0.18,
+   "2": 0.52
+  }
+ },
+ "[\"dlug ombr sombr strzyzen wlos\", \"rdzen\", \"balleyag\"]": {
+  "klasa": [
+   "dlug ombr sombr strzyzen wlos",
+   "rdzen",
+   "balleyag"
+  ],
+  "dopisek": "Balleyage/Sombre/Ombre",
+  "zabieg": "Balleyage/Sombre/Ombre + strzyżenie- włosy długie",
+  "druga": "Ombre, sombre ze strzyżeniem wł długie",
+  "oferta": "5974211",
+  "score": 0.74,
+  "rozklad": {
+   "0": 0.56,
+   "1": 0.14,
+   "2": 0.3
+  }
+ },
+ "[\"mesk strzyzen\", \"inne\", \"haircut men s\"]": {
+  "klasa": [
+   "mesk strzyzen",
+   "inne",
+   "haircut men s"
+  ],
+  "dopisek": "haircut men s",
+  "zabieg": "Strzyżenie męskie / Men's haircut",
+  "druga": "Strzyżenie męskie",
+  "oferta": "6615715",
+  "score": 0.04,
+  "rozklad": {
+   "0": 0.96,
+   "1": 0.04,
+   "2": 0.0
+  }
+ },
+ "[\"dlug ombr sombr strzyzen wlos\", \"gdzie_ile\", \"b\"]": {
+  "klasa": [
+   "dlug ombr sombr strzyzen wlos",
+   "gdzie_ile",
+   "b"
+  ],
+  "dopisek": "B.Długie",
+  "zabieg": "Ombre/sombre Włosy B.Długie+strzyżenie",
+  "druga": "Ombre, sombre ze strzyżeniem wł długie",
+  "oferta": "6940884",
+  "score": 0.49,
+  "rozklad": {
+   "0": 0.71,
+   "1": 0.09,
+   "2": 0.2
+  }
+ },
+ "[\"ombr strzyzen\", \"inne\", \"wlos\"]": {
+  "klasa": [
+   "ombr strzyzen",
+   "inne",
+   "wlos"
+  ],
+  "dopisek": "wlos",
+  "zabieg": "Ombre, sombre ze strzyżeniem wł długie",
+  "druga": "Ombre + strzyżenie",
+  "oferta": "55167423",
+  "score": 0.69,
+  "rozklad": {
+   "0": 0.57,
+   "1": 0.17,
+   "2": 0.26
+  }
+ },
+ "[\"ojciec strzyzen syn\", \"inne\", \"father haircut son\"]": {
+  "klasa": [
+   "ojciec strzyzen syn",
+   "inne",
+   "father haircut son"
+  ],
+  "dopisek": "father son",
+  "zabieg": "Ojciec+Syn strzyżenie męskie/Father&Son/haircut👨‍",
+  "druga": "Strzyżenie ojciec i syn",
+  "oferta": "54730773",
+  "score": 0.51,
+  "rozklad": {
+   "0": 0.66,
+   "1": 0.16,
+   "2": 0.18
+  }
+ },
+ "[\"mesk ojciec strzyzen syn\", \"inne\", \"father haircut son\"]": {
+  "klasa": [
+   "mesk ojciec strzyzen syn",
+   "inne",
+   "father haircut son"
+  ],
+  "dopisek": "father son",
+  "zabieg": "Ojciec+Syn strzyżenie męskie/Father&Son/haircut👨‍",
+  "druga": "Strzyżenie męskie tata+ syn",
+  "oferta": "54730773",
+  "score": 0.78,
+  "rozklad": {
+   "0": 0.55,
+   "1": 0.12,
+   "2": 0.33
+  }
+ },
+ "[\"kobid masaz\", \"inne\", \"ok\"]": {
+  "klasa": [
+   "kobid masaz",
+   "inne",
+   "ok"
+  ],
+  "dopisek": "ok",
+  "zabieg": "Masaż Kobido (ok. 70 min)",
+  "druga": "Masaż KOBIDO 80 min",
+  "oferta": "7246622",
+  "score": 0.42,
+  "rozklad": {
+   "0": 0.71,
+   "1": 0.15,
+   "2": 0.14
+  }
+ },
+ "[\"makijaz permanentn usuniec\", \"inne\", \"od\"]": {
+  "klasa": [
+   "makijaz permanentn usuniec",
+   "inne",
+   "od"
+  ],
+  "dopisek": "od",
+  "zabieg": "Usuwanie makijażu permanentnego od",
+  "druga": "Usunięcie Permanentnego Makijażu",
+  "oferta": "6611311",
+  "score": 0.44,
+  "rozklad": {
+   "0": 0.58,
+   "1": 0.4,
+   "2": 0.02
+  }
  }
 }

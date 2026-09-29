@@ -1,0 +1,3365 @@
+{
+ "[\"bikin depilacj glebok\", \"laser\", \"pach\"]": {
+  "klasa": [
+   "bikin depilacj glebok",
+   "laser",
+   "pach"
+  ],
+  "a": "Depilacja laserowa bikini głębokie",
+  "b": "Bikini głębokie + pachy",
+  "slowa_a": "laserowa",
+  "slowa_b": "pachy",
+  "relacja": "inne",
+  "rozklad": {
+   "to_samo": 0.0,
+   "wezsze": 0.0,
+   "szersze": 0.02,
+   "inne": 0.98,
+   "nie_wiadomo": 0.0
+  }
+ },
+ "[\"oczyszczan\", \"manualn twarz\", \"podstaw\"]": {
+  "klasa": [
+   "oczyszczan",
+   "manualn twarz",
+   "podstaw"
+  ],
+  "a": "oczyszczanie manualne twarzy — oczyszczanie manualne twarzy",
+  "b": "Podstawowe Oczyszczanie",
+  "slowa_a": "manualne twarzy",
+  "slowa_b": "Podstawowe",
+  "relacja": "to_samo",
+  "rozklad": {
+   "to_samo": 0.49,
+   "wezsze": 0.16,
+   "inne": 0.08,
+   "nie_wiadomo": 0.01,
+   "szersze": 0.26
+  }
+ },
+ "[\"masaz relaksacyjn\", \"cale cial\", \"calosc\"]": {
+  "klasa": [
+   "masaz relaksacyjn",
+   "cale cial",
+   "calosc"
+  ],
+  "a": "Masaż relaksacyjny całego ciała",
+  "b": "Masaż relaksacyjny całościowy",
+  "slowa_a": "całego ciała",
+  "slowa_b": "całościowy",
+  "relacja": "to_samo",
+  "rozklad": {
+   "wezsze": 0.01,
+   "to_samo": 0.99,
+   "szersze": 0.0,
+   "nie_wiadomo": 0.0,
+   "inne": 0.0
+  }
+ },
+ "[\"iglow mezoterap\", \"oczy\", \"oka okolic\"]": {
+  "klasa": [
+   "iglow mezoterap",
+   "oczy",
+   "oka okolic"
+  ],
+  "a": "mezoterapia igłowa -oczy",
+  "b": "Mezoterapia igłowa Okolica OKA",
+  "slowa_a": "-oczy",
+  "slowa_b": "Okolica OKA",
+  "relacja": "to_samo",
+  "rozklad": {
+   "to_samo": 0.92,
+   "wezsze": 0.02,
+   "szersze": 0.01,
+   "inne": 0.05,
+   "nie_wiadomo": 0.0
+  }
+ },
+ "[\"depilacj\", \"was\", \"wasik\"]": {
+  "klasa": [
+   "depilacj",
+   "was",
+   "wasik"
+  ],
+  "a": "Depilacja wąs",
+  "b": "Depilacja wąsik — depilacja wąsik",
+  "slowa_a": "wąs",
+  "slowa_b": "wąsik",
+  "relacja": "to_samo",
+  "rozklad": {
+   "wezsze": 0.01,
+   "szersze": 0.06,
+   "to_samo": 0.9,
+   "inne": 0.02,
+   "nie_wiadomo": 0.01
+  }
+ },
+ "[\"2:1 rzes\", \"przedluzan\", \"przedluzen\"]": {
+  "klasa": [
+   "2:1 rzes",
+   "przedluzan",
+   "przedluzen"
+  ],
+  "a": "Przedłużanie rzęs 2:1",
+  "b": "Przedłużenie rzęs 2:1",
+  "slowa_a": "Przedłużanie",
+  "slowa_b": "Przedłużenie",
+  "relacja": "to_samo",
+  "rozklad": {
+   "wezsze": 0.0,
+   "szersze": 0.0,
+   "to_samo": 0.98,
+   "inne": 0.02,
+   "nie_wiadomo": 0.0
+  }
+ },
+ "[\"rzes\", \"2:1 przedluzen\", \"2d przedluzan\"]": {
+  "klasa": [
+   "rzes",
+   "2:1 przedluzen",
+   "2d przedluzan"
+  ],
+  "a": "Przedłużenie rzęs 2:1",
+  "b": "przedłużanie rzęs 2D",
+  "slowa_a": "Przedłużenie 2:1",
+  "slowa_b": "przedłużanie 2D",
+  "relacja": "to_samo",
+  "rozklad": {
+   "inne": 0.0,
+   "to_samo": 0.99,
+   "nie_wiadomo": 0.0,
+   "szersze": 0.0,
+   "wezsze": 0.01
+  }
+ },
+ "[\"wosk\", \"nosa\", \"wasik\"]": {
+  "klasa": [
+   "wosk",
+   "nosa",
+   "wasik"
+  ],
+  "a": "Wosk Nosa",
+  "b": "Wosk wąsik",
+  "slowa_a": "Nosa",
+  "slowa_b": "wąsik",
+  "relacja": "inne",
+  "rozklad": {
+   "szersze": 0.0,
+   "to_samo": 0.0,
+   "wezsze": 0.0,
+   "nie_wiadomo": 0.0,
+   "inne": 1.0
+  }
+ },
+ "[\"brwi makijaz permanentn\", \"metod pudr\", \"ombr powder\"]": {
+  "klasa": [
+   "brwi makijaz permanentn",
+   "metod pudr",
+   "ombr powder"
+  ],
+  "a": "Makijaż permanentny brwi metodą pudrową",
+  "b": "Makijaż permanentny BRWI Ombre Powder",
+  "slowa_a": "metodą pudrową",
+  "slowa_b": "Ombre Powder",
+  "relacja": "to_samo",
+  "rozklad": {
+   "to_samo": 0.99,
+   "nie_wiadomo": 0.0,
+   "szersze": 0.01,
+   "wezsze": 0.0,
+   "inne": 0.0
+  }
+ },
+ "[\"black doll peeling wegl\", \"3 pakiet\", \"laser twarz\"]": {
+  "klasa": [
+   "black doll peeling wegl",
+   "3 pakiet",
+   "laser twarz"
+  ],
+  "a": "PEELING WĘGLOWY — Pakiet 3 zabiegów - PEELING WĘGLOWY",
+  "b": "Twarz - Laserowy Peeling Węglowy - Black Doll",
+  "slowa_a": "Pakiet 3",
+  "slowa_b": "Twarz Laserowy",
+  "relacja": "szersze",
+  "rozklad": {
+   "to_samo": 0.12,
+   "szersze": 0.37,
+   "inne": 0.26,
+   "nie_wiadomo": 0.01,
+   "wezsze": 0.24
+  }
+ },
+ "[\"hybryd pedicur\", \"kolor\", \"malowan\"]": {
+  "klasa": [
+   "hybryd pedicur",
+   "kolor",
+   "malowan"
+  ],
+  "a": "Pedicure hybrydowy kolor",
+  "b": "Pedicure malowanie hybrydowe",
+  "slowa_a": "kolor",
+  "slowa_b": "malowanie",
+  "relacja": "to_samo",
+  "rozklad": {
+   "to_samo": 0.82,
+   "szersze": 0.0,
+   "wezsze": 0.14,
+   "nie_wiadomo": 0.03,
+   "inne": 0.01
+  }
+ },
+ "[\"hybryd\", \"pedicur\", \"stop\"]": {
+  "klasa": [
+   "hybryd",
+   "pedicur",
+   "stop"
+  ],
+  "a": "Pedicure Hybrydowy",
+  "b": "Hybryda stopy",
+  "slowa_a": "Pedicure",
+  "slowa_b": "stopy",
+  "relacja": "to_samo",
+  "rozklad": {
+   "szersze": 0.06,
+   "nie_wiadomo": 0.0,
+   "wezsze": 0.01,
+   "to_samo": 0.92,
+   "inne": 0.01
+  }
+ },
+ "[\"przekluwan ucha\", \"1 dziurk\", \"jedn uszu\"]": {
+  "klasa": [
+   "przekluwan ucha",
+   "1 dziurk",
+   "jedn uszu"
+  ],
+  "a": "Przekłuwanie ucha ( 1 dziurka)",
+  "b": "Przekłuwanie Jednego Ucha",
+  "slowa_a": "1 dziurka",
+  "slowa_b": "Jednego uszu",
+  "relacja": "to_samo",
+  "rozklad": {
+   "nie_wiadomo": 0.0,
+   "szersze": 0.01,
+   "to_samo": 0.74,
+   "wezsze": 0.18,
+   "inne": 0.07
+  }
+ },
+ "[\"1 przekluwan\", \"dziurk ucha\", \"kolczyk uszu\"]": {
+  "klasa": [
+   "1 przekluwan",
+   "dziurk ucha",
+   "kolczyk uszu"
+  ],
+  "a": "Przekłuwanie ucha ( 1 dziurka)",
+  "b": "Przekłuwanie uszu - 1 Kolczyk",
+  "slowa_a": "ucha dziurka",
+  "slowa_b": "uszu Kolczyk",
+  "relacja": "to_samo",
+  "rozklad": {
+   "nie_wiadomo": 0.0,
+   "inne": 0.05,
+   "to_samo": 0.89,
+   "wezsze": 0.02,
+   "szersze": 0.04
+  }
+ },
+ "[\"rekonstrukcj\", \"paznokc\", \"plytk\"]": {
+  "klasa": [
+   "rekonstrukcj",
+   "paznokc",
+   "plytk"
+  ],
+  "a": "Rekonstrukcja paznokcia",
+  "b": "Rekonstrukcja płytki",
+  "slowa_a": "paznokcia",
+  "slowa_b": "płytki",
+  "relacja": "to_samo",
+  "rozklad": {
+   "to_samo": 0.87,
+   "wezsze": 0.05,
+   "nie_wiadomo": 0.02,
+   "szersze": 0.05,
+   "inne": 0.01
+  }
+ },
+ "[\"oczyszczan twarz wodor\", \"podstaw\", \"premium\"]": {
+  "klasa": [
+   "oczyszczan twarz wodor",
+   "podstaw",
+   "premium"
+  ],
+  "a": "Oczyszczanie wodorowe BASIC",
+  "b": "Oczyszczanie wodorowe twarzy PREMIUM",
+  "slowa_a": "BASIC",
+  "slowa_b": "PREMIUM",
+  "relacja": "wezsze",
+  "rozklad": {
+   "to_samo": 0.11,
+   "szersze": 0.0,
+   "wezsze": 0.63,
+   "nie_wiadomo": 0.02,
+   "inne": 0.24
+  }
+ },
+ "[\"bikin laser\", \"depilacj\", \"epilacj french\"]": {
+  "klasa": [
+   "bikin laser",
+   "depilacj",
+   "epilacj french"
+  ],
+  "a": "Depilacja laserowa bikini",
+  "b": "Epilacja laserowa - bikini french",
+  "slowa_a": "Depilacja",
+  "slowa_b": "Epilacja french",
+  "relacja": "inne",
+  "rozklad": {
+   "wezsze": 0.05,
+   "inne": 0.43,
+   "nie_wiadomo": 0.03,
+   "szersze": 0.27,
+   "to_samo": 0.22
+  }
+ },
+ "[\"dziasl gumm smil usmiech\", \"likwidacj premium\", \"redukcj\"]": {
+  "klasa": [
+   "dziasl gumm smil usmiech",
+   "likwidacj premium",
+   "redukcj"
+  ],
+  "a": "Likwidacja uśmiechu dziąsłowego \"gummy smile\"",
+  "b": "Redukcja uśmiechu dziąsłowego „gummy smile”",
+  "slowa_a": "Likwidacja PREMIUM",
+  "slowa_b": "Redukcja",
+  "relacja": "to_samo",
+  "rozklad": {
+   "inne": 0.0,
+   "to_samo": 0.96,
+   "szersze": 0.0,
+   "nie_wiadomo": 0.02,
+   "wezsze": 0.02
+  }
+ },
+ "[\"twarz\", \"elektroepilacj\", \"usuniec wlos\"]": {
+  "klasa": [
+   "twarz",
+   "elektroepilacj",
+   "usuniec wlos"
+  ],
+  "a": "Elektroepilacja Twarzy 1 h",
+  "b": "Zabiegi usuwanie włosów do 15 min twarz",
+  "slowa_a": "Elektroepilacja",
+  "slowa_b": "usuwanie włosów",
+  "relacja": "wezsze",
+  "rozklad": {
+   "inne": 0.02,
+   "to_samo": 0.23,
+   "nie_wiadomo": 0.0,
+   "szersze": 0.0,
+   "wezsze": 0.75
+  }
+ },
+ "[\"posladk uda\", \"fale radi\", \"liposukcj ultradzwiek\"]": {
+  "klasa": [
+   "posladk uda",
+   "fale radi",
+   "liposukcj ultradzwiek"
+  ],
+  "a": "Uda + pośladki",
+  "b": "LIPOSUKCJA ULTRADŹWIĘKOWA Pośladki + Uda",
+  "slowa_a": "Fale radiowe",
+  "slowa_b": "LIPOSUKCJA ULTRADŹWIĘKOWA",
+  "relacja": "inne",
+  "rozklad": {
+   "nie_wiadomo": 0.04,
+   "wezsze": 0.01,
+   "to_samo": 0.18,
+   "inne": 0.76,
+   "szersze": 0.01
+  }
+ },
+ "[\"pedicur podologiczn\", \"rozszerzon\", \"specjalistyczn\"]": {
+  "klasa": [
+   "pedicur podologiczn",
+   "rozszerzon",
+   "specjalistyczn"
+  ],
+  "a": "Pedicure podologiczny rozszerzony",
+  "b": "Specjalistyczny pedicure podologiczny",
+  "slowa_a": "rozszerzony",
+  "slowa_b": "Specjalistyczny",
+  "relacja": "inne",
+  "rozklad": {
+   "szersze": 0.0,
+   "to_samo": 0.01,
+   "nie_wiadomo": 0.0,
+   "wezsze": 0.25,
+   "inne": 0.74
+  }
+ },
+ "[\"cukr depilacj past\", \"brzuch smug\", \"lini pepk\"]": {
+  "klasa": [
+   "cukr depilacj past",
+   "brzuch smug",
+   "lini pepk"
+  ],
+  "a": "Depilacja pasta cukrowa Smuga na brzuchu",
+  "b": "Depilacja pastą cukrową linia pepka",
+  "slowa_a": "Smuga brzuchu",
+  "slowa_b": "linia pepka",
+  "relacja": "to_samo",
+  "rozklad": {
+   "inne": 0.04,
+   "to_samo": 0.49,
+   "wezsze": 0.23,
+   "szersze": 0.17,
+   "nie_wiadomo": 0.07
+  }
+ },
+ "[\"french paznokc\", \"babyboomer przedluzan\", \"przedluzen\"]": {
+  "klasa": [
+   "french paznokc",
+   "babyboomer przedluzan",
+   "przedluzen"
+  ],
+  "a": "Przedłużanie paznokci + french , Babyboomer",
+  "b": "Przedłużenie french",
+  "slowa_a": "Przedłużanie Babyboomer",
+  "slowa_b": "przedłużenie",
+  "relacja": "wezsze",
+  "rozklad": {
+   "nie_wiadomo": 0.06,
+   "wezsze": 0.7,
+   "to_samo": 0.14,
+   "inne": 0.02,
+   "szersze": 0.08
+  }
+ },
+ "[\"brwi regulacj\", \"farbk\", \"henn\"]": {
+  "klasa": [
+   "brwi regulacj",
+   "farbk",
+   "henn"
+  ],
+  "a": "Farbka brwi + regulacja",
+  "b": "Henna brwi + regulacja",
+  "slowa_a": "Farbka",
+  "slowa_b": "Henna",
+  "relacja": "to_samo",
+  "rozklad": {
+   "to_samo": 0.75,
+   "nie_wiadomo": 0.02,
+   "szersze": 0.13,
+   "inne": 0.08,
+   "wezsze": 0.02
+  }
+ },
+ "[\"laser szyj\", \"depilacj mezczyzn\", \"epilacj mesk\"]": {
+  "klasa": [
+   "laser szyj",
+   "depilacj mezczyzn",
+   "epilacj mesk"
+  ],
+  "a": "Szyja",
+  "b": "Szyja",
+  "slowa_a": "Depilacja Mężczyzn",
+  "slowa_b": "Epilacja MĘSKA",
+  "relacja": "to_samo",
+  "rozklad": {
+   "to_samo": 0.99,
+   "wezsze": 0.0,
+   "szersze": 0.0,
+   "nie_wiadomo": 0.0,
+   "inne": 0.01
+  }
+ },
+ "[\"brod brzytw glow\", \"barber comb\", \"strzyzen\"]": {
+  "klasa": [
+   "brod brzytw glow",
+   "barber comb",
+   "strzyzen"
+  ],
+  "a": "Combo głowa + broda + brzytwa",
+  "b": "Strzyżenie Głowy i Brody +Brzytwa",
+  "slowa_a": "Combo Barber",
+  "slowa_b": "Strzyżenie",
+  "relacja": "to_samo",
+  "rozklad": {
+   "szersze": 0.07,
+   "to_samo": 0.9,
+   "inne": 0.0,
+   "wezsze": 0.01,
+   "nie_wiadomo": 0.02
+  }
+ },
+ "[\"makijaz metod permanentn\", \"brwi pudr\", \"ombr soft\"]": {
+  "klasa": [
+   "makijaz metod permanentn",
+   "brwi pudr",
+   "ombr soft"
+  ],
+  "a": "Makijaż permanentny brwi metodą pudrową",
+  "b": "Makijaż permanentny metoda soft ombre",
+  "slowa_a": "brwi pudrową",
+  "slowa_b": "soft ombre",
+  "relacja": "inne",
+  "rozklad": {
+   "to_samo": 0.08,
+   "wezsze": 0.1,
+   "nie_wiadomo": 0.02,
+   "szersze": 0.01,
+   "inne": 0.79
+  }
+ },
+ "[\"brod strzyzen\", \"glow\", \"mesk trymowan\"]": {
+  "klasa": [
+   "brod strzyzen",
+   "glow",
+   "mesk trymowan"
+  ],
+  "a": "Strzyżenie Głowy i Brody",
+  "b": "Strzyżenie i trymowanie brody",
+  "slowa_a": "Głowy",
+  "slowa_b": "trymowanie męskie",
+  "relacja": "to_samo",
+  "rozklad": {
+   "szersze": 0.02,
+   "to_samo": 0.69,
+   "inne": 0.18,
+   "wezsze": 0.09,
+   "nie_wiadomo": 0.02
+  }
+ },
+ "[\"brod strzyzen\", \"glow\", \"wlos\"]": {
+  "klasa": [
+   "brod strzyzen",
+   "glow",
+   "wlos"
+  ],
+  "a": "Strzyżenie Głowy i Brody",
+  "b": "Strzyżenie włosów i brody",
+  "slowa_a": "Głowy",
+  "slowa_b": "włosów",
+  "relacja": "to_samo",
+  "rozklad": {
+   "inne": 0.0,
+   "to_samo": 0.9400000000000001,
+   "wezsze": 0.06,
+   "szersze": 0.0,
+   "nie_wiadomo": 0.0
+  }
+ },
+ "[\"architektur brwi henn stylizacj\", \"farbk\", \"pudr\"]": {
+  "klasa": [
+   "architektur brwi henn stylizacj",
+   "farbk",
+   "pudr"
+  ],
+  "a": "Stylizacja farbą lub henną + Architektura brwi",
+  "b": "Architektura i stylizacja brwi + henna pudrowa",
+  "slowa_a": "farbą",
+  "slowa_b": "pudrowa",
+  "relacja": "szersze",
+  "rozklad": {
+   "nie_wiadomo": 0.01,
+   "szersze": 0.45,
+   "inne": 0.41,
+   "to_samo": 0.12,
+   "wezsze": 0.01
+  }
+ },
+ "[\"bikin depilacj glebok\", \"laser shr\", \"pach\"]": {
+  "klasa": [
+   "bikin depilacj glebok",
+   "laser shr",
+   "pach"
+  ],
+  "a": "Depilacja laserowa SHR bikini głębokie",
+  "b": "Bikini głębokie + pachy",
+  "slowa_a": "laserowa SHR",
+  "slowa_b": "pachy",
+  "relacja": "inne",
+  "rozklad": {
+   "nie_wiadomo": 0.0,
+   "szersze": 0.0,
+   "to_samo": 0.0,
+   "inne": 1.0,
+   "wezsze": 0.0
+  }
+ },
+ "[\"bikin glebok\", \"depilacj pach\", \"laser\"]": {
+  "klasa": [
+   "bikin glebok",
+   "depilacj pach",
+   "laser"
+  ],
+  "a": "Bikini głębokie + pachy",
+  "b": "Laser bikini głębokie",
+  "slowa_a": "Depilacja pachy",
+  "slowa_b": "laserowa Laser LASER",
+  "relacja": "inne",
+  "rozklad": {
+   "szersze": 0.15,
+   "nie_wiadomo": 0.03,
+   "wezsze": 0.02,
+   "to_samo": 0.04,
+   "inne": 0.76
+  }
+ },
+ "[\"strzyzen\", \"bokow samych\", \"mesk\"]": {
+  "klasa": [
+   "strzyzen",
+   "bokow samych",
+   "mesk"
+  ],
+  "a": "Strzyżenie samych boków",
+  "b": "Strzyżenie męskie",
+  "slowa_a": "samych boków",
+  "slowa_b": "męskie",
+  "relacja": "wezsze",
+  "rozklad": {
+   "nie_wiadomo": 0.0,
+   "to_samo": 0.0,
+   "inne": 0.17,
+   "szersze": 0.0,
+   "wezsze": 0.83
+  }
+ },
+ "[\"laser nogi\", \"cale depilacj\", \"calosc epilacj\"]": {
+  "klasa": [
+   "laser nogi",
+   "cale depilacj",
+   "calosc epilacj"
+  ],
+  "a": "Depilacja: Całe nogi",
+  "b": "Laserowa epilacja nogi całość",
+  "slowa_a": "Depilacja Całe depilacja",
+  "slowa_b": "epilacja całość",
+  "relacja": "to_samo",
+  "rozklad": {
+   "wezsze": 0.01,
+   "to_samo": 0.97,
+   "szersze": 0.0,
+   "inne": 0.01,
+   "nie_wiadomo": 0.01
+  }
+ },
+ "[\"bikin depilacj pach\", \"glebok\", \"laser\"]": {
+  "klasa": [
+   "bikin depilacj pach",
+   "glebok",
+   "laser"
+  ],
+  "a": "Bikini głębokie + pachy",
+  "b": "! Depilacja laserowa bikini + pachy (-36%) — ! Depilacja laserowa bikini + pachy (-36%)",
+  "slowa_a": "głębokie",
+  "slowa_b": "laserowa",
+  "relacja": "to_samo",
+  "rozklad": {
+   "szersze": 0.01,
+   "to_samo": 0.48,
+   "nie_wiadomo": 0.03,
+   "inne": 0.34,
+   "wezsze": 0.14
+  }
+ },
+ "[\"strzyzen\", \"chlopc\", \"mesk\"]": {
+  "klasa": [
+   "strzyzen",
+   "chlopc",
+   "mesk"
+  ],
+  "a": "Strzyżenie Chłopców",
+  "b": "Strzyżenie męskie",
+  "slowa_a": "Chłopców",
+  "slowa_b": "męskie",
+  "relacja": "wezsze",
+  "rozklad": {
+   "to_samo": 0.36,
+   "szersze": 0.01,
+   "inne": 0.02,
+   "wezsze": 0.6,
+   "nie_wiadomo": 0.01
+  }
+ },
+ "[\"iniekcyjn lipoliz\", \"podbrodek\", \"ramion\"]": {
+  "klasa": [
+   "iniekcyjn lipoliz",
+   "podbrodek",
+   "ramion"
+  ],
+  "a": "Lipoliza iniekcyjna — Lipoliza iniekcyjna - podbródek",
+  "b": "Lipoliza ramiona",
+  "slowa_a": "podbródek",
+  "slowa_b": "ramiona",
+  "relacja": "inne",
+  "rozklad": {
+   "to_samo": 0.03,
+   "wezsze": 0.0,
+   "szersze": 0.0,
+   "inne": 0.97,
+   "nie_wiadomo": 0.0
+  }
+ },
+ "[\"iniekcyjn lipoliz\", \"maly obszar\", \"podbrodek\"]": {
+  "klasa": [
+   "iniekcyjn lipoliz",
+   "maly obszar",
+   "podbrodek"
+  ],
+  "a": "Lipoliza iniekcyjna – mały obszar",
+  "b": "Lipoliza iniekcyjna — Lipoliza iniekcyjna - podbródek",
+  "slowa_a": "mały obszar",
+  "slowa_b": "podbródek",
+  "relacja": "szersze",
+  "rozklad": {
+   "wezsze": 0.01,
+   "to_samo": 0.03,
+   "szersze": 0.94,
+   "nie_wiadomo": 0.01,
+   "inne": 0.01
+  }
+ },
+ "[\"iniekcyjn lipoliz\", \"chomik\", \"podbrodek\"]": {
+  "klasa": [
+   "iniekcyjn lipoliz",
+   "chomik",
+   "podbrodek"
+  ],
+  "a": "Lipoliza iniekcyjna chomiki",
+  "b": "Lipoliza iniekcyjna — Lipoliza iniekcyjna - podbródek",
+  "slowa_a": "chomiki",
+  "slowa_b": "podbródek",
+  "relacja": "nie_wiadomo",
+  "rozklad": {
+   "wezsze": 0.02,
+   "nie_wiadomo": 0.53,
+   "to_samo": 0.02,
+   "szersze": 0.07,
+   "inne": 0.36
+  }
+ },
+ "[\"hybryd stop\", \"pedicur\", \"u\"]": {
+  "klasa": [
+   "hybryd stop",
+   "pedicur",
+   "u"
+  ],
+  "a": "Pedicure hybrydowy — Pedicure hybrydowy",
+  "b": "Hybryda u stóp — Hybryda Stopy",
+  "slowa_a": "Pedicure",
+  "slowa_b": "u",
+  "relacja": "to_samo",
+  "rozklad": {
+   "to_samo": 0.88,
+   "wezsze": 0.01,
+   "szersze": 0.08,
+   "inne": 0.02,
+   "nie_wiadomo": 0.01
+  }
+ },
+ "[\"hybryd pedicur\", \"kosmetyczn\", \"stop\"]": {
+  "klasa": [
+   "hybryd pedicur",
+   "kosmetyczn",
+   "stop"
+  ],
+  "a": "pedicure kosmetyczny z hybrydą — pedicure kosmetyczny z hybrydą",
+  "b": "Pedicure hybrydowy — Pedicure hybrydowy",
+  "slowa_a": "kosmetyczny",
+  "slowa_b": "STOPY",
+  "relacja": "inne",
+  "rozklad": {
+   "nie_wiadomo": 0.02,
+   "wezsze": 0.09,
+   "to_samo": 0.19,
+   "inne": 0.64,
+   "szersze": 0.06
+  }
+ },
+ "[\"hybryd pedicur\", \"frezark\", \"stop\"]": {
+  "klasa": [
+   "hybryd pedicur",
+   "frezark",
+   "stop"
+  ],
+  "a": "Pedicure frezarkowy z hybrydą",
+  "b": "Pedicure hybrydowy — Pedicure hybrydowy",
+  "slowa_a": "frezarkowy",
+  "slowa_b": "STOPY",
+  "relacja": "inne",
+  "rozklad": {
+   "wezsze": 0.17,
+   "inne": 0.66,
+   "nie_wiadomo": 0.03,
+   "szersze": 0.1,
+   "to_samo": 0.04
+  }
+ },
+ "[\"hybryd pedicur\", \"premium\", \"stop\"]": {
+  "klasa": [
+   "hybryd pedicur",
+   "premium",
+   "stop"
+  ],
+  "a": "Pedicure z hybrydą PREMIUM - NOWOŚĆ",
+  "b": "Pedicure hybrydowy — Pedicure hybrydowy",
+  "slowa_a": "PREMIUM",
+  "slowa_b": "STOPY",
+  "relacja": "to_samo",
+  "rozklad": {
+   "to_samo": 0.47,
+   "wezsze": 0.19,
+   "szersze": 0.1,
+   "inne": 0.11,
+   "nie_wiadomo": 0.13
+  }
+ },
+ "[\"hybryd pedicur\", \"spa 𝕊ℙ𝔸\", \"stop\"]": {
+  "klasa": [
+   "hybryd pedicur",
+   "spa 𝕊ℙ𝔸",
+   "stop"
+  ],
+  "a": "Pedicure 𝕊ℙ𝔸 z hybrydą — Pedicure SPA z hybrydą",
+  "b": "Pedicure hybrydowy — Pedicure hybrydowy",
+  "slowa_a": "𝕊ℙ𝔸 spa",
+  "slowa_b": "STOPY",
+  "relacja": "szersze",
+  "rozklad": {
+   "inne": 0.14,
+   "to_samo": 0.32,
+   "nie_wiadomo": 0.02,
+   "szersze": 0.48,
+   "wezsze": 0.04
+  }
+ },
+ "[\"hybryd\", \"pedicur peln\", \"stop\"]": {
+  "klasa": [
+   "hybryd",
+   "pedicur peln",
+   "stop"
+  ],
+  "a": "Pełny pedicure hybrydowy",
+  "b": "Hybryda stopy",
+  "slowa_a": "pedicure Pełny Pedicure",
+  "slowa_b": "stopy",
+  "relacja": "to_samo",
+  "rozklad": {
+   "szersze": 0.26,
+   "to_samo": 0.58,
+   "wezsze": 0.02,
+   "nie_wiadomo": 0.01,
+   "inne": 0.13
+  }
+ },
+ "[\"hybryd pedicur\", \"spa\", \"stop\"]": {
+  "klasa": [
+   "hybryd pedicur",
+   "spa",
+   "stop"
+  ],
+  "a": "Pedicure SPA z hybrydą — Pedicure SPA z hybrydą",
+  "b": "Pedicure hybrydowy — Pedicure hybrydowy",
+  "slowa_a": "SPA",
+  "slowa_b": "STOPY",
+  "relacja": "szersze",
+  "rozklad": {
+   "inne": 0.1,
+   "to_samo": 0.02,
+   "wezsze": 0.03,
+   "szersze": 0.85,
+   "nie_wiadomo": 0.0
+  }
+ },
+ "[\"hybryd\", \"pedicur podeszw\", \"stop\"]": {
+  "klasa": [
+   "hybryd",
+   "pedicur podeszw",
+   "stop"
+  ],
+  "a": "Pedicure hybrydowy z opracowaniem podeszwy",
+  "b": "Hybryda stopy",
+  "slowa_a": "Pedicure podeszwy",
+  "slowa_b": "stopy",
+  "relacja": "wezsze",
+  "rozklad": {
+   "inne": 0.08,
+   "szersze": 0.24,
+   "to_samo": 0.3,
+   "wezsze": 0.37,
+   "nie_wiadomo": 0.01
+  }
+ },
+ "[\"woskowan\", \"nos uszy\", \"nosa uszu\"]": {
+  "klasa": [
+   "woskowan",
+   "nos uszy",
+   "nosa uszu"
+  ],
+  "a": "Woskowanie(uszy+nos)",
+  "b": "Woskowanie uszu i nosa",
+  "slowa_a": "(uszy+nos)",
+  "slowa_b": "uszu nosa",
+  "relacja": "to_samo",
+  "rozklad": {
+   "inne": 0.02,
+   "nie_wiadomo": 0.0,
+   "szersze": 0.0,
+   "to_samo": 0.98,
+   "wezsze": 0.0
+  }
+ },
+ "[\"black doll peeling wegl\", \"3 pakiet\", \"laser\"]": {
+  "klasa": [
+   "black doll peeling wegl",
+   "3 pakiet",
+   "laser"
+  ],
+  "a": "PEELING WĘGLOWY — Pakiet 3 zabiegów - PEELING WĘGLOWY",
+  "b": "Peeling Węglowy \"Black Doll\"",
+  "slowa_a": "Pakiet 3",
+  "slowa_b": "laserowe",
+  "relacja": "inne",
+  "rozklad": {
+   "nie_wiadomo": 0.01,
+   "wezsze": 0.31,
+   "to_samo": 0.08,
+   "inne": 0.44,
+   "szersze": 0.16
+  }
+ },
+ "[\"10 lat ojciec syn\", \"5 strzyzen\", \"6 barber\"]": {
+  "klasa": [
+   "10 lat ojciec syn",
+   "5 strzyzen",
+   "6 barber"
+  ],
+  "a": "Ojciec i syn (5-10 lat)",
+  "b": "Ojciec + syn  6-10 lat",
+  "slowa_a": "Strzyżenie (5-10",
+  "slowa_b": "6-10 Barber",
+  "relacja": "szersze",
+  "rozklad": {
+   "inne": 0.07,
+   "to_samo": 0.2,
+   "nie_wiadomo": 0.07,
+   "szersze": 0.64,
+   "wezsze": 0.02
+  }
+ },
+ "[\"dlugosc jedn strzyzen\", \"maszynk mesk\", \"wlos\"]": {
+  "klasa": [
+   "dlugosc jedn strzyzen",
+   "maszynk mesk",
+   "wlos"
+  ],
+  "a": "Strzyżenie na jedną długość maszynką",
+  "b": "Strzyżenie włosów na jedną długość",
+  "slowa_a": "maszynką męskie",
+  "slowa_b": "włosów",
+  "relacja": "to_samo",
+  "rozklad": {
+   "inne": 0.01,
+   "wezsze": 0.31,
+   "nie_wiadomo": 0.01,
+   "to_samo": 0.66,
+   "szersze": 0.01
+  }
+ },
+ "[\"depilacj kark szyj wosk\", \"kobiet\", \"panow\"]": {
+  "klasa": [
+   "depilacj kark szyj wosk",
+   "kobiet",
+   "panow"
+  ],
+  "a": "Depilacja woskiem - Szyja/Kark",
+  "b": "Depilacja Woskiem dla Panów - Szyja/Kark",
+  "slowa_a": "Kobiet",
+  "slowa_b": "Panów",
+  "relacja": "inne",
+  "rozklad": {
+   "to_samo": 0.06,
+   "nie_wiadomo": 0.0,
+   "szersze": 0.0,
+   "inne": 0.94,
+   "wezsze": 0.0
+  }
+ },
+ "[\"oczyszczan\", \"komb twarz\", \"kompleks skor\"]": {
+  "klasa": [
+   "oczyszczan",
+   "komb twarz",
+   "kompleks skor"
+  ],
+  "a": "Kombi oczyszczanie twarzy",
+  "b": "Kompleksowe oczyszczanie skóry",
+  "slowa_a": "twarzy Kombi",
+  "slowa_b": "Kompleksowe skóry",
+  "relacja": "to_samo",
+  "rozklad": {
+   "to_samo": 0.57,
+   "wezsze": 0.25,
+   "szersze": 0.01,
+   "nie_wiadomo": 0.01,
+   "inne": 0.16
+  }
+ },
+ "[\"l paznokc przedluzan\", \"3 form\", \"xl\"]": {
+  "klasa": [
+   "l paznokc przedluzan",
+   "3 form",
+   "xl"
+  ],
+  "a": "Przedłużanie paznokci L(3 Na Formie)",
+  "b": "Przedłużanie paznokcie L/XL",
+  "slowa_a": "L(3 Formie",
+  "slowa_b": "L/XL",
+  "relacja": "inne",
+  "rozklad": {
+   "inne": 0.54,
+   "to_samo": 0.04,
+   "nie_wiadomo": 0.14,
+   "szersze": 0.0,
+   "wezsze": 0.28
+  }
+ },
+ "[\"parafin\", \"dlon\", \"pielegnacj\"]": {
+  "klasa": [
+   "parafin",
+   "dlon",
+   "pielegnacj"
+  ],
+  "a": "Parafina na dłonie — Parafina na dłonie",
+  "b": "Pielęgnacja parafinowa",
+  "slowa_a": "dłonie",
+  "slowa_b": "Pielęgnacja",
+  "relacja": "wezsze",
+  "rozklad": {
+   "nie_wiadomo": 0.01,
+   "inne": 0.13,
+   "to_samo": 0.34,
+   "wezsze": 0.51,
+   "szersze": 0.01
+  }
+ },
+ "[\"damsk krotk strzyzen wlos\", \"bardz\", \"do ucha\"]": {
+  "klasa": [
+   "damsk krotk strzyzen wlos",
+   "bardz",
+   "do ucha"
+  ],
+  "a": "Strzyżenie damskie  u stylistki — Włosy bardzo krótkie",
+  "b": "Strzyżenie damskie — Włosy krótkie ( do ucha)",
+  "slowa_a": "bardzo",
+  "slowa_b": "do ucha)",
+  "relacja": "wezsze",
+  "rozklad": {
+   "to_samo": 0.04,
+   "wezsze": 0.8099999999999999,
+   "szersze": 0.03,
+   "inne": 0.05,
+   "nie_wiadomo": 0.07
+  }
+ },
+ "[\"masaz twarz\", \"korug\", \"solar\"]": {
+  "klasa": [
+   "masaz twarz",
+   "korug",
+   "solar"
+  ],
+  "a": "Masaż Korugi",
+  "b": "Masaż twarzy SOLARA — Pojedyncza wizyta",
+  "slowa_a": "Korugi",
+  "slowa_b": "SOLARA",
+  "relacja": "inne",
+  "rozklad": {
+   "wezsze": 0.0,
+   "inne": 0.83,
+   "nie_wiadomo": 0.15,
+   "to_samo": 0.02,
+   "szersze": 0.0
+  }
+ },
+ "[\"blizn terap\", \"masaz\", \"scarwork\"]": {
+  "klasa": [
+   "blizn terap",
+   "masaz",
+   "scarwork"
+  ],
+  "a": "Terapia blizn (Masaż)",
+  "b": "Terapia blizn- ScarWork",
+  "slowa_a": "Masaż MASAŻE",
+  "slowa_b": "ScarWork",
+  "relacja": "to_samo",
+  "rozklad": {
+   "wezsze": 0.15,
+   "to_samo": 0.43,
+   "szersze": 0.13,
+   "nie_wiadomo": 0.05,
+   "inne": 0.24
+  }
+ },
+ "[\"podologiczn\", \"kompleks pedicur\", \"specjalistyczn\"]": {
+  "klasa": [
+   "podologiczn",
+   "kompleks pedicur",
+   "specjalistyczn"
+  ],
+  "a": "Kompleksowy zabieg podologiczny",
+  "b": "Specjalistyczny zabieg podologiczny",
+  "slowa_a": "Kompleksowy Pedicure",
+  "slowa_b": "Specjalistyczny",
+  "relacja": "inne",
+  "rozklad": {
+   "inne": 0.43,
+   "szersze": 0.06,
+   "to_samo": 0.34,
+   "wezsze": 0.14,
+   "nie_wiadomo": 0.03
+  }
+ },
+ "[\"damsk strzyzen wlos\", \"bardz krotk\", \"krecon\"]": {
+  "klasa": [
+   "damsk strzyzen wlos",
+   "bardz krotk",
+   "krecon"
+  ],
+  "a": "Strzyżenie damskie  u stylistki — Włosy bardzo krótkie",
+  "b": "Strzyżenie damskie włosy kręcone",
+  "slowa_a": "bardzo krótkie",
+  "slowa_b": "kręcone",
+  "relacja": "inne",
+  "rozklad": {
+   "wezsze": 0.0,
+   "inne": 1.0,
+   "nie_wiadomo": 0.0,
+   "to_samo": 0.0,
+   "szersze": 0.0
+  }
+ },
+ "[\"pedicur\", \"hybryd\", \"lecznicz\"]": {
+  "klasa": [
+   "pedicur",
+   "hybryd",
+   "lecznicz"
+  ],
+  "a": "Pedicure hybrydowy",
+  "b": "Pedicure leczniczy",
+  "slowa_a": "hybrydowy",
+  "slowa_b": "leczniczy",
+  "relacja": "inne",
+  "rozklad": {
+   "wezsze": 0.04,
+   "szersze": 0.02,
+   "to_samo": 0.12,
+   "inne": 0.67,
+   "nie_wiadomo": 0.15
+  }
+ },
+ "[\"dlug strzyzen\", \"mesk\", \"wlos\"]": {
+  "klasa": [
+   "dlug strzyzen",
+   "mesk",
+   "wlos"
+  ],
+  "a": "Strzyżenie męskie włosów długich",
+  "b": "Strzyżenie włosów długich",
+  "slowa_a": "męskie",
+  "slowa_b": "włosów",
+  "relacja": "wezsze",
+  "rozklad": {
+   "inne": 0.36,
+   "to_samo": 0.18,
+   "szersze": 0.08,
+   "nie_wiadomo": 0.01,
+   "wezsze": 0.37
+  }
+ },
+ "[\"brod comb strzyzen wlos\", \"brzytw golen\", \"krotk\"]": {
+  "klasa": [
+   "brod comb strzyzen wlos",
+   "brzytw golen",
+   "krotk"
+  ],
+  "a": "Combo (strzyżenie włosów,brody & golenie brzytwą)",
+  "b": "COMBO (strzyżenie włosy krótkie + broda)",
+  "slowa_a": "golenie brzytwą",
+  "slowa_b": "krótkie",
+  "relacja": "inne",
+  "rozklad": {
+   "to_samo": 0.05,
+   "szersze": 0.03,
+   "inne": 0.9,
+   "wezsze": 0.0,
+   "nie_wiadomo": 0.02
+  }
+ },
+ "[\"permanentn\", \"brwi makijaz\", \"makjiaz\"]": {
+  "klasa": [
+   "permanentn",
+   "brwi makijaz",
+   "makjiaz"
+  ],
+  "a": "Makijaż permanentny brwi",
+  "b": "Makjiaż permanenty — Makjiaż permanenty",
+  "slowa_a": "Makijaż brwi MAKIJAŻ",
+  "slowa_b": "Makjiaż",
+  "relacja": "to_samo",
+  "rozklad": {
+   "nie_wiadomo": 0.01,
+   "wezsze": 0.29,
+   "to_samo": 0.68,
+   "inne": 0.01,
+   "szersze": 0.01
+  }
+ },
+ "[\"strzyzen\", \"barber wlos\", \"mesk\"]": {
+  "klasa": [
+   "strzyzen",
+   "barber wlos",
+   "mesk"
+  ],
+  "a": "Strzyżenie włosów",
+  "b": "Strzyżenie męskie",
+  "slowa_a": "włosów Barber",
+  "slowa_b": "męskie",
+  "relacja": "to_samo",
+  "rozklad": {
+   "szersze": 0.23,
+   "inne": 0.23,
+   "to_samo": 0.46,
+   "wezsze": 0.05,
+   "nie_wiadomo": 0.03
+  }
+ },
+ "[\"brwi permanentn\", \"makijaz\", \"odswiezen\"]": {
+  "klasa": [
+   "brwi permanentn",
+   "makijaz",
+   "odswiezen"
+  ],
+  "a": "Makijaż permanentny brwi",
+  "b": "Odświeżenie brwi permanentnych DO ROKU",
+  "slowa_a": "Makijaż MAKIJAŻ",
+  "slowa_b": "Odświeżenie",
+  "relacja": "inne",
+  "rozklad": {
+   "inne": 0.52,
+   "to_samo": 0.02,
+   "nie_wiadomo": 0.01,
+   "szersze": 0.45,
+   "wezsze": 0.0
+  }
+ },
+ "[\"1 przekluwan ucha\", \"dziurk\", \"uszu\"]": {
+  "klasa": [
+   "1 przekluwan ucha",
+   "dziurk",
+   "uszu"
+  ],
+  "a": "Przekłuwanie ucha ( 1 dziurka)",
+  "b": "Przekłucie 1 ucha",
+  "slowa_a": "dziurka",
+  "slowa_b": "uszu",
+  "relacja": "to_samo",
+  "rozklad": {
+   "nie_wiadomo": 0.0,
+   "szersze": 0.0,
+   "inne": 0.02,
+   "to_samo": 0.9,
+   "wezsze": 0.08
+  }
+ },
+ "[\"1 dziurk przekluwan\", \"ucha\", \"uszu\"]": {
+  "klasa": [
+   "1 dziurk przekluwan",
+   "ucha",
+   "uszu"
+  ],
+  "a": "Przekłuwanie ucha ( 1 dziurka)",
+  "b": "Przekłuwanie uszu (1 dziurka) — Przekłuwanie uszu (1 dziurka)",
+  "slowa_a": "ucha",
+  "slowa_b": "uszu",
+  "relacja": "to_samo",
+  "rozklad": {
+   "to_samo": 0.91,
+   "nie_wiadomo": 0.0,
+   "inne": 0.02,
+   "szersze": 0.01,
+   "wezsze": 0.06
+  }
+ },
+ "[\"depilacj laser posladk\", \"lightsheer\", \"mesk\"]": {
+  "klasa": [
+   "depilacj laser posladk",
+   "lightsheer",
+   "mesk"
+  ],
+  "a": "Depilacja Laserowa- Pośladki. — Depilacja Laserowa- Pośladki.",
+  "b": "Depilacja laserowa męska pośladki",
+  "slowa_a": "LightSheer",
+  "slowa_b": "męska",
+  "relacja": "inne",
+  "rozklad": {
+   "to_samo": 0.01,
+   "szersze": 0.06,
+   "wezsze": 0.01,
+   "nie_wiadomo": 0.2,
+   "inne": 0.72
+  }
+ },
+ "[\"przekluwan ucha\", \"1 dziurk\", \"jedn\"]": {
+  "klasa": [
+   "przekluwan ucha",
+   "1 dziurk",
+   "jedn"
+  ],
+  "a": "Przekłuwanie ucha ( 1 dziurka)",
+  "b": "Przekłucie jednego ucha",
+  "slowa_a": "1 dziurka",
+  "slowa_b": "jednego",
+  "relacja": "to_samo",
+  "rozklad": {
+   "inne": 0.05,
+   "to_samo": 0.91,
+   "nie_wiadomo": 0.0,
+   "szersze": 0.01,
+   "wezsze": 0.03
+  }
+ },
+ "[\"dlug farbowan wlos\", \"jeden kolor\", \"jednolit\"]": {
+  "klasa": [
+   "dlug farbowan wlos",
+   "jeden kolor",
+   "jednolit"
+  ],
+  "a": "Farbowanie włosów w jeden kolor (długich)",
+  "b": "Jednolite farbowanie długie włosy",
+  "slowa_a": "jeden kolor",
+  "slowa_b": "Jednolite",
+  "relacja": "to_samo",
+  "rozklad": {
+   "wezsze": 0.01,
+   "to_samo": 0.99,
+   "szersze": 0.0,
+   "inne": 0.0,
+   "nie_wiadomo": 0.0
+  }
+ },
+ "[\"dlug farbowan jeden kolor\", \"od zera\", \"wlos\"]": {
+  "klasa": [
+   "dlug farbowan jeden kolor",
+   "od zera",
+   "wlos"
+  ],
+  "a": "Farbowanie od zera jeden kolor Długie",
+  "b": "Farbowanie włosów w jeden kolor (długich)",
+  "slowa_a": "od zera",
+  "slowa_b": "włosów",
+  "relacja": "to_samo",
+  "rozklad": {
+   "to_samo": 0.79,
+   "nie_wiadomo": 0.04,
+   "szersze": 0.01,
+   "inne": 0.04,
+   "wezsze": 0.12
+  }
+ },
+ "[\"dlug jeden kolor wlos\", \"farbowan\", \"koloryzacj\"]": {
+  "klasa": [
+   "dlug jeden kolor wlos",
+   "farbowan",
+   "koloryzacj"
+  ],
+  "a": "Farbowanie włosów w jeden kolor (długich)",
+  "b": "Koloryzacja włosy długie (jeden kolor) — Koloryzacja włosy długie (jeden kolor)",
+  "slowa_a": "Farbowanie",
+  "slowa_b": "Koloryzacja",
+  "relacja": "to_samo",
+  "rozklad": {
+   "to_samo": 0.98,
+   "nie_wiadomo": 0.0,
+   "szersze": 0.0,
+   "wezsze": 0.02,
+   "inne": 0.0
+  }
+ },
+ "[\"mezoterap szyj twarz\", \"iglow\", \"mikroigl\"]": {
+  "klasa": [
+   "mezoterap szyj twarz",
+   "iglow",
+   "mikroigl"
+  ],
+  "a": "Mezoterapia (twarz + szyja)",
+  "b": "Mezoterapia mikroigłowa Twarz +Szyja",
+  "slowa_a": "IGŁOWA",
+  "slowa_b": "mikroigłowa",
+  "relacja": "szersze",
+  "rozklad": {
+   "nie_wiadomo": 0.07,
+   "inne": 0.22,
+   "to_samo": 0.3,
+   "wezsze": 0.03,
+   "szersze": 0.38
+  }
+ },
+ "[\"pielegnacj\", \"indywidualn komponowan\", \"twarz\"]": {
+  "klasa": [
+   "pielegnacj",
+   "indywidualn komponowan",
+   "twarz"
+  ],
+  "a": "Zabieg pielęgnacyjny indywidualnie komponowany — ZABIEG pielęgnacyjny indywidualnie komponowany",
+  "b": "Zabieg pielęgnacyjny twarz",
+  "slowa_a": "indywidualnie komponowany",
+  "slowa_b": "twarz",
+  "relacja": "to_samo",
+  "rozklad": {
+   "nie_wiadomo": 0.01,
+   "szersze": 0.1,
+   "inne": 0.07,
+   "to_samo": 0.53,
+   "wezsze": 0.29
+  }
+ },
+ "[\"dziasl redukcj usmiech\", \"botox\", \"gumm smil\"]": {
+  "klasa": [
+   "dziasl redukcj usmiech",
+   "botox",
+   "gumm smil"
+  ],
+  "a": "BOTOX Redukcja uśmiechu dziąsłowego",
+  "b": "Redukcja uśmiechu dziąsłowego „gummy smile”",
+  "slowa_a": "BOTOX",
+  "slowa_b": "„gummy smile”",
+  "relacja": "to_samo",
+  "rozklad": {
+   "szersze": 0.04,
+   "wezsze": 0.04,
+   "nie_wiadomo": 0.01,
+   "to_samo": 0.9,
+   "inne": 0.01
+  }
+ },
+ "[\"flip lip\", \"niwelowan zmarszczek\", \"ust\"]": {
+  "klasa": [
+   "flip lip",
+   "niwelowan zmarszczek",
+   "ust"
+  ],
+  "a": "Niwelowanie zmarszczek -lip flip",
+  "b": "Lip Flip",
+  "slowa_a": "Niwelowanie zmarszczek",
+  "slowa_b": "UST",
+  "relacja": "inne",
+  "rozklad": {
+   "to_samo": 0.29,
+   "wezsze": 0.07,
+   "szersze": 0.07,
+   "inne": 0.56,
+   "nie_wiadomo": 0.01
+  }
+ },
+ "[\"oczyszczan twarz wodor\", \"luksus\", \"podstaw\"]": {
+  "klasa": [
+   "oczyszczan twarz wodor",
+   "luksus",
+   "podstaw"
+  ],
+  "a": "Oczyszczanie Wodorowe twarz",
+  "b": "Oczyszczanie wodorowe BASIC",
+  "slowa_a": "LUKSUSOWE",
+  "slowa_b": "BASIC",
+  "relacja": "inne",
+  "rozklad": {
+   "nie_wiadomo": 0.06,
+   "wezsze": 0.02,
+   "inne": 0.45,
+   "to_samo": 0.15,
+   "szersze": 0.32
+  }
+ },
+ "[\"oczyszczan twarz wodor\", \"podstaw\", \"standard\"]": {
+  "klasa": [
+   "oczyszczan twarz wodor",
+   "podstaw",
+   "standard"
+  ],
+  "a": "Oczyszczanie wodorowe BASIC",
+  "b": "Oczyszczanie WODOROWE twarzy STANDARD",
+  "slowa_a": "BASIC",
+  "slowa_b": "STANDARD",
+  "relacja": "to_samo",
+  "rozklad": {
+   "szersze": 0.0,
+   "inne": 0.03,
+   "to_samo": 0.6,
+   "wezsze": 0.18,
+   "nie_wiadomo": 0.19
+  }
+ },
+ "[\"tamponad\", \"jedn wymian\", \"opatrunek\"]": {
+  "klasa": [
+   "tamponad",
+   "jedn wymian",
+   "opatrunek"
+  ],
+  "a": "Wymiana tamponady",
+  "b": "Tamponada/opatrunek",
+  "slowa_a": "Wymiana jednym",
+  "slowa_b": "Tamponada/opatrunek",
+  "relacja": "wezsze",
+  "rozklad": {
+   "szersze": 0.01,
+   "wezsze": 0.64,
+   "to_samo": 0.06,
+   "inne": 0.29,
+   "nie_wiadomo": 0.0
+  }
+ },
+ "[\"tamponad\", \"opatrunek\", \"szt\"]": {
+  "klasa": [
+   "tamponad",
+   "opatrunek",
+   "szt"
+  ],
+  "a": "Tamponada/opatrunek",
+  "b": "Tamponada szt. — Tamponada szt.",
+  "slowa_a": "Tamponada/opatrunek",
+  "slowa_b": "szt.",
+  "relacja": "to_samo",
+  "rozklad": {
+   "wezsze": 0.02,
+   "to_samo": 0.52,
+   "szersze": 0.15,
+   "nie_wiadomo": 0.19,
+   "inne": 0.12
+  }
+ },
+ "[\"tamponad\", \"opatrunek\", \"przed\"]": {
+  "klasa": [
+   "tamponad",
+   "opatrunek",
+   "przed"
+  ],
+  "a": "Tamponada/opatrunek",
+  "b": "Tamponada przed zabiegowa",
+  "slowa_a": "Tamponada/opatrunek",
+  "slowa_b": "przed",
+  "relacja": "to_samo",
+  "rozklad": {
+   "to_samo": 0.33999999999999997,
+   "wezsze": 0.04,
+   "szersze": 0.3,
+   "inne": 0.31,
+   "nie_wiadomo": 0.01
+  }
+ },
+ "[\"laser uda\", \"depilacj\", \"epilacj trojwiazk\"]": {
+  "klasa": [
+   "laser uda",
+   "depilacj",
+   "epilacj trojwiazk"
+  ],
+  "a": "Uda",
+  "b": "Uda",
+  "slowa_a": "Depilacja depilacja",
+  "slowa_b": "EPILACJA TRÓJWIĄZKOWA",
+  "relacja": "to_samo",
+  "rozklad": {
+   "szersze": 0.11,
+   "to_samo": 0.48,
+   "wezsze": 0.04,
+   "nie_wiadomo": 0.27,
+   "inne": 0.1
+  }
+ },
+ "[\"1 onycholiz opracowan paznokc\", \"2\", \"zmienion\"]": {
+  "klasa": [
+   "1 onycholiz opracowan paznokc",
+   "2",
+   "zmienion"
+  ],
+  "a": "Opracowanie onycholizy — 1-2 paznokci",
+  "b": "Opracowanie paznokci zmienionych i onycholizy — 1 paznokieć",
+  "slowa_a": "1-2",
+  "slowa_b": "zmienionych",
+  "relacja": "inne",
+  "rozklad": {
+   "to_samo": 0.06,
+   "szersze": 0.1,
+   "wezsze": 0.26,
+   "nie_wiadomo": 0.03,
+   "inne": 0.55
+  }
+ },
+ "[\"bikin epilacj laser\", \"french\", \"mesk\"]": {
+  "klasa": [
+   "bikin epilacj laser",
+   "french",
+   "mesk"
+  ],
+  "a": "Epilacja laserowa - bikini french",
+  "b": "Epilacja Laserowa Bikini męskie — Epilacja Laserowa Bikini męskie",
+  "slowa_a": "french",
+  "slowa_b": "męskie",
+  "relacja": "inne",
+  "rozklad": {
+   "szersze": 0.0,
+   "to_samo": 0.01,
+   "wezsze": 0.01,
+   "inne": 0.96,
+   "nie_wiadomo": 0.02
+  }
+ },
+ "[\"3d rzes\", \"2d uzupelnien\", \"przedluzan\"]": {
+  "klasa": [
+   "3d rzes",
+   "2d uzupelnien",
+   "przedluzan"
+  ],
+  "a": "Uzupełnienie rzęs 2D-3D",
+  "b": "Przedłużanie rzęs 3d",
+  "slowa_a": "Uzupełnienie 2D-3D",
+  "slowa_b": "Przedłużanie",
+  "relacja": "inne",
+  "rozklad": {
+   "szersze": 0.0,
+   "to_samo": 0.01,
+   "wezsze": 0.44,
+   "nie_wiadomo": 0.01,
+   "inne": 0.54
+  }
+ },
+ "[\"brod comb strzyzen wlos\", \"1\", \"zero\"]": {
+  "klasa": [
+   "brod comb strzyzen wlos",
+   "1",
+   "zero"
+  ],
+  "a": "COMBO 1 (strzyżenie wlosów + broda)",
+  "b": "Combo strzyżenie włosów + broda na zero",
+  "slowa_a": "1",
+  "slowa_b": "zero",
+  "relacja": "to_samo",
+  "rozklad": {
+   "szersze": 0.08,
+   "to_samo": 0.43,
+   "nie_wiadomo": 0.23,
+   "wezsze": 0.01,
+   "inne": 0.25
+  }
+ },
+ "[\"brod comb strzyzen\", \"1 wlos\", \"mesk\"]": {
+  "klasa": [
+   "brod comb strzyzen",
+   "1 wlos",
+   "mesk"
+  ],
+  "a": "COMBO 1 (strzyżenie wlosów + broda)",
+  "b": "Combo (strzyżenie męskie + broda)",
+  "slowa_a": "wlosów 1",
+  "slowa_b": "męskie",
+  "relacja": "to_samo",
+  "rozklad": {
+   "inne": 0.25,
+   "szersze": 0.13,
+   "nie_wiadomo": 0.06,
+   "to_samo": 0.5,
+   "wezsze": 0.06
+  }
+ },
+ "[\"depilacj kobiet twarz\", \"cala laser\", \"peln\"]": {
+  "klasa": [
+   "depilacj kobiet twarz",
+   "cala laser",
+   "peln"
+  ],
+  "a": "Depilacja laserowa – Cała twarz",
+  "b": "Depilacja pełna twarz",
+  "slowa_a": "laserowa Cała Laserowa",
+  "slowa_b": "pełna",
+  "relacja": "to_samo",
+  "rozklad": {
+   "szersze": 0.01,
+   "nie_wiadomo": 0.01,
+   "to_samo": 0.9,
+   "wezsze": 0.07,
+   "inne": 0.01
+  }
+ },
+ "[\"depilacj twarz\", \"cala laser\", \"kobiet peln\"]": {
+  "klasa": [
+   "depilacj twarz",
+   "cala laser",
+   "kobiet peln"
+  ],
+  "a": "Cała twarz",
+  "b": "Depilacja pełna twarz",
+  "slowa_a": "laserowa Cała",
+  "slowa_b": "pełna kobiety",
+  "relacja": "to_samo",
+  "rozklad": {
+   "inne": 0.06,
+   "wezsze": 0.11,
+   "to_samo": 0.78,
+   "nie_wiadomo": 0.04,
+   "szersze": 0.01
+  }
+ },
+ "[\"twarz\", \"elektroepilacj epilacj\", \"usuniec wlos\"]": {
+  "klasa": [
+   "twarz",
+   "elektroepilacj epilacj",
+   "usuniec wlos"
+  ],
+  "a": "Elektroepilacja Twarzy 2h",
+  "b": "Zabiegi usuwanie włosów do 15 min twarz",
+  "slowa_a": "Epilacja elektroepilacja",
+  "slowa_b": "usuwanie włosów",
+  "relacja": "to_samo",
+  "rozklad": {
+   "szersze": 0.01,
+   "nie_wiadomo": 0.01,
+   "wezsze": 0.45,
+   "to_samo": 0.51,
+   "inne": 0.02
+  }
+ },
+ "[\"paznokc przedluzan zelem\", \"1 dl\", \"stylizacj\"]": {
+  "klasa": [
+   "paznokc przedluzan zelem",
+   "1 dl",
+   "stylizacj"
+  ],
+  "a": "Przedłużanie paznokci żelem dł.1",
+  "b": "Przedłużanie paznokci żelem",
+  "slowa_a": "dł.1",
+  "slowa_b": "Stylizacja",
+  "relacja": "wezsze",
+  "rozklad": {
+   "wezsze": 0.41000000000000003,
+   "nie_wiadomo": 0.17,
+   "to_samo": 0.16,
+   "szersze": 0.01,
+   "inne": 0.25
+  }
+ },
+ "[\"paznokc zelem\", \"przedluzan stylizacj\", \"przedluzen\"]": {
+  "klasa": [
+   "paznokc zelem",
+   "przedluzan stylizacj",
+   "przedluzen"
+  ],
+  "a": "Przedłużanie paznokci żelem",
+  "b": "Przedłużenie paznokci żelem",
+  "slowa_a": "Przedłużanie Stylizacja",
+  "slowa_b": "Przedłużenie",
+  "relacja": "to_samo",
+  "rozklad": {
+   "szersze": 0.09,
+   "wezsze": 0.01,
+   "nie_wiadomo": 0.02,
+   "inne": 0.05,
+   "to_samo": 0.83
+  }
+ },
+ "[\"paznokc przedluzan stylizacj\", \"dlug\", \"zelem\"]": {
+  "klasa": [
+   "paznokc przedluzan stylizacj",
+   "dlug",
+   "zelem"
+  ],
+  "a": "Przedłużanie paznokci długie",
+  "b": "Przedłużanie paznokci żelem",
+  "slowa_a": "długie",
+  "slowa_b": "żelem",
+  "relacja": "inne",
+  "rozklad": {
+   "wezsze": 0.19,
+   "to_samo": 0.22,
+   "nie_wiadomo": 0.03,
+   "inne": 0.45,
+   "szersze": 0.11
+  }
+ },
+ "[\"paznokc zelem\", \"przedluzan stylizacj\", \"przedluzen s\"]": {
+  "klasa": [
+   "paznokc zelem",
+   "przedluzan stylizacj",
+   "przedluzen s"
+  ],
+  "a": "Przedłużanie paznokci żelem",
+  "b": "Przedłużenie paznokci żelem  S",
+  "slowa_a": "Przedłużanie Stylizacja",
+  "slowa_b": "Przedłużenie S",
+  "relacja": "inne",
+  "rozklad": {
+   "inne": 0.53,
+   "wezsze": 0.01,
+   "to_samo": 0.19,
+   "szersze": 0.13,
+   "nie_wiadomo": 0.14
+  }
+ },
+ "[\"paznokc przedluzan zelem\", \"s\", \"stylizacj\"]": {
+  "klasa": [
+   "paznokc przedluzan zelem",
+   "s",
+   "stylizacj"
+  ],
+  "a": "Przedłużanie paznokci żelem S",
+  "b": "Przedłużanie paznokci żelem",
+  "slowa_a": "S",
+  "slowa_b": "Stylizacja",
+  "relacja": "nie_wiadomo",
+  "rozklad": {
+   "szersze": 0.0,
+   "wezsze": 0.17,
+   "nie_wiadomo": 0.42,
+   "inne": 0.08,
+   "to_samo": 0.33
+  }
+ },
+ "[\"paznokc przedluzan zelem\", \"french\", \"stylizacj\"]": {
+  "klasa": [
+   "paznokc przedluzan zelem",
+   "french",
+   "stylizacj"
+  ],
+  "a": "Przedłużanie paznokci żelem + french",
+  "b": "Przedłużanie paznokci żelem",
+  "slowa_a": "french",
+  "slowa_b": "Stylizacja",
+  "relacja": "inne",
+  "rozklad": {
+   "wezsze": 0.38,
+   "inne": 0.55,
+   "nie_wiadomo": 0.02,
+   "szersze": 0.04,
+   "to_samo": 0.01
+  }
+ },
+ "[\"masaz\", \"cial relaksacyjn\", \"kundalin\"]": {
+  "klasa": [
+   "masaz",
+   "cial relaksacyjn",
+   "kundalin"
+  ],
+  "a": "Masaż relaksacyjny",
+  "b": "Masaż kundalini",
+  "slowa_a": "relaksacyjny ciała",
+  "slowa_b": "kundalini",
+  "relacja": "inne",
+  "rozklad": {
+   "nie_wiadomo": 0.02,
+   "to_samo": 0.0,
+   "inne": 0.92,
+   "szersze": 0.06,
+   "wezsze": 0.0
+  }
+ },
+ "[\"c retix\", \"rozswietlajac\", \"twarz\"]": {
+  "klasa": [
+   "c retix",
+   "rozswietlajac",
+   "twarz"
+  ],
+  "a": "Zabieg rozświetlający Retix C",
+  "b": "Retix C- twarz",
+  "slowa_a": "rozświetlający",
+  "slowa_b": "twarz",
+  "relacja": "to_samo",
+  "rozklad": {
+   "szersze": 0.01,
+   "to_samo": 0.7,
+   "nie_wiadomo": 0.01,
+   "inne": 0.07,
+   "wezsze": 0.21
+  }
+ },
+ "[\"masaz relaksacyjn\", \"calosc\", \"kobiet tylk\"]": {
+  "klasa": [
+   "masaz relaksacyjn",
+   "calosc",
+   "kobiet tylk"
+  ],
+  "a": "Masaż relaksacyjny całościowy",
+  "b": "Masaż relaksacyjny TYLKO DLA KOBIET",
+  "slowa_a": "całościowy",
+  "slowa_b": "TYLKO KOBIET",
+  "relacja": "inne",
+  "rozklad": {
+   "to_samo": 0.2,
+   "szersze": 0.25,
+   "wezsze": 0.04,
+   "nie_wiadomo": 0.01,
+   "inne": 0.5
+  }
+ },
+ "[\"c retix\", \"retigl\", \"twarz\"]": {
+  "klasa": [
+   "c retix",
+   "retigl",
+   "twarz"
+  ],
+  "a": "Retix C - RETIGLOW",
+  "b": "Retix C- twarz",
+  "slowa_a": "RETIGLOW",
+  "slowa_b": "twarz",
+  "relacja": "szersze",
+  "rozklad": {
+   "nie_wiadomo": 0.03,
+   "wezsze": 0.01,
+   "to_samo": 0.02,
+   "inne": 0.34,
+   "szersze": 0.6
+  }
+ },
+ "[\"oczyszczan\", \"podstaw\", \"twarz\"]": {
+  "klasa": [
+   "oczyszczan",
+   "podstaw",
+   "twarz"
+  ],
+  "a": "Podstawowe Oczyszczanie",
+  "b": "Twoja skóra, nasza troska! Oczyszczanie Twarzy",
+  "slowa_a": "Podstawowe",
+  "slowa_b": "Twarzy",
+  "relacja": "wezsze",
+  "rozklad": {
+   "to_samo": 0.22,
+   "wezsze": 0.55,
+   "szersze": 0.01,
+   "inne": 0.21,
+   "nie_wiadomo": 0.01
+  }
+ },
+ "[\"makijaz odswiezen permanentn roku\", \"do\", \"po\"]": {
+  "klasa": [
+   "makijaz odswiezen permanentn roku",
+   "do",
+   "po"
+  ],
+  "a": "Odświeżenie makijażu permanentnego do roku",
+  "b": "Odświeżenie makijażu permanentnego po roku",
+  "slowa_a": "do",
+  "slowa_b": "po",
+  "relacja": "inne",
+  "rozklad": {
+   "szersze": 0.01,
+   "wezsze": 0.06,
+   "to_samo": 0.05,
+   "inne": 0.87,
+   "nie_wiadomo": 0.01
+  }
+ },
+ "[\"1:1 rzes\", \"metod przedluzan\", \"stylizacj\"]": {
+  "klasa": [
+   "1:1 rzes",
+   "metod przedluzan",
+   "stylizacj"
+  ],
+  "a": "Przedłużanie rzęs metodą 1:1",
+  "b": "Stylizacja rzęs 1:1",
+  "slowa_a": "Przedłużanie metodą",
+  "slowa_b": "Stylizacja",
+  "relacja": "to_samo",
+  "rozklad": {
+   "to_samo": 0.87,
+   "wezsze": 0.09000000000000001,
+   "szersze": 0.01,
+   "nie_wiadomo": 0.01,
+   "inne": 0.02
+  }
+ },
+ "[\"do makijaz odswiezen permanentn\", \"dwoch lat\", \"roku\"]": {
+  "klasa": [
+   "do makijaz odswiezen permanentn",
+   "dwoch lat",
+   "roku"
+  ],
+  "a": "Odświeżenie makijażu permanentnego do dwóch lat",
+  "b": "Odświeżenie makijażu permanentnego do roku",
+  "slowa_a": "dwóch lat",
+  "slowa_b": "roku",
+  "relacja": "szersze",
+  "rozklad": {
+   "nie_wiadomo": 0.01,
+   "to_samo": 0.03,
+   "inne": 0.16,
+   "szersze": 0.8,
+   "wezsze": 0.0
+  }
+ },
+ "[\"do makijaz odswiezen permanentn\", \"2 lat\", \"roku\"]": {
+  "klasa": [
+   "do makijaz odswiezen permanentn",
+   "2 lat",
+   "roku"
+  ],
+  "a": "Odświeżenie makijażu permanentnego do 2 lat",
+  "b": "Odświeżenie makijażu permanentnego do roku",
+  "slowa_a": "2 lat",
+  "slowa_b": "roku",
+  "relacja": "szersze",
+  "rozklad": {
+   "nie_wiadomo": 0.0,
+   "szersze": 0.85,
+   "to_samo": 0.03,
+   "inne": 0.12,
+   "wezsze": 0.0
+  }
+ },
+ "[\"brzuch cukr depilacj past\", \"klatk\", \"mesk tors\"]": {
+  "klasa": [
+   "brzuch cukr depilacj past",
+   "klatk",
+   "mesk tors"
+  ],
+  "a": "Depilacja pastą cukrową klatka z brzuchem",
+  "b": "Depilacja Tors + brzuch Pastą Cukrową",
+  "slowa_a": "klatka",
+  "slowa_b": "Tors Męski",
+  "relacja": "to_samo",
+  "rozklad": {
+   "to_samo": 0.6,
+   "inne": 0.0,
+   "szersze": 0.01,
+   "wezsze": 0.39,
+   "nie_wiadomo": 0.0
+  }
+ },
+ "[\"cukr depilacj past\", \"cale nogi\", \"uda\"]": {
+  "klasa": [
+   "cukr depilacj past",
+   "cale nogi",
+   "uda"
+  ],
+  "a": "Depilacja pastą cukrową Nogi cale",
+  "b": "Depilacja pastą cukrową uda",
+  "slowa_a": "Nogi cale",
+  "slowa_b": "uda",
+  "relacja": "szersze",
+  "rozklad": {
+   "inne": 0.0,
+   "wezsze": 0.0,
+   "nie_wiadomo": 0.0,
+   "szersze": 0.99,
+   "to_samo": 0.01
+  }
+ },
+ "[\"cukr depilacj past\", \"kobiec nogi\", \"uda\"]": {
+  "klasa": [
+   "cukr depilacj past",
+   "kobiec nogi",
+   "uda"
+  ],
+  "a": "Depilacja pastą cukrową nogi",
+  "b": "Depilacja pastą cukrową uda",
+  "slowa_a": "nogi kobieca",
+  "slowa_b": "uda",
+  "relacja": "szersze",
+  "rozklad": {
+   "to_samo": 0.01,
+   "wezsze": 0.01,
+   "nie_wiadomo": 0.01,
+   "szersze": 0.89,
+   "inne": 0.08
+  }
+ },
+ "[\"cukr depilacj past\", \"kobiec posladk\", \"uda\"]": {
+  "klasa": [
+   "cukr depilacj past",
+   "kobiec posladk",
+   "uda"
+  ],
+  "a": "Depilacja pastą cukrową POSLIADKI",
+  "b": "Depilacja pastą cukrową uda",
+  "slowa_a": "POSLIADKI kobieca",
+  "slowa_b": "uda",
+  "relacja": "inne",
+  "rozklad": {
+   "to_samo": 0.01,
+   "wezsze": 0.02,
+   "szersze": 0.09,
+   "inne": 0.84,
+   "nie_wiadomo": 0.04
+  }
+ },
+ "[\"cukr depilacj past\", \"posladk\", \"uda\"]": {
+  "klasa": [
+   "cukr depilacj past",
+   "posladk",
+   "uda"
+  ],
+  "a": "Depilacja pastą cukrową Posladki",
+  "b": "Depilacja pastą cukrową uda",
+  "slowa_a": "Posladki",
+  "slowa_b": "uda",
+  "relacja": "inne",
+  "rozklad": {
+   "inne": 0.83,
+   "nie_wiadomo": 0.08,
+   "szersze": 0.08,
+   "to_samo": 0.0,
+   "wezsze": 0.01
+  }
+ },
+ "[\"cukr depilacj past\", \"brzuch\", \"lini pepk\"]": {
+  "klasa": [
+   "cukr depilacj past",
+   "brzuch",
+   "lini pepk"
+  ],
+  "a": "Depilacja brzucha pasta cukrowa — Depilacja brzucha pasta cukrowa",
+  "b": "Depilacja pastą cukrową linia pepka",
+  "slowa_a": "brzucha",
+  "slowa_b": "linia pepka",
+  "relacja": "szersze",
+  "rozklad": {
+   "nie_wiadomo": 0.01,
+   "szersze": 0.57,
+   "wezsze": 0.01,
+   "to_samo": 0.35,
+   "inne": 0.06
+  }
+ },
+ "[\"cukr depilacj past\", \"brzuch pepek\", \"lini pepk\"]": {
+  "klasa": [
+   "cukr depilacj past",
+   "brzuch pepek",
+   "lini pepk"
+  ],
+  "a": "Depilacja pastą cukrową Brzuch+pępek",
+  "b": "Depilacja pastą cukrową linia pepka",
+  "slowa_a": "Brzuch+pępek",
+  "slowa_b": "linia pepka",
+  "relacja": "szersze",
+  "rozklad": {
+   "szersze": 0.55,
+   "to_samo": 0.37,
+   "nie_wiadomo": 0.03,
+   "wezsze": 0.02,
+   "inne": 0.03
+  }
+ },
+ "[\"bikin glebok laser pach\", \"depilacj pakiet\", \"epilacj kobiet\"]": {
+  "klasa": [
+   "bikin glebok laser pach",
+   "depilacj pakiet",
+   "epilacj kobiet"
+  ],
+  "a": "PAKIET PACHY + BIKINI GŁĘBOKIE",
+  "b": "Pachy+Bikini głębokie",
+  "slowa_a": "Depilacja depilacja pakiet",
+  "slowa_b": "EPILACJI KOBIET",
+  "relacja": "to_samo",
+  "rozklad": {
+   "to_samo": 0.92,
+   "wezsze": 0.03,
+   "szersze": 0.01,
+   "inne": 0.01,
+   "nie_wiadomo": 0.03
+  }
+ },
+ "[\"modelowan wlos\", \"poldlug szczotk\", \"sredn\"]": {
+  "klasa": [
+   "modelowan wlos",
+   "poldlug szczotk",
+   "sredn"
+  ],
+  "a": "Modelowanie (na szczotkę) - włosy półdługie",
+  "b": "Modelowanie średnie włosy",
+  "slowa_a": "szczotkę półdługie",
+  "slowa_b": "średnie",
+  "relacja": "to_samo",
+  "rozklad": {
+   "to_samo": 0.37,
+   "szersze": 0.01,
+   "inne": 0.31,
+   "wezsze": 0.3,
+   "nie_wiadomo": 0.01
+  }
+ },
+ "[\"dlug strzyzen wlos\", \"airtouch bardz\", \"damsk\"]": {
+  "klasa": [
+   "dlug strzyzen wlos",
+   "airtouch bardz",
+   "damsk"
+  ],
+  "a": "AirTouch ze strzyżeniem wł bardzo długie",
+  "b": "Długie włosy Air touch + strzyżenie",
+  "slowa_a": "AirTouch bardzo AIRTOUCH",
+  "slowa_b": "damskie",
+  "relacja": "to_samo",
+  "rozklad": {
+   "inne": 0.27,
+   "wezsze": 0.23,
+   "nie_wiadomo": 0.09,
+   "szersze": 0.04,
+   "to_samo": 0.37
+  }
+ },
+ "[\"dwojg\", \"masaz\", \"warsztat\"]": {
+  "klasa": [
+   "dwojg",
+   "masaz",
+   "warsztat"
+  ],
+  "a": "Masaż dla Par — Masaż dla Par",
+  "b": "Warsztaty dla par",
+  "slowa_a": "Masaż",
+  "slowa_b": "Warsztaty",
+  "relacja": "inne",
+  "rozklad": {
+   "szersze": 0.01,
+   "to_samo": 0.02,
+   "inne": 0.94,
+   "wezsze": 0.03,
+   "nie_wiadomo": 0.0
+  }
+ },
+ "[\"pedicur podologiczn\", \"medyczn specjalistyczn\", \"rozszerzon\"]": {
+  "klasa": [
+   "pedicur podologiczn",
+   "medyczn specjalistyczn",
+   "rozszerzon"
+  ],
+  "a": "Pedicure Medyczny SPECJALISTYCZNY",
+  "b": "Rozszerzony pedicure podologiczny",
+  "slowa_a": "Medyczny SPECJALISTYCZNY",
+  "slowa_b": "Rozszerzony",
+  "relacja": "szersze",
+  "rozklad": {
+   "to_samo": 0.01,
+   "wezsze": 0.02,
+   "szersze": 0.65,
+   "inne": 0.32,
+   "nie_wiadomo": 0.0
+  }
+ },
+ "[\"pedicur rozszerzon\", \"medyczn\", \"podologiczn\"]": {
+  "klasa": [
+   "pedicur rozszerzon",
+   "medyczn",
+   "podologiczn"
+  ],
+  "a": "Pedicure medyczny (rozszerzony) — Pedicure medyczny (rozszerzony)",
+  "b": "Rozszerzony pedicure podologiczny",
+  "slowa_a": "medyczny",
+  "slowa_b": "podologiczny",
+  "relacja": "to_samo",
+  "rozklad": {
+   "szersze": 0.09,
+   "to_samo": 0.59,
+   "nie_wiadomo": 0.01,
+   "inne": 0.24,
+   "wezsze": 0.07
+  }
+ },
+ "[\"podologiczn\", \"pedicur specjalistyczn\", \"rozszerzon\"]": {
+  "klasa": [
+   "podologiczn",
+   "pedicur specjalistyczn",
+   "rozszerzon"
+  ],
+  "a": "Specjalistyczny pedicure podologiczny",
+  "b": "Rozszerzony zabieg Podologiczny",
+  "slowa_a": "pedicure Specjalistyczny",
+  "slowa_b": "Rozszerzony",
+  "relacja": "to_samo",
+  "rozklad": {
+   "wezsze": 0.2,
+   "szersze": 0.1,
+   "to_samo": 0.37,
+   "inne": 0.28,
+   "nie_wiadomo": 0.05
+  }
+ },
+ "[\"podologiczn specjalistyczn\", \"pedicur\", \"rozszerzon\"]": {
+  "klasa": [
+   "podologiczn specjalistyczn",
+   "pedicur",
+   "rozszerzon"
+  ],
+  "a": "Specjalistyczny pedicure podologiczny",
+  "b": "Specjalistyczny – poszerzony zabieg podologiczny",
+  "slowa_a": "pedicure",
+  "slowa_b": "poszerzony",
+  "relacja": "wezsze",
+  "rozklad": {
+   "szersze": 0.05,
+   "nie_wiadomo": 0.03,
+   "wezsze": 0.42,
+   "to_samo": 0.24,
+   "inne": 0.26
+  }
+ },
+ "[\"podologiczn\", \"lecznicz\", \"rozszerzon\"]": {
+  "klasa": [
+   "podologiczn",
+   "lecznicz",
+   "rozszerzon"
+  ],
+  "a": "Leczniczy zabieg podologiczny",
+  "b": "Rozszerzony zabieg podologiczny — Rozszerzony zabieg podologiczny",
+  "slowa_a": "Leczniczy",
+  "slowa_b": "Rozszerzony",
+  "relacja": "wezsze",
+  "rozklad": {
+   "szersze": 0.04,
+   "to_samo": 0.11,
+   "nie_wiadomo": 0.01,
+   "wezsze": 0.62,
+   "inne": 0.22
+  }
+ },
+ "[\"pedicur\", \"medyczn rozszerzon\", \"podologiczn specjalistyczn\"]": {
+  "klasa": [
+   "pedicur",
+   "medyczn rozszerzon",
+   "podologiczn specjalistyczn"
+  ],
+  "a": "Pedicure Medyczny Rozszerzony",
+  "b": "Specjalistyczny pedicure podologiczny",
+  "slowa_a": "Medyczny Rozszerzony",
+  "slowa_b": "podologiczny Specjalistyczny",
+  "relacja": "to_samo",
+  "rozklad": {
+   "wezsze": 0.03,
+   "to_samo": 0.44,
+   "nie_wiadomo": 0.03,
+   "szersze": 0.38,
+   "inne": 0.12
+  }
+ },
+ "[\"przekluwan uszu\", \"1 kolczyk\", \"dziurk jedn\"]": {
+  "klasa": [
+   "przekluwan uszu",
+   "1 kolczyk",
+   "dziurk jedn"
+  ],
+  "a": "Przekłuwanie uszu - 1 kolczyk",
+  "b": "Przekłucie uszu - jedna dziurka",
+  "slowa_a": "1 kolczyk",
+  "slowa_b": "jedna dziurka",
+  "relacja": "to_samo",
+  "rozklad": {
+   "szersze": 0.07,
+   "inne": 0.02,
+   "nie_wiadomo": 0.01,
+   "wezsze": 0.05,
+   "to_samo": 0.85
+  }
+ },
+ "[\"iglow mezoterap\", \"oczu okolic\", \"oczy\"]": {
+  "klasa": [
+   "iglow mezoterap",
+   "oczu okolic",
+   "oczy"
+  ],
+  "a": "MEZOTERAPIA IGŁOWA - okolice oczu",
+  "b": "mezoterapia igłowa -oczy",
+  "slowa_a": "okolice oczu",
+  "slowa_b": "-oczy",
+  "relacja": "to_samo",
+  "rozklad": {
+   "szersze": 0.01,
+   "to_samo": 0.75,
+   "nie_wiadomo": 0.0,
+   "wezsze": 0.0,
+   "inne": 0.24
+  }
+ },
+ "[\"przekluwan uszu\", \"1 kolczyk\", \"3 dziurk\"]": {
+  "klasa": [
+   "przekluwan uszu",
+   "1 kolczyk",
+   "3 dziurk"
+  ],
+  "a": "Przekłuwanie uszu - 1 kolczyk",
+  "b": "Przekłucie uszu 3 dziurki",
+  "slowa_a": "1 kolczyk",
+  "slowa_b": "3 dziurki",
+  "relacja": "inne",
+  "rozklad": {
+   "inne": 0.73,
+   "szersze": 0.0,
+   "to_samo": 0.01,
+   "wezsze": 0.26,
+   "nie_wiadomo": 0.0
+  }
+ },
+ "[\"przekluwan uszu\", \"1 kolczyk\", \"studex\"]": {
+  "klasa": [
+   "przekluwan uszu",
+   "1 kolczyk",
+   "studex"
+  ],
+  "a": "Przekłuwanie uszu - 1 kolczyk",
+  "b": "Przekłucie uszu studex",
+  "slowa_a": "1 kolczyk",
+  "slowa_b": "studex",
+  "relacja": "nie_wiadomo",
+  "rozklad": {
+   "inne": 0.3,
+   "to_samo": 0.14,
+   "nie_wiadomo": 0.4,
+   "szersze": 0.03,
+   "wezsze": 0.13
+  }
+ },
+ "[\"przekluwan uszu\", \"1 kolczyk\", \"dorosl obu\"]": {
+  "klasa": [
+   "przekluwan uszu",
+   "1 kolczyk",
+   "dorosl obu"
+  ],
+  "a": "Przekłuwanie uszu - 1 kolczyk",
+  "b": "Przekłuwanie obu uszu dorosłym",
+  "slowa_a": "1 kolczyk",
+  "slowa_b": "obu dorosłym",
+  "relacja": "inne",
+  "rozklad": {
+   "szersze": 0.0,
+   "to_samo": 0.01,
+   "wezsze": 0.48,
+   "nie_wiadomo": 0.0,
+   "inne": 0.51
+  }
+ },
+ "[\"dlugosc jedn maszynk strzyzen\", \"clipper haircut\", \"mesk\"]": {
+  "klasa": [
+   "dlugosc jedn maszynk strzyzen",
+   "clipper haircut",
+   "mesk"
+  ],
+  "a": "Strzyżenie maszynka jedna długość/haircut clipper",
+  "b": "Strzyżenie jedna długość (maszynka)",
+  "slowa_a": "haircut clipper",
+  "slowa_b": "MĘSKIE",
+  "relacja": "to_samo",
+  "rozklad": {
+   "nie_wiadomo": 0.01,
+   "szersze": 0.1,
+   "inne": 0.07,
+   "wezsze": 0.05,
+   "to_samo": 0.77
+  }
+ },
+ "[\"rzes\", \"lifting\", \"stylizacj\"]": {
+  "klasa": [
+   "rzes",
+   "lifting",
+   "stylizacj"
+  ],
+  "a": "Lifting rzęs — Lifting rzęs",
+  "b": "Lifting rzęs",
+  "slowa_a": "Lifting",
+  "slowa_b": "Stylizacja",
+  "relacja": "wezsze",
+  "rozklad": {
+   "inne": 0.16,
+   "to_samo": 0.25,
+   "szersze": 0.01,
+   "nie_wiadomo": 0.02,
+   "wezsze": 0.56
+  }
+ },
+ "[\"3 do rzes tygodn uzupelnien\", \"camell\", \"efekt kim\"]": {
+  "klasa": [
+   "3 do rzes tygodn uzupelnien",
+   "camell",
+   "efekt kim"
+  ],
+  "a": "Uzupełnienie rzęs Kim Camellia do 3 tygodni",
+  "b": "Efekt Kim uzupełnienie(do 3 tygodni)",
+  "slowa_a": "Camellia",
+  "slowa_b": "Efekt Kim",
+  "relacja": "nie_wiadomo",
+  "rozklad": {
+   "to_samo": 0.11,
+   "nie_wiadomo": 0.62,
+   "inne": 0.24,
+   "wezsze": 0.03,
+   "szersze": 0.0
+  }
+ },
+ "[\"rzes\", \"laminacj\", \"lifting\"]": {
+  "klasa": [
+   "rzes",
+   "laminacj",
+   "lifting"
+  ],
+  "a": "Laminacji rzęs",
+  "b": "Lifting rzęs — Lifting rzęs",
+  "slowa_a": "Laminacji",
+  "slowa_b": "Lifting",
+  "relacja": "to_samo",
+  "rozklad": {
+   "inne": 0.03,
+   "to_samo": 0.96,
+   "nie_wiadomo": 0.0,
+   "szersze": 0.0,
+   "wezsze": 0.01
+  }
+ },
+ "[\"2:1 rzes\", \"przedluzen\", \"stylizacj\"]": {
+  "klasa": [
+   "2:1 rzes",
+   "przedluzen",
+   "stylizacj"
+  ],
+  "a": "Przedłużenie rzęs 2:1",
+  "b": "Stylizacja rzęs 2:1",
+  "slowa_a": "Przedłużenie",
+  "slowa_b": "Stylizacja",
+  "relacja": "to_samo",
+  "rozklad": {
+   "to_samo": 0.93,
+   "wezsze": 0.01,
+   "szersze": 0.02,
+   "inne": 0.04,
+   "nie_wiadomo": 0.0
+  }
+ },
+ "[\"2:1 rzes\", \"3:1 przedluzan\", \"przedluzen\"]": {
+  "klasa": [
+   "2:1 rzes",
+   "3:1 przedluzan",
+   "przedluzen"
+  ],
+  "a": "Przedłużanie rzęs 2:1 3:1",
+  "b": "Przedłużenie rzęs 2:1",
+  "slowa_a": "Przedłużanie 3:1",
+  "slowa_b": "Przedłużenie",
+  "relacja": "inne",
+  "rozklad": {
+   "to_samo": 0.03,
+   "wezsze": 0.08,
+   "szersze": 0.15,
+   "inne": 0.73,
+   "nie_wiadomo": 0.01
+  }
+ },
+ "[\"modelowan ombr strzyzen toner\", \"balejaz\", \"farbk\"]": {
+  "klasa": [
+   "modelowan ombr strzyzen toner",
+   "balejaz",
+   "farbk"
+  ],
+  "a": "Strzyżenie modelowanie balejaż/ombre toner",
+  "b": "Strzyżenie modelowanie balejaż/ombre farba + toner",
+  "slowa_a": "balejaż/ombre",
+  "slowa_b": "farba",
+  "relacja": "wezsze",
+  "rozklad": {
+   "wezsze": 0.29,
+   "to_samo": 0.28,
+   "szersze": 0.14,
+   "nie_wiadomo": 0.02,
+   "inne": 0.27
+  }
+ },
+ "[\"masaz relaksacyjn\", \"antystres\", \"cale cial\"]": {
+  "klasa": [
+   "masaz relaksacyjn",
+   "antystres",
+   "cale cial"
+  ],
+  "a": "Masaż relaksacyjny (antystresowy) — Masaż relaksacyjny (antystresowy) 60 min.",
+  "b": "Masaż relaksacyjny całego ciała",
+  "slowa_a": "(antystresowy)",
+  "slowa_b": "całego ciała",
+  "relacja": "to_samo",
+  "rozklad": {
+   "inne": 0.31,
+   "to_samo": 0.47,
+   "wezsze": 0.17,
+   "szersze": 0.02,
+   "nie_wiadomo": 0.03
+  }
+ },
+ "[\"cial masaz swiec\", \"calosc relaksacyjn\", \"gorac\"]": {
+  "klasa": [
+   "cial masaz swiec",
+   "calosc relaksacyjn",
+   "gorac"
+  ],
+  "a": "Masaż świecą relaksacyjny-całościowy",
+  "b": "Masaż Goracą Świecą",
+  "slowa_a": "relaksacyjny-całościowy",
+  "slowa_b": "Goracą",
+  "relacja": "to_samo",
+  "rozklad": {
+   "to_samo": 0.67,
+   "nie_wiadomo": 0.03,
+   "inne": 0.12,
+   "szersze": 0.07,
+   "wezsze": 0.11
+  }
+ },
+ "[\"kobid\", \"masaz\", \"twarz\"]": {
+  "klasa": [
+   "kobid",
+   "masaz",
+   "twarz"
+  ],
+  "a": "Masaż KOBIDO 80 min",
+  "b": "KOBIDO",
+  "slowa_a": "Masaż MASAŻE",
+  "slowa_b": "twarzy",
+  "relacja": "to_samo",
+  "rozklad": {
+   "nie_wiadomo": 0.02,
+   "inne": 0.1,
+   "to_samo": 0.58,
+   "szersze": 0.26,
+   "wezsze": 0.04
+  }
+ },
+ "[\"farbk regulacj\", \"brwi\", \"twarz\"]": {
+  "klasa": [
+   "farbk regulacj",
+   "brwi",
+   "twarz"
+  ],
+  "a": "Farbka brwi + regulacja",
+  "b": "Henna brwi farbką + regulacja — Henna brwi farbką + regulacja",
+  "slowa_a": "brwi",
+  "slowa_b": "twarz",
+  "relacja": "to_samo",
+  "rozklad": {
+   "to_samo": 0.48,
+   "wezsze": 0.45,
+   "szersze": 0.0,
+   "inne": 0.05,
+   "nie_wiadomo": 0.02
+  }
+ },
+ "[\"klasyczn lakier pedicur\", \"podstaw\", \"stop\"]": {
+  "klasa": [
+   "klasyczn lakier pedicur",
+   "podstaw",
+   "stop"
+  ],
+  "a": "Pedicure podstawowy z lakierem klasycznym",
+  "b": "Pedicure klasyczny (lakier) — Pedicure klasyczny (lakier)",
+  "slowa_a": "podstawowy",
+  "slowa_b": "STÓP",
+  "relacja": "to_samo",
+  "rozklad": {
+   "wezsze": 0.1,
+   "szersze": 0.01,
+   "to_samo": 0.78,
+   "inne": 0.09,
+   "nie_wiadomo": 0.02
+  }
+ },
+ "[\"przedluzen\", \"french paznokc\", \"zelem\"]": {
+  "klasa": [
+   "przedluzen",
+   "french paznokc",
+   "zelem"
+  ],
+  "a": "Przedłużenie french",
+  "b": "Przedłużenie żelem",
+  "slowa_a": "paznokci french",
+  "slowa_b": "żelem",
+  "relacja": "wezsze",
+  "rozklad": {
+   "szersze": 0.01,
+   "wezsze": 0.64,
+   "nie_wiadomo": 0.01,
+   "inne": 0.31,
+   "to_samo": 0.03
+  }
+ },
+ "[\"kolejn odcisk usuniec\", \"kazd modzel\", \"pedicur podolog\"]": {
+  "klasa": [
+   "kolejn odcisk usuniec",
+   "kazd modzel",
+   "pedicur podolog"
+  ],
+  "a": "Usunięcie odcisku / modzelu",
+  "b": "Usunięcie następnego odcisku",
+  "slowa_a": "modzelu Każdy",
+  "slowa_b": "Pedicure Podolog",
+  "relacja": "inne",
+  "rozklad": {
+   "szersze": 0.11,
+   "to_samo": 0.12,
+   "wezsze": 0.08,
+   "nie_wiadomo": 0.17,
+   "inne": 0.52
+  }
+ },
+ "[\"french paznokc\", \"konstrukcyjn przedluzan\", \"przedluzen\"]": {
+  "klasa": [
+   "french paznokc",
+   "konstrukcyjn przedluzan",
+   "przedluzen"
+  ],
+  "a": "Przedłużanie paznokci FRENCZ KONSTRUKCYJNY",
+  "b": "Przedłużenie french",
+  "slowa_a": "Przedłużanie KONSTRUKCYJNY",
+  "slowa_b": "przedłużenie",
+  "relacja": "wezsze",
+  "rozklad": {
+   "szersze": 0.08,
+   "to_samo": 0.04,
+   "wezsze": 0.79,
+   "nie_wiadomo": 0.03,
+   "inne": 0.06
+  }
+ },
+ "[\"modzel odcisk usuniec\", \"kazd kolejn\", \"podolog\"]": {
+  "klasa": [
+   "modzel odcisk usuniec",
+   "kazd kolejn",
+   "podolog"
+  ],
+  "a": "Usunięcie odcisku / modzelu",
+  "b": "usunięcie odcisku/modzela",
+  "slowa_a": "Każdy nastepny",
+  "slowa_b": "Podologia",
+  "relacja": "inne",
+  "rozklad": {
+   "szersze": 0.01,
+   "inne": 0.44,
+   "to_samo": 0.33,
+   "wezsze": 0.13,
+   "nie_wiadomo": 0.09
+  }
+ },
+ "[\"paznokc\", \"french przedluzen\", \"przedluzan\"]": {
+  "klasa": [
+   "paznokc",
+   "french przedluzen",
+   "przedluzan"
+  ],
+  "a": "Przedłużenie french",
+  "b": "Przedłużanie paznokci",
+  "slowa_a": "french przedłużenie",
+  "slowa_b": "Przedłużanie",
+  "relacja": "wezsze",
+  "rozklad": {
+   "inne": 0.01,
+   "to_samo": 0.07,
+   "nie_wiadomo": 0.0,
+   "szersze": 0.01,
+   "wezsze": 0.91
+  }
+ },
+ "[\"brodawek wirus\", \"elektrokoagulacj\", \"usuniec\"]": {
+  "klasa": [
+   "brodawek wirus",
+   "elektrokoagulacj",
+   "usuniec"
+  ],
+  "a": "Elektrokoagulacja brodawek wirusowych",
+  "b": "Usunięcie brodawek wirusowych",
+  "slowa_a": "Elektrokoagulacja",
+  "slowa_b": "Usunięcie",
+  "relacja": "wezsze",
+  "rozklad": {
+   "to_samo": 0.01,
+   "wezsze": 0.97,
+   "szersze": 0.0,
+   "inne": 0.02,
+   "nie_wiadomo": 0.0
+  }
+ },
+ "[\"modzel odcisk usuniec\", \"kazd kolejn\", \"wszystk zmian\"]": {
+  "klasa": [
+   "modzel odcisk usuniec",
+   "kazd kolejn",
+   "wszystk zmian"
+  ],
+  "a": "Usunięcie odcisku / modzelu",
+  "b": "Usuwanie odciskow modzeli",
+  "slowa_a": "Każdy nastepny",
+  "slowa_b": "wszystkich zmian",
+  "relacja": "wezsze",
+  "rozklad": {
+   "szersze": 0.03,
+   "wezsze": 0.53,
+   "nie_wiadomo": 0.02,
+   "to_samo": 0.05,
+   "inne": 0.37
+  }
+ },
+ "[\"do makijaz odswiezen permanentn\", \"12 msc\", \"2 lat\"]": {
+  "klasa": [
+   "do makijaz odswiezen permanentn",
+   "12 msc",
+   "2 lat"
+  ],
+  "a": "Odświeżenie makijażu do 12 msc",
+  "b": "Odświeżenie makijażu permanentnego do 2 lat 🌙",
+  "slowa_a": "12 msc",
+  "slowa_b": "2 lat",
+  "relacja": "wezsze",
+  "rozklad": {
+   "to_samo": 0.07,
+   "wezsze": 0.67,
+   "szersze": 0.0,
+   "inne": 0.25,
+   "nie_wiadomo": 0.01
+  }
+ },
+ "[\"liftingujac twarz\", \"bankiet\", \"ujedrniajac\"]": {
+  "klasa": [
+   "liftingujac twarz",
+   "bankiet",
+   "ujedrniajac"
+  ],
+  "a": "Bankietowy zabieg liftingujący",
+  "b": "Zabieg Liftingujaco - Ujędrniający",
+  "slowa_a": "Bankietowy",
+  "slowa_b": "Ujędrniający",
+  "relacja": "inne",
+  "rozklad": {
+   "szersze": 0.01,
+   "to_samo": 0.02,
+   "inne": 0.84,
+   "wezsze": 0.07,
+   "nie_wiadomo": 0.06
+  }
+ },
+ "[\"bankiet\", \"lift super\", \"liftingujac twarz\"]": {
+  "klasa": [
+   "bankiet",
+   "lift super",
+   "liftingujac twarz"
+  ],
+  "a": "Super lift - zabieg bankietowy",
+  "b": "Bankietowy zabieg liftingujący",
+  "slowa_a": "lift Super",
+  "slowa_b": "liftingujący twarz",
+  "relacja": "to_samo",
+  "rozklad": {
+   "to_samo": 0.47,
+   "wezsze": 0.1,
+   "szersze": 0.03,
+   "inne": 0.35,
+   "nie_wiadomo": 0.05
+  }
+ },
+ "[\"do makijaz odswiezen permanentn\", \"18 msc\", \"2 lat\"]": {
+  "klasa": [
+   "do makijaz odswiezen permanentn",
+   "18 msc",
+   "2 lat"
+  ],
+  "a": "Odświeżenie makijażu do 18 msc",
+  "b": "Odświeżenie makijażu permanentnego do 2 lat 🌙",
+  "slowa_a": "18 msc",
+  "slowa_b": "2 lat",
+  "relacja": "wezsze",
+  "rozklad": {
+   "szersze": 0.0,
+   "to_samo": 0.29,
+   "nie_wiadomo": 0.01,
+   "wezsze": 0.65,
+   "inne": 0.05
+  }
+ },
+ "[\"buzz cut strzyzen\", \"buzzcut\", \"cezar maszynk\"]": {
+  "klasa": [
+   "buzz cut strzyzen",
+   "buzzcut",
+   "cezar maszynk"
+  ],
+  "a": "Buzzcut",
+  "b": "Strzyżenie maszynką (Buzz Cut / Cezar) — Oleksandr 🔝",
+  "slowa_a": "buzzcut",
+  "slowa_b": "maszynką Cezar)",
+  "relacja": "to_samo",
+  "rozklad": {
+   "nie_wiadomo": 0.01,
+   "inne": 0.01,
+   "to_samo": 0.86,
+   "szersze": 0.02,
+   "wezsze": 0.1
+  }
+ },
+ "[\"oczyszczan wodor\", \"monduniq podstaw\", \"twarz\"]": {
+  "klasa": [
+   "oczyszczan wodor",
+   "monduniq podstaw",
+   "twarz"
+  ],
+  "a": "Oczyszczanie wodorowe podstawowe",
+  "b": "Oczyszczanie wodorowe",
+  "slowa_a": "podstawowe Monduniq",
+  "slowa_b": "twarz",
+  "relacja": "szersze",
+  "rozklad": {
+   "wezsze": 0.21,
+   "to_samo": 0.18,
+   "szersze": 0.43,
+   "inne": 0.04,
+   "nie_wiadomo": 0.14
+  }
+ },
+ "[\"buzz cut strzyzen\", \"buzzcut\", \"maszynk\"]": {
+  "klasa": [
+   "buzz cut strzyzen",
+   "buzzcut",
+   "maszynk"
+  ],
+  "a": "Buzzcut",
+  "b": "Strzyżenie maszynką (Buzz Cut)",
+  "slowa_a": "buzzcut",
+  "slowa_b": "maszynką",
+  "relacja": "to_samo",
+  "rozklad": {
+   "szersze": 0.0,
+   "wezsze": 0.09,
+   "nie_wiadomo": 0.0,
+   "to_samo": 0.91,
+   "inne": 0.0
+  }
+ },
+ "[\"liftingujac\", \"rytual\", \"twarz\"]": {
+  "klasa": [
+   "liftingujac",
+   "rytual",
+   "twarz"
+  ],
+  "a": "Rytuał Liftingujący",
+  "b": "Liftingujący zabieg na twarz",
+  "slowa_a": "Rytuał",
+  "slowa_b": "twarz",
+  "relacja": "to_samo",
+  "rozklad": {
+   "to_samo": 0.62,
+   "szersze": 0.1,
+   "wezsze": 0.18,
+   "inne": 0.07,
+   "nie_wiadomo": 0.03
+  }
+ },
+ "[\"buzz cut\", \"buzzcut strzyzen\", \"mesk\"]": {
+  "klasa": [
+   "buzz cut",
+   "buzzcut strzyzen",
+   "mesk"
+  ],
+  "a": "Buzzcut",
+  "b": "Buzz cut",
+  "slowa_a": "Strzyżenie buzzcut",
+  "slowa_b": "męskie",
+  "relacja": "to_samo",
+  "rozklad": {
+   "inne": 0.03,
+   "szersze": 0.01,
+   "nie_wiadomo": 0.02,
+   "to_samo": 0.54,
+   "wezsze": 0.4
+  }
+ },
+ "[\"cale kobiet laser rece\", \"depilacj\", \"epilacj primelas\"]": {
+  "klasa": [
+   "cale kobiet laser rece",
+   "depilacj",
+   "epilacj primelas"
+  ],
+  "a": "Całe ręce",
+  "b": "Całe ręce",
+  "slowa_a": "Depilacja",
+  "slowa_b": "Epilacja PRIMELASE",
+  "relacja": "to_samo",
+  "rozklad": {
+   "wezsze": 0.01,
+   "to_samo": 0.86,
+   "nie_wiadomo": 0.08,
+   "szersze": 0.04,
+   "inne": 0.01
+  }
+ },
+ "[\"laser mezczyzn szyj\", \"depilacj\", \"epilacj\"]": {
+  "klasa": [
+   "laser mezczyzn szyj",
+   "depilacj",
+   "epilacj"
+  ],
+  "a": "Szyja",
+  "b": "Szyja",
+  "slowa_a": "Depilacja",
+  "slowa_b": "Epilacja",
+  "relacja": "to_samo",
+  "rozklad": {
+   "to_samo": 1.0,
+   "wezsze": 0.0,
+   "szersze": 0.0,
+   "inne": 0.0,
+   "nie_wiadomo": 0.0
+  }
+ },
+ "[\"depilacj mezczyzn szyj\", \"brod wosk\", \"laser\"]": {
+  "klasa": [
+   "depilacj mezczyzn szyj",
+   "brod wosk",
+   "laser"
+  ],
+  "a": "Szyja i broda — DEPILACJA WOSKIEM",
+  "b": "Szyja",
+  "slowa_a": "WOSKIEM broda",
+  "slowa_b": "laserowa",
+  "relacja": "inne",
+  "rozklad": {
+   "inne": 0.98,
+   "to_samo": 0.0,
+   "szersze": 0.02,
+   "nie_wiadomo": 0.0,
+   "wezsze": 0.0
+  }
+ },
+ "[\"depilacj laser szyj\", \"mesk\", \"mezczyzn\"]": {
+  "klasa": [
+   "depilacj laser szyj",
+   "mesk",
+   "mezczyzn"
+  ],
+  "a": "Szyja",
+  "b": "Szyja",
+  "slowa_a": "Męska",
+  "slowa_b": "Mężczyzn",
+  "relacja": "to_samo",
+  "rozklad": {
+   "to_samo": 0.97,
+   "nie_wiadomo": 0.0,
+   "szersze": 0.0,
+   "wezsze": 0.01,
+   "inne": 0.02
+  }
+ },
+ "[\"laser szyj\", \"depilacj mezczyzn\", \"epilacj\"]": {
+  "klasa": [
+   "laser szyj",
+   "depilacj mezczyzn",
+   "epilacj"
+  ],
+  "a": "Szyja",
+  "b": "Szyja",
+  "slowa_a": "Depilacja Mężczyzn",
+  "slowa_b": "Epilacja",
+  "relacja": "to_samo",
+  "rozklad": {
+   "nie_wiadomo": 0.02,
+   "wezsze": 0.47,
+   "to_samo": 0.48,
+   "inne": 0.02,
+   "szersze": 0.01
+  }
+ },
+ "[\"masaz nog stop\", \"pielegnacj refleksolog\", \"ulga\"]": {
+  "klasa": [
+   "masaz nog stop",
+   "pielegnacj refleksolog",
+   "ulga"
+  ],
+  "a": "Masaż stóp i nóg z refleksologią  60 min — Masaż stóp i nóg z refleksologią  60 min",
+  "b": "Ulga dla nóg i stóp",
+  "slowa_a": "refleksologią pielęgnacyjne",
+  "slowa_b": "ulga",
+  "relacja": "wezsze",
+  "rozklad": {
+   "wezsze": 0.34,
+   "to_samo": 0.21,
+   "szersze": 0.14,
+   "inne": 0.28,
+   "nie_wiadomo": 0.03
+  }
+ },
+ "[\"dekoloryzacj wlos\", \"dlug\", \"do ramion\"]": {
+  "klasa": [
+   "dekoloryzacj wlos",
+   "dlug",
+   "do ramion"
+  ],
+  "a": "Dekoloryzacja Włosy Długie",
+  "b": "Dekoloryzacja/Metamorfoza — Dekoloryzacja włosy do ramion",
+  "slowa_a": "Długie",
+  "slowa_b": "do ramion",
+  "relacja": "szersze",
+  "rozklad": {
+   "szersze": 0.72,
+   "to_samo": 0.06,
+   "wezsze": 0.01,
+   "nie_wiadomo": 0.05,
+   "inne": 0.16
+  }
+ },
+ "[\"klasyczn masaz\", \"lecznicz\", \"tajsk\"]": {
+  "klasa": [
+   "klasyczn masaz",
+   "lecznicz",
+   "tajsk"
+  ],
+  "a": "Masaż klasyczny leczniczy",
+  "b": "Masaż tajski klasyczny",
+  "slowa_a": "leczniczy",
+  "slowa_b": "tajski",
+  "relacja": "inne",
+  "rozklad": {
+   "to_samo": 0.0,
+   "szersze": 0.09,
+   "inne": 0.9,
+   "wezsze": 0.01,
+   "nie_wiadomo": 0.0
+  }
+ },
+ "[\"naczynek zamykan\", \"laser twarz\", \"nos\"]": {
+  "klasa": [
+   "naczynek zamykan",
+   "laser twarz",
+   "nos"
+  ],
+  "a": "Laserowe zamykanie naczynek",
+  "b": "Zamykanie naczynek nos",
+  "slowa_a": "Laserowe twarzy",
+  "slowa_b": "nos",
+  "relacja": "szersze",
+  "rozklad": {
+   "nie_wiadomo": 0.01,
+   "szersze": 0.52,
+   "inne": 0.02,
+   "wezsze": 0.05,
+   "to_samo": 0.4
+  }
+ },
+ "[\"iglow mezoterap\", \"dekolt\", \"twarz\"]": {
+  "klasa": [
+   "iglow mezoterap",
+   "dekolt",
+   "twarz"
+  ],
+  "a": "Mezoterapia igłowa - dekolt — Mezoterapia igłowa - dekolt",
+  "b": "Mezoterapia igłowa — Mezoterapia igłowa twarz",
+  "slowa_a": "dekolt",
+  "slowa_b": "twarz",
+  "relacja": "inne",
+  "rozklad": {
+   "to_samo": 0.0,
+   "szersze": 0.0,
+   "nie_wiadomo": 0.0,
+   "inne": 1.0,
+   "wezsze": 0.0
+  }
+ },
+ "[\"naczynek zamykan\", \"elektrokoagulacj laser\", \"nos\"]": {
+  "klasa": [
+   "naczynek zamykan",
+   "elektrokoagulacj laser",
+   "nos"
+  ],
+  "a": "Zamykanie naczynek/ Elektrokoagulacja",
+  "b": "Zamykanie naczynek nos",
+  "slowa_a": "Elektrokoagulacja laserowe",
+  "slowa_b": "nos",
+  "relacja": "inne",
+  "rozklad": {
+   "szersze": 0.46,
+   "wezsze": 0.01,
+   "to_samo": 0.02,
+   "inne": 0.49,
+   "nie_wiadomo": 0.02
+  }
+ },
+ "[\"iglow mezoterap\", \"szyj\", \"twarz\"]": {
+  "klasa": [
+   "iglow mezoterap",
+   "szyj",
+   "twarz"
+  ],
+  "a": "Mezoterapia igłowa - szyja — Mezoterapia igłowa - szyja",
+  "b": "Mezoterapia igłowa — Mezoterapia igłowa twarz",
+  "slowa_a": "szyja",
+  "slowa_b": "twarz",
+  "relacja": "inne",
+  "rozklad": {
+   "nie_wiadomo": 0.0,
+   "szersze": 0.0,
+   "inne": 1.0,
+   "to_samo": 0.0,
+   "wezsze": 0.0
+  }
+ },
+ "[\"iglow mezoterap\", \"lineeas\", \"twarz\"]": {
+  "klasa": [
+   "iglow mezoterap",
+   "lineeas",
+   "twarz"
+  ],
+  "a": "Mezoterapia igłowa lineease — Mezoterapia igłowa lineease",
+  "b": "Mezoterapia igłowa — Mezoterapia igłowa twarz",
+  "slowa_a": "lineease",
+  "slowa_b": "twarz",
+  "relacja": "nie_wiadomo",
+  "rozklad": {
+   "nie_wiadomo": 0.62,
+   "szersze": 0.04,
+   "inne": 0.22,
+   "to_samo": 0.06,
+   "wezsze": 0.06
+  }
+ },
+ "[\"paznokc\", \"napraw\", \"plytk rekonstrukcj\"]": {
+  "klasa": [
+   "paznokc",
+   "napraw",
+   "plytk rekonstrukcj"
+  ],
+  "a": "Naprawa paznokcia",
+  "b": "Rekonstrukcja płytki paznokcia",
+  "slowa_a": "Naprawa",
+  "slowa_b": "Rekonstrukcja płytki",
+  "relacja": "inne",
+  "rozklad": {
+   "to_samo": 0.21,
+   "szersze": 0.05,
+   "wezsze": 0.07,
+   "nie_wiadomo": 0.03,
+   "inne": 0.64
+  }
+ },
+ "[\"paznokc rekonstrukcj\", \"obgryzion\", \"plytk\"]": {
+  "klasa": [
+   "paznokc rekonstrukcj",
+   "obgryzion",
+   "plytk"
+  ],
+  "a": "Rekonstrukcja (paznokcie obgryzione)",
+  "b": "Rekonstrukcja płytki paznokcia",
+  "slowa_a": "obgryzione",
+  "slowa_b": "płytki",
+  "relacja": "inne",
+  "rozklad": {
+   "inne": 0.88,
+   "to_samo": 0.01,
+   "wezsze": 0.11,
+   "szersze": 0.0,
+   "nie_wiadomo": 0.0
+  }
+ },
+ "[\"modzel usuniec\", \"hiperkeratoz\", \"kazd kolejn\"]": {
+  "klasa": [
+   "modzel usuniec",
+   "hiperkeratoz",
+   "kazd kolejn"
+  ],
+  "a": "Usuniecie hiperkeratoz (modzele) — Usuniecie hiperkeratoz (modzele)",
+  "b": "USUNIĘCIE MODZELA",
+  "slowa_a": "hiperkeratoz",
+  "slowa_b": "każdy kolejny",
+  "relacja": "inne",
+  "rozklad": {
+   "inne": 0.73,
+   "wezsze": 0.02,
+   "to_samo": 0.12,
+   "nie_wiadomo": 0.01,
+   "szersze": 0.12
+  }
+ },
+ "[\"posladk\", \"liposhock\", \"schock skin\"]": {
+  "klasa": [
+   "posladk",
+   "liposhock",
+   "schock skin"
+  ],
+  "a": "LipoShock - pośladki",
+  "b": "SKIN SCHOCK odchudzanie/ modelowanie  pośladki",
+  "slowa_a": "LipoShock",
+  "slowa_b": "SKIN SCHOCK",
+  "relacja": "inne",
+  "rozklad": {
+   "wezsze": 0.06,
+   "to_samo": 0.1,
+   "nie_wiadomo": 0.32,
+   "szersze": 0.01,
+   "inne": 0.51
+  }
+ },
+ "[\"mesk strzyzen\", \"krotk wlos\", \"s\"]": {
+  "klasa": [
+   "mesk strzyzen",
+   "krotk wlos",
+   "s"
+  ],
+  "a": "Strzyzenie męskie M. Wróblewska — włosy krótkie",
+  "b": "Strzyżenie męskie (S) — Strzyżenie męskie (S)",
+  "slowa_a": "włosy krótkie",
+  "slowa_b": "s",
+  "relacja": "to_samo",
+  "rozklad": {
+   "inne": 0.03,
+   "to_samo": 0.53,
+   "szersze": 0.03,
+   "nie_wiadomo": 0.22,
+   "wezsze": 0.19
+  }
+ },
+ "[\"4 6d rzes uzupelnien\", \"metod\", \"przedluzan uv\"]": {
+  "klasa": [
+   "4 6d rzes uzupelnien",
+   "metod",
+   "przedluzan uv"
+  ],
+  "a": "Uzupełnienie rzęs metodą 4-6d",
+  "b": "Uzupełnianie Rzęs UV 4-6d",
+  "slowa_a": "metodą",
+  "slowa_b": "UV Przedłużanie",
+  "relacja": "to_samo",
+  "rozklad": {
+   "szersze": 0.11,
+   "nie_wiadomo": 0.31,
+   "inne": 0.18,
+   "wezsze": 0.04,
+   "to_samo": 0.36
+  }
+ },
+ "[\"mesk strzyzen\", \"bez myci\", \"s\"]": {
+  "klasa": [
+   "mesk strzyzen",
+   "bez myci",
+   "s"
+  ],
+  "a": "Strzyżenie Męskie — bez mycia",
+  "b": "Strzyżenie męskie (S) — Strzyżenie męskie (S)",
+  "slowa_a": "bez mycia",
+  "slowa_b": "s",
+  "relacja": "inne",
+  "rozklad": {
+   "wezsze": 0.04,
+   "inne": 0.62,
+   "nie_wiadomo": 0.3,
+   "szersze": 0.0,
+   "to_samo": 0.04
+  }
+ },
+ "[\"makijaz permanentn\", \"brwi\", \"makjiaz\"]": {
+  "klasa": [
+   "makijaz permanentn",
+   "brwi",
+   "makjiaz"
+  ],
+  "a": "Makijaż permanentny brwi",
+  "b": "Makjiaż permanenty — Makjiaż permanenty",
+  "slowa_a": "brwi",
+  "slowa_b": "Makjiaż",
+  "relacja": "to_samo",
+  "rozklad": {
+   "wezsze": 0.39,
+   "to_samo": 0.6,
+   "nie_wiadomo": 0.0,
+   "inne": 0.01,
+   "szersze": 0.0
+  }
+ }
+}
