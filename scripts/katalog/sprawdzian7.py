@@ -60,6 +60,7 @@ def _slownik() -> dict[str, str]:
 
 
 def zbierz(a: argparse.Namespace) -> None:
+    """Losowanie nowych salonów; kopia usług do dane/2026-09-28/v14_<wyjście>/, żeby kolejne sprawdziany je pomijały."""
     import v13_sprawdzian as v13s
     import v14_sprawdzian as v14s
     from services.supabase import SupabaseService
@@ -79,6 +80,10 @@ def zbierz(a: argparse.Namespace) -> None:
     uzyte = {q["a"] for q in pary} | {q["b"] for q in pary}
     uslugi = {i: {**u, "id": i} for i, u in uslugi.items() if i in uzyte}
     plik.write_text(json.dumps({"uslugi": uslugi, "pary": pary, "salony": salony}, ensure_ascii=False), encoding="utf-8")
+    kopia = B / "scripts" / "typesafe" / "dane" / "2026-09-28" / f"v14_{OUT.name}"
+    kopia.mkdir(parents=True, exist_ok=True)
+    if not (kopia / "uslugi.json").exists():
+        (kopia / "uslugi.json").write_text(plik.read_text(encoding="utf-8"), encoding="utf-8")
     print(f"salonów {len(salony)}, usług podmiotu {len(po_a)}, par usług {len(pary)}, usług razem {len(uslugi)}")
 
 
@@ -204,7 +209,7 @@ def werdykty() -> tuple[list[dict], dict[str, Oferta]]:
 
 
 V14 = B / "scripts" / "typesafe" / "dane" / "2026-09-28" / "v14_sprawdzian7" / "pary.json"
-NA_GRUPE = {"obie": 999, "tylko_podpis": 999, "tylko_v14f": 999, "warianty": 999}  # wszystkie: 225 „ta sama” podpisu to całość, bez błędu próby
+NA_GRUPE = {"obie": 999, "tylko_podpis": 999, "tylko_v14f": 999, "warianty": 999, "reszta": 150}  # wszystkie: 225 „ta sama” podpisu to całość, bez błędu próby
 
 
 def _pierwsza(sid: int, oferty: dict[str, Oferta]) -> str:
@@ -223,7 +228,8 @@ def probka() -> None:
     Osobno: „ta sama” podpisu na pozostałych wariantach (raport pokazuje każdy wariant)."""
     pary, oferty = werdykty()
     po_ofertach = {(q["a"], q["b"]): q for q in pary}
-    v14 = {(q["a"], q["b"]): q["v14"] for q in json.loads(V14.read_text(encoding="utf-8"))}
+    v14 = {(q["a"], q["b"]): q["v14"] for q in json.loads(V14.read_text(encoding="utf-8"))} if V14.exists() else {}
+    reszta: list[dict] = []  # bez v14f (sprawdzian 8+): losowa próba pozostałych par — szacunek zgubionych prawdziwych
     us, pary_uslug, _s = dane()
     rng = random.Random(ZIARNO + 1)
     grupy: dict[tuple[str, str], list[dict]] = defaultdict(list)
@@ -236,12 +242,18 @@ def probka() -> None:
         p_ts, v_ts = w["podpis"] == TA_SAMA, wpis["v14f"] == "tozsame"
         if p_ts or v_ts:
             grupy[(q["branza"], "obie" if p_ts and v_ts else "tylko_podpis" if p_ts else "tylko_v14f")].append(wpis)
+        elif not v14:
+            reszta.append(wpis)
     warianty = [q for k, q in po_ofertach.items() if k not in reprez and q["podpis"] == TA_SAMA]
     wynik, liczebnosci = [], {}
     for (br, g), lst in sorted(grupy.items()):
         wyb = rng.sample(lst, min(NA_GRUPE[g], len(lst)))
         liczebnosci[f"{br}|{g}"] = len(lst)
         wynik += [{**q, "grupa": g, "waga": round(len(lst) / len(wyb), 4)} for q in wyb]
+    if reszta:
+        wr = rng.sample(reszta, min(NA_GRUPE["reszta"], len(reszta)))
+        liczebnosci["RAZEM|reszta"] = len(reszta)
+        wynik += [{**q, "grupa": "reszta", "waga": round(len(reszta) / len(wr), 4)} for q in wr]
     wyb = rng.sample(warianty, min(NA_GRUPE["warianty"], len(warianty)))
     liczebnosci["RAZEM|warianty"] = len(warianty)
     wynik += [{**q, "grupa": "warianty", "waga": round(len(warianty) / max(len(wyb), 1), 4)} for q in wyb]
@@ -281,6 +293,14 @@ def wynik() -> None:
                             "trafnych": round(v_t, 1), "odzysk": round(v_t / znane, 3) if znane else None},
                    "znane_prawdziwe": round(znane, 1)}
         print(f"{br:<20} " + json.dumps(out[br], ensure_ascii=False))
+    zr = [q for q in pr if q["grupa"] == "reszta"]
+    if zr:  # szacunek prawdziwych par, których podpis nie znalazł (losowa próba reszty, waga = liczność / próba)
+        zgub = licz["RAZEM|reszta"] * frac(zr)
+        pod = out["RAZEM"]["podpis"]
+        out["RAZEM"]["szac_zgubionych_prawdziwych"] = round(zgub, 1)
+        out["RAZEM"]["szac_odzysk_podpisu"] = round(pod["trafnych"] / (pod["trafnych"] + zgub), 3) if pod["trafnych"] + zgub else None
+        print(f"reszta: oceniono {len(zr)} z {licz['RAZEM|reszta']}, trafnych w próbie {frac(zr):.1%} → zgubionych ~{zgub:.0f}; "
+              f"odzysk podpisu ~{out['RAZEM']['szac_odzysk_podpisu']}")
     zw = [q for q in pr if q["grupa"] == "warianty"]
     out["warianty"] = {"ocenionych": len(zw), "trafnosc": round(frac(zw), 3) if zw else None}
     print("warianty (poza ofertą reprezentującą): " + json.dumps(out["warianty"], ensure_ascii=False))
@@ -296,7 +316,12 @@ def main() -> None:
     ap.add_argument("--budzet", type=float, default=0.3)
     ap.add_argument("--licz", action="store_true", help="tylko liczby par i ofert do wyciągnięcia")
     ap.add_argument("--proba", type=int, default=0, help="z --klasy: zapytaj tylko o N najczęstszych nowych zamian")
+    ap.add_argument("--wyjscie", default="sprawdzian7", help="katalog w dane/2026-09-29/ (nowy = nowe salony)")
+    ap.add_argument("--na-grupe", type=int, default=999, help="--probka: najwyżej N par z grupy na branżę (reszta ważona)")
     a = ap.parse_args()
+    global OUT, V14
+    OUT = OUT.parent / a.wyjscie
+    V14 = B / "scripts" / "typesafe" / "dane" / "2026-09-28" / f"v14_{a.wyjscie}" / "pary.json"
     if a.zbierz:
         zbierz(a)
     if a.licz:
@@ -310,6 +335,7 @@ def main() -> None:
     if a.klasy:
         klasy(a.budzet, a.proba)
     if a.probka:
+        NA_GRUPE.update({g: a.na_grupe for g in ("obie", "tylko_podpis", "tylko_v14f")})
         probka()
     if a.wynik:
         wynik()
