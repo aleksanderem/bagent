@@ -1,0 +1,141 @@
+{
+ "Barber shop": {
+  "podpis": {
+   "ta_sama": 15,
+   "trafnosc": 1.0,
+   "trafnych": 15.0,
+   "odzysk": 0.882
+  },
+  "v14f": {
+   "ta_sama": 18,
+   "trafnosc": 0.833,
+   "trafnych": 15.0,
+   "odzysk": 0.882
+  },
+  "znane_prawdziwe": 17.0
+ },
+ "Brwi i rzęsy": {
+  "podpis": {
+   "ta_sama": 18,
+   "trafnosc": 0.944,
+   "trafnych": 17.0,
+   "odzysk": 0.773
+  },
+  "v14f": {
+   "ta_sama": 14,
+   "trafnosc": 0.929,
+   "trafnych": 13.0,
+   "odzysk": 0.591
+  },
+  "znane_prawdziwe": 22.0
+ },
+ "Depilacja": {
+  "podpis": {
+   "ta_sama": 41,
+   "trafnosc": 0.39,
+   "trafnych": 16.0,
+   "odzysk": 0.432
+  },
+  "v14f": {
+   "ta_sama": 71,
+   "trafnosc": 0.479,
+   "trafnych": 34.0,
+   "odzysk": 0.919
+  },
+  "znane_prawdziwe": 37.0
+ },
+ "Fryzjer": {
+  "podpis": {
+   "ta_sama": 12,
+   "trafnosc": 1.0,
+   "trafnych": 12.0,
+   "odzysk": 0.522
+  },
+  "v14f": {
+   "ta_sama": 20,
+   "trafnosc": 0.6,
+   "trafnych": 12.0,
+   "odzysk": 0.522
+  },
+  "znane_prawdziwe": 23.0
+ },
+ "Masaż": {
+  "podpis": {
+   "ta_sama": 26,
+   "trafnosc": 0.885,
+   "trafnych": 23.0,
+   "odzysk": 0.92
+  },
+  "v14f": {
+   "ta_sama": 22,
+   "trafnosc": 0.818,
+   "trafnych": 18.0,
+   "odzysk": 0.72
+  },
+  "znane_prawdziwe": 25.0
+ },
+ "Paznokcie": {
+  "podpis": {
+   "ta_sama": 84,
+   "trafnosc": 0.976,
+   "trafnych": 82.0,
+   "odzysk": 0.953
+  },
+  "v14f": {
+   "ta_sama": 47,
+   "trafnosc": 0.83,
+   "trafnych": 39.0,
+   "odzysk": 0.453
+  },
+  "znane_prawdziwe": 86.0
+ },
+ "Podologia": {
+  "podpis": {
+   "ta_sama": 8,
+   "trafnosc": 1.0,
+   "trafnych": 8.0,
+   "odzysk": 0.8
+  },
+  "v14f": {
+   "ta_sama": 7,
+   "trafnosc": 0.857,
+   "trafnych": 6.0,
+   "odzysk": 0.6
+  },
+  "znane_prawdziwe": 10.0
+ },
+ "Salon Kosmetyczny": {
+  "podpis": {
+   "ta_sama": 21,
+   "trafnosc": 1.0,
+   "trafnych": 21.0,
+   "odzysk": 0.955
+  },
+  "v14f": {
+   "ta_sama": 23,
+   "trafnosc": 0.913,
+   "trafnych": 21.0,
+   "odzysk": 0.955
+  },
+  "znane_prawdziwe": 22.0
+ },
+ "RAZEM": {
+  "podpis": {
+   "ta_sama": 225,
+   "trafnosc": 0.862,
+   "trafnych": 194.0,
+   "odzysk": 0.802
+  },
+  "v14f": {
+   "ta_sama": 222,
+   "trafnosc": 0.712,
+   "trafnych": 158.0,
+   "odzysk": 0.653
+  },
+  "znane_prawdziwe": 242.0
+ },
+ "warianty": {
+  "ocenionych": 9,
+  "trafnosc": 1.0
+ }
+}

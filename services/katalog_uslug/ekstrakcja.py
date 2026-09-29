@@ -9,6 +9,7 @@ Czy cecha jest wyróżniająca, rozstrzyga słownik raz na (zabieg, wartość) �
 from __future__ import annotations
 
 import json
+import re
 from dataclasses import asdict, dataclass
 from typing import Any
 
@@ -124,7 +125,7 @@ def waliduj(oferty: list[Oferta], odp: dict[str, Any]) -> tuple[dict[str, dict[s
         brak = [t for i, t in enumerate(slowa) if t not in pokryte and t not in LACZNIKI and t not in slowa[:i]]
         wynik[oid] = {**r, "cechy": [{**c, "rola": c.get("rola") if c.get("rola") in ROLE else "inne"}
                                       for c in r.get("cechy") or [] if str(c.get("fraza") or "") not in obce],
-                      "nieprzypisane": brak, "obce": obce}
+                      "nieprzypisane": brak, "obce": obce, "wariant": o.wariant}
     return wynik, bledy
 
 PROMPT_KATEGORII = """Rozkładasz NAZWY KATEGORII z cenników salonów (Booksy) — sekcje, w których salon grupuje swoje usługi.
@@ -149,3 +150,30 @@ Kategorie:
 
 def prompt_kategorii(kategorie: list[Oferta]) -> str:
     return PROMPT_KATEGORII + json.dumps([{"id": k.id, "nazwa": k.nazwa} for k in kategorie], ensure_ascii=False, indent=1)
+
+
+PROMPT_SALONOW = """Rozkładasz NAZWY SALONÓW z Booksy. Dla KAŻDEJ nazwy z listy zwróć jeden rekord (pole „nazwa” to nazwa salonu).
+
+Zasady:
+1. Frazy KOPIUJESZ dosłownie z nazwy — te same słowa, formy i końcówki.
+2. zabieg = czynność, jeśli nazwa ją nazywa („Depilacja”, „Masaż”, „Manicure”); gdy nie nazywa — zabieg pusty ("").
+3. Role cech: metoda (technika albo urządzenie, którym salon pracuje: „Laser”, „Wax”, „Sugaring”), obszar, dla_kogo
+   („Men”, „Kids”), miejsce („mobilny”, „z dojazdem”), specjalista (imię, nazwisko, zawód: „Kosmetolog”, „Podolog”), inne.
+4. szum = nazwa własna marki, miasto, dzielnica, słowa ogólne („Studio”, „Salon”, „Beauty”, „Instytut”, „Atelier”), emotki.
+
+Odpowiedź — wyłącznie JSON:
+{"oferty": [{"id": "<id>", "nazwa": "<dosłowna nazwa salonu>", "pozycja": "inne",
+  "zabieg": {"fraza": "...", "zrodlo": "nazwa"}, "cechy": [{"rola": "...", "fraza": "...", "zrodlo": "nazwa"}], "szum": ["..."]}]}
+
+Salony:
+"""
+_ZLEPEK = re.compile(r"(?<=[a-ząćęłńóśźż])(?=[A-ZĄĆĘŁŃÓŚŹŻ])")
+
+
+def rozdziel_zlepki(nazwa: str) -> str:
+    """„LaserPoznań” → „Laser Poznań”: nazwy salonów bywają zlepkiem słów (proste czyszczenie tekstu)."""
+    return _ZLEPEK.sub(" ", nazwa)
+
+
+def prompt_salonow(salony: list[Oferta]) -> str:
+    return PROMPT_SALONOW + json.dumps([{"id": k.id, "nazwa": k.nazwa} for k in salony], ensure_ascii=False, indent=1)

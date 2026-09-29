@@ -190,3 +190,27 @@ def test_szum_z_nazwy_wraca_gdy_slowo_jest_cecha_w_innych_ofertach() -> None:
     assert "symetryczn" in slowa and "promo" not in slowa
     assert podpis(brwi, slownictwo=slowa).zbior == {"piercing", "brwi", "symetryczn"}  # „PROMO” zostaje szumem
     assert podpis(brwi).zbior == {"piercing", "brwi"}  # bez słownictwa rynku — jak dotąd
+
+
+def test_szum_z_etykiety_wariantu_tez_wraca() -> None:
+    uzup = {**rek(zabieg="Przedłużanie", cechy=[("obszar", "rzęs")]), "nazwa": "Przedłużanie rzęs 2-3D",
+            "wariant": "Uzupełnienie rzęs 2-3D", "szum": ["Uzupełnienie rzęs"]}
+    slowa = slownictwo([rek(zabieg="Uzupełnienie", cechy=[("obszar", "rzęs")])])
+    assert "uzupelnien" in podpis(uzup, slownictwo=slowa).zbior  # etap z wariantu, nie szum
+
+
+def test_nazwa_salonu_daje_metode_tylko_gdy_oferta_jej_nie_ma() -> None:
+    laser = {"nazwa": "Laser Poznań", "zabieg": {"fraza": "", "zrodlo": "nazwa"},
+             "cechy": [{"rola": "metoda", "fraza": "Laser", "zrodlo": "nazwa"}]}
+    bikini = rek(zabieg="Depilacja", cechy=[("obszar", "Bikini"), ("rozmiar", "klasyczne")])
+    assert "laser" in podpis(bikini, salon=laser).zbior
+    klasyczne = rek(zabieg="Depilacja", cechy=[("obszar", "Bikini"), ("metoda", "klasyczne")])  # rola błędnie „metoda”
+    assert "laser" in podpis(klasyczne, salon=laser).zbior  # niepowtarzalna rola nie blokuje kontekstu salonu
+    lista = {**laser, "nazwa": "Wax & Nail Bar", "cechy": [{"rola": "metoda", "fraza": "Wax", "zrodlo": "nazwa"}]}
+    assert podpis(bikini, salon=lista).zbior == podpis(bikini).zbior  # nazwa-lista nie mówi, którą metodą
+
+
+def test_metoda_z_kategorii_mimo_blednej_roli_w_nazwie() -> None:
+    bikini = rek(zabieg="", cechy=[("obszar", "Bikini"), ("metoda", "klasyczne")])  # „klasyczne” błędnie jako metoda
+    kat = _kat("Depilacja laserowa", "Depilacja", [("metoda", "laserowa")])
+    assert {"depilacj", "laser"} <= podpis(bikini, kontekst=kat).zbior  # nazwa nie ma zabiegu → kategoria go dokłada

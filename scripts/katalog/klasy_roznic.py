@@ -28,6 +28,10 @@ from services.katalog_uslug.podpis import _wybrane_frazy, podpis, roznica_do_pyt
 
 def slownictwo_rynku(rek: dict, slownik: dict | None) -> frozenset[str]:
     return op.slownictwo_rynku(rek, slownik)
+
+
+def metody_rynku(rek: dict, slownik: dict | None) -> frozenset[str]:
+    return op.metody_rynku(rek, slownik)
 from services.typesafe_drzewo.kontekst_v12 import stan_v12  # noqa: E402
 
 _spec = importlib.util.spec_from_file_location("ocena_podpisu", B / "scripts" / "katalog" / "ocena_podpisu.py")
@@ -100,14 +104,17 @@ def zamiany_z_par(wariant: str, slownik: dict[str, str] | None = None, kon: dict
                          slownictwo_rynku(rek, slownik))
 
 
-def zamiany_ofert(pary: list, rek: dict, slownik: dict | None, kon: dict, slowa: frozenset[str] | None = None) -> dict[str, dict]:
+def zamiany_ofert(pary: list, rek: dict, slownik: dict | None, kon: dict, slowa: frozenset[str] | None = None,
+                  sal: dict | None = None) -> dict[str, dict]:
     """Klucz klasy → reprezentant (pierwsza para z tą klasą): nazwy i słowa różnicy w brzmieniu z ofert, stan obu ofert."""
     zamiany: dict[str, dict] = {}
     for oa, ob in pary:
         ra, rb = rek.get(oa.id), rek.get(ob.id)
         if not (ra and rb):
             continue
-        pa, pb = podpis(ra, slownik, kon.get(oa.id), slowa), podpis(rb, slownik, kon.get(ob.id), slowa)
+        sal = sal or {}
+        pa, pb = (podpis(ra, slownik, kon.get(oa.id), slowa, sal.get(oa.id)),
+                  podpis(rb, slownik, kon.get(ob.id), slowa, sal.get(ob.id)))
         if (z := zamiana_do_pytania(pa, pb)) is None:
             continue
         klucz = json.dumps(z, ensure_ascii=False)

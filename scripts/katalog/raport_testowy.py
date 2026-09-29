@@ -40,7 +40,7 @@ def _modul(nazwa: str, plik: Path):
 tp = _modul("test_paczek", B / "scripts" / "katalog" / "test_paczek.py")
 kr = _modul("klasy_roznic", B / "scripts" / "katalog" / "klasy_roznic.py")
 km = _modul("kategorie", B / "scripts" / "katalog" / "kategorie.py")
-SLOWNIK_DEV = B / "scripts" / "katalog" / "dane" / "2026-09-29" / "w2" / "slownik.json"
+SLOWNIK_DEV = B / "scripts" / "katalog" / "dane" / "2026-09-29" / "w2" / "slownik_rynek.json"  # słownik z całego rynku
 
 DANE = B / "scripts" / "katalog" / "dane" / "2026-09-29" / "raport"
 ZIARNO = 20260929

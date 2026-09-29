@@ -49,9 +49,8 @@ def pary_ocenione() -> list[dict]:
     return wynik
 
 
-def slownictwo_rynku(rek: dict[str, dict], slownik: dict | None) -> frozenset[str]:
-    """Słownictwo cech z WSZYSTKICH znanych rekordów wyciągania (zbiór par, raporty, sprawdziany) — przybliżenie
-    słownictwa całego rynku, bez moich ocen."""
+def rekordy_rynku(rek: dict[str, dict]) -> dict[str, dict]:
+    """WSZYSTKIE znane rekordy wyciągania (zbiór par, raporty, sprawdziany) — przybliżenie rynku, bez moich ocen."""
     wszystkie = dict(rek)
     for plik in (B / "scripts" / "katalog" / "dane" / "2026-09-29").glob("**/p12.json"):
         if "paczki" in plik.parts:
@@ -60,7 +59,15 @@ def slownictwo_rynku(rek: dict[str, dict], slownik: dict | None) -> frozenset[st
             for r in (v.get("odp") or {}).get("oferty") or [] if isinstance(v, dict) else []:
                 if isinstance(r, dict):
                     wszystkie.setdefault(f"{plik.parent.name}:{r.get('id')}", r)
-    return _podpis_mod.slownictwo(wszystkie.values(), slownik)
+    return wszystkie
+
+
+def slownictwo_rynku(rek: dict[str, dict], slownik: dict | None) -> frozenset[str]:
+    return _podpis_mod.slownictwo(rekordy_rynku(rek).values(), slownik)
+
+
+def metody_rynku(rek: dict[str, dict], slownik: dict | None) -> frozenset[str]:
+    return _podpis_mod.metody_rynku(rekordy_rynku(rek).values(), slownik)
 
 
 def metryki(pary: list[dict], klucz) -> tuple[int, int, int, int]:

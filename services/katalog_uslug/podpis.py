@@ -39,7 +39,7 @@ Zamiana = tuple[str, str, str]  # (wspólne słowa, słowa tylko po jednej stron
 # to inny zestaw cech, a pytanie o nią byłoby sędzią całej pary (wyłączonym 28.09).
 MAKS_ZAMIANY = 2
 # Kategoria wymieniająca kilka pozycji („Manicure / manicure hybrydowy”, „Brwi i rzęsy”) nie mówi, która dotyczy oferty.
-LISTA = re.compile(r"[/|,;&+]|\s(?:i|oraz|lub|albo)\s", re.IGNORECASE)
+LISTA = re.compile(r"[/|,;&+•·]|\s(?:i|oraz|lub|albo)\s", re.IGNORECASE)
 
 
 @dataclass(frozen=True)
@@ -73,44 +73,61 @@ def _frazy(rek: dict[str, Any]) -> list[tuple[str, str, str]]:
 def _z_kategorii(kontekst: dict[str, Any], wlasne: list[tuple[str, str]], slownik: dict[str, str]) -> list[tuple[str, str]]:
     """(rola, fraza) z rozkładu kategorii, które uzupełniają to, czego nazwa i wariant nie mówią — kategoria to nagłówek
     salonu nad WSZYSTKIMI jej ofertami. Rola spoza zabiegu i metody wchodzi, gdy nazwa nie podaje tej roli (obszar,
-    poziom „PREMIUM”, dla kogo); miejsce zawsze; „inne” i wykonawca nigdy. Zabieg i metoda: gdy nazwa nie ma żadnego —
-    wszystko; gdy ma — tylko z kategorii nazywającej JEDNĄ rzecz, i to tę samą co nazwa, dokładniej („Depilacja pach”
-    w „Depilacja laserowa”) albo samą metodę („LASER”). Kategoria-lista („Manicure / manicure hybrydowy”) nie mówi,
-    która pozycja dotyczy oferty (pomiar 29.09: model wpisuje metodę kategorii do frazy zabiegu, np. „Depilacja
-    laserowa” bez osobnej metody — stąd porównanie słów, nie ról)."""
+    poziom „PREMIUM”, dla kogo); miejsce zawsze; „inne” i wykonawca nigdy. Zabieg i metoda: gdy nazwa nie ma własnego
+    ZABIEGU — wszystko; gdy ma — tylko z kategorii nazywającej JEDNĄ rzecz, i to tę samą co nazwa, dokładniej
+    („Depilacja pach” w „Depilacja laserowa”) albo samą metodę („LASER”). Kategoria-lista („Manicure / manicure
+    hybrydowy”) nie mówi, która pozycja dotyczy oferty (pomiar 29.09: model wpisuje metodę kategorii do frazy zabiegu,
+    np. „Depilacja laserowa” bez osobnej metody — stąd porównanie słów, nie ról). Warunek patrzy na sam ZABIEG
+    nazwy, nie na metodę: GLM wpisuje do metody słowa, które nią nie są („klasyczne” przy bikini blokowało „laserowa”
+    z kategorii — sprawdzian 7, 29.09)."""
     role_wlasne = {r for r, _f in wlasne}
-    rdzen_wlasny = {w for r, f in wlasne if POZIOM_ROLI[r] == "rdzen" for w in _slowa(f, slownik)}
+    zabieg_wlasny = {w for r, f in wlasne if r == "zabieg" for w in _slowa(f, slownik)}
     frazy = [(r, f) for r, _zr, f in _frazy(kontekst) if r in POZIOM_ROLI and r != "inne" and f]
     zabieg_kat = {w for r, f in frazy if r == "zabieg" for w in _slowa(f, slownik)}
     jedna_rzecz = not LISTA.search(f" {kontekst.get('nazwa') or ''} ")
-    doprecyzowuje = jedna_rzecz and (not zabieg_kat or bool(zabieg_kat & rdzen_wlasny))
+    doprecyzowuje = jedna_rzecz and (not zabieg_kat or bool(zabieg_kat & zabieg_wlasny))
     return [(r, f) for r, f in frazy
-            if (POZIOM_ROLI[r] == "rdzen" and (not rdzen_wlasny or doprecyzowuje))
+            if (POZIOM_ROLI[r] == "rdzen" and (not zabieg_wlasny or doprecyzowuje))
             or (POZIOM_ROLI[r] != "rdzen" and (r == "miejsce" or r not in role_wlasne) and not LISTA.search(f" {f} "))]
 
 
+def _z_salonu(salon: dict[str, Any] | None, role_oferty: set[str]) -> list[tuple[str, str]]:
+    """Nazwa salonu dokłada TYLKO metodę, gdy nazwa salonu nazywa jedną rzecz (sprawdzian 7, 29.09: „LaserPoznań” —
+    „Bikini klasyczne” bez metody w nazwie i kategorii, 25 fałszywych „ta sama” z woskiem; „Wax & Nail Bar” to lista —
+    nic nie dokłada). Bez warunku „oferta nie ma metody”: GLM przypisuje role niepowtarzalnie („klasyczne” przy bikini
+    jako metoda) — konflikt metod rozstrzyga pytanie o klasę różnicy. Zabieg, obszar i reszta z nazwy salonu są za
+    ogólne („Barber”, „Nails”) — nie wchodzą. `role_oferty` zostaje w podpisie wywołań (dziś nieużywane)."""
+    if salon is None or LISTA.search(f" {salon.get('nazwa') or ''} "):
+        return []
+    return [("rdzen", f) for r, _zr, f in _frazy(salon) if r == "metoda" and f]
+
+
 def _wybrane_frazy(rek: dict[str, Any], kontekst: dict[str, Any] | None = None,
-                   slownik: dict[str, str] | None = None) -> list[tuple[str, str]]:
+                   slownik: dict[str, str] | None = None, salon: dict[str, Any] | None = None) -> list[tuple[str, str]]:
     """(poziom, fraza) wchodzące do podpisu — reguła doboru źródeł z nagłówka modułu.
 
     kontekst: rozkład samej KATEGORII cennika (raz na kategorię salonu, ten sam dla wszystkich jej ofert). Gdy jest,
     zastępuje frazy z kategorii wyciągnięte przy ofercie (niespójne między przebiegami) — zasady w `_z_kategorii` —
     a zabieg Booksy liczy się tylko, gdy kategoria nie mówi, co się robi (pomiar 29.09: „Uda + pośladki” w „Fale
-    radiowe” dostało zabieg z etykiety Booksy „Liposukcja ultradźwiękowa”)."""
+    radiowe” dostało zabieg z etykiety Booksy „Liposukcja ultradźwiękowa”). salon: rozkład nazwy salonu (`_z_salonu`)."""
     frazy = [(r, zr, f) for r, zr, f in _frazy(rek) if r in POZIOM_ROLI and f]
     wlasne = [(r, f) for r, zr, f in frazy if zr in WLASNE]
+    role = {r for r, _f in wlasne}
     wynik = [(POZIOM_ROLI[r], f) for r, zr, f in frazy if zr in WLASNE or (zr == "opis" and r in Z_OPISU)]
     if kontekst is not None:
         z_kat = _z_kategorii(kontekst, wlasne, slownik or {})
         wynik += [(POZIOM_ROLI[r], f) for r, f in z_kat]
+        role |= {r for r, _zr, f in _frazy(kontekst) if f}
         if any(POZIOM_ROLI[r] == "rdzen" for r, _zr, f in _frazy(kontekst) if r in POZIOM_ROLI and f):
-            return wynik
+            return wynik + _z_salonu(salon, role)
         frazy = [x for x in frazy if x[1] != "kategoria"]  # zostaje etykieta Booksy (własne i opis odpadną niżej)
-    wlasne_rdzen = any(POZIOM_ROLI[r] == "rdzen" for r, _f in wlasne)
+    else:
+        role |= {r for r, zr, f in frazy if zr == "kategoria"}
+    wlasne_rdzen = any(r == "zabieg" for r, _f in wlasne)  # sam zabieg nazwy — rola metody bywa błędna (jak wyżej)
     wlasne_dla_kogo = any(r == "dla_kogo" for r, _f in wlasne)
     return wynik + [(POZIOM_ROLI[r], f) for r, zr, f in frazy if zr not in WLASNE and zr != "opis"
                     and ((POZIOM_ROLI[r] == "rdzen" and not wlasne_rdzen) or (r == "dla_kogo" and not wlasne_dla_kogo)
-                         or r == "miejsce")]
+                         or r == "miejsce")] + _z_salonu(salon, role)
 
 
 def slownictwo(rekordy: Iterable[dict[str, Any]], slownik: dict[str, str] | None = None) -> frozenset[str]:
@@ -120,7 +137,7 @@ def slownictwo(rekordy: Iterable[dict[str, Any]], slownik: dict[str, str] | None
 
 
 def podpis(rek: dict[str, Any], slownik: dict[str, str] | None = None, kontekst: dict[str, Any] | None = None,
-           slownictwo: frozenset[str] | None = None) -> Podpis:
+           slownictwo: frozenset[str] | None = None, salon: dict[str, Any] | None = None) -> Podpis:
     """Słowa nazwy i wariantu, których model nie przypisał (ani do cechy, ani do szumu), wchodzą do zbioru jako „inne”
     — pomiar 29.09: to głównie słowa oczywiste („włosy” w wariancie „Włosy długie”) i pominięte „combo” / „komplet”;
     więcej słów = mniej fałszywych „ta sama”, a blokada gubiła pary.
@@ -130,10 +147,10 @@ def podpis(rek: dict[str, Any], slownik: dict[str, str] | None = None, kontekst:
     „Symetryczne” przy piercingu brwi → fałszywa „ta sama” z pojedynczym przekłuciem). Szum spoza słownictwa rynku
     (promocje, płatność, marketing) zostaje szumem."""
     s = slownik or {}
-    poziomy = {(poz, w) for poz, f in _wybrane_frazy(rek, kontekst, s) for w in _slowa(f, s)}
+    poziomy = {(poz, w) for poz, f in _wybrane_frazy(rek, kontekst, s, salon) for w in _slowa(f, s)}
     dopisane = {("inne", w) for w in _slowa(" ".join(rek.get("nieprzypisane") or ()), s)}
     if slownictwo:
-        w_nazwie = set(_slowa(str(rek.get("nazwa") or ""), s))
+        w_nazwie = set(_slowa(f"{rek.get('nazwa') or ''} {rek.get('wariant') or ''}", s))  # nazwa i etykieta wariantu
         dopisane |= {("inne", w) for f in rek.get("szum") or () for w in _slowa(str(f), s)
                      if w in slownictwo and w in w_nazwie}
     wlasne = {w for r, zr, f in _frazy(rek) if zr in WLASNE and r not in ("specjalista",) for w in _slowa(f, s)}

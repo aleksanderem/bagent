@@ -52,11 +52,11 @@ W2 = B / "scripts" / "katalog" / "dane" / "2026-09-29" / "w2"
 OUT = B / "scripts" / "katalog" / "dane" / "2026-09-29" / "sprawdzian7"
 ZIARNO = 20261007  # inne niż sprawdziany v14 (20261005 i kolejne --ziarno)
 RAPORT_TESTOWY = 234429  # salon z raportu testowego 29.09 — oglądany, więc pomijany jako podmiot
-NA_WARSTWE = {TA_SAMA: 400, PODOBNA: 150, INNA: 60}  # próba do oceny: „ta sama” prawie w całości (trafność)
 
 
 def _slownik() -> dict[str, str]:
-    return json.loads((W2 / "slownik.json").read_text(encoding="utf-8"))
+    """Słownik synonimów z całego znanego rynku (synonimy.py --rynek, po moim przeglądzie); zbiór par nie znał piercingu."""
+    return json.loads((W2 / "slownik_rynek.json").read_text(encoding="utf-8"))
 
 
 def zbierz(a: argparse.Namespace) -> None:
@@ -130,20 +130,32 @@ async def wyciagnij(rownolegle: int) -> None:
     await km.wyciagnij(km.kategorie_ofert(oferty), OUT / "kategorie.json", rownolegle)
 
 
+def salon_ofert(us: dict[int, dict], oferty: dict[str, Oferta]) -> dict[str, str]:
+    return {oid: us[int(oid.split("#")[0])].get("salon") or "" for oid in oferty}
+
+
+async def wyciagnij_salony(rownolegle: int) -> None:
+    from services.katalog_uslug.ekstrakcja import prompt_salonow
+    us, _pary, oferty = pary_ofert()
+    nazwy = sorted(set(salon_ofert(us, oferty).values()))
+    await km.wyciagnij(km.salony_ofert(nazwy), OUT / "salony.json", rownolegle, prompt=prompt_salonow)
+
+
 def podpisy() -> tuple[list[dict], dict[str, Oferta], dict[str, dict], dict[str, object]]:
-    _us, pary, oferty = pary_ofert()
+    us, pary, oferty = pary_ofert()
     wyc = do_wyciagniecia()
     tp.OUT = OUT
     rek, _ = tp.rekordy("p12", wyc)
     kon = km.kontekst(wyc, OUT / "kategorie.json")
     s = _slownik()
     slowa = kr.slownictwo_rynku(rek, s)
-    pod = {o.id: podpis(rek[o.id], s, kon.get(o.id), slowa) for o in wyc if o.id in rek}
+    sal = km.kontekst_salonu(salon_ofert(us, oferty), OUT / "salony.json") if (OUT / "salony.json").exists() else {}
+    pod = {o.id: podpis(rek[o.id], s, kon.get(o.id), slowa, sal.get(o.id)) for o in wyc if o.id in rek}
     x_slowa = slowa
-    return pary, oferty, rek, {"kon": kon, "pod": pod, "slownik": s, "slowa": x_slowa}
+    return pary, oferty, rek, {"kon": kon, "pod": pod, "slownik": s, "slowa": x_slowa, "sal": sal}
 
 
-def klasy(budzet: float) -> None:
+def klasy(budzet: float, proba: int = 0) -> None:
     pary, oferty, rek, x = podpisy()
     pod, kon, s = x["pod"], x["kon"], x["slownik"]
     kl: dict[str, dict] = {}
@@ -161,8 +173,14 @@ def klasy(budzet: float) -> None:
                      "dopisek": kr._dopisek(rek[o_z.id], klasa[1], set(klasa[2].split()), kon.get(o_z.id), s),
                      "zabieg": kr._nazwa(o_z), "druga": kr._nazwa(o_bez), "stan": kr._stan(o_z)}
     koszt = asyncio.run(kr.zapytaj(kl, budzet))  # pamięć wspólna z w2 — ta sama klasa nie jest pytana drugi raz
-    zam = kr.zamiany_ofert([(oferty[q["a"]], oferty[q["b"]]) for q in pary if not q["bez_wspolnych"]], rek, s, kon, x["slowa"])
-    koszt_z = asyncio.run(kr.zapytaj_zamiany(zam, budzet))
+    zam = kr.zamiany_ofert([(oferty[q["a"]], oferty[q["b"]]) for q in pary if not q["bez_wspolnych"]], rek, s, kon, x["slowa"], x["sal"])
+    koszt_z = asyncio.run(kr.zapytaj_zamiany(zam, budzet, proba=proba))
+    if proba:  # próba zamian do obejrzenia przed pełnym przebiegiem
+        pz = json.loads(kr.PLIK_ZAMIAN.read_text(encoding="utf-8"))
+        for k in sorted((k for k in zam if k in pz), key=lambda k: -zam[k]["par"])[:proba]:
+            v = pz[k]
+            print(f"  {'=' if zamiana_rownowazna(v) else ' '} {v.get('relacja')} {(v.get('rozklad') or {}).get('to_samo', 0):.2f} "
+                  f"„{v['slowa_a']}” / „{v['slowa_b']}” | {v['a']} vs {v['b']} — par {zam[k]['par']}")
     print(f"klas {len(kl)}, zamian {len(zam)}; koszt {koszt + koszt_z:.4f} USD")
 
 
@@ -185,55 +203,99 @@ def werdykty() -> tuple[list[dict], dict[str, Oferta]]:
     return pary, oferty
 
 
+V14 = B / "scripts" / "typesafe" / "dane" / "2026-09-28" / "v14_sprawdzian7" / "pary.json"
+NA_GRUPE = {"obie": 999, "tylko_podpis": 999, "tylko_v14f": 999, "warianty": 999}  # wszystkie: 225 „ta sama” podpisu to całość, bez błędu próby
+
+
+def _pierwsza(sid: int, oferty: dict[str, Oferta]) -> str:
+    """Oferta reprezentująca usługę = wariant, którego cenę pokazuje ogłoszenie (pierwszy) — jak w zbiorach 4–6."""
+    return str(sid) if str(sid) in oferty else f"{sid}#0"
+
+
+def _opis_oferty(o: Oferta) -> dict:
+    return {"nazwa": o.nazwa, "wariant": o.wariant, "kategoria": o.kategoria, "opis": o.opis, "cena": o.cena_zl,
+            "typ": o.typ_salonu, "zabieg_booksy": o.zabieg_booksy}
+
+
 def probka() -> None:
+    """Pary usług sprawdzianu (jak zbiory 5–6) z werdyktem v14f; podpis i B0 na ofercie reprezentującej każdą
+    usługę. Grupy rozłączne w branży: obie metody „ta sama”, tylko podpis, tylko v14f — każda ważona liczebnością.
+    Osobno: „ta sama” podpisu na pozostałych wariantach (raport pokazuje każdy wariant)."""
     pary, oferty = werdykty()
+    po_ofertach = {(q["a"], q["b"]): q for q in pary}
+    v14 = {(q["a"], q["b"]): q["v14"] for q in json.loads(V14.read_text(encoding="utf-8"))}
+    us, pary_uslug, _s = dane()
     rng = random.Random(ZIARNO + 1)
-    warstwy: dict[str, list[dict]] = defaultdict(list)
-    for q in pary:
-        warstwy[q["podpis"]].append(q)
-    wynik = []
-    for w, lst in sorted(warstwy.items()):
-        wyb = rng.sample(lst, min(NA_WARSTWE[w], len(lst)))
-        waga = len(lst) / max(len(wyb), 1)
-        wynik += [{**q, "warstwa": w, "waga": round(waga, 4),
-                   "oa": {"nazwa": oferty[q["a"]].nazwa, "wariant": oferty[q["a"]].wariant, "kategoria": oferty[q["a"]].kategoria,
-                          "opis": oferty[q["a"]].opis, "cena": oferty[q["a"]].cena_zl, "typ": oferty[q["a"]].typ_salonu},
-                   "ob": {"nazwa": oferty[q["b"]].nazwa, "wariant": oferty[q["b"]].wariant, "kategoria": oferty[q["b"]].kategoria,
-                          "opis": oferty[q["b"]].opis, "cena": oferty[q["b"]].cena_zl, "typ": oferty[q["b"]].typ_salonu}}
-                  for q in sorted(wyb, key=lambda q: (q["branza"], q["a"], q["b"]))]
-    (OUT / "probka_oceny.json").write_text(json.dumps(wynik, ensure_ascii=False, indent=1), encoding="utf-8")
-    print(f"par ofert {len(pary)}; warstwy: " + ", ".join(f"{w} {len(l)}" for w, l in sorted(warstwy.items()))
-          + f"; do oceny {len(wynik)}")
-    print("„ta sama” per branża: " + ", ".join(f"{b} {n}" for b, n in sorted(Counter(q["branza"] for q in warstwy[TA_SAMA]).items())))
+    grupy: dict[tuple[str, str], list[dict]] = defaultdict(list)
+    reprez = set()
+    for q in pary_uslug:
+        oa, ob = _pierwsza(q["a"], oferty), _pierwsza(q["b"], oferty)
+        w = po_ofertach[(oa, ob)]
+        reprez.add((oa, ob))
+        wpis = {**w, "v14f": v14.get((q["a"], q["b"])), "usluga_a": q["a"], "usluga_b": q["b"]}
+        p_ts, v_ts = w["podpis"] == TA_SAMA, wpis["v14f"] == "tozsame"
+        if p_ts or v_ts:
+            grupy[(q["branza"], "obie" if p_ts and v_ts else "tylko_podpis" if p_ts else "tylko_v14f")].append(wpis)
+    warianty = [q for k, q in po_ofertach.items() if k not in reprez and q["podpis"] == TA_SAMA]
+    wynik, liczebnosci = [], {}
+    for (br, g), lst in sorted(grupy.items()):
+        wyb = rng.sample(lst, min(NA_GRUPE[g], len(lst)))
+        liczebnosci[f"{br}|{g}"] = len(lst)
+        wynik += [{**q, "grupa": g, "waga": round(len(lst) / len(wyb), 4)} for q in wyb]
+    wyb = rng.sample(warianty, min(NA_GRUPE["warianty"], len(warianty)))
+    liczebnosci["RAZEM|warianty"] = len(warianty)
+    wynik += [{**q, "grupa": "warianty", "waga": round(len(warianty) / max(len(wyb), 1), 4)} for q in wyb]
+    for q in wynik:
+        q["oa"], q["ob"] = _opis_oferty(oferty[q["a"]]), _opis_oferty(oferty[q["b"]])
+        q["warianty_a"] = [w.get("label") for w in us[int(q["a"].split("#")[0])].get("warianty") or [] if w.get("label")][:8]
+        q["warianty_b"] = [w.get("label") for w in us[int(q["b"].split("#")[0])].get("warianty") or [] if w.get("label")][:8]
+    (OUT / "probka_oceny.json").write_text(json.dumps({"liczebnosci": liczebnosci, "pary": wynik}, ensure_ascii=False, indent=1),
+                                           encoding="utf-8")
+    print(f"do oceny {len(wynik)}; grupy: " + ", ".join(f"{k} {v}" for k, v in sorted(liczebnosci.items())))
 
 
 def wynik() -> None:
-    """Trafność i odzysk ważone warstwami (waga = liczność warstwy / próba), per branża; B0 dla porównania."""
-    oc = {(q["a"], q["b"]): q["ocena"] for q in json.loads((OUT / "ocena_claude.json").read_text(encoding="utf-8"))}
-    pr = [q for q in json.loads((OUT / "probka_oceny.json").read_text(encoding="utf-8")) if (q["a"], q["b"]) in oc]
-    grupy = {"RAZEM": pr, **{b: [q for q in pr if q["branza"] == b] for b in sorted({q["branza"] for q in pr})}}
+    """Ważone liczebnością grup: trafność „ta sama” podpisu i v14f, prawdziwe pary znane (suma trafnych z grup),
+    odzysk = trafne metody / znane; per branża. Warianty osobno (trafność podpisu na wariantach)."""
+    d = json.loads((OUT / "probka_oceny.json").read_text(encoding="utf-8"))
+    oc = {f"{q['a']}|{q['b']}": q["ocena"] for q in json.loads((OUT / "ocena_claude.json").read_text(encoding="utf-8"))}
+    licz = d["liczebnosci"]
+    pr = [q for q in d["pary"] if f"{q['a']}|{q['b']}" in oc]
+    frac = lambda z: sum(oc[f"{q['a']}|{q['b']}"] == "T" for q in z) / len(z) if z else 0.0
     out = {}
-    for g, z in grupy.items():
-        t_all = sum(q["waga"] for q in z if oc[(q["a"], q["b"])] == "T")
-        wiersz = {"ocenionych": len(z)}
-        for nazwa, klucz in (("podpis", lambda q: q["podpis"] == TA_SAMA), ("B0", lambda q: q["b0"])):
-            tak = [q for q in z if klucz(q)]
-            n, t = sum(q["waga"] for q in tak), sum(q["waga"] for q in tak if oc[(q["a"], q["b"])] == "T")
-            wiersz[nazwa] = {"ta_sama_ocenione": len(tak), "trafnosc": round(t / n, 3) if n else None,
-                             "odzysk": round(t / t_all, 3) if t_all else None}
-        out[g] = wiersz
-        print(f"{g:<20} {json.dumps(wiersz, ensure_ascii=False)}")
+    for br in sorted({q["branza"] for q in pr if q["grupa"] != "warianty"}) + ["RAZEM"]:
+        t = {g: 0.0 for g in ("obie", "tylko_podpis", "tylko_v14f")}
+        n = dict(t)
+        for g in t:
+            klucze = [k for k in licz if k.endswith(f"|{g}") and (br == "RAZEM" or k.startswith(f"{br}|"))]
+            for k in klucze:
+                z = [q for q in pr if q["grupa"] == g and q["branza"] == k.split("|")[0]]
+                n[g] += licz[k]
+                t[g] += licz[k] * frac(z)
+        znane = sum(t.values())
+        pod_n, pod_t = n["obie"] + n["tylko_podpis"], t["obie"] + t["tylko_podpis"]
+        v_n, v_t = n["obie"] + n["tylko_v14f"], t["obie"] + t["tylko_v14f"]
+        out[br] = {"podpis": {"ta_sama": round(pod_n), "trafnosc": round(pod_t / pod_n, 3) if pod_n else None,
+                              "trafnych": round(pod_t, 1), "odzysk": round(pod_t / znane, 3) if znane else None},
+                   "v14f": {"ta_sama": round(v_n), "trafnosc": round(v_t / v_n, 3) if v_n else None,
+                            "trafnych": round(v_t, 1), "odzysk": round(v_t / znane, 3) if znane else None},
+                   "znane_prawdziwe": round(znane, 1)}
+        print(f"{br:<20} " + json.dumps(out[br], ensure_ascii=False))
+    zw = [q for q in pr if q["grupa"] == "warianty"]
+    out["warianty"] = {"ocenionych": len(zw), "trafnosc": round(frac(zw), 3) if zw else None}
+    print("warianty (poza ofertą reprezentującą): " + json.dumps(out["warianty"], ensure_ascii=False))
     (OUT / "wynik.json").write_text(json.dumps(out, ensure_ascii=False, indent=1), encoding="utf-8")
 
 
 def main() -> None:
     ap = argparse.ArgumentParser()
-    for k in ("zbierz", "wyciagnij", "klasy", "probka", "wynik"):
+    for k in ("zbierz", "wyciagnij", "salony", "klasy", "probka", "wynik"):
         ap.add_argument(f"--{k}", action="store_true")
     ap.add_argument("--ziarno", type=int, default=ZIARNO)
     ap.add_argument("--rownolegle", type=int, default=4)
     ap.add_argument("--budzet", type=float, default=0.3)
     ap.add_argument("--licz", action="store_true", help="tylko liczby par i ofert do wyciągnięcia")
+    ap.add_argument("--proba", type=int, default=0, help="z --klasy: zapytaj tylko o N najczęstszych nowych zamian")
     a = ap.parse_args()
     if a.zbierz:
         zbierz(a)
@@ -243,8 +305,10 @@ def main() -> None:
               f"ofert razem {len(oferty)}, do wyciągnięcia {len(do_wyciagniecia())}")
     if a.wyciagnij:
         asyncio.run(wyciagnij(a.rownolegle))
+    if a.salony:
+        asyncio.run(wyciagnij_salony(a.rownolegle))
     if a.klasy:
-        klasy(a.budzet)
+        klasy(a.budzet, a.proba)
     if a.probka:
         probka()
     if a.wynik:
