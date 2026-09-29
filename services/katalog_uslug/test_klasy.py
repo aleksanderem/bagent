@@ -1,7 +1,8 @@
 """Katalog usług — pytanie o klasę różnicy jednostronnej (bez sieci)."""
 from __future__ import annotations
 
-from services.katalog_uslug.klasy import NIE_WIADOMO, NIE_ZMIENIA, ZMIENIA, pytanie_klasy, rozstrzygnij
+from services.katalog_uslug.klasy import (NIE_WIADOMO, NIE_ZMIENIA, ZMIENIA, pytanie_klasy, pytanie_zamiany,
+                                          rozstrzygnij, zamiana_rownowazna)
 
 
 def test_pytanie_nazywa_dopisek_zabieg_i_druga_oferte() -> None:
@@ -15,3 +16,17 @@ def test_routing_najblizszym_poziomem_brak_odpowiedzi_nie_daje_nie_zmienia() -> 
     assert rozstrzygnij(0.6) == NIE_WIADOMO
     assert rozstrzygnij(1.7) == ZMIENIA
     assert rozstrzygnij(None) == NIE_WIADOMO
+
+
+def test_pytanie_o_zamiane_podaje_obie_oferty_i_obie_strony_roznicy() -> None:
+    q = pytanie_zamiany("Głowy", "włosów", "Strzyżenie Głowy i Brody", "Strzyżenie włosów i brody")
+    assert all(s in q.instructions for s in ("„Głowy”", "„włosów”", "Strzyżenie Głowy i Brody", "Strzyżenie włosów i brody"))
+    assert "`oferta_a" in q.instructions and "`oferta_b" in q.instructions
+    assert set(q.criteria) == {"to_samo", "wezsze", "szersze", "inne"}  # relacja 4-stanowa jak w słowniku
+
+
+def test_zamiana_rownowazna_tylko_przy_pewnym_to_samo() -> None:
+    assert zamiana_rownowazna({"relacja": "to_samo", "rozklad": {"to_samo": 0.9}})
+    assert not zamiana_rownowazna({"relacja": "to_samo", "rozklad": {"to_samo": 0.6}})
+    assert not zamiana_rownowazna({"relacja": "wezsze", "rozklad": {"to_samo": 0.1}})
+    assert not zamiana_rownowazna({"relacja": None, "blad": "Timeout"})

@@ -11,6 +11,7 @@ dopisek) — nieistotna tylko po decyzji „nie zmienia”; różnica po obu str
 """
 from __future__ import annotations
 
+import re
 from collections.abc import Iterable
 from dataclasses import dataclass, field
 from typing import Any
@@ -33,6 +34,12 @@ POMIJANE = LACZNIKI - {"do", "po", "od"}
 PUSTE_NAZWY = frozenset({"comb", "combo", "pakiet", "zestaw", "komplet", "seri", "premium", "basic", "lux", "luxury",
                          "gold", "vip", "standard", "express", "ekspres", "mini", "maxi", "classic"})
 Klasa = tuple[str, str, str]  # (wspólne słowa, poziom dopisku, dopisek)
+Zamiana = tuple[str, str, str]  # (wspólne słowa, słowa tylko po jednej stronie, słowa tylko po drugiej) — strony w porządku
+# Najwyżej tyle słów po każdej stronie różnicy dwustronnej pytamy jako „inna nazwa tej samej rzeczy” — dłuższa różnica
+# to inny zestaw cech, a pytanie o nią byłoby sędzią całej pary (wyłączonym 28.09).
+MAKS_ZAMIANY = 2
+# Kategoria wymieniająca kilka pozycji („Manicure / manicure hybrydowy”, „Brwi i rzęsy”) nie mówi, która dotyczy oferty.
+LISTA = re.compile(r"[/|,;&+]|\s(?:i|oraz|lub|albo)\s", re.IGNORECASE)
 
 
 @dataclass(frozen=True)
@@ -49,6 +56,7 @@ class Klasy:
     """Rozstrzygnięcia klas: dopisek opisowy albo wartość domyślna zabiegu — w obu przypadkach nie rozróżnia."""
     opisowe: Iterable[Klasa] = field(default_factory=frozenset)
     domyslne: Iterable[Klasa] = field(default_factory=frozenset)
+    rownowazne: Iterable[Zamiana] = field(default_factory=frozenset)  # różne słowa, ta sama rzecz („głowy” / „włosów”)
 
 
 def _slowa(fraza: str, slownik: dict[str, str]) -> list[str]:
@@ -62,30 +70,47 @@ def _frazy(rek: dict[str, Any]) -> list[tuple[str, str, str]]:
         [(c.get("rola") or "", c.get("zrodlo") or "nazwa", c.get("fraza") or "") for c in rek.get("cechy") or []]
 
 
-def _wybrane_frazy(rek: dict[str, Any], kontekst: dict[str, Any] | None = None) -> list[tuple[str, str]]:
+def _z_kategorii(kontekst: dict[str, Any], wlasne: list[tuple[str, str]], slownik: dict[str, str]) -> list[tuple[str, str]]:
+    """(rola, fraza) z rozkładu kategorii, które uzupełniają to, czego nazwa i wariant nie mówią — kategoria to nagłówek
+    salonu nad WSZYSTKIMI jej ofertami. Rola spoza zabiegu i metody wchodzi, gdy nazwa nie podaje tej roli (obszar,
+    poziom „PREMIUM”, dla kogo); miejsce zawsze; „inne” i wykonawca nigdy. Zabieg i metoda: gdy nazwa nie ma żadnego —
+    wszystko; gdy ma — tylko z kategorii nazywającej JEDNĄ rzecz, i to tę samą co nazwa, dokładniej („Depilacja pach”
+    w „Depilacja laserowa”) albo samą metodę („LASER”). Kategoria-lista („Manicure / manicure hybrydowy”) nie mówi,
+    która pozycja dotyczy oferty (pomiar 29.09: model wpisuje metodę kategorii do frazy zabiegu, np. „Depilacja
+    laserowa” bez osobnej metody — stąd porównanie słów, nie ról)."""
+    role_wlasne = {r for r, _f in wlasne}
+    rdzen_wlasny = {w for r, f in wlasne if POZIOM_ROLI[r] == "rdzen" for w in _slowa(f, slownik)}
+    frazy = [(r, f) for r, _zr, f in _frazy(kontekst) if r in POZIOM_ROLI and r != "inne" and f]
+    zabieg_kat = {w for r, f in frazy if r == "zabieg" for w in _slowa(f, slownik)}
+    jedna_rzecz = not LISTA.search(f" {kontekst.get('nazwa') or ''} ")
+    doprecyzowuje = jedna_rzecz and (not zabieg_kat or bool(zabieg_kat & rdzen_wlasny))
+    return [(r, f) for r, f in frazy
+            if (POZIOM_ROLI[r] == "rdzen" and (not rdzen_wlasny or doprecyzowuje))
+            or (POZIOM_ROLI[r] != "rdzen" and (r == "miejsce" or r not in role_wlasne) and not LISTA.search(f" {f} "))]
+
+
+def _wybrane_frazy(rek: dict[str, Any], kontekst: dict[str, Any] | None = None,
+                   slownik: dict[str, str] | None = None) -> list[tuple[str, str]]:
     """(poziom, fraza) wchodzące do podpisu — reguła doboru źródeł z nagłówka modułu.
 
     kontekst: rozkład samej KATEGORII cennika (raz na kategorię salonu, ten sam dla wszystkich jej ofert). Gdy jest,
-    zastępuje frazy z kategorii wyciągnięte przy ofercie (niespójne między przebiegami), a zabieg Booksy liczy się
-    tylko, gdy kategoria nie mówi, co się robi (pomiar 29.09: „Uda + pośladki” w „Fale radiowe” dostało zabieg
-    z etykiety Booksy „Liposukcja ultradźwiękowa”). Z kategorii zawsze wchodzi miejsce („usługi mobilne”)."""
+    zastępuje frazy z kategorii wyciągnięte przy ofercie (niespójne między przebiegami) — zasady w `_z_kategorii` —
+    a zabieg Booksy liczy się tylko, gdy kategoria nie mówi, co się robi (pomiar 29.09: „Uda + pośladki” w „Fale
+    radiowe” dostało zabieg z etykiety Booksy „Liposukcja ultradźwiękowa”)."""
     frazy = [(r, zr, f) for r, zr, f in _frazy(rek) if r in POZIOM_ROLI and f]
+    wlasne = [(r, f) for r, zr, f in frazy if zr in WLASNE]
+    wynik = [(POZIOM_ROLI[r], f) for r, zr, f in frazy if zr in WLASNE or (zr == "opis" and r in Z_OPISU)]
     if kontekst is not None:
-        z_kat = [(r, "kategoria", f) for r, _zr, f in _frazy(kontekst) if r in POZIOM_ROLI and f]
-        booksy = [x for x in frazy if x[1] == "zabieg_booksy"]
-        frazy = [x for x in frazy if x[1] not in ("kategoria", "zabieg_booksy")] + z_kat
-        if not any(POZIOM_ROLI[r] == "rdzen" for r, _zr, _f in z_kat):
-            frazy += booksy
-    wlasne_rdzen = any(zr in WLASNE and POZIOM_ROLI[r] == "rdzen" for r, zr, _f in frazy)
-    wlasne_dla_kogo = any(zr in WLASNE and r == "dla_kogo" for r, zr, _f in frazy)
-    wynik = []
-    for r, zr, f in frazy:
-        if zr in WLASNE or (zr == "opis" and r in Z_OPISU):
-            wynik.append((POZIOM_ROLI[r], f))
-        elif zr != "opis" and ((POZIOM_ROLI[r] == "rdzen" and not wlasne_rdzen) or (r == "dla_kogo" and not wlasne_dla_kogo)
-                               or r == "miejsce"):
-            wynik.append((POZIOM_ROLI[r], f))
-    return wynik
+        z_kat = _z_kategorii(kontekst, wlasne, slownik or {})
+        wynik += [(POZIOM_ROLI[r], f) for r, f in z_kat]
+        if any(POZIOM_ROLI[r] == "rdzen" for r, _zr, f in _frazy(kontekst) if r in POZIOM_ROLI and f):
+            return wynik
+        frazy = [x for x in frazy if x[1] != "kategoria"]  # zostaje etykieta Booksy (własne i opis odpadną niżej)
+    wlasne_rdzen = any(POZIOM_ROLI[r] == "rdzen" for r, _f in wlasne)
+    wlasne_dla_kogo = any(r == "dla_kogo" for r, _f in wlasne)
+    return wynik + [(POZIOM_ROLI[r], f) for r, zr, f in frazy if zr not in WLASNE and zr != "opis"
+                    and ((POZIOM_ROLI[r] == "rdzen" and not wlasne_rdzen) or (r == "dla_kogo" and not wlasne_dla_kogo)
+                         or r == "miejsce")]
 
 
 def podpis(rek: dict[str, Any], slownik: dict[str, str] | None = None, kontekst: dict[str, Any] | None = None) -> Podpis:
@@ -126,6 +151,19 @@ def klasy_roznicy(a: Podpis, b: Podpis) -> list[tuple[Klasa, Podpis]] | None:
     return [((wspolne, poz, klucz_roznicy(po_poziomie[poz])), z) for poz in KOLEJNOSC if poz in po_poziomie]
 
 
+def zamiana_slow(a: Podpis, b: Podpis) -> Zamiana | None:
+    """Różnica po obu stronach, która może być inną nazwą tej samej rzeczy („Strzyżenie głowy i brody” / „Strzyżenie
+    włosów i brody”): wspólna reszta, po każdej stronie ≤ MAKS_ZAMIANY słów, żadne ze słowem składu (dodatek w nazwie
+    = podobna). Rozstrzyga TypeSafe raz na klasę; bez rozstrzygnięcia para zostaje podobna."""
+    da, db = a.zbior - b.zbior, b.zbior - a.zbior
+    if not (da and db and a.zbior & b.zbior) or max(len(da), len(db)) > MAKS_ZAMIANY:
+        return None
+    if any(("sklad", w) in p.poziomy for p, d in ((a, da), (b, db)) for w in d):
+        return None
+    x, y = sorted((klucz_roznicy(da), klucz_roznicy(db)))
+    return klucz_roznicy(a.zbior & b.zbior), x, y
+
+
 def _przeszkoda(a: Podpis, b: Podpis) -> tuple[str, str] | None:
     """Powody, dla których para nigdy nie jest „ta sama” — przed porównaniem zbiorów."""
     if not (_rdzen(a) & _rdzen(b)) and not (a.zbior & b.zbior):
@@ -148,6 +186,8 @@ def porownaj(a: Podpis, b: Podpis, klasy: Klasy) -> tuple[str, str]:
         return TA_SAMA, "równe podpisy"
     kl = klasy_roznicy(a, b)
     if kl is None:
+        if (z := zamiana_slow(a, b)) is not None and z in set(klasy.rownowazne):
+            return TA_SAMA, f"inna nazwa tego samego: „{z[1]}” / „{z[2]}”"
         return PODOBNA, f"różne słowa: {klucz_roznicy(a.zbior - b.zbior)} / {klucz_roznicy(b.zbior - a.zbior)}"
     nieistotne = set(klasy.opisowe) | set(klasy.domyslne)
     for klasa, _z in kl:
@@ -156,6 +196,11 @@ def porownaj(a: Podpis, b: Podpis, klasy: Klasy) -> tuple[str, str]:
         if klasa not in nieistotne:
             return PODOBNA, f"{klasa[1]}: „{klasa[2]}” tylko po jednej stronie"
     return TA_SAMA, "dopisek nie zmienia usługi: " + " | ".join(k[2] for k, _z in kl)
+
+
+def zamiana_do_pytania(a: Podpis, b: Podpis) -> Zamiana | None:
+    """Klasa zamiany słów, o którą warto zapytać TypeSafe: para bez przeszkód, różnica po obu stronach."""
+    return None if _przeszkoda(a, b) is not None else zamiana_slow(a, b)
 
 
 def roznica_do_pytania(a: Podpis, b: Podpis) -> list[tuple[Klasa, Podpis]]:

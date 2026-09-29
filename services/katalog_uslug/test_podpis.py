@@ -2,7 +2,7 @@
 from __future__ import annotations
 
 from services.katalog_uslug.podpis import (INNA, PODOBNA, TA_SAMA, Klasy, klasy_roznicy, podpis, porownaj,
-                                           roznica_do_pytania)
+                                           roznica_do_pytania, zamiana_slow)
 
 
 def rek(zabieg: str = "Strzyżenie", cechy: list[tuple[str, str]] | None = None, pozycja: str = "zabieg",
@@ -128,6 +128,56 @@ def test_kontekst_kategorii_rozlozonej_raz() -> None:
     assert porownaj(mobilne, podpis(rek(zabieg="Makijaż", cechy=[("inne", "ślubny")])), Klasy())[0] == PODOBNA
 
 
+def _kat(nazwa: str, zabieg: str, cechy: list[tuple[str, str]]) -> dict:
+    return {"nazwa": nazwa, "zabieg": {"fraza": zabieg, "zrodlo": "nazwa"},
+            "cechy": [{"rola": r, "fraza": f, "zrodlo": "nazwa"} for r, f in cechy]}
+
+
+def test_kategoria_doprecyzowuje_zabieg_ktory_nazwa_podaje_ogolniej() -> None:
+    pachy = rek(zabieg="Depilacja", cechy=[("obszar", "pach")])
+    laser = podpis(pachy, kontekst=_kat("Depilacja laserowa", "Depilacja laserowa", []))
+    wosk = podpis(pachy, kontekst=_kat("Depilacja woskiem", "Depilacja", [("metoda", "woskiem")]))
+    assert "laser" in laser.zbior and porownaj(laser, wosk, Klasy())[0] != TA_SAMA
+    samo_laser = podpis(pachy, kontekst=_kat("LASER", "", [("metoda", "LASER")]))
+    assert "laser" in samo_laser.zbior  # kategoria bez zabiegu, jedna metoda → dotyczy wszystkich jej ofert
+
+
+def test_kategoria_lista_nie_mowi_ktory_wariant() -> None:
+    lista = _kat("MANICURE / MANICURE HYBRYDOWY", "MANICURE / MANICURE HYBRYDOWY", [("metoda", "HYBRYDOWY")])
+    assert podpis(rek(zabieg="Manicure"), kontekst=lista).zbior == {"manicur"}
+    assert podpis(rek(zabieg="Manicure", cechy=[("metoda", "klasyczny")]), kontekst=lista).zbior == {"manicur", "klasyczn"}
+
+
+def test_kategoria_uzupelnia_obszar_i_poziom_gdy_nazwa_ich_nie_ma() -> None:
+    premium = podpis(rek(zabieg="", cechy=[("obszar", "Twarz")]),
+                     kontekst=_kat("Oczyszczanie wodorowe PREMIUM", "Oczyszczanie wodorowe", [("poziom", "PREMIUM")]))
+    zwykle = podpis(rek(zabieg="Oczyszczanie wodorowe"), kontekst=_kat("Zabiegi na twarz", "", [("obszar", "na twarz")]))
+    assert "premium" in premium.zbior and "twarz" in zwykle.zbior and porownaj(premium, zwykle, Klasy())[0] != TA_SAMA
+    wlasny = podpis(rek(cechy=[("obszar", "brody")]), kontekst=_kat("Włosy i broda", "", [("obszar", "Włosy i broda")]))
+    assert wlasny.zbior == {"strzyzen", "brod"}  # nazwa podaje obszar → kategoria go nie dokłada
+    inne = podpis(rek(zabieg="Masaż"), kontekst=_kat("SPA MASAŻ", "MASAŻ", [("inne", "SPA"), ("specjalista", "Ania")]))
+    assert inne.zbior == {"masaz"}  # „inne” i wykonawca z kategorii poza podpisem
+    kobido = podpis(rek(zabieg="Masaż KOBIDO"), kontekst=_kat("Masaż twarzy i głowy", "Masaż", [("obszar", "twarzy i głowy")]))
+    assert kobido.zbior == {"masaz", "kobid"}  # obszar-lista nie mówi, którego obszaru dotyczy oferta
+
+
 def test_nazwa_bez_tresci_nigdy_ta_sama() -> None:
     a = rek(zabieg="Combo", cechy=[("poziom", "Premium")])
     assert werdykt(a, a) == PODOBNA
+
+
+def test_zamiana_slow_rozstrzygana_raz_na_klase() -> None:
+    glowa = podpis(rek(cechy=[("obszar", "Głowy"), ("obszar", "Brody")]))
+    wlosy = podpis(rek(cechy=[("obszar", "włosów"), ("obszar", "brody")]))
+    z = zamiana_slow(glowa, wlosy)
+    assert z == ("brod strzyzen", "glow", "wlos") and zamiana_slow(wlosy, glowa) == z  # klucz nie zależy od kolejności
+    assert porownaj(glowa, wlosy, Klasy())[0] == PODOBNA  # bez rozstrzygnięcia — jak dotąd
+    assert porownaj(glowa, wlosy, Klasy(rownowazne={z}))[0] == TA_SAMA
+
+
+def test_zamiana_nie_dla_skladu_ani_dlugiej_roznicy() -> None:
+    maska = podpis(rek(zabieg="Oczyszczanie", cechy=[("sklad", "z maską")]))
+    ampulka = podpis(rek(zabieg="Oczyszczanie", cechy=[("sklad", "z ampułką")]))
+    assert zamiana_slow(maska, ampulka) is None  # dodatek w nazwie = podobna, bez pytania
+    dluga = podpis(rek(cechy=[("obszar", "włosów"), ("rozmiar", "bardzo długich"), ("dla_kogo", "damskie")]))
+    assert zamiana_slow(podpis(rek(cechy=[("obszar", "głowy")])), dluga) is None  # 1 słowo / 3 słowa — inny zestaw cech

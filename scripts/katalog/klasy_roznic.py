@@ -20,9 +20,10 @@ from pathlib import Path
 B = Path(__file__).resolve().parents[2]
 sys.path[:0] = [str(B), str(B / "scripts")]
 from services.katalog_uslug.ekstrakcja import WERSJA_PROMPTU  # noqa: E402
-from services.katalog_uslug.klasy import NIE_ZMIENIA, WERSJA_PYTANIA, pytanie_klasy, rozstrzygnij  # noqa: E402
+from services.katalog_uslug.klasy import (NIE_ZMIENIA, WERSJA_PYTANIA, WERSJA_ZAMIANY, pytanie_klasy,  # noqa: E402
+                                          pytanie_zamiany, rozstrzygnij, zamiana_rownowazna)
 from services.katalog_uslug.normalizacja import normalizuj, rdzen_slowa  # noqa: E402
-from services.katalog_uslug.podpis import _wybrane_frazy, podpis, roznica_do_pytania  # noqa: E402
+from services.katalog_uslug.podpis import _wybrane_frazy, podpis, roznica_do_pytania, zamiana_do_pytania  # noqa: E402
 from services.typesafe_drzewo.kontekst_v12 import stan_v12  # noqa: E402
 
 _spec = importlib.util.spec_from_file_location("ocena_podpisu", B / "scripts" / "katalog" / "ocena_podpisu.py")
@@ -33,16 +34,18 @@ KLUCZ = Path.home() / ".config" / "typesafe" / "api_key"
 MODEL = "jev-1.13.0"
 CENA_TOK = 0.042 / 1e6
 PLIK = B / "scripts" / "katalog" / "dane" / "2026-09-29" / f"w{WERSJA_PROMPTU}" / f"klasy_p{WERSJA_PYTANIA}.json"
+PLIK_ZAMIAN = PLIK.parent / f"zamiany_p{WERSJA_ZAMIANY}.json"
 
 
-def _dopisek(rek: dict, poziom: str, slowa: set[str]) -> str:
-    """Tylko słowa różnicy, w kolejności i brzmieniu z oferty (bez słów wspólnych z drugą ofertą)."""
+def _dopisek(rek: dict, poziom: str, slowa: set[str], kontekst: dict | None = None, slownik: dict | None = None) -> str:
+    """Tylko słowa różnicy, w kolejności i brzmieniu z oferty albo jej kategorii (bez słów wspólnych z drugą ofertą)."""
     z = (rek.get("zabieg") or {}).get("fraza") or ""
-    frazy = [z] + [f for _poz, f in _wybrane_frazy(rek)] + list(rek.get("nieprzypisane") or [])
+    s = slownik or {}
+    frazy = [z] + [f for _poz, f in _wybrane_frazy(rek, kontekst, s)] + list(rek.get("nieprzypisane") or [])
     wynik: list[str] = []
     for f in frazy:
         for tok in f.split():
-            if {rdzen_slowa(t) for t in normalizuj(tok).split()} & slowa and tok not in wynik:
+            if {s.get(r, r) for t in normalizuj(tok).split() if (r := rdzen_slowa(t))} & slowa and tok not in wynik:
                 wynik.append(tok)
     return " ".join(wynik) or " ".join(sorted(slowa))
 
@@ -64,12 +67,84 @@ def klasy_z_par(wariant: str, slownik: dict[str, str] | None = None, kon: dict |
                 klasy[klucz]["par"] += 1
                 continue
             o_z, r_z, o_bez = (q["oa"], ra, q["ob"]) if strona is pa else (q["ob"], rb, q["oa"])
-            klasy[klucz] = {"klasa": klasa, "par": 1, "oferta": o_z.id, "dopisek": _dopisek(r_z, klasa[1], set(klasa[2].split())),
+            k_z = kon.get(o_z.id)
+            klasy[klucz] = {"klasa": klasa, "par": 1, "oferta": o_z.id,
+                            "dopisek": _dopisek(r_z, klasa[1], set(klasa[2].split()), k_z, slownik),
                             "zabieg": o_z.nazwa + (f" — {o_z.wariant}" if o_z.wariant else ""), "druga": o_bez.nazwa + (f" — {o_bez.wariant}" if o_bez.wariant else ""),
                             "stan": stan_v12({"nazwa": o_z.nazwa, "kategoria": o_z.kategoria, "opis": o_z.opis,
                                               "warianty": [{"label": o_z.wariant}] if o_z.wariant else [],
                                               "zabieg_booksy": o_z.zabieg_booksy, "typ_salonu": o_z.typ_salonu})}
     return klasy
+
+
+def _nazwa(o) -> str:
+    return o.nazwa + (f" — {o.wariant}" if o.wariant else "")
+
+
+def _stan(o) -> dict:
+    return stan_v12({"nazwa": o.nazwa, "kategoria": o.kategoria, "opis": o.opis,
+                     "warianty": [{"label": o.wariant}] if o.wariant else [], "zabieg_booksy": o.zabieg_booksy,
+                     "typ_salonu": o.typ_salonu})
+
+
+def zamiany_z_par(wariant: str, slownik: dict[str, str] | None = None, kon: dict | None = None) -> dict[str, dict]:
+    """Klasy zamiany słów (różnica po obu stronach, podpis.zamiana_slow) z ocenionych par."""
+    op.tp.OUT = PLIK.parent / "wszystkie"  # ścieżka bezwzględna — klasy_z_par już ją przestawiło
+    rek, _ = op.tp.rekordy(wariant, op.tp.oferty_probki(0))
+    return zamiany_ofert([(q["oa"], q["ob"]) for q in op.pary_ocenione()], rek, slownik, kon or {})
+
+
+def zamiany_ofert(pary: list, rek: dict, slownik: dict | None, kon: dict) -> dict[str, dict]:
+    """Klucz klasy → reprezentant (pierwsza para z tą klasą): nazwy i słowa różnicy w brzmieniu z ofert, stan obu ofert."""
+    zamiany: dict[str, dict] = {}
+    for oa, ob in pary:
+        ra, rb = rek.get(oa.id), rek.get(ob.id)
+        if not (ra and rb):
+            continue
+        pa, pb = podpis(ra, slownik, kon.get(oa.id)), podpis(rb, slownik, kon.get(ob.id))
+        if (z := zamiana_do_pytania(pa, pb)) is None:
+            continue
+        klucz = json.dumps(z, ensure_ascii=False)
+        if klucz in zamiany:
+            zamiany[klucz]["par"] += 1
+            continue
+        if " ".join(sorted(pa.zbior - pb.zbior)) != z[1]:  # strona A = ta ze słowami z[1]
+            (oa, ra), (ob, rb) = (ob, rb), (oa, ra)
+        zamiany[klucz] = {"klasa": list(z), "par": 1, "a": _nazwa(oa), "b": _nazwa(ob),
+                          "slowa_a": _dopisek(ra, "", set(z[1].split()), kon.get(oa.id), slownik),
+                          "slowa_b": _dopisek(rb, "", set(z[2].split()), kon.get(ob.id), slownik),
+                          "stan": {"oferta_a": _stan(oa), "oferta_b": _stan(ob)}}
+    return zamiany
+
+
+async def zapytaj_zamiany(zamiany: dict[str, dict], budzet: float, plik: Path | None = None, proba: int = 0) -> float:
+    plik = plik or PLIK_ZAMIAN
+    from typesafe_sdk import AsyncTypeSafeClient
+    pamiec = json.loads(plik.read_text(encoding="utf-8")) if plik.exists() else {}
+    nowe = sorted((k for k in zamiany if k not in pamiec), key=lambda k: -zamiany[k]["par"])
+    nowe = nowe[:proba] if proba else nowe  # próba: najczęstsze klasy, obejrzane przed pełnym przebiegiem
+    szac = len(nowe) * 1300 * CENA_TOK
+    print(f"zamian {len(zamiany)}, nowych do pytania {len(nowe)}, szac. {szac:.3f} USD (budżet {budzet})", flush=True)
+    if szac > budzet:
+        sys.exit("szacunek ponad budżet — przerwane")
+    tok, sem = [0], asyncio.Semaphore(6)
+    async with AsyncTypeSafeClient(api_key=KLUCZ.read_text(encoding="utf-8").strip(), model=MODEL, timeout=60.0) as c:
+        async def jedna(k: str) -> None:
+            z = zamiany[k]
+            opis = {x: z[x] for x in ("klasa", "a", "b", "slowa_a", "slowa_b")}
+            async with sem:
+                try:
+                    r = await c.system_one(z["stan"], {"s": pytanie_zamiany(z["slowa_a"], z["slowa_b"], z["a"], z["b"])},
+                                           model=MODEL)
+                    tok[0] += r.usage.input_tokens or 0
+                    ch = r.choices["s"]
+                    pamiec[k] = {**opis, "relacja": ch.choice, "rozklad": dict(ch.probabilities)}
+                except Exception as e:  # noqa: BLE001 — brak odpowiedzi = zamiana nierozstrzygnięta, zapisane jawnie
+                    pamiec[k] = {**opis, "relacja": None, "blad": f"{type(e).__name__}: {str(e)[:120]}"}
+        await asyncio.gather(*(jedna(k) for k in nowe))
+    plik.parent.mkdir(parents=True, exist_ok=True)
+    plik.write_text(json.dumps(pamiec, ensure_ascii=False, indent=1), encoding="utf-8")
+    return tok[0] * CENA_TOK
 
 
 async def zapytaj(klasy: dict[str, dict], budzet: float, plik: Path | None = None) -> float:
@@ -109,6 +184,8 @@ def main() -> None:
     ap.add_argument("--budzet", type=float, default=0.2)
     ap.add_argument("--slownik", action="store_true")
     ap.add_argument("--kategorie", action="store_true")
+    ap.add_argument("--zamiany", action="store_true", help="także różnice po obu stronach (inna nazwa tej samej rzeczy)")
+    ap.add_argument("--proba", type=int, default=0, help="z --zamiany: zapytaj tylko o N najczęstszych nowych klas")
     a = ap.parse_args()
     slownik = json.loads((PLIK.parent / "slownik.json").read_text(encoding="utf-8")) if a.slownik else None
     kon = {}
@@ -126,6 +203,17 @@ def main() -> None:
         if k in klasy:
             print(f"  {rozstrzygnij(v.get('score'))} ({v.get('score') if v.get('score') is None else round(v['score'], 2)}) "
                   f"[{v['klasa'][1]}] „{v['dopisek']}” przy „{v['zabieg']}” vs „{v['druga']}” — par {klasy[k]['par']}")
+    if a.zamiany:
+        zam = zamiany_z_par(a.wariant, slownik, kon)
+        koszt_z = asyncio.run(zapytaj_zamiany(zam, a.budzet, proba=a.proba))
+        pz = json.loads(PLIK_ZAMIAN.read_text(encoding="utf-8"))
+        rz = Counter(v.get("relacja") for k, v in pz.items() if k in zam)
+        print(f"koszt zamian {koszt_z:.4f} USD; relacje {dict(rz)}; równoważnych (to samo ≥ próg) "
+              f"{sum(zamiana_rownowazna(v) for k, v in pz.items() if k in zam)}")
+        for k, v in sorted(pz.items(), key=lambda kv: -zam.get(kv[0], {}).get("par", 0))[:40]:
+            if k in zam:
+                print(f"  {'=' if zamiana_rownowazna(v) else ' '} {v.get('relacja')} {(v.get('rozklad') or {}).get('to_samo', 0):.2f} "
+                      f"„{v['slowa_a']}” / „{v['slowa_b']}” | {v['a']} vs {v['b']} — par {zam[k]['par']}")
 
 
 if __name__ == "__main__":

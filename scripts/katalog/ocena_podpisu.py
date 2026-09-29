@@ -82,8 +82,13 @@ def main() -> None:
         from services.katalog_uslug.klasy import NIE_ZMIENIA, WERSJA_PYTANIA, rozstrzygnij
         plik = B / "scripts" / "katalog" / "dane" / "2026-09-29" / f"w{WERSJA_PROMPTU}" / f"klasy_p{WERSJA_PYTANIA}.json"
         rozstrz = json.loads(plik.read_text(encoding="utf-8"))
-        klasy = Klasy(opisowe={tuple(v["klasa"]) for v in rozstrz.values() if rozstrzygnij(v.get("score")) == NIE_ZMIENIA})
-        print(f"klasy nieistotne (TypeSafe „nie zmienia”): {len(set(klasy.opisowe))} z {len(rozstrz)}")
+        from services.katalog_uslug.klasy import WERSJA_ZAMIANY, zamiana_rownowazna
+        pz = plik.parent / f"zamiany_p{WERSJA_ZAMIANY}.json"
+        zam = json.loads(pz.read_text(encoding="utf-8")) if pz.exists() else {}
+        klasy = Klasy(opisowe={tuple(v["klasa"]) for v in rozstrz.values() if rozstrzygnij(v.get("score")) == NIE_ZMIENIA},
+                      rownowazne={tuple(v["klasa"]) for v in zam.values() if zamiana_rownowazna(v)})
+        print(f"klasy nieistotne (TypeSafe „nie zmienia”): {len(set(klasy.opisowe))} z {len(rozstrz)}; "
+              f"zamiany słów „to samo”: {len(set(klasy.rownowazne))} z {len(zam)}")
     for q in pary:
         ra, rb = rek.get(q["oa"].id), rek.get(q["ob"].id)
         q["podpis"], q["powod"] = (porownaj(podpis(ra, slownik, kon.get(q["oa"].id)), podpis(rb, slownik, kon.get(q["ob"].id)), klasy)

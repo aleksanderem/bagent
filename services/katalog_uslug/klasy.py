@@ -7,8 +7,9 @@ pytanie o dwie frazy bez opisu usługi nie rozstrzyga znaczenia (pomiar 28.09). 
 """
 from __future__ import annotations
 
-from typesafe_sdk import Score
+from typesafe_sdk import Choice, Score
 
+from services.katalog_uslug.slownik import INNE, SZERSZE, TO_SAMO, WEZSZE
 from services.typesafe_drzewo.drzewo_v14 import _poziomy, poziom_score
 
 NIE_ZMIENIA, NIE_WIADOMO, ZMIENIA = 0, 1, 2
@@ -39,8 +40,42 @@ def pytanie_klasy(poziom: str, dopisek: str, oferta: str, druga: str) -> Score:
              ["„UV” przy uzupełnianiu rzęs", "„zdjęcie” przy manicure hybrydowym", "„łydki” przy depilacji"])))
 
 
+WERSJA_ZAMIANY = 1
+PROG_TO_SAMO = 0.8  # ten sam ostry próg co przy scalaniu słownika synonimów (synonimy.py) — nie strojony na parach
+
+
+def pytanie_zamiany(slowa_a: str, slowa_b: str, oferta_a: str, oferta_b: str) -> Choice:
+    """Różnica po obu stronach (podpis.zamiana_slow): relacja 4-stanowa jak w słowniku (plan 29.09: to samo / węższe /
+    szersze / inne), ale w kontekście OBU ofert — znaczenie słowa zależy od zabiegu. Raz na klasę (wspólne słowa,
+    słowa A, słowa B), z pamięcią. Oba opisy w jednym stanie jak w cookbooku entity_alignment; pytamy o parę fraz,
+    nie o całą parę ofert. Zamiana nieistotna tylko przy „to samo” (zamiana_rownowazna)."""
+    return Choice(
+        instructions=(f"Oferta `oferta_a.usluga` to „{oferta_a}”, oferta `oferta_b.usluga` z innego salonu to „{oferta_b}”. "
+                      f"Mają wspólną resztę nazwy, a różnią się słowami: pierwsza ma „{slowa_a}”, druga „{slowa_b}”. "
+                      f"Jak ma się znaczenie „{slowa_a}” do „{slowa_b}” w tych dwóch ofertach? Rozstrzygają nazwa, kategoria, "
+                      "opis, warianty, zabieg wybrany w Booksy i salon obu ofert."),
+        criteria={
+            TO_SAMO: {"what": f"„{slowa_a}” i „{slowa_b}” nazywają tu tę samą rzecz — ta sama usługa w tym samym zakresie, "
+                              "tylko inaczej opisana",
+                      "not_for": "inny obszar, metoda, rozmiar, liczba, etap albo dodatkowa część usługi",
+                      "examples": ["„męskie” i „dla panów” przy strzyżeniu", "„twarzy” i „face” przy oczyszczaniu wodorowym"]},
+            WEZSZE: {"what": f"„{slowa_a}” to część albo szczególny przypadek „{slowa_b}” — węższy zakres",
+                     "not_for": "ta sama rzecz inaczej nazwana", "examples": ["„łydki” wobec „nóg” przy depilacji"]},
+            SZERSZE: {"what": f"„{slowa_a}” obejmuje „{slowa_b}” i coś więcej — szerszy zakres",
+                      "not_for": "ta sama rzecz inaczej nazwana", "examples": ["„całe nogi” wobec „łydek” przy depilacji"]},
+            INNE: {"what": "różne rzeczy — inna usługa, metoda, obszar, rozmiar, liczba, etap albo dodatkowa część usługi",
+                   "not_for": "ta sama rzecz inaczej nazwana",
+                   "examples": ["„pachy” i „łydki” przy depilacji", "„klasyczny” i „hybrydowy” przy manicure"]}})
+
+
+def zamiana_rownowazna(wpis: dict) -> bool:
+    """Wpis z pamięci zamian → czy różne słowa to ta sama rzecz. Brak odpowiedzi = nie."""
+    return wpis.get("relacja") == TO_SAMO and (wpis.get("rozklad") or {}).get(TO_SAMO, 0.0) >= PROG_TO_SAMO
+
+
 def rozstrzygnij(score: float | None) -> int:
     return poziom_score(score)
 
 
-__all__ = ["NIE_WIADOMO", "NIE_ZMIENIA", "OPIS_POZIOMU", "WERSJA_PYTANIA", "ZMIENIA", "pytanie_klasy", "rozstrzygnij"]
+__all__ = ["NIE_WIADOMO", "NIE_ZMIENIA", "OPIS_POZIOMU", "PROG_TO_SAMO", "WERSJA_PYTANIA", "WERSJA_ZAMIANY", "ZMIENIA",
+           "pytanie_klasy", "pytanie_zamiany", "rozstrzygnij", "zamiana_rownowazna"]
