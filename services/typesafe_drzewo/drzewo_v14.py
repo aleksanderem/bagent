@@ -12,7 +12,7 @@ w jej pełnym kontekście (rola słowa) — tak, jak porównuje je człowiek. Tr
   2. cecha (rola), w której frazy się różnią → TypeSafe na pełnym kontekście DRUGIEJ usługi: czy u niej to właśnie
      frazy tej roli pierwszej, wszystkie razem (Score z trzema poziomami jak w cookbooku entity_alignment: kontekst
      przeczy — inna, część albo więcej → znana różnica, milczy → za mało danych, potwierdza → zgodne). Obie podają
-     cechę → pytanie ZAWSZE w obie strony (węższa „żelem” potwierdza „żelem + frencz”, szersza — nie)
+     cechę → pytanie do strony, której frazy nie mają odpowiednika (Wariant.obie_strony — zawsze w obie strony)
      („oczy” kontra „okolice oczu” w mezoterapii rozstrzyga opis usługi, nie same słowa); podaje jedna → pytanie
      do drugiej („męskie” w barberze = tak). Fraza z wariantu, gdy druga cechy nie podaje — czy druga obejmuje też
      ten wariant (rodzina długości włosów kontra „cena zależy od długości”). Dodatek albo dodatkowy zabieg tylko
@@ -31,6 +31,7 @@ TypeSafe nigdy nie daje „ta sama”.
 
 from __future__ import annotations
 
+from dataclasses import dataclass
 from typing import Any
 
 from typesafe_sdk import Noul, NoulCriteria, Score
@@ -48,6 +49,30 @@ Z_KONTEKSTU = frozenset({"metoda", "gdzie i ile", "etap"})
 DOMNIEMANE = frozenset({"metoda", "gdzie i ile", "etap"})  # dodatek i skład podane przez jedną = podobna (Alex 25.09)
 CECHA, WARIANT, ZMIANA, DOKLADNIE = "cecha", "wariant", "zmiana", "dokladnie"
 INNY, MOZE, TEN_SAM = 0, 1, 2  # poziomy Score „czy właśnie taka”: przeczy / milczy / potwierdza (cookbook entity_alignment)
+
+
+@dataclass(frozen=True)
+class Wariant:
+    """Sposób pytania „czy właśnie taka” — do pomiaru obok siebie na tych samych parach.
+    razem: komplet fraz jednej roli jako „„a” + „b” — wszystko razem” (zbiór 3, 28.09: lista po przecinku czytana
+    jak „którakolwiek” — rodzina obszarów wosku kontra sam „wąsik” 1,97);
+    obie_strony: gdy obie usługi podają cechę, pytanie do KAŻDEJ strony, także bez nadwyżki (zbiór 3: pytana tylko
+    strona bez nadwyżki — „żelem” potwierdzało „żelem + frencz” 1,93).
+    synonimy: najpierw pytanie o dwie frazy tej samej roli (pytanie_tozsamosci — odmiana, synonim, skrót); „to samo”
+    = zgodne na tej cesze, reszta idzie do „czy właśnie taka” (zbiór 5, 28.09: pełny kontekst wahał się przy
+    „grzywka” / „grzywki” 0,84–0,92, „2:1” / „2d” 1,48, „botox” / „botoks”).
+    zrodlo: do pytania „czy właśnie taka” dochodzi nazwa drugiej usługi, z której pochodzą frazy — TypeSafe sam czyta
+    „+” (komplet) i „/” (alternatywa); frazy z wariantów oznaczone jako warianty do wyboru, które ta usługa musi
+    objąć wszystkie (zbiory 3–5, 28.09: lista po przecinku gubi spójnik — „odcisku / modzelu” to alternatywa,
+    „twarzy +szyi + dekoltu” komplet; „wszystko razem” naprawiało jedno i psuło drugie).
+    Domyślnie W2 = v14f ze sprawdzianu 5. w4 (oba naraz + „ani mniej, ani więcej”) odrzucone jako za ścisłe."""
+    razem: bool = False
+    obie_strony: bool = False
+    synonimy: bool = False
+    zrodlo: bool = False
+
+
+W2 = Wariant()
 PRZYIMKI = frozenset("do od z ze w we na dla po u bez przy pod nad za przez wraz".split())
 CUDZYSLOWY = str.maketrans("", "", "„”“\"'«»")
 OPIS_POZIOMU = {"metoda": "metoda", "gdzie i ile": "obszar, wielkość albo dla kogo", "etap": "etap"}
@@ -104,26 +129,30 @@ def _poziomy(*poziomy: tuple[str, list[str]]) -> list[dict[str, Any]]:
     return [{"co": co, "przyklady": przyklady} for co, przyklady in poziomy]
 
 
+ZRODLO = " ⟨"  # w kluczu: lista fraz, potem opis źródła (Wariant.zrodlo)
+
+
 def pytanie_dokladnie(rola: str, frazy: str) -> Score:
     """Cecha, w której frazy usług się różnią — wszystkie frazy tej roli drugiej usługi naraz („maszynka, nożyczki”
     to co innego niż sama „maszynką”); usługa może podawać tę cechę inaczej albo wcale. Sprawdzian 4 (28.09): Noul
     „ma cechę, nawet jeśli nie pisze” mówił tak dla szczegółu, który zawęża usługę — „Strzyżenie męskie” (nożyczki,
     maszynka, trymer) „ma” „maszynką” 0,95, lipoliza „w wybrane miejsce” „ma” „uda” 0,69. Pytamy, czy usługa jest
-    DOKŁADNIE taka. Zbiory 3–4 (28.09): lista „„bikini”, „nogi”, …, „wąsik”” czytana jak „którakolwiek” — sam wąsik
-    dostawał „tak” 1,97; stąd „+” i „wszystko razem”."""
+    DOKŁADNIE taka. Komplet połączony „+” (Wariant.razem) dostaje dopisek „wszystko razem”."""
+    frazy, _, zrodlo = frazy.partition(ZRODLO)
     razem = " — wszystko razem" if " + " in frazy else ""
-    return Score(instructions=f"Inna usługa tego samego zabiegu podaje {OPIS_ROLI[rola]}: {frazy}{razem}. Czy usługa `usluga` "
-                              f"ma dokładnie to samo — ani mniej, ani więcej? {_STAN_USLUGI}",
+    zrodlo = f" ({zrodlo.rstrip('⟩')})" if zrodlo else ""
+    return Score(instructions=f"Inna usługa tego samego zabiegu podaje {OPIS_ROLI[rola]}: {frazy}{razem}{zrodlo}. Czy w usłudze `usluga` "
+                              f"jest to właśnie {frazy}? {_STAN_USLUGI}",
                  criteria=_poziomy(
-                     ("nie: ta usługa ma inną wartość, tylko część z tego albo więcej — także inną główną metodę, "
+                     (f"nie: ta usługa ma inną wartość albo obejmuje więcej niż {frazy} — także inną główną metodę, "
                       "inne obszary albo kilka wariantów do wyboru",
                       ["druga podaje „łydki”, a ta usługa to depilacja całych nóg",
-                       "druga podaje „twarz + szyja”, a tu sama twarz",
+                       "druga podaje „hybrydowy”, a to manicure klasyczny",
                        "druga podaje jeden obszar, a tu obszar wybiera się z listy"]),
                      ("nie wiadomo: ani usługa, ani salon nic o tym nie mówią",
                       ["druga podaje „1:1”, a ta usługa nie mówi, jaką metodą"]),
-                     ("tak: z nazwy, kategorii, opisu, wariantów albo salonu wynika, że ma dokładnie to samo; drobne "
-                      "narzędzia albo kroki wymienione w opisie, np. do wykończenia, tego nie zmieniają",
+                     (f"tak: z nazwy, kategorii, opisu, wariantów albo salonu wynika, że to właśnie {frazy}; drobne narzędzia "
+                      "albo kroki wymienione w opisie, np. do wykończenia, tego nie zmieniają",
                       ["druga podaje „męskie”, a salon to barber",
                        "druga podaje „frezarką”, a opis tej usługi wymienia frezarkę i pilnik"])))
 
@@ -134,8 +163,19 @@ def poziom_score(score: float | None) -> int:
     return MOZE if score is None else min(int(score + 0.5), TEN_SAM)
 
 
-def klucz_dokladnie(uid: int, rola: str, frazy: list[str]) -> KluczCechy:
-    return uid, " + ".join(f"„{f}”" for f in sorted(set(frazy))), rola, DOKLADNIE
+def klucz_dokladnie(uid: int, rola: str, frazy: list[str], w: Wariant = W2, zrodlo: str = "") -> KluczCechy:
+    lista = (" + " if w.razem else ", ").join(f"„{f}”" for f in sorted(set(frazy)))
+    return uid, lista + (f"{ZRODLO}{zrodlo}⟩" if w.zrodlo and zrodlo else ""), rola, DOKLADNIE
+
+
+def _zrodlo(x: dict, frazy: list[tuple[str, str]]) -> str:
+    """Wariant.zrodlo: skąd pochodzą frazy drugiej usługi — nazwa (ze spójnikami) albo jej warianty do wyboru."""
+    czesci = []
+    if any(zr != "wariant" for _f, zr in frazy) and x.get("nazwa"):
+        czesci.append(f"w nazwie tamtej usługi: „{x['nazwa']}”")
+    if any(zr == "wariant" for _f, zr in frazy):
+        czesci.append("warianty: to opcje do wyboru w tamtej usłudze — ta usługa musi obejmować każdą")
+    return "; ".join(czesci)
 
 
 def pytanie_dla(klucz: KluczCechy) -> Noul | Score:
@@ -164,7 +204,7 @@ def _wezel(rek: dict | None) -> tuple[str, str] | None:
     return d, g
 
 
-def profil_v14(uid: int, frazy: list[Fraza], rek: dict | None, drzewo: dict) -> dict | None:
+def profil_v14(uid: int, frazy: list[Fraza], rek: dict | None, drzewo: dict, nazwa: str = "") -> dict | None:
     """frazy: (rola, fraza, źródło) ze słów usługi; rek: przejście drzewa (poziomy 1–2, pozycja, tak/nie).
     → {"id", "pozycja", "zestaw", "rozszerzenie", "wezel", "etykieta", "frazy": {poziom: [(rola, fraza, źródło)]}}.
     Frazy z kontekstu wymagają potwierdzenia (potwierdz)."""
@@ -188,7 +228,7 @@ def profil_v14(uid: int, frazy: list[Fraza], rek: dict | None, drzewo: dict) -> 
         k = kosze[rola]
         f = k["wlasne"] or (next((k[z] for z in KONTEKST if k[z]), []) if p in Z_KONTEKSTU else [])
         out[p] += [e for e in f if rdzen(e[1]) not in nazwy_wezla] if p == "skład" else f
-    return {"id": uid, "pozycja": rek.get("pozycja"), "zestaw": rek.get("zestaw"), "rozszerzenie": rek.get("rozszerzenie"),
+    return {"id": uid, "nazwa": nazwa, "pozycja": rek.get("pozycja"), "zestaw": rek.get("zestaw"), "rozszerzenie": rek.get("rozszerzenie"),
             "wezel": wezel, "etykieta": w.get("etykieta") or (wezel[1].split("|")[-1] if wezel else None), "frazy": out}
 
 
@@ -277,24 +317,34 @@ def _pozostale(fa: list[FrazaP], fb: list[FrazaP]) -> tuple[list[FrazaP], list[F
     return [e for e in fa if e[2] not in sb], [e for e in fb if e[2] not in sa]
 
 
-def _sprawy(a: dict, b: dict) -> list[tuple[str, str, Any]]:
+def _sprawy(a: dict, b: dict, w: Wariant = W2, rel: dict | None = None) -> list[tuple[str, str, Any]]:
     """Role, w których frazy się różnią (po odjęciu identycznych) → (poziom, rodzaj, klucze):
-    „zakres” — obie podają tę cechę: pytanie do każdej strony o komplet fraz tej roli drugiej, zawsze w obie strony
-    (zbiór 3, 28.09: pytana była tylko strona bez nadwyżki — „żelem” potwierdzało „żelem + frencz” 1,93);
+    „zakres” — obie podają tę cechę: pytanie do strony o komplet fraz tej roli drugiej — tam, gdzie druga ma frazy
+    bez odpowiednika, a przy Wariant.obie_strony zawsze w obie strony;
     „dokladnie” — podaje jedna: pytanie do drugiej o komplet fraz z nazwy i kontekstu;
     „wariant” — podaje jedna, fraza z wariantu: czy druga obejmuje wariant;
     „roznica” — dodatek albo dodatkowy zabieg tylko w jednej = podobna (Alex 25.09)."""
-    _z, fa, fb = _frazy(a, b)
+    z, fa, fb = _frazy(a, b)
     ra, rb = _pozostale(fa, fb)
     strony = ((a["id"], fa, ra), (b["id"], fb, rb))
+    rel = rel or {}
     sprawy: list[tuple[str, str, Any]] = []
     for p, r in sorted({(e[0], e[1]) for e in ra + rb}, key=lambda pr: (POZIOMY.index(pr[0]), pr[1])):
         wszystkie = {uid: [x for q, r2, x, _zr in f if (q, r2) == (p, r)] for uid, f, _reszta in strony}
+        zrodla = {uid: [(x, zr) for q, r2, x, zr in f if (q, r2) == (p, r)] for uid, f, _reszta in strony}
+        profile = {a["id"]: a, b["id"]: b}
         zostalo = {uid: [(x, zr) for q, r2, x, zr in reszta if (q, r2) == (p, r)] for uid, _f, reszta in strony}
         (ua, _fa, _ra), (ub, _fb, _rb) = strony
         druga = {ua: ub, ub: ua}
         if all(wszystkie.values()):
-            sprawy.append((p, "zakres", [klucz_dokladnie(druga[u], r, wszystkie[u]) for u in (ua, ub)]))
+            if w.synonimy:  # fraza, którą TypeSafe uznał za tę samą co któraś fraza drugiej, nie jest nadwyżką
+                zostalo = {u: [(x, zr) for x, zr in zostalo[u]
+                               if not any(rel.get(klucz_relacji(z, r, x, y)) is True for y in wszystkie[druga[u]] if y != x)]
+                           for u in (ua, ub)}
+                if not any(zostalo.values()):
+                    continue
+            sprawy.append((p, "zakres", [klucz_dokladnie(druga[u], r, wszystkie[u], w, _zrodlo(profile[u], zrodla[u]))
+                                         for u in (ua, ub) if w.obie_strony or zostalo[u]]))
             continue
         u = ua if wszystkie[ua] else ub
         if p not in DOMNIEMANE:
@@ -303,18 +353,30 @@ def _sprawy(a: dict, b: dict) -> list[tuple[str, str, Any]]:
         sprawy += [(p, "wariant", (druga[u], x, p, WARIANT)) for x, zr in zostalo[u] if zr == "wariant"]
         nazwy = [x for x, zr in zostalo[u] if zr != "wariant"]
         if nazwy:
-            sprawy.append((p, "dokladnie", [klucz_dokladnie(druga[u], r, nazwy)]))
+            sprawy.append((p, "dokladnie", [klucz_dokladnie(druga[u], r, nazwy, w,
+                                                            _zrodlo(profile[u], [(x, zr) for x, zr in zostalo[u] if zr != "wariant"]))]))
     return sprawy
 
 
-def potrzebne_domniemania(a: dict | None, b: dict | None) -> set[KluczCechy]:
+def potrzebne_synonimy(a: dict | None, b: dict | None, w: Wariant = W2) -> set[tuple[str, str, str, str]]:
+    """Wariant.synonimy, runda przed „czy właśnie taka”: pary różnych fraz tej samej roli, gdy obie usługi ją podają."""
+    if not w.synonimy or _wstep(a, b) is not None:
+        return set()
+    z, fa, fb = _frazy(a, b)
+    ra, rb = _pozostale(fa, fb)
+    return ({klucz_relacji(z, r, x, y) for _p, r, x, _z in ra for _q, r2, y, _z2 in fb if r2 == r and y != x}
+            | {klucz_relacji(z, r, x, y) for _p, r, x, _z in rb for _q, r2, y, _z2 in fa if r2 == r and y != x})
+
+
+def potrzebne_domniemania(a: dict | None, b: dict | None, w: Wariant = W2, rel: dict | None = None) -> set[KluczCechy]:
     """Pytania o cechy, w których frazy się różnią — każde o jedną usługę na jej pełnym kontekście."""
     if _wstep(a, b) is not None:
         return set()
-    return {k for _p, rodzaj, d in _sprawy(a, b) if rodzaj != "roznica" for k in ([d] if rodzaj == "wariant" else d)}
+    return {k for _p, rodzaj, d in _sprawy(a, b, w, rel) if rodzaj != "roznica" for k in ([d] if rodzaj == "wariant" else d)}
 
 
-def porownaj_v14(a: dict | None, b: dict | None, poz: dict, dom: dict) -> tuple[str, str, int]:
+def porownaj_v14(a: dict | None, b: dict | None, poz: dict, dom: dict, w: Wariant = W2,
+                 rel: dict | None = None) -> tuple[str, str, int]:
     """→ (werdykt, powód, poziom pokrycia 0–5). tozsame | powiazane | niepelne | rozne.
     a, b: profile po potwierdz; poz: klucz „czy właśnie taka” → INNY | MOZE | TEN_SAM (poziom_score odpowiedzi);
     dom: klucz wariantu → True (druga obejmuje wariant)."""
@@ -323,7 +385,7 @@ def porownaj_v14(a: dict | None, b: dict | None, poz: dict, dom: dict) -> tuple[
         return wstep
     roznice: list[str] = []
     brak: list[tuple[str, str]] = []
-    for p, rodzaj, k in _sprawy(a, b):
+    for p, rodzaj, k in _sprawy(a, b, w, rel):
         if rodzaj == "roznica":
             roznice.append(p)
             continue
@@ -347,7 +409,7 @@ def porownaj_v14(a: dict | None, b: dict | None, poz: dict, dom: dict) -> tuple[
     return "tozsame", "zgodne wszystkie poziomy", 5
 
 
-__all__: list[Any] = ["POZIOMY", "CECHA", "WARIANT", "ZMIANA", "DOKLADNIE", "INNY", "MOZE", "TEN_SAM", "profil_v14",
-                      "potrzebne_potwierdzenia", "potwierdz", "porownaj_v14", "potrzebne_domniemania",
+__all__: list[Any] = ["POZIOMY", "CECHA", "WARIANT", "ZMIANA", "DOKLADNIE", "INNY", "MOZE", "TEN_SAM", "Wariant", "W2", "profil_v14",
+                      "potrzebne_potwierdzenia", "potwierdz", "porownaj_v14", "potrzebne_domniemania", "potrzebne_synonimy",
                       "klucz_relacji", "klucz_dokladnie", "stan_relacji", "poziom_score", "pytanie_tozsamosci", "pytanie_cechy",
                       "pytanie_wariantu", "pytanie_zmiany", "pytanie_dokladnie", "pytanie_dla"]

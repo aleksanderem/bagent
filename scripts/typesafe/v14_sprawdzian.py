@@ -42,8 +42,11 @@ from services.typesafe_drzewo.drzewo_v13 import porownaj_v13, wiazka_v13  # noqa
 from services.typesafe_drzewo import drzewo_v14e as e14  # noqa: E402 — zamrożona v14e, tylko do bilansu
 from services.typesafe_drzewo.drzewo_v14 import (  # noqa: E402
     DOKLADNIE,
+    W2,
+    Wariant,
     porownaj_v14,
     potrzebne_domniemania,
+    potrzebne_synonimy,
     PRZYIMKI,
     poziom_score,
     profil_v14,
@@ -63,7 +66,12 @@ SEED_NOWE = 20261005  # inne losowanie niż sprawdzian v13 (20261004)
 CENA_TOK = 0.042 / 1e6
 TOK_ROLE = 5970   # zmierzone 28.09 (v13_role, 20 590 usług)
 TOK_V13 = 12400   # zmierzone 28.09
-WERSJA_PYTAN = 4  # „czy właśnie taka” v14f: w4 = Score, lista „+” = wszystko razem, zawsze w obie strony (w1 bez przykładów, w2 lista jak „którakolwiek”, w3 Choice — odrzucone)
+WERSJA_PYTAN = 2  # „czy właśnie taka” = w2 (Score z przykładami); Wariant.razem używa tej samej pamięci — klucz z „+” to inne pytanie (w1 bez przykładów, w3 Choice, w4 za ściśle — odrzucone)
+WARIANTY = {"w2": W2, "razem": Wariant(razem=True), "obie": Wariant(obie_strony=True),
+            "razem_obie": Wariant(razem=True, obie_strony=True), "syn": Wariant(synonimy=True),
+            "syn_razem": Wariant(synonimy=True, razem=True), "syn_obie": Wariant(synonimy=True, obie_strony=True),
+            "syn_razem_obie": Wariant(synonimy=True, razem=True, obie_strony=True),
+            "syn_zrodlo": Wariant(synonimy=True, zrodlo=True), "syn_zrodlo_obie": Wariant(synonimy=True, zrodlo=True, obie_strony=True)}
 TOK_PARA = 300    # szacunek na parę: pytania o frazy i domniemania (większość par bez pytań)
 ROWNOLEGLE = 30
 KEY_FILE = Path.home() / ".config" / "typesafe" / "api_key"
@@ -231,21 +239,23 @@ async def _profile(p: Pytania, pary: list[dict], uslugi: dict[int, dict], r13: d
     surowe = {}
     for i in {x for q in pary for x in (int(q["a"]), int(q["b"]))}:
         z = p.role.get(str(i))
-        surowe[i] = profil_v14(i, frazy_v14(uslugi[i], z["role"]) if z else [], r13.get(str(i)), drzewo)
+        surowe[i] = profil_v14(i, frazy_v14(uslugi[i], z["role"]) if z else [], r13.get(str(i)), drzewo, uslugi[i]["nazwa"])
     potw = [potrzebne_potwierdzenia(x) for x in surowe.values()]
     await asyncio.gather(p.cechy(set().union(*[c for c, _r in potw]), uslugi), p.relacje(set().union(*[r for _c, r in potw])))
     return {i: potwierdz(x, p.slownik_rel(), p.slownik_dom()) for i, x in surowe.items()}
 
 
 async def porownaj_pary(p: Pytania, pary: list[dict], uslugi: dict[int, dict], r13: dict, drzewo: dict,
-                        pole: str = "v14") -> dict[int, dict]:
+                        pole: str = "v14", w: Wariant = W2) -> dict[int, dict]:
     """v14f: role, w których frazy się różnią → „czy u drugiej właśnie tak” na jej pełnym kontekście (jedna usługa na wywołanie)."""
     prof = await _profile(p, pary, uslugi, r13, drzewo)
     pr = [(prof[int(q["a"])], prof[int(q["b"])]) for q in pary]
-    await p.cechy(set().union(*[potrzebne_domniemania(a, b) for a, b in pr]), uslugi)
+    await p.relacje(set().union(*[potrzebne_synonimy(a, b, w) for a, b in pr]))  # pytanie_tozsamosci, pamięć tozsamosc.json
+    rel = p.slownik_rel()
+    await p.cechy(set().union(*[potrzebne_domniemania(a, b, w, rel) for a, b in pr]), uslugi)
     poz, dom = p.slownik_poz(), p.slownik_dom()
     for q, (a, b) in zip(pary, pr):
-        q[pole], q[f"{pole}_powod"], q[f"{pole}_poziom"] = porownaj_v14(a, b, poz, dom)
+        q[pole], q[f"{pole}_powod"], q[f"{pole}_poziom"] = porownaj_v14(a, b, poz, dom, w, rel)
     return prof
 
 
@@ -362,8 +372,11 @@ async def sprawdzian(a: argparse.Namespace, client: Any) -> None:
             mapa = json.loads((DZ / a.mapa).read_text(encoding="utf-8"))
             drzewo_e = json.loads((DZ / "v13" / a.drzewo_scalone).read_text(encoding="utf-8"))
             r13e = {i: mapuj(r, mapa) for i, r in r13.items()}
-            await porownaj_pary_v14e(p, pary, uslugi, r13e, drzewo_e)
-            await porownaj_pary(p, pary, uslugi, r13e, drzewo_e)
+            if a.poprzednia == "v14e":  # zbiór 5: zamrożona v14e
+                await porownaj_pary_v14e(p, pary, uslugi, r13e, drzewo_e)
+            else:  # zbiór 6+: poprzednia wersja v14f jako „v14p”
+                await porownaj_pary(p, pary, uslugi, r13e, drzewo_e, pole="v14p", w=WARIANTY[a.poprzednia])
+            await porownaj_pary(p, pary, uslugi, r13e, drzewo_e, w=WARIANTY[a.wariant])
         else:
             await porownaj_pary(p, pary, uslugi, r13, drzewo)
     finally:
@@ -394,7 +407,7 @@ def miary_v14(pary: list[dict], salony: list) -> dict:
                                **{f"{w}_poprzednia": {"werdykty": dict(Counter(q[w] for q in z)), "pokrycie": pokrycie(z, w),
                                                       "tylko_nowa": sum(q["v14"] == "tozsame" != q[w] for q in z),
                                                       "tylko_poprzednia": sum(q[w] == "tozsame" != q["v14"] for q in z)}
-                                  for w in ("v14d", "v14e") if z and w in z[0]}}
+                                  for w in ("v14d", "v14e", "v14p") if z and w in z[0]}}
                            for g, z in grupy.items()}}
 
 
@@ -426,7 +439,8 @@ async def przelicz(a: argparse.Namespace, client: Any) -> None:
     drzewo_e = json.loads((DZ / "v13" / a.drzewo_scalone).read_text(encoding="utf-8"))
     p = Pytania(client, out, a.budzet)
     try:
-        prof = await porownaj_pary(p, pary, uslugi, {i: mapuj(r, mapa) for i, r in r13.items()}, drzewo_e, pole="v14f")
+        prof = await porownaj_pary(p, pary, uslugi, {i: mapuj(r, mapa) for i, r in r13.items()}, drzewo_e, pole="v14f",
+                                   w=WARIANTY[a.wariant])
     finally:
         p.zapisz()
     poz, dom = p.slownik_poz(), p.slownik_dom()
@@ -436,9 +450,9 @@ async def przelicz(a: argparse.Namespace, client: Any) -> None:
             pa, pb = prof[int(q["a"])], prof[int(q["b"])]
             print(f"[{q['branza'][:10]}] ocena={q['ocena_claude']} v14e={q['v14']} → v14f={q['v14f']} ({q['v14f_powod']})")
             print(f"   {opis(uslugi[int(q['a'])], pa)}\n   {opis(uslugi[int(q['b'])], pb)}")
-            for k in sorted(potrzebne_domniemania(pa, pb), key=str):
+            for k in sorted(potrzebne_domniemania(pa, pb, WARIANTY[a.wariant], p.slownik_rel()), key=str):
                 print(f"   {k} → {poz.get(k, dom.get(k))}")
-    (out / f"pary_v14f{'_proba' if a.proba_uslug else ''}.json").write_text(json.dumps(pary, ensure_ascii=False), encoding="utf-8")
+    (out / f"pary_v14f_{a.wariant}{'_proba' if a.proba_uslug else ''}.json").write_text(json.dumps(pary, ensure_ascii=False), encoding="utf-8")
     print(f"koszt {p.tok[0] * CENA_TOK:.4f} USD, błędy pytań {dict(p.bledy)}")
 
 
@@ -464,4 +478,7 @@ if __name__ == "__main__":
     ap.add_argument("--drzewo-scalone", default="drzewo_v14e_w2.json", help="drzewo ze scalonymi węzłami w dane/2026-09-28/v13/")
     ap.add_argument("--przelicz", default="", help="katalog UŻYTEGO zbioru: v14f na jego parach (sprawdzenie mechanizmu)")
     ap.add_argument("--proba-uslug", type=int, default=0, help="z --przelicz: tylko ocenione pary, do N usług, ze śladem")
+    ap.add_argument("--wariant", default="w2", choices=sorted(WARIANTY), help="sposób pytania „czy właśnie taka” (drzewo_v14.Wariant)")
+    ap.add_argument("--poprzednia", default="v14e", choices=["v14e", *sorted(WARIANTY)],
+                    help="sprawdzian z --mapa: poprzednia wersja do bilansu na tych samych parach")
     asyncio.run(main_async(ap.parse_args()))

@@ -31,13 +31,14 @@ def probka(pary: list[dict]) -> list[dict]:
     for br in sorted({q["branza"] for q in pary}):
         z = [q for q in pary if q["branza"] == br]
         v14 = [q for q in z if q["v14"] == "tozsame"]
+        # poprzednia wersja na tych samych parach: v14p (zbiór 6+: v14f), v14e (zbiór 5), v14d (scalenie, zbiór 4)
+        pop = next((w for w in ("v14p", "v14e", "v14d") if any(w in q for q in z)), "v14d")
         # grupy rozłączne (ważenie w szacunku trafności każdej wersji): v14 / tylko poprzednia / tylko v13b
-        tylko13 = [q for q in z if q["v13"] == "tozsame" and q["v14"] != "tozsame" and q.get("v14e") != "tozsame"]
-        # bilans z poprzednią wersją na tych samych parach: co traci nowa (v14e — zbiór 5+, v14d — scalenie w zbiorze 4)
-        pop = "v14e" if any("v14e" in q for q in z) else "v14d"
-        stracone = [q for q in z if q.get(pop) == "tozsame" and q["v14"] != "tozsame" and (pop == "v14e" or q["v13"] != "tozsame")]
-        nazwa = "stracone_poprawka" if pop == "v14e" else "stracone_scaleniem"
-        for grupa, lst, n in (("v14", v14, NA_BRANZE_V14), ("tylko_v13b", tylko13, NA_BRANZE_V13), (nazwa, stracone, 6 if pop == "v14e" else 4)):
+        tylko13 = [q for q in z if q["v13"] == "tozsame" and q["v14"] != "tozsame" and (pop == "v14d" or q.get(pop) != "tozsame")]
+        # bilans z poprzednią wersją: co traci nowa
+        stracone = [q for q in z if q.get(pop) == "tozsame" and q["v14"] != "tozsame" and (pop != "v14d" or q["v13"] != "tozsame")]
+        nazwa = "stracone_scaleniem" if pop == "v14d" else "stracone_poprawka"
+        for grupa, lst, n in (("v14", v14, NA_BRANZE_V14), ("tylko_v13b", tylko13, NA_BRANZE_V13), (nazwa, stracone, 4 if pop == "v14d" else 6)):
             for q in rng.sample(lst, min(n, len(lst))):
                 wynik.append({**q, "grupa": grupa if grupa != "v14" or q["v13"] == "tozsame" else "tylko_v14"})
     return wynik
@@ -56,7 +57,7 @@ def pokaz() -> None:
     pr = probka(pary)
     (OUT / "probka_oceny.json").write_text(json.dumps(pr, ensure_ascii=False, indent=1), encoding="utf-8")
     for i, q in enumerate(pr):
-        d = f" | v14e={q['v14e']}" if "v14e" in q else (f" | bez scalenia={q['v14d']}" if "v14d" in q else "")
+        d = next((f" | {w}={q[w]}" for w in ("v14p", "v14e") if w in q), f" | bez scalenia={q['v14d']}" if "v14d" in q else "")
         print(f"#{i} [{q['branza']}] {q['grupa']} | v14={q['v14']} ({q['v14_powod']}) | v13b={q['v13']} ({q['v13_powod']}){d}")
         print(f"   A {opis(uslugi[int(q['a'])])}")
         print(f"   B {opis(uslugi[int(q['b'])])}")

@@ -12,11 +12,13 @@ from services.typesafe_drzewo.drzewo_v14 import (
     MOZE,
     TEN_SAM,
     WARIANT,
+    Wariant,
     ZMIANA,
     klucz_dokladnie,
     klucz_relacji,
     porownaj_v14,
     potrzebne_domniemania,
+    potrzebne_synonimy,
     potrzebne_potwierdzenia,
     potwierdz,
     poziom_score,
@@ -86,10 +88,15 @@ def test_pakiet_obszarow_z_wariantow_kontra_jeden_obszar_to_podobna():
     # „pachy + bikini” w wariantach kontra „pachy”: pytamy, czy druga OBEJMUJE wariant bikini — nie obejmuje
     a = prof(1, "ciała|depilacja", [("obszar", "pachy", "wariant"), ("obszar", "bikini", "wariant")])
     b = prof(2, "ciała|depilacja", [("obszar", "pachy", "nazwa")])
-    # „pachy” zgodne; pytanie w obie strony: druga o komplet pierwszej, pierwsza (pakiet) o samą „pachy” drugiej
-    kb, ka = klucz_dokladnie(2, "obszar", ["pachy", "bikini"]), klucz_dokladnie(1, "obszar", ["pachy"])
-    assert potrzebne_domniemania(a, b) == {ka, kb}
-    assert porownaj_v14(a, b, {kb: TEN_SAM, ka: INNY}, {})[:2] == ("powiazane", "inny poziom: gdzie i ile")
+    # „pachy” zgodne; druga (bez nadwyżki) pytana o komplet obszarów pierwszej
+    kb = klucz_dokladnie(2, "obszar", ["pachy", "bikini"])
+    assert potrzebne_domniemania(a, b) == {kb}
+    assert porownaj_v14(a, b, {kb: INNY}, {})[:2] == ("powiazane", "inny poziom: gdzie i ile")
+    # w obie strony: pierwsza (pakiet) pytana też o samą „pachy” drugiej
+    w = Wariant(obie_strony=True)
+    ka = klucz_dokladnie(1, "obszar", ["pachy"], w)
+    assert potrzebne_domniemania(a, b, w) == {kb, ka}
+    assert porownaj_v14(a, b, {kb: TEN_SAM, ka: INNY}, {}, w)[:2] == ("powiazane", "inny poziom: gdzie i ile")
 
 
 def test_nadwyzka_jednej_strony_pytana_w_obie_strony():
@@ -97,9 +104,12 @@ def test_nadwyzka_jednej_strony_pytana_w_obie_strony():
     # też odpowiedzieć, czy jest samym „żelem”
     a = prof(1, "paznokci|pedicure", [("metoda", "żelem", "nazwa")])
     b = prof(2, "paznokci|pedicure", [("metoda", "żelem", "nazwa"), ("metoda", "frencz", "nazwa")])
-    ka, kb = klucz_dokladnie(1, "metoda", ["żelem", "frencz"]), klucz_dokladnie(2, "metoda", ["żelem"])
-    assert potrzebne_domniemania(a, b) == {ka, kb}
-    assert porownaj_v14(a, b, {ka: TEN_SAM, kb: INNY}, {})[:2] == ("powiazane", "inny poziom: metoda")
+    ka = klucz_dokladnie(1, "metoda", ["żelem", "frencz"])
+    assert potrzebne_domniemania(a, b) == {ka}  # W2: tylko węższa
+    w = Wariant(obie_strony=True)
+    ka, kb = klucz_dokladnie(1, "metoda", ["żelem", "frencz"], w), klucz_dokladnie(2, "metoda", ["żelem"], w)
+    assert potrzebne_domniemania(a, b, w) == {ka, kb}
+    assert porownaj_v14(a, b, {ka: TEN_SAM, kb: INNY}, {}, w)[:2] == ("powiazane", "inny poziom: metoda")
 
 
 def test_rodzina_dlugosci_kontra_cena_zalezna_od_dlugosci():
@@ -150,10 +160,15 @@ def test_frazy_jednej_roli_w_jednym_pytaniu():
     a = prof(1, "włosów|strzyżenie", [("metoda", "nożyczki", "nazwa"), ("metoda", "maszynka", "nazwa")])
     b = prof(2, "włosów|strzyżenie", [])
     k = klucz_dokladnie(2, "metoda", ["nożyczki", "maszynka"])
-    assert k[1] == "„maszynka” + „nożyczki”"
+    assert k[1] == "„maszynka”, „nożyczki”"
     assert potrzebne_domniemania(a, b) == {k}
     pyt = pytanie_dla(k)
-    assert isinstance(pyt, Score) and len(pyt.criteria) == 3 and "„maszynka” + „nożyczki” — wszystko razem" in pyt.instructions
+    assert isinstance(pyt, Score) and len(pyt.criteria) == 3 and "wszystko razem" not in pyt.instructions
+    # komplet „+”: model czytał listę po przecinku jak „którakolwiek”
+    w = Wariant(razem=True)
+    k = klucz_dokladnie(2, "metoda", ["nożyczki", "maszynka"], w)
+    assert k[1] == "„maszynka” + „nożyczki”" and potrzebne_domniemania(a, b, w) == {k}
+    assert "„maszynka” + „nożyczki” — wszystko razem" in pytanie_dla(k).instructions
 
 
 def test_rozne_cechy_po_obu_stronach_to_za_malo_danych():
@@ -281,3 +296,39 @@ def test_poza_zestawem_slowo_zmieniajace_zabieg_zostaje():
     a = prof(1, "włosów|strzyżenie", [("obszar", "brwi", "nazwa")])
     assert porownaj_v14(a, b, {}, {})[:2] == ("powiazane", "inny poziom: skład")
     assert porownaj_v14(a, potwierdz(surowy, {}, {k: False}), {}, {})[:2] == ("tozsame", "zgodne wszystkie poziomy")
+
+
+def test_synonimy_przed_pytaniem_o_opis():
+    # zbiór 5 (28.09): „grzywka” / „grzywki” — pełny kontekst wahał się (0,84–0,92); pytanie o dwie frazy rozstrzyga odmianę
+    a = prof(1, "włosów|strzyżenie", [("obszar", "grzywki", "nazwa")])
+    b = prof(2, "włosów|strzyżenie", [("obszar", "grzywka", "nazwa")])
+    w = Wariant(synonimy=True)
+    k = klucz_relacji("strzyżenie", "obszar", "grzywka", "grzywki")
+    assert potrzebne_synonimy(a, b) == set()  # W2 nie pyta
+    assert potrzebne_synonimy(a, b, w) == {k}
+    assert potrzebne_domniemania(a, b, w, {k: True}) == set()
+    assert porownaj_v14(a, b, {}, {}, w, {k: True})[:2] == ("tozsame", "zgodne wszystkie poziomy")
+    # „nie to samo” (albo brak odpowiedzi) → decyduje jak dotąd pytanie o pełny opis drugiej usługi
+    kb = klucz_dokladnie(2, "obszar", ["grzywki"], w)
+    assert kb in potrzebne_domniemania(a, b, w, {k: False})
+    assert porownaj_v14(a, b, {kb: MOZE, klucz_dokladnie(1, "obszar", ["grzywka"], w): MOZE}, {}, w, {k: False})[0] == "niepelne"
+
+
+def test_zrodlo_fraz_w_pytaniu():
+    # zbiory 3–5 (28.09): lista po przecinku gubi spójnik — nazwa drugiej usługi mówi, czy to komplet, czy alternatywa
+    w = Wariant(synonimy=True, zrodlo=True)
+    a = profil_v14(1, [("obszar", "twarz", "nazwa")], rek13("ciała|depilacja"), DRZEWO, nazwa="Mezoterapia twarz")
+    b = profil_v14(2, [("obszar", "twarzy", "nazwa"), ("obszar", "szyi", "nazwa")], rek13("ciała|depilacja"), DRZEWO,
+                   nazwa="Mezoterapia twarzy + szyi")
+    k = klucz_relacji("depilacja", "obszar", "twarz", "twarzy")
+    klucze = potrzebne_domniemania(a, b, w, {k: True})
+    assert klucze == {(1, "„szyi”, „twarzy” ⟨w nazwie tamtej usługi: „Mezoterapia twarzy + szyi”⟩", "obszar", DOKLADNIE)}
+    pyt = pytanie_dla(next(iter(klucze)))
+    assert "(w nazwie tamtej usługi: „Mezoterapia twarzy + szyi”)" in pyt.instructions and "⟨" not in pyt.instructions
+    # frazy z wariantów: opcje, które druga musi objąć wszystkie
+    c = profil_v14(3, [("obszar", "wąsik", "wariant"), ("obszar", "pachy", "wariant")], rek13("ciała|depilacja"), DRZEWO,
+                   nazwa="Depilacja woskiem")
+    d = profil_v14(4, [("obszar", "wąsika", "nazwa")], rek13("ciała|depilacja"), DRZEWO, nazwa="Depilacja wąsika")
+    k2 = klucz_relacji("depilacja", "obszar", "wąsik", "wąsika")
+    klucze = potrzebne_domniemania(c, d, w, {k2: True})
+    assert any("musi obejmować każdą" in x[1] and x[0] == 4 for x in klucze)

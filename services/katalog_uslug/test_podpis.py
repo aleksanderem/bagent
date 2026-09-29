@@ -1,0 +1,116 @@
+"""Katalog usług — podpis oferty (zbiór rdzeni słów) i porównanie dwóch podpisów (plan 29.09), bez sieci."""
+from __future__ import annotations
+
+from services.katalog_uslug.podpis import (INNA, PODOBNA, TA_SAMA, Klasy, klasy_roznicy, podpis, porownaj,
+                                           roznica_do_pytania)
+
+
+def rek(zabieg: str = "Strzyżenie", cechy: list[tuple[str, str]] | None = None, pozycja: str = "zabieg",
+        nieprzypisane: list[str] | None = None, zrodlo: str = "nazwa", zrodlo_zabiegu: str = "nazwa") -> dict:
+    return {"pozycja": pozycja, "zabieg": {"fraza": zabieg, "zrodlo": zrodlo_zabiegu},
+            "cechy": [{"rola": r, "fraza": f, "zrodlo": zrodlo} for r, f in (cechy or [])],
+            "nieprzypisane": nieprzypisane or []}
+
+
+def werdykt(a: dict, b: dict, klasy: Klasy | None = None) -> str:
+    return porownaj(podpis(a), podpis(b), klasy or Klasy())[0]
+
+
+def test_ta_sama_mimo_innej_odmiany() -> None:
+    assert werdykt(rek(cechy=[("obszar", "brody")]), rek(cechy=[("obszar", "Broda")])) == TA_SAMA
+
+
+def test_przydzial_slow_do_rol_nie_ma_znaczenia() -> None:
+    a = rek(zabieg="Depilacja", cechy=[("metoda", "laserowa"), ("obszar", "Całe ręce")])
+    b = rek(zabieg="Depilacja laserowa", cechy=[("obszar", "Całe ręce")])
+    assert werdykt(a, b) == TA_SAMA
+    c = rek(zabieg="Lifting", cechy=[("obszar", "rzęs"), ("metoda", "z laminacją")])
+    d = rek(zabieg="Lifting", cechy=[("obszar", "rzęs"), ("sklad", "z laminacją")])
+    assert werdykt(c, d) == TA_SAMA
+
+
+def test_inny_zabieg_to_inna() -> None:
+    assert werdykt(rek(), rek(zabieg="Koloryzacja")) == INNA
+
+
+def test_dopisek_po_jednej_stronie_bez_rozstrzygniecia_to_podobna() -> None:
+    a = podpis(rek(zabieg="Uzupełnianie", cechy=[("obszar", "rzęs"), ("metoda", "UV"), ("rozmiar", "4-6d")]))
+    b = podpis(rek(zabieg="Uzupełnianie", cechy=[("obszar", "rzęs"), ("rozmiar", "4-6D")]))
+    assert porownaj(a, b, Klasy()) == (PODOBNA, "rdzen: „uv” tylko po jednej stronie")
+
+
+def test_klasa_nieistotna_daje_ta_sama() -> None:
+    a = podpis(rek(cechy=[("obszar", "brody"), ("rozmiar", "do 15 cm")]))
+    b = podpis(rek(cechy=[("obszar", "brody")]))
+    [(klasa, strona)] = klasy_roznicy(a, b)
+    assert klasa[1:] == ("gdzie_ile", "15 cm do") and strona is a
+    assert porownaj(a, b, Klasy(opisowe={klasa}))[0] == TA_SAMA
+
+
+def test_dopisek_z_kilku_poziomow_wymaga_rozstrzygniecia_kazdego() -> None:
+    a = podpis(rek(zabieg="Oczyszczanie", cechy=[("metoda", "manualne"), ("obszar", "twarzy"), ("metoda", "darsonval")]))
+    b = podpis(rek(zabieg="Oczyszczanie", cechy=[("metoda", "manualne")]))
+    kl = klasy_roznicy(a, b)
+    assert [k[1] for k, _z in kl] == ["rdzen", "gdzie_ile"]
+    tylko_twarz = Klasy(opisowe={k for k, _z in kl if k[1] == "gdzie_ile"})
+    assert porownaj(a, b, tylko_twarz)[0] == PODOBNA  # „darsonval” nierozstrzygnięty
+    assert porownaj(a, b, Klasy(opisowe={k for k, _z in kl}))[0] == TA_SAMA
+
+
+def test_dodatek_w_nazwie_zawsze_podobna_bez_pytania() -> None:
+    a = podpis(rek(zabieg="Tamponada", cechy=[("sklad", "z opatrunkiem")]))
+    b = podpis(rek(zabieg="Tamponada"))
+    kl = klasy_roznicy(a, b)
+    assert porownaj(a, b, Klasy(opisowe={k for k, _z in kl}))[0] == PODOBNA
+    assert roznica_do_pytania(a, b) == []
+
+
+def test_rozne_slowa_po_obu_stronach_to_podobna_bez_pytania() -> None:
+    a, b = podpis(rek(zabieg="Depilacja", cechy=[("obszar", "łydki")])), podpis(rek(zabieg="Depilacja", cechy=[("obszar", "uda")]))
+    assert porownaj(a, b, Klasy())[0] == PODOBNA and roznica_do_pytania(a, b) == []
+
+
+def test_nieprzypisane_slowo_wchodzi_do_zbioru() -> None:
+    a = podpis(rek(cechy=[("obszar", "brody")], nieprzypisane=["UV"]))
+    b = podpis(rek(cechy=[("obszar", "brody")]))
+    assert "uv" in a.zbior
+    assert porownaj(a, b, Klasy()) == (PODOBNA, "inne: „uv” tylko po jednej stronie")
+    c = podpis(rek(cechy=[("obszar", "brody")], nieprzypisane=["UV"]))
+    assert porownaj(a, c, Klasy())[0] == TA_SAMA
+
+
+def test_produkt_nigdy_nie_rowna_sie_zabiegowi() -> None:
+    assert werdykt(rek(zabieg="Maska", pozycja="produkt"), rek(zabieg="Maska")) == PODOBNA
+
+
+def test_specjalista_i_szum_poza_podpisem() -> None:
+    a = rek(cechy=[("obszar", "brody"), ("specjalista", "Paweł")])
+    b = rek(cechy=[("obszar", "brody"), ("specjalista", "master barber")])
+    assert werdykt(a, b) == TA_SAMA
+
+
+def test_kontekst_tylko_gdy_nazwa_nie_mowi() -> None:
+    def z(cechy: list[tuple[str, str, str]]) -> dict:
+        return {"pozycja": "zabieg", "zabieg": {"fraza": "Depilacja", "zrodlo": "kategoria"},
+                "cechy": [{"rola": r, "fraza": f, "zrodlo": zr} for r, f, zr in cechy]}
+    meska = z([("obszar", "Szyja", "nazwa"), ("dla_kogo", "Mężczyzn", "kategoria"), ("metoda", "laserowa", "kategoria")])
+    damska = z([("obszar", "Szyja", "nazwa"), ("metoda", "laserowa", "kategoria")])
+    assert werdykt(meska, damska) == PODOBNA
+    lomi = {"pozycja": "zabieg", "zabieg": {"fraza": "Lomi Lomi", "zrodlo": "nazwa"},
+            "cechy": [{"rola": "metoda", "fraza": "Masaż", "zrodlo": "zabieg_booksy"}]}
+    assert podpis(lomi).zbior == {"lomi"}  # nazwa podaje zabieg → kategoria nie dokłada
+
+
+def test_sklad_z_opisu_poza_podpisem_a_wylaczenie_zostaje() -> None:
+    def dekoloryzacja(z_opisu: tuple[str, str] | None = None) -> dict:
+        r = rek(zabieg="Dekoloryzacja", cechy=[("rozmiar", "długie")])
+        if z_opisu:
+            r["cechy"].append({"rola": z_opisu[0], "fraza": z_opisu[1], "zrodlo": "opis"})
+        return r
+    assert werdykt(dekoloryzacja(("sklad", "strzyżeniem")), dekoloryzacja()) == TA_SAMA
+    assert werdykt(dekoloryzacja(("wylaczenie", "bez strzyżenia")), dekoloryzacja()) == PODOBNA
+
+
+def test_nazwa_bez_tresci_nigdy_ta_sama() -> None:
+    a = rek(zabieg="Combo", cechy=[("poziom", "Premium")])
+    assert werdykt(a, a) == PODOBNA
