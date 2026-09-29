@@ -15,7 +15,7 @@ from typing import Any
 from services.katalog_uslug.normalizacja import normalizuj
 
 POZYCJE = ("zabieg", "pakiet", "zestaw", "dodatek", "produkt", "konsultacja", "voucher", "inne")
-ROLE = ("metoda", "obszar", "rozmiar", "liczba", "dla_kogo", "etap", "sesje", "sklad", "wylaczenie", "poziom",
+ROLE = ("metoda", "obszar", "rozmiar", "liczba", "dla_kogo", "miejsce", "etap", "sesje", "sklad", "wylaczenie", "poziom",
         "specjalista", "inne")
 POLA = ("nazwa", "wariant", "kategoria", "opis", "zabieg_booksy")
 OPIS_ZNAKOW = 300
@@ -126,3 +126,26 @@ def waliduj(oferty: list[Oferta], odp: dict[str, Any]) -> tuple[dict[str, dict[s
                                       for c in r.get("cechy") or [] if str(c.get("fraza") or "") not in obce],
                       "nieprzypisane": brak, "obce": obce}
     return wynik, bledy
+
+PROMPT_KATEGORII = """Rozkładasz NAZWY KATEGORII z cenników salonów (Booksy) — sekcje, w których salon grupuje swoje usługi.
+Dla KAŻDEJ kategorii z listy zwróć jeden rekord (pole „nazwa” to nazwa kategorii).
+
+Zasady:
+1. Frazy KOPIUJESZ dosłownie z nazwy kategorii — te same słowa, formy i końcówki.
+2. zabieg = czynność, jeśli kategoria ją nazywa („Depilacja laserowa”, „Masaże”, „Fale radiowe”); gdy nazwa kategorii
+   to tylko część ciała, grupa klientów albo marketing — zabieg pusty ("").
+3. Role cech: metoda (technika, urządzenie, marka: „laserowa”, „PRIMELASE”, „Soprano”), obszar, dla_kogo („kobiety”,
+   „mężczyzn”, „dla dwojga”, „dzieci”), miejsce (gdzie wykonywana: „mobilne”, „z dojazdem”, „w domu klienta”),
+   poziom (premium, lux…), specjalista (imię lub poziom wykonawcy), inne.
+4. szum = numeracja („15.”), promocje i rabaty („-20%”, „PROMO”), emotki, zachęty.
+
+Odpowiedź — wyłącznie JSON:
+{"oferty": [{"id": "<id>", "nazwa": "<dosłowna nazwa kategorii>", "pozycja": "inne",
+  "zabieg": {"fraza": "...", "zrodlo": "nazwa"}, "cechy": [{"rola": "...", "fraza": "...", "zrodlo": "nazwa"}], "szum": ["..."]}]}
+
+Kategorie:
+"""
+
+
+def prompt_kategorii(kategorie: list[Oferta]) -> str:
+    return PROMPT_KATEGORII + json.dumps([{"id": k.id, "nazwa": k.nazwa} for k in kategorie], ensure_ascii=False, indent=1)

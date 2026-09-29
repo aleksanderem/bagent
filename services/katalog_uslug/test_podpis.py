@@ -111,6 +111,23 @@ def test_sklad_z_opisu_poza_podpisem_a_wylaczenie_zostaje() -> None:
     assert werdykt(dekoloryzacja(("wylaczenie", "bez strzyżenia")), dekoloryzacja()) == PODOBNA
 
 
+def test_kontekst_kategorii_rozlozonej_raz() -> None:
+    def kat(cechy: list[tuple[str, str]], zabieg: str = "") -> dict:
+        return {"zabieg": {"fraza": zabieg, "zrodlo": "nazwa"}, "cechy": [{"rola": r, "fraza": f, "zrodlo": "nazwa"} for r, f in cechy]}
+    kamienie = rek(zabieg="Masaż", cechy=[("metoda", "gorącymi kamieniami")])
+    dla_dwojga = porownaj(podpis(kamienie, kontekst=kat([("dla_kogo", "DLA DWOJGA")], "SPA")), podpis(kamienie), Klasy())
+    assert dla_dwojga[0] == PODOBNA  # „dla kogo” z kategorii, bo nazwa go nie podaje
+    uda = {"pozycja": "zabieg", "zabieg": {"fraza": "Liposukcja ultradźwiękowa", "zrodlo": "zabieg_booksy"},
+           "cechy": [{"rola": "obszar", "fraza": "Uda", "zrodlo": "nazwa"}, {"rola": "obszar", "fraza": "pośladki", "zrodlo": "nazwa"}]}
+    lipo = rek(zabieg="Liposukcja", cechy=[("metoda", "ultradźwiękowa"), ("obszar", "Uda"), ("obszar", "pośladki")])
+    fale = podpis(uda, kontekst=kat([], "Fale radiowe"))
+    assert not any(w.startswith("lipos") for w in fale.zbior) and porownaj(fale, podpis(lipo), Klasy())[0] != TA_SAMA
+    bez_rdzenia_w_kategorii = podpis(uda, kontekst=kat([("dla_kogo", "Kobiety")]))
+    assert any(w.startswith("liposukc") for w in bez_rdzenia_w_kategorii.zbior)  # etykieta Booksy, gdy kategoria nie mówi
+    mobilne = podpis(rek(zabieg="Makijaż", cechy=[("inne", "ślubny")]), kontekst=kat([("miejsce", "mobilne")], "Usługi"))
+    assert porownaj(mobilne, podpis(rek(zabieg="Makijaż", cechy=[("inne", "ślubny")])), Klasy())[0] == PODOBNA
+
+
 def test_nazwa_bez_tresci_nigdy_ta_sama() -> None:
     a = rek(zabieg="Combo", cechy=[("poziom", "Premium")])
     assert werdykt(a, a) == PODOBNA

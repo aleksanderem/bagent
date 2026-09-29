@@ -21,7 +21,7 @@ from services.katalog_uslug.normalizacja import normalizuj, rdzen_slowa
 TA_SAMA, PODOBNA, INNA = "ta_sama", "podobna", "inna"
 POZIOM_ROLI = {"zabieg": "rdzen", "metoda": "rdzen", "obszar": "gdzie_ile", "rozmiar": "gdzie_ile",
                "liczba": "gdzie_ile", "dla_kogo": "gdzie_ile", "etap": "etap", "sesje": "sesje", "sklad": "sklad",
-               "wylaczenie": "wylaczenie", "poziom": "poziom", "inne": "inne"}
+               "wylaczenie": "wylaczenie", "poziom": "poziom", "miejsce": "gdzie_ile", "inne": "inne"}
 OGOLNE = frozenset({"zabieg", "usług", "usluga"})
 WLASNE = frozenset({"nazwa", "wariant"})
 Z_OPISU = frozenset({"wylaczenie", "liczba"})
@@ -62,26 +62,38 @@ def _frazy(rek: dict[str, Any]) -> list[tuple[str, str, str]]:
         [(c.get("rola") or "", c.get("zrodlo") or "nazwa", c.get("fraza") or "") for c in rek.get("cechy") or []]
 
 
-def _wybrane_frazy(rek: dict[str, Any]) -> list[tuple[str, str]]:
-    """(poziom, fraza) wchodzące do podpisu — reguła doboru źródeł z nagłówka modułu."""
+def _wybrane_frazy(rek: dict[str, Any], kontekst: dict[str, Any] | None = None) -> list[tuple[str, str]]:
+    """(poziom, fraza) wchodzące do podpisu — reguła doboru źródeł z nagłówka modułu.
+
+    kontekst: rozkład samej KATEGORII cennika (raz na kategorię salonu, ten sam dla wszystkich jej ofert). Gdy jest,
+    zastępuje frazy z kategorii wyciągnięte przy ofercie (niespójne między przebiegami), a zabieg Booksy liczy się
+    tylko, gdy kategoria nie mówi, co się robi (pomiar 29.09: „Uda + pośladki” w „Fale radiowe” dostało zabieg
+    z etykiety Booksy „Liposukcja ultradźwiękowa”). Z kategorii zawsze wchodzi miejsce („usługi mobilne”)."""
     frazy = [(r, zr, f) for r, zr, f in _frazy(rek) if r in POZIOM_ROLI and f]
+    if kontekst is not None:
+        z_kat = [(r, "kategoria", f) for r, _zr, f in _frazy(kontekst) if r in POZIOM_ROLI and f]
+        booksy = [x for x in frazy if x[1] == "zabieg_booksy"]
+        frazy = [x for x in frazy if x[1] not in ("kategoria", "zabieg_booksy")] + z_kat
+        if not any(POZIOM_ROLI[r] == "rdzen" for r, _zr, _f in z_kat):
+            frazy += booksy
     wlasne_rdzen = any(zr in WLASNE and POZIOM_ROLI[r] == "rdzen" for r, zr, _f in frazy)
     wlasne_dla_kogo = any(zr in WLASNE and r == "dla_kogo" for r, zr, _f in frazy)
     wynik = []
     for r, zr, f in frazy:
         if zr in WLASNE or (zr == "opis" and r in Z_OPISU):
             wynik.append((POZIOM_ROLI[r], f))
-        elif zr != "opis" and ((POZIOM_ROLI[r] == "rdzen" and not wlasne_rdzen) or (r == "dla_kogo" and not wlasne_dla_kogo)):
+        elif zr != "opis" and ((POZIOM_ROLI[r] == "rdzen" and not wlasne_rdzen) or (r == "dla_kogo" and not wlasne_dla_kogo)
+                               or r == "miejsce"):
             wynik.append((POZIOM_ROLI[r], f))
     return wynik
 
 
-def podpis(rek: dict[str, Any], slownik: dict[str, str] | None = None) -> Podpis:
+def podpis(rek: dict[str, Any], slownik: dict[str, str] | None = None, kontekst: dict[str, Any] | None = None) -> Podpis:
     """Słowa nazwy i wariantu, których model nie przypisał (ani do cechy, ani do szumu), wchodzą do zbioru jako „inne”
     — pomiar 29.09: to głównie słowa oczywiste („włosy” w wariancie „Włosy długie”) i pominięte „combo” / „komplet”;
     więcej słów = mniej fałszywych „ta sama”, a blokada gubiła pary."""
     s = slownik or {}
-    poziomy = {(poz, w) for poz, f in _wybrane_frazy(rek) for w in _slowa(f, s)}
+    poziomy = {(poz, w) for poz, f in _wybrane_frazy(rek, kontekst) for w in _slowa(f, s)}
     dopisane = {("inne", w) for w in _slowa(" ".join(rek.get("nieprzypisane") or ()), s)}
     wlasne = {w for r, zr, f in _frazy(rek) if zr in WLASNE and r not in ("specjalista",) for w in _slowa(f, s)}
     poziomy |= dopisane

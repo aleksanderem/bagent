@@ -59,22 +59,35 @@ def main() -> None:
     ap.add_argument("--wariant", default="p12")
     ap.add_argument("--bledy", type=int, default=0)
     ap.add_argument("--klasy", action="store_true", help="użyj rozstrzygnięć klas różnic (klasy_roznic.py)")
+    ap.add_argument("--slownik", action="store_true", help="użyj słownika synonimów (synonimy.py)")
+    ap.add_argument("--kategorie", action="store_true", help="kontekst z rozkładu kategorii (kategorie.py)")
     a = ap.parse_args()
     tp.OUT = tp.OUT.parent / f"w{WERSJA_PROMPTU}" / "wszystkie"
     pary = pary_ocenione()
     oferty = {o.id: o for q in pary for o in (q["oa"], q["ob"])}
     rek, stat = tp.rekordy(a.wariant, tp.oferty_probki(0))  # walidacja wobec WSZYSTKICH ofert paczek (też wariantów)
     print(f"ofert w parach {len(oferty)}, z rekordem {len(rek)}; " + ", ".join(f"{k}: {v}" for k, v in stat.items()))
+    slownik = {}
+    if a.slownik:
+        slownik = json.loads((B / "scripts" / "katalog" / "dane" / "2026-09-29" / f"w{WERSJA_PROMPTU}" / "slownik.json").read_text(encoding="utf-8"))
+        print(f"słownik synonimów: {len(slownik)} scaleń")
+    kon: dict = {}
+    if a.kategorie:
+        kat_mod = importlib.util.spec_from_file_location("kategorie", B / "scripts" / "katalog" / "kategorie.py")
+        km = importlib.util.module_from_spec(kat_mod); kat_mod.loader.exec_module(km)
+        kon = km.kontekst(tp.oferty_probki(0), B / "scripts" / "katalog" / "dane" / "2026-09-29" / f"w{WERSJA_PROMPTU}" / "kategorie.json")
+        print(f"kontekst kategorii dla {sum(v is not None for v in kon.values())} ofert")
     klasy = Klasy()
     if a.klasy:  # rozstrzygnięcia TypeSafe raz na klasę (klasy_roznic.py): nieistotna = „nie zmienia”
-        from services.katalog_uslug.klasy import NIE_ZMIENIA, rozstrzygnij
-        plik = B / "scripts" / "katalog" / "dane" / "2026-09-29" / f"w{WERSJA_PROMPTU}" / "klasy.json"
+        from services.katalog_uslug.klasy import NIE_ZMIENIA, WERSJA_PYTANIA, rozstrzygnij
+        plik = B / "scripts" / "katalog" / "dane" / "2026-09-29" / f"w{WERSJA_PROMPTU}" / f"klasy_p{WERSJA_PYTANIA}.json"
         rozstrz = json.loads(plik.read_text(encoding="utf-8"))
         klasy = Klasy(opisowe={tuple(v["klasa"]) for v in rozstrz.values() if rozstrzygnij(v.get("score")) == NIE_ZMIENIA})
         print(f"klasy nieistotne (TypeSafe „nie zmienia”): {len(set(klasy.opisowe))} z {len(rozstrz)}")
     for q in pary:
         ra, rb = rek.get(q["oa"].id), rek.get(q["ob"].id)
-        q["podpis"], q["powod"] = porownaj(podpis(ra), podpis(rb), klasy) if ra and rb else ("brak", "brak rekordu")
+        q["podpis"], q["powod"] = (porownaj(podpis(ra, slownik, kon.get(q["oa"].id)), podpis(rb, slownik, kon.get(q["ob"].id)), klasy)
+                                    if ra and rb else ("brak", "brak rekordu"))
     for nazwa, zbior in (("wszystkie 7 zbiorów", pary), ("zbiory 3–6 (z v14f)", [q for q in pary if q["zbior"] in V14F])):
         print(f"\n{nazwa}: par {len(zbior)}")
         for wersja, klucz in (("podpis", lambda q: q["podpis"] == TA_SAMA), ("B0 nazwa", lambda q: q["b0"]),

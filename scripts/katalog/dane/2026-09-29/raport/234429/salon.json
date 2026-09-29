@@ -1,0 +1,191 @@
+{
+ "podmiot": {
+  "booksy_id": 234429,
+  "name": "Studio tatuażu i piercingu Poznań VEAN TATTOO",
+  "city": "Poznań",
+  "latitude": 52.4101600056993,
+  "longitude": 16.92651,
+  "last_scraped_at": "2026-09-10T19:13:34.778541+00:00",
+  "deleted_at": null,
+  "typ": "Tatuaż i Piercing",
+  "uslug": 24
+ },
+ "pula_15km": 3480,
+ "konkurenci": [
+  {
+   "booksy_id": 350322,
+   "nazwa": "2609 Tattoo Studio",
+   "km": 0.6,
+   "typ": "Tatuaż i Piercing",
+   "uslug": 5
+  },
+  {
+   "booksy_id": 213314,
+   "nazwa": "IRYNA VIARENICH 🇵🇱SVIATO ACADEMY",
+   "km": 0.61,
+   "typ": "Tatuaż i Piercing",
+   "uslug": 61
+  },
+  {
+   "booksy_id": 358326,
+   "nazwa": "Alwa Tattoo",
+   "km": 0.62,
+   "typ": "Tatuaż i Piercing",
+   "uslug": 22
+  },
+  {
+   "booksy_id": 321567,
+   "nazwa": "NeedleInktoriam",
+   "km": 0.79,
+   "typ": "Tatuaż i Piercing",
+   "uslug": 29
+  },
+  {
+   "booksy_id": 346821,
+   "nazwa": "Alyx Dvorochkin",
+   "km": 0.79,
+   "typ": "Tatuaż i Piercing",
+   "uslug": 5
+  },
+  {
+   "booksy_id": 257373,
+   "nazwa": "Inktoriam Tattoo & Piercing Collective",
+   "km": 0.79,
+   "typ": "Tatuaż i Piercing",
+   "uslug": 37
+  },
+  {
+   "booksy_id": 93074,
+   "nazwa": "Pierce Me Up Now - Piercing Poznań",
+   "km": 0.79,
+   "typ": "Tatuaż i Piercing",
+   "uslug": 62
+  },
+  {
+   "booksy_id": 218888,
+   "nazwa": "Pimp My Holes",
+   "km": 0.85,
+   "typ": "Tatuaż i Piercing",
+   "uslug": 36
+  },
+  {
+   "booksy_id": 241416,
+   "nazwa": "Alinka permanent",
+   "km": 1.07,
+   "typ": "Tatuaż i Piercing",
+   "uslug": 31
+  },
+  {
+   "booksy_id": 109104,
+   "nazwa": "FAME Tattoo",
+   "km": 1.14,
+   "typ": "Tatuaż i Piercing",
+   "uslug": 10
+  },
+  {
+   "booksy_id": 226682,
+   "nazwa": "safe.and.fancy_piercing_POZNAŃ",
+   "km": 1.33,
+   "typ": "Tatuaż i Piercing",
+   "uslug": 55
+  },
+  {
+   "booksy_id": 204751,
+   "nazwa": "Seven Sins TATTOO & Piercing",
+   "km": 1.36,
+   "typ": "Tatuaż i Piercing",
+   "uslug": 44
+  },
+  {
+   "booksy_id": 186908,
+   "nazwa": "Ale_piercerka",
+   "km": 1.44,
+   "typ": "Tatuaż i Piercing",
+   "uslug": 40
+  },
+  {
+   "booksy_id": 270179,
+   "nazwa": "Diana Piercing&Tatuaz",
+   "km": 1.83,
+   "typ": "Tatuaż i Piercing",
+   "uslug": 21
+  },
+  {
+   "booksy_id": 339705,
+   "nazwa": "Inkora",
+   "km": 1.93,
+   "typ": "Tatuaż i Piercing",
+   "uslug": 39
+  },
+  {
+   "booksy_id": 289358,
+   "nazwa": "Ogon Tattoo",
+   "km": 1.94,
+   "typ": "Tatuaż i Piercing",
+   "uslug": 5
+  },
+  {
+   "booksy_id": 345355,
+   "nazwa": "Miss Kitty Piercing",
+   "km": 1.94,
+   "typ": "Tatuaż i Piercing",
+   "uslug": 45
+  },
+  {
+   "booksy_id": 224089,
+   "nazwa": "Poznań Piercing @poznanpiercing poznanpiercing",
+   "km": 1.98,
+   "typ": "Tatuaż i Piercing",
+   "uslug": 36
+  },
+  {
+   "booksy_id": 16738,
+   "nazwa": "Tuż Tusz Tattoo & Piercing Poznań",
+   "km": 2.47,
+   "typ": "Tatuaż i Piercing",
+   "uslug": 38
+  },
+  {
+   "booksy_id": 336057,
+   "nazwa": "Tattoo Mucha Studio - Matt Piercer",
+   "km": 2.49,
+   "typ": "Tatuaż i Piercing",
+   "uslug": 29
+  },
+  {
+   "booksy_id": 351019,
+   "nazwa": "Streaming Tattoo",
+   "km": 3.13,
+   "typ": "Tatuaż i Piercing",
+   "uslug": 7
+  },
+  {
+   "booksy_id": 288993,
+   "nazwa": "dotyk_beauty",
+   "km": 4.0,
+   "typ": "Tatuaż i Piercing",
+   "uslug": 37
+  },
+  {
+   "booksy_id": 288798,
+   "nazwa": "DACHU STUDIO",
+   "km": 4.12,
+   "typ": "Tatuaż i Piercing",
+   "uslug": 8
+  },
+  {
+   "booksy_id": 318388,
+   "nazwa": "Pyotereq Piercing",
+   "km": 5.57,
+   "typ": "Tatuaż i Piercing",
+   "uslug": 32
+  },
+  {
+   "booksy_id": 158082,
+   "nazwa": "Alma Tattoo & Beauty",
+   "km": 6.41,
+   "typ": "Tatuaż i Piercing",
+   "uslug": 27
+  }
+ ]
+}

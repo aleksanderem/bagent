@@ -7682,5 +7682,498 @@
    "1": 0.03,
    "2": 0.9299999999999999
   }
+ },
+ "[\"odcisk usuniec\", \"gdzie_ile\", \"100zl 150zl jeden jedn powyz\"]": {
+  "klasa": [
+   "odcisk usuniec",
+   "gdzie_ile",
+   "100zl 150zl jeden jedn powyz"
+  ],
+  "dopisek": "Jeden odcisk - 100zł powyżej jednego odcisku - 150zł",
+  "zabieg": "Usuwanie odcisków",
+  "druga": "Usuwanie odcisków",
+  "oferta": "6774182",
+  "score": 1.37,
+  "rozklad": {
+   "0": 0.27,
+   "1": 0.08,
+   "2": 0.65
+  }
+ },
+ "[\"odcisk usuniec\", \"gdzie_ile\", \"mnog\"]": {
+  "klasa": [
+   "odcisk usuniec",
+   "gdzie_ile",
+   "mnog"
+  ],
+  "dopisek": "mnogich",
+  "zabieg": "Usuwanie",
+  "druga": "Usuwanie odcisków",
+  "oferta": "6632548",
+  "score": 1.81,
+  "rozklad": {
+   "0": 0.07,
+   "1": 0.05,
+   "2": 0.88
+  }
+ },
+ "[\"lipoliz podbrodek\", \"inne\", \"iniekcyjn\"]": {
+  "klasa": [
+   "lipoliz podbrodek",
+   "inne",
+   "iniekcyjn"
+  ],
+  "dopisek": "iniekcyjn",
+  "zabieg": "Lipoliza",
+  "druga": "Lipoliza podbródka",
+  "oferta": "52298310#0",
+  "score": 0.91,
+  "rozklad": {
+   "0": 0.5,
+   "1": 0.08,
+   "2": 0.42
+  }
+ },
+ "[\"odcisk usuniec\", \"gdzie_ile\", \"1\"]": {
+  "klasa": [
+   "odcisk usuniec",
+   "gdzie_ile",
+   "1"
+  ],
+  "dopisek": "1 odcisk",
+  "zabieg": "Usuwanie odcisków",
+  "druga": "Usuwanie odcisków",
+  "oferta": "6754431",
+  "score": 1.66,
+  "rozklad": {
+   "0": 0.12,
+   "1": 0.1,
+   "2": 0.78
+  }
+ },
+ "[\"odcisk usuniec\", \"gdzie_ile\", \"stop\"]": {
+  "klasa": [
+   "odcisk usuniec",
+   "gdzie_ile",
+   "stop"
+  ],
+  "dopisek": "na stopie",
+  "zabieg": "Usuwanie odcisków",
+  "druga": "Usuwanie odcisków",
+  "oferta": "6694776",
+  "score": 0.7,
+  "rozklad": {
+   "0": 0.63,
+   "1": 0.04,
+   "2": 0.33
+  }
+ },
+ "[\"makijaz permanentn usuniec\", \"rdzen\", \"remover\"]": {
+  "klasa": [
+   "makijaz permanentn usuniec",
+   "rdzen",
+   "remover"
+  ],
+  "dopisek": "permanentnego REMOVER",
+  "zabieg": "Usuwanie makijażu",
+  "druga": "Usunięcie Permanentnego Makijażu",
+  "oferta": "5629902",
+  "score": 0.82,
+  "rozklad": {
+   "0": 0.29,
+   "1": 0.6,
+   "2": 0.11
+  }
+ },
+ "[\"pielegnacj\", \"gdzie_ile\", \"twarz\"]": {
+  "klasa": [
+   "pielegnacj",
+   "gdzie_ile",
+   "twarz"
+  ],
+  "dopisek": "twarz",
+  "zabieg": "Zabieg pielęgnacyjny",
+  "druga": "Zabieg pielęgnacyjny",
+  "oferta": "45654166",
+  "score": 1.38,
+  "rozklad": {
+   "0": 0.25,
+   "1": 0.12,
+   "2": 0.63
+  }
+ },
+ "[\"odcisk usuniec\", \"gdzie_ile\", \"modzel\"]": {
+  "klasa": [
+   "odcisk usuniec",
+   "gdzie_ile",
+   "modzel"
+  ],
+  "dopisek": "odcisków, modzeli",
+  "zabieg": "Usunięcie",
+  "druga": "Usuwanie odcisków",
+  "oferta": "6698438",
+  "score": 0.98,
+  "rozklad": {
+   "0": 0.42,
+   "1": 0.19,
+   "2": 0.39
+  }
+ },
+ "[\"dlug modelowan prostowan\", \"inne\", \"wlos\"]": {
+  "klasa": [
+   "dlug modelowan prostowan",
+   "inne",
+   "wlos"
+  ],
+  "dopisek": "wlos",
+  "zabieg": "Prostowanie",
+  "druga": "Modelowanie lub prostowanie Włosy długie",
+  "oferta": "53994021",
+  "score": 0.34,
+  "rozklad": {
+   "0": 0.77,
+   "1": 0.12,
+   "2": 0.11
+  }
+ },
+ "[\"dlug prostowan wlos\", \"inne\", \"modelowan\"]": {
+  "klasa": [
+   "dlug prostowan wlos",
+   "inne",
+   "modelowan"
+  ],
+  "dopisek": "modelowanie",
+  "zabieg": "Prostowanie",
+  "druga": "Prostowanie  włosy długie.",
+  "oferta": "53994021",
+  "score": 1.03,
+  "rozklad": {
+   "0": 0.34,
+   "1": 0.29,
+   "2": 0.37
+  }
+ },
+ "[\"1 onycholiz opracowan paznokc\", \"gdzie_ile\", \"2\"]": {
+  "klasa": [
+   "1 onycholiz opracowan paznokc",
+   "gdzie_ile",
+   "2"
+  ],
+  "dopisek": "1-2 paznokci",
+  "zabieg": "Zabieg podologiczny",
+  "druga": "Opracowanie onycholizy  1 paznokieć",
+  "oferta": "54986907#0",
+  "score": 1.81,
+  "rozklad": {
+   "0": 0.07,
+   "1": 0.05,
+   "2": 0.88
+  }
+ },
+ "[\"masaz relaksacyjn\", \"gdzie_ile\", \"calosc\"]": {
+  "klasa": [
+   "masaz relaksacyjn",
+   "gdzie_ile",
+   "calosc"
+  ],
+  "dopisek": "calosc",
+  "zabieg": "Masaż",
+  "druga": "Masaż relaksacyjny",
+  "oferta": "53427140",
+  "score": 1.79,
+  "rozklad": {
+   "0": 0.09,
+   "1": 0.02,
+   "2": 0.89
+  }
+ },
+ "[\"dlug strzyzen wlos\", \"rdzen\", \"airtouch\"]": {
+  "klasa": [
+   "dlug strzyzen wlos",
+   "rdzen",
+   "airtouch"
+  ],
+  "dopisek": "AirTouch",
+  "zabieg": "AirTouch",
+  "druga": "Długie włosy Air touch + strzyżenie",
+  "oferta": "55167431",
+  "score": 0.83,
+  "rozklad": {
+   "0": 0.45,
+   "1": 0.27,
+   "2": 0.28
+  }
+ },
+ "[\"dlug strzyzen wlos\", \"gdzie_ile\", \"bardz\"]": {
+  "klasa": [
+   "dlug strzyzen wlos",
+   "gdzie_ile",
+   "bardz"
+  ],
+  "dopisek": "bardzo długie",
+  "zabieg": "AirTouch",
+  "druga": "Długie włosy Air touch + strzyżenie",
+  "oferta": "55167431",
+  "score": 1.63,
+  "rozklad": {
+   "0": 0.16,
+   "1": 0.06,
+   "2": 0.78
+  }
+ },
+ "[\"dwojg masaz\", \"rdzen\", \"relaksacyjn\"]": {
+  "klasa": [
+   "dwojg masaz",
+   "rdzen",
+   "relaksacyjn"
+  ],
+  "dopisek": "Relaksacyjny",
+  "zabieg": "Masaż",
+  "druga": "Masaż dla Par",
+  "oferta": "5714414",
+  "score": 0.28,
+  "rozklad": {
+   "0": 0.79,
+   "1": 0.14,
+   "2": 0.07
+  }
+ },
+ "[\"dwojg masaz\", \"gdzie_ile\", \"cial\"]": {
+  "klasa": [
+   "dwojg masaz",
+   "gdzie_ile",
+   "cial"
+  ],
+  "dopisek": "ciała",
+  "zabieg": "Masaż",
+  "druga": "Masaż dla Par",
+  "oferta": "5720849",
+  "score": 0.82,
+  "rozklad": {
+   "0": 0.51,
+   "1": 0.15,
+   "2": 0.34
+  }
+ },
+ "[\"dwojg masaz\", \"rdzen\", \"antystres\"]": {
+  "klasa": [
+   "dwojg masaz",
+   "rdzen",
+   "antystres"
+  ],
+  "dopisek": "antystresowy",
+  "zabieg": "Masaż",
+  "druga": "Masaż dla Par",
+  "oferta": "5680613",
+  "score": 0.44,
+  "rozklad": {
+   "0": 0.61,
+   "1": 0.35,
+   "2": 0.04
+  }
+ },
+ "[\"dwojg masaz\", \"rdzen\", \"romantyczn\"]": {
+  "klasa": [
+   "dwojg masaz",
+   "rdzen",
+   "romantyczn"
+  ],
+  "dopisek": "Romantyczny",
+  "zabieg": "masaż",
+  "druga": "Masaż dla Par",
+  "oferta": "5942587",
+  "score": 0.63,
+  "rozklad": {
+   "0": 0.41,
+   "1": 0.55,
+   "2": 0.04
+  }
+ },
+ "[\"dwojg masaz\", \"rdzen\", \"zdrowotn\"]": {
+  "klasa": [
+   "dwojg masaz",
+   "rdzen",
+   "zdrowotn"
+  ],
+  "dopisek": "Zdrowotny",
+  "zabieg": "Masaż",
+  "druga": "Masaż dla Par",
+  "oferta": "5721094",
+  "score": 1.26,
+  "rozklad": {
+   "0": 0.13,
+   "1": 0.48,
+   "2": 0.39
+  }
+ },
+ "[\"krwiak podpaznokci usuniec\", \"gdzie_ile\", \"1 paznokc\"]": {
+  "klasa": [
+   "krwiak podpaznokci usuniec",
+   "gdzie_ile",
+   "1 paznokc"
+  ],
+  "dopisek": "1 paznokieć",
+  "zabieg": "Usunięcie Krwiaka Podpaznokciowego",
+  "druga": "Krwiak podpaznokciowy",
+  "oferta": "7336332",
+  "score": 1.23,
+  "rozklad": {
+   "0": 0.36,
+   "1": 0.05,
+   "2": 0.59
+  }
+ },
+ "[\"odcisk usuniec\", \"gdzie_ile\", \"1 modzel zmian\"]": {
+  "klasa": [
+   "odcisk usuniec",
+   "gdzie_ile",
+   "1 modzel zmian"
+  ],
+  "dopisek": "odcisków lub modzeli 1 zmiana",
+  "zabieg": "Usuwanie",
+  "druga": "Usunięcie odcisku",
+  "oferta": "7336312",
+  "score": 1.39,
+  "rozklad": {
+   "0": 0.25,
+   "1": 0.11,
+   "2": 0.64
+  }
+ },
+ "[\"masaz swiec\", \"inne\", \"calosc relaksacyjn\"]": {
+  "klasa": [
+   "masaz swiec",
+   "inne",
+   "calosc relaksacyjn"
+  ],
+  "dopisek": "relaksacyjny-całościowy",
+  "zabieg": "Masaż",
+  "druga": "Masaż świecą",
+  "oferta": "51104252",
+  "score": 1.05,
+  "rozklad": {
+   "0": 0.34,
+   "1": 0.28,
+   "2": 0.38
+  }
+ },
+ "[\"odcisk usuniec\", \"gdzie_ile\", \"kazd kolejn modzel\"]": {
+  "klasa": [
+   "odcisk usuniec",
+   "gdzie_ile",
+   "kazd kolejn modzel"
+  ],
+  "dopisek": "odcisku / modzelu Każdy nastepny",
+  "zabieg": "Usunięcie",
+  "druga": "Usunięcie odcisku",
+  "oferta": "53751003",
+  "score": 1.48,
+  "rozklad": {
+   "0": 0.19,
+   "1": 0.15,
+   "2": 0.66
+  }
+ },
+ "[\"kolejn odcisk usuniec\", \"gdzie_ile\", \"kazd modzel\"]": {
+  "klasa": [
+   "kolejn odcisk usuniec",
+   "gdzie_ile",
+   "kazd modzel"
+  ],
+  "dopisek": "odcisku / modzelu Każdy nastepny",
+  "zabieg": "Usunięcie",
+  "druga": "Usunięcie następnego odcisku",
+  "oferta": "53751003",
+  "score": 1.41,
+  "rozklad": {
+   "0": 0.26,
+   "1": 0.07,
+   "2": 0.67
+  }
+ },
+ "[\"masaz relaksacyjn\", \"gdzie_ile\", \"cale cial\"]": {
+  "klasa": [
+   "masaz relaksacyjn",
+   "gdzie_ile",
+   "cale cial"
+  ],
+  "dopisek": "całego ciała",
+  "zabieg": "Masaż",
+  "druga": "Masaż relaksacyjny",
+  "oferta": "51104250",
+  "score": 0.75,
+  "rozklad": {
+   "0": 0.59,
+   "1": 0.08,
+   "2": 0.33
+  }
+ },
+ "[\"naczynek nos zamykan\", \"rdzen\", \"laser rumien usuniec\"]": {
+  "klasa": [
+   "naczynek nos zamykan",
+   "rdzen",
+   "laser rumien usuniec"
+  ],
+  "dopisek": "Laserowe zamykanie naczynek i usuwanie rumienia",
+  "zabieg": "Laserowe zamykanie naczynek i usuwanie rumienia",
+  "druga": "Zamykanie naczynek nos",
+  "oferta": "6789011",
+  "score": 0.34,
+  "rozklad": {
+   "0": 0.76,
+   "1": 0.15,
+   "2": 0.09
+  }
+ },
+ "[\"chorob kazd kolejn oczyszczen paznokc zmian\", \"gdzie_ile\", \"1 50zl\"]": {
+  "klasa": [
+   "chorob kazd kolejn oczyszczen paznokc zmian",
+   "gdzie_ile",
+   "1 50zl"
+  ],
+  "dopisek": "1 paznokieć Każdy kolejny paznokieć +50zł",
+  "zabieg": "Oczyszczenie",
+  "druga": "Oczyszczenie paznokcia ze zmianą chorobową",
+  "oferta": "6372409#0",
+  "score": 1.15,
+  "rozklad": {
+   "0": 0.38,
+   "1": 0.09,
+   "2": 0.53
+  }
+ },
+ "[\"4 6d uzupelnien\", \"rdzen\", \"rzes uv\"]": {
+  "klasa": [
+   "4 6d uzupelnien",
+   "rdzen",
+   "rzes uv"
+  ],
+  "dopisek": "Uzupełnianie Rzęs UV",
+  "zabieg": "Uzupełnianie Rzęs",
+  "druga": "Uzupełnienie 4-6d",
+  "oferta": "53412484",
+  "score": 1.75,
+  "rozklad": {
+   "0": 0.06,
+   "1": 0.12,
+   "2": 0.82
+  }
+ },
+ "[\"4 6d rzes uv uzupelnien\", \"rdzen\", \"metod syst\"]": {
+  "klasa": [
+   "4 6d rzes uv uzupelnien",
+   "rdzen",
+   "metod syst"
+  ],
+  "dopisek": "metoda 4-6d - UV system",
+  "zabieg": "Uzupełnienie rzęs",
+  "druga": "Uzupełnianie Rzęs UV 4-6d",
+  "oferta": "5846237",
+  "score": 0.88,
+  "rozklad": {
+   "0": 0.51,
+   "1": 0.11,
+   "2": 0.38
+  }
  }
 }

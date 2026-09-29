@@ -17,24 +17,30 @@ OPIS_POZIOMU = {"rdzen": "metoda, technika albo rodzaj zabiegu", "gdzie_ile": "o
                 "wylaczenie": "wyłączenie z usługi", "poziom": "poziom usługi", "inne": "szczegół usługi"}
 
 
-def pytanie_klasy(poziom: str, dopisek: str, zabieg: str, druga: str) -> Score:
-    """dopisek: słowa z oferty w oryginalnym brzmieniu; zabieg: nazwa zabiegu obu ofert; druga: nazwa oferty bez dopisku."""
+WERSJA_PYTANIA = 2  # v2 (29.09): obie oferty wprost, dopisek = tylko słowa różnicy; v1 zakładało „ten sam zabieg”
+
+
+def pytanie_klasy(poziom: str, dopisek: str, oferta: str, druga: str) -> Score:
+    """dopisek: słowa, którymi różnią się oferty (w oryginalnym brzmieniu); oferta: nazwa oferty z dopiskiem;
+    druga: nazwa oferty bez dopisku. v1 pisało „inna oferta tego samego zabiegu” — przesądzało odpowiedź
+    (raport testowy 29.09: „Laserowe usuwanie tatuażu” uznane za tę samą usługę co „Tatuaż”, 0,83)."""
     return Score(
-        instructions=(f"Usługa `usluga` ma dopisek „{dopisek}” ({OPIS_POZIOMU[poziom]}). Inna oferta tego samego zabiegu "
-                      f"(„{zabieg}”) — „{druga}” — tego dopisku nie ma. Czy dopisek zmienia usługę tak, że cen obu ofert "
-                      "nie da się uczciwie porównać? Rozstrzygają nazwa, kategoria, opis, warianty, zabieg wybrany "
-                      "w Booksy i salon `salon`."),
+        instructions=(f"Oferta `usluga` to „{oferta}”. Inna oferta w innym salonie to „{druga}”. Pierwsza ma dodatkowo "
+                      f"słowa „{dopisek}” ({OPIS_POZIOMU[poziom]}), których druga nie ma. Czy przez te słowa to inna "
+                      "usługa albo inny zakres — taki, że cen obu ofert nie da się uczciwie porównać? Rozstrzygają "
+                      "nazwa, kategoria, opis, warianty, zabieg wybrany w Booksy i salon `salon`."),
         criteria=_poziomy(
-            ("nie zmienia: dopisek opisuje zwykłą wersję tego zabiegu albo szczegół, który nie zmienia zakresu ani ceny",
+            ("nie zmienia: te słowa opisują zwykłą wersję tej samej usługi albo szczegół, który nie zmienia zakresu ani ceny",
              ["„do 15 cm” przy strzyżeniu brody", "„1 osoba” przy masażu"]),
-            ("nie wiadomo: z usługi i salonu nie da się tego rozstrzygnąć",
-             ["dopisek to nazwa własna, której znaczenia nic w usłudze nie wyjaśnia"]),
-            ("zmienia: dopisek oznacza inną metodę, inny obszar albo zakres, inną liczbę, inny etap albo dodatkową część usługi",
-             ["„UV” przy uzupełnianiu rzęs", "„+ mycie” przy strzyżeniu", "„łydki” przy depilacji"])))
+            ("nie wiadomo: z ofert i salonu nie da się tego rozstrzygnąć",
+             ["słowo to nazwa własna, której znaczenia nic w ofercie nie wyjaśnia"]),
+            ("zmienia: te słowa oznaczają inną usługę, inną metodę, inny obszar albo zakres, inną liczbę, inny etap "
+             "albo dodatkową część usługi",
+             ["„UV” przy uzupełnianiu rzęs", "„zdjęcie” przy manicure hybrydowym", "„łydki” przy depilacji"])))
 
 
 def rozstrzygnij(score: float | None) -> int:
     return poziom_score(score)
 
 
-__all__ = ["NIE_WIADOMO", "NIE_ZMIENIA", "OPIS_POZIOMU", "ZMIENIA", "pytanie_klasy", "rozstrzygnij"]
+__all__ = ["NIE_WIADOMO", "NIE_ZMIENIA", "OPIS_POZIOMU", "WERSJA_PYTANIA", "ZMIENIA", "pytanie_klasy", "rozstrzygnij"]
