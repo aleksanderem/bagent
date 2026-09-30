@@ -14,6 +14,7 @@
   --zloto: #D4A574;
   --zloto-tekst: #85552A;
   --ta-sama: #1F6B43;
+  --ta-sama-jasna: #86BF9C;
   --ta-sama-tlo: #E6F2EA;
   --podobna: #8A5A00;
   --podobna-tlo: #FBF0D9;
@@ -74,6 +75,8 @@ p { margin: 0; }
 .slowo { font-size: 0.86rem; padding: 3px 9px; border: 1px solid var(--linia); background: var(--tlo); }
 .slowo.wypada { text-decoration: line-through; color: var(--tusz-2); }
 .slowo.dodatek { border-color: var(--zloto); }
+.wiersze-raportu { display: grid; gap: 6px; font-size: 0.94rem; }
+.wiersze-raportu div { background: var(--panel); padding: 8px 12px; }
 
 /* Decyzja */
 .drabina { display: grid; gap: 12px; }
@@ -89,6 +92,15 @@ p { margin: 0; }
 .para { font-size: 0.92rem; color: var(--tusz-2); }
 .para q { color: var(--tusz); quotes: "„" "”"; }
 
+/* Lekcja z testu C */
+.lekcja { display: grid; gap: 12px; }
+.lekcja-krok { display: grid; grid-template-columns: 7.5rem 1fr; gap: 14px; padding: 14px 16px; border: 1px solid var(--linia); align-items: start; }
+.lekcja-krok .liczba-mala { font: 700 1.35rem/1.1 var(--font-naglowek); }
+.lekcja-krok .liczba-mala.slaba { color: var(--inna); }
+.lekcja-krok .liczba-mala.dobra { color: var(--ta-sama); }
+.lekcja-krok div { display: grid; gap: 6px; min-width: 0; }
+@media (max-width: 30rem) { .lekcja-krok { grid-template-columns: 1fr; gap: 6px; } }
+
 /* Liczby */
 .paski { display: grid; gap: 18px; }
 .pasek-wiersz { display: grid; gap: 6px; }
@@ -97,12 +109,13 @@ p { margin: 0; }
 .pasek { display: flex; height: 22px; background: var(--panel); overflow: hidden; }
 .pasek > div { height: 100%; }
 .p-ta-sama { background: var(--ta-sama); }
+.p-ta-sama-malo { background: var(--ta-sama-jasna); }
 .p-podobna { background: var(--zloto); }
 .p-stary { background: var(--szary); }
 .legenda { display: flex; flex-wrap: wrap; gap: 8px 20px; font-size: 0.88rem; color: var(--tusz-2); }
 .legenda i { display: inline-block; width: 12px; height: 12px; margin-right: 6px; vertical-align: -1px; }
 .duze { display: grid; grid-template-columns: repeat(auto-fit, minmax(13rem, 1fr)); gap: 16px; }
-.duza-liczba { border: 1px solid var(--linia); padding: 18px 20px; display: grid; gap: 6px; }
+.duza-liczba { border: 1px solid var(--linia); padding: 18px 20px; display: grid; gap: 6px; align-content: start; }
 .duza-liczba .liczba { font: 700 2.2rem/1 var(--font-naglowek); }
 .duza-liczba .liczba.dobra { color: var(--ta-sama); }
 .duza-liczba .liczba.slaba { color: var(--inna); }
@@ -119,6 +132,7 @@ p { margin: 0; }
 .stan.teraz { color: var(--zloto-tekst); }
 .stan.potem { color: var(--tusz-2); }
 .decyzja { display: inline-block; margin-top: 6px; font: 600 0.8rem/1 var(--font-tekst); color: var(--inna); background: var(--inna-tlo); padding: 5px 8px; }
+.decyzja.podjeta { color: var(--ta-sama); background: var(--ta-sama-tlo); }
 @media (max-width: 30rem) { .dalej li { grid-template-columns: 1fr; gap: 6px; } }
 
 .slowniczek { display: grid; gap: 10px; }
@@ -131,7 +145,7 @@ p { margin: 0; }
 <main class="strona">
 
 <header class="naglowek">
-  <div class="etykieta">BeautyAudit · raport konkurencji · stan na 30.09.2026</div>
+  <div class="etykieta">BeautyAudit · raport konkurencji · stan na 30.09.2026, 15:05</div>
   <h1>Jak program znajduje tę samą usługę u konkurencji</h1>
   <p class="lead">W raporcie przy każdej usłudze salonu stoi cena rynkowa: ile ta sama usługa kosztuje w salonach w promieniu 15 km. Ta strona pokazuje, jak dziś wybieramy te „te same” usługi, co zmieniamy i po co.</p>
 </header>
@@ -152,7 +166,7 @@ p { margin: 0; }
       <ul>
         <li>Program szuka u konkurencji usług, których <b>nazwa brzmi podobnie</b>, i odsiewa część z nich regułami.</li>
         <li>Warianty z różnymi cenami (np. włosy krótkie i długie) są zlepione w jedną usługę.</li>
-        <li>Cenę dostaje ok. 85 na 100 usług, ale tylko mniej więcej <b>1 na 3</b> porównane usługi to naprawdę ta sama usługa.</li>
+        <li>Cenę dostaje 72–85 na 100 usług, ale tylko mniej więcej <b>1 na 3</b> porównane usługi to naprawdę ta sama usługa.</li>
       </ul>
       <div class="przyklad"><b>Przykład błędu:</b> autorski zabieg „Siła jadu węża” za 240 zł dostał cenę rynkową 525 zł z 32 salonów. Żaden z nich nie ma tego zabiegu, więc cena wyszła z cudzych usług.</div>
     </div>
@@ -211,8 +225,13 @@ p { margin: 0; }
     <li class="krok">
       <div class="nr" aria-hidden="true">5</div>
       <div class="krok-tresc">
-        <h3>Liczymy cenę rynkową tak jak dziś</h3>
-        <p>Tylko z ofert „ta sama”, po jednej z każdego salonu. Potrzebne są co najmniej 3 salony. Mediana ceny za minutę razy czas usługi salonu. Gdy salonów z tą samą usługą jest mniej niż 3, raport ma pokazać „ceny podobnych usług”.</p>
+        <h3>Liczymy cenę tylko z ofert „ta sama”, po jednej z każdego salonu</h3>
+        <p>To, co zobaczy salon, zależy od liczby konkurentów z tą samą usługą (Twoja decyzja z 30.09):</p>
+        <div class="wiersze-raportu">
+          <div><b>3 salony i więcej:</b> cena rynkowa jak dziś, czyli mediana ceny za minutę razy czas usługi salonu.</div>
+          <div><b>1–2 salony:</b> „ta sama usługa u 2 konkurentów: 150 zł i 180 zł”, bez mediany rynku.</div>
+          <div><b>Nikt w okolicy:</b> „ceny podobnych usług” albo nic.</div>
+        </div>
         <div class="kto"><b>Kto:</b> program, w samym raporcie bez żadnego pytania do modeli. <b>Koszt:</b> 0 zł.</div>
       </div>
     </li>
@@ -267,13 +286,15 @@ p { margin: 0; }
       <div class="pytanie">
         <span class="nr-maly">Pytanie 5</span>
         <h3>Czy słowo, którym się różnią, zmienia usługę?</h3>
-        <p class="drobne">To jedyne miejsce, gdzie pytamy TypeSafe. Pytanie pada raz na daną różnicę, na przykład „czy UV przy przedłużaniu rzęs zmienia usługę?”, a odpowiedź obowiązuje potem dla wszystkich takich par na rynku.</p>
+        <p class="drobne">To jedyne miejsce, gdzie pytamy TypeSafe. Pytanie pada raz na daną różnicę, na przykład „czy UV przy przedłużaniu rzęs zmienia usługę?”, a odpowiedź obowiązuje potem dla wszystkich takich par na rynku. Dlatego para, na której pytamy, musi być czysta — o tym niżej, w lekcji z testu C.</p>
       </div>
       <div class="odpowiedz">
         <span class="chip podobna">Zmienia: podobna</span>
         <p class="para"><q>Depilacja pastą cukrową uda</q> i <q>Depilacja pastą cukrową nogi</q>. Uda to tylko część nóg.</p>
         <span class="chip ta-sama">Nie zmienia: ta sama</span>
         <p class="para"><q>Przedłużenie rzęs 2:1</q> i <q>Przedłużanie rzęs 2:1</q>. Inaczej zapisane, ta sama usługa.</p>
+        <span class="chip ta-sama">Inna nazwa tego samego: ta sama</span>
+        <p class="para"><q>Hybryda na stopy</q> i <q>Pedicure hybrydowy</q> (Twoja decyzja z 30.09). Podobną zostaje pedicure z dopiskiem innego zakresu: frezowanie, opracowanie podeszwy, „pełny”.</p>
         <span class="chip podobna">Nie wiadomo: podobna</span>
         <p class="para"><q>Depilacja wąsik</q> i <q>Depilacja wąs</q>. Przy wątpliwości wybieramy ostrożnie, bo zła para jest gorsza niż brak porównania.</p>
       </div>
@@ -282,44 +303,78 @@ p { margin: 0; }
   <p class="drobne">Kategoria w cenniku i nazwa salonu też są częścią oferty. „Bikini klasyczne” w salonie laserowym (słowo „Laser” w nazwie salonu) i „Bikini klasyczne” w kategorii „Depilacja woskiem” to różne metody, więc wynik to „podobna”, choć nazwy są identyczne.</p>
 </section>
 
+<section class="sekcja" aria-labelledby="lekcja">
+  <h2 id="lekcja">Lekcja z testu C: program uczył się na mylącym przykładzie</h2>
+  <p>Test C to 18 kolejnych salonów, których program wcześniej nie widział (9 branż, 71 usług). Oceniłem 657 par, nie patrząc, co zdecydował program.</p>
+  <div class="lekcja">
+    <div class="lekcja-krok">
+      <span class="liczba-mala slaba num">92 na 100</span>
+      <div>
+        <h3>Pierwsze liczenie: poniżej progu 95, z dwóch przyczyn</h3>
+        <p><b>Mylące przykłady.</b> Program pytał, czy „strzyżenie maszynką” obok brody zmienia usługę. Jako przykład wziął parę, w której druga oferta to „Combo BuzzCut + Broda”, czyli też strzyżenie, tylko po angielsku. Dla tej pary odpowiedź „nie zmienia” była prawdziwa. Program zapamiętał ją jednak dla całego rynku i uznał „Brodę” za tę samą usługę co „Strzyżenie maszynką + broda”.</p>
+        <p><b>Jedna definicja do rozstrzygnięcia:</b> „Hybryda na stopy” obok „Pedicure hybrydowy”. Program uznawał je za tę samą usługę, ja oceniałem jako podobne.</p>
+      </div>
+    </div>
+    <div class="lekcja-krok">
+      <span class="liczba-mala dobra num">96 na 100</span>
+      <div>
+        <h3>Po Twojej decyzji o pedicure: próg przeszedł</h3>
+        <p>Prawie połowa błędów to było to jedno pytanie o definicję. Uznałeś te usługi za tę samą, więc przeliczyłem tą regułą 21 moich ocen w teście C (i 3 w starszym zbiorze).</p>
+      </div>
+    </div>
+    <div class="lekcja-krok">
+      <span class="liczba-mala dobra num">98 na 100</span>
+      <div>
+        <h3>Po poprawce: tylko czyste przykłady</h3>
+        <p>Przykład do nauki musi być czysty: druga oferta naprawdę nie ma tego słowa w żadnej postaci. Brakujące przykłady program szuka w parach dwóch innych salonów. Koszt przebudowy: 0,03 USD. Wynik 98 na 100 policzyłem na danych, które już raz widziałem, więc to jeszcze nie dowód. Dowodem będzie test D.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
 <section class="sekcja" aria-labelledby="liczby">
   <h2 id="liczby">Gdzie jesteśmy</h2>
-  <p>Sprawdzam wyniki ręcznie, parę po parze. Tak oceniłem już ok. 1900 par z 3 zestawów danych, w tym 2 testy na 18 salonach, których program wcześniej nie widział (A i B poniżej).</p>
+  <p>Sprawdzam wyniki ręcznie, parę po parze. Tak oceniłem już ok. 2550 par z 4 zestawów danych, w tym 3 testy na 18 salonach, których program wcześniej nie widział (A, B i C poniżej).</p>
   <div class="duze">
     <div class="duza-liczba">
-      <span class="liczba dobra num">97 na 100</span>
-      <span class="drobne">par uznanych przez nowy sposób za tę samą usługę to naprawdę ta sama usługa (cel: 95).</span>
+      <span class="liczba dobra num">96 na 100</span>
+      <span class="drobne">par uznanych za tę samą usługę to naprawdę ta sama usługa, liczone pierwszy raz na nowych salonach (test C, cel: 95). Po poprawce: 98 na 100 na danych już raz sprawdzonych.</span>
     </div>
     <div class="duza-liczba">
       <span class="liczba slaba num">ok. 35 na 100</span>
       <span class="drobne">usług konkurencji, z których dziś liczymy cenę rynkową, to naprawdę ta sama usługa.</span>
     </div>
   </div>
-  <div class="paski" role="list" aria-label="Ile wierszy raportu dostaje cenę">
-    <h3>Ile wierszy raportu dostaje cenę</h3>
+  <div class="paski" role="list" aria-label="Ile wierszy raportu dostaje porównanie">
+    <h3>Ile wierszy raportu dostaje porównanie</h3>
     <div class="legenda">
-      <span><i style="background: var(--ta-sama)"></i>cena z tej samej usługi</span>
+      <span><i style="background: var(--ta-sama)"></i>ta sama usługa u 3+ salonów (cena rynkowa)</span>
+      <span><i style="background: var(--ta-sama-jasna)"></i>ta sama usługa u 1–2 konkurentów (ich ceny)</span>
       <span><i style="background: var(--zloto)"></i>tylko „ceny podobnych usług”</span>
       <span><i style="background: var(--szary)"></i>cena dzisiejszym sposobem (z mieszanych usług)</span>
     </div>
     <div class="pasek-wiersz" role="listitem">
-      <div class="pasek-opis"><span>Dziś w raportach</span><span class="num">85% z ceną</span></div>
+      <div class="pasek-opis"><span>Dziś w raportach</span><span class="num">72–85% z ceną</span></div>
       <div class="pasek" aria-hidden="true"><div class="p-stary" style="width: 85%"></div></div>
     </div>
     <div class="pasek-wiersz" role="listitem">
-      <div class="pasek-opis"><span>Nowy sposób, test A (18 salonów, 54 usługi)</span><span class="num">44% ta sama + 26% podobne</span></div>
-      <div class="pasek" aria-hidden="true"><div class="p-ta-sama" style="width: 44%"></div><div class="p-podobna" style="width: 26%"></div></div>
+      <div class="pasek-opis"><span>Nowy sposób, test A (18 salonów, 54 usługi)</span><span class="num">39% + 30% ta sama · 9% podobne</span></div>
+      <div class="pasek" aria-hidden="true"><div class="p-ta-sama" style="width: 39%"></div><div class="p-ta-sama-malo" style="width: 30%"></div><div class="p-podobna" style="width: 9%"></div></div>
     </div>
     <div class="pasek-wiersz" role="listitem">
-      <div class="pasek-opis"><span>Nowy sposób, test B (18 innych salonów, 53 usługi)</span><span class="num">21% ta sama + 26% podobne</span></div>
-      <div class="pasek" aria-hidden="true"><div class="p-ta-sama" style="width: 21%"></div><div class="p-podobna" style="width: 26%"></div></div>
+      <div class="pasek-opis"><span>Nowy sposób, test B (18 innych salonów, 53 usługi)</span><span class="num">19% + 17% ta sama · 25% podobne</span></div>
+      <div class="pasek" aria-hidden="true"><div class="p-ta-sama" style="width: 19%"></div><div class="p-ta-sama-malo" style="width: 17%"></div><div class="p-podobna" style="width: 25%"></div></div>
     </div>
-    <p class="drobne">Tam, gdzie oba sposoby dały cenę, różnią się zwykle o 5–9%. Dzisiejsze 85% wygląda lepiej tylko dlatego, że liczy cenę także z usług, które nie są tą samą usługą.</p>
+    <div class="pasek-wiersz" role="listitem">
+      <div class="pasek-opis"><span>Nowy sposób, test C (18 kolejnych salonów, 71 usług)</span><span class="num">44% + 17% ta sama · 14% podobne</span></div>
+      <div class="pasek" aria-hidden="true"><div class="p-ta-sama" style="width: 44%"></div><div class="p-ta-sama-malo" style="width: 17%"></div><div class="p-podobna" style="width: 14%"></div></div>
+    </div>
+    <p class="drobne">Z Twoją decyzją o 1–2 konkurentach porównanie „ta sama” ma 36–69% wierszy. Tam, gdzie oba sposoby dały cenę rynkową, różnią się zwykle o 5–9%. Dzisiejsze 72–85% wygląda lepiej tylko dlatego, że liczy cenę także z usług, które nie są tą samą usługą.</p>
   </div>
 </section>
 
 <section class="sekcja" aria-labelledby="dlaczego">
-  <h2 id="dlaczego">Dlaczego nie każdy wiersz dostanie cenę „ta sama”</h2>
+  <h2 id="dlaczego">Dlaczego nie każdy wiersz dostanie porównanie „ta sama”</h2>
   <div class="powody">
     <div class="powod">
       <h3>Usługa autorska albo zestaw</h3>
@@ -327,11 +382,11 @@ p { margin: 0; }
     </div>
     <div class="powod">
       <h3>Tę samą usługę ma tylko 1–2 konkurentów</h3>
-      <p>Do mediany potrzebujemy co najmniej 3 salonów. Te wiersze mogłyby pokazać ceny tych 1–2 salonów bez mediany rynku. To decyzja do podjęcia.</p>
+      <p>Rozstrzygnięte 30.09: pokazujemy ceny tych 1–2 salonów jako „ta sama usługa u N konkurentów”, bez mediany rynku. W testach to 17–30% wierszy.</p>
     </div>
     <div class="powod">
       <h3>Program jeszcze nie rozpoznaje wszystkich tych samych par</h3>
-      <p>Dziś znajduje ponad połowę prawdziwych par (55–65 na 100). Tę część poprawiamy teraz: słowa z nazwy nie giną po drodze, słownik łączy więcej form tego samego słowa, a różnice po obu stronach oceniamy osobno.</p>
+      <p>Znajduje ok. 6 na 10 prawdziwych par. Najczęściej gubi pary o identycznej nazwie, którym kontekst (kategoria w cenniku albo zabieg wybrany w Booksy) dokłada słowo tylko po jednej stronie, np. dwa „Uzupełnienie żelowe”, z których przy jednym kontekst dopowiada „dłonie”. To następna poprawka, po teście D.</p>
     </div>
   </div>
 </section>
@@ -339,10 +394,11 @@ p { margin: 0; }
 <section class="sekcja" aria-labelledby="dalej">
   <h2 id="dalej">Co robimy i co dalej</h2>
   <ol class="dalej">
-    <li><span class="stan zrobione">Zrobione</span><div>Nowy sposób działa w testach: 97 na 100 par trafnych na salonach, których program nie widział. Szkolenia, vouchery i produkty są poza porównaniem. Kod i dane są na GitHubie.</div></li>
-    <li><span class="stan teraz">Teraz</span><div>Podnosimy liczbę wierszy z ceną (Twoja decyzja z 30.09: najpierw to, potem wpięcie). Test A: z 35% do 44%. Trwa test na kolejnych 18 salonach (71 usług), który pokaże, czy poprawki działają na świeżych danych.</div></li>
-    <li><span class="stan potem">Następnie</span><div>Jak pokazywać wiersze, w których tę samą usługę ma tylko 1–2 konkurentów.<br><span class="decyzja">Twoja decyzja</span></div></li>
-    <li><span class="stan potem">Potem</span><div>Wpięcie do raportów z przełącznikiem w panelu admina, na start wyłączonym, oraz nowe tabele w bazie na rozebrane oferty.<br><span class="decyzja">Twoja zgoda: zmiana na produkcji</span></div></li>
+    <li><span class="stan zrobione">Zrobione</span><div>Test C na nowych salonach: 96 na 100 par trafnych, próg przeszedł. Znaleziony i poprawiony błąd uczenia na mylącym przykładzie. Szkolenia, vouchery i produkty są poza porównaniem. Kod i dane są na GitHubie.<br><span class="decyzja podjeta">Twoje decyzje z 30.09: pedicure i 1–2 konkurentów</span></div></li>
+    <li><span class="stan teraz">Teraz</span><div>Test D na 18 kolejnych salonach z 18 miast (68 usług): dowód, że poprawka działa na świeżych danych. Rozbiór ofert kończy się ok. 15:50, potem oceniam pary.</div></li>
+    <li><span class="stan teraz">Zaraz potem</span><div>Suchy przebieg na prawdziwym raporcie kliniki medycyny estetycznej z Warszawy (245 usług): ceny nowym sposobem obok tych, które raport pokazał klientce. Tylko odczyt, ok. 4 godziny, 0 zł.</div></li>
+    <li><span class="stan potem">Następnie</span><div>Wpięcie do raportów: nowa tabela w bazie na rozebrane oferty, przełącznik w panelu admina (na start ustawiony na stary sposób) i wiersz „ta sama usługa u 1–2 konkurentów” w raporcie.<br><span class="decyzja">Twoja zgoda: zmiana na produkcji</span></div></li>
+    <li><span class="stan potem">Potem</span><div>Przełączenie raportów na nowy sposób. Pierwsze raporty sprawdzam ręcznie; powrót to jedno kliknięcie przełącznika.<br><span class="decyzja">Twoja zgoda: przełączenie</span></div></li>
     <li><span class="stan potem">Na końcu</span><div>Rozebranie w tle ofert wszystkich salonów w regionach, w których robimy raporty. Wtedy program porówna każdą ofertę w okolicy, a nie tylko 120 najbardziej podobnych. Przed włączeniem policzę koszt i czas.<br><span class="decyzja">Twoja zgoda: automat w tle</span></div></li>
   </ol>
 </section>
@@ -353,6 +409,7 @@ p { margin: 0; }
     <div><dt>Oferta</dt><dd>Usługa z cennika albo jej wariant z własną ceną (np. strzyżenie: włosy krótkie 80 zł i długie 120 zł to dwie oferty).</dd></div>
     <div><dt>Ta sama</dt><dd>Ta sama czynność, metoda, obszar, zakres i etap. Tylko z takich par liczymy cenę rynkową.</dd></div>
     <div><dt>Podobna</dt><dd>Ten sam zabieg, ale inny szczegół albo dodatek. Trafia do wiersza „ceny podobnych usług”.</dd></div>
+    <div><dt>Test (A–D)</dt><dd>18 losowych salonów z różnych miast i 9 branż, których program wcześniej nie widział. Pary oceniam ręcznie, na ślepo, bez podglądu decyzji programu.</dd></div>
     <div><dt>Z.ai</dt><dd>Model językowy w Twoim abonamencie. U nas tylko rozbiera tekst oferty na części.</dd></div>
     <div><dt>TypeSafe</dt><dd>Model do krótkich pytań z odpowiedzią tak/nie. U nas rozstrzyga, czy dana różnica zmienia usługę. Płatny, ale to ułamki grosza za pytanie.</dd></div>
   </dl>
