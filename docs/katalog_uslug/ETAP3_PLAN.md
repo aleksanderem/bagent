@@ -39,6 +39,10 @@ zatrzymanie na pierwszym błędzie limitu, najpierw regiony z raportami. Do tego
 porównań (oferty bez rozbioru).
 
 ## Ryzyka
-- Czas raportu: pobranie ofert konkurentów z bazy + dociągnięcia GLM (limit 75 s jak pomost).
+- Czas raportu (zmierzone 30.09): dziś 6–13 min (raport 279, 245 usług: 13 min). Samo porównanie podpisem
+  32 s dla 71 usług i ~13 tys. par, bez modelu. Wąskie gardło = rozbiór ofert przez Z.ai: ~5 tys. ofert/h przy
+  4 równoległych zapytaniach (test D). Raport 279 potrzebuje ~14 tys. ofert → ~3 h bez wcześniejszego rozbioru,
+  typowy salon (~60 usług, ~4 tys. ofert) ~45 min. Dlatego krok D (rozbiór w tle) PRZED krokiem C; w raporcie
+  tylko dociągnięcie nowych ofert w limicie 75 s jak pomost, reszta w tle.
 - Oferty bez rozbioru w nowych regionach → mniej wierszy z porównaniem do czasu kroku D.
 - Zmiana promptu rozbioru = nowa wersja rekordów (stare zostają, nic się nie miesza).
