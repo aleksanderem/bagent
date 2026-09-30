@@ -122,8 +122,8 @@
  "Salon Kosmetyczny": {
   "podpis": {
    "ta_sama": 77,
-   "trafnosc": 0.56,
-   "trafnych": 43.1,
+   "trafnosc": 0.98,
+   "trafnych": 75.5,
    "odzysk": 1.0
   },
   "v14f": {
@@ -132,13 +132,13 @@
    "trafnych": 0.0,
    "odzysk": 0.0
   },
-  "znane_prawdziwe": 43.1
+  "znane_prawdziwe": 75.5
  },
  "RAZEM": {
   "podpis": {
    "ta_sama": 798,
-   "trafnosc": 0.918,
-   "trafnych": 732.7,
+   "trafnosc": 0.959,
+   "trafnych": 765.0,
    "odzysk": 1.0
   },
   "v14f": {
@@ -147,9 +147,9 @@
    "trafnych": 0.0,
    "odzysk": 0.0
   },
-  "znane_prawdziwe": 732.7,
+  "znane_prawdziwe": 765.0,
   "szac_zgubionych_prawdziwych": 510.4,
-  "szac_odzysk_podpisu": 0.589
+  "szac_odzysk_podpisu": 0.6
  },
  "warianty": {
   "ocenionych": 105,

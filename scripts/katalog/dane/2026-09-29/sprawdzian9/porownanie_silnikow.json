@@ -3,8 +3,9 @@
   "uslug": 8,
   "stary_z_cena": 7,
   "podpis_ta_sama": 3,
-  "tylko_podobne": 2,
-  "bez_ceny": 3,
+  "ta_sama_1_2": 2,
+  "tylko_podobne": 1,
+  "bez_ceny": 2,
   "mediana_roznicy": 0.075,
   "par_z_cena_w_obu": 3
  },
@@ -12,24 +13,27 @@
   "uslug": 7,
   "stary_z_cena": 7,
   "podpis_ta_sama": 6,
+  "ta_sama_1_2": 0,
   "tylko_podobne": 1,
   "bez_ceny": 0,
-  "mediana_roznicy": 0.134,
+  "mediana_roznicy": 0.093,
   "par_z_cena_w_obu": 6
  },
  "Depilacja": {
   "uslug": 8,
   "stary_z_cena": 2,
   "podpis_ta_sama": 2,
-  "tylko_podobne": 3,
-  "bez_ceny": 3,
-  "mediana_roznicy": 0.215,
+  "ta_sama_1_2": 2,
+  "tylko_podobne": 2,
+  "bez_ceny": 2,
+  "mediana_roznicy": 0.199,
   "par_z_cena_w_obu": 2
  },
  "Fryzjer": {
   "uslug": 8,
   "stary_z_cena": 6,
   "podpis_ta_sama": 4,
+  "ta_sama_1_2": 0,
   "tylko_podobne": 2,
   "bez_ceny": 2,
   "mediana_roznicy": 0.027,
@@ -38,16 +42,18 @@
  "Masaż": {
   "uslug": 8,
   "stary_z_cena": 8,
-  "podpis_ta_sama": 5,
+  "podpis_ta_sama": 6,
+  "ta_sama_1_2": 0,
   "tylko_podobne": 1,
-  "bez_ceny": 2,
-  "mediana_roznicy": 0.037,
-  "par_z_cena_w_obu": 5
+  "bez_ceny": 1,
+  "mediana_roznicy": 0.039,
+  "par_z_cena_w_obu": 6
  },
  "Medycyna Estetyczna": {
   "uslug": 8,
   "stary_z_cena": 4,
   "podpis_ta_sama": 3,
+  "ta_sama_1_2": 0,
   "tylko_podobne": 0,
   "bez_ceny": 5,
   "mediana_roznicy": 0.2,
@@ -57,7 +63,8 @@
   "uslug": 8,
   "stary_z_cena": 6,
   "podpis_ta_sama": 4,
-  "tylko_podobne": 2,
+  "ta_sama_1_2": 1,
+  "tylko_podobne": 1,
   "bez_ceny": 2,
   "mediana_roznicy": 0.001,
   "par_z_cena_w_obu": 4
@@ -66,8 +73,9 @@
   "uslug": 8,
   "stary_z_cena": 4,
   "podpis_ta_sama": 1,
-  "tylko_podobne": 1,
-  "bez_ceny": 6,
+  "ta_sama_1_2": 4,
+  "tylko_podobne": 0,
+  "bez_ceny": 3,
   "mediana_roznicy": 0.333,
   "par_z_cena_w_obu": 1
  },
@@ -75,22 +83,24 @@
   "uslug": 8,
   "stary_z_cena": 7,
   "podpis_ta_sama": 2,
-  "tylko_podobne": 4,
-  "bez_ceny": 2,
+  "ta_sama_1_2": 3,
+  "tylko_podobne": 2,
+  "bez_ceny": 1,
   "mediana_roznicy": 0.126,
   "par_z_cena_w_obu": 2
  },
  "RAZEM": {
   "uslug": 71,
   "stary_z_cena": 51,
-  "podpis_ta_sama": 30,
-  "tylko_podobne": 16,
-  "bez_ceny": 25,
-  "mediana_roznicy": 0.075,
-  "par_z_cena_w_obu": 30
+  "podpis_ta_sama": 31,
+  "ta_sama_1_2": 12,
+  "tylko_podobne": 10,
+  "bez_ceny": 18,
+  "mediana_roznicy": 0.074,
+  "par_z_cena_w_obu": 31
  },
  "warianty": {
   "ofert": 15,
-  "z_cena_ta_sama": 4
+  "z_cena_ta_sama": 5
  }
 }

@@ -128,26 +128,29 @@ def _porownaj() -> None:
         oa = s7._pierwsza(int(sid), oferty)
         nw = nowy.get(oa) or {}
         wiersz = {"stary": st.get("market_median_grosze"), "podpis": nw.get("cena"), "podobne": nw.get("podobne_cena"),
-                  "cena_podmiotu": (oferty[oa].cena_zl or 0) * 100}
+                  "salonow": nw.get("salonow") or 0, "cena_podmiotu": (oferty[oa].cena_zl or 0) * 100}
         for br in (branza[int(sid)], "RAZEM"):
             po_br[br]["wiersze"].append(wiersz)
     warianty = [k for k in nowy if k not in {s7._pierwsza(int(s), oferty) for s in stary}]
-    print(f"{'branża':<20} {'usług':>5} {'stary z ceną':>13} {'podpis „ta sama”':>17} {'tylko „podobne”':>16} "
-          f"{'bez ceny':>9} {'mediana różnicy':>16}")
+    print(f"{'branża':<20} {'usług':>5} {'stary z ceną':>13} {'podpis „ta sama”':>17} {'„ta sama” 1–2':>14} "
+          f"{'tylko „podobne”':>16} {'bez ceny':>9} {'mediana różnicy':>16}")
     wynik = {}
     for br in sorted(po_br, key=lambda b: (b == "RAZEM", b)):
         w = po_br[br]["wiersze"]
         n = len(w)
         st_c = sum(x["stary"] is not None for x in w)
         pd_c = sum(x["podpis"] is not None for x in w)
-        tylko_pod = sum(x["podpis"] is None and x["podobne"] is not None for x in w)
-        bez = sum(x["podpis"] is None and x["podobne"] is None for x in w)
+        # decyzja Alexa 30.09: 1–2 salony „ta sama” = wiersz z ich cenami, bez mediany rynku
+        malo = sum(x["podpis"] is None and x["salonow"] > 0 for x in w)
+        tylko_pod = sum(x["podpis"] is None and not x["salonow"] and x["podobne"] is not None for x in w)
+        bez = sum(x["podpis"] is None and not x["salonow"] and x["podobne"] is None for x in w)
         oba = [abs(x["podpis"] - x["stary"]) / x["stary"] for x in w if x["podpis"] and x["stary"]]
         roznica = statistics.median(oba) if oba else None
-        wynik[br] = {"uslug": n, "stary_z_cena": st_c, "podpis_ta_sama": pd_c, "tylko_podobne": tylko_pod,
+        wynik[br] = {"uslug": n, "stary_z_cena": st_c, "podpis_ta_sama": pd_c, "ta_sama_1_2": malo, "tylko_podobne": tylko_pod,
                      "bez_ceny": bez, "mediana_roznicy": round(roznica, 3) if roznica is not None else None,
                      "par_z_cena_w_obu": len(oba)}
-        print(f"{br:<20} {n:>5} {st_c:>8} ({st_c / n:>3.0%}) {pd_c:>11} ({pd_c / n:>3.0%}) {tylko_pod:>10} ({tylko_pod / n:>3.0%}) "
+        print(f"{br:<20} {n:>5} {st_c:>8} ({st_c / n:>3.0%}) {pd_c:>11} ({pd_c / n:>3.0%}) {malo:>8} ({malo / n:>3.0%}) "
+              f"{tylko_pod:>10} ({tylko_pod / n:>3.0%}) "
               f"{bez:>4} ({bez / n:>3.0%}) {('%.0f%%' % (roznica * 100)) if roznica is not None else '—':>10} (n={len(oba)})")
     zw = [nowy[k] for k in warianty]
     wynik["warianty"] = {"ofert": len(zw), "z_cena_ta_sama": sum(x["cena"] is not None for x in zw)}

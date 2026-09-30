@@ -3,8 +3,9 @@
   "uslug": 6,
   "stary_z_cena": 6,
   "podpis_ta_sama": 1,
+  "ta_sama_1_2": 2,
   "tylko_podobne": 1,
-  "bez_ceny": 4,
+  "bez_ceny": 2,
   "mediana_roznicy": 0.0,
   "par_z_cena_w_obu": 1
  },
@@ -12,16 +13,18 @@
   "uslug": 6,
   "stary_z_cena": 4,
   "podpis_ta_sama": 1,
+  "ta_sama_1_2": 1,
   "tylko_podobne": 2,
-  "bez_ceny": 3,
-  "mediana_roznicy": 0.0,
+  "bez_ceny": 2,
+  "mediana_roznicy": 0.051,
   "par_z_cena_w_obu": 1
  },
  "Depilacja": {
   "uslug": 6,
   "stary_z_cena": 5,
   "podpis_ta_sama": 1,
-  "tylko_podobne": 2,
+  "ta_sama_1_2": 1,
+  "tylko_podobne": 1,
   "bez_ceny": 3,
   "mediana_roznicy": 0.739,
   "par_z_cena_w_obu": 1
@@ -30,6 +33,7 @@
   "uslug": 6,
   "stary_z_cena": 5,
   "podpis_ta_sama": 1,
+  "ta_sama_1_2": 0,
   "tylko_podobne": 3,
   "bez_ceny": 2,
   "mediana_roznicy": 0.054,
@@ -39,8 +43,9 @@
   "uslug": 6,
   "stary_z_cena": 6,
   "podpis_ta_sama": 2,
+  "ta_sama_1_2": 2,
   "tylko_podobne": 0,
-  "bez_ceny": 4,
+  "bez_ceny": 2,
   "mediana_roznicy": 0.088,
   "par_z_cena_w_obu": 2
  },
@@ -48,6 +53,7 @@
   "uslug": 6,
   "stary_z_cena": 4,
   "podpis_ta_sama": 0,
+  "ta_sama_1_2": 0,
   "tylko_podobne": 1,
   "bez_ceny": 5,
   "mediana_roznicy": null,
@@ -56,18 +62,20 @@
  "Paznokcie": {
   "uslug": 6,
   "stary_z_cena": 6,
-  "podpis_ta_sama": 3,
+  "podpis_ta_sama": 2,
+  "ta_sama_1_2": 0,
   "tylko_podobne": 3,
-  "bez_ceny": 0,
-  "mediana_roznicy": 0.237,
-  "par_z_cena_w_obu": 3
+  "bez_ceny": 1,
+  "mediana_roznicy": 0.216,
+  "par_z_cena_w_obu": 2
  },
  "Podologia": {
   "uslug": 6,
   "stary_z_cena": 4,
   "podpis_ta_sama": 1,
+  "ta_sama_1_2": 3,
   "tylko_podobne": 2,
-  "bez_ceny": 3,
+  "bez_ceny": 0,
   "mediana_roznicy": 0.1,
   "par_z_cena_w_obu": 1
  },
@@ -75,6 +83,7 @@
   "uslug": 5,
   "stary_z_cena": 5,
   "podpis_ta_sama": 1,
+  "ta_sama_1_2": 0,
   "tylko_podobne": 0,
   "bez_ceny": 4,
   "mediana_roznicy": 0.032,
@@ -83,14 +92,15 @@
  "RAZEM": {
   "uslug": 53,
   "stary_z_cena": 45,
-  "podpis_ta_sama": 11,
-  "tylko_podobne": 14,
-  "bez_ceny": 28,
-  "mediana_roznicy": 0.054,
-  "par_z_cena_w_obu": 11
+  "podpis_ta_sama": 10,
+  "ta_sama_1_2": 9,
+  "tylko_podobne": 13,
+  "bez_ceny": 21,
+  "mediana_roznicy": 0.052,
+  "par_z_cena_w_obu": 10
  },
  "warianty": {
   "ofert": 10,
-  "z_cena_ta_sama": 2
+  "z_cena_ta_sama": 1
  }
 }

@@ -43508,5 +43508,43 @@
    "inne": 1.0,
    "nie_wiadomo": 0.0
   }
+ },
+ "[\"botox farbk lifting rzes\", \"dye stacjonarn\", \"laminacj\"]": {
+  "klasa": [
+   "botox farbk lifting rzes",
+   "dye stacjonarn",
+   "laminacj"
+  ],
+  "a": "Lifting rzęs+farbka+botoks/LashLift+dye+botox",
+  "b": "Lifting, botox, laminacja + farba",
+  "slowa_a": "stacjonarnie",
+  "slowa_b": "Laminacja laminacja",
+  "relacja": "inne",
+  "rozklad": {
+   "wezsze": 0.06,
+   "nie_wiadomo": 0.15,
+   "to_samo": 0.32,
+   "szersze": 0.01,
+   "inne": 0.46
+  }
+ },
+ "[\"bank masaz\", \"chinsk ujedrniajac\", \"miesn ogni\"]": {
+  "klasa": [
+   "bank masaz",
+   "chinsk ujedrniajac",
+   "miesn ogni"
+  ],
+  "a": "Masaż bańką chińską ujędrniający",
+  "b": "Bańka ogniowa - rozluźnienie mięśni z masażem",
+  "slowa_a": "chińską ujędrniający",
+  "slowa_b": "ogniowa",
+  "relacja": "inne",
+  "rozklad": {
+   "nie_wiadomo": 0.06,
+   "wezsze": 0.07,
+   "to_samo": 0.16,
+   "inne": 0.7,
+   "szersze": 0.01
+  }
  }
 }

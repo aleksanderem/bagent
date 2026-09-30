@@ -129,6 +129,14 @@ możemy lepiej/taniej/szybciej … to ja Cię ograniczyłem”.
   **spr9 na zamrożonych regułach 95,9% — bramka ✓** (Barber 84%); po poprawce (zbiory już użyte): spr9 98,3%, spr8
   97,9%, spr7 97,5%, 1042 pary 98,3% / odzysk 54%. Pokrycie wierszy „ta sama” ≥3 salony po poprawce: spr9 44%, spr8
   39%, spr7 19%. Sprawdzian 10 (nowe salony, dowód poprawki) — losowanie i wyciąganie w toku.
+- 30.09 ~14:40: ODRZUCONE v4 — pierwszeństwo przykładu, w którym dopisek widać w nazwie oferty (pamięć
+  `w2/klasy_p4_odrzucone.json`, 0,002 USD): trafność bez zmian (spr9 98,2%, spr8 98,0%), mniej par „ta sama”
+  (spr9 773→717), pokrycie spr8 39→37%. Zmiana samego przykładu odwróciła 18 klas w obie strony („męskie” przy
+  strzyżeniu 0,18→1,04, „całego ciała” przy drenażu 0,31→1,21) — odpowiedź na jednym przykładzie jest szumna;
+  kierunek na później: kilka przykładów na klasę i średnia. Zostaje v3. Pokrycie wierszy wg decyzji Alexa
+  (1–2 salony „ta sama” z cenami): spr9 44%+17% = 61%, spr8 39%+30% = 69%, spr7 19%+17% = 36%; tylko „podobne”
+  14/9/25%, bez porównania 25/22/40% (stary silnik z ceną 72/85/85%, ale ~35% jego próbek to ta sama usługa).
+  Reguły zamrożone na sprawdzian 10: v3 (bagent ef7b403) + decyzja pedicure w ocenach.
 
 **Why:** koszt i jakość v14f utknęły (87–94%, 3/4 par) na ograniczeniach metody, nie na strojeniu.
 **How to apply:** nowa praca nad matchingiem idzie tym planem; v14f zostaje punktem odniesienia w pomiarach.
