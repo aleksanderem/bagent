@@ -18,6 +18,7 @@ from pathlib import Path
 
 B = Path(__file__).resolve().parents[2]
 sys.path[:0] = [str(B), str(B / "scripts")]
+from services.katalog_uslug import klasy as _klasy  # noqa: E402
 from services.katalog_uslug.ekstrakcja import WERSJA_PROMPTU, oferty_z_uslugi  # noqa: E402
 from services.katalog_uslug.normalizacja import normalizuj  # noqa: E402
 from services.katalog_uslug.podpis import TA_SAMA, Klasy, podpis, porownaj  # noqa: E402
@@ -107,7 +108,7 @@ def main() -> None:
         from services.katalog_uslug.klasy import WERSJA_ZAMIANY, zamiana_rownowazna
         pz = plik.parent / f"zamiany_p{WERSJA_ZAMIANY}.json"
         zam = json.loads(pz.read_text(encoding="utf-8")) if pz.exists() else {}
-        klasy = Klasy(opisowe={tuple(v["klasa"]) for v in rozstrz.values() if rozstrzygnij(v.get("score")) == NIE_ZMIENIA},
+        klasy = Klasy(opisowe={tuple(v["klasa"]) for v in rozstrz.values() if _klasy.klasa_nieistotna(v)},
                       rownowazne={tuple(v["klasa"]) for v in zam.values() if zamiana_rownowazna(v)})
         print(f"klasy nieistotne (TypeSafe „nie zmienia”): {len(set(klasy.opisowe))} z {len(rozstrz)}; "
               f"zamiany słów „to samo”: {len(set(klasy.rownowazne))} z {len(zam)}")

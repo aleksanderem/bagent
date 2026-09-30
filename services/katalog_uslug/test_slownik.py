@@ -18,9 +18,15 @@ def test_kandydaci_to_podobna_pisownia_nie_liczby() -> None:
 
 
 def test_negatyw_gdy_salon_sprzedaje_oba_slowa_osobno() -> None:
-    oferty = [("s1", frozenset({"depilacj", "łydk"})), ("s1", frozenset({"depilacj", "ud"})),
-              ("s2", frozenset({"depilacj", "łydk"}))]
+    oferty = [("s1", frozenset({"depilacj", "łydk"}), 150.0), ("s1", frozenset({"depilacj", "ud"}), 250.0),
+              ("s2", frozenset({"depilacj", "łydk"}), 140.0)]
     assert negatywy(oferty) == {frozenset({"łydk", "ud"})}
+
+
+def test_ta_sama_cena_w_jednym_salonie_to_duplikat_nie_negatyw() -> None:
+    oferty = [("s1", frozenset({"paznokc", "przedluzan"}), 190.0), ("s1", frozenset({"paznokc", "przedluzen"}), 190.0),
+              ("s2", frozenset({"depilacj", "łydk"}), None), ("s2", frozenset({"depilacj", "ud"}), 120.0)]
+    assert negatywy(oferty) == {frozenset({"łydk", "ud"})}  # brak ceny = nie wiemy, że to duplikat
 
 
 def test_zbuduj_scala_tylko_to_samo_do_czestszej_formy() -> None:

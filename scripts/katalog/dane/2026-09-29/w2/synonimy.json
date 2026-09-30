@@ -199028,5 +199028,2041 @@
    "Uzupelnienie Zelu",
    "Manicure hybrydowy"
   ]
+ },
+ "angel | snak": {
+  "relacja": "inne",
+  "rozklad": {
+   "szersze": 0.0,
+   "wezsze": 0.0,
+   "inne": 1.0,
+   "to_samo": 0.0
+  },
+  "oferty_a": [
+   "ANGEL FANGS PIERCING",
+   "Przekłuczie Angel Fangs 210 zł +2 Kolczyki",
+   "Angel Fangs (od +15 lat)"
+  ],
+  "oferty_b": [
+   "SNAKE BITES PIERCING",
+   "Przekłuczie Snake Bites 170 zł + 2 Kolczyki",
+   "Snake Bites/podwójne przekłucia ust"
+  ]
+ },
+ "angel | spider": {
+  "relacja": "inne",
+  "rozklad": {
+   "szersze": 0.0,
+   "to_samo": 0.0,
+   "wezsze": 0.0,
+   "inne": 1.0
+  },
+  "oferty_a": [
+   "ANGEL FANGS PIERCING",
+   "Przekłuczie Angel Fangs 210 zł +2 Kolczyki",
+   "Angel Fangs (od +15 lat)"
+  ],
+  "oferty_b": [
+   "WARGA — Snake bites / spider bites / dolphin bites / angel bites / cyber bites",
+   "Bites — Spider Bites",
+   "Spider Bites"
+  ]
+ },
+ "angel | dolphin": {
+  "relacja": "inne",
+  "rozklad": {
+   "to_samo": 0.0,
+   "szersze": 0.0,
+   "wezsze": 0.0,
+   "inne": 1.0
+  },
+  "oferty_a": [
+   "ANGEL FANGS PIERCING",
+   "Przekłuczie Angel Fangs 210 zł +2 Kolczyki",
+   "Angel Fangs (od +15 lat)"
+  ],
+  "oferty_b": [
+   "Przekłuczie Dolphin Bites 170 zł + 2 Kolczyki",
+   "WARGA — Snake bites / spider bites / dolphin bites / angel bites / cyber bites",
+   "Bites — Dolphin Bites"
+  ]
+ },
+ "antitragus | ashl": {
+  "relacja": "inne",
+  "rozklad": {
+   "szersze": 0.0,
+   "to_samo": 0.0,
+   "inne": 1.0,
+   "wezsze": 0.0
+  },
+  "oferty_a": [
+   "ANTITRAGUS PIERCING",
+   "Antitragus",
+   "Tragus / Antitragus (od +15 lat)"
+  ],
+  "oferty_b": [
+   "ASHLEY PIERCING",
+   "Ashley",
+   "Przekłucie wargi — Ashley | 15+ — Aleksandra"
+  ]
+ },
+ "angel | cyber": {
+  "relacja": "inne",
+  "rozklad": {
+   "to_samo": 0.0,
+   "wezsze": 0.0,
+   "szersze": 0.0,
+   "inne": 1.0
+  },
+  "oferty_a": [
+   "ANGEL FANGS PIERCING",
+   "Przekłuczie Angel Fangs 210 zł +2 Kolczyki",
+   "Angel Fangs (od +15 lat)"
+  ],
+  "oferty_b": [
+   "WARGA — Snake bites / spider bites / dolphin bites / angel bites / cyber bites",
+   "Bites — Cyber Bites",
+   "Cyber Bites"
+  ]
+ },
+ "antitragus | conch": {
+  "relacja": "inne",
+  "rozklad": {
+   "szersze": 0.0,
+   "to_samo": 0.0,
+   "wezsze": 0.0,
+   "inne": 1.0
+  },
+  "oferty_a": [
+   "ANTITRAGUS PIERCING",
+   "Antitragus",
+   "Tragus / Antitragus (od +15 lat)"
+  ],
+  "oferty_b": [
+   "Conch",
+   "Helix + Conch",
+   "CONCH PIERCING"
+  ]
+ },
+ "antitragus | medus": {
+  "relacja": "inne",
+  "rozklad": {
+   "szersze": 0.0,
+   "inne": 1.0,
+   "to_samo": 0.0,
+   "wezsze": 0.0
+  },
+  "oferty_a": [
+   "ANTITRAGUS PIERCING",
+   "Antitragus",
+   "Tragus / Antitragus (od +15 lat)"
+  ],
+  "oferty_b": [
+   "Medusa",
+   "MEDUSA PIERCING",
+   "Przekłuczie Medusa 120 zł + Kolczyk"
+  ]
+ },
+ "antitragus | helix": {
+  "relacja": "inne",
+  "rozklad": {
+   "wezsze": 0.0,
+   "szersze": 0.0,
+   "to_samo": 0.0,
+   "inne": 1.0
+  },
+  "oferty_a": [
+   "ANTITRAGUS PIERCING",
+   "Antitragus",
+   "Tragus / Antitragus (od +15 lat)"
+  ],
+  "oferty_b": [
+   "Helix",
+   "Forward helix",
+   "Upper Lobe + Helix"
+  ]
+ },
+ "antitragus | monr": {
+  "relacja": "inne",
+  "rozklad": {
+   "to_samo": 0.0,
+   "szersze": 0.0,
+   "inne": 1.0,
+   "wezsze": 0.0
+  },
+  "oferty_a": [
+   "ANTITRAGUS PIERCING",
+   "Antitragus",
+   "Tragus / Antitragus (od +15 lat)"
+  ],
+  "oferty_b": [
+   "Madonna/Monroe",
+   "MONROE PIERCING",
+   "Przekłuczie Monroe 120 zł + Kolczyk"
+  ]
+ },
+ "antitragus | flat": {
+  "relacja": "inne",
+  "rozklad": {
+   "to_samo": 0.0,
+   "szersze": 0.0,
+   "wezsze": 0.0,
+   "inne": 1.0
+  },
+  "oferty_a": [
+   "ANTITRAGUS PIERCING",
+   "Antitragus",
+   "Tragus / Antitragus (od +15 lat)"
+  ],
+  "oferty_b": [
+   "Flat",
+   "FLAT HELIX PIERCING",
+   "Flat (od +15 lat)"
+  ]
+ },
+ "antitragus | nostril": {
+  "relacja": "inne",
+  "rozklad": {
+   "to_samo": 0.0,
+   "inne": 1.0,
+   "szersze": 0.0,
+   "wezsze": 0.0
+  },
+  "oferty_a": [
+   "ANTITRAGUS PIERCING",
+   "Antitragus",
+   "Tragus / Antitragus (od +15 lat)"
+  ],
+  "oferty_b": [
+   "Nostril",
+   "NOSTRIL PIERCING",
+   "Przekłuczie Nostril 110 zł + Kolczyk"
+  ]
+ },
+ "antitragus | rook": {
+  "relacja": "inne",
+  "rozklad": {
+   "szersze": 0.0,
+   "to_samo": 0.0,
+   "wezsze": 0.0,
+   "inne": 1.0
+  },
+  "oferty_a": [
+   "ANTITRAGUS PIERCING",
+   "Antitragus",
+   "Tragus / Antitragus (od +15 lat)"
+  ],
+  "oferty_b": [
+   "Rook",
+   "ROOK PIERCING",
+   "Przekłuczie Rook 130 zł + Kolczyk"
+  ]
+ },
+ "antitragus | snug": {
+  "relacja": "inne",
+  "rozklad": {
+   "szersze": 0.0,
+   "wezsze": 0.0,
+   "inne": 1.0,
+   "to_samo": 0.0
+  },
+  "oferty_a": [
+   "ANTITRAGUS PIERCING",
+   "Antitragus",
+   "Tragus / Antitragus (od +15 lat)"
+  ],
+  "oferty_b": [
+   "Snug",
+   "SNUG PIERCING",
+   "Snug (od +16 lat)"
+  ]
+ },
+ "antitragus | smil": {
+  "relacja": "inne",
+  "rozklad": {
+   "wezsze": 0.0,
+   "to_samo": 0.0,
+   "szersze": 0.0,
+   "inne": 1.0
+  },
+  "oferty_a": [
+   "ANTITRAGUS PIERCING",
+   "Antitragus",
+   "Tragus / Antitragus (od +15 lat)"
+  ],
+  "oferty_b": [
+   "Redukcja uśmiechu dziąsłowego „gummy smile”",
+   "Likwidacja uśmiechu dziąsłowego \"gummy smile\"",
+   "Smile"
+  ]
+ },
+ "ashl | daith": {
+  "relacja": "inne",
+  "rozklad": {
+   "wezsze": 0.0,
+   "to_samo": 0.0,
+   "szersze": 0.0,
+   "inne": 1.0
+  },
+  "oferty_a": [
+   "ASHLEY PIERCING",
+   "Ashley",
+   "Przekłucie wargi — Ashley | 15+ — Aleksandra"
+  ],
+  "oferty_b": [
+   "Daith",
+   "DAITH PIERCING",
+   "Daith (od +15 lat)"
+  ]
+ },
+ "antitragus | tragus": {
+  "relacja": "inne",
+  "rozklad": {
+   "szersze": 0.0,
+   "wezsze": 0.01,
+   "inne": 0.98,
+   "to_samo": 0.01
+  },
+  "oferty_a": [
+   "ANTITRAGUS PIERCING",
+   "Antitragus",
+   "Tragus / Antitragus (od +15 lat)"
+  ],
+  "oferty_b": [
+   "Tragus",
+   "Anti Tragus",
+   "TRAGUS PIERCING"
+  ]
+ },
+ "ashl | flat": {
+  "relacja": "inne",
+  "rozklad": {
+   "inne": 1.0,
+   "wezsze": 0.0,
+   "to_samo": 0.0,
+   "szersze": 0.0
+  },
+  "oferty_a": [
+   "ASHLEY PIERCING",
+   "Ashley",
+   "Przekłucie wargi — Ashley | 15+ — Aleksandra"
+  ],
+  "oferty_b": [
+   "Flat",
+   "FLAT HELIX PIERCING",
+   "Flat (od +15 lat)"
+  ]
+ },
+ "ashl | frown": {
+  "relacja": "inne",
+  "rozklad": {
+   "to_samo": 0.0,
+   "szersze": 0.0,
+   "wezsze": 0.0,
+   "inne": 1.0
+  },
+  "oferty_a": [
+   "ASHLEY PIERCING",
+   "Ashley",
+   "Przekłucie wargi — Ashley | 15+ — Aleksandra"
+  ],
+  "oferty_b": [
+   "Frowney"
+  ]
+ },
+ "ashl | helix": {
+  "relacja": "inne",
+  "rozklad": {
+   "inne": 1.0,
+   "to_samo": 0.0,
+   "szersze": 0.0,
+   "wezsze": 0.0
+  },
+  "oferty_a": [
+   "ASHLEY PIERCING",
+   "Ashley",
+   "Przekłucie wargi — Ashley | 15+ — Aleksandra"
+  ],
+  "oferty_b": [
+   "Helix",
+   "Forward helix",
+   "Upper Lobe + Helix"
+  ]
+ },
+ "ashl | medus": {
+  "relacja": "inne",
+  "rozklad": {
+   "wezsze": 0.0,
+   "to_samo": 0.01,
+   "inne": 0.99,
+   "szersze": 0.0
+  },
+  "oferty_a": [
+   "ASHLEY PIERCING",
+   "Ashley",
+   "Przekłucie wargi — Ashley | 15+ — Aleksandra"
+  ],
+  "oferty_b": [
+   "Medusa",
+   "MEDUSA PIERCING",
+   "Przekłuczie Medusa 120 zł + Kolczyk"
+  ]
+ },
+ "ashl | monr": {
+  "relacja": "inne",
+  "rozklad": {
+   "szersze": 0.0,
+   "wezsze": 0.0,
+   "to_samo": 0.01,
+   "inne": 0.99
+  },
+  "oferty_a": [
+   "ASHLEY PIERCING",
+   "Ashley",
+   "Przekłucie wargi — Ashley | 15+ — Aleksandra"
+  ],
+  "oferty_b": [
+   "Madonna/Monroe",
+   "MONROE PIERCING",
+   "Przekłuczie Monroe 120 zł + Kolczyk"
+  ]
+ },
+ "ashl | rook": {
+  "relacja": "inne",
+  "rozklad": {
+   "wezsze": 0.0,
+   "to_samo": 0.0,
+   "szersze": 0.0,
+   "inne": 1.0
+  },
+  "oferty_a": [
+   "ASHLEY PIERCING",
+   "Ashley",
+   "Przekłucie wargi — Ashley | 15+ — Aleksandra"
+  ],
+  "oferty_b": [
+   "Rook",
+   "ROOK PIERCING",
+   "Przekłuczie Rook 130 zł + Kolczyk"
+  ]
+ },
+ "ashl | nostril": {
+  "relacja": "inne",
+  "rozklad": {
+   "to_samo": 0.0,
+   "wezsze": 0.0,
+   "inne": 1.0,
+   "szersze": 0.0
+  },
+  "oferty_a": [
+   "ASHLEY PIERCING",
+   "Ashley",
+   "Przekłucie wargi — Ashley | 15+ — Aleksandra"
+  ],
+  "oferty_b": [
+   "Nostril",
+   "NOSTRIL PIERCING",
+   "Przekłuczie Nostril 110 zł + Kolczyk"
+  ]
+ },
+ "ashl | smil": {
+  "relacja": "inne",
+  "rozklad": {
+   "szersze": 0.0,
+   "inne": 0.99,
+   "wezsze": 0.01,
+   "to_samo": 0.0
+  },
+  "oferty_a": [
+   "ASHLEY PIERCING",
+   "Ashley",
+   "Przekłucie wargi — Ashley | 15+ — Aleksandra"
+  ],
+  "oferty_b": [
+   "Redukcja uśmiechu dziąsłowego „gummy smile”",
+   "Likwidacja uśmiechu dziąsłowego \"gummy smile\"",
+   "Smile"
+  ]
+ },
+ "babyboomer | french": {
+  "relacja": "wezsze",
+  "rozklad": {
+   "inne": 0.07,
+   "to_samo": 0.01,
+   "szersze": 0.0,
+   "wezsze": 0.92
+  },
+  "oferty_a": [
+   "Przedłużenie paznokci żelem + french/babyboomer",
+   "Przedłużanie paznokci + french , Babyboomer",
+   "Przedłużanie paznokci + french/babyboomer"
+  ],
+  "oferty_b": [
+   "Przedłużanie paznokci żelem + french",
+   "Przedłużenie paznokci żelem + french/babyboomer",
+   "Pedicure 𝕊ℙ𝔸 z hybrydą — Pedicure SPA z hybrydą  /malowaniem french"
+  ]
+ },
+ "baki | kolan": {
+  "relacja": "inne",
+  "rozklad": {
+   "szersze": 0.01,
+   "to_samo": 0.01,
+   "inne": 0.98,
+   "wezsze": 0.0
+  },
+  "oferty_a": [
+   "Depilacja laserowa — Baki",
+   "Baki SHR + depilacja woskiem po zabiegu — Baki SHR + depilacja woskiem po zabiegu",
+   "Depilacja Laserowa /rozmiar S/ — baki"
+  ],
+  "oferty_b": [
+   "Depilacja pastą cukrową nóg — Nogi do kolan",
+   "Pachy + łydki z kolanami + bikini głębokie",
+   "Depilacja pasta cukrowa — Nogi do kolan(długość 5/7mm)"
+  ]
+ },
+ "baki | uszy": {
+  "relacja": "inne",
+  "rozklad": {
+   "inne": 0.95,
+   "wezsze": 0.01,
+   "to_samo": 0.02,
+   "szersze": 0.02
+  },
+  "oferty_a": [
+   "Depilacja laserowa — Baki",
+   "Baki SHR + depilacja woskiem po zabiegu — Baki SHR + depilacja woskiem po zabiegu",
+   "Depilacja Laserowa /rozmiar S/ — baki"
+  ],
+  "oferty_b": [
+   "Strzyżenie combo + wosk ( uszy, nos)",
+   "Combo Zwykłe + Wosk Nos I Uszy",
+   "Woskowanie(uszy+nos)"
+  ]
+ },
+ "bites | fangs": {
+  "relacja": "inne",
+  "rozklad": {
+   "wezsze": 0.01,
+   "inne": 0.95,
+   "szersze": 0.01,
+   "to_samo": 0.03
+  },
+  "oferty_a": [
+   "SNAKE BITES PIERCING",
+   "Przekłuczie Snake Bites 170 zł + 2 Kolczyki",
+   "Przekłuczie Dolphin Bites 170 zł + 2 Kolczyki"
+  ],
+  "oferty_b": [
+   "ANGEL FANGS PIERCING",
+   "Przekłuczie Angel Fangs 210 zł +2 Kolczyki",
+   "Angel Fangs (od +15 lat)"
+  ]
+ },
+ "bikin | rami": {
+  "relacja": "inne",
+  "rozklad": {
+   "inne": 1.0,
+   "to_samo": 0.0,
+   "szersze": 0.0,
+   "wezsze": 0.0
+  },
+  "oferty_a": [
+   "Depilacja bikini+pachy",
+   "Bikini brazylijskie + Łydki lub Uda + Palce",
+   "Bikini głębokie + pachy"
+  ],
+  "oferty_b": [
+   "Napis na długość do 20 cm ( przed ramie lub plecy) — Napis ok 4 cm szerokość i 20 cm długi ( czcionka mocna szeroka wyrazista, caligraficzna z dużą ilością zawijasów i ozdobników)",
+   "Depilacja laserowa - ramię"
+  ]
+ },
+ "biust | brzuch": {
+  "relacja": "inne",
+  "rozklad": {
+   "szersze": 0.0,
+   "to_samo": 0.0,
+   "wezsze": 0.0,
+   "inne": 1.0
+  },
+  "oferty_a": [
+   "Mezoterapia Mikroigłowa DERMAPEN Dr Pen — Biust",
+   "Masaż BAŃKAMI - drenaż, detoks, wyszczuplanie... — CAŁE CIAŁO: brzuszek, uda przód, uda tył, całe plecy, pośladki i ramiona + ujędrnienie biustu/ pośladków w prezencie",
+   "RF mikroigłowy CIAŁO — BIUST"
+  ],
+  "oferty_b": [
+   "Depilacja pastą cukrową klatka z brzuchem",
+   "Depilacja pastą cukrową Smuga na brzuchu",
+   "Depilacja Tors + brzuch Pastą Cukrową"
+  ]
+ },
+ "biust | posladk": {
+  "relacja": "inne",
+  "rozklad": {
+   "szersze": 0.0,
+   "wezsze": 0.0,
+   "inne": 1.0,
+   "to_samo": 0.0
+  },
+  "oferty_a": [
+   "Mezoterapia Mikroigłowa DERMAPEN Dr Pen — Biust",
+   "Masaż BAŃKAMI - drenaż, detoks, wyszczuplanie... — CAŁE CIAŁO: brzuszek, uda przód, uda tył, całe plecy, pośladki i ramiona + ujędrnienie biustu/ pośladków w prezencie",
+   "RF mikroigłowy CIAŁO — BIUST"
+  ],
+  "oferty_b": [
+   "Pośladki damskie",
+   "Bikini + pachy + nogi + szpara + pośladki + twarz",
+   "Depilacja laserowa - Pośladki"
+  ]
+ },
+ "biust | szyj": {
+  "relacja": "inne",
+  "rozklad": {
+   "wezsze": 0.0,
+   "inne": 1.0,
+   "to_samo": 0.0,
+   "szersze": 0.0
+  },
+  "oferty_a": [
+   "Mezoterapia Mikroigłowa DERMAPEN Dr Pen — Biust",
+   "Masaż BAŃKAMI - drenaż, detoks, wyszczuplanie... — CAŁE CIAŁO: brzuszek, uda przód, uda tył, całe plecy, pośladki i ramiona + ujędrnienie biustu/ pośladków w prezencie",
+   "RF mikroigłowy CIAŁO — BIUST"
+  ],
+  "oferty_b": [
+   "Szyja",
+   "Mezoterapia (twarz + szyja)",
+   "PMP — Twarz,  szyja,  dekolt"
+  ]
+ },
+ "brew | medus": {
+  "relacja": "inne",
+  "rozklad": {
+   "to_samo": 0.01,
+   "inne": 0.99,
+   "szersze": 0.0,
+   "wezsze": 0.0
+  },
+  "oferty_a": [
+   "Brew",
+   "Brew (od +15lat) — • Pojedyncze przekłucie.",
+   "Brew (od +15lat) — • Podwójne przekłucie."
+  ],
+  "oferty_b": [
+   "Medusa",
+   "MEDUSA PIERCING",
+   "Przekłuczie Medusa 120 zł + Kolczyk"
+  ]
+ },
+ "bridg | ragnar": {
+  "relacja": "inne",
+  "rozklad": {
+   "szersze": 0.0,
+   "to_samo": 0.0,
+   "wezsze": 0.0,
+   "inne": 1.0
+  },
+  "oferty_a": [
+   "Bridge",
+   "BRIDGE PIERCING",
+   "Przekłuczie Bridge 130 zł + Kolczyk"
+  ],
+  "oferty_b": [
+   "Ragnar"
+  ]
+ },
+ "brew | warg": {
+  "relacja": "inne",
+  "rozklad": {
+   "to_samo": 0.0,
+   "szersze": 0.0,
+   "wezsze": 0.0,
+   "inne": 1.0
+  },
+  "oferty_a": [
+   "Brew",
+   "Brew (od +15lat) — • Pojedyncze przekłucie.",
+   "Brew (od +15lat) — • Podwójne przekłucie."
+  ],
+  "oferty_b": [
+   "Lip flip- powiększenie czerwieni wargowej",
+   "Lip Flip - unoszenie górnej wargi",
+   "Lip flip- wywinięcie wargi górnej"
+  ]
+ },
+ "brwi | kamuflaz": {
+  "relacja": "inne",
+  "rozklad": {
+   "inne": 0.85,
+   "to_samo": 0.0,
+   "szersze": 0.08,
+   "wezsze": 0.07
+  },
+  "oferty_a": [
+   "Regulacja brwi męska",
+   "Laminacja brwi z regulacją + henna(farbka) + botox",
+   "Wosk Brwi"
+  ],
+  "oferty_b": [
+   "KOREKTA.Kamuflaż"
+  ]
+ },
+ "bridg | tong": {
+  "relacja": "inne",
+  "rozklad": {
+   "szersze": 0.0,
+   "wezsze": 0.0,
+   "inne": 1.0,
+   "to_samo": 0.0
+  },
+  "oferty_a": [
+   "Bridge",
+   "BRIDGE PIERCING",
+   "Przekłuczie Bridge 130 zł + Kolczyk"
+  ],
+  "oferty_b": [
+   "Standard Tongue",
+   "TONGUE PIERCING",
+   "Standart Tongue"
+  ]
+ },
+ "brwi | powiek": {
+  "relacja": "inne",
+  "rozklad": {
+   "to_samo": 0.0,
+   "szersze": 0.0,
+   "wezsze": 0.0,
+   "inne": 1.0
+  },
+  "oferty_a": [
+   "Regulacja brwi męska",
+   "Laminacja brwi z regulacją + henna(farbka) + botox",
+   "Wosk Brwi"
+  ],
+  "oferty_b": [
+   "Laser frakcyjny ablacyjny CO2 — Okolice oka (powieki górna + dolna)",
+   "Lifting powiek plasmą — Powieki górne",
+   "Lifting powiek plasmą — Powieki górne + dolne"
+  ]
+ },
+ "brzuch | rami": {
+  "relacja": "inne",
+  "rozklad": {
+   "wezsze": 0.0,
+   "to_samo": 0.0,
+   "szersze": 0.0,
+   "inne": 1.0
+  },
+  "oferty_a": [
+   "Depilacja pastą cukrową klatka z brzuchem",
+   "Depilacja pastą cukrową Smuga na brzuchu",
+   "Depilacja Tors + brzuch Pastą Cukrową"
+  ],
+  "oferty_b": [
+   "Napis na długość do 20 cm ( przed ramie lub plecy) — Napis ok 4 cm szerokość i 20 cm długi ( czcionka mocna szeroka wyrazista, caligraficzna z dużą ilością zawijasów i ozdobników)",
+   "Depilacja laserowa - ramię"
+  ]
+ },
+ "canin | shark": {
+  "relacja": "inne",
+  "rozklad": {
+   "szersze": 0.02,
+   "to_samo": 0.3,
+   "wezsze": 0.05,
+   "inne": 0.63
+  },
+  "oferty_a": [
+   "Canine Bites"
+  ],
+  "oferty_b": [
+   "Przekłuczie Shark Bites 280 zł + 4 Kolczyki",
+   "Shark Bites",
+   "Shark bites 280 zł + 4 Kolczyki"
+  ]
+ },
+ "chlopc | dziewczynk": {
+  "relacja": "inne",
+  "rozklad": {
+   "szersze": 0.0,
+   "wezsze": 0.0,
+   "to_samo": 0.01,
+   "inne": 0.99
+  },
+  "oferty_a": [
+   "Strzyżenie Chłopców ( 4-12 lat )",
+   "Strzyżenie dzieci - chłopcy 1,5 roku 15 lat",
+   "Strzyżenie chlopca 0-3"
+  ],
+  "oferty_b": [
+   "Strzyżenie dziewczynka pierwsze lub do 2 lat",
+   "Strzyżenie dzieci - dziewczynki ( 1,5 - 4 roku )",
+   "Strzyżenie dziewczynki 0-3"
+  ]
+ },
+ "cial | posladk": {
+  "relacja": "szersze",
+  "rozklad": {
+   "inne": 0.21,
+   "to_samo": 0.0,
+   "wezsze": 0.0,
+   "szersze": 0.79
+  },
+  "oferty_a": [
+   "Masaż relaksacyjny całego ciała",
+   "Masaż bańką chińską — Masaż wybranej partii ciała",
+   "Lipoliza iniekcyjna CIAŁO — Talia / Boczki"
+  ],
+  "oferty_b": [
+   "Pośladki damskie",
+   "Bikini + pachy + nogi + szpara + pośladki + twarz",
+   "Depilacja laserowa - Pośladki"
+  ]
+ },
+ "cial | dekolt": {
+  "relacja": "szersze",
+  "rozklad": {
+   "inne": 0.28,
+   "to_samo": 0.0,
+   "szersze": 0.72,
+   "wezsze": 0.0
+  },
+  "oferty_a": [
+   "Masaż relaksacyjny całego ciała",
+   "Masaż bańką chińską — Masaż wybranej partii ciała",
+   "Lipoliza iniekcyjna CIAŁO — Talia / Boczki"
+  ],
+  "oferty_b": [
+   "PMP — Twarz,  szyja,  dekolt",
+   "Mezoterapia igłowa pakiet twarz+szyja+dekolt — Seria 6 zabiegów -20%",
+   "Mezoterapia igłowa pakiet twarz+szyja+dekolt — Seria 4 zabiegów -10%"
+  ]
+ },
+ "cyber | dolphin": {
+  "relacja": "inne",
+  "rozklad": {
+   "to_samo": 0.0,
+   "inne": 1.0,
+   "szersze": 0.0,
+   "wezsze": 0.0
+  },
+  "oferty_a": [
+   "WARGA — Snake bites / spider bites / dolphin bites / angel bites / cyber bites",
+   "Bites — Cyber Bites",
+   "Cyber Bites"
+  ],
+  "oferty_b": [
+   "Przekłuczie Dolphin Bites 170 zł + 2 Kolczyki",
+   "WARGA — Snake bites / spider bites / dolphin bites / angel bites / cyber bites",
+   "Bites — Dolphin Bites"
+  ]
+ },
+ "cial | szyj": {
+  "relacja": "szersze",
+  "rozklad": {
+   "wezsze": 0.0,
+   "to_samo": 0.0,
+   "szersze": 0.63,
+   "inne": 0.37
+  },
+  "oferty_a": [
+   "Masaż relaksacyjny całego ciała",
+   "Masaż bańką chińską — Masaż wybranej partii ciała",
+   "Lipoliza iniekcyjna CIAŁO — Talia / Boczki"
+  ],
+  "oferty_b": [
+   "Szyja",
+   "Mezoterapia (twarz + szyja)",
+   "PMP — Twarz,  szyja,  dekolt"
+  ]
+ },
+ "cyber | snak": {
+  "relacja": "inne",
+  "rozklad": {
+   "szersze": 0.06,
+   "wezsze": 0.05,
+   "inne": 0.87,
+   "to_samo": 0.02
+  },
+  "oferty_a": [
+   "WARGA — Snake bites / spider bites / dolphin bites / angel bites / cyber bites",
+   "Bites — Cyber Bites",
+   "Cyber Bites"
+  ],
+  "oferty_b": [
+   "SNAKE BITES PIERCING",
+   "Przekłuczie Snake Bites 170 zł + 2 Kolczyki",
+   "Snake Bites/podwójne przekłucia ust"
+  ]
+ },
+ "cyber | spider": {
+  "relacja": "inne",
+  "rozklad": {
+   "szersze": 0.01,
+   "to_samo": 0.0,
+   "wezsze": 0.0,
+   "inne": 0.99
+  },
+  "oferty_a": [
+   "WARGA — Snake bites / spider bites / dolphin bites / angel bites / cyber bites",
+   "Bites — Cyber Bites",
+   "Cyber Bites"
+  ],
+  "oferty_b": [
+   "WARGA — Snake bites / spider bites / dolphin bites / angel bites / cyber bites",
+   "Bites — Spider Bites",
+   "Spider Bites"
+  ]
+ },
+ "daith | frown": {
+  "relacja": "inne",
+  "rozklad": {
+   "szersze": 0.0,
+   "to_samo": 0.0,
+   "wezsze": 0.0,
+   "inne": 1.0
+  },
+  "oferty_a": [
+   "Daith",
+   "DAITH PIERCING",
+   "Daith (od +15 lat)"
+  ],
+  "oferty_b": [
+   "Frowney"
+  ]
+ },
+ "daith | jestrum": {
+  "relacja": "inne",
+  "rozklad": {
+   "inne": 1.0,
+   "wezsze": 0.0,
+   "to_samo": 0.0,
+   "szersze": 0.0
+  },
+  "oferty_a": [
+   "Daith",
+   "DAITH PIERCING",
+   "Daith (od +15 lat)"
+  ],
+  "oferty_b": [
+   "Jestrum",
+   "Vertical Labret/Jestrum (od +15lat)",
+   "WARGA — Vertical labret / Jestrum"
+  ]
+ },
+ "dolphin | snak": {
+  "relacja": "inne",
+  "rozklad": {
+   "to_samo": 0.01,
+   "wezsze": 0.01,
+   "inne": 0.97,
+   "szersze": 0.01
+  },
+  "oferty_a": [
+   "Przekłuczie Dolphin Bites 170 zł + 2 Kolczyki",
+   "WARGA — Snake bites / spider bites / dolphin bites / angel bites / cyber bites",
+   "Bites — Dolphin Bites"
+  ],
+  "oferty_b": [
+   "SNAKE BITES PIERCING",
+   "Przekłuczie Snake Bites 170 zł + 2 Kolczyki",
+   "Snake Bites/podwójne przekłucia ust"
+  ]
+ },
+ "dlon | wasik": {
+  "relacja": "inne",
+  "rozklad": {
+   "szersze": 0.0,
+   "wezsze": 0.0,
+   "to_samo": 0.0,
+   "inne": 1.0
+  },
+  "oferty_a": [
+   "Parafina na dłonie — Parafina na dłonie",
+   "Usuwanie brodawek wirusowych na dłoni i stopach",
+   "Klamra Na  1 Paznokiec na dłoni"
+  ],
+  "oferty_b": [
+   "Depilacja wąsika",
+   "Wosk wąsik",
+   "Depilacja woskiem wąsik"
+  ]
+ },
+ "damsk | laser": {
+  "relacja": "inne",
+  "rozklad": {
+   "to_samo": 0.0,
+   "wezsze": 0.0,
+   "szersze": 0.01,
+   "inne": 0.99
+  },
+  "oferty_a": [
+   "Pośladki damskie",
+   "Rigena Lifting",
+   "Depilacja cukrowa damska - kark"
+  ],
+  "oferty_b": [
+   "Depilacja laserowa - Łydki — Depilacja laserowa - Łydki",
+   "Szyja",
+   "Laser twarz — Laser twarz"
+  ]
+ },
+ "dolphin | spider": {
+  "relacja": "inne",
+  "rozklad": {
+   "szersze": 0.0,
+   "wezsze": 0.0,
+   "inne": 0.99,
+   "to_samo": 0.01
+  },
+  "oferty_a": [
+   "Przekłuczie Dolphin Bites 170 zł + 2 Kolczyki",
+   "WARGA — Snake bites / spider bites / dolphin bites / angel bites / cyber bites",
+   "Bites — Dolphin Bites"
+  ],
+  "oferty_b": [
+   "WARGA — Snake bites / spider bites / dolphin bites / angel bites / cyber bites",
+   "Bites — Spider Bites",
+   "Spider Bites"
+  ]
+ },
+ "flat | forward": {
+  "relacja": "inne",
+  "rozklad": {
+   "inne": 1.0,
+   "to_samo": 0.0,
+   "szersze": 0.0,
+   "wezsze": 0.0
+  },
+  "oferty_a": [
+   "Flat",
+   "FLAT HELIX PIERCING",
+   "Flat (od +15 lat)"
+  ],
+  "oferty_b": [
+   "Forward helix",
+   "FORWARD HELIX PIERCING",
+   "Przekłuczie Forward Helix 130 zł + Kolczyk"
+  ]
+ },
+ "forward | vertical": {
+  "relacja": "inne",
+  "rozklad": {
+   "to_samo": 0.0,
+   "inne": 0.99,
+   "wezsze": 0.0,
+   "szersze": 0.01
+  },
+  "oferty_a": [
+   "Forward helix",
+   "FORWARD HELIX PIERCING",
+   "Przekłuczie Forward Helix 130 zł + Kolczyk"
+  ],
+  "oferty_b": [
+   "Vertical Labret",
+   "VERTICAL LABRET PIERCING",
+   "Helix/ forward/vertical helix (od +15 lat)"
+  ]
+ },
+ "frown | medus": {
+  "relacja": "inne",
+  "rozklad": {
+   "to_samo": 0.0,
+   "inne": 1.0,
+   "wezsze": 0.0,
+   "szersze": 0.0
+  },
+  "oferty_a": [
+   "Frowney"
+  ],
+  "oferty_b": [
+   "Medusa",
+   "MEDUSA PIERCING",
+   "Przekłuczie Medusa 120 zł + Kolczyk"
+  ]
+ },
+ "french | naklejk": {
+  "relacja": "inne",
+  "rozklad": {
+   "wezsze": 0.0,
+   "to_samo": 0.0,
+   "inne": 1.0,
+   "szersze": 0.0
+  },
+  "oferty_a": [
+   "Przedłużanie paznokci żelem + french",
+   "Przedłużenie paznokci żelem + french/babyboomer",
+   "Pedicure 𝕊ℙ𝔸 z hybrydą — Pedicure SPA z hybrydą  /malowaniem french"
+  ],
+  "oferty_b": [
+   "Manicure hybrydowy + French/Ombre/design/naklejki",
+   "Manicure hybrydowy — Naklejki"
+  ]
+ },
+ "flat | vertical": {
+  "relacja": "inne",
+  "rozklad": {
+   "szersze": 0.0,
+   "wezsze": 0.0,
+   "to_samo": 0.0,
+   "inne": 1.0
+  },
+  "oferty_a": [
+   "Flat",
+   "FLAT HELIX PIERCING",
+   "Flat (od +15 lat)"
+  ],
+  "oferty_b": [
+   "Vertical Labret",
+   "VERTICAL LABRET PIERCING",
+   "Helix/ forward/vertical helix (od +15 lat)"
+  ]
+ },
+ "frown | smil": {
+  "relacja": "inne",
+  "rozklad": {
+   "wezsze": 0.0,
+   "inne": 1.0,
+   "szersze": 0.0,
+   "to_samo": 0.0
+  },
+  "oferty_a": [
+   "Frowney"
+  ],
+  "oferty_b": [
+   "Redukcja uśmiechu dziąsłowego „gummy smile”",
+   "Likwidacja uśmiechu dziąsłowego \"gummy smile\"",
+   "Smile"
+  ]
+ },
+ "industrial | jezyk": {
+  "relacja": "inne",
+  "rozklad": {
+   "wezsze": 0.0,
+   "inne": 1.0,
+   "szersze": 0.0,
+   "to_samo": 0.0
+  },
+  "oferty_a": [
+   "Industrial",
+   "INDUSTRIAL PIERCING — Industrial zwykły",
+   "INDUSTRIAL PIERCING — Łamany industrial"
+  ],
+  "oferty_b": [
+   "Przekłucie Języka",
+   "Przekłuczie Języka 130 zł + Kolczyk",
+   "Język (od +15lat)"
+  ]
+ },
+ "frown | snug": {
+  "relacja": "inne",
+  "rozklad": {
+   "to_samo": 0.0,
+   "wezsze": 0.0,
+   "inne": 1.0,
+   "szersze": 0.0
+  },
+  "oferty_a": [
+   "Frowney"
+  ],
+  "oferty_b": [
+   "Snug",
+   "SNUG PIERCING",
+   "Snug (od +16 lat)"
+  ]
+ },
+ "industrial | orbital": {
+  "relacja": "inne",
+  "rozklad": {
+   "inne": 1.0,
+   "to_samo": 0.0,
+   "szersze": 0.0,
+   "wezsze": 0.0
+  },
+  "oferty_a": [
+   "Industrial",
+   "INDUSTRIAL PIERCING — Industrial zwykły",
+   "INDUSTRIAL PIERCING — Łamany industrial"
+  ],
+  "oferty_b": [
+   "ORBITAL PIERCING",
+   "Orbital",
+   "Orbital (od +16 lat)"
+  ]
+ },
+ "industrial | ragnar": {
+  "relacja": "inne",
+  "rozklad": {
+   "to_samo": 0.0,
+   "wezsze": 0.0,
+   "inne": 0.99,
+   "szersze": 0.01
+  },
+  "oferty_a": [
+   "Industrial",
+   "INDUSTRIAL PIERCING — Industrial zwykły",
+   "INDUSTRIAL PIERCING — Łamany industrial"
+  ],
+  "oferty_b": [
+   "Ragnar"
+  ]
+ },
+ "industrial | surfac": {
+  "relacja": "inne",
+  "rozklad": {
+   "wezsze": 0.01,
+   "inne": 0.99,
+   "to_samo": 0.0,
+   "szersze": 0.0
+  },
+  "oferty_a": [
+   "Industrial",
+   "INDUSTRIAL PIERCING — Industrial zwykły",
+   "INDUSTRIAL PIERCING — Łamany industrial"
+  ],
+  "oferty_b": [
+   "Surface",
+   "Surface (+18lat)",
+   "Surface | 18+ — Leo"
+  ]
+ },
+ "jedn | rekonstrukcj": {
+  "relacja": "inne",
+  "rozklad": {
+   "wezsze": 0.0,
+   "szersze": 0.0,
+   "to_samo": 0.0,
+   "inne": 1.0
+  },
+  "oferty_a": [
+   "Combo + cover (odsiwianie jednej rzeczy)",
+   "Manicure I Pedicure w jednym czasie",
+   "Strzyżenie włosów na jedną długość"
+  ],
+  "oferty_b": [
+   "REKONSTRUKCJA PAZNOKCI OBGRYZIONYCH NIEDZIELA",
+   "Rekonstrukcja płytki paznokcia",
+   "REKONSTRUKCJA OBGRYZIONYCH MĘSKICH PAZNOKCI"
+  ]
+ },
+ "jestrum | medus": {
+  "relacja": "inne",
+  "rozklad": {
+   "to_samo": 0.08,
+   "inne": 0.88,
+   "szersze": 0.02,
+   "wezsze": 0.02
+  },
+  "oferty_a": [
+   "Jestrum",
+   "Vertical Labret/Jestrum (od +15lat)",
+   "WARGA — Vertical labret / Jestrum"
+  ],
+  "oferty_b": [
+   "Medusa",
+   "MEDUSA PIERCING",
+   "Przekłuczie Medusa 120 zł + Kolczyk"
+  ]
+ },
+ "jestrum | smil": {
+  "relacja": "inne",
+  "rozklad": {
+   "szersze": 0.0,
+   "wezsze": 0.0,
+   "to_samo": 0.0,
+   "inne": 1.0
+  },
+  "oferty_a": [
+   "Jestrum",
+   "Vertical Labret/Jestrum (od +15lat)",
+   "WARGA — Vertical labret / Jestrum"
+  ],
+  "oferty_b": [
+   "Redukcja uśmiechu dziąsłowego „gummy smile”",
+   "Likwidacja uśmiechu dziąsłowego \"gummy smile\"",
+   "Smile"
+  ]
+ },
+ "jestrum | snug": {
+  "relacja": "inne",
+  "rozklad": {
+   "szersze": 0.0,
+   "wezsze": 0.0,
+   "inne": 1.0,
+   "to_samo": 0.0
+  },
+  "oferty_a": [
+   "Jestrum",
+   "Vertical Labret/Jestrum (od +15lat)",
+   "WARGA — Vertical labret / Jestrum"
+  ],
+  "oferty_b": [
+   "Snug",
+   "SNUG PIERCING",
+   "Snug (od +16 lat)"
+  ]
+ },
+ "jezyk | orbital": {
+  "relacja": "inne",
+  "rozklad": {
+   "to_samo": 0.0,
+   "szersze": 0.0,
+   "wezsze": 0.0,
+   "inne": 1.0
+  },
+  "oferty_a": [
+   "Przekłucie Języka",
+   "Przekłuczie Języka 130 zł + Kolczyk",
+   "Język (od +15lat)"
+  ],
+  "oferty_b": [
+   "ORBITAL PIERCING",
+   "Orbital",
+   "Orbital (od +16 lat)"
+  ]
+ },
+ "kark | kolan": {
+  "relacja": "inne",
+  "rozklad": {
+   "to_samo": 0.0,
+   "wezsze": 0.0,
+   "szersze": 0.0,
+   "inne": 1.0
+  },
+  "oferty_a": [
+   "Depilacja Woskiem dla Panów - Szyja/Kark",
+   "Depilacja cukrowa damska - kark",
+   "Depilacja cukrowa kark"
+  ],
+  "oferty_b": [
+   "Depilacja pastą cukrową nóg — Nogi do kolan",
+   "Pachy + łydki z kolanami + bikini głębokie",
+   "Depilacja pasta cukrowa — Nogi do kolan(długość 5/7mm)"
+  ]
+ },
+ "kamuflaz | ust": {
+  "relacja": "inne",
+  "rozklad": {
+   "inne": 0.8099999999999999,
+   "to_samo": 0.0,
+   "wezsze": 0.01,
+   "szersze": 0.18
+  },
+  "oferty_a": [
+   "KOREKTA.Kamuflaż"
+  ],
+  "oferty_b": [
+   "Lip flip",
+   "Kontur ust permanentny",
+   "Makijaż permanentny ust"
+  ]
+ },
+ "kolan | mesk": {
+  "relacja": "inne",
+  "rozklad": {
+   "wezsze": 0.0,
+   "inne": 1.0,
+   "to_samo": 0.0,
+   "szersze": 0.0
+  },
+  "oferty_a": [
+   "Depilacja pastą cukrową nóg — Nogi do kolan",
+   "Pachy + łydki z kolanami + bikini głębokie",
+   "Depilacja pasta cukrowa — Nogi do kolan(długość 5/7mm)"
+  ],
+  "oferty_b": [
+   "STRZYŻENIE MĘSKIE (mycie włosów, masaż głowy)",
+   "Strzyżenie męskie",
+   "Regulacja brwi męska"
+  ]
+ },
+ "klasyczn | sport": {
+  "relacja": "inne",
+  "rozklad": {
+   "szersze": 0.0,
+   "inne": 1.0,
+   "to_samo": 0.0,
+   "wezsze": 0.0
+  },
+  "oferty_a": [
+   "Pedicure z klasycznym lakierem",
+   "Masaż gorącymi kamieniami — Klasyczny",
+   "Pedicure podstawowy z lakierem klasycznym"
+  ],
+  "oferty_b": [
+   "Masaż Leczniczy/ Sportowy",
+   "Energia i regeneracja - masaż sportowy",
+   "Masaż sportowy"
+  ]
+ },
+ "kolan | stop": {
+  "relacja": "inne",
+  "rozklad": {
+   "szersze": 0.05,
+   "to_samo": 0.0,
+   "wezsze": 0.0,
+   "inne": 0.95
+  },
+  "oferty_a": [
+   "Depilacja pastą cukrową nóg — Nogi do kolan",
+   "Pachy + łydki z kolanami + bikini głębokie",
+   "Depilacja pasta cukrowa — Nogi do kolan(długość 5/7mm)"
+  ],
+  "oferty_b": [
+   "Hybryda stopy",
+   "Pedicure leczniczy PZP — Rozszerzony zabieg podologiczny w jednostkach chorobowych stóp lub paznokci.",
+   "PEDICURE HYBRYDOWY + SPA DLA STÓP"
+  ]
+ },
+ "kolan | policzk": {
+  "relacja": "inne",
+  "rozklad": {
+   "wezsze": 0.0,
+   "to_samo": 0.0,
+   "szersze": 0.0,
+   "inne": 1.0
+  },
+  "oferty_a": [
+   "Depilacja pastą cukrową nóg — Nogi do kolan",
+   "Pachy + łydki z kolanami + bikini głębokie",
+   "Depilacja pasta cukrowa — Nogi do kolan(długość 5/7mm)"
+  ],
+  "oferty_b": [
+   "Lipoliza podbródek + policzki",
+   "Laser diodowy - redukcja przebarwień - policzki — Laser diodowy - redukcja przebarwień - policzki",
+   "Laser frakcyjny policzki — Laser frakcyjny policzki"
+  ]
+ },
+ "kolan | sutk": {
+  "relacja": "inne",
+  "rozklad": {
+   "wezsze": 0.0,
+   "szersze": 0.0,
+   "to_samo": 0.0,
+   "inne": 1.0
+  },
+  "oferty_a": [
+   "Depilacja pastą cukrową nóg — Nogi do kolan",
+   "Pachy + łydki z kolanami + bikini głębokie",
+   "Depilacja pasta cukrowa — Nogi do kolan(długość 5/7mm)"
+  ],
+  "oferty_b": [
+   "SUTKI",
+   "Sutki",
+   "sutki — sutki"
+  ]
+ },
+ "kosmetologiczn | podologiczn": {
+  "relacja": "inne",
+  "rozklad": {
+   "szersze": 0.18,
+   "to_samo": 0.0,
+   "wezsze": 0.0,
+   "inne": 0.82
+  },
+  "oferty_a": [
+   "Konsultacja kosmetologiczna",
+   "Konsultacja kosmetologiczna + beauty plan",
+   "Analiza skóry OBSERV 520x"
+  ],
+  "oferty_b": [
+   "Pedicure leczniczy PZP — Rozszerzony zabieg podologiczny w jednostkach chorobowych stóp lub paznokci.",
+   "Kompleksowy zabieg podologiczny",
+   "Rozszerzony pedicure podologiczny"
+  ]
+ },
+ "kregoslup | sport": {
+  "relacja": "inne",
+  "rozklad": {
+   "wezsze": 0.0,
+   "to_samo": 0.0,
+   "szersze": 0.0,
+   "inne": 1.0
+  },
+  "oferty_a": [
+   "Masaże — Pakiet 5 masaży relaksacyjnych kręgosłupa",
+   "Masaże — Masaż relaksacyjny kręgosłupa",
+   "Masaże — Masaż leczniczy kręgosłupa"
+  ],
+  "oferty_b": [
+   "Masaż Leczniczy/ Sportowy",
+   "Energia i regeneracja - masaż sportowy",
+   "Masaż sportowy"
+  ]
+ },
+ "laser | panow": {
+  "relacja": "inne",
+  "rozklad": {
+   "szersze": 0.0,
+   "to_samo": 0.0,
+   "wezsze": 0.0,
+   "inne": 1.0
+  },
+  "oferty_a": [
+   "Depilacja laserowa - Łydki — Depilacja laserowa - Łydki",
+   "Szyja",
+   "Laser twarz — Laser twarz"
+  ],
+  "oferty_b": [
+   "Depilacja Woskiem dla Panów - Szyja/Kark",
+   "Pedicure Podologiczny PANOWIE — zabieg podstawowy",
+   "Pedicure Podologiczny PANOWIE — + obróbka paznokci"
+  ]
+ },
+ "lineras | profhil": {
+  "relacja": "inne",
+  "rozklad": {
+   "szersze": 0.0,
+   "to_samo": 0.0,
+   "wezsze": 0.0,
+   "inne": 1.0
+  },
+  "oferty_a": [
+   "Linerase — Linerase",
+   "Linerase okolica oka",
+   "Linerase"
+  ],
+  "oferty_b": [
+   "Profhilo 2ml",
+   "Profhilo 2ml — Profhilo 2ml",
+   "Profhilo"
+  ]
+ },
+ "mesk | odzywk": {
+  "relacja": "inne",
+  "rozklad": {
+   "to_samo": 0.0,
+   "inne": 1.0,
+   "wezsze": 0.0,
+   "szersze": 0.0
+  },
+  "oferty_a": [
+   "STRZYŻENIE MĘSKIE (mycie włosów, masaż głowy)",
+   "Strzyżenie męskie",
+   "Regulacja brwi męska"
+  ],
+  "oferty_b": [
+   "Manicure z odżywką + zdjęcie hybrydy",
+   "Manicure podstawowy z odżywką + zdj. hybrydy — Manicure podstawowy z odżywką + zdj. hybrydy",
+   "Manicure z odżywką Manucurist+ściągnięcie hybrydy🌿 — Top stylistka"
+  ]
+ },
+ "mantis | rhin": {
+  "relacja": "inne",
+  "rozklad": {
+   "inne": 1.0,
+   "to_samo": 0.0,
+   "szersze": 0.0,
+   "wezsze": 0.0
+  },
+  "oferty_a": [
+   "MANTIS PIERCING",
+   "Mantis (od +18 lat)",
+   "Mantis"
+  ],
+  "oferty_b": [
+   "Rhino"
+  ]
+ },
+ "microdermal | orbital": {
+  "relacja": "inne",
+  "rozklad": {
+   "szersze": 0.0,
+   "inne": 1.0,
+   "wezsze": 0.0,
+   "to_samo": 0.0
+  },
+  "oferty_a": [
+   "Microdermal",
+   "Wyjęcie Microdermala",
+   "Usunięcie microdermala"
+  ],
+  "oferty_b": [
+   "ORBITAL PIERCING",
+   "Orbital",
+   "Orbital (od +16 lat)"
+  ]
+ },
+ "microdermal | surfac": {
+  "relacja": "inne",
+  "rozklad": {
+   "to_samo": 0.02,
+   "inne": 0.95,
+   "wezsze": 0.03,
+   "szersze": 0.0
+  },
+  "oferty_a": [
+   "Microdermal",
+   "Wyjęcie Microdermala",
+   "Usunięcie microdermala"
+  ],
+  "oferty_b": [
+   "Surface",
+   "Surface (+18lat)",
+   "Surface | 18+ — Leo"
+  ]
+ },
+ "microdermal | ufo": {
+  "relacja": "inne",
+  "rozklad": {
+   "szersze": 0.0,
+   "inne": 1.0,
+   "wezsze": 0.0,
+   "to_samo": 0.0
+  },
+  "oferty_a": [
+   "Microdermal",
+   "Wyjęcie Microdermala",
+   "Usunięcie microdermala"
+  ],
+  "oferty_b": [
+   "Ufo"
+  ]
+ },
+ "mikrodermabrazj | oksybrazj": {
+  "relacja": "inne",
+  "rozklad": {
+   "to_samo": 0.01,
+   "wezsze": 0.0,
+   "inne": 0.99,
+   "szersze": 0.0
+  },
+  "oferty_a": [
+   "Mikrodermabrazja+ ampułka i maska twarz,szyja",
+   "Pełnia oczyszczenia - mikrodermabrazja z pielęgnacją — Plecy (górna część) lub plecy (dolna część) lub klatka piersiowa",
+   "Pełnia oczyszczenia - mikrodermabrazja z pielęgnacją — Twarz 1"
+  ],
+  "oferty_b": [
+   "Oksybrazja — Pakiet 3 -Twarz",
+   "Oksybrazja — Pakiet 5 -Twarz",
+   "Oksybrazja — Pakiet 5 - Twarz Szyja Dekolt"
+  ]
+ },
+ "monr | tragus": {
+  "relacja": "inne",
+  "rozklad": {
+   "szersze": 0.0,
+   "inne": 1.0,
+   "wezsze": 0.0,
+   "to_samo": 0.0
+  },
+  "oferty_a": [
+   "Madonna/Monroe",
+   "MONROE PIERCING",
+   "Przekłuczie Monroe 120 zł + Kolczyk"
+  ],
+  "oferty_b": [
+   "Tragus",
+   "Anti Tragus",
+   "TRAGUS PIERCING"
+  ]
+ },
+ "nos | uszy": {
+  "relacja": "inne",
+  "rozklad": {
+   "szersze": 0.0,
+   "to_samo": 0.01,
+   "inne": 0.99,
+   "wezsze": 0.0
+  },
+  "oferty_a": [
+   "Zamykanie naczynek nos",
+   "Strzyżenie combo + wosk ( uszy, nos)",
+   "Combo Zwykłe + Wosk Nos I Uszy"
+  ],
+  "oferty_b": [
+   "Strzyżenie combo + wosk ( uszy, nos)",
+   "Combo Zwykłe + Wosk Nos I Uszy",
+   "Woskowanie(uszy+nos)"
+  ]
+ },
+ "nogi | twarz": {
+  "relacja": "inne",
+  "rozklad": {
+   "szersze": 0.0,
+   "to_samo": 0.01,
+   "wezsze": 0.0,
+   "inne": 0.99
+  },
+  "oferty_a": [
+   "Depilacja woskiem Cały nogi",
+   "Bikini + pachy + nogi + szpara + pośladki + twarz",
+   "Depilacja pastą cukrową nóg — Nogi do kolan"
+  ],
+  "oferty_b": [
+   "Laser twarz — Laser twarz",
+   "Depilacja pełna twarz",
+   "Zabieg pielęgnacyjny twarz"
+  ]
+ },
+ "nostril | snug": {
+  "relacja": "inne",
+  "rozklad": {
+   "inne": 1.0,
+   "wezsze": 0.0,
+   "to_samo": 0.0,
+   "szersze": 0.0
+  },
+  "oferty_a": [
+   "Nostril",
+   "NOSTRIL PIERCING",
+   "Przekłuczie Nostril 110 zł + Kolczyk"
+  ],
+  "oferty_b": [
+   "Snug",
+   "SNUG PIERCING",
+   "Snug (od +16 lat)"
+  ]
+ },
+ "nostril | warg": {
+  "relacja": "inne",
+  "rozklad": {
+   "to_samo": 0.0,
+   "wezsze": 0.0,
+   "inne": 1.0,
+   "szersze": 0.0
+  },
+  "oferty_a": [
+   "Nostril",
+   "NOSTRIL PIERCING",
+   "Przekłuczie Nostril 110 zł + Kolczyk"
+  ],
+  "oferty_b": [
+   "Lip flip- powiększenie czerwieni wargowej",
+   "Lip Flip - unoszenie górnej wargi",
+   "Lip flip- wywinięcie wargi górnej"
+  ]
+ },
+ "nozyczk | shaver": {
+  "relacja": "inne",
+  "rozklad": {
+   "wezsze": 0.0,
+   "to_samo": 0.0,
+   "szersze": 0.0,
+   "inne": 1.0
+  },
+  "oferty_a": [
+   "Strzyżenie męskie (Nożyczkami I Mąszynka)",
+   "Strzyżenie męskie — Strzyżenie klasyczne maszynka + nożyczki",
+   "Strzyżenie męskie ( maszynka + nożyczki )"
+  ],
+  "oferty_b": [
+   "Strzyżenie męskie — Strzyżenie męskie maszynka + shaver",
+   "Strzyżenie męskie — Strzyżenie męskie maszynka + nożyczki + shaver"
+  ]
+ },
+ "orbital | surfac": {
+  "relacja": "inne",
+  "rozklad": {
+   "szersze": 0.0,
+   "inne": 0.99,
+   "wezsze": 0.01,
+   "to_samo": 0.0
+  },
+  "oferty_a": [
+   "ORBITAL PIERCING",
+   "Orbital",
+   "Orbital (od +16 lat)"
+  ],
+  "oferty_b": [
+   "Surface",
+   "Surface (+18lat)",
+   "Surface | 18+ — Leo"
+  ]
+ },
+ "pach | rami": {
+  "relacja": "inne",
+  "rozklad": {
+   "to_samo": 0.0,
+   "szersze": 0.0,
+   "wezsze": 0.0,
+   "inne": 1.0
+  },
+  "oferty_a": [
+   "Depilacja bikini+pachy",
+   "Bikini głębokie + pachy",
+   "Bikini + pachy + nogi + szpara + pośladki + twarz"
+  ],
+  "oferty_b": [
+   "Napis na długość do 20 cm ( przed ramie lub plecy) — Napis ok 4 cm szerokość i 20 cm długi ( czcionka mocna szeroka wyrazista, caligraficzna z dużą ilością zawijasów i ozdobników)",
+   "Depilacja laserowa - ramię"
+  ]
+ },
+ "podbrodek | wasik": {
+  "relacja": "inne",
+  "rozklad": {
+   "szersze": 0.0,
+   "to_samo": 0.0,
+   "wezsze": 0.0,
+   "inne": 1.0
+  },
+  "oferty_a": [
+   "Lipoliza iniekcyjna — Lipoliza iniekcyjna - podbródek",
+   "Lipoliza iniekcyjna -podbródek+l.żuchwy",
+   "Lipoliza iniekcyjna podbródek"
+  ],
+  "oferty_b": [
+   "Depilacja wąsika",
+   "Wosk wąsik",
+   "Depilacja woskiem wąsik"
+  ]
+ },
+ "orbital | ufo": {
+  "relacja": "inne",
+  "rozklad": {
+   "to_samo": 0.12,
+   "inne": 0.77,
+   "wezsze": 0.08,
+   "szersze": 0.03
+  },
+  "oferty_a": [
+   "ORBITAL PIERCING",
+   "Orbital",
+   "Orbital (od +16 lat)"
+  ],
+  "oferty_b": [
+   "Ufo"
+  ]
+ },
+ "parafin | twarz": {
+  "relacja": "inne",
+  "rozklad": {
+   "to_samo": 0.0,
+   "wezsze": 0.0,
+   "szersze": 0.0,
+   "inne": 1.0
+  },
+  "oferty_a": [
+   "Parafina na dłonie — Parafina na dłonie",
+   "Manicure hybrydowy + Parafin na stopy",
+   "Pielęgnacja parafinowa"
+  ],
+  "oferty_b": [
+   "Laser twarz — Laser twarz",
+   "Depilacja pełna twarz",
+   "Zabieg pielęgnacyjny twarz"
+  ]
+ },
+ "policzk | sutk": {
+  "relacja": "inne",
+  "rozklad": {
+   "wezsze": 0.0,
+   "to_samo": 0.01,
+   "szersze": 0.0,
+   "inne": 0.99
+  },
+  "oferty_a": [
+   "Lipoliza podbródek + policzki",
+   "Laser diodowy - redukcja przebarwień - policzki — Laser diodowy - redukcja przebarwień - policzki",
+   "Laser frakcyjny policzki — Laser frakcyjny policzki"
+  ],
+  "oferty_b": [
+   "SUTKI",
+   "Sutki",
+   "sutki — sutki"
+  ]
+ },
+ "revers | standard": {
+  "relacja": "inne",
+  "rozklad": {
+   "wezsze": 0.0,
+   "to_samo": 0.0,
+   "szersze": 0.0,
+   "inne": 1.0
+  },
+  "oferty_a": [
+   "NAVEL PIERCING — REVERSE NAVEL",
+   "Navel/ Reverse Navel",
+   "WARGA — Angel fangs / Reverse angel fangs"
+  ],
+  "oferty_b": [
+   "Oczyszczanie WODOROWE twarzy STANDARD",
+   "Standard Lobe",
+   "Standard Tongue"
+  ]
+ },
+ "septum | warg": {
+  "relacja": "inne",
+  "rozklad": {
+   "wezsze": 0.0,
+   "inne": 1.0,
+   "to_samo": 0.0,
+   "szersze": 0.0
+  },
+  "oferty_a": [
+   "Septum",
+   "SEPTUM PIERCING",
+   "Przekłuczie Septum 110 zł + Kolczyk"
+  ],
+  "oferty_b": [
+   "Lip flip- powiększenie czerwieni wargowej",
+   "Lip Flip - unoszenie górnej wargi",
+   "Lip flip- wywinięcie wargi górnej"
+  ]
+ },
+ "przebarwien | tradzik": {
+  "relacja": "inne",
+  "rozklad": {
+   "to_samo": 0.0,
+   "wezsze": 0.0,
+   "inne": 1.0,
+   "szersze": 0.0
+  },
+  "oferty_a": [
+   "Laserowe rozjaśnianie przebarwień — Laserowe rozjaśnianie przebarwień (małe, pojedyncze zmiany)",
+   "Laserowe rozjaśnianie przebarwień — Laserowe rozjaśnianie przebarwień (twarz, szyja, dekolt)",
+   "Usuwanie przebarwień (laseroterapia)"
+  ],
+  "oferty_b": [
+   "Leczenie trądziku",
+   "plecy",
+   "Zabieg na trądzik rozszerzony — Zabieg na trądzik rozszerzony"
+  ]
+ },
+ "septum | tong": {
+  "relacja": "inne",
+  "rozklad": {
+   "inne": 1.0,
+   "wezsze": 0.0,
+   "to_samo": 0.0,
+   "szersze": 0.0
+  },
+  "oferty_a": [
+   "Septum",
+   "SEPTUM PIERCING",
+   "Przekłuczie Septum 110 zł + Kolczyk"
+  ],
+  "oferty_b": [
+   "Standard Tongue",
+   "TONGUE PIERCING",
+   "Standart Tongue"
+  ]
+ },
+ "snak | spider": {
+  "relacja": "inne",
+  "rozklad": {
+   "wezsze": 0.01,
+   "to_samo": 0.01,
+   "szersze": 0.08,
+   "inne": 0.9
+  },
+  "oferty_a": [
+   "SNAKE BITES PIERCING",
+   "Przekłuczie Snake Bites 170 zł + 2 Kolczyki",
+   "Snake Bites/podwójne przekłucia ust"
+  ],
+  "oferty_b": [
+   "WARGA — Snake bites / spider bites / dolphin bites / angel bites / cyber bites",
+   "Bites — Spider Bites",
+   "Spider Bites"
+  ]
+ },
+ "smil | snug": {
+  "relacja": "inne",
+  "rozklad": {
+   "szersze": 0.0,
+   "wezsze": 0.0,
+   "inne": 1.0,
+   "to_samo": 0.0
+  },
+  "oferty_a": [
+   "Redukcja uśmiechu dziąsłowego „gummy smile”",
+   "Likwidacja uśmiechu dziąsłowego \"gummy smile\"",
+   "Smile"
+  ],
+  "oferty_b": [
+   "Snug",
+   "SNUG PIERCING",
+   "Snug (od +16 lat)"
+  ]
+ },
+ "standard | vertical": {
+  "relacja": "inne",
+  "rozklad": {
+   "to_samo": 0.0,
+   "szersze": 0.0,
+   "wezsze": 0.0,
+   "inne": 1.0
+  },
+  "oferty_a": [
+   "Oczyszczanie WODOROWE twarzy STANDARD",
+   "Standard Lobe",
+   "Standard Tongue"
+  ],
+  "oferty_b": [
+   "Vertical Labret",
+   "VERTICAL LABRET PIERCING",
+   "Helix/ forward/vertical helix (od +15 lat)"
+  ]
+ },
+ "surfac | ufo": {
+  "relacja": "inne",
+  "rozklad": {
+   "szersze": 0.01,
+   "to_samo": 0.02,
+   "wezsze": 0.0,
+   "inne": 0.97
+  },
+  "oferty_a": [
+   "Surface",
+   "Surface (+18lat)",
+   "Surface | 18+ — Leo"
+  ],
+  "oferty_b": [
+   "Ufo"
+  ]
+ },
+ "sutek | ufo": {
+  "relacja": "inne",
+  "rozklad": {
+   "inne": 0.99,
+   "szersze": 0.0,
+   "wezsze": 0.0,
+   "to_samo": 0.01
+  },
+  "oferty_a": [
+   "Sutek",
+   "NIPPLE PIERCING — 1 sutek",
+   "Przekłuczie Sutek 110 zł + Kolczyk"
+  ],
+  "oferty_b": [
+   "Ufo"
+  ]
+ },
+ "uszy | wasik": {
+  "relacja": "inne",
+  "rozklad": {
+   "wezsze": 0.0,
+   "to_samo": 0.0,
+   "inne": 1.0,
+   "szersze": 0.0
+  },
+  "oferty_a": [
+   "Strzyżenie combo + wosk ( uszy, nos)",
+   "Combo Zwykłe + Wosk Nos I Uszy",
+   "Woskowanie(uszy+nos)"
+  ],
+  "oferty_b": [
+   "Depilacja wąsika",
+   "Wosk wąsik",
+   "Depilacja woskiem wąsik"
+  ]
+ },
+ "uzupelnien | zelem": {
+  "relacja": "inne",
+  "rozklad": {
+   "wezsze": 0.0,
+   "szersze": 0.0,
+   "inne": 1.0,
+   "to_samo": 0.0
+  },
+  "oferty_a": [
+   "Uzupełnienie rzęs metodą 4-6d",
+   "Uzupełnienie rzęs 2D-3D",
+   "Efekt Kim uzupełnienie(do 3 tygodni)"
+  ],
+  "oferty_b": [
+   "Przedłużanie żelem na formie 1-2 długość",
+   "Przedłużanie paznokci żelem + french",
+   "Przedłużenie paznokci żelem + french/babyboomer"
+  ]
  }
 }

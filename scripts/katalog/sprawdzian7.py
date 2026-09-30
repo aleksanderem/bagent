@@ -29,6 +29,7 @@ from pathlib import Path
 
 B = Path(__file__).resolve().parents[2]
 sys.path[:0] = [str(B), str(B / "scripts"), str(B / "scripts" / "typesafe")]
+from services.katalog_uslug import klasy as _klasy  # noqa: E402
 from services.katalog_uslug.ekstrakcja import Oferta, oferty_z_uslugi  # noqa: E402
 from services.katalog_uslug.klasy import NIE_ZMIENIA, WERSJA_PYTANIA, WERSJA_ZAMIANY, rozstrzygnij, zamiana_rownowazna  # noqa: E402
 from services.katalog_uslug.normalizacja import normalizuj, rdzen_slowa  # noqa: E402
@@ -194,7 +195,7 @@ def werdykty() -> tuple[list[dict], dict[str, Oferta]]:
     pod = x["pod"]
     roz = json.loads(kr.PLIK.read_text(encoding="utf-8"))
     zam = json.loads(kr.PLIK_ZAMIAN.read_text(encoding="utf-8")) if kr.PLIK_ZAMIAN.exists() else {}
-    kl = Klasy(opisowe={tuple(v["klasa"]) for v in roz.values() if rozstrzygnij(v.get("score")) == NIE_ZMIENIA},
+    kl = Klasy(opisowe={tuple(v["klasa"]) for v in roz.values() if _klasy.klasa_nieistotna(v)},
                rownowazne={tuple(v["klasa"]) for v in zam.values() if zamiana_rownowazna(v)})
     for q in pary:
         pa, pb = pod.get(q["a"]), pod.get(q["b"])

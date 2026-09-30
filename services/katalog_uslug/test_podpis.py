@@ -67,7 +67,9 @@ def test_dodatek_w_nazwie_zawsze_podobna_bez_pytania() -> None:
 
 def test_rozne_slowa_po_obu_stronach_to_podobna_bez_pytania() -> None:
     a, b = podpis(rek(zabieg="Depilacja", cechy=[("obszar", "łydki")])), podpis(rek(zabieg="Depilacja", cechy=[("obszar", "uda")]))
-    assert porownaj(a, b, Klasy())[0] == PODOBNA and roznica_do_pytania(a, b) == []
+    assert porownaj(a, b, Klasy())[0] == PODOBNA
+    # 30.09: każda strona pytana osobno jak dopisek jednostronny („łydki” przy depilacji zmienia usługę → podobna)
+    assert {k[2] for k, _z in roznica_do_pytania(a, b)} == {"lydk", "uda"}
 
 
 def test_nieprzypisane_slowo_wchodzi_do_zbioru() -> None:
@@ -228,3 +230,46 @@ def test_metoda_z_kategorii_mimo_blednej_roli_w_nazwie() -> None:
     bikini = rek(zabieg="", cechy=[("obszar", "Bikini"), ("metoda", "klasyczne")])  # „klasyczne” błędnie jako metoda
     kat = _kat("Depilacja laserowa", "Depilacja", [("metoda", "laserowa")])
     assert {"depilacj", "laser"} <= podpis(bikini, kontekst=kat).zbior  # nazwa nie ma zabiegu → kategoria go dokłada
+
+
+def test_slowo_nazwy_we_frazie_z_etykiety_booksy_liczy_sie_jako_wlasne() -> None:
+    # 30.09: „Oczyszczanie wodorowe” — model wziął zabieg „Oczyszczanie twarzy” z etykiety Booksy, a kategoria
+    # „ZABIEGI PIELĘGNACYJNE” zastąpiła go w podpisie: słowo „oczyszczanie” z nazwy zniknęło (4% rekordów rynku).
+    wodorowe = {"nazwa": "Oczyszczanie wodorowe", "wariant": "", "pozycja": "zabieg",
+                "zabieg": {"fraza": "Oczyszczanie twarzy", "zrodlo": "zabieg_booksy"},
+                "cechy": [{"rola": "metoda", "fraza": "wodorowe", "zrodlo": "nazwa"},
+                          {"rola": "obszar", "fraza": "twarzy", "zrodlo": "zabieg_booksy"}]}
+    kategoria = {"nazwa": "Zabiegi pielęgnacyjne", "zabieg": {"fraza": "ZABIEGI PIELĘGNACYJNE", "zrodlo": "nazwa"},
+                 "cechy": []}
+    assert podpis(wodorowe, kontekst=kategoria).zbior == {"oczyszczan", "wodor"}
+
+
+def test_dopiski_po_obu_stronach_rozstrzygane_osobno_jak_jednostronne() -> None:
+    # „Oczyszczanie wodorowe” [pielęgnacja] / „Wodorowe oczyszczanie” [twarz]: różne słowa po obu stronach, ale każde
+    # osobno nie zmienia usługi — pytanie o zamianę („czy to samo?”) jest tu złym pytaniem (pielęgnacja ≠ twarz).
+    a = podpis(rek(zabieg="Oczyszczanie", cechy=[("metoda", "wodorowe"), ("inne", "pielęgnacyjne")]))
+    b = podpis(rek(zabieg="Oczyszczanie", cechy=[("metoda", "wodorowe"), ("obszar", "twarzy")]))
+    assert porownaj(a, b, Klasy())[0] == PODOBNA
+    pytania = {k for k, _z in roznica_do_pytania(a, b)}
+    assert {k[1] for k in pytania} == {"inne", "gdzie_ile"}
+    assert porownaj(a, b, Klasy(opisowe=pytania))[0] == TA_SAMA
+    jedna = next(k for k in pytania if k[1] == "inne")
+    assert porownaj(a, b, Klasy(opisowe={jedna}))[0] == PODOBNA  # obie strony muszą być rozstrzygnięte
+
+
+def test_dopiski_po_obu_stronach_nie_dla_skladu_ani_dlugiej_roznicy() -> None:
+    a = podpis(rek(zabieg="Manicure", cechy=[("metoda", "hybrydowy"), ("sklad", "+ french")]))
+    b = podpis(rek(zabieg="Manicure", cechy=[("metoda", "hybrydowy"), ("obszar", "dłoni")]))
+    assert roznica_do_pytania(a, b) == []
+    c = podpis(rek(zabieg="Manicure", cechy=[("metoda", "hybrydowy"), ("inne", "japoński spa premium")]))
+    assert roznica_do_pytania(c, b) == []
+
+
+def test_slowo_nazwy_pokryte_wlasna_fraza_nie_udaje_zabiegu_z_kontekstu() -> None:
+    # sprawdzian 7: „Bikini klasyczne” z zabiegiem Booksy „Depilacja bikini” — „bikini” to obszar z nazwy, a zabieg
+    # „depilacja” ma przyjść z etykiety Booksy jak przed poprawką źródeł fraz.
+    bikini = {"nazwa": "Bikini klasyczne", "wariant": "", "pozycja": "zabieg",
+              "zabieg": {"fraza": "Depilacja bikini", "zrodlo": "zabieg_booksy"},
+              "cechy": [{"rola": "obszar", "fraza": "Bikini", "zrodlo": "nazwa"},
+                        {"rola": "metoda", "fraza": "klasyczne", "zrodlo": "nazwa"}]}
+    assert "depilacj" in podpis(bikini).zbior

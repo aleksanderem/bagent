@@ -83,5 +83,20 @@ def rozstrzygnij(score: float | None) -> int:
     return poziom_score(score)
 
 
-__all__ = ["NIE_WIADOMO", "NIE_WIADOMO_REL", "NIE_ZMIENIA", "OPIS_POZIOMU", "PROG_TO_SAMO", "WERSJA_PYTANIA", "WERSJA_ZAMIANY", "ZMIENIA",
-           "pytanie_klasy", "pytanie_zamiany", "rozstrzygnij", "zamiana_rownowazna"]
+# None = poziom najbliższy średniej ważonej (cookbook entity_alignment); liczba p = „nie zmienia”, gdy
+# P(„nie zmienia”) > p (pomiar 30.09 — patrz klasa_nieistotna).
+PROG_NIE_ZMIENIA: float | None = None
+
+
+def klasa_nieistotna(wpis: dict) -> bool:
+    """Wpis z pamięci klas → czy dopisek nie zmienia usługi. Brak odpowiedzi = istotna (Alex 29.09)."""
+    if wpis.get("score") is None:
+        return False
+    if PROG_NIE_ZMIENIA is None:
+        return rozstrzygnij(wpis["score"]) == NIE_ZMIENIA
+    return float((wpis.get("rozklad") or {}).get(str(NIE_ZMIENIA), 0.0)) > PROG_NIE_ZMIENIA
+
+
+__all__ = ["NIE_WIADOMO", "NIE_WIADOMO_REL", "NIE_ZMIENIA", "OPIS_POZIOMU", "PROG_NIE_ZMIENIA", "PROG_TO_SAMO", "WERSJA_PYTANIA",
+           "WERSJA_ZAMIANY", "ZMIENIA", "klasa_nieistotna", "pytanie_klasy", "pytanie_zamiany", "rozstrzygnij",
+           "zamiana_rownowazna"]

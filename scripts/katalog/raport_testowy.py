@@ -25,6 +25,7 @@ from pathlib import Path
 
 B = Path(__file__).resolve().parents[2]
 sys.path[:0] = [str(B), str(B / "scripts"), str(B / "scripts" / "typesafe")]
+from services.katalog_uslug import klasy as _klasy  # noqa: E402
 from services.katalog_uslug.ekstrakcja import Oferta, oferty_z_uslugi  # noqa: E402
 from services.katalog_uslug.podpis import INNA, TA_SAMA, Klasy, podpis, porownaj, roznica_do_pytania  # noqa: E402
 from services.typesafe_drzewo.kontekst_v12 import stan_v12  # noqa: E402
@@ -246,7 +247,7 @@ def licz(out: Path) -> None:
     plik_klas, plik_zam = out / f"klasy_p{kr.WERSJA_PYTANIA}.json", out / f"zamiany_p{kr.WERSJA_ZAMIANY}.json"
     rozstrz = json.loads(plik_klas.read_text(encoding="utf-8")) if plik_klas.exists() else {}
     zam = json.loads(plik_zam.read_text(encoding="utf-8")) if plik_zam.exists() else {}
-    klasy = Klasy(opisowe={tuple(v["klasa"]) for v in rozstrz.values() if rozstrzygnij(v.get("score")) == NIE_ZMIENIA},
+    klasy = Klasy(opisowe={tuple(v["klasa"]) for v in rozstrz.values() if _klasy.klasa_nieistotna(v)},
                   rownowazne={tuple(v["klasa"]) for v in zam.values() if zamiana_rownowazna(v)})
     bid = salon["podmiot"]["booksy_id"]
     nazwy = {k["booksy_id"]: k["nazwa"] for k in salon["konkurenci"]}

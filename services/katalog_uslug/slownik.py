@@ -43,18 +43,21 @@ def kandydaci(czestosc: Counter[str]) -> list[tuple[str, str]]:
     return pary
 
 
-def negatywy(oferty_salonu: Iterable[tuple[str, frozenset[str]]]) -> set[frozenset[str]]:
-    """(salon, zbiór słów oferty) → pary słów sprzedawane przez ten sam salon w RÓŻNYCH ofertach, które różnią się
-    dokładnie tym jednym słowem (łydki / uda przy tej samej reszcie) — takie słowa nie są synonimami."""
-    po_salonie: dict[str, list[frozenset[str]]] = defaultdict(list)
-    for salon, zbior in oferty_salonu:
-        po_salonie[salon].append(zbior)
+def negatywy(oferty_salonu: Iterable[tuple[str, frozenset[str], float | None]]) -> set[frozenset[str]]:
+    """(salon, zbiór słów oferty, cena) → pary słów sprzedawane przez ten sam salon w RÓŻNYCH ofertach w RÓŻNYCH cenach,
+    które różnią się dokładnie tym jednym słowem (łydki / uda przy tej samej reszcie) — takie słowa nie są synonimami.
+    Ta sama cena to duplikat wpisu, nie dwie usługi (30.09: „Przedłużanie Paznokci” i „Przedłużenie Paznokci” po 190 zł
+    w jednym salonie blokowały scalenie form słowa) — plan 29.09, cecha opisowa: „żaden salon nie sprzedaje obu wersji
+    w różnych cenach”."""
+    po_salonie: dict[str, list[tuple[frozenset[str], float | None]]] = defaultdict(list)
+    for salon, zbior, cena in oferty_salonu:
+        po_salonie[salon].append((zbior, cena))
     wynik: set[frozenset[str]] = set()
-    for zbiory in po_salonie.values():
-        for i, a in enumerate(zbiory):
-            for b in zbiory[i + 1:]:
+    for oferty in po_salonie.values():
+        for i, (a, ca) in enumerate(oferty):
+            for b, cb in oferty[i + 1:]:
                 ra, rb = a - b, b - a
-                if len(ra) == 1 and len(rb) == 1 and a & b:
+                if len(ra) == 1 and len(rb) == 1 and a & b and not (ca and cb and ca == cb):
                     wynik.add(frozenset(ra | rb))
     return wynik
 

@@ -70,8 +70,9 @@ def dane_rynku() -> tuple[list, dict, dict]:
 
 def pary_kandydatow(oferty: list, rek: dict, salon: dict) -> tuple[set[tuple[str, str]], dict[str, list[str]], set]:
     pod = {o.id: podpis(rek[o.id]) for o in oferty if o.id in rek}
+    cena = {o.id: o.cena_zl for o in oferty}
     zbiory = [(salon.get(oid.split("#")[0]), p.zbior, oid) for oid, p in pod.items()]
-    neg = negatywy((str(s), z) for s, z, _o in zbiory)
+    neg = negatywy((str(s), z, cena.get(oid)) for s, z, oid in zbiory)
     czestosc = Counter(w for _s, z, _o in zbiory for w in z)
     przyklady: dict[str, list[str]] = defaultdict(list)
     nazwy = {o.id: (o.nazwa + (f" — {o.wariant}" if o.wariant else "")) for o in oferty}

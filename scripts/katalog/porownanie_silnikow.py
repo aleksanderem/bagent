@@ -25,6 +25,7 @@ from pathlib import Path
 B = Path(__file__).resolve().parents[2]
 sys.path[:0] = [str(B), str(B / "scripts"), str(B / "scripts" / "katalog"), str(B / "scripts" / "typesafe")]
 import sprawdzian7 as s7  # noqa: E402
+from services.katalog_uslug import klasy as _klasy  # noqa: E402
 from services.katalog_uslug.dopasowanie import werdykty, wycen  # noqa: E402
 from services.katalog_uslug.klasy import NIE_ZMIENIA, rozstrzygnij, zamiana_rownowazna  # noqa: E402
 from services.katalog_uslug.podpis import PODOBNA, TA_SAMA, Klasy  # noqa: E402
@@ -91,7 +92,7 @@ def _podpis_wiersze() -> dict[str, dict]:
     pod = x["pod"]
     roz = json.loads(s7.kr.PLIK.read_text(encoding="utf-8"))
     zam = json.loads(s7.kr.PLIK_ZAMIAN.read_text(encoding="utf-8")) if s7.kr.PLIK_ZAMIAN.exists() else {}
-    klasy = Klasy(opisowe={tuple(v["klasa"]) for v in roz.values() if rozstrzygnij(v.get("score")) == NIE_ZMIENIA},
+    klasy = Klasy(opisowe={tuple(v["klasa"]) for v in roz.values() if _klasy.klasa_nieistotna(v)},
                   rownowazne={tuple(v["klasa"]) for v in zam.values() if zamiana_rownowazna(v)})
     us, _p, _s = s7.dane()
     kand: dict[str, list] = defaultdict(list)

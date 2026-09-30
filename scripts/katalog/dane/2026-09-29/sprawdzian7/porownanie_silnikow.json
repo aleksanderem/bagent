@@ -14,7 +14,7 @@
   "podpis_ta_sama": 1,
   "tylko_podobne": 2,
   "bez_ceny": 3,
-  "mediana_roznicy": 0.051,
+  "mediana_roznicy": 0.0,
   "par_z_cena_w_obu": 1
  },
  "Depilacja": {
@@ -56,11 +56,11 @@
  "Paznokcie": {
   "uslug": 6,
   "stary_z_cena": 6,
-  "podpis_ta_sama": 2,
+  "podpis_ta_sama": 3,
   "tylko_podobne": 3,
-  "bez_ceny": 1,
-  "mediana_roznicy": 0.216,
-  "par_z_cena_w_obu": 2
+  "bez_ceny": 0,
+  "mediana_roznicy": 0.237,
+  "par_z_cena_w_obu": 3
  },
  "Podologia": {
   "uslug": 6,
@@ -83,14 +83,14 @@
  "RAZEM": {
   "uslug": 53,
   "stary_z_cena": 45,
-  "podpis_ta_sama": 10,
+  "podpis_ta_sama": 11,
   "tylko_podobne": 14,
-  "bez_ceny": 29,
-  "mediana_roznicy": 0.052,
-  "par_z_cena_w_obu": 10
+  "bez_ceny": 28,
+  "mediana_roznicy": 0.054,
+  "par_z_cena_w_obu": 11
  },
  "warianty": {
   "ofert": 10,
-  "z_cena_ta_sama": 1
+  "z_cena_ta_sama": 2
  }
 }

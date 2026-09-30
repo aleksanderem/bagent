@@ -27149,5 +27149,1164 @@
    "wezsze": 0.06,
    "to_samo": 0.11
   }
+ },
+ "[\"brod comb wlos\", \"1 strzyzen\", \"beard hair\"]": {
+  "klasa": [
+   "brod comb wlos",
+   "1 strzyzen",
+   "beard hair"
+  ],
+  "a": "COMBO 1 (strzyżenie wlosów + broda)",
+  "b": "Combo (Włosy+broda) (Hair+beard)",
+  "slowa_a": "strzyżenie 1",
+  "slowa_b": "hair beard",
+  "relacja": "to_samo",
+  "rozklad": {
+   "wezsze": 0.09,
+   "nie_wiadomo": 0.01,
+   "inne": 0.07,
+   "szersze": 0.02,
+   "to_samo": 0.8
+  }
+ },
+ "[\"klamr paznokc\", \"1 dlon\", \"2 tytan\"]": {
+  "klasa": [
+   "klamr paznokc",
+   "1 dlon",
+   "2 tytan"
+  ],
+  "a": "Klamra Na  1 Paznokiec na dłoni",
+  "b": "Klamra tytanowa 2 paznokcie",
+  "slowa_a": "1 dłoni",
+  "slowa_b": "tytanowa 2",
+  "relacja": "inne",
+  "rozklad": {
+   "nie_wiadomo": 0.0,
+   "wezsze": 0.05,
+   "to_samo": 0.0,
+   "szersze": 0.0,
+   "inne": 0.95
+  }
+ },
+ "[\"bikin depilacj pach\", \"36 laser\", \"glebok\"]": {
+  "klasa": [
+   "bikin depilacj pach",
+   "36 laser",
+   "glebok"
+  ],
+  "a": "! Depilacja laserowa bikini + pachy (-36%) — ! Depilacja laserowa bikini + pachy (-36%)",
+  "b": "Bikini głębokie + pachy",
+  "slowa_a": "laserowa",
+  "slowa_b": "głębokie",
+  "relacja": "inne",
+  "rozklad": {
+   "szersze": 0.12,
+   "to_samo": 0.27,
+   "inne": 0.56,
+   "nie_wiadomo": 0.01,
+   "wezsze": 0.03
+  }
+ },
+ "[\"comb wlos\", \"barber dlug\", \"brod\"]": {
+  "klasa": [
+   "comb wlos",
+   "barber dlug",
+   "brod"
+  ],
+  "a": "Combo długie włosy",
+  "b": "Combo - włosy + broda",
+  "slowa_a": "barbera długie długich Barber",
+  "slowa_b": "broda",
+  "relacja": "inne",
+  "rozklad": {
+   "wezsze": 0.03,
+   "inne": 0.63,
+   "szersze": 0.15,
+   "to_samo": 0.12,
+   "nie_wiadomo": 0.07
+  }
+ },
+ "[\"henn\", \"brwi\", \"komplet\"]": {
+  "klasa": [
+   "henn",
+   "brwi",
+   "komplet"
+  ],
+  "a": "henna — henna brwi",
+  "b": "henna komplet",
+  "slowa_a": "brwi",
+  "slowa_b": "komplet",
+  "relacja": "inne",
+  "rozklad": {
+   "nie_wiadomo": 0.02,
+   "inne": 0.6799999999999999,
+   "to_samo": 0.0,
+   "szersze": 0.01,
+   "wezsze": 0.29
+  }
+ },
+ "[\"lineras twarz\", \"dekolt szyj\", \"hydr stymulator\"]": {
+  "klasa": [
+   "lineras twarz",
+   "dekolt szyj",
+   "hydr stymulator"
+  ],
+  "a": "LINERASE ( twarz, szyja, dekolt)",
+  "b": "Linerase hydro",
+  "slowa_a": "szyja, dekolt",
+  "slowa_b": "hydro STYMULATOR",
+  "relacja": "inne",
+  "rozklad": {
+   "to_samo": 0.0,
+   "inne": 0.81,
+   "nie_wiadomo": 0.01,
+   "wezsze": 0.0,
+   "szersze": 0.18
+  }
+ },
+ "[\"comb dlug wlos\", \"barber\", \"brod\"]": {
+  "klasa": [
+   "comb dlug wlos",
+   "barber",
+   "brod"
+  ],
+  "a": "Combo długie włosy",
+  "b": "Combo długie włosy + broda",
+  "slowa_a": "barbera Barber",
+  "slowa_b": "broda",
+  "relacja": "inne",
+  "rozklad": {
+   "szersze": 0.14,
+   "nie_wiadomo": 0.11,
+   "wezsze": 0.02,
+   "to_samo": 0.34,
+   "inne": 0.39
+  }
+ },
+ "[\"nos uszu\", \"wosk\", \"woskowan\"]": {
+  "klasa": [
+   "nos uszu",
+   "wosk",
+   "woskowan"
+  ],
+  "a": "Wosk nos+uszy",
+  "b": "Woskowanie uszy + nos",
+  "slowa_a": "woskiem wosk",
+  "slowa_b": "Woskowanie",
+  "relacja": "to_samo",
+  "rozklad": {
+   "to_samo": 0.98,
+   "inne": 0.0,
+   "szersze": 0.0,
+   "wezsze": 0.01,
+   "nie_wiadomo": 0.01
+  }
+ },
+ "[\"henn\", \"komplet\", \"rzes\"]": {
+  "klasa": [
+   "henn",
+   "komplet",
+   "rzes"
+  ],
+  "a": "henna komplet",
+  "b": "henna — henna rzęs",
+  "slowa_a": "komplet",
+  "slowa_b": "rzęs",
+  "relacja": "szersze",
+  "rozklad": {
+   "wezsze": 0.0,
+   "to_samo": 0.02,
+   "szersze": 0.65,
+   "inne": 0.17,
+   "nie_wiadomo": 0.16
+  }
+ },
+ "[\"comb dlug wlos\", \"4 brod\", \"barber\"]": {
+  "klasa": [
+   "comb dlug wlos",
+   "4 brod",
+   "barber"
+  ],
+  "a": "COMBO 4 długie włosy + broda",
+  "b": "Combo długie włosy",
+  "slowa_a": "4 broda",
+  "slowa_b": "barbera Barber",
+  "relacja": "to_samo",
+  "rozklad": {
+   "to_samo": 0.38,
+   "nie_wiadomo": 0.18,
+   "wezsze": 0.05,
+   "inne": 0.31,
+   "szersze": 0.08
+  }
+ },
+ "[\"lineras twarz\", \"hydr stymulator\", \"kolagen rf\"]": {
+  "klasa": [
+   "lineras twarz",
+   "hydr stymulator",
+   "kolagen rf"
+  ],
+  "a": "Linerase hydro",
+  "b": "Linerase  Kolagen + RF na twarz",
+  "slowa_a": "hydro STYMULATOR",
+  "slowa_b": "Kolagen RF",
+  "relacja": "inne",
+  "rozklad": {
+   "nie_wiadomo": 0.01,
+   "szersze": 0.0,
+   "wezsze": 0.0,
+   "to_samo": 0.0,
+   "inne": 0.99
+  }
+ },
+ "[\"lineras twarz\", \"hydr stymulator\", \"szyj\"]": {
+  "klasa": [
+   "lineras twarz",
+   "hydr stymulator",
+   "szyj"
+  ],
+  "a": "Linerase hydro",
+  "b": "Linerase — Twarz + szyja",
+  "slowa_a": "hydro STYMULATOR",
+  "slowa_b": "szyja",
+  "relacja": "inne",
+  "rozklad": {
+   "szersze": 0.01,
+   "to_samo": 0.0,
+   "wezsze": 0.02,
+   "nie_wiadomo": 0.04,
+   "inne": 0.93
+  }
+ },
+ "[\"nos\", \"uszu woskowan\", \"wasik wosk\"]": {
+  "klasa": [
+   "nos",
+   "uszu woskowan",
+   "wasik wosk"
+  ],
+  "a": "Woskowanie uszy + nos",
+  "b": "Wosk wąsik/nos 40zł🖤",
+  "slowa_a": "Woskowanie uszy",
+  "slowa_b": "woskiem wąsik/nos wosk",
+  "relacja": "inne",
+  "rozklad": {
+   "to_samo": 0.02,
+   "inne": 0.78,
+   "nie_wiadomo": 0.01,
+   "wezsze": 0.02,
+   "szersze": 0.17
+  }
+ },
+ "[\"przedluzan rzes stylizacj\", \"2:1 2d\", \"5:1\"]": {
+  "klasa": [
+   "przedluzan rzes stylizacj",
+   "2:1 2d",
+   "5:1"
+  ],
+  "a": "Przedłużanie ,Stylizacja rzęs 2:1, 2D",
+  "b": "Przedłużanie rzęs 5:1",
+  "slowa_a": "2:1, 2D",
+  "slowa_b": "5:1",
+  "relacja": "inne",
+  "rozklad": {
+   "szersze": 0.0,
+   "to_samo": 0.02,
+   "nie_wiadomo": 0.0,
+   "wezsze": 0.02,
+   "inne": 0.96
+  }
+ },
+ "[\"nos\", \"twarz\", \"uszu woskowan\"]": {
+  "klasa": [
+   "nos",
+   "twarz",
+   "uszu woskowan"
+  ],
+  "a": "Twarz + nos",
+  "b": "Woskowanie uszy + nos",
+  "slowa_a": "twarz Twarz",
+  "slowa_b": "Woskowanie uszy",
+  "relacja": "inne",
+  "rozklad": {
+   "inne": 0.96,
+   "szersze": 0.03,
+   "to_samo": 0.0,
+   "wezsze": 0.0,
+   "nie_wiadomo": 0.01
+  }
+ },
+ "[\"brod comb trymowan\", \"glow strzyzen\", \"krotk wlos\"]": {
+  "klasa": [
+   "brod comb trymowan",
+   "glow strzyzen",
+   "krotk wlos"
+  ],
+  "a": "Combo (głowa Strzyżenie + broda Trymowanie)",
+  "b": "Combo ( krótkie włosy + trymowanie brody)",
+  "slowa_a": "Strzyżenie głowa",
+  "slowa_b": "włosów krótkie włosy",
+  "relacja": "to_samo",
+  "rozklad": {
+   "wezsze": 0.02,
+   "nie_wiadomo": 0.01,
+   "to_samo": 0.65,
+   "szersze": 0.3,
+   "inne": 0.02
+  }
+ },
+ "[\"brodawk terap wirus wizyt\", \"1 kurzajek\", \"mnog pierwsz\"]": {
+  "klasa": [
+   "brodawk terap wirus wizyt",
+   "1 kurzajek",
+   "mnog pierwsz"
+  ],
+  "a": "Brodawka  wirusowa/kurzajka I wizyta — terapia 1 brodawki",
+  "b": "Brodawki wirusowe (mnogie) - pierwsza wizyta",
+  "slowa_a": "kurzajek wirusowa/kurzajka 1",
+  "slowa_b": "(mnogie) pierwsza",
+  "relacja": "wezsze",
+  "rozklad": {
+   "wezsze": 0.54,
+   "nie_wiadomo": 0.0,
+   "to_samo": 0.03,
+   "szersze": 0.0,
+   "inne": 0.43
+  }
+ },
+ "[\"2d zalozen\", \"3d rzes\", \"light volum\"]": {
+  "klasa": [
+   "2d zalozen",
+   "3d rzes",
+   "light volum"
+  ],
+  "a": "Założenie rzęs 2D-3D",
+  "b": "Light Volume 2D założenie",
+  "slowa_a": "rzęs 2D-3D",
+  "slowa_b": "Light Volume",
+  "relacja": "szersze",
+  "rozklad": {
+   "to_samo": 0.07,
+   "inne": 0.34,
+   "wezsze": 0.02,
+   "nie_wiadomo": 0.1,
+   "szersze": 0.47
+  }
+ },
+ "[\"brodawk mnog wirus wizyt\", \"kurzajek zmian\", \"pierwsz terap\"]": {
+  "klasa": [
+   "brodawk mnog wirus wizyt",
+   "kurzajek zmian",
+   "pierwsz terap"
+  ],
+  "a": "Brodawka  wirusowa/kurzajka I wizyta — Zmiany mnogie",
+  "b": "Brodawki wirusowe (mnogie) - pierwsza wizyta",
+  "slowa_a": "kurzajek wirusowa/kurzajka Zmiany",
+  "slowa_b": "pierwsza Terapia",
+  "relacja": "to_samo",
+  "rozklad": {
+   "nie_wiadomo": 0.01,
+   "szersze": 0.04,
+   "inne": 0.02,
+   "to_samo": 0.89,
+   "wezsze": 0.04
+  }
+ },
+ "[\"henn\", \"brwi rzes\", \"komplet\"]": {
+  "klasa": [
+   "henn",
+   "brwi rzes",
+   "komplet"
+  ],
+  "a": "henna — henna rzęs + brwi",
+  "b": "henna komplet",
+  "slowa_a": "rzęs brwi",
+  "slowa_b": "komplet",
+  "relacja": "wezsze",
+  "rozklad": {
+   "nie_wiadomo": 0.26,
+   "inne": 0.05,
+   "wezsze": 0.49,
+   "to_samo": 0.15,
+   "szersze": 0.05
+  }
+ },
+ "[\"henn\", \"komplet\", \"mesk\"]": {
+  "klasa": [
+   "henn",
+   "komplet",
+   "mesk"
+  ],
+  "a": "henna komplet",
+  "b": "Henna męska",
+  "slowa_a": "komplet",
+  "slowa_b": "męska",
+  "relacja": "inne",
+  "rozklad": {
+   "to_samo": 0.0,
+   "nie_wiadomo": 0.03,
+   "wezsze": 0.0,
+   "inne": 0.93,
+   "szersze": 0.04
+  }
+ },
+ "[\"henn\", \"klasyczn\", \"komplet\"]": {
+  "klasa": [
+   "henn",
+   "klasyczn",
+   "komplet"
+  ],
+  "a": "Henna klasyczna",
+  "b": "henna komplet",
+  "slowa_a": "klasyczna",
+  "slowa_b": "komplet",
+  "relacja": "inne",
+  "rozklad": {
+   "inne": 0.94,
+   "to_samo": 0.0,
+   "nie_wiadomo": 0.02,
+   "wezsze": 0.04,
+   "szersze": 0.0
+  }
+ },
+ "[\"comb wlos\", \"barber dlug\", \"brod odsiwian\"]": {
+  "klasa": [
+   "comb wlos",
+   "barber dlug",
+   "brod odsiwian"
+  ],
+  "a": "Combo długie włosy",
+  "b": "Combo włosy+broda+odsiwianie",
+  "slowa_a": "barbera długie długich Barber",
+  "slowa_b": "broda odsiwianie",
+  "relacja": "inne",
+  "rozklad": {
+   "to_samo": 0.0,
+   "szersze": 0.01,
+   "nie_wiadomo": 0.04,
+   "wezsze": 0.02,
+   "inne": 0.93
+  }
+ },
+ "[\"comb dlug wlos\", \"barber\", \"bez brzytw\"]": {
+  "klasa": [
+   "comb dlug wlos",
+   "barber",
+   "bez brzytw"
+  ],
+  "a": "Combo długie włosy",
+  "b": "Combo włosy długie",
+  "slowa_a": "barbera Barber",
+  "slowa_b": "bez brzytwy",
+  "relacja": "inne",
+  "rozklad": {
+   "nie_wiadomo": 0.17,
+   "szersze": 0.17,
+   "wezsze": 0.02,
+   "to_samo": 0.14,
+   "inne": 0.5
+  }
+ },
+ "[\"comb dlug wlos\", \"2 brod\", \"barber\"]": {
+  "klasa": [
+   "comb dlug wlos",
+   "2 brod",
+   "barber"
+  ],
+  "a": "Combo 2 (Włosy długie + broda )",
+  "b": "Combo długie włosy",
+  "slowa_a": "broda 2",
+  "slowa_b": "barbera Barber",
+  "relacja": "inne",
+  "rozklad": {
+   "nie_wiadomo": 0.12,
+   "wezsze": 0.07,
+   "to_samo": 0.29,
+   "inne": 0.47,
+   "szersze": 0.05
+  }
+ },
+ "[\"odrost sredn strzyzen\", \"baleyag\", \"damsk farbowan\"]": {
+  "klasa": [
+   "odrost sredn strzyzen",
+   "baleyag",
+   "damsk farbowan"
+  ],
+  "a": "Baleyage odrosty+Strzyżenie - średnie",
+  "b": "Farbowanie (odrost)+ strzyżenie (średnie)",
+  "slowa_a": "Baleyage",
+  "slowa_b": "farbowanie Damskie",
+  "relacja": "wezsze",
+  "rozklad": {
+   "nie_wiadomo": 0.03,
+   "inne": 0.25,
+   "to_samo": 0.09,
+   "wezsze": 0.62,
+   "szersze": 0.01
+  }
+ },
+ "[\"hybryd manicur odzywk zdjec\", \"dlon\", \"manucurist\"]": {
+  "klasa": [
+   "hybryd manicur odzywk zdjec",
+   "dlon",
+   "manucurist"
+  ],
+  "a": "Zdjęcie hybrydy + manicure z odżywką — Top stylistka Daria",
+  "b": "Manicure z odżywką Manucurist+ściągnięcie hybrydy🌿 — Top stylistka",
+  "slowa_a": "Dłonie",
+  "slowa_b": "Manucurist",
+  "relacja": "inne",
+  "rozklad": {
+   "to_samo": 0.24,
+   "nie_wiadomo": 0.1,
+   "wezsze": 0.03,
+   "inne": 0.6,
+   "szersze": 0.03
+  }
+ },
+ "[\"depilacj\", \"nos wosk\", \"twarz\"]": {
+  "klasa": [
+   "depilacj",
+   "nos wosk",
+   "twarz"
+  ],
+  "a": "Depilacja nosa woskiem",
+  "b": "Depilacja twarzy",
+  "slowa_a": "nosa woskiem",
+  "slowa_b": "twarzy",
+  "relacja": "wezsze",
+  "rozklad": {
+   "nie_wiadomo": 0.0,
+   "to_samo": 0.0,
+   "wezsze": 0.92,
+   "szersze": 0.0,
+   "inne": 0.08
+  }
+ },
+ "[\"depilacj\", \"nos wosk\", \"wasik\"]": {
+  "klasa": [
+   "depilacj",
+   "nos wosk",
+   "wasik"
+  ],
+  "a": "Depilacja nosa woskiem",
+  "b": "Depilacja wąsika",
+  "slowa_a": "nosa woskiem",
+  "slowa_b": "wąsika",
+  "relacja": "inne",
+  "rozklad": {
+   "nie_wiadomo": 0.0,
+   "wezsze": 0.0,
+   "to_samo": 0.0,
+   "szersze": 0.0,
+   "inne": 1.0
+  }
+ },
+ "[\"hybryd manicur odzywk zdjec\", \"klasyczn\", \"manucurist\"]": {
+  "klasa": [
+   "hybryd manicur odzywk zdjec",
+   "klasyczn",
+   "manucurist"
+  ],
+  "a": "Zdjęcie Hybrydy + Manicure Klasyczny ( Odżywka )",
+  "b": "Manicure z odżywką Manucurist+ściągnięcie hybrydy🌿 — Top stylistka",
+  "slowa_a": "Klasyczny",
+  "slowa_b": "Manucurist",
+  "relacja": "to_samo",
+  "rozklad": {
+   "wezsze": 0.1,
+   "nie_wiadomo": 0.09,
+   "to_samo": 0.51,
+   "szersze": 0.03,
+   "inne": 0.27
+  }
+ },
+ "[\"hybryd manicur odzywk zdjec\", \"bez malowan\", \"manucurist\"]": {
+  "klasa": [
+   "hybryd manicur odzywk zdjec",
+   "bez malowan",
+   "manucurist"
+  ],
+  "a": "Manicure z Odżywką Bez Malowania+Ściąganie Hybrydy",
+  "b": "Manicure z odżywką Manucurist+ściągnięcie hybrydy🌿 — Top stylistka",
+  "slowa_a": "Bez Malowania",
+  "slowa_b": "Manucurist",
+  "relacja": "inne",
+  "rozklad": {
+   "to_samo": 0.08,
+   "szersze": 0.01,
+   "nie_wiadomo": 0.13,
+   "wezsze": 0.11,
+   "inne": 0.67
+  }
+ },
+ "[\"hybryd manicur odzywk zdjec\", \"manucurist\", \"zwykl\"]": {
+  "klasa": [
+   "hybryd manicur odzywk zdjec",
+   "manucurist",
+   "zwykl"
+  ],
+  "a": "Manicure z odżywką Manucurist+ściągnięcie hybrydy🌿 — Top stylistka",
+  "b": "Manicure zwykły z odżywką ze zdjęciem hybrydy",
+  "slowa_a": "Manucurist",
+  "slowa_b": "zwykły",
+  "relacja": "inne",
+  "rozklad": {
+   "nie_wiadomo": 0.08,
+   "szersze": 0.05,
+   "inne": 0.79,
+   "to_samo": 0.01,
+   "wezsze": 0.07
+  }
+ },
+ "[\"kwas\", \"biorepeelcl3 tca\", \"eksfoliacj intensywn\"]": {
+  "klasa": [
+   "kwas",
+   "biorepeelcl3 tca",
+   "eksfoliacj intensywn"
+  ],
+  "a": "KWAS TCA (BIOREPEELCL3)",
+  "b": "Kwas TCS Intensywnie Złuszczający",
+  "slowa_a": "TCA (BIOREPEELCL3)",
+  "slowa_b": "Eksfoliacja Intensywnie Złuszczający złuszczające",
+  "relacja": "wezsze",
+  "rozklad": {
+   "szersze": 0.02,
+   "wezsze": 0.39,
+   "to_samo": 0.24,
+   "inne": 0.25,
+   "nie_wiadomo": 0.1
+  }
+ },
+ "[\"brwi makijaz permanentn\", \"metod pudr\", \"ombr soft\"]": {
+  "klasa": [
+   "brwi makijaz permanentn",
+   "metod pudr",
+   "ombr soft"
+  ],
+  "a": "Makijaż permanentny brwi metodą powder brows",
+  "b": "Soft Ombre Brows (Brwi Permanentne) — Soft Ombre Brows (Brwi Permanentne)",
+  "slowa_a": "metodą powder",
+  "slowa_b": "Soft Ombre",
+  "relacja": "inne",
+  "rozklad": {
+   "szersze": 0.08,
+   "to_samo": 0.34,
+   "wezsze": 0.05,
+   "inne": 0.39999999999999997,
+   "nie_wiadomo": 0.13
+  }
+ },
+ "[\"kosmetolog nawilzajac twarz\", \"eksfoliacj\", \"pielegnacj\"]": {
+  "klasa": [
+   "kosmetolog nawilzajac twarz",
+   "eksfoliacj",
+   "pielegnacj"
+  ],
+  "a": "Zabieg Zluszczajaco Nawilzajacy",
+  "b": "Zabieg nawilżający na twarz",
+  "slowa_a": "Zluszczajaco",
+  "slowa_b": "PIELĘGNACYJNA",
+  "relacja": "wezsze",
+  "rozklad": {
+   "nie_wiadomo": 0.01,
+   "szersze": 0.08,
+   "inne": 0.43,
+   "wezsze": 0.47,
+   "to_samo": 0.01
+  }
+ },
+ "[\"brwi makijaz ombr permanentn\", \"pudr\", \"soft\"]": {
+  "klasa": [
+   "brwi makijaz ombr permanentn",
+   "pudr",
+   "soft"
+  ],
+  "a": "MAKIJAŻ PERMANENTNY BRWI OMBRE/POWDER",
+  "b": "Soft Ombre Brows (Brwi Permanentne) — Soft Ombre Brows (Brwi Permanentne)",
+  "slowa_a": "OMBRE/POWDER",
+  "slowa_b": "Soft",
+  "relacja": "to_samo",
+  "rozklad": {
+   "to_samo": 0.6,
+   "inne": 0.02,
+   "nie_wiadomo": 0.07,
+   "wezsze": 0.13,
+   "szersze": 0.18
+  }
+ },
+ "[\"nawilzajac twarz\", \"eksfoliacj kosmetolog\", \"ekspres\"]": {
+  "klasa": [
+   "nawilzajac twarz",
+   "eksfoliacj kosmetolog",
+   "ekspres"
+  ],
+  "a": "Zabieg Zluszczajaco Nawilzajacy",
+  "b": "Ekspresowy zabieg nawilżający",
+  "slowa_a": "Zluszczajaco Kosmetologia",
+  "slowa_b": "Ekspresowy",
+  "relacja": "inne",
+  "rozklad": {
+   "wezsze": 0.0,
+   "inne": 0.98,
+   "szersze": 0.01,
+   "to_samo": 0.0,
+   "nie_wiadomo": 0.01
+  }
+ },
+ "[\"nawilzajac twarz\", \"eksfoliacj kosmetolog\", \"oczyszczan\"]": {
+  "klasa": [
+   "nawilzajac twarz",
+   "eksfoliacj kosmetolog",
+   "oczyszczan"
+  ],
+  "a": "Zabieg Zluszczajaco Nawilzajacy",
+  "b": "Nawilżające oczyszczanie",
+  "slowa_a": "Zluszczajaco Kosmetologia",
+  "slowa_b": "oczyszczanie",
+  "relacja": "inne",
+  "rozklad": {
+   "wezsze": 0.02,
+   "nie_wiadomo": 0.02,
+   "inne": 0.91,
+   "to_samo": 0.0,
+   "szersze": 0.05
+  }
+ },
+ "[\"hybryd manicur zdjec\", \"bez malowan\", \"manucurist odzywk\"]": {
+  "klasa": [
+   "hybryd manicur zdjec",
+   "bez malowan",
+   "manucurist odzywk"
+  ],
+  "a": "Manicure bez malowania+zdejmowanie hybrydy",
+  "b": "Manicure z odżywką Manucurist+ściągnięcie hybrydy🌿 — Top stylistka",
+  "slowa_a": "bez malowania",
+  "slowa_b": "odżywką Manucurist",
+  "relacja": "inne",
+  "rozklad": {
+   "szersze": 0.04,
+   "to_samo": 0.06,
+   "nie_wiadomo": 0.02,
+   "inne": 0.81,
+   "wezsze": 0.06
+  }
+ },
+ "[\"hybryd manicur zdjec\", \"higieniczn\", \"manucurist odzywk\"]": {
+  "klasa": [
+   "hybryd manicur zdjec",
+   "higieniczn",
+   "manucurist odzywk"
+  ],
+  "a": "Manicure higieniczny + ściągnięcie hybrydy",
+  "b": "Manicure z odżywką Manucurist+ściągnięcie hybrydy🌿 — Top stylistka",
+  "slowa_a": "higieniczny",
+  "slowa_b": "odżywką Manucurist",
+  "relacja": "inne",
+  "rozklad": {
+   "wezsze": 0.04,
+   "nie_wiadomo": 0.06,
+   "to_samo": 0.08,
+   "szersze": 0.02,
+   "inne": 0.8
+  }
+ },
+ "[\"kwas\", \"eksfoliacj intensywn\", \"tca trojchlorooct\"]": {
+  "klasa": [
+   "kwas",
+   "eksfoliacj intensywn",
+   "tca trojchlorooct"
+  ],
+  "a": "Kwas TCS Intensywnie Złuszczający",
+  "b": "TCA ( Kwas Trojchlorooctowy)",
+  "slowa_a": "Eksfoliacja Intensywnie Złuszczający złuszczające",
+  "slowa_b": "TCA Trojchlorooctowy)",
+  "relacja": "to_samo",
+  "rozklad": {
+   "nie_wiadomo": 0.01,
+   "inne": 0.03,
+   "wezsze": 0.05,
+   "to_samo": 0.69,
+   "szersze": 0.22
+  }
+ },
+ "[\"hybryd manicur zdjec\", \"klasyczn\", \"manucurist odzywk\"]": {
+  "klasa": [
+   "hybryd manicur zdjec",
+   "klasyczn",
+   "manucurist odzywk"
+  ],
+  "a": "Zdjęcie hybrydy + manicure klasyczny",
+  "b": "Manicure z odżywką Manucurist+ściągnięcie hybrydy🌿 — Top stylistka",
+  "slowa_a": "klasyczny",
+  "slowa_b": "odżywką Manucurist",
+  "relacja": "inne",
+  "rozklad": {
+   "nie_wiadomo": 0.05,
+   "wezsze": 0.09,
+   "to_samo": 0.26,
+   "inne": 0.53,
+   "szersze": 0.07
+  }
+ },
+ "[\"kwas\", \"35 tca\", \"eksfoliacj intensywn\"]": {
+  "klasa": [
+   "kwas",
+   "35 tca",
+   "eksfoliacj intensywn"
+  ],
+  "a": "KWAS TCA — KWAS TCA 35%",
+  "b": "Kwas TCS Intensywnie Złuszczający",
+  "slowa_a": "TCA 35%",
+  "slowa_b": "Eksfoliacja Intensywnie Złuszczający złuszczające",
+  "relacja": "wezsze",
+  "rozklad": {
+   "szersze": 0.01,
+   "to_samo": 0.4,
+   "wezsze": 0.48,
+   "nie_wiadomo": 0.03,
+   "inne": 0.08
+  }
+ },
+ "[\"eksfoliacj\", \"intensywn kwas\", \"tca twarz\"]": {
+  "klasa": [
+   "eksfoliacj",
+   "intensywn kwas",
+   "tca twarz"
+  ],
+  "a": "Kwas TCS Intensywnie Złuszczający",
+  "b": "Zabieg złuszczający TCA — Twarz",
+  "slowa_a": "kwasami Kwas Intensywnie",
+  "slowa_b": "TCA Twarz",
+  "relacja": "to_samo",
+  "rozklad": {
+   "szersze": 0.25,
+   "nie_wiadomo": 0.04,
+   "wezsze": 0.04,
+   "inne": 0.08,
+   "to_samo": 0.59
+  }
+ },
+ "[\"eksfoliacj kwas\", \"intensywn\", \"tca twarz\"]": {
+  "klasa": [
+   "eksfoliacj kwas",
+   "intensywn",
+   "tca twarz"
+  ],
+  "a": "Kwas TCS Intensywnie Złuszczający",
+  "b": "Zabieg złuszczający z kwasem TCA",
+  "slowa_a": "Intensywnie",
+  "slowa_b": "TCA TWARZ",
+  "relacja": "to_samo",
+  "rozklad": {
+   "to_samo": 0.56,
+   "inne": 0.09,
+   "nie_wiadomo": 0.04,
+   "wezsze": 0.29,
+   "szersze": 0.02
+  }
+ },
+ "[\"kwas\", \"eksfoliacj intensywn\", \"tca twarz\"]": {
+  "klasa": [
+   "kwas",
+   "eksfoliacj intensywn",
+   "tca twarz"
+  ],
+  "a": "Kwas TCS Intensywnie Złuszczający",
+  "b": "Kwas TCA Twarz — Twarz",
+  "slowa_a": "Eksfoliacja Intensywnie Złuszczający złuszczające",
+  "slowa_b": "TCA Twarz",
+  "relacja": "to_samo",
+  "rozklad": {
+   "nie_wiadomo": 0.05,
+   "szersze": 0.22,
+   "to_samo": 0.46,
+   "inne": 0.14,
+   "wezsze": 0.13
+  }
+ },
+ "[\"head spa\", \"essential ohan\", \"rytual\"]": {
+  "klasa": [
+   "head spa",
+   "essential ohan",
+   "rytual"
+  ],
+  "a": "Ohana Essentials",
+  "b": "HEAD SPA Ritual",
+  "slowa_a": "Ohana Essentials",
+  "slowa_b": "Ritual",
+  "relacja": "inne",
+  "rozklad": {
+   "nie_wiadomo": 0.11,
+   "szersze": 0.0,
+   "wezsze": 0.15,
+   "to_samo": 0.01,
+   "inne": 0.73
+  }
+ },
+ "[\"brod\", \"kontur mesk\", \"strzyzen\"]": {
+  "klasa": [
+   "brod",
+   "kontur mesk",
+   "strzyzen"
+  ],
+  "a": "Kontur brody",
+  "b": "Strzyżenie brody",
+  "slowa_a": "MĘSKIE kontur",
+  "slowa_b": "Strzyżenie",
+  "relacja": "inne",
+  "rozklad": {
+   "inne": 0.39,
+   "to_samo": 0.25,
+   "szersze": 0.1,
+   "nie_wiadomo": 0.01,
+   "wezsze": 0.25
+  }
+ },
+ "[\"twarz\", \"koreansk rytual\", \"spa\"]": {
+  "klasa": [
+   "twarz",
+   "koreansk rytual",
+   "spa"
+  ],
+  "a": "Koreański rytuał twarzy",
+  "b": "Spa dla twarzy 🧖🏼‍♂️💆🏻",
+  "slowa_a": "rytuał Koreański",
+  "slowa_b": "Spa",
+  "relacja": "inne",
+  "rozklad": {
+   "to_samo": 0.01,
+   "szersze": 0.01,
+   "wezsze": 0.14,
+   "inne": 0.83,
+   "nie_wiadomo": 0.01
+  }
+ },
+ "[\"head spa\", \"ohan revital\", \"rytual\"]": {
+  "klasa": [
+   "head spa",
+   "ohan revital",
+   "rytual"
+  ],
+  "a": "Ohana Revitalise",
+  "b": "HEAD SPA Ritual",
+  "slowa_a": "Ohana Revitalise",
+  "slowa_b": "Ritual",
+  "relacja": "inne",
+  "rozklad": {
+   "inne": 0.65,
+   "to_samo": 0.02,
+   "nie_wiadomo": 0.25,
+   "wezsze": 0.06,
+   "szersze": 0.02
+  }
+ },
+ "[\"depilacj\", \"nos\", \"wasik\"]": {
+  "klasa": [
+   "depilacj",
+   "nos",
+   "wasik"
+  ],
+  "a": "Depilacja nosa",
+  "b": "Depilacja wąsika",
+  "slowa_a": "nosa",
+  "slowa_b": "wąsika",
+  "relacja": "inne",
+  "rozklad": {
+   "wezsze": 0.0,
+   "nie_wiadomo": 0.0,
+   "inne": 0.99,
+   "szersze": 0.01,
+   "to_samo": 0.0
+  }
+ },
+ "[\"depilacj\", \"mesk nos\", \"wasik\"]": {
+  "klasa": [
+   "depilacj",
+   "mesk nos",
+   "wasik"
+  ],
+  "a": "Depilacja nosa",
+  "b": "Depilacja wąsika",
+  "slowa_a": "nosa mężczyzn",
+  "slowa_b": "wąsika",
+  "relacja": "inne",
+  "rozklad": {
+   "wezsze": 0.0,
+   "inne": 0.98,
+   "szersze": 0.02,
+   "to_samo": 0.0,
+   "nie_wiadomo": 0.0
+  }
+ },
+ "[\"depilacj\", \"nos\", \"twarz\"]": {
+  "klasa": [
+   "depilacj",
+   "nos",
+   "twarz"
+  ],
+  "a": "Depilacja nosa",
+  "b": "Depilacja twarzy",
+  "slowa_a": "nosa",
+  "slowa_b": "twarzy",
+  "relacja": "wezsze",
+  "rozklad": {
+   "nie_wiadomo": 0.0,
+   "szersze": 0.0,
+   "inne": 0.04,
+   "wezsze": 0.93,
+   "to_samo": 0.03
+  }
+ },
+ "[\"depilacj\", \"mesk nos\", \"twarz\"]": {
+  "klasa": [
+   "depilacj",
+   "mesk nos",
+   "twarz"
+  ],
+  "a": "Depilacja nosa",
+  "b": "Depilacja twarzy",
+  "slowa_a": "nosa mężczyzn",
+  "slowa_b": "twarzy",
+  "relacja": "wezsze",
+  "rozklad": {
+   "to_samo": 0.0,
+   "nie_wiadomo": 0.0,
+   "szersze": 0.0,
+   "wezsze": 0.93,
+   "inne": 0.07
+  }
+ },
+ "[\"twarz\", \"depilacj\", \"mesk\"]": {
+  "klasa": [
+   "twarz",
+   "depilacj",
+   "mesk"
+  ],
+  "a": "Depilacja twarzy",
+  "b": "Twarz",
+  "slowa_a": "Depilacja",
+  "slowa_b": "Mężczyzn",
+  "relacja": "inne",
+  "rozklad": {
+   "nie_wiadomo": 0.01,
+   "inne": 0.45,
+   "wezsze": 0.02,
+   "to_samo": 0.07,
+   "szersze": 0.45
+  }
+ },
+ "[\"bikin klasyczn\", \"intymn\", \"laser\"]": {
+  "klasa": [
+   "bikin klasyczn",
+   "intymn",
+   "laser"
+  ],
+  "a": "Bikini klasyczne",
+  "b": "Bikini klasyczne",
+  "slowa_a": "Intymna",
+  "slowa_b": "laser",
+  "relacja": "to_samo",
+  "rozklad": {
+   "to_samo": 0.41,
+   "wezsze": 0.02,
+   "szersze": 0.05,
+   "inne": 0.24,
+   "nie_wiadomo": 0.28
+  }
+ },
+ "[\"bikin klasyczn\", \"again deka\", \"laser\"]": {
+  "klasa": [
+   "bikin klasyczn",
+   "again deka",
+   "laser"
+  ],
+  "a": "Bikini klasyczne DEKA AGAIN",
+  "b": "Bikini klasyczne",
+  "slowa_a": "deka again",
+  "slowa_b": "laser",
+  "relacja": "wezsze",
+  "rozklad": {
+   "inne": 0.03,
+   "szersze": 0.01,
+   "nie_wiadomo": 0.26,
+   "to_samo": 0.32,
+   "wezsze": 0.38
+  }
+ },
+ "[\"bikin\", \"klasyczn laser\", \"mesk\"]": {
+  "klasa": [
+   "bikin",
+   "klasyczn laser",
+   "mesk"
+  ],
+  "a": "Bikini klasyczne",
+  "b": "Bikini męskie",
+  "slowa_a": "klasyczne",
+  "slowa_b": "męskie",
+  "relacja": "inne",
+  "rozklad": {
+   "wezsze": 0.0,
+   "nie_wiadomo": 0.01,
+   "to_samo": 0.02,
+   "szersze": 0.0,
+   "inne": 0.97
+  }
+ },
+ "[\"bikin\", \"damsk sredn\", \"klasyczn laser\"]": {
+  "klasa": [
+   "bikin",
+   "damsk sredn",
+   "klasyczn laser"
+  ],
+  "a": "Bikini średnie",
+  "b": "Bikini klasyczne",
+  "slowa_a": "średnie damska",
+  "slowa_b": "klasyczne",
+  "relacja": "inne",
+  "rozklad": {
+   "wezsze": 0.04,
+   "nie_wiadomo": 0.17,
+   "szersze": 0.12,
+   "inne": 0.42,
+   "to_samo": 0.25
+  }
+ },
+ "[\"bikin klasyczn\", \"depilacj laser\", \"intymn\"]": {
+  "klasa": [
+   "bikin klasyczn",
+   "depilacj laser",
+   "intymn"
+  ],
+  "a": "Bikini klasyczne",
+  "b": "Bikini klasyczne",
+  "slowa_a": "Depilacja",
+  "slowa_b": "Intymna",
+  "relacja": "to_samo",
+  "rozklad": {
+   "to_samo": 0.78,
+   "inne": 0.04,
+   "nie_wiadomo": 0.05,
+   "wezsze": 0.03,
+   "szersze": 0.1
+  }
+ },
+ "[\"bikin klasyczn laser\", \"cukr past\", \"depilacj\"]": {
+  "klasa": [
+   "bikin klasyczn laser",
+   "cukr past",
+   "depilacj"
+  ],
+  "a": "Bikini klasyczne pastą cukrową",
+  "b": "Bikini klasyczne",
+  "slowa_a": "pastą cukrową",
+  "slowa_b": "Depilacja",
+  "relacja": "wezsze",
+  "rozklad": {
+   "nie_wiadomo": 0.01,
+   "to_samo": 0.17,
+   "szersze": 0.0,
+   "wezsze": 0.74,
+   "inne": 0.08
+  }
  }
 }
