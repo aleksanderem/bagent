@@ -166,6 +166,16 @@ możemy lepiej/taniej/szybciej … to ja Cię ograniczyłem”.
   tego nie widzi; przecinek i ukośnik bez rozstrzygnięcia. Bilans A–D: 3 błędne pary usunięte, zero prawdziwych.
   Wyniki: A 97,5% (201), B 98,3% (804), C 98,6% (771), D 92,0% (579); łącznie A–D 96,8%; 1042 pary 98,3% / odzysk 54%.
   Pokrycie wierszy bez zmian. Reguły zamrożone na test E (sprawdzian 11, nowe salony).
+- TEST E / SPRAWDZIAN 11 (30.09 wieczór, DOWÓD, 18 nowych salonów z 18 miast, reguły zamrożone bagent 502562e; rozbiór
+  GLM 7032/7065 ofert, klasy + zamiany TypeSafe 0,057 USD; moja ocena na ślepo 716 par): **95,9% trafnych „ta sama”
+  (519/541) — bramka 95% ✓.** Branże: Paznokcie 99,3 (139), Salon Kosm. 98,9 (90), Fryzjer 97 (100), Depilacja 94 (67),
+  Masaż 91,9 (111), Brwi 89,5 (19), Barber 100 (7), Med-est 100 (4), Podologia 50 (4). Warianty 88% (25). Błędy (22,
+  rozproszone): masaż — dopiski „Relaks”, „Rytuał”, „Twój pierwszy”, „z elementami” uznane za nieistotne przy Kobido,
+  bańka chińska z innym zakresem w opisie; lasery różnego typu tylko w dziale (DEKA CO2 / Fotona Er:YAG); „do zabiegu”;
+  półdługie ≈ średnie (zamiana „to samo”); wariant „Farbowanie rzęs” usługi „brwi i/lub rzęs”; pedicure w dziale
+  „Podologia”. Odzysk ~45% (reszta: 11,3% prawdziwych w próbie 150/5574). Pokrycie wierszy: „ta sama” ≥3 salony 31% +
+  1–2 salony 13% = 44%, tylko podobne 15%, brak 41% (stary silnik z ceną 61%); mediany ±5% tam, gdzie oba mają cenę.
+  Łącznie A–E: 96,6% (2896 par „ta sama”).
 
 **Why:** koszt i jakość v14f utknęły (87–94%, 3/4 par) na ograniczeniach metody, nie na strojeniu.
 **How to apply:** nowa praca nad matchingiem idzie tym planem; v14f zostaje punktem odniesienia w pomiarach.

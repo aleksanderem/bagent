@@ -265,6 +265,16 @@ p { margin: 0; }
     <div class="szczebel">
       <div class="pytanie">
         <span class="nr-maly">Pytanie 3</span>
+        <h3>Czy jedna oferta to „jedno z kilku”, a druga „wszystko razem”?</h3>
+      </div>
+      <div class="odpowiedz">
+        <span class="chip podobna">Tak: podobna</span>
+        <p class="para"><q>Depilacja uszu lub nosa</q> za 30 zł i <q>Depilacja uszu + nosa</q> za 50 zł. Słowa te same, ale w pierwszej cenie jest jeden obszar, w drugiej oba.</p>
+      </div>
+    </div>
+    <div class="szczebel">
+      <div class="pytanie">
+        <span class="nr-maly">Pytanie 4</span>
         <h3>Czy wszystkie słowa opisujące usługę są takie same?</h3>
       </div>
       <div class="odpowiedz">
@@ -274,7 +284,7 @@ p { margin: 0; }
     </div>
     <div class="szczebel">
       <div class="pytanie">
-        <span class="nr-maly">Pytanie 4</span>
+        <span class="nr-maly">Pytanie 5</span>
         <h3>Czy jedna oferta ma w nazwie dodatek?</h3>
       </div>
       <div class="odpowiedz">
@@ -284,7 +294,7 @@ p { margin: 0; }
     </div>
     <div class="szczebel">
       <div class="pytanie">
-        <span class="nr-maly">Pytanie 5</span>
+        <span class="nr-maly">Pytanie 6</span>
         <h3>Czy słowo, którym się różnią, zmienia usługę?</h3>
         <p class="drobne">To jedyne miejsce, gdzie pytamy TypeSafe. Pytanie pada raz na daną różnicę, na przykład „czy UV przy przedłużaniu rzęs zmienia usługę?”, a odpowiedź obowiązuje potem dla wszystkich takich par na rynku. Dlatego para, na której pytamy, musi być czysta — o tym niżej, w lekcji z testu C.</p>
       </div>
@@ -297,6 +307,17 @@ p { margin: 0; }
         <p class="para"><q>Hybryda na stopy</q> i <q>Pedicure hybrydowy</q> (Twoja decyzja z 30.09). Podobną zostaje pedicure z dopiskiem innego zakresu: frezowanie, opracowanie podeszwy, „pełny”.</p>
         <span class="chip podobna">Nie wiadomo: podobna</span>
         <p class="para"><q>Depilacja wąsik</q> i <q>Depilacja wąs</q>. Przy wątpliwości wybieramy ostrożnie, bo zła para jest gorsza niż brak porównania.</p>
+      </div>
+    </div>
+    <div class="szczebel">
+      <div class="pytanie">
+        <span class="nr-maly">Na koniec</span>
+        <h3>Czy ceny różnią się 5 razy albo bardziej?</h3>
+        <p class="drobne">Twoja decyzja z 30.09. W ocenionych parach taka różnica cen trafia się w 2 na 1000 par naprawdę tych samych, a w co czwartej parze błędnej.</p>
+      </div>
+      <div class="odpowiedz">
+        <span class="chip podobna">Tak: podobna, nie ta sama</span>
+        <p class="para"><q>Rekonstrukcja paznokcia</q> za 150 zł u podologa (paznokieć u stopy) i <q>Rekonstrukcja paznokcia</q> za 15 zł przy manicure (naprawa złamanego paznokcia). Słowa identyczne, usługa inna.</p>
       </div>
     </div>
   </div>
@@ -327,6 +348,34 @@ p { margin: 0; }
       <div>
         <h3>Po poprawce: tylko czyste przykłady</h3>
         <p>Przykład do nauki musi być czysty: druga oferta naprawdę nie ma tego słowa w żadnej postaci. Brakujące przykłady program szuka w parach dwóch innych salonów. Koszt przebudowy: 0,03 USD. Wynik 98 na 100 policzyłem na danych, które już raz widziałem, więc to jeszcze nie dowód. Dowodem będzie test D.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="sekcja" aria-labelledby="lekcja-d">
+  <h2 id="lekcja-d">Lekcja z testu D: ta sama nazwa, inna część ciała</h2>
+  <p>Test D to 18 kolejnych nowych salonów z 18 miast. Oceniłem 540 par na ślepo.</p>
+  <div class="lekcja">
+    <div class="lekcja-krok">
+      <span class="liczba-mala slaba num">90 na 100</span>
+      <div>
+        <h3>Próg nie przeszedł, a ponad połowa błędu to jedna usługa</h3>
+        <p><b>„Rekonstrukcja paznokcia”</b> u podologa to odbudowa paznokcia u stopy za 50–220 zł. W salonie paznokci to naprawa złamanego paznokcia przy manicure za 10–30 zł. Słowa w nazwie są identyczne. Różnicę widać tylko w otoczeniu: typ salonu, dział w cenniku, opis.</p>
+      </div>
+    </div>
+    <div class="lekcja-krok">
+      <span class="liczba-mala num">92 na 100</span>
+      <div>
+        <h3>Po Twojej decyzji o cenie: pary z ceną różną 5 razy i bardziej nie są „tą samą”</h3>
+        <p>To zdjęło najbardziej jaskrawe błędy bez straty w testach A–C. Dołożyłem też regułę „lub” wobec „+” (jeden obszar w cenie wobec obu) — 3 błędne pary mniej, żadnej dobrej straconej.</p>
+      </div>
+    </div>
+    <div class="lekcja-krok">
+      <span class="liczba-mala slaba num">odrzucone</span>
+      <div>
+        <h3>Próba: program czyta część ciała z działu cennika i typu salonu</h3>
+        <p>Pomysł był prosty: jeśli nazwa nie mówi, czy chodzi o dłonie, czy o stopy, niech zdecyduje dział cennika („Manicure”, „Podologia”) albo typ salonu. Na czterech testach usunęło to 19 błędnych par, ale zabrało 66 dobrych: TypeSafe wahał się także przy oczywistych parach, na przykład „Peeling kawitacyjny” w dziale „Kosmetyka” i w dziale „Pielęgnacja twarzy”. Bilans ujemny, więc wycofałem. Kod zostaje w repozytorium, gdyby pojawił się lepszy sygnał, np. pełne menu salonu.</p>
       </div>
     </div>
   </div>

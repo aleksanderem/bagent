@@ -1,0 +1,722 @@
+{
+ "[\"depilacj wasik\", \"brwi rzes\", \"paznokc\"]": {
+  "klasa": [
+   "depilacj wasik",
+   "brwi rzes",
+   "paznokc"
+  ],
+  "usluga": "Depilacja wąsika",
+  "a": "Depilacja wąsika",
+  "b": "Depilacja wąsika — Depilacja wąsika",
+  "kontekst_a": "salon typu „Brwi i rzęsy”",
+  "kontekst_b": "salon typu „Paznokcie”",
+  "score": 0.3,
+  "rozklad": {
+   "0": 0.85,
+   "1": 0.01,
+   "2": 0.14
+  }
+ },
+ "[\"mikrodermabrazj\", \"kosmetyczn salon\", \"podolog\"]": {
+  "klasa": [
+   "mikrodermabrazj",
+   "kosmetyczn salon",
+   "podolog"
+  ],
+  "usluga": "Mikrodermabrazja",
+  "a": "Mikrodermabrazja",
+  "b": "Mikrodermabrazja",
+  "kontekst_a": "salon typu „Salon Kosmetyczny”",
+  "kontekst_b": "salon typu „Podologia”",
+  "score": 1.05,
+  "rozklad": {
+   "0": 0.42,
+   "1": 0.11,
+   "2": 0.47
+  }
+ },
+ "[\"paznokc plytk rekonstrukcj\", \"masaz\", \"podolog\"]": {
+  "klasa": [
+   "paznokc plytk rekonstrukcj",
+   "masaz",
+   "podolog"
+  ],
+  "usluga": "Rekonstrukcja płytki paznokcia",
+  "a": "Rekonstrukcja płytki paznokcia",
+  "b": "Rekonstrukcja płytki paznokcia — Rekonstrukcja płytki paznokcia",
+  "kontekst_a": "salon typu „Masaż”",
+  "kontekst_b": "dział cennika „Podologia”",
+  "score": 1.04,
+  "rozklad": {
+   "0": 0.44,
+   "1": 0.07,
+   "2": 0.49
+  }
+ },
+ "[\"brwi makijaz permanentn\", \"brwi rzes\", \"estetyczn medycyn\"]": {
+  "klasa": [
+   "brwi makijaz permanentn",
+   "brwi rzes",
+   "estetyczn medycyn"
+  ],
+  "usluga": "Makijaż permanentny brwi",
+  "a": "Makijaż permanentny brwi",
+  "b": "Makijaż permanentny brwi",
+  "kontekst_a": "salon typu „Brwi i rzęsy”",
+  "kontekst_b": "salon typu „Medycyna Estetyczna”",
+  "score": 0.01,
+  "rozklad": {
+   "0": 0.99,
+   "1": 0.01,
+   "2": 0.0
+  }
+ },
+ "[\"brwi makijaz permanentn\", \"estetyczn medycyn\", \"kosmetyczn salon\"]": {
+  "klasa": [
+   "brwi makijaz permanentn",
+   "estetyczn medycyn",
+   "kosmetyczn salon"
+  ],
+  "usluga": "Makijaż permanentny brwi",
+  "a": "Makijaż permanentny brwi",
+  "b": "Makijaż permanentny brwi",
+  "kontekst_a": "salon typu „Medycyna Estetyczna”",
+  "kontekst_b": "salon typu „Salon Kosmetyczny”",
+  "score": 0.01,
+  "rozklad": {
+   "0": 1.0,
+   "1": 0.0,
+   "2": 0.0
+  }
+ },
+ "[\"depilacj wasik\", \"kosmetyczn salon\", \"paznokc\"]": {
+  "klasa": [
+   "depilacj wasik",
+   "kosmetyczn salon",
+   "paznokc"
+  ],
+  "usluga": "Depilacja wąsika",
+  "a": "Depilacja wąsika",
+  "b": "Depilacja wąsika — Depilacja wąsika",
+  "kontekst_a": "salon typu „Salon Kosmetyczny”",
+  "kontekst_b": "salon typu „Paznokcie”",
+  "score": 0.08,
+  "rozklad": {
+   "0": 0.95,
+   "1": 0.01,
+   "2": 0.04
+  }
+ },
+ "[\"rzes\", \"brwi rzes\", \"paznokc\"]": {
+  "klasa": [
+   "rzes",
+   "brwi rzes",
+   "paznokc"
+  ],
+  "usluga": "Zdejmowanie rzęs",
+  "a": "Zdejmowanie rzęs",
+  "b": "Usuwanie sztucznych rzęs",
+  "kontekst_a": "salon typu „Brwi i rzęsy”",
+  "kontekst_b": "salon typu „Paznokcie”",
+  "score": 1.13,
+  "rozklad": {
+   "0": 0.43,
+   "1": 0.02,
+   "2": 0.55
+  }
+ },
+ "[\"paznokc rekonstrukcj\", \"masaz\", \"paznokc\"]": {
+  "klasa": [
+   "paznokc rekonstrukcj",
+   "masaz",
+   "paznokc"
+  ],
+  "usluga": "Rekonstrukcja płytki paznokcia",
+  "a": "Rekonstrukcja płytki paznokcia",
+  "b": "Rekonstrukcja paznokci obgryzionych",
+  "kontekst_a": "salon typu „Masaż”",
+  "kontekst_b": "salon typu „Paznokcie”",
+  "score": 0.43,
+  "rozklad": {
+   "0": 0.78,
+   "1": 0.02,
+   "2": 0.2
+  }
+ },
+ "[\"brwi makijaz permanentn\", \"estetyczn medycyn\", \"paznokc\"]": {
+  "klasa": [
+   "brwi makijaz permanentn",
+   "estetyczn medycyn",
+   "paznokc"
+  ],
+  "usluga": "Makijaż permanentny brwi",
+  "a": "Makijaż permanentny brwi",
+  "b": "Makijaż permanentny brwi",
+  "kontekst_a": "salon typu „Medycyna Estetyczna”",
+  "kontekst_b": "salon typu „Paznokcie”",
+  "score": 0.07,
+  "rozklad": {
+   "0": 0.96,
+   "1": 0.01,
+   "2": 0.03
+  }
+ },
+ "[\"rzes zdjec\", \"brwi rzes\", \"kosmetyczn salon\"]": {
+  "klasa": [
+   "rzes zdjec",
+   "brwi rzes",
+   "kosmetyczn salon"
+  ],
+  "usluga": "Ściągnięcie rzęs",
+  "a": "Ściągnięcie rzęs",
+  "b": "Ściągnięcie rzęs",
+  "kontekst_a": "salon typu „Brwi i rzęsy”",
+  "kontekst_b": "salon typu „Salon Kosmetyczny”",
+  "score": 0.08,
+  "rozklad": {
+   "0": 0.95,
+   "1": 0.02,
+   "2": 0.03
+  }
+ },
+ "[\"paznokc rekonstrukcj\", \"masaz\", \"podolog\"]": {
+  "klasa": [
+   "paznokc rekonstrukcj",
+   "masaz",
+   "podolog"
+  ],
+  "usluga": "Rekonstrukcja płytki paznokcia",
+  "a": "Rekonstrukcja płytki paznokcia",
+  "b": "Rekonstrukcja paznokcia",
+  "kontekst_a": "salon typu „Masaż”",
+  "kontekst_b": "dział cennika „Podologia”",
+  "score": 1.04,
+  "rozklad": {
+   "0": 0.42,
+   "1": 0.12,
+   "2": 0.46
+  }
+ },
+ "[\"rzes zdjec\", \"brwi rzes\", \"stylizacj\"]": {
+  "klasa": [
+   "rzes zdjec",
+   "brwi rzes",
+   "stylizacj"
+  ],
+  "usluga": "Ściągnięcie rzęs",
+  "a": "Ściągnięcie rzęs",
+  "b": "Ściągnięcie rzęs — Ściągnięcie rzęs",
+  "kontekst_a": "salon typu „Brwi i rzęsy”",
+  "kontekst_b": "dział cennika „Stylizacja rzęs”",
+  "score": 0.06,
+  "rozklad": {
+   "0": 0.97,
+   "1": 0.01,
+   "2": 0.02
+  }
+ },
+ "[\"rzes\", \"paznokc\", \"przedluzan\"]": {
+  "klasa": [
+   "rzes",
+   "paznokc",
+   "przedluzan"
+  ],
+  "usluga": "Usuwanie sztucznych rzęs",
+  "a": "Usuwanie sztucznych rzęs",
+  "b": "Zdejmowanie rzęs",
+  "kontekst_a": "salon typu „Paznokcie”",
+  "kontekst_b": "dział cennika „Przedłużanie rzęs”",
+  "score": 0.61,
+  "rozklad": {
+   "0": 0.69,
+   "1": 0.02,
+   "2": 0.29
+  }
+ },
+ "[\"brwi makijaz permanentn\", \"estetyczn medycyn\", \"makijaz\"]": {
+  "klasa": [
+   "brwi makijaz permanentn",
+   "estetyczn medycyn",
+   "makijaz"
+  ],
+  "usluga": "Makijaż permanentny brwi",
+  "a": "Makijaż permanentny brwi",
+  "b": "Makijaż permanentny brwi",
+  "kontekst_a": "salon typu „Medycyna Estetyczna”",
+  "kontekst_b": "salon typu „Makijaż”",
+  "score": 0.02,
+  "rozklad": {
+   "0": 0.98,
+   "1": 0.01,
+   "2": 0.01
+  }
+ },
+ "[\"paznokc rekonstrukcj\", \"pedicur\", \"podolog\"]": {
+  "klasa": [
+   "paznokc rekonstrukcj",
+   "pedicur",
+   "podolog"
+  ],
+  "usluga": "Rekonstrukcja uszkodzenia paznokcia",
+  "a": "Rekonstrukcja uszkodzenia paznokcia",
+  "b": "Rekonstrukcja Paznokcia",
+  "kontekst_a": "dział cennika „Pedicure”",
+  "kontekst_b": "salon typu „Podologia”",
+  "score": 0.26,
+  "rozklad": {
+   "0": 0.86,
+   "1": 0.02,
+   "2": 0.12
+  }
+ },
+ "[\"podologiczn podstaw\", \"pedicur\", \"podolog\"]": {
+  "klasa": [
+   "podologiczn podstaw",
+   "pedicur",
+   "podolog"
+  ],
+  "usluga": "Podstawowy zabieg podologiczny — Podolog Patrycja",
+  "a": "Podstawowy zabieg podologiczny — Podolog Patrycja",
+  "b": "Podstawowy Zabieg Podologiczny",
+  "kontekst_a": "dział cennika „Pedicure podologiczny”",
+  "kontekst_b": "salon typu „Podologia”",
+  "score": 0.04,
+  "rozklad": {
+   "0": 0.97,
+   "1": 0.01,
+   "2": 0.02
+  }
+ },
+ "[\"depilacj wasik\", \"paznokc\", \"twarz\"]": {
+  "klasa": [
+   "depilacj wasik",
+   "paznokc",
+   "twarz"
+  ],
+  "usluga": "Depilacja wąsika — Depilacja wąsika",
+  "a": "Depilacja wąsika — Depilacja wąsika",
+  "b": "Depilacja wąsika",
+  "kontekst_a": "salon typu „Paznokcie”",
+  "kontekst_b": "dział cennika „Depilacja twarzy”",
+  "score": 0.51,
+  "rozklad": {
+   "0": 0.74,
+   "1": 0.02,
+   "2": 0.24
+  }
+ },
+ "[\"paznokc rekonstrukcj\", \"paznokc\", \"podolog\"]": {
+  "klasa": [
+   "paznokc rekonstrukcj",
+   "paznokc",
+   "podolog"
+  ],
+  "usluga": "Rekonstrukcja paznokcia",
+  "a": "Rekonstrukcja paznokcia",
+  "b": "Rekonstrukcja Paznokcia",
+  "kontekst_a": "salon typu „Paznokcie”",
+  "kontekst_b": "salon typu „Podologia”",
+  "score": 1.59,
+  "rozklad": {
+   "0": 0.17,
+   "1": 0.07,
+   "2": 0.76
+  }
+ },
+ "[\"depilacj wasik\", \"brwi stylizacj\", \"paznokc\"]": {
+  "klasa": [
+   "depilacj wasik",
+   "brwi stylizacj",
+   "paznokc"
+  ],
+  "usluga": "Depilacja wąsika — Depilacja wąsika",
+  "a": "Depilacja wąsika — Depilacja wąsika",
+  "b": "Depilacja wąsika — Depilacja wąsika",
+  "kontekst_a": "dział cennika „STYLIZACJA BRWI”",
+  "kontekst_b": "salon typu „Paznokcie”",
+  "score": 0.39,
+  "rozklad": {
+   "0": 0.79,
+   "1": 0.03,
+   "2": 0.18
+  }
+ },
+ "[\"manualn oczyszczan\", \"kosmetyczn salon\", \"podolog\"]": {
+  "klasa": [
+   "manualn oczyszczan",
+   "kosmetyczn salon",
+   "podolog"
+  ],
+  "usluga": "Oczyszczanie manualne",
+  "a": "Oczyszczanie manualne",
+  "b": "Oczyszczanie manualne",
+  "kontekst_a": "salon typu „Salon Kosmetyczny”",
+  "kontekst_b": "salon typu „Podologia”",
+  "score": 1.49,
+  "rozklad": {
+   "0": 0.22,
+   "1": 0.06,
+   "2": 0.72
+  }
+ },
+ "[\"brwi farbk koloryzacj regulacj\", \"estetyczn medycyn\", \"kosmetyczn salon\"]": {
+  "klasa": [
+   "brwi farbk koloryzacj regulacj",
+   "estetyczn medycyn",
+   "kosmetyczn salon"
+  ],
+  "usluga": "Koloryzacja brwi farbką wraz z regulacją",
+  "a": "Koloryzacja brwi farbką wraz z regulacją",
+  "b": "Koloryzacja brwi farbką z regulacją nowa stylistka",
+  "kontekst_a": "salon typu „Medycyna Estetyczna”",
+  "kontekst_b": "salon typu „Salon Kosmetyczny”",
+  "score": 0.01,
+  "rozklad": {
+   "0": 1.0,
+   "1": 0.0,
+   "2": 0.0
+  }
+ },
+ "[\"paznokc rekonstrukcj\", \"manicur\", \"masaz\"]": {
+  "klasa": [
+   "paznokc rekonstrukcj",
+   "manicur",
+   "masaz"
+  ],
+  "usluga": "Rekonstrukcja paznokcia",
+  "a": "Rekonstrukcja paznokcia",
+  "b": "Rekonstrukcja płytki paznokcia",
+  "kontekst_a": "dział cennika „Manicure”",
+  "kontekst_b": "salon typu „Masaż”",
+  "score": 1.29,
+  "rozklad": {
+   "0": 0.35,
+   "1": 0.01,
+   "2": 0.64
+  }
+ },
+ "[\"brod strzyzen\", \"barber\", \"barber shop\"]": {
+  "klasa": [
+   "brod strzyzen",
+   "barber",
+   "barber shop"
+  ],
+  "usluga": "Strzyżenie brody",
+  "a": "Strzyżenie brody",
+  "b": "Strzyżenie brody / Beard",
+  "kontekst_a": "dział cennika „💈 VLAD BARBER 💈”",
+  "kontekst_b": "salon typu „Barber shop”",
+  "score": 0.0,
+  "rozklad": {
+   "0": 1.0,
+   "1": 0.0,
+   "2": 0.0
+  }
+ },
+ "[\"masaz twarz\", \"paznokc\", \"pielegnacj\"]": {
+  "klasa": [
+   "masaz twarz",
+   "paznokc",
+   "pielegnacj"
+  ],
+  "usluga": "Masaż twarzy",
+  "a": "Masaż twarzy",
+  "b": "Masaż twarzy",
+  "kontekst_a": "salon typu „Paznokcie”",
+  "kontekst_b": "dział cennika „Pielęgnacja twarzy”",
+  "score": 0.78,
+  "rozklad": {
+   "0": 0.6,
+   "1": 0.03,
+   "2": 0.37
+  }
+ },
+ "[\"rzes\", \"paznokc\", \"stylizacj\"]": {
+  "klasa": [
+   "rzes",
+   "paznokc",
+   "stylizacj"
+  ],
+  "usluga": "Usuwanie sztucznych rzęs",
+  "a": "Usuwanie sztucznych rzęs",
+  "b": "Ściągnięcie rzęs",
+  "kontekst_a": "salon typu „Paznokcie”",
+  "kontekst_b": "dział cennika „Stylizacja rzęs”",
+  "score": 0.43,
+  "rozklad": {
+   "0": 0.77,
+   "1": 0.02,
+   "2": 0.21
+  }
+ },
+ "[\"kresk lini makijaz permanentn rzes\", \"estetyczn medycyn\", \"kosmetyczn salon\"]": {
+  "klasa": [
+   "kresk lini makijaz permanentn rzes",
+   "estetyczn medycyn",
+   "kosmetyczn salon"
+  ],
+  "usluga": "Kreska w linii rzęs - makijaż permanentny",
+  "a": "Kreska w linii rzęs - makijaż permanentny",
+  "b": "Kreska w linii rzęs",
+  "kontekst_a": "salon typu „Medycyna Estetyczna”",
+  "kontekst_b": "salon typu „Salon Kosmetyczny”",
+  "score": 0.01,
+  "rozklad": {
+   "0": 0.99,
+   "1": 0.01,
+   "2": 0.0
+  }
+ },
+ "[\"brwi farbk koloryzacj regulacj\", \"brwi rzes\", \"estetyczn medycyn\"]": {
+  "klasa": [
+   "brwi farbk koloryzacj regulacj",
+   "brwi rzes",
+   "estetyczn medycyn"
+  ],
+  "usluga": "Koloryzacja brwi farbką i regulacja",
+  "a": "Koloryzacja brwi farbką i regulacja",
+  "b": "Koloryzacja brwi farbką wraz z regulacją",
+  "kontekst_a": "salon typu „Brwi i rzęsy”",
+  "kontekst_b": "salon typu „Medycyna Estetyczna”",
+  "score": 0.03,
+  "rozklad": {
+   "0": 0.98,
+   "1": 0.01,
+   "2": 0.01
+  }
+ },
+ "[\"brwi makijaz permanentn\", \"depilacj\", \"estetyczn medycyn\"]": {
+  "klasa": [
+   "brwi makijaz permanentn",
+   "depilacj",
+   "estetyczn medycyn"
+  ],
+  "usluga": "Makijaż permanentny brwi",
+  "a": "Makijaż permanentny brwi",
+  "b": "Makijaż permanentny brwi",
+  "kontekst_a": "salon typu „Depilacja”",
+  "kontekst_b": "salon typu „Medycyna Estetyczna”",
+  "score": 0.04,
+  "rozklad": {
+   "0": 0.97,
+   "1": 0.01,
+   "2": 0.02
+  }
+ },
+ "[\"brwi makijaz permanentn\", \"estetyczn medycyn\", \"fryzjer\"]": {
+  "klasa": [
+   "brwi makijaz permanentn",
+   "estetyczn medycyn",
+   "fryzjer"
+  ],
+  "usluga": "Makijaż permanentny brwi",
+  "a": "Makijaż permanentny brwi",
+  "b": "Makijaż permanentny brwi",
+  "kontekst_a": "salon typu „Medycyna Estetyczna”",
+  "kontekst_b": "salon typu „Fryzjer”",
+  "score": 0.01,
+  "rozklad": {
+   "0": 1.0,
+   "1": 0.0,
+   "2": 0.0
+  }
+ },
+ "[\"paznokc rekonstrukcj\", \"manicur\", \"podolog\"]": {
+  "klasa": [
+   "paznokc rekonstrukcj",
+   "manicur",
+   "podolog"
+  ],
+  "usluga": "Rekonstrukcja obgryzionych paznokci",
+  "a": "Rekonstrukcja obgryzionych paznokci",
+  "b": "Rekonstrukcja Paznokcia",
+  "kontekst_a": "dział cennika „Manicure”",
+  "kontekst_b": "salon typu „Podologia”",
+  "score": 1.5,
+  "rozklad": {
+   "0": 0.24,
+   "1": 0.03,
+   "2": 0.73
+  }
+ },
+ "[\"podologiczn\", \"paznokc\", \"podolog\"]": {
+  "klasa": [
+   "podologiczn",
+   "paznokc",
+   "podolog"
+  ],
+  "usluga": "Pedicure podologiczny",
+  "a": "Pedicure podologiczny",
+  "b": "Podstawowy Zabieg Podologiczny",
+  "kontekst_a": "salon typu „Paznokcie”",
+  "kontekst_b": "salon typu „Podologia”",
+  "score": 0.35,
+  "rozklad": {
+   "0": 0.82,
+   "1": 0.02,
+   "2": 0.16
+  }
+ },
+ "[\"depilacj wasik\", \"brwi\", \"paznokc\"]": {
+  "klasa": [
+   "depilacj wasik",
+   "brwi",
+   "paznokc"
+  ],
+  "usluga": "Depilacja wąsika",
+  "a": "Depilacja wąsika",
+  "b": "Depilacja wąsika — Depilacja wąsika",
+  "kontekst_a": "dział cennika „BRWI”",
+  "kontekst_b": "salon typu „Paznokcie”",
+  "score": 0.16,
+  "rozklad": {
+   "0": 0.92,
+   "1": 0.01,
+   "2": 0.07
+  }
+ },
+ "[\"paznokc rekonstrukcj\", \"kosmetyczn salon\", \"masaz\"]": {
+  "klasa": [
+   "paznokc rekonstrukcj",
+   "kosmetyczn salon",
+   "masaz"
+  ],
+  "usluga": "REKONSTRUKCJA PAZNOKCIA — REKONSTRUKCJA PAZNOKCIA",
+  "a": "REKONSTRUKCJA PAZNOKCIA — REKONSTRUKCJA PAZNOKCIA",
+  "b": "Rekonstrukcja płytki paznokcia",
+  "kontekst_a": "salon typu „Salon Kosmetyczny”",
+  "kontekst_b": "salon typu „Masaż”",
+  "score": 0.23,
+  "rozklad": {
+   "0": 0.87,
+   "1": 0.03,
+   "2": 0.1
+  }
+ },
+ "[\"podologiczn\", \"kosmetyczn salon\", \"podolog\"]": {
+  "klasa": [
+   "podologiczn",
+   "kosmetyczn salon",
+   "podolog"
+  ],
+  "usluga": "Pedicure podologiczny",
+  "a": "Pedicure podologiczny",
+  "b": "Podstawowy Zabieg Podologiczny",
+  "kontekst_a": "salon typu „Salon Kosmetyczny”",
+  "kontekst_b": "salon typu „Podologia”",
+  "score": 0.2,
+  "rozklad": {
+   "0": 0.9,
+   "1": 0.01,
+   "2": 0.09
+  }
+ },
+ "[\"rzes zdjec\", \"brwi rzes\", \"paznokc\"]": {
+  "klasa": [
+   "rzes zdjec",
+   "brwi rzes",
+   "paznokc"
+  ],
+  "usluga": "Ściągnięcie rzęs",
+  "a": "Ściągnięcie rzęs",
+  "b": "Ściągnięcie rzęs",
+  "kontekst_a": "salon typu „Brwi i rzęsy”",
+  "kontekst_b": "salon typu „Paznokcie”",
+  "score": 1.16,
+  "rozklad": {
+   "0": 0.41,
+   "1": 0.02,
+   "2": 0.57
+  }
+ },
+ "[\"malowan pedicur\", \"masaz\", \"paznokc\"]": {
+  "klasa": [
+   "malowan pedicur",
+   "masaz",
+   "paznokc"
+  ],
+  "usluga": "Pedicure z malowaniem",
+  "a": "Pedicure z malowaniem",
+  "b": "Pedicure z malowaniem",
+  "kontekst_a": "salon typu „Masaż”",
+  "kontekst_b": "salon typu „Paznokcie”",
+  "score": 0.7,
+  "rozklad": {
+   "0": 0.63,
+   "1": 0.05,
+   "2": 0.32
+  }
+ },
+ "[\"depilacj wasik\", \"makijaz\", \"paznokc\"]": {
+  "klasa": [
+   "depilacj wasik",
+   "makijaz",
+   "paznokc"
+  ],
+  "usluga": "Depilacja wąsika",
+  "a": "Depilacja wąsika",
+  "b": "Depilacja wąsika — Depilacja wąsika",
+  "kontekst_a": "salon typu „Makijaż”",
+  "kontekst_b": "salon typu „Paznokcie”",
+  "score": 0.27,
+  "rozklad": {
+   "0": 0.86,
+   "1": 0.01,
+   "2": 0.13
+  }
+ },
+ "[\"depilacj wasik\", \"fryzjer\", \"paznokc\"]": {
+  "klasa": [
+   "depilacj wasik",
+   "fryzjer",
+   "paznokc"
+  ],
+  "usluga": "Depilacja wąsika",
+  "a": "Depilacja wąsika",
+  "b": "Depilacja wąsika — Depilacja wąsika",
+  "kontekst_a": "salon typu „Fryzjer”",
+  "kontekst_b": "salon typu „Paznokcie”",
+  "score": 0.15,
+  "rozklad": {
+   "0": 0.92,
+   "1": 0.01,
+   "2": 0.07
+  }
+ },
+ "[\"brwi makijaz permanentn\", \"estetyczn medycyn\", \"stylizacj\"]": {
+  "klasa": [
+   "brwi makijaz permanentn",
+   "estetyczn medycyn",
+   "stylizacj"
+  ],
+  "usluga": "Makijaż permanentny brwi",
+  "a": "Makijaż permanentny brwi",
+  "b": "Makijaż permanentny brwi",
+  "kontekst_a": "salon typu „Medycyna Estetyczna”",
+  "kontekst_b": "dział cennika „Stylizacja brwi”",
+  "score": 0.01,
+  "rozklad": {
+   "0": 0.99,
+   "1": 0.01,
+   "2": 0.0
+  }
+ },
+ "[\"damsk krotk strzyzen\", \"fryzjer\", \"fryzjerstw\"]": {
+  "klasa": [
+   "damsk krotk strzyzen",
+   "fryzjer",
+   "fryzjerstw"
+  ],
+  "usluga": "Strzyżenie Damskie Krótkie",
+  "a": "Strzyżenie Damskie Krótkie",
+  "b": "Strzyżenie damskie krótkie",
+  "kontekst_a": "salon typu „Fryzjer”",
+  "kontekst_b": "dział cennika „Fryzjerstwo damskie”",
+  "score": 0.01,
+  "rozklad": {
+   "0": 1.0,
+   "1": 0.0,
+   "2": 0.0
+  }
+ }
+}
