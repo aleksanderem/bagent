@@ -98,8 +98,10 @@ async def wyciagnij_pozycje(katalogi: list[Path], pamiec: Path, rownolegle: int 
         wlasne = json.loads((d / "kategorie.json").read_text(encoding="utf-8"))
         (d / PLIK_POZYCJI).write_text(json.dumps({k: v for k, v in wynik.items() if k in wlasne}, ensure_ascii=False,
                                                  indent=0), encoding="utf-8")
-    inne = sorted((v["pozycja"], nazwy[k]) for k, v in wynik.items() if v["pozycja"] != "uslugi")
-    print(f"kategorii z pozycją {len(wynik)}/{len(kategorie)}; nie usługi: {len(inne)}")
+    # pamięć jest wspólna dla wielu zbiorów — podsumowanie tylko kategorii podanych katalogów (30.09: KeyError na kluczu
+    # z innego zbioru po zapisaniu plików)
+    inne = sorted((wynik[k]["pozycja"], n) for k, n in nazwy.items() if k in wynik and wynik[k]["pozycja"] != "uslugi")
+    print(f"kategorii z pozycją {sum(k in wynik for k in nazwy)}/{len(kategorie)}; nie usługi: {len(inne)}")
     for poz, n in inne:
         print(f"  {poz:10} {n}")
 
