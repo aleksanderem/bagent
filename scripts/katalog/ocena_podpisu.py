@@ -22,6 +22,7 @@ from services.katalog_uslug import klasy as _klasy  # noqa: E402
 from services.katalog_uslug.ekstrakcja import WERSJA_PROMPTU, oferty_z_uslugi  # noqa: E402
 from services.katalog_uslug.normalizacja import normalizuj  # noqa: E402
 from services.katalog_uslug.podpis import TA_SAMA, Klasy, podpis, porownaj  # noqa: E402
+from services.katalog_uslug.dopasowanie import straznik_ceny  # noqa: E402
 from services.katalog_uslug import podpis as _podpis_mod  # noqa: E402
 
 _spec = importlib.util.spec_from_file_location("test_paczek", B / "scripts" / "katalog" / "test_paczek.py")
@@ -115,7 +116,9 @@ def main() -> None:
     slowa = slownictwo_rynku(rek, slownik)
     for q in pary:
         ra, rb = rek.get(q["oa"].id), rek.get(q["ob"].id)
-        q["podpis"], q["powod"] = (porownaj(podpis(ra, slownik, kon.get(q["oa"].id), slowa), podpis(rb, slownik, kon.get(q["ob"].id), slowa), klasy)
+        q["podpis"], q["powod"] = (straznik_ceny(*porownaj(podpis(ra, slownik, kon.get(q["oa"].id), slowa),
+                                                          podpis(rb, slownik, kon.get(q["ob"].id), slowa), klasy),
+                                                  q["oa"].cena_zl, q["ob"].cena_zl)  # cena ≥ 5× → nie „ta sama” (Alex 30.09)
                                     if ra and rb else ("brak", "brak rekordu"))
     for nazwa, zbior in (("wszystkie 7 zbiorów", pary), ("zbiory 3–6 (z v14f)", [q for q in pary if q["zbior"] in V14F])):
         print(f"\n{nazwa}: par {len(zbior)}")

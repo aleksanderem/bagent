@@ -32,6 +32,7 @@ sys.path[:0] = [str(B), str(B / "scripts"), str(B / "scripts" / "typesafe")]
 from services.katalog_uslug import klasy as _klasy  # noqa: E402
 from services.katalog_uslug.ekstrakcja import Oferta, oferty_z_uslugi  # noqa: E402
 from services.katalog_uslug.klasy import NIE_ZMIENIA, WERSJA_PYTANIA, WERSJA_ZAMIANY, rozstrzygnij, zamiana_rownowazna  # noqa: E402
+from services.katalog_uslug.dopasowanie import straznik_ceny  # noqa: E402
 from services.katalog_uslug.normalizacja import normalizuj, rdzen_slowa  # noqa: E402
 from services.katalog_uslug.podpis import (INNA, PODOBNA, TA_SAMA, Klasy, klasy_do_rozstrzygniecia, podpis,  # noqa: E402
                                            porownaj, roznica_do_pytania,
@@ -209,7 +210,9 @@ def werdykty() -> tuple[list[dict], dict[str, Oferta]]:
         elif pa is None or pb is None:
             q["podpis"], q["powod"] = PODOBNA, "brak rekordu wyciągania"  # nigdy „ta sama” bez rozkładu
         else:
-            q["podpis"], q["powod"] = porownaj(pa, pb, kl)
+            # decyzja Alexa 30.09: cena ≥ 5× → nie „ta sama” (jak w wycenie raportu)
+            w0, p0 = porownaj(pa, pb, kl)
+            q["podpis"], q["powod"] = straznik_ceny(w0, p0, oferty[q["a"]].cena_zl, oferty[q["b"]].cena_zl)
         q["b0"] = normalizuj(f"{oferty[q['a']].nazwa} {oferty[q['a']].wariant}") == normalizuj(f"{oferty[q['b']].nazwa} {oferty[q['b']].wariant}")
     return pary, oferty
 

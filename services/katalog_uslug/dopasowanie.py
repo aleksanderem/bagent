@@ -62,13 +62,31 @@ def _rdzen(p: Podpis) -> frozenset[str]:
     return frozenset(w for poz, w in p.poziomy if poz == "rdzen")
 
 
-def werdykty(ps: Podpis, kandydaci: Iterable[tuple[dict[str, Any], Podpis]], klasy: Klasy) -> list[tuple[dict[str, Any], str, str]]:
+PROG_CENY = 5.0  # decyzja Alexa 30.09 (test D): ≥ 5× w 0,2% par prawdziwych „ta sama” i 23% błędnych (testy A–D)
+
+
+def straznik_ceny(werdykt: str, powod: str, cena_a: float | None, cena_b: float | None) -> tuple[str, str]:
+    """Para, w której jedna cena jest ≥ PROG_CENY razy wyższa, nie jest „tą samą usługą”, choć słowa się zgadzają:
+    „Rekonstrukcja paznokcia” 150 zł u podologa i 15 zł przy manicure (różnica tylko w kontekście, test D).
+    Bez obu cen — bez strażnika. Działa tylko na „ta sama”."""
+    if werdykt != TA_SAMA or not cena_a or not cena_b or cena_a <= 0 or cena_b <= 0:
+        return werdykt, powod
+    iloraz = max(cena_a, cena_b) / min(cena_a, cena_b)
+    if iloraz >= PROG_CENY:
+        return PODOBNA, f"ceny różnią się {iloraz:.1f}× (≥ {PROG_CENY:g}×): {powod}"
+    return werdykt, powod
+
+
+def werdykty(ps: Podpis, kandydaci: Iterable[tuple[dict[str, Any], Podpis]], klasy: Klasy,
+             cena_podmiotu_gr: float | None = None) -> list[tuple[dict[str, Any], str, str]]:
     """Werdykt podpisu dla każdej próbki. „Podobna” zostaje tylko przy tym samym rdzeniu (zabieg + metoda) co oferta
-    podmiotu — inaczej wiersz „ceny podobnych usług” mieszałby różne zabiegi (reguła raportu testowego, 29.09)."""
+    podmiotu — inaczej wiersz „ceny podobnych usług” mieszałby różne zabiegi (reguła raportu testowego, 29.09).
+    Przy cenie podmiotu działa strażnik ceny (straznik_ceny)."""
     rdzen = _rdzen(ps)
     wynik = []
     for s, pk in kandydaci:
-        w, powod = porownaj(ps, pk, klasy)
+        w0, p0 = porownaj(ps, pk, klasy)
+        w, powod = straznik_ceny(w0, p0, cena_podmiotu_gr, s.get("price_grosze"))
         if w == PODOBNA and not (rdzen and rdzen == _rdzen(pk)):
             w, powod = INNA, f"inny rdzeń: {powod}"
         wynik.append((s, w, powod))

@@ -45,3 +45,23 @@ def test_podobna_tylko_przy_tym_samym_rdzeniu() -> None:
     pedicure = podpis(rek("Pedicure", [("metoda", "hybrydowy")]))
     w = werdykty(ps, [(probka(1, 150), z_frenchem), (probka(2, 130), pedicure)], Klasy())
     assert [x[1] for x in w] == [PODOBNA, INNA]
+
+
+def test_straznik_ceny_od_pieciu_razy_to_nie_ta_sama() -> None:
+    # decyzja Alexa 30.09 (test D): „Rekonstrukcja paznokcia” 150 zł u podologa i 15 zł przy manicure to różne usługi
+    from services.katalog_uslug.dopasowanie import straznik_ceny
+    assert straznik_ceny(TA_SAMA, "równe podpisy", 150, 15)[0] == PODOBNA
+    assert straznik_ceny(TA_SAMA, "równe podpisy", 15, 75)[0] == PODOBNA  # dokładnie 5× — już nie ta sama
+    assert straznik_ceny(TA_SAMA, "równe podpisy", 15, 74) == (TA_SAMA, "równe podpisy")
+    assert straznik_ceny(TA_SAMA, "równe podpisy", 0, 150) == (TA_SAMA, "równe podpisy")  # brak ceny — bez strażnika
+    assert straznik_ceny(INNA, "inny zabieg", 150, 15) == (INNA, "inny zabieg")
+
+
+def test_werdykty_stosuja_straznika_wobec_ceny_podmiotu() -> None:
+    from services.katalog_uslug.dopasowanie import werdykty
+    from services.katalog_uslug.podpis import Klasy, podpis
+    rek = {"pozycja": "zabieg", "zabieg": {"fraza": "Rekonstrukcja", "zrodlo": "nazwa"},
+           "cechy": [{"rola": "obszar", "fraza": "paznokcia", "zrodlo": "nazwa"}], "nieprzypisane": []}
+    p = podpis(rek)
+    w = werdykty(p, [(probka(1, 15), p), (probka(2, 140), p)], Klasy(), cena_podmiotu_gr=15000)
+    assert [v for _s, v, _p in w] == [PODOBNA, TA_SAMA]

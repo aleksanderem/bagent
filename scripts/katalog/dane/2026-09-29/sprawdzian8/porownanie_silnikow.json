@@ -23,9 +23,9 @@
   "uslug": 6,
   "stary_z_cena": 5,
   "podpis_ta_sama": 1,
-  "ta_sama_1_2": 4,
+  "ta_sama_1_2": 3,
   "tylko_podobne": 0,
-  "bez_ceny": 1,
+  "bez_ceny": 2,
   "mediana_roznicy": 0.689,
   "par_z_cena_w_obu": 1
  },
@@ -52,12 +52,12 @@
  "Medycyna Estetyczna": {
   "uslug": 6,
   "stary_z_cena": 6,
-  "podpis_ta_sama": 3,
-  "ta_sama_1_2": 3,
+  "podpis_ta_sama": 2,
+  "ta_sama_1_2": 4,
   "tylko_podobne": 0,
   "bez_ceny": 0,
-  "mediana_roznicy": 0.107,
-  "par_z_cena_w_obu": 3
+  "mediana_roznicy": 0.057,
+  "par_z_cena_w_obu": 2
  },
  "Paznokcie": {
   "uslug": 6,
@@ -92,12 +92,12 @@
  "RAZEM": {
   "uslug": 54,
   "stary_z_cena": 46,
-  "podpis_ta_sama": 21,
+  "podpis_ta_sama": 20,
   "ta_sama_1_2": 16,
   "tylko_podobne": 5,
-  "bez_ceny": 12,
-  "mediana_roznicy": 0.089,
-  "par_z_cena_w_obu": 21
+  "bez_ceny": 13,
+  "mediana_roznicy": 0.087,
+  "par_z_cena_w_obu": 20
  },
  "warianty": {
   "ofert": 7,

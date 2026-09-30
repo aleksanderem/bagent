@@ -60,6 +60,9 @@ sprawdzania pytaniami. Twarde bramki z CLAUDE.md obowiązują bez zmian.
 - DECYZJA ALEXA (30.09 ~16:00, „najpierw dokończmy matching”): teraz tylko matching — sprawdzian 10 (dowód poprawki
   przykładów) i dalsze poprawki trafności/odzysku. Etap 3 (suchy przebieg raportu 279, wpięcie za przełącznikiem,
   rozbiór w tle, próby równoległości Z.ai) ODŁOŻONY do odwołania; nie zaczynam go sam.
+- DECYZJA ALEXA (30.09 wieczór, po teście D): CENA JAKO SYGNAŁ — para ofert, w której jedna cena jest ≥ 5× wyższa od
+  drugiej, NIGDY nie jest „tą samą usługą” (trafia do „podobnych”). Uzasadnienie z pomiaru (testy A–D): ≥5× w 0,2%
+  prawdziwych par „ta sama” i 23% błędnych. Próg 5×, nie 3× (3× traci 1,6% prawdziwych par).
 - Drzewo jak w cookbooku TypeSafe hierarchical_classification DO POZIOMU ZABIEGU: każdy poziom to wybór spośród
   dzieci poprzedniego, rodzeństwo się nie nakłada, wiązka 3 ścieżek, średnia geometryczna krawędzi; zabieg może
   mieć kilku rodziców (graf jak MeSH w cookbooku).

@@ -52,7 +52,7 @@ def wycen_oferty(podmiot: Mapping[str, tuple[dict[str, Any], Podpis]],
     [(próbka w kształcie bliźniaka, podpis)]. Oferta bez kandydatów = wiersz „brak”. Nie mutuje wejścia."""
     wynik: dict[str, WierszPodpisu] = {}
     for oid, (subject, ps) in podmiot.items():
-        w = werdykty(ps, kandydaci.get(oid, ()), klasy)
+        w = werdykty(ps, kandydaci.get(oid, ()), klasy, cena_podmiotu_gr=subject.get("price_grosze"))
         r = wycen(subject, w, config)
         r_pod = wycen(subject, [(s, TA_SAMA, p) for s, v, p in w if v == PODOBNA], config)
         powody: dict[str, int] = {}
