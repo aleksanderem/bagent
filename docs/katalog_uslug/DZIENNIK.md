@@ -137,6 +137,16 @@ możemy lepiej/taniej/szybciej … to ja Cię ograniczyłem”.
   (1–2 salony „ta sama” z cenami): spr9 44%+17% = 61%, spr8 39%+30% = 69%, spr7 19%+17% = 36%; tylko „podobne”
   14/9/25%, bez porównania 25/22/40% (stary silnik z ceną 72/85/85%, ale ~35% jego próbek to ta sama usługa).
   Reguły zamrożone na sprawdzian 10: v3 (bagent ef7b403) + decyzja pedicure w ocenach.
+- SPRAWDZIAN 10 / TEST D (30.09 wieczór, DOWÓD, 18 nowych salonów z 18 miast, reguły v3; moja ocena na ślepo 540 par;
+  bagent 36c1bb8): **89,5% — bramka 95% ✗.** Branże: Barber 86, Brwi 100, Depilacja 75 (n=4), Fryzjer 98, Masaż 70,
+  Med-est 94, Paznokcie 96, Podologia 80, Salon Kosm. 100 (n=1). Mechanizmy: równe zbiory 92%, dopisek jednostronny 85%,
+  zamiana 93%, dopiski po obu stronach 80%. 58% ważonego błędu = „Rekonstrukcja paznokcia”: podologiczna odbudowa płytki
+  u stopy (50–220 zł) vs naprawa złamanego paznokcia przy manicure (10–30 zł) — różnica tylko w kontekście (opis „paznokci
+  stóp”, typ salonu Podologia, kategoria „Manicure / Stylistka paznokci”); klasa „stylizacja” przy rekonstrukcji uznana
+  za nieistotną na przykładzie z manicure. Odzysk ~35% (synonimy wąs/wąsik, ombre/babyboomer, keratyna/prostowanie
+  keratynowe; pozycja dodatek/zabieg niespójna przy Olaplex). Pokrycie wierszy: „ta sama” ≥3 salony 34% + 1–2 salony 19%
+  = 53%, tylko podobne 21%, brak 26% (stary silnik z ceną 87%). Sygnał ceny (testy A–D, oceny „ta sama”): różnica cen ≥5×
+  w 2/1076 par prawdziwych (0,2%) i 21/93 błędnych (23%); ≥3× — 1,6% vs 34%.
 
 **Why:** koszt i jakość v14f utknęły (87–94%, 3/4 par) na ograniczeniach metody, nie na strojeniu.
 **How to apply:** nowa praca nad matchingiem idzie tym planem; v14f zostaje punktem odniesienia w pomiarach.
