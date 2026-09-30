@@ -1,0 +1,3782 @@
+[
+{
+"a": "49666341",
+"b": "6948233",
+"branza": "Barber shop",
+"grupa": "reszta",
+"ocena": "I"
+},
+{
+"a": "49666345",
+"b": "6059653",
+"branza": "Barber shop",
+"grupa": "reszta",
+"ocena": "I"
+},
+{
+"a": "49666345",
+"b": "6855397",
+"branza": "Barber shop",
+"grupa": "tylko_podpis",
+"ocena": "T"
+},
+{
+"a": "49666345",
+"b": "6858231",
+"branza": "Barber shop",
+"grupa": "reszta",
+"ocena": "T"
+},
+{
+"a": "49666345",
+"b": "6858232",
+"branza": "Barber shop",
+"grupa": "tylko_podpis",
+"ocena": "P"
+},
+{
+"a": "49666345",
+"b": "6858282",
+"branza": "Barber shop",
+"grupa": "reszta",
+"ocena": "P"
+},
+{
+"a": "49666334",
+"b": "3648718",
+"branza": "Barber shop",
+"grupa": "reszta",
+"ocena": "I"
+},
+{
+"a": "49666334",
+"b": "5824448",
+"branza": "Barber shop",
+"grupa": "reszta",
+"ocena": "I"
+},
+{
+"a": "49666334",
+"b": "6854777",
+"branza": "Barber shop",
+"grupa": "tylko_podpis",
+"ocena": "T"
+},
+{
+"a": "49666334",
+"b": "6857566",
+"branza": "Barber shop",
+"grupa": "reszta",
+"ocena": "T"
+},
+{
+"a": "49666334",
+"b": "6858227",
+"branza": "Barber shop",
+"grupa": "tylko_podpis",
+"ocena": "T"
+},
+{
+"a": "49666334",
+"b": "6858571",
+"branza": "Barber shop",
+"grupa": "tylko_podpis",
+"ocena": "P"
+},
+{
+"a": "49666334",
+"b": "7242133",
+"branza": "Barber shop",
+"grupa": "tylko_podpis",
+"ocena": "P"
+},
+{
+"a": "48631365",
+"b": "5753458",
+"branza": "Barber shop",
+"grupa": "reszta",
+"ocena": "I"
+},
+{
+"a": "48631356",
+"b": "3558173",
+"branza": "Barber shop",
+"grupa": "tylko_podpis",
+"ocena": "T"
+},
+{
+"a": "48631356",
+"b": "5605691",
+"branza": "Barber shop",
+"grupa": "tylko_podpis",
+"ocena": "T"
+},
+{
+"a": "48631356",
+"b": "5606111",
+"branza": "Barber shop",
+"grupa": "tylko_podpis",
+"ocena": "T"
+},
+{
+"a": "48631356",
+"b": "5607032",
+"branza": "Barber shop",
+"grupa": "tylko_podpis",
+"ocena": "T"
+},
+{
+"a": "48631356",
+"b": "5607037",
+"branza": "Barber shop",
+"grupa": "tylko_podpis",
+"ocena": "T"
+},
+{
+"a": "48631356",
+"b": "5607042",
+"branza": "Barber shop",
+"grupa": "tylko_podpis",
+"ocena": "T"
+},
+{
+"a": "48631356",
+"b": "5608126#0",
+"branza": "Barber shop",
+"grupa": "tylko_podpis",
+"ocena": "T"
+},
+{
+"a": "48631356",
+"b": "5608126#1",
+"branza": "Barber shop",
+"grupa": "warianty",
+"ocena": "T"
+},
+{
+"a": "48631356",
+"b": "5608659",
+"branza": "Barber shop",
+"grupa": "tylko_podpis",
+"ocena": "P"
+},
+{
+"a": "48631356",
+"b": "5609562",
+"branza": "Barber shop",
+"grupa": "tylko_podpis",
+"ocena": "T"
+},
+{
+"a": "48631356",
+"b": "5611719",
+"branza": "Barber shop",
+"grupa": "tylko_podpis",
+"ocena": "T"
+},
+{
+"a": "48631356",
+"b": "5612281",
+"branza": "Barber shop",
+"grupa": "tylko_podpis",
+"ocena": "T"
+},
+{
+"a": "48631356",
+"b": "5612301",
+"branza": "Barber shop",
+"grupa": "tylko_podpis",
+"ocena": "T"
+},
+{
+"a": "48631356",
+"b": "5612408",
+"branza": "Barber shop",
+"grupa": "tylko_podpis",
+"ocena": "T"
+},
+{
+"a": "48631356",
+"b": "5612911",
+"branza": "Barber shop",
+"grupa": "tylko_podpis",
+"ocena": "T"
+},
+{
+"a": "48631356",
+"b": "5613119",
+"branza": "Barber shop",
+"grupa": "tylko_podpis",
+"ocena": "T"
+},
+{
+"a": "48631356",
+"b": "5617953",
+"branza": "Barber shop",
+"grupa": "tylko_podpis",
+"ocena": "T"
+},
+{
+"a": "48631356",
+"b": "5742259",
+"branza": "Barber shop",
+"grupa": "tylko_podpis",
+"ocena": "T"
+},
+{
+"a": "48631356",
+"b": "5752160",
+"branza": "Barber shop",
+"grupa": "tylko_podpis",
+"ocena": "T"
+},
+{
+"a": "48631356",
+"b": "5755401",
+"branza": "Barber shop",
+"grupa": "tylko_podpis",
+"ocena": "T"
+},
+{
+"a": "48631356",
+"b": "5763579",
+"branza": "Barber shop",
+"grupa": "tylko_podpis",
+"ocena": "T"
+},
+{
+"a": "48631356",
+"b": "5764057",
+"branza": "Barber shop",
+"grupa": "tylko_podpis",
+"ocena": "T"
+},
+{
+"a": "48631356",
+"b": "6033803",
+"branza": "Barber shop",
+"grupa": "tylko_podpis",
+"ocena": "T"
+},
+{
+"a": "48631356",
+"b": "6047134",
+"branza": "Barber shop",
+"grupa": "tylko_podpis",
+"ocena": "T"
+},
+{
+"a": "48631356",
+"b": "6049852",
+"branza": "Barber shop",
+"grupa": "reszta",
+"ocena": "P"
+},
+{
+"a": "48631356",
+"b": "6050102",
+"branza": "Barber shop",
+"grupa": "tylko_podpis",
+"ocena": "T"
+},
+{
+"a": "48631356",
+"b": "6050390",
+"branza": "Barber shop",
+"grupa": "tylko_podpis",
+"ocena": "T"
+},
+{
+"a": "48631356",
+"b": "6065246",
+"branza": "Barber shop",
+"grupa": "tylko_podpis",
+"ocena": "T"
+},
+{
+"a": "48631356",
+"b": "6081763",
+"branza": "Barber shop",
+"grupa": "tylko_podpis",
+"ocena": "T"
+},
+{
+"a": "48631356",
+"b": "6090595",
+"branza": "Barber shop",
+"grupa": "reszta",
+"ocena": "P"
+},
+{
+"a": "48631356",
+"b": "6145237",
+"branza": "Barber shop",
+"grupa": "tylko_podpis",
+"ocena": "T"
+},
+{
+"a": "48631356",
+"b": "6308261",
+"branza": "Barber shop",
+"grupa": "tylko_podpis",
+"ocena": "T"
+},
+{
+"a": "48631356",
+"b": "6312394",
+"branza": "Barber shop",
+"grupa": "tylko_podpis",
+"ocena": "T"
+},
+{
+"a": "48631356",
+"b": "6551306#0",
+"branza": "Barber shop",
+"grupa": "tylko_podpis",
+"ocena": "T"
+},
+{
+"a": "48631356",
+"b": "7140983",
+"branza": "Barber shop",
+"grupa": "tylko_podpis",
+"ocena": "P"
+},
+{
+"a": "48631356",
+"b": "7140986",
+"branza": "Barber shop",
+"grupa": "tylko_podpis",
+"ocena": "P"
+},
+{
+"a": "48631356",
+"b": "7140997",
+"branza": "Barber shop",
+"grupa": "tylko_podpis",
+"ocena": "P"
+},
+{
+"a": "48631356",
+"b": "7395296#0",
+"branza": "Barber shop",
+"grupa": "tylko_podpis",
+"ocena": "T"
+},
+{
+"a": "48631356",
+"b": "7395296#1",
+"branza": "Barber shop",
+"grupa": "warianty",
+"ocena": "T"
+},
+{
+"a": "48631361",
+"b": "5603124",
+"branza": "Barber shop",
+"grupa": "tylko_podpis",
+"ocena": "T"
+},
+{
+"a": "48631361",
+"b": "5603480",
+"branza": "Barber shop",
+"grupa": "tylko_podpis",
+"ocena": "T"
+},
+{
+"a": "48631361",
+"b": "5609080",
+"branza": "Barber shop",
+"grupa": "tylko_podpis",
+"ocena": "T"
+},
+{
+"a": "48631361",
+"b": "5611715",
+"branza": "Barber shop",
+"grupa": "tylko_podpis",
+"ocena": "T"
+},
+{
+"a": "48631361",
+"b": "5612277",
+"branza": "Barber shop",
+"grupa": "tylko_podpis",
+"ocena": "T"
+},
+{
+"a": "48631361",
+"b": "5613525",
+"branza": "Barber shop",
+"grupa": "tylko_podpis",
+"ocena": "T"
+},
+{
+"a": "48631361",
+"b": "5742582",
+"branza": "Barber shop",
+"grupa": "tylko_podpis",
+"ocena": "T"
+},
+{
+"a": "48631361",
+"b": "6080811",
+"branza": "Barber shop",
+"grupa": "tylko_podpis",
+"ocena": "T"
+},
+{
+"a": "48631361",
+"b": "7383146",
+"branza": "Barber shop",
+"grupa": "tylko_podpis",
+"ocena": "T"
+},
+{
+"a": "49666332",
+"b": "6859203",
+"branza": "Barber shop",
+"grupa": "reszta",
+"ocena": "I"
+},
+{
+"a": "48631369",
+"b": "5655415",
+"branza": "Barber shop",
+"grupa": "reszta",
+"ocena": "P"
+},
+{
+"a": "49636587",
+"b": "3024069",
+"branza": "Brwi i rzęsy",
+"grupa": "reszta",
+"ocena": "I"
+},
+{
+"a": "49636587",
+"b": "5948914",
+"branza": "Brwi i rzęsy",
+"grupa": "reszta",
+"ocena": "I"
+},
+{
+"a": "49636587",
+"b": "6869602",
+"branza": "Brwi i rzęsy",
+"grupa": "reszta",
+"ocena": "I"
+},
+{
+"a": "49636587",
+"b": "6941974",
+"branza": "Brwi i rzęsy",
+"grupa": "reszta",
+"ocena": "I"
+},
+{
+"a": "48561292",
+"b": "6704144",
+"branza": "Brwi i rzęsy",
+"grupa": "reszta",
+"ocena": "I"
+},
+{
+"a": "48561281",
+"b": "5628037",
+"branza": "Brwi i rzęsy",
+"grupa": "reszta",
+"ocena": "T"
+},
+{
+"a": "48561281",
+"b": "5741497",
+"branza": "Brwi i rzęsy",
+"grupa": "reszta",
+"ocena": "T"
+},
+{
+"a": "48561281",
+"b": "6700554",
+"branza": "Brwi i rzęsy",
+"grupa": "reszta",
+"ocena": "T"
+},
+{
+"a": "48561281",
+"b": "7245927",
+"branza": "Brwi i rzęsy",
+"grupa": "reszta",
+"ocena": "I"
+},
+{
+"a": "48561281",
+"b": "7246211",
+"branza": "Brwi i rzęsy",
+"grupa": "reszta",
+"ocena": "I"
+},
+{
+"a": "48561281",
+"b": "7293235",
+"branza": "Brwi i rzęsy",
+"grupa": "reszta",
+"ocena": "P"
+},
+{
+"a": "49636596",
+"b": "6936113",
+"branza": "Brwi i rzęsy",
+"grupa": "reszta",
+"ocena": "P"
+},
+{
+"a": "48561296",
+"b": "6695389#0",
+"branza": "Brwi i rzęsy",
+"grupa": "reszta",
+"ocena": "P"
+},
+{
+"a": "48561296",
+"b": "6703935",
+"branza": "Brwi i rzęsy",
+"grupa": "reszta",
+"ocena": "P"
+},
+{
+"a": "49636581",
+"b": "6826551",
+"branza": "Brwi i rzęsy",
+"grupa": "reszta",
+"ocena": "P"
+},
+{
+"a": "49636581",
+"b": "6839802",
+"branza": "Brwi i rzęsy",
+"grupa": "tylko_podpis",
+"ocena": "T"
+},
+{
+"a": "49636581",
+"b": "6876371",
+"branza": "Brwi i rzęsy",
+"grupa": "reszta",
+"ocena": "P"
+},
+{
+"a": "49636581",
+"b": "6937376",
+"branza": "Brwi i rzęsy",
+"grupa": "tylko_podpis",
+"ocena": "T"
+},
+{
+"a": "49636581",
+"b": "7014481",
+"branza": "Brwi i rzęsy",
+"grupa": "reszta",
+"ocena": "P"
+},
+{
+"a": "49636577",
+"b": "3024162",
+"branza": "Brwi i rzęsy",
+"grupa": "tylko_podpis",
+"ocena": "T"
+},
+{
+"a": "49636577",
+"b": "3482739",
+"branza": "Brwi i rzęsy",
+"grupa": "tylko_podpis",
+"ocena": "T"
+},
+{
+"a": "49636577",
+"b": "4850569",
+"branza": "Brwi i rzęsy",
+"grupa": "tylko_podpis",
+"ocena": "T"
+},
+{
+"a": "49636577",
+"b": "5924169",
+"branza": "Brwi i rzęsy",
+"grupa": "tylko_podpis",
+"ocena": "T"
+},
+{
+"a": "49636577",
+"b": "5924223",
+"branza": "Brwi i rzęsy",
+"grupa": "tylko_podpis",
+"ocena": "T"
+},
+{
+"a": "49636577",
+"b": "5924679",
+"branza": "Brwi i rzęsy",
+"grupa": "tylko_podpis",
+"ocena": "T"
+},
+{
+"a": "49636577",
+"b": "5924829",
+"branza": "Brwi i rzęsy",
+"grupa": "tylko_podpis",
+"ocena": "T"
+},
+{
+"a": "49636577",
+"b": "5924875",
+"branza": "Brwi i rzęsy",
+"grupa": "tylko_podpis",
+"ocena": "T"
+},
+{
+"a": "49636577",
+"b": "5924955",
+"branza": "Brwi i rzęsy",
+"grupa": "tylko_podpis",
+"ocena": "T"
+},
+{
+"a": "49636577",
+"b": "5925681",
+"branza": "Brwi i rzęsy",
+"grupa": "tylko_podpis",
+"ocena": "T"
+},
+{
+"a": "49636577",
+"b": "5926198",
+"branza": "Brwi i rzęsy",
+"grupa": "tylko_podpis",
+"ocena": "T"
+},
+{
+"a": "49636577",
+"b": "5943203",
+"branza": "Brwi i rzęsy",
+"grupa": "tylko_podpis",
+"ocena": "T"
+},
+{
+"a": "49636577",
+"b": "5943826",
+"branza": "Brwi i rzęsy",
+"grupa": "tylko_podpis",
+"ocena": "T"
+},
+{
+"a": "49636577",
+"b": "6630374",
+"branza": "Brwi i rzęsy",
+"grupa": "tylko_podpis",
+"ocena": "T"
+},
+{
+"a": "49636577",
+"b": "6680955",
+"branza": "Brwi i rzęsy",
+"grupa": "tylko_podpis",
+"ocena": "T"
+},
+{
+"a": "49636577",
+"b": "6826038",
+"branza": "Brwi i rzęsy",
+"grupa": "tylko_podpis",
+"ocena": "T"
+},
+{
+"a": "49636577",
+"b": "6826064",
+"branza": "Brwi i rzęsy",
+"grupa": "tylko_podpis",
+"ocena": "T"
+},
+{
+"a": "49636577",
+"b": "6837857",
+"branza": "Brwi i rzęsy",
+"grupa": "tylko_podpis",
+"ocena": "T"
+},
+{
+"a": "49636577",
+"b": "6839675",
+"branza": "Brwi i rzęsy",
+"grupa": "tylko_podpis",
+"ocena": "T"
+},
+{
+"a": "49636577",
+"b": "6839729",
+"branza": "Brwi i rzęsy",
+"grupa": "tylko_podpis",
+"ocena": "T"
+},
+{
+"a": "49636577",
+"b": "6839765",
+"branza": "Brwi i rzęsy",
+"grupa": "tylko_podpis",
+"ocena": "T"
+},
+{
+"a": "49636577",
+"b": "6841493#0",
+"branza": "Brwi i rzęsy",
+"grupa": "tylko_podpis",
+"ocena": "T"
+},
+{
+"a": "49636577",
+"b": "6842253",
+"branza": "Brwi i rzęsy",
+"grupa": "tylko_podpis",
+"ocena": "T"
+},
+{
+"a": "49636577",
+"b": "6842865",
+"branza": "Brwi i rzęsy",
+"grupa": "tylko_podpis",
+"ocena": "T"
+},
+{
+"a": "49636577",
+"b": "6843451",
+"branza": "Brwi i rzęsy",
+"grupa": "tylko_podpis",
+"ocena": "T"
+},
+{
+"a": "49636577",
+"b": "6845974",
+"branza": "Brwi i rzęsy",
+"grupa": "tylko_podpis",
+"ocena": "T"
+},
+{
+"a": "49636577",
+"b": "6847003",
+"branza": "Brwi i rzęsy",
+"grupa": "tylko_podpis",
+"ocena": "T"
+},
+{
+"a": "49636577",
+"b": "6847285",
+"branza": "Brwi i rzęsy",
+"grupa": "tylko_podpis",
+"ocena": "T"
+},
+{
+"a": "49636577",
+"b": "6848881",
+"branza": "Brwi i rzęsy",
+"grupa": "tylko_podpis",
+"ocena": "T"
+},
+{
+"a": "49636577",
+"b": "6849290",
+"branza": "Brwi i rzęsy",
+"grupa": "tylko_podpis",
+"ocena": "T"
+},
+{
+"a": "49636577",
+"b": "6850282",
+"branza": "Brwi i rzęsy",
+"grupa": "tylko_podpis",
+"ocena": "T"
+},
+{
+"a": "49636577",
+"b": "6855323",
+"branza": "Brwi i rzęsy",
+"grupa": "tylko_podpis",
+"ocena": "T"
+},
+{
+"a": "49636577",
+"b": "6855660",
+"branza": "Brwi i rzęsy",
+"grupa": "tylko_podpis",
+"ocena": "T"
+},
+{
+"a": "49636577",
+"b": "6869588",
+"branza": "Brwi i rzęsy",
+"grupa": "tylko_podpis",
+"ocena": "T"
+},
+{
+"a": "49636577",
+"b": "6870411",
+"branza": "Brwi i rzęsy",
+"grupa": "tylko_podpis",
+"ocena": "T"
+},
+{
+"a": "49636577",
+"b": "6870527",
+"branza": "Brwi i rzęsy",
+"grupa": "tylko_podpis",
+"ocena": "T"
+},
+{
+"a": "49636577",
+"b": "6877175",
+"branza": "Brwi i rzęsy",
+"grupa": "tylko_podpis",
+"ocena": "T"
+},
+{
+"a": "49636577",
+"b": "6937390",
+"branza": "Brwi i rzęsy",
+"grupa": "tylko_podpis",
+"ocena": "T"
+},
+{
+"a": "49636577",
+"b": "6941973",
+"branza": "Brwi i rzęsy",
+"grupa": "tylko_podpis",
+"ocena": "T"
+},
+{
+"a": "49636577",
+"b": "6941993",
+"branza": "Brwi i rzęsy",
+"grupa": "tylko_podpis",
+"ocena": "T"
+},
+{
+"a": "49636577",
+"b": "6943083",
+"branza": "Brwi i rzęsy",
+"grupa": "tylko_podpis",
+"ocena": "T"
+},
+{
+"a": "49636577",
+"b": "6944868",
+"branza": "Brwi i rzęsy",
+"grupa": "tylko_podpis",
+"ocena": "T"
+},
+{
+"a": "49636577",
+"b": "6945971",
+"branza": "Brwi i rzęsy",
+"grupa": "tylko_podpis",
+"ocena": "T"
+},
+{
+"a": "49636577",
+"b": "6948720",
+"branza": "Brwi i rzęsy",
+"grupa": "tylko_podpis",
+"ocena": "T"
+},
+{
+"a": "49636577",
+"b": "6950279",
+"branza": "Brwi i rzęsy",
+"grupa": "tylko_podpis",
+"ocena": "T"
+},
+{
+"a": "49636577",
+"b": "6953845",
+"branza": "Brwi i rzęsy",
+"grupa": "tylko_podpis",
+"ocena": "T"
+},
+{
+"a": "49636577",
+"b": "6955115",
+"branza": "Brwi i rzęsy",
+"grupa": "tylko_podpis",
+"ocena": "T"
+},
+{
+"a": "49636577",
+"b": "7392817",
+"branza": "Brwi i rzęsy",
+"grupa": "tylko_podpis",
+"ocena": "T"
+},
+{
+"a": "48604207",
+"b": "6785690",
+"branza": "Depilacja",
+"grupa": "reszta",
+"ocena": "P"
+},
+{
+"a": "3026588#0",
+"b": "6440401#0",
+"branza": "Depilacja",
+"grupa": "reszta",
+"ocena": "P"
+},
+{
+"a": "3026588#0",
+"b": "6478475",
+"branza": "Depilacja",
+"grupa": "tylko_podpis",
+"ocena": "T"
+},
+{
+"a": "3026588#0",
+"b": "6665545#0",
+"branza": "Depilacja",
+"grupa": "reszta",
+"ocena": "I"
+},
+{
+"a": "3026588#0",
+"b": "6665584#0",
+"branza": "Depilacja",
+"grupa": "reszta",
+"ocena": "P"
+},
+{
+"a": "3026588#0",
+"b": "6665592#0",
+"branza": "Depilacja",
+"grupa": "reszta",
+"ocena": "P"
+},
+{
+"a": "48604226",
+"b": "5182578",
+"branza": "Depilacja",
+"grupa": "reszta",
+"ocena": "P"
+},
+{
+"a": "48604226",
+"b": "5645072#0",
+"branza": "Depilacja",
+"grupa": "reszta",
+"ocena": "P"
+},
+{
+"a": "48604226",
+"b": "5645077#0",
+"branza": "Depilacja",
+"grupa": "reszta",
+"ocena": "P"
+},
+{
+"a": "48604226",
+"b": "6698115",
+"branza": "Depilacja",
+"grupa": "reszta",
+"ocena": "P"
+},
+{
+"a": "48604226",
+"b": "6708888",
+"branza": "Depilacja",
+"grupa": "tylko_podpis",
+"ocena": "T"
+},
+{
+"a": "48604226",
+"b": "7274382#0",
+"branza": "Depilacja",
+"grupa": "reszta",
+"ocena": "P"
+},
+{
+"a": "3026594#0",
+"b": "4597720",
+"branza": "Depilacja",
+"grupa": "reszta",
+"ocena": "T"
+},
+{
+"a": "3026594#0",
+"b": "6478504",
+"branza": "Depilacja",
+"grupa": "reszta",
+"ocena": "I"
+},
+{
+"a": "3026594#0",
+"b": "7383502",
+"branza": "Depilacja",
+"grupa": "tylko_podpis",
+"ocena": "P"
+},
+{
+"a": "3026594#1",
+"b": "6664876",
+"branza": "Depilacja",
+"grupa": "warianty",
+"ocena": "T"
+},
+{
+"a": "48604203",
+"b": "5710101#0",
+"branza": "Depilacja",
+"grupa": "reszta",
+"ocena": "I"
+},
+{
+"a": "3026595#0",
+"b": "6664879",
+"branza": "Depilacja",
+"grupa": "tylko_podpis",
+"ocena": "T"
+},
+{
+"a": "3026595#1",
+"b": "6618135",
+"branza": "Depilacja",
+"grupa": "warianty",
+"ocena": "T"
+},
+{
+"a": "48604214",
+"b": "5645082#0",
+"branza": "Depilacja",
+"grupa": "reszta",
+"ocena": "P"
+},
+{
+"a": "48604214",
+"b": "5688536",
+"branza": "Depilacja",
+"grupa": "reszta",
+"ocena": "P"
+},
+{
+"a": "48604214",
+"b": "6774643#0",
+"branza": "Depilacja",
+"grupa": "reszta",
+"ocena": "P"
+},
+{
+"a": "48604214",
+"b": "6785681",
+"branza": "Depilacja",
+"grupa": "reszta",
+"ocena": "P"
+},
+{
+"a": "48789830",
+"b": "5552702",
+"branza": "Fryzjer",
+"grupa": "reszta",
+"ocena": "I"
+},
+{
+"a": "48789830",
+"b": "5911238#0",
+"branza": "Fryzjer",
+"grupa": "reszta",
+"ocena": "P"
+},
+{
+"a": "48789830",
+"b": "6978927",
+"branza": "Fryzjer",
+"grupa": "reszta",
+"ocena": "P"
+},
+{
+"a": "54368847",
+"b": "4086529",
+"branza": "Fryzjer",
+"grupa": "tylko_podpis",
+"ocena": "T"
+},
+{
+"a": "54368847",
+"b": "5677985",
+"branza": "Fryzjer",
+"grupa": "tylko_podpis",
+"ocena": "T"
+},
+{
+"a": "54368847",
+"b": "5838332",
+"branza": "Fryzjer",
+"grupa": "tylko_podpis",
+"ocena": "T"
+},
+{
+"a": "54368847",
+"b": "5865011",
+"branza": "Fryzjer",
+"grupa": "tylko_podpis",
+"ocena": "T"
+},
+{
+"a": "54368847",
+"b": "5869587",
+"branza": "Fryzjer",
+"grupa": "tylko_podpis",
+"ocena": "T"
+},
+{
+"a": "54368847",
+"b": "5882449",
+"branza": "Fryzjer",
+"grupa": "tylko_podpis",
+"ocena": "T"
+},
+{
+"a": "54368847",
+"b": "5999453",
+"branza": "Fryzjer",
+"grupa": "reszta",
+"ocena": "P"
+},
+{
+"a": "54368847",
+"b": "6076408",
+"branza": "Fryzjer",
+"grupa": "tylko_podpis",
+"ocena": "T"
+},
+{
+"a": "54368847",
+"b": "6196769",
+"branza": "Fryzjer",
+"grupa": "reszta",
+"ocena": "P"
+},
+{
+"a": "54368847",
+"b": "6263066",
+"branza": "Fryzjer",
+"grupa": "tylko_podpis",
+"ocena": "T"
+},
+{
+"a": "54368847",
+"b": "6337639",
+"branza": "Fryzjer",
+"grupa": "reszta",
+"ocena": "T"
+},
+{
+"a": "54368847",
+"b": "7096744",
+"branza": "Fryzjer",
+"grupa": "tylko_podpis",
+"ocena": "T"
+},
+{
+"a": "48789798",
+"b": "5557841",
+"branza": "Fryzjer",
+"grupa": "tylko_podpis",
+"ocena": "I"
+},
+{
+"a": "48789798",
+"b": "5563902",
+"branza": "Fryzjer",
+"grupa": "reszta",
+"ocena": "I"
+},
+{
+"a": "48789798",
+"b": "5590005",
+"branza": "Fryzjer",
+"grupa": "tylko_podpis",
+"ocena": "T"
+},
+{
+"a": "48789798",
+"b": "5590890",
+"branza": "Fryzjer",
+"grupa": "reszta",
+"ocena": "P"
+},
+{
+"a": "48789799",
+"b": "5565262",
+"branza": "Fryzjer",
+"grupa": "reszta",
+"ocena": "T"
+},
+{
+"a": "48789799",
+"b": "5565530",
+"branza": "Fryzjer",
+"grupa": "tylko_podpis",
+"ocena": "T"
+},
+{
+"a": "48789799",
+"b": "5586779",
+"branza": "Fryzjer",
+"grupa": "reszta",
+"ocena": "I"
+},
+{
+"a": "48789799",
+"b": "5929071",
+"branza": "Fryzjer",
+"grupa": "reszta",
+"ocena": "P"
+},
+{
+"a": "48789799",
+"b": "5931683",
+"branza": "Fryzjer",
+"grupa": "tylko_podpis",
+"ocena": "T"
+},
+{
+"a": "48789799",
+"b": "6686262",
+"branza": "Fryzjer",
+"grupa": "reszta",
+"ocena": "T"
+},
+{
+"a": "48789799",
+"b": "6686280",
+"branza": "Fryzjer",
+"grupa": "reszta",
+"ocena": "P"
+},
+{
+"a": "54368858",
+"b": "201875#1",
+"branza": "Fryzjer",
+"grupa": "warianty",
+"ocena": "T"
+},
+{
+"a": "54368858",
+"b": "4085696",
+"branza": "Fryzjer",
+"grupa": "tylko_podpis",
+"ocena": "T"
+},
+{
+"a": "54368858",
+"b": "4086512",
+"branza": "Fryzjer",
+"grupa": "tylko_podpis",
+"ocena": "T"
+},
+{
+"a": "54368858",
+"b": "4217372",
+"branza": "Fryzjer",
+"grupa": "tylko_podpis",
+"ocena": "T"
+},
+{
+"a": "54368858",
+"b": "5817655",
+"branza": "Fryzjer",
+"grupa": "tylko_podpis",
+"ocena": "T"
+},
+{
+"a": "54368858",
+"b": "5818711",
+"branza": "Fryzjer",
+"grupa": "tylko_podpis",
+"ocena": "T"
+},
+{
+"a": "54368858",
+"b": "5820457",
+"branza": "Fryzjer",
+"grupa": "tylko_podpis",
+"ocena": "T"
+},
+{
+"a": "54368858",
+"b": "5822550",
+"branza": "Fryzjer",
+"grupa": "tylko_podpis",
+"ocena": "T"
+},
+{
+"a": "54368858",
+"b": "5863122",
+"branza": "Fryzjer",
+"grupa": "tylko_podpis",
+"ocena": "T"
+},
+{
+"a": "54368858",
+"b": "5873243",
+"branza": "Fryzjer",
+"grupa": "tylko_podpis",
+"ocena": "T"
+},
+{
+"a": "54368858",
+"b": "5880809",
+"branza": "Fryzjer",
+"grupa": "tylko_podpis",
+"ocena": "T"
+},
+{
+"a": "54368858",
+"b": "5882497",
+"branza": "Fryzjer",
+"grupa": "tylko_podpis",
+"ocena": "T"
+},
+{
+"a": "54368858",
+"b": "5884094",
+"branza": "Fryzjer",
+"grupa": "tylko_podpis",
+"ocena": "T"
+},
+{
+"a": "54368858",
+"b": "5889432",
+"branza": "Fryzjer",
+"grupa": "tylko_podpis",
+"ocena": "T"
+},
+{
+"a": "54368858",
+"b": "5892419",
+"branza": "Fryzjer",
+"grupa": "tylko_podpis",
+"ocena": "T"
+},
+{
+"a": "54368858",
+"b": "6075935",
+"branza": "Fryzjer",
+"grupa": "tylko_podpis",
+"ocena": "T"
+},
+{
+"a": "54368858",
+"b": "6089824",
+"branza": "Fryzjer",
+"grupa": "tylko_podpis",
+"ocena": "T"
+},
+{
+"a": "54368858",
+"b": "6092167",
+"branza": "Fryzjer",
+"grupa": "tylko_podpis",
+"ocena": "T"
+},
+{
+"a": "54368858",
+"b": "6195468",
+"branza": "Fryzjer",
+"grupa": "tylko_podpis",
+"ocena": "T"
+},
+{
+"a": "54368858",
+"b": "6197836",
+"branza": "Fryzjer",
+"grupa": "tylko_podpis",
+"ocena": "T"
+},
+{
+"a": "54368858",
+"b": "6214173#0",
+"branza": "Fryzjer",
+"grupa": "tylko_podpis",
+"ocena": "T"
+},
+{
+"a": "54368858",
+"b": "6223460",
+"branza": "Fryzjer",
+"grupa": "tylko_podpis",
+"ocena": "T"
+},
+{
+"a": "54368858",
+"b": "6233467",
+"branza": "Fryzjer",
+"grupa": "tylko_podpis",
+"ocena": "T"
+},
+{
+"a": "54368858",
+"b": "6251616",
+"branza": "Fryzjer",
+"grupa": "tylko_podpis",
+"ocena": "T"
+},
+{
+"a": "54368858",
+"b": "6266293",
+"branza": "Fryzjer",
+"grupa": "tylko_podpis",
+"ocena": "T"
+},
+{
+"a": "54368858",
+"b": "6283059",
+"branza": "Fryzjer",
+"grupa": "tylko_podpis",
+"ocena": "T"
+},
+{
+"a": "54368858",
+"b": "6298272",
+"branza": "Fryzjer",
+"grupa": "tylko_podpis",
+"ocena": "T"
+},
+{
+"a": "54368858",
+"b": "6362152",
+"branza": "Fryzjer",
+"grupa": "tylko_podpis",
+"ocena": "T"
+},
+{
+"a": "54368858",
+"b": "6388992",
+"branza": "Fryzjer",
+"grupa": "tylko_podpis",
+"ocena": "T"
+},
+{
+"a": "54368858",
+"b": "6398761",
+"branza": "Fryzjer",
+"grupa": "tylko_podpis",
+"ocena": "T"
+},
+{
+"a": "54368858",
+"b": "6409022",
+"branza": "Fryzjer",
+"grupa": "tylko_podpis",
+"ocena": "T"
+},
+{
+"a": "54368858",
+"b": "6745929",
+"branza": "Fryzjer",
+"grupa": "tylko_podpis",
+"ocena": "T"
+},
+{
+"a": "54368858",
+"b": "6799481",
+"branza": "Fryzjer",
+"grupa": "tylko_podpis",
+"ocena": "T"
+},
+{
+"a": "54368858",
+"b": "6800378#1",
+"branza": "Fryzjer",
+"grupa": "warianty",
+"ocena": "T"
+},
+{
+"a": "54368858",
+"b": "6805675",
+"branza": "Fryzjer",
+"grupa": "tylko_podpis",
+"ocena": "T"
+},
+{
+"a": "54368858",
+"b": "6831981",
+"branza": "Fryzjer",
+"grupa": "tylko_podpis",
+"ocena": "T"
+},
+{
+"a": "54368886",
+"b": "5898028",
+"branza": "Fryzjer",
+"grupa": "reszta",
+"ocena": "P"
+},
+{
+"a": "54368845",
+"b": "3977533",
+"branza": "Fryzjer",
+"grupa": "tylko_podpis",
+"ocena": "T"
+},
+{
+"a": "54368845",
+"b": "5826011",
+"branza": "Fryzjer",
+"grupa": "reszta",
+"ocena": "P"
+},
+{
+"a": "54368845",
+"b": "5874098#1",
+"branza": "Fryzjer",
+"grupa": "warianty",
+"ocena": "T"
+},
+{
+"a": "54368845",
+"b": "6300940",
+"branza": "Fryzjer",
+"grupa": "tylko_podpis",
+"ocena": "T"
+},
+{
+"a": "54368845",
+"b": "7230731",
+"branza": "Fryzjer",
+"grupa": "tylko_podpis",
+"ocena": "T"
+},
+{
+"a": "54832091#3",
+"b": "7320407#0",
+"branza": "Masaż",
+"grupa": "warianty",
+"ocena": "T"
+},
+{
+"a": "54832019#0",
+"b": "6328468",
+"branza": "Masaż",
+"grupa": "reszta",
+"ocena": "I"
+},
+{
+"a": "54832019#0",
+"b": "6556729",
+"branza": "Masaż",
+"grupa": "reszta",
+"ocena": "I"
+},
+{
+"a": "54832019#0",
+"b": "7320875",
+"branza": "Masaż",
+"grupa": "reszta",
+"ocena": "P"
+},
+{
+"a": "54832019#0",
+"b": "7321008",
+"branza": "Masaż",
+"grupa": "reszta",
+"ocena": "P"
+},
+{
+"a": "54832019#0",
+"b": "7322205",
+"branza": "Masaż",
+"grupa": "reszta",
+"ocena": "P"
+},
+{
+"a": "54131117",
+"b": "5530161#0",
+"branza": "Masaż",
+"grupa": "tylko_podpis",
+"ocena": "T"
+},
+{
+"a": "54131117",
+"b": "5530161#1",
+"branza": "Masaż",
+"grupa": "warianty",
+"ocena": "T"
+},
+{
+"a": "54131117",
+"b": "5551092",
+"branza": "Masaż",
+"grupa": "tylko_podpis",
+"ocena": "T"
+},
+{
+"a": "54131117",
+"b": "5552393",
+"branza": "Masaż",
+"grupa": "reszta",
+"ocena": "P"
+},
+{
+"a": "54131117",
+"b": "5567481",
+"branza": "Masaż",
+"grupa": "tylko_podpis",
+"ocena": "T"
+},
+{
+"a": "54131117",
+"b": "5570355",
+"branza": "Masaż",
+"grupa": "reszta",
+"ocena": "P"
+},
+{
+"a": "54131117",
+"b": "5915100",
+"branza": "Masaż",
+"grupa": "reszta",
+"ocena": "P"
+},
+{
+"a": "54131117",
+"b": "5917477#0",
+"branza": "Masaż",
+"grupa": "reszta",
+"ocena": "P"
+},
+{
+"a": "54832052#0",
+"b": "5396513",
+"branza": "Masaż",
+"grupa": "reszta",
+"ocena": "I"
+},
+{
+"a": "54832052#0",
+"b": "6656202",
+"branza": "Masaż",
+"grupa": "reszta",
+"ocena": "I"
+},
+{
+"a": "54832052#0",
+"b": "7200178#0",
+"branza": "Masaż",
+"grupa": "reszta",
+"ocena": "I"
+},
+{
+"a": "54832052#1",
+"b": "5665313",
+"branza": "Masaż",
+"grupa": "warianty",
+"ocena": "T"
+},
+{
+"a": "54131114",
+"b": "1860062",
+"branza": "Masaż",
+"grupa": "tylko_podpis",
+"ocena": "T"
+},
+{
+"a": "54131114",
+"b": "2589503",
+"branza": "Masaż",
+"grupa": "tylko_podpis",
+"ocena": "T"
+},
+{
+"a": "54131114",
+"b": "3473908",
+"branza": "Masaż",
+"grupa": "tylko_podpis",
+"ocena": "T"
+},
+{
+"a": "54131114",
+"b": "3496941",
+"branza": "Masaż",
+"grupa": "tylko_podpis",
+"ocena": "T"
+},
+{
+"a": "54131114",
+"b": "5152565",
+"branza": "Masaż",
+"grupa": "tylko_podpis",
+"ocena": "P"
+},
+{
+"a": "54131114",
+"b": "5532253",
+"branza": "Masaż",
+"grupa": "tylko_podpis",
+"ocena": "P"
+},
+{
+"a": "54131114",
+"b": "5532541",
+"branza": "Masaż",
+"grupa": "tylko_podpis",
+"ocena": "T"
+},
+{
+"a": "54131114",
+"b": "5533557",
+"branza": "Masaż",
+"grupa": "tylko_podpis",
+"ocena": "T"
+},
+{
+"a": "54131114",
+"b": "5547431",
+"branza": "Masaż",
+"grupa": "tylko_podpis",
+"ocena": "T"
+},
+{
+"a": "54131114",
+"b": "5547948",
+"branza": "Masaż",
+"grupa": "tylko_podpis",
+"ocena": "T"
+},
+{
+"a": "54131114",
+"b": "5548863",
+"branza": "Masaż",
+"grupa": "tylko_podpis",
+"ocena": "T"
+},
+{
+"a": "54131114",
+"b": "5551116",
+"branza": "Masaż",
+"grupa": "tylko_podpis",
+"ocena": "P"
+},
+{
+"a": "54131114",
+"b": "5553654",
+"branza": "Masaż",
+"grupa": "tylko_podpis",
+"ocena": "P"
+},
+{
+"a": "54131114",
+"b": "5569887",
+"branza": "Masaż",
+"grupa": "tylko_podpis",
+"ocena": "P"
+},
+{
+"a": "54131114",
+"b": "5571014",
+"branza": "Masaż",
+"grupa": "tylko_podpis",
+"ocena": "T"
+},
+{
+"a": "54131114",
+"b": "5571705#0",
+"branza": "Masaż",
+"grupa": "tylko_podpis",
+"ocena": "T"
+},
+{
+"a": "54131114",
+"b": "5572810",
+"branza": "Masaż",
+"grupa": "reszta",
+"ocena": "T"
+},
+{
+"a": "54131114",
+"b": "5601278",
+"branza": "Masaż",
+"grupa": "tylko_podpis",
+"ocena": "P"
+},
+{
+"a": "54131114",
+"b": "5601306",
+"branza": "Masaż",
+"grupa": "tylko_podpis",
+"ocena": "T"
+},
+{
+"a": "54131114",
+"b": "5669968",
+"branza": "Masaż",
+"grupa": "tylko_podpis",
+"ocena": "P"
+},
+{
+"a": "54131114",
+"b": "5671426",
+"branza": "Masaż",
+"grupa": "tylko_podpis",
+"ocena": "T"
+},
+{
+"a": "54131114",
+"b": "5671914",
+"branza": "Masaż",
+"grupa": "tylko_podpis",
+"ocena": "T"
+},
+{
+"a": "54131114",
+"b": "5738117",
+"branza": "Masaż",
+"grupa": "tylko_podpis",
+"ocena": "P"
+},
+{
+"a": "54131114",
+"b": "5753997",
+"branza": "Masaż",
+"grupa": "tylko_podpis",
+"ocena": "T"
+},
+{
+"a": "54131114",
+"b": "5769034",
+"branza": "Masaż",
+"grupa": "tylko_podpis",
+"ocena": "P"
+},
+{
+"a": "54131114",
+"b": "5910761",
+"branza": "Masaż",
+"grupa": "tylko_podpis",
+"ocena": "P"
+},
+{
+"a": "54131114",
+"b": "5915704",
+"branza": "Masaż",
+"grupa": "tylko_podpis",
+"ocena": "P"
+},
+{
+"a": "54131114",
+"b": "5917459",
+"branza": "Masaż",
+"grupa": "tylko_podpis",
+"ocena": "P"
+},
+{
+"a": "54131114",
+"b": "5917883",
+"branza": "Masaż",
+"grupa": "tylko_podpis",
+"ocena": "T"
+},
+{
+"a": "54131114",
+"b": "5917899",
+"branza": "Masaż",
+"grupa": "tylko_podpis",
+"ocena": "P"
+},
+{
+"a": "54131114",
+"b": "5918306",
+"branza": "Masaż",
+"grupa": "tylko_podpis",
+"ocena": "T"
+},
+{
+"a": "54131114",
+"b": "5918393",
+"branza": "Masaż",
+"grupa": "tylko_podpis",
+"ocena": "P"
+},
+{
+"a": "54131114",
+"b": "5928391",
+"branza": "Masaż",
+"grupa": "tylko_podpis",
+"ocena": "P"
+},
+{
+"a": "54131114",
+"b": "6002460#1",
+"branza": "Masaż",
+"grupa": "warianty",
+"ocena": "T"
+},
+{
+"a": "54131114",
+"b": "6536498#0",
+"branza": "Masaż",
+"grupa": "tylko_podpis",
+"ocena": "T"
+},
+{
+"a": "54131114",
+"b": "6566010",
+"branza": "Masaż",
+"grupa": "tylko_podpis",
+"ocena": "T"
+},
+{
+"a": "54131114",
+"b": "6597911",
+"branza": "Masaż",
+"grupa": "tylko_podpis",
+"ocena": "T"
+},
+{
+"a": "54131114",
+"b": "6610821",
+"branza": "Masaż",
+"grupa": "tylko_podpis",
+"ocena": "T"
+},
+{
+"a": "54131114",
+"b": "6627205",
+"branza": "Masaż",
+"grupa": "tylko_podpis",
+"ocena": "T"
+},
+{
+"a": "54131114",
+"b": "6650525",
+"branza": "Masaż",
+"grupa": "tylko_podpis",
+"ocena": "T"
+},
+{
+"a": "54131114",
+"b": "6653736",
+"branza": "Masaż",
+"grupa": "tylko_podpis",
+"ocena": "T"
+},
+{
+"a": "54131114",
+"b": "6654170",
+"branza": "Masaż",
+"grupa": "tylko_podpis",
+"ocena": "T"
+},
+{
+"a": "54131114",
+"b": "6654182",
+"branza": "Masaż",
+"grupa": "reszta",
+"ocena": "P"
+},
+{
+"a": "54131114",
+"b": "6654543",
+"branza": "Masaż",
+"grupa": "tylko_podpis",
+"ocena": "T"
+},
+{
+"a": "54131114",
+"b": "7336940#1",
+"branza": "Masaż",
+"grupa": "warianty",
+"ocena": "T"
+},
+{
+"a": "54131114",
+"b": "7340198",
+"branza": "Masaż",
+"grupa": "reszta",
+"ocena": "P"
+},
+{
+"a": "54131114",
+"b": "7344304",
+"branza": "Masaż",
+"grupa": "tylko_podpis",
+"ocena": "T"
+},
+{
+"a": "54131114",
+"b": "7353491",
+"branza": "Masaż",
+"grupa": "tylko_podpis",
+"ocena": "T"
+},
+{
+"a": "54832044",
+"b": "6688212",
+"branza": "Masaż",
+"grupa": "reszta",
+"ocena": "P"
+},
+{
+"a": "54832044",
+"b": "6689184",
+"branza": "Masaż",
+"grupa": "reszta",
+"ocena": "I"
+},
+{
+"a": "54832044",
+"b": "6690019",
+"branza": "Masaż",
+"grupa": "reszta",
+"ocena": "I"
+},
+{
+"a": "54131122",
+"b": "5563643",
+"branza": "Masaż",
+"grupa": "reszta",
+"ocena": "I"
+},
+{
+"a": "54131122",
+"b": "5567520",
+"branza": "Masaż",
+"grupa": "reszta",
+"ocena": "I"
+},
+{
+"a": "54131122",
+"b": "5938272",
+"branza": "Masaż",
+"grupa": "reszta",
+"ocena": "I"
+},
+{
+"a": "54131127",
+"b": "5534540",
+"branza": "Masaż",
+"grupa": "tylko_podpis",
+"ocena": "T"
+},
+{
+"a": "54131127",
+"b": "5548188#0",
+"branza": "Masaż",
+"grupa": "reszta",
+"ocena": "I"
+},
+{
+"a": "54131127",
+"b": "5548189#0",
+"branza": "Masaż",
+"grupa": "reszta",
+"ocena": "I"
+},
+{
+"a": "54131127",
+"b": "5570015",
+"branza": "Masaż",
+"grupa": "reszta",
+"ocena": "T"
+},
+{
+"a": "54131127",
+"b": "6608641",
+"branza": "Masaż",
+"grupa": "tylko_podpis",
+"ocena": "T"
+},
+{
+"a": "54131127",
+"b": "6609628",
+"branza": "Masaż",
+"grupa": "tylko_podpis",
+"ocena": "T"
+},
+{
+"a": "54131127",
+"b": "7344396",
+"branza": "Masaż",
+"grupa": "tylko_podpis",
+"ocena": "T"
+},
+{
+"a": "54162065",
+"b": "5940825",
+"branza": "Medycyna Estetyczna",
+"grupa": "reszta",
+"ocena": "T"
+},
+{
+"a": "54162065",
+"b": "6702788",
+"branza": "Medycyna Estetyczna",
+"grupa": "reszta",
+"ocena": "T"
+},
+{
+"a": "54162065",
+"b": "7239601",
+"branza": "Medycyna Estetyczna",
+"grupa": "reszta",
+"ocena": "T"
+},
+{
+"a": "54162065",
+"b": "7281898",
+"branza": "Medycyna Estetyczna",
+"grupa": "tylko_podpis",
+"ocena": "T"
+},
+{
+"a": "54162065",
+"b": "7296197",
+"branza": "Medycyna Estetyczna",
+"grupa": "reszta",
+"ocena": "T"
+},
+{
+"a": "54162073",
+"b": "5792400",
+"branza": "Medycyna Estetyczna",
+"grupa": "reszta",
+"ocena": "P"
+},
+{
+"a": "54162073",
+"b": "6706938",
+"branza": "Medycyna Estetyczna",
+"grupa": "reszta",
+"ocena": "P"
+},
+{
+"a": "54162073",
+"b": "6770224",
+"branza": "Medycyna Estetyczna",
+"grupa": "reszta",
+"ocena": "P"
+},
+{
+"a": "54162073",
+"b": "6771464#0",
+"branza": "Medycyna Estetyczna",
+"grupa": "reszta",
+"ocena": "P"
+},
+{
+"a": "54695973",
+"b": "4129770",
+"branza": "Medycyna Estetyczna",
+"grupa": "reszta",
+"ocena": "T"
+},
+{
+"a": "54162077",
+"b": "5593481",
+"branza": "Medycyna Estetyczna",
+"grupa": "tylko_podpis",
+"ocena": "T"
+},
+{
+"a": "54162077",
+"b": "5690636",
+"branza": "Medycyna Estetyczna",
+"grupa": "reszta",
+"ocena": "I"
+},
+{
+"a": "54162077",
+"b": "5715631",
+"branza": "Medycyna Estetyczna",
+"grupa": "tylko_podpis",
+"ocena": "T"
+},
+{
+"a": "54162077",
+"b": "7134439",
+"branza": "Medycyna Estetyczna",
+"grupa": "tylko_podpis",
+"ocena": "T"
+},
+{
+"a": "54162077",
+"b": "7284241",
+"branza": "Medycyna Estetyczna",
+"grupa": "reszta",
+"ocena": "P"
+},
+{
+"a": "54695937",
+"b": "6102230",
+"branza": "Medycyna Estetyczna",
+"grupa": "tylko_podpis",
+"ocena": "P"
+},
+{
+"a": "54695937",
+"b": "6102234",
+"branza": "Medycyna Estetyczna",
+"grupa": "reszta",
+"ocena": "I"
+},
+{
+"a": "54695937",
+"b": "6105583",
+"branza": "Medycyna Estetyczna",
+"grupa": "tylko_podpis",
+"ocena": "P"
+},
+{
+"a": "54695937",
+"b": "6114222",
+"branza": "Medycyna Estetyczna",
+"grupa": "reszta",
+"ocena": "I"
+},
+{
+"a": "54695937",
+"b": "6120263",
+"branza": "Medycyna Estetyczna",
+"grupa": "tylko_podpis",
+"ocena": "T"
+},
+{
+"a": "54695937",
+"b": "6132374",
+"branza": "Medycyna Estetyczna",
+"grupa": "tylko_podpis",
+"ocena": "P"
+},
+{
+"a": "54695937",
+"b": "6376665",
+"branza": "Medycyna Estetyczna",
+"grupa": "reszta",
+"ocena": "P"
+},
+{
+"a": "54695937",
+"b": "6473731",
+"branza": "Medycyna Estetyczna",
+"grupa": "tylko_podpis",
+"ocena": "T"
+},
+{
+"a": "54162066",
+"b": "2029028",
+"branza": "Medycyna Estetyczna",
+"grupa": "tylko_podpis",
+"ocena": "T"
+},
+{
+"a": "54162066",
+"b": "3648336",
+"branza": "Medycyna Estetyczna",
+"grupa": "tylko_podpis",
+"ocena": "T"
+},
+{
+"a": "54162066",
+"b": "3677237",
+"branza": "Medycyna Estetyczna",
+"grupa": "tylko_podpis",
+"ocena": "T"
+},
+{
+"a": "54162066",
+"b": "5181580",
+"branza": "Medycyna Estetyczna",
+"grupa": "tylko_podpis",
+"ocena": "T"
+},
+{
+"a": "54162066",
+"b": "5305197",
+"branza": "Medycyna Estetyczna",
+"grupa": "tylko_podpis",
+"ocena": "T"
+},
+{
+"a": "54162066",
+"b": "5590555",
+"branza": "Medycyna Estetyczna",
+"grupa": "tylko_podpis",
+"ocena": "T"
+},
+{
+"a": "54162066",
+"b": "5591319",
+"branza": "Medycyna Estetyczna",
+"grupa": "tylko_podpis",
+"ocena": "T"
+},
+{
+"a": "54162066",
+"b": "5592111",
+"branza": "Medycyna Estetyczna",
+"grupa": "tylko_podpis",
+"ocena": "T"
+},
+{
+"a": "54162066",
+"b": "5594013",
+"branza": "Medycyna Estetyczna",
+"grupa": "tylko_podpis",
+"ocena": "T"
+},
+{
+"a": "54162066",
+"b": "5594385",
+"branza": "Medycyna Estetyczna",
+"grupa": "tylko_podpis",
+"ocena": "T"
+},
+{
+"a": "54162066",
+"b": "5628762",
+"branza": "Medycyna Estetyczna",
+"grupa": "tylko_podpis",
+"ocena": "T"
+},
+{
+"a": "54162066",
+"b": "5636368",
+"branza": "Medycyna Estetyczna",
+"grupa": "tylko_podpis",
+"ocena": "T"
+},
+{
+"a": "54162066",
+"b": "5646161",
+"branza": "Medycyna Estetyczna",
+"grupa": "tylko_podpis",
+"ocena": "T"
+},
+{
+"a": "54162066",
+"b": "5676521#8",
+"branza": "Medycyna Estetyczna",
+"grupa": "warianty",
+"ocena": "P"
+},
+{
+"a": "54162066",
+"b": "5685921",
+"branza": "Medycyna Estetyczna",
+"grupa": "tylko_podpis",
+"ocena": "T"
+},
+{
+"a": "54162066",
+"b": "5687180",
+"branza": "Medycyna Estetyczna",
+"grupa": "tylko_podpis",
+"ocena": "T"
+},
+{
+"a": "54162066",
+"b": "5696773#1",
+"branza": "Medycyna Estetyczna",
+"grupa": "warianty",
+"ocena": "T"
+},
+{
+"a": "54162066",
+"b": "5697500",
+"branza": "Medycyna Estetyczna",
+"grupa": "tylko_podpis",
+"ocena": "T"
+},
+{
+"a": "54162066",
+"b": "5708591",
+"branza": "Medycyna Estetyczna",
+"grupa": "tylko_podpis",
+"ocena": "T"
+},
+{
+"a": "54162066",
+"b": "5709447",
+"branza": "Medycyna Estetyczna",
+"grupa": "tylko_podpis",
+"ocena": "T"
+},
+{
+"a": "54162066",
+"b": "5712873",
+"branza": "Medycyna Estetyczna",
+"grupa": "tylko_podpis",
+"ocena": "T"
+},
+{
+"a": "54162066",
+"b": "5715507",
+"branza": "Medycyna Estetyczna",
+"grupa": "tylko_podpis",
+"ocena": "T"
+},
+{
+"a": "54162066",
+"b": "5848568",
+"branza": "Medycyna Estetyczna",
+"grupa": "tylko_podpis",
+"ocena": "T"
+},
+{
+"a": "54162066",
+"b": "5853064",
+"branza": "Medycyna Estetyczna",
+"grupa": "tylko_podpis",
+"ocena": "T"
+},
+{
+"a": "54162066",
+"b": "6694712",
+"branza": "Medycyna Estetyczna",
+"grupa": "tylko_podpis",
+"ocena": "T"
+},
+{
+"a": "54162066",
+"b": "6694863",
+"branza": "Medycyna Estetyczna",
+"grupa": "tylko_podpis",
+"ocena": "T"
+},
+{
+"a": "54162066",
+"b": "6702733",
+"branza": "Medycyna Estetyczna",
+"grupa": "tylko_podpis",
+"ocena": "T"
+},
+{
+"a": "54162066",
+"b": "6703434",
+"branza": "Medycyna Estetyczna",
+"grupa": "tylko_podpis",
+"ocena": "T"
+},
+{
+"a": "54162066",
+"b": "6752132",
+"branza": "Medycyna Estetyczna",
+"grupa": "tylko_podpis",
+"ocena": "T"
+},
+{
+"a": "54162066",
+"b": "6755694",
+"branza": "Medycyna Estetyczna",
+"grupa": "tylko_podpis",
+"ocena": "T"
+},
+{
+"a": "54162066",
+"b": "6757249",
+"branza": "Medycyna Estetyczna",
+"grupa": "tylko_podpis",
+"ocena": "T"
+},
+{
+"a": "54162066",
+"b": "6763395#3",
+"branza": "Medycyna Estetyczna",
+"grupa": "warianty",
+"ocena": "T"
+},
+{
+"a": "54162066",
+"b": "6770194",
+"branza": "Medycyna Estetyczna",
+"grupa": "tylko_podpis",
+"ocena": "T"
+},
+{
+"a": "54162066",
+"b": "6771486",
+"branza": "Medycyna Estetyczna",
+"grupa": "tylko_podpis",
+"ocena": "T"
+},
+{
+"a": "54162066",
+"b": "6772410",
+"branza": "Medycyna Estetyczna",
+"grupa": "tylko_podpis",
+"ocena": "T"
+},
+{
+"a": "54162066",
+"b": "6773995",
+"branza": "Medycyna Estetyczna",
+"grupa": "tylko_podpis",
+"ocena": "T"
+},
+{
+"a": "54162066",
+"b": "6791251",
+"branza": "Medycyna Estetyczna",
+"grupa": "tylko_podpis",
+"ocena": "T"
+},
+{
+"a": "54162066",
+"b": "7243381",
+"branza": "Medycyna Estetyczna",
+"grupa": "tylko_podpis",
+"ocena": "T"
+},
+{
+"a": "54162066",
+"b": "7244934",
+"branza": "Medycyna Estetyczna",
+"grupa": "tylko_podpis",
+"ocena": "T"
+},
+{
+"a": "54162066",
+"b": "7270885",
+"branza": "Medycyna Estetyczna",
+"grupa": "tylko_podpis",
+"ocena": "T"
+},
+{
+"a": "54162066",
+"b": "7285295",
+"branza": "Medycyna Estetyczna",
+"grupa": "tylko_podpis",
+"ocena": "T"
+},
+{
+"a": "54162066",
+"b": "7285751",
+"branza": "Medycyna Estetyczna",
+"grupa": "tylko_podpis",
+"ocena": "T"
+},
+{
+"a": "54162066",
+"b": "7293800",
+"branza": "Medycyna Estetyczna",
+"grupa": "tylko_podpis",
+"ocena": "T"
+},
+{
+"a": "54162066",
+"b": "7392539",
+"branza": "Medycyna Estetyczna",
+"grupa": "tylko_podpis",
+"ocena": "T"
+},
+{
+"a": "54695923",
+"b": "6106637",
+"branza": "Medycyna Estetyczna",
+"grupa": "reszta",
+"ocena": "I"
+},
+{
+"a": "54695923",
+"b": "6110935",
+"branza": "Medycyna Estetyczna",
+"grupa": "reszta",
+"ocena": "T"
+},
+{
+"a": "54695923",
+"b": "6111932",
+"branza": "Medycyna Estetyczna",
+"grupa": "reszta",
+"ocena": "P"
+},
+{
+"a": "54695923",
+"b": "6363402",
+"branza": "Medycyna Estetyczna",
+"grupa": "reszta",
+"ocena": "I"
+},
+{
+"a": "54695871",
+"b": "6118858",
+"branza": "Medycyna Estetyczna",
+"grupa": "reszta",
+"ocena": "P"
+},
+{
+"a": "54695871",
+"b": "6135301",
+"branza": "Medycyna Estetyczna",
+"grupa": "reszta",
+"ocena": "P"
+},
+{
+"a": "54695871",
+"b": "6363367#0",
+"branza": "Medycyna Estetyczna",
+"grupa": "reszta",
+"ocena": "I"
+},
+{
+"a": "54695871",
+"b": "7395847",
+"branza": "Medycyna Estetyczna",
+"grupa": "reszta",
+"ocena": "I"
+},
+{
+"a": "49864430",
+"b": "5520434",
+"branza": "Paznokcie",
+"grupa": "tylko_podpis",
+"ocena": "T"
+},
+{
+"a": "49864430",
+"b": "5965976",
+"branza": "Paznokcie",
+"grupa": "tylko_podpis",
+"ocena": "T"
+},
+{
+"a": "49864430",
+"b": "5967424",
+"branza": "Paznokcie",
+"grupa": "tylko_podpis",
+"ocena": "T"
+},
+{
+"a": "49864430",
+"b": "5967541",
+"branza": "Paznokcie",
+"grupa": "tylko_podpis",
+"ocena": "T"
+},
+{
+"a": "49864430",
+"b": "5967941",
+"branza": "Paznokcie",
+"grupa": "tylko_podpis",
+"ocena": "T"
+},
+{
+"a": "49864430",
+"b": "5968353",
+"branza": "Paznokcie",
+"grupa": "tylko_podpis",
+"ocena": "T"
+},
+{
+"a": "49864430",
+"b": "5968389",
+"branza": "Paznokcie",
+"grupa": "tylko_podpis",
+"ocena": "T"
+},
+{
+"a": "49864430",
+"b": "5970389",
+"branza": "Paznokcie",
+"grupa": "tylko_podpis",
+"ocena": "T"
+},
+{
+"a": "49864430",
+"b": "5980985",
+"branza": "Paznokcie",
+"grupa": "tylko_podpis",
+"ocena": "T"
+},
+{
+"a": "49864430",
+"b": "5984304",
+"branza": "Paznokcie",
+"grupa": "tylko_podpis",
+"ocena": "T"
+},
+{
+"a": "49864430",
+"b": "5985039",
+"branza": "Paznokcie",
+"grupa": "tylko_podpis",
+"ocena": "T"
+},
+{
+"a": "49864430",
+"b": "5985093",
+"branza": "Paznokcie",
+"grupa": "tylko_podpis",
+"ocena": "T"
+},
+{
+"a": "49864430",
+"b": "5985270",
+"branza": "Paznokcie",
+"grupa": "tylko_podpis",
+"ocena": "T"
+},
+{
+"a": "49864430",
+"b": "5986330",
+"branza": "Paznokcie",
+"grupa": "tylko_podpis",
+"ocena": "T"
+},
+{
+"a": "49864430",
+"b": "6000854",
+"branza": "Paznokcie",
+"grupa": "tylko_podpis",
+"ocena": "T"
+},
+{
+"a": "49864430",
+"b": "6064915",
+"branza": "Paznokcie",
+"grupa": "tylko_podpis",
+"ocena": "T"
+},
+{
+"a": "49864430",
+"b": "6594263",
+"branza": "Paznokcie",
+"grupa": "tylko_podpis",
+"ocena": "T"
+},
+{
+"a": "49864430",
+"b": "6611412",
+"branza": "Paznokcie",
+"grupa": "tylko_podpis",
+"ocena": "T"
+},
+{
+"a": "49864430",
+"b": "6639464",
+"branza": "Paznokcie",
+"grupa": "tylko_podpis",
+"ocena": "T"
+},
+{
+"a": "49864430",
+"b": "6641334",
+"branza": "Paznokcie",
+"grupa": "tylko_podpis",
+"ocena": "T"
+},
+{
+"a": "49864430",
+"b": "6643406",
+"branza": "Paznokcie",
+"grupa": "tylko_podpis",
+"ocena": "T"
+},
+{
+"a": "49864430",
+"b": "6644686",
+"branza": "Paznokcie",
+"grupa": "tylko_podpis",
+"ocena": "T"
+},
+{
+"a": "49864430",
+"b": "6966986",
+"branza": "Paznokcie",
+"grupa": "tylko_podpis",
+"ocena": "T"
+},
+{
+"a": "49864430",
+"b": "7065782",
+"branza": "Paznokcie",
+"grupa": "tylko_podpis",
+"ocena": "P"
+},
+{
+"a": "49864430",
+"b": "7069793#0",
+"branza": "Paznokcie",
+"grupa": "reszta",
+"ocena": "P"
+},
+{
+"a": "49864430",
+"b": "7070574",
+"branza": "Paznokcie",
+"grupa": "tylko_podpis",
+"ocena": "T"
+},
+{
+"a": "49864430",
+"b": "7071185",
+"branza": "Paznokcie",
+"grupa": "tylko_podpis",
+"ocena": "T"
+},
+{
+"a": "49864430",
+"b": "7071990",
+"branza": "Paznokcie",
+"grupa": "tylko_podpis",
+"ocena": "T"
+},
+{
+"a": "49864430",
+"b": "7234232",
+"branza": "Paznokcie",
+"grupa": "tylko_podpis",
+"ocena": "P"
+},
+{
+"a": "49864430",
+"b": "7234658",
+"branza": "Paznokcie",
+"grupa": "tylko_podpis",
+"ocena": "T"
+},
+{
+"a": "49864430",
+"b": "7237020",
+"branza": "Paznokcie",
+"grupa": "tylko_podpis",
+"ocena": "T"
+},
+{
+"a": "49864430",
+"b": "7248258",
+"branza": "Paznokcie",
+"grupa": "tylko_podpis",
+"ocena": "T"
+},
+{
+"a": "49864430",
+"b": "7251513",
+"branza": "Paznokcie",
+"grupa": "tylko_podpis",
+"ocena": "T"
+},
+{
+"a": "49864398",
+"b": "2065214",
+"branza": "Paznokcie",
+"grupa": "reszta",
+"ocena": "P"
+},
+{
+"a": "49864398",
+"b": "5999287",
+"branza": "Paznokcie",
+"grupa": "reszta",
+"ocena": "T"
+},
+{
+"a": "49864398",
+"b": "7065304",
+"branza": "Paznokcie",
+"grupa": "reszta",
+"ocena": "T"
+},
+{
+"a": "49864398",
+"b": "7072400",
+"branza": "Paznokcie",
+"grupa": "tylko_podpis",
+"ocena": "T"
+},
+{
+"a": "49576779",
+"b": "6756096",
+"branza": "Paznokcie",
+"grupa": "tylko_podpis",
+"ocena": "T"
+},
+{
+"a": "49576779",
+"b": "6757810",
+"branza": "Paznokcie",
+"grupa": "tylko_podpis",
+"ocena": "T"
+},
+{
+"a": "49576779",
+"b": "6758583",
+"branza": "Paznokcie",
+"grupa": "tylko_podpis",
+"ocena": "T"
+},
+{
+"a": "49576779",
+"b": "6759222",
+"branza": "Paznokcie",
+"grupa": "tylko_podpis",
+"ocena": "T"
+},
+{
+"a": "49576779",
+"b": "6760930",
+"branza": "Paznokcie",
+"grupa": "tylko_podpis",
+"ocena": "T"
+},
+{
+"a": "49576779",
+"b": "7262257",
+"branza": "Paznokcie",
+"grupa": "reszta",
+"ocena": "P"
+},
+{
+"a": "49864422",
+"b": "5969690",
+"branza": "Paznokcie",
+"grupa": "reszta",
+"ocena": "P"
+},
+{
+"a": "49864422",
+"b": "5998984",
+"branza": "Paznokcie",
+"grupa": "reszta",
+"ocena": "P"
+},
+{
+"a": "49864422",
+"b": "7231169",
+"branza": "Paznokcie",
+"grupa": "reszta",
+"ocena": "P"
+},
+{
+"a": "49576751",
+"b": "6756044#0",
+"branza": "Paznokcie",
+"grupa": "reszta",
+"ocena": "I"
+},
+{
+"a": "49576751",
+"b": "6808920",
+"branza": "Paznokcie",
+"grupa": "reszta",
+"ocena": "P"
+},
+{
+"a": "49576764",
+"b": "6876878#0",
+"branza": "Paznokcie",
+"grupa": "reszta",
+"ocena": "I"
+},
+{
+"a": "49576764",
+"b": "6878228#0",
+"branza": "Paznokcie",
+"grupa": "reszta",
+"ocena": "I"
+},
+{
+"a": "49576764",
+"b": "6896189",
+"branza": "Paznokcie",
+"grupa": "reszta",
+"ocena": "I"
+},
+{
+"a": "49576770",
+"b": "3136306",
+"branza": "Paznokcie",
+"grupa": "tylko_podpis",
+"ocena": "T"
+},
+{
+"a": "49576770",
+"b": "3705518",
+"branza": "Paznokcie",
+"grupa": "tylko_podpis",
+"ocena": "T"
+},
+{
+"a": "49576770",
+"b": "5638568",
+"branza": "Paznokcie",
+"grupa": "tylko_podpis",
+"ocena": "T"
+},
+{
+"a": "49576770",
+"b": "5703620",
+"branza": "Paznokcie",
+"grupa": "tylko_podpis",
+"ocena": "T"
+},
+{
+"a": "49576770",
+"b": "5723840",
+"branza": "Paznokcie",
+"grupa": "tylko_podpis",
+"ocena": "T"
+},
+{
+"a": "49576770",
+"b": "5745612",
+"branza": "Paznokcie",
+"grupa": "tylko_podpis",
+"ocena": "T"
+},
+{
+"a": "49576770",
+"b": "6475841",
+"branza": "Paznokcie",
+"grupa": "tylko_podpis",
+"ocena": "T"
+},
+{
+"a": "49576770",
+"b": "6757560",
+"branza": "Paznokcie",
+"grupa": "reszta",
+"ocena": "I"
+},
+{
+"a": "49576770",
+"b": "6760321",
+"branza": "Paznokcie",
+"grupa": "reszta",
+"ocena": "I"
+},
+{
+"a": "49576770",
+"b": "6821668",
+"branza": "Paznokcie",
+"grupa": "tylko_podpis",
+"ocena": "T"
+},
+{
+"a": "49576770",
+"b": "6876887",
+"branza": "Paznokcie",
+"grupa": "tylko_podpis",
+"ocena": "T"
+},
+{
+"a": "49576770",
+"b": "6877534",
+"branza": "Paznokcie",
+"grupa": "tylko_podpis",
+"ocena": "T"
+},
+{
+"a": "49576770",
+"b": "6968733",
+"branza": "Paznokcie",
+"grupa": "tylko_podpis",
+"ocena": "T"
+},
+{
+"a": "49576770",
+"b": "7265830",
+"branza": "Paznokcie",
+"grupa": "tylko_podpis",
+"ocena": "T"
+},
+{
+"a": "49864409",
+"b": "5969643",
+"branza": "Paznokcie",
+"grupa": "reszta",
+"ocena": "I"
+},
+{
+"a": "49864409",
+"b": "6000296",
+"branza": "Paznokcie",
+"grupa": "reszta",
+"ocena": "P"
+},
+{
+"a": "49864409",
+"b": "6622089",
+"branza": "Paznokcie",
+"grupa": "reszta",
+"ocena": "T"
+},
+{
+"a": "49864409",
+"b": "6639182",
+"branza": "Paznokcie",
+"grupa": "reszta",
+"ocena": "P"
+},
+{
+"a": "49864409",
+"b": "6640428",
+"branza": "Paznokcie",
+"grupa": "reszta",
+"ocena": "P"
+},
+{
+"a": "3461046",
+"b": "5965027#0",
+"branza": "Podologia",
+"grupa": "reszta",
+"ocena": "T"
+},
+{
+"a": "3461046",
+"b": "7176827#1",
+"branza": "Podologia",
+"grupa": "warianty",
+"ocena": "T"
+},
+{
+"a": "3461056",
+"b": "7121219#0",
+"branza": "Podologia",
+"grupa": "reszta",
+"ocena": "I"
+},
+{
+"a": "3461065",
+"b": "1156771",
+"branza": "Podologia",
+"grupa": "tylko_podpis",
+"ocena": "T"
+},
+{
+"a": "3461065",
+"b": "2041844",
+"branza": "Podologia",
+"grupa": "tylko_podpis",
+"ocena": "T"
+},
+{
+"a": "3461065",
+"b": "2285118",
+"branza": "Podologia",
+"grupa": "tylko_podpis",
+"ocena": "T"
+},
+{
+"a": "3461065",
+"b": "3461033",
+"branza": "Podologia",
+"grupa": "tylko_podpis",
+"ocena": "T"
+},
+{
+"a": "3461065",
+"b": "4095938",
+"branza": "Podologia",
+"grupa": "tylko_podpis",
+"ocena": "T"
+},
+{
+"a": "3461065",
+"b": "6961697",
+"branza": "Podologia",
+"grupa": "tylko_podpis",
+"ocena": "T"
+},
+{
+"a": "3461065",
+"b": "7100756#1",
+"branza": "Podologia",
+"grupa": "warianty",
+"ocena": "T"
+},
+{
+"a": "3461065",
+"b": "7121222#1",
+"branza": "Podologia",
+"grupa": "warianty",
+"ocena": "T"
+},
+{
+"a": "3461065",
+"b": "7121778",
+"branza": "Podologia",
+"grupa": "tylko_podpis",
+"ocena": "P"
+},
+{
+"a": "3461065",
+"b": "7177849",
+"branza": "Podologia",
+"grupa": "tylko_podpis",
+"ocena": "T"
+},
+{
+"a": "3461060",
+"b": "3165140",
+"branza": "Podologia",
+"grupa": "tylko_podpis",
+"ocena": "T"
+},
+{
+"a": "3461060",
+"b": "5982322",
+"branza": "Podologia",
+"grupa": "reszta",
+"ocena": "P"
+},
+{
+"a": "3461060",
+"b": "5982418",
+"branza": "Podologia",
+"grupa": "reszta",
+"ocena": "P"
+},
+{
+"a": "3461060",
+"b": "7098875",
+"branza": "Podologia",
+"grupa": "tylko_podpis",
+"ocena": "T"
+},
+{
+"a": "3461060",
+"b": "7121223#0",
+"branza": "Podologia",
+"grupa": "tylko_podpis",
+"ocena": "T"
+},
+{
+"a": "49606014",
+"b": "3966413",
+"branza": "Podologia",
+"grupa": "reszta",
+"ocena": "I"
+},
+{
+"a": "49606014",
+"b": "5965539",
+"branza": "Podologia",
+"grupa": "tylko_podpis",
+"ocena": "T"
+},
+{
+"a": "49606014",
+"b": "7367694",
+"branza": "Podologia",
+"grupa": "tylko_podpis",
+"ocena": "T"
+},
+{
+"a": "49606001",
+"b": "5625387",
+"branza": "Podologia",
+"grupa": "tylko_podpis",
+"ocena": "T"
+},
+{
+"a": "49606001",
+"b": "5962395",
+"branza": "Podologia",
+"grupa": "tylko_podpis",
+"ocena": "T"
+},
+{
+"a": "49606001",
+"b": "5962400",
+"branza": "Podologia",
+"grupa": "tylko_podpis",
+"ocena": "T"
+},
+{
+"a": "49606001",
+"b": "5965927",
+"branza": "Podologia",
+"grupa": "tylko_podpis",
+"ocena": "T"
+},
+{
+"a": "49606001",
+"b": "5966071",
+"branza": "Podologia",
+"grupa": "tylko_podpis",
+"ocena": "T"
+},
+{
+"a": "49606001",
+"b": "5986924",
+"branza": "Podologia",
+"grupa": "tylko_podpis",
+"ocena": "T"
+},
+{
+"a": "49606001",
+"b": "5988213",
+"branza": "Podologia",
+"grupa": "reszta",
+"ocena": "P"
+},
+{
+"a": "49606001",
+"b": "5989556",
+"branza": "Podologia",
+"grupa": "tylko_podpis",
+"ocena": "T"
+},
+{
+"a": "49606001",
+"b": "6004835#0",
+"branza": "Podologia",
+"grupa": "tylko_podpis",
+"ocena": "T"
+},
+{
+"a": "49606001",
+"b": "6004835#1",
+"branza": "Podologia",
+"grupa": "warianty",
+"ocena": "T"
+},
+{
+"a": "49606001",
+"b": "6004835#2",
+"branza": "Podologia",
+"grupa": "warianty",
+"ocena": "T"
+},
+{
+"a": "49606001",
+"b": "6005165#0",
+"branza": "Podologia",
+"grupa": "tylko_podpis",
+"ocena": "T"
+},
+{
+"a": "49606001",
+"b": "6005165#1",
+"branza": "Podologia",
+"grupa": "warianty",
+"ocena": "T"
+},
+{
+"a": "49606001",
+"b": "6020938",
+"branza": "Podologia",
+"grupa": "tylko_podpis",
+"ocena": "T"
+},
+{
+"a": "49606001",
+"b": "6470997",
+"branza": "Podologia",
+"grupa": "tylko_podpis",
+"ocena": "T"
+},
+{
+"a": "49606001",
+"b": "6562822",
+"branza": "Podologia",
+"grupa": "reszta",
+"ocena": "P"
+},
+{
+"a": "49606001",
+"b": "6738919",
+"branza": "Podologia",
+"grupa": "tylko_podpis",
+"ocena": "T"
+},
+{
+"a": "49606001",
+"b": "7367686",
+"branza": "Podologia",
+"grupa": "tylko_podpis",
+"ocena": "T"
+},
+{
+"a": "49606001",
+"b": "7367844",
+"branza": "Podologia",
+"grupa": "tylko_podpis",
+"ocena": "T"
+},
+{
+"a": "49606001",
+"b": "7373289",
+"branza": "Podologia",
+"grupa": "tylko_podpis",
+"ocena": "T"
+},
+{
+"a": "49606011",
+"b": "3441473",
+"branza": "Podologia",
+"grupa": "tylko_podpis",
+"ocena": "P"
+},
+{
+"a": "49606011",
+"b": "5461414",
+"branza": "Podologia",
+"grupa": "reszta",
+"ocena": "I"
+},
+{
+"a": "49606011",
+"b": "5464793",
+"branza": "Podologia",
+"grupa": "tylko_podpis",
+"ocena": "T"
+},
+{
+"a": "49606011",
+"b": "5963814",
+"branza": "Podologia",
+"grupa": "tylko_podpis",
+"ocena": "P"
+},
+{
+"a": "49606011",
+"b": "5965540",
+"branza": "Podologia",
+"grupa": "tylko_podpis",
+"ocena": "T"
+},
+{
+"a": "49606011",
+"b": "5988120",
+"branza": "Podologia",
+"grupa": "tylko_podpis",
+"ocena": "T"
+},
+{
+"a": "49606011",
+"b": "5989138",
+"branza": "Podologia",
+"grupa": "tylko_podpis",
+"ocena": "P"
+},
+{
+"a": "49606011",
+"b": "6055289",
+"branza": "Podologia",
+"grupa": "tylko_podpis",
+"ocena": "P"
+},
+{
+"a": "49606011",
+"b": "6073562",
+"branza": "Podologia",
+"grupa": "tylko_podpis",
+"ocena": "P"
+},
+{
+"a": "49606011",
+"b": "6470989",
+"branza": "Podologia",
+"grupa": "tylko_podpis",
+"ocena": "T"
+},
+{
+"a": "49606011",
+"b": "6565923",
+"branza": "Podologia",
+"grupa": "tylko_podpis",
+"ocena": "T"
+},
+{
+"a": "49606011",
+"b": "6614350",
+"branza": "Podologia",
+"grupa": "tylko_podpis",
+"ocena": "T"
+},
+{
+"a": "49606011",
+"b": "6627748",
+"branza": "Podologia",
+"grupa": "tylko_podpis",
+"ocena": "T"
+},
+{
+"a": "49606011",
+"b": "7368293",
+"branza": "Podologia",
+"grupa": "tylko_podpis",
+"ocena": "P"
+},
+{
+"a": "49606011",
+"b": "7368451",
+"branza": "Podologia",
+"grupa": "tylko_podpis",
+"ocena": "P"
+},
+{
+"a": "49606011",
+"b": "7371622",
+"branza": "Podologia",
+"grupa": "tylko_podpis",
+"ocena": "P"
+},
+{
+"a": "49606011",
+"b": "7376727",
+"branza": "Podologia",
+"grupa": "tylko_podpis",
+"ocena": "P"
+},
+{
+"a": "49606009",
+"b": "5988625",
+"branza": "Podologia",
+"grupa": "reszta",
+"ocena": "I"
+},
+{
+"a": "49606009",
+"b": "6020943",
+"branza": "Podologia",
+"grupa": "tylko_podpis",
+"ocena": "T"
+},
+{
+"a": "49606009",
+"b": "6472780",
+"branza": "Podologia",
+"grupa": "tylko_podpis",
+"ocena": "T"
+},
+{
+"a": "49606009",
+"b": "6473602",
+"branza": "Podologia",
+"grupa": "tylko_podpis",
+"ocena": "T"
+},
+{
+"a": "49606009",
+"b": "6473603",
+"branza": "Podologia",
+"grupa": "tylko_podpis",
+"ocena": "T"
+},
+{
+"a": "49606009",
+"b": "6524452",
+"branza": "Podologia",
+"grupa": "tylko_podpis",
+"ocena": "T"
+},
+{
+"a": "49606009",
+"b": "7367689",
+"branza": "Podologia",
+"grupa": "tylko_podpis",
+"ocena": "T"
+},
+{
+"a": "49606009",
+"b": "7374878",
+"branza": "Podologia",
+"grupa": "reszta",
+"ocena": "P"
+},
+{
+"a": "54756083",
+"b": "6565010",
+"branza": "Salon Kosmetyczny",
+"grupa": "tylko_podpis",
+"ocena": "T"
+},
+{
+"a": "54756083",
+"b": "7357457#2",
+"branza": "Salon Kosmetyczny",
+"grupa": "warianty",
+"ocena": "T"
+},
+{
+"a": "54756096#0",
+"b": "3989951",
+"branza": "Salon Kosmetyczny",
+"grupa": "reszta",
+"ocena": "I"
+},
+{
+"a": "54756096#0",
+"b": "6008527",
+"branza": "Salon Kosmetyczny",
+"grupa": "reszta",
+"ocena": "I"
+},
+{
+"a": "54756096#0",
+"b": "6030360",
+"branza": "Salon Kosmetyczny",
+"grupa": "reszta",
+"ocena": "P"
+},
+{
+"a": "54756096#0",
+"b": "6031309",
+"branza": "Salon Kosmetyczny",
+"grupa": "reszta",
+"ocena": "P"
+},
+{
+"a": "54756096#0",
+"b": "6031317",
+"branza": "Salon Kosmetyczny",
+"grupa": "reszta",
+"ocena": "I"
+},
+{
+"a": "54756104",
+"b": "5626873",
+"branza": "Salon Kosmetyczny",
+"grupa": "reszta",
+"ocena": "P"
+},
+{
+"a": "54756104",
+"b": "6012246",
+"branza": "Salon Kosmetyczny",
+"grupa": "reszta",
+"ocena": "P"
+},
+{
+"a": "54756104",
+"b": "7307426",
+"branza": "Salon Kosmetyczny",
+"grupa": "reszta",
+"ocena": "P"
+},
+{
+"a": "54756089#0",
+"b": "3422098",
+"branza": "Salon Kosmetyczny",
+"grupa": "reszta",
+"ocena": "P"
+},
+{
+"a": "54756089#0",
+"b": "6350505",
+"branza": "Salon Kosmetyczny",
+"grupa": "reszta",
+"ocena": "P"
+},
+{
+"a": "54756089#0",
+"b": "6467875#0",
+"branza": "Salon Kosmetyczny",
+"grupa": "reszta",
+"ocena": "P"
+},
+{
+"a": "54756089#0",
+"b": "7359349",
+"branza": "Salon Kosmetyczny",
+"grupa": "reszta",
+"ocena": "P"
+},
+{
+"a": "54756089#2",
+"b": "6009439",
+"branza": "Salon Kosmetyczny",
+"grupa": "warianty",
+"ocena": "T"
+},
+{
+"a": "54756089#2",
+"b": "6009726#1",
+"branza": "Salon Kosmetyczny",
+"grupa": "warianty",
+"ocena": "T"
+},
+{
+"a": "54756089#2",
+"b": "6350507",
+"branza": "Salon Kosmetyczny",
+"grupa": "warianty",
+"ocena": "T"
+},
+{
+"a": "54756089#2",
+"b": "6421854#1",
+"branza": "Salon Kosmetyczny",
+"grupa": "warianty",
+"ocena": "T"
+},
+{
+"a": "54756089#2",
+"b": "6422922",
+"branza": "Salon Kosmetyczny",
+"grupa": "warianty",
+"ocena": "T"
+},
+{
+"a": "54756089#2",
+"b": "6432872#1",
+"branza": "Salon Kosmetyczny",
+"grupa": "warianty",
+"ocena": "T"
+},
+{
+"a": "54756089#2",
+"b": "6476827",
+"branza": "Salon Kosmetyczny",
+"grupa": "warianty",
+"ocena": "T"
+},
+{
+"a": "54756089#2",
+"b": "6545488#1",
+"branza": "Salon Kosmetyczny",
+"grupa": "warianty",
+"ocena": "T"
+},
+{
+"a": "54756089#2",
+"b": "6564432#3",
+"branza": "Salon Kosmetyczny",
+"grupa": "warianty",
+"ocena": "T"
+},
+{
+"a": "54756089#2",
+"b": "6658877",
+"branza": "Salon Kosmetyczny",
+"grupa": "warianty",
+"ocena": "T"
+},
+{
+"a": "54756089#2",
+"b": "6686751#4",
+"branza": "Salon Kosmetyczny",
+"grupa": "warianty",
+"ocena": "P"
+},
+{
+"a": "54756089#2",
+"b": "7357462#2",
+"branza": "Salon Kosmetyczny",
+"grupa": "warianty",
+"ocena": "T"
+},
+{
+"a": "54756089#2",
+"b": "7357947",
+"branza": "Salon Kosmetyczny",
+"grupa": "warianty",
+"ocena": "T"
+},
+{
+"a": "54985932",
+"b": "6006801",
+"branza": "Salon Kosmetyczny",
+"grupa": "reszta",
+"ocena": "I"
+}
+]
