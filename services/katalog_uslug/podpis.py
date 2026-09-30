@@ -26,7 +26,10 @@ POZIOM_ROLI = {"zabieg": "rdzen", "metoda": "rdzen", "obszar": "gdzie_ile", "roz
 OGOLNE = frozenset({"zabieg", "usług", "usluga"})
 WLASNE = frozenset({"nazwa", "wariant"})
 Z_OPISU = frozenset({"wylaczenie", "liczba"})
-NIE_USLUGA = frozenset({"produkt", "voucher", "konsultacja", "dodatek"})
+# Produktów i dodatków rezerwowanych obok nie porównujemy (model tej samej usługi); szkolenie i voucher to też nie usługa
+# wykonywana na klientce — z usługą ani „ta sama”, ani „podobna” (wiersz „ceny podobnych usług” też nie).
+POZA_POROWNANIEM = frozenset({"produkt", "voucher", "dodatek", "szkolenie"})
+NIE_USLUGA = POZA_POROWNANIEM | {"konsultacja"}
 # „do roku” ≠ „po roku”, „do 3 tyg.” ≠ „od 3 tyg.” — te łączniki niosą znaczenie w zakresach (pomiar 29.09)
 POMIJANE = LACZNIKI - {"do", "po", "od"}
 # Nazwa złożona WYŁĄCZNIE z takich słów nic nie mówi o zawartości („Combo Premium” — w dwóch zbiorach ocenione
@@ -155,7 +158,9 @@ def podpis(rek: dict[str, Any], slownik: dict[str, str] | None = None, kontekst:
                      if w in slownictwo and w in w_nazwie}
     wlasne = {w for r, zr, f in _frazy(rek) if zr in WLASNE and r not in ("specjalista",) for w in _slowa(f, s)}
     poziomy |= dopisane
-    return Podpis(frozenset(w for _p, w in poziomy), frozenset(poziomy), rek.get("pozycja") or "zabieg",
+    poz_kat = (kontekst or {}).get("pozycja_kategorii")  # sekcja cennika mówi, że to nie usługa — ma pierwszeństwo
+    pozycja = poz_kat if poz_kat in POZA_POROWNANIEM else rek.get("pozycja") or "zabieg"
+    return Podpis(frozenset(w for _p, w in poziomy), frozenset(poziomy), pozycja,
                   wlasne=frozenset(wlasne | {w for _p, w in dopisane}))
 
 
@@ -201,6 +206,8 @@ def _przeszkoda(a: Podpis, b: Podpis) -> tuple[str, str] | None:
     """Powody, dla których para nigdy nie jest „ta sama” — przed porównaniem zbiorów."""
     if not (_rdzen(a) & _rdzen(b)) and not (a.zbior & b.zbior):
         return INNA, "inny zabieg"
+    if a.pozycja != b.pozycja and {a.pozycja, b.pozycja} & POZA_POROWNANIEM:
+        return INNA, f"poza porównaniem: {a.pozycja} / {b.pozycja}"
     if a.blokady or b.blokady:
         return PODOBNA, "nieprzypisane słowa: " + ", ".join(dict.fromkeys(a.blokady + b.blokady))
     if a.pozycja != b.pozycja and {a.pozycja, b.pozycja} & NIE_USLUGA:

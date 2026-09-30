@@ -1,7 +1,8 @@
 """Katalog usług — kontrakt wyciągania cech oferty (bez sieci): oferty z usługi, prompt, sprawdzenie odpowiedzi modelu."""
 from __future__ import annotations
 
-from services.katalog_uslug.ekstrakcja import Oferta, oferty_z_uslugi, prompt, waliduj
+from services.katalog_uslug.ekstrakcja import (Oferta, oferty_z_uslugi, prompt, prompt_pozycji_kategorii, waliduj,
+                                               waliduj_pozycje)
 
 USLUGA = {"id": 7, "typ_salonu": "Medycyna Estetyczna", "kategoria": "Zabiegi na twarz", "nazwa": "Mezoterapia igłowa",
           "zabieg_booksy": "Mezoterapia igłowa", "opis": "",
@@ -75,3 +76,34 @@ def test_szum_pokrywa_slowa() -> None:
     r = rekord(nazwa="Strzyżenie brody Paweł", szum=["Paweł"])
     wynik, _b = waliduj([o], {"oferty": [r]})
     assert wynik["1"]["nieprzypisane"] == []
+
+
+def kategoria(kid: str, nazwa: str) -> Oferta:
+    return oferta(id=kid, typ_salonu="", kategoria="", nazwa=nazwa, zabieg_booksy="", cena_zl=None)
+
+
+def test_prompt_pozycji_niesie_id_i_nazwy_kategorii() -> None:
+    p = prompt_pozycji_kategorii([kategoria("k:1", "SZKOLENIA"), kategoria("k:2", "Kosmetyka twarzy")])
+    assert '"id": "k:1"' in p and "SZKOLENIA" in p and "Kosmetyka twarzy" in p
+
+
+def test_pozycja_kategorii_z_fraza_z_nazwy() -> None:
+    k = [kategoria("k1", "SZKOLENIA"), kategoria("k2", "Kosmetyka twarzy")]
+    odp = {"kategorie": [{"id": "k1", "nazwa": "SZKOLENIA", "pozycja": "szkolenie", "fraza": "SZKOLENIA"},
+                         {"id": "k2", "nazwa": "Kosmetyka twarzy", "pozycja": "uslugi", "fraza": ""}]}
+    assert waliduj_pozycje(k, odp) == ({"k1": {"pozycja": "szkolenie", "fraza": "SZKOLENIA"},
+                                        "k2": {"pozycja": "uslugi", "fraza": ""}}, [])
+
+
+def test_pozycja_bez_frazy_z_nazwy_albo_spoza_listy_zostaje_usluga() -> None:
+    k = [kategoria("k1", "Kosmetyka twarzy"), kategoria("k2", "Dodatki")]
+    odp = {"kategorie": [{"id": "k1", "nazwa": "Kosmetyka twarzy", "pozycja": "produkt", "fraza": "kosmetyki"},
+                         {"id": "k2", "nazwa": "Dodatki", "pozycja": "dodatek", "fraza": "Dodatki"}]}
+    wynik, bledy = waliduj_pozycje(k, odp)
+    assert [wynik[i]["pozycja"] for i in ("k1", "k2")] == ["uslugi", "uslugi"] and len(bledy) == 2
+
+
+def test_pozycje_zla_liczba_rekordow_odrzuca_paczke() -> None:
+    wynik, bledy = waliduj_pozycje([kategoria("k1", "Voucher"), kategoria("k2", "Manicure")],
+                                   {"kategorie": [{"id": "k1", "nazwa": "Voucher", "pozycja": "voucher", "fraza": "Voucher"}]})
+    assert wynik == {} and any("liczba" in b for b in bledy)

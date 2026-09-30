@@ -80,7 +80,21 @@ def test_nieprzypisane_slowo_wchodzi_do_zbioru() -> None:
 
 
 def test_produkt_nigdy_nie_rowna_sie_zabiegowi() -> None:
-    assert werdykt(rek(zabieg="Maska", pozycja="produkt"), rek(zabieg="Maska")) == PODOBNA
+    assert werdykt(rek(zabieg="Maska", pozycja="produkt"), rek(zabieg="Maska")) == INNA
+
+
+def test_konsultacja_obok_zabiegu_to_podobna() -> None:
+    assert werdykt(rek(zabieg="Konsultacja", pozycja="konsultacja"), rek(zabieg="Konsultacja")) == PODOBNA
+
+
+def test_kategoria_szkolen_wyklucza_oferte_z_porownania() -> None:
+    kobido = rek(zabieg="masaż", cechy=[("obszar", "twarzy"), ("metoda", "KOBIDO")])
+    szkolenia = {"nazwa": "SZKOLENIA", "zabieg": {"fraza": "", "zrodlo": "nazwa"}, "cechy": [], "szum": [],
+                 "pozycja_kategorii": "szkolenie"}
+    a = podpis(kobido, kontekst=szkolenia)
+    assert a.pozycja == "szkolenie"
+    assert porownaj(a, podpis(kobido), Klasy())[0] == INNA
+    assert podpis(kobido, kontekst={**szkolenia, "nazwa": "Masaże", "pozycja_kategorii": "uslugi"}).pozycja == "zabieg"
 
 
 def test_specjalista_i_szum_poza_podpisem() -> None:

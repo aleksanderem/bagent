@@ -152,6 +152,64 @@ def prompt_kategorii(kategorie: list[Oferta]) -> str:
     return PROMPT_KATEGORII + json.dumps([{"id": k.id, "nazwa": k.nazwa} for k in kategorie], ensure_ascii=False, indent=1)
 
 
+# Co salon sprzedaje w sekcji cennika — osobne krótkie pytanie, bo nazwa oferty tego nie mówi („Japoński masaż twarzy
+# KOBIDO” za 2000 zł w kategorii „SZKOLENIA” dostał „ta sama” z 13 masażami Kobido — sprawdzian 8, 30.09).
+# Wersja 2 (30.09, przegląd odpowiedzi v1 na 2271 kategoriach): bez „dodatek” — sekcje „Dodatki” / „Usługi dodatkowe”
+# trzymają też pełne usługi (henna rzęs, wosk nosa, modelowanie), dopłatę rozpoznaje pozycja samej oferty; wykonawca
+# w nazwie („Manicure Instruktor”) to nie kurs — v1 wyrzucało tak zwykły manicure za 85 zł.
+WERSJA_POZYCJI = 2
+POZYCJE_KATEGORII = ("uslugi", "szkolenie", "voucher", "produkt")
+PROMPT_POZYCJI_KATEGORII = """Oceniasz NAZWY KATEGORII z cenników salonów (Booksy) — sekcje, w których salon grupuje to, co sprzedaje.
+Dla KAŻDEJ kategorii z listy zwróć jeden rekord: co salon sprzedaje w tej sekcji.
+
+pozycja:
+- uslugi — zabiegi i usługi wykonywane na klientce (domyślnie; także gdy kategoria to nazwa zabiegu, części ciała,
+  grupa klientów, marketing albo dopłaty i usługi dodatkowe; „Kosmetyka”, „Kosmetologia”, „Pielęgnacja” to dziedziny
+  zabiegów). Imię, poziom albo tytuł wykonawcy w nazwie („Instruktor”, „Master”, „Top stylist”, „Junior”) to nadal
+  uslugi — mówi, KTO wykonuje zabieg, a nie że to kurs.
+- szkolenie — szkolenia, kursy i warsztaty sprzedawane kursantkom oraz zabiegi na modelkach w ramach nauki
+- voucher — vouchery, bony, karty podarunkowe
+- produkt — produkty i kosmetyki na sprzedaż do domu (sklep)
+Gdy kategoria łączy usługi z czymś z listy („Manicure i vouchery”) — uslugi.
+fraza = słowa z nazwy kategorii, które to mówią, skopiowane dosłownie; przy „uslugi” pusta ("").
+
+Odpowiedź — wyłącznie JSON:
+{"kategorie": [{"id": "<id>", "nazwa": "<dosłowna nazwa kategorii>", "pozycja": "...", "fraza": "..."}]}
+
+Kategorie:
+"""
+
+
+def prompt_pozycji_kategorii(kategorie: list[Oferta]) -> str:
+    return PROMPT_POZYCJI_KATEGORII + json.dumps([{"id": k.id, "nazwa": k.nazwa} for k in kategorie], ensure_ascii=False,
+                                                 indent=1)
+
+
+def waliduj_pozycje(kategorie: list[Oferta], odp: dict[str, Any]) -> tuple[dict[str, dict[str, str]], list[str]]:
+    """→ (id kategorii → {pozycja, fraza}, błędy). Pozycja inna niż usługi tylko z frazą skopiowaną z nazwy kategorii —
+    bez niej zostaje „uslugi” (lepiej porównać niż wyrzucić zwykłą usługę przez zgadnięcie modelu)."""
+    rek = odp.get("kategorie") if isinstance(odp, dict) else None
+    if not isinstance(rek, list) or len(rek) != len(kategorie):
+        return {}, [f"liczba rekordów {len(rek) if isinstance(rek, list) else 'brak'} ≠ {len(kategorie)} kategorii"]
+    po_id = {k.id: k for k in kategorie}
+    wynik: dict[str, dict[str, str]] = {}
+    bledy: list[str] = []
+    for r in rek:
+        kid, poz, fraza = str(r.get("id")), str(r.get("pozycja") or ""), str(r.get("fraza") or "")
+        k = po_id.get(kid)
+        if k is None or normalizuj(str(r.get("nazwa") or "")) != normalizuj(k.nazwa):
+            bledy.append(f"{kid}: nieznane id albo nazwa ≠ nazwa kategorii")
+            continue
+        if poz not in POZYCJE_KATEGORII:
+            bledy.append(f"{kid}: pozycja spoza listy: {poz!r}")
+            poz = "uslugi"
+        elif poz != "uslugi" and not (normalizuj(fraza) and _w_tekscie(fraza, normalizuj(k.nazwa))):
+            bledy.append(f"{kid}: pozycja {poz} bez frazy z nazwy kategorii: {fraza!r}")
+            poz = "uslugi"
+        wynik[kid] = {"pozycja": poz, "fraza": fraza if poz != "uslugi" else ""}
+    return wynik, bledy
+
+
 PROMPT_SALONOW = """Rozkładasz NAZWY SALONÓW z Booksy. Dla KAŻDEJ nazwy z listy zwróć jeden rekord (pole „nazwa” to nazwa salonu).
 
 Zasady:

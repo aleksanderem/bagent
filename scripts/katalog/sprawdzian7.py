@@ -307,9 +307,54 @@ def wynik() -> None:
     (OUT / "wynik.json").write_text(json.dumps(out, ensure_ascii=False, indent=1), encoding="utf-8")
 
 
+def przelicz() -> None:
+    """Werdykty od nowa na TYCH SAMYCH parach (bez nowego losowania) — bilans zmiany reguły na ocenionej próbie.
+    Grupy liczone jak w `probka`, ale z nowymi werdyktami; próbą grupy są ocenione pary, które do niej teraz należą.
+    Wypisuje każdą ocenioną parę, której „ta sama” się zmieniło (z moją oceną), i trafność ważoną na nowej populacji."""
+    d = json.loads((OUT / "probka_oceny.json").read_text(encoding="utf-8"))
+    oc = {(q["a"], q["b"]): q["ocena"] for q in json.loads((OUT / "ocena_claude.json").read_text(encoding="utf-8"))}
+    pary, oferty = werdykty()
+    po_ofertach = {(q["a"], q["b"]): q for q in pary}
+    v14 = {(q["a"], q["b"]): q["v14"] for q in json.loads(V14.read_text(encoding="utf-8"))} if V14.exists() else {}
+    _us, pary_uslug, _s = dane()
+    grupa: dict[tuple[str, str], str] = {}
+    populacja: Counter = Counter()
+    for q in pary_uslug:
+        k = (_pierwsza(q["a"], oferty), _pierwsza(q["b"], oferty))
+        p_ts, v_ts = po_ofertach[k]["podpis"] == TA_SAMA, v14.get((q["a"], q["b"])) == "tozsame"
+        if p_ts or v_ts:
+            grupa[k] = "obie" if p_ts and v_ts else "tylko_podpis" if p_ts else "tylko_v14f"
+            populacja[(q["branza"], grupa[k])] += 1
+    zmiany: Counter = Counter()
+    for q in d["pary"]:
+        k = (q["a"], q["b"])
+        stary, nowy = q["podpis"], po_ofertach[k]["podpis"]
+        if (stary == TA_SAMA) != (nowy == TA_SAMA):
+            zmiany[(q["branza"], stary, nowy, oc.get(k))] += 1
+            print(f"  {oc.get(k)} {stary}→{nowy} ({po_ofertach[k]['powod']}) | {q['oa']['nazwa']} [{q['oa']['kategoria']}]"
+                  f" || {q['ob']['nazwa']} [{q['ob']['kategoria']}]")
+    ocenione = [q for q in d["pary"] if (q["a"], q["b"]) in oc and q["grupa"] != "warianty"]
+    wynik_br = {}
+    for br in sorted({q["branza"] for q in ocenione}) + ["RAZEM"]:
+        n = t = 0.0
+        for (b, g), liczba in populacja.items():
+            if g == "tylko_v14f" or (br != "RAZEM" and b != br):
+                continue
+            z = [oc[(q["a"], q["b"])] == "T" for q in ocenione if q["branza"] == b and grupa.get((q["a"], q["b"])) == g]
+            n += liczba
+            t += liczba * (sum(z) / len(z) if z else 0.0)
+        wynik_br[br] = {"ta_sama": round(n), "trafnosc": round(t / n, 3) if n else None}
+        print(f"{br:<20} " + json.dumps(wynik_br[br], ensure_ascii=False))
+    zw = [q for q in d["pary"] if q["grupa"] == "warianty" and (q["a"], q["b"]) in oc
+          and po_ofertach[(q["a"], q["b"])]["podpis"] == TA_SAMA]
+    print(f"warianty: {sum(oc[(q['a'], q['b'])] == 'T' for q in zw)}/{len(zw)} trafnych")
+    print("zmiany na ocenionych (branża, stary, nowy, ocena): " + json.dumps(
+        {"|".join(map(str, k)): v for k, v in sorted(zmiany.items())}, ensure_ascii=False))
+
+
 def main() -> None:
     ap = argparse.ArgumentParser()
-    for k in ("zbierz", "wyciagnij", "salony", "klasy", "probka", "wynik"):
+    for k in ("zbierz", "wyciagnij", "salony", "klasy", "probka", "wynik", "przelicz"):
         ap.add_argument(f"--{k}", action="store_true")
     ap.add_argument("--ziarno", type=int, default=ZIARNO)
     ap.add_argument("--rownolegle", type=int, default=4)
@@ -339,6 +384,8 @@ def main() -> None:
         probka()
     if a.wynik:
         wynik()
+    if a.przelicz:
+        przelicz()
 
 
 if __name__ == "__main__":
