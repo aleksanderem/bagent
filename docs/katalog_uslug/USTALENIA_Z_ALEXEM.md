@@ -53,6 +53,10 @@ sprawdzania pytaniami. Twarde bramki z CLAUDE.md obowiązują bez zmian.
 - DECYZJA ALEXA (30.09, „Najpierw odzysk”): suchy przebieg — podpis „ta sama” w 19–35% wierszy vs stary silnik 85%.
   Przed wpięciem do raportów: kaskada z planu (domyślne zabiegu, opisowe, dopełnienie menu), cel ~50% wierszy
   z ceną „ta sama” przy ≥ 95% trafności, dowód na NOWYCH salonach (sprawdzian 9); wpięcie dopiero potem.
+- DECYZJE ALEXA (30.09 po sprawdzianie 9): (1) „Hybryda na stopy” = „Pedicure hybrydowy” — ta sama usługa
+  (podobna tylko przy dopisku innego zakresu: frezowanie, opracowanie podeszwy, „pełny”); oceny par liczę tą regułą.
+  (2) Wiersz, w którym tę samą usługę ma tylko 1–2 konkurentów: pokazujemy ich ceny jako „ta sama usługa u N
+  konkurentów”, BEZ mediany rynku (mediana dopiero od 3 salonów).
 - Drzewo jak w cookbooku TypeSafe hierarchical_classification DO POZIOMU ZABIEGU: każdy poziom to wybór spośród
   dzieci poprzedniego, rodzeństwo się nie nakłada, wiązka 3 ścieżek, średnia geometryczna krawędzi; zabieg może
   mieć kilku rodziców (graf jak MeSH w cookbooku).

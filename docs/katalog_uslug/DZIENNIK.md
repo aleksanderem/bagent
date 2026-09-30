@@ -122,6 +122,13 @@ możemy lepiej/taniej/szybciej … to ja Cię ograniczyłem”.
   hybryda na stopy ≠ hybryda na dłonie). Reszta błędów (~2%): metoda tylko w kategorii (SHR/IPL przy „laserowej”),
   „(do zabiegu)” = dodatek, „lub”, infuzja skóry głowy vs twarzy. Poprawka: przykład klasy tylko z różnicy
   jednostronnej, w której oferta bez dopisku nie ma go w żadnej postaci; dowód na sprawdzianie 10.
+- 30.09 ~14:20 (bagent ef7b403): poprawka przykładów (czysty przykład, szukanie w parach dwóch innych salonów puli,
+  pamięć klas v3 `klasy_p3.json`, 0,027 USD). DECYZJE ALEXA: (1) „Hybryda na stopy” = „Pedicure hybrydowy” — ta sama
+  (moje 24 oceny P→T: 21 w spr9, 3 w v13; skrypt `diagnoza/decyzja_pedicure.py`; frezowanie / podeszwa / „pełny”
+  zostają podobne); (2) wiersz z 1–2 salonami „ta sama” pokazuje ich ceny bez mediany rynku. Wyniki po decyzji:
+  **spr9 na zamrożonych regułach 95,9% — bramka ✓** (Barber 84%); po poprawce (zbiory już użyte): spr9 98,3%, spr8
+  97,9%, spr7 97,5%, 1042 pary 98,3% / odzysk 54%. Pokrycie wierszy „ta sama” ≥3 salony po poprawce: spr9 44%, spr8
+  39%, spr7 19%. Sprawdzian 10 (nowe salony, dowód poprawki) — losowanie i wyciąganie w toku.
 
 **Why:** koszt i jakość v14f utknęły (87–94%, 3/4 par) na ograniczeniach metody, nie na strojeniu.
 **How to apply:** nowa praca nad matchingiem idzie tym planem; v14f zostaje punktem odniesienia w pomiarach.
