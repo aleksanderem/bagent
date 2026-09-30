@@ -1,0 +1,158 @@
+{
+ "Barber shop": {
+  "podpis": {
+   "ta_sama": 117,
+   "trafnosc": 0.84,
+   "trafnych": 98.3,
+   "odzysk": 1.0
+  },
+  "v14f": {
+   "ta_sama": 0,
+   "trafnosc": null,
+   "trafnych": 0.0,
+   "odzysk": 0.0
+  },
+  "znane_prawdziwe": 98.3
+ },
+ "Brwi i rzęsy": {
+  "podpis": {
+   "ta_sama": 67,
+   "trafnosc": 1.0,
+   "trafnych": 67.0,
+   "odzysk": 1.0
+  },
+  "v14f": {
+   "ta_sama": 0,
+   "trafnosc": null,
+   "trafnych": 0.0,
+   "odzysk": 0.0
+  },
+  "znane_prawdziwe": 67.0
+ },
+ "Depilacja": {
+  "podpis": {
+   "ta_sama": 52,
+   "trafnosc": 0.9,
+   "trafnych": 46.8,
+   "odzysk": 1.0
+  },
+  "v14f": {
+   "ta_sama": 0,
+   "trafnosc": null,
+   "trafnych": 0.0,
+   "odzysk": 0.0
+  },
+  "znane_prawdziwe": 46.8
+ },
+ "Fryzjer": {
+  "podpis": {
+   "ta_sama": 114,
+   "trafnosc": 0.98,
+   "trafnych": 111.7,
+   "odzysk": 1.0
+  },
+  "v14f": {
+   "ta_sama": 0,
+   "trafnosc": null,
+   "trafnych": 0.0,
+   "odzysk": 0.0
+  },
+  "znane_prawdziwe": 111.7
+ },
+ "Masaż": {
+  "podpis": {
+   "ta_sama": 213,
+   "trafnosc": 0.98,
+   "trafnych": 208.7,
+   "odzysk": 1.0
+  },
+  "v14f": {
+   "ta_sama": 0,
+   "trafnosc": null,
+   "trafnych": 0.0,
+   "odzysk": 0.0
+  },
+  "znane_prawdziwe": 208.7
+ },
+ "Medycyna Estetyczna": {
+  "podpis": {
+   "ta_sama": 42,
+   "trafnosc": 1.0,
+   "trafnych": 42.0,
+   "odzysk": 1.0
+  },
+  "v14f": {
+   "ta_sama": 0,
+   "trafnosc": null,
+   "trafnych": 0.0,
+   "odzysk": 0.0
+  },
+  "znane_prawdziwe": 42.0
+ },
+ "Paznokcie": {
+  "podpis": {
+   "ta_sama": 106,
+   "trafnosc": 1.0,
+   "trafnych": 106.0,
+   "odzysk": 1.0
+  },
+  "v14f": {
+   "ta_sama": 0,
+   "trafnosc": null,
+   "trafnych": 0.0,
+   "odzysk": 0.0
+  },
+  "znane_prawdziwe": 106.0
+ },
+ "Podologia": {
+  "podpis": {
+   "ta_sama": 10,
+   "trafnosc": 0.9,
+   "trafnych": 9.0,
+   "odzysk": 1.0
+  },
+  "v14f": {
+   "ta_sama": 0,
+   "trafnosc": null,
+   "trafnych": 0.0,
+   "odzysk": 0.0
+  },
+  "znane_prawdziwe": 9.0
+ },
+ "Salon Kosmetyczny": {
+  "podpis": {
+   "ta_sama": 77,
+   "trafnosc": 0.56,
+   "trafnych": 43.1,
+   "odzysk": 1.0
+  },
+  "v14f": {
+   "ta_sama": 0,
+   "trafnosc": null,
+   "trafnych": 0.0,
+   "odzysk": 0.0
+  },
+  "znane_prawdziwe": 43.1
+ },
+ "RAZEM": {
+  "podpis": {
+   "ta_sama": 798,
+   "trafnosc": 0.918,
+   "trafnych": 732.7,
+   "odzysk": 1.0
+  },
+  "v14f": {
+   "ta_sama": 0,
+   "trafnosc": null,
+   "trafnych": 0.0,
+   "odzysk": 0.0
+  },
+  "znane_prawdziwe": 732.7,
+  "szac_zgubionych_prawdziwych": 510.4,
+  "szac_odzysk_podpisu": 0.589
+ },
+ "warianty": {
+  "ocenionych": 105,
+  "trafnosc": 0.905
+ }
+}
