@@ -1,0 +1,96 @@
+{
+ "Barber shop": {
+  "uslug": 6,
+  "stary_z_cena": 6,
+  "podpis_ta_sama": 3,
+  "tylko_podobne": 1,
+  "bez_ceny": 2,
+  "mediana_roznicy": 0.143,
+  "par_z_cena_w_obu": 3
+ },
+ "Brwi i rzęsy": {
+  "uslug": 6,
+  "stary_z_cena": 5,
+  "podpis_ta_sama": 2,
+  "tylko_podobne": 0,
+  "bez_ceny": 4,
+  "mediana_roznicy": 0.031,
+  "par_z_cena_w_obu": 2
+ },
+ "Depilacja": {
+  "uslug": 6,
+  "stary_z_cena": 5,
+  "podpis_ta_sama": 1,
+  "tylko_podobne": 3,
+  "bez_ceny": 2,
+  "mediana_roznicy": 0.689,
+  "par_z_cena_w_obu": 1
+ },
+ "Fryzjer": {
+  "uslug": 6,
+  "stary_z_cena": 5,
+  "podpis_ta_sama": 4,
+  "tylko_podobne": 1,
+  "bez_ceny": 1,
+  "mediana_roznicy": 0.049,
+  "par_z_cena_w_obu": 4
+ },
+ "Masaż": {
+  "uslug": 6,
+  "stary_z_cena": 2,
+  "podpis_ta_sama": 1,
+  "tylko_podobne": 2,
+  "bez_ceny": 3,
+  "mediana_roznicy": 0.0,
+  "par_z_cena_w_obu": 1
+ },
+ "Medycyna Estetyczna": {
+  "uslug": 6,
+  "stary_z_cena": 6,
+  "podpis_ta_sama": 3,
+  "tylko_podobne": 1,
+  "bez_ceny": 2,
+  "mediana_roznicy": 0.107,
+  "par_z_cena_w_obu": 3
+ },
+ "Paznokcie": {
+  "uslug": 6,
+  "stary_z_cena": 6,
+  "podpis_ta_sama": 2,
+  "tylko_podobne": 2,
+  "bez_ceny": 2,
+  "mediana_roznicy": 0.049,
+  "par_z_cena_w_obu": 2
+ },
+ "Podologia": {
+  "uslug": 6,
+  "stary_z_cena": 5,
+  "podpis_ta_sama": 0,
+  "tylko_podobne": 4,
+  "bez_ceny": 2,
+  "mediana_roznicy": null,
+  "par_z_cena_w_obu": 0
+ },
+ "Salon Kosmetyczny": {
+  "uslug": 6,
+  "stary_z_cena": 6,
+  "podpis_ta_sama": 3,
+  "tylko_podobne": 3,
+  "bez_ceny": 0,
+  "mediana_roznicy": 0.106,
+  "par_z_cena_w_obu": 3
+ },
+ "RAZEM": {
+  "uslug": 54,
+  "stary_z_cena": 46,
+  "podpis_ta_sama": 19,
+  "tylko_podobne": 17,
+  "bez_ceny": 18,
+  "mediana_roznicy": 0.086,
+  "par_z_cena_w_obu": 19
+ },
+ "warianty": {
+  "ofert": 7,
+  "z_cena_ta_sama": 2
+ }
+}
