@@ -33,10 +33,13 @@ przełączenie) dopiero po „tak” Alexa, po zobaczeniu wyniku poprzedniego kr
 ## Krok C — przełączenie na „podpis” (wymaga „tak” po kroku B)
 Pierwsze raporty po przełączeniu przeglądam ręcznie; powrót = przełącznik na „stary”, bez wdrożenia.
 
-## Krok D (etap 4 planu) — rozbiór ofert całego rynku w tle
+## Krok D (etap 4 planu) — rozbiór ofert w tle, najpierw regiony z raportami
 Osobny plan z rachunkiem kosztu dobowego (bramka kosztów automatyzacji): GLM z abonamentu, limit dobowy,
-zatrzymanie na pierwszym błędzie limitu, najpierw regiony z raportami. Do tego czasu nowe regiony mają mniej
-porównań (oferty bez rozbioru).
+zatrzymanie na pierwszym błędzie limitu. Limit planu Pro (30.09): 12 000 kredytów / 5 h, 60 000 / tydzień; paczka
+12 ofert ≈ 2 kredyty (zmierzone) → do ~360 tys. ofert na tydzień przy całym limicie. Cały rynek (~1–1,5 mln ofert)
+to 3–4 tygodnie pełnego limitu, więc NIE cały rynek naraz: regiony, w których robimy raporty, plus dociąganie pul
+konkretnych raportów (zimny raport jak 279: ~15 tys. ofert ≈ 2 600 kredytów ≈ 4% tygodnia; kolejne raporty w tym
+samym mieście korzystają z tych samych rozbiorów). Równoległość: pewne 4 naraz (30 naraz → 429).
 
 ## Ryzyka
 - Czas raportu (zmierzone 30.09): dziś 6–13 min (raport 279, 245 usług: 13 min). Samo porównanie podpisem
