@@ -1,0 +1,361 @@
+<title>Matching usług w raportach</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Outfit:wght@500;600;700&family=Figtree:wght@400;500;600;700&display=swap">
+<style>
+/* Układ: jedna kolumna do czytania (ok. 46rem), kroki i decyzje jako pionowe drabinki, liczby jako paski w skali 0–100%.
+   Jeden świat wizualny: jasny, jak produkt BeautyAudit (tylko jasny motyw), złoto marki jako akcent. */
+:root {
+  --tlo: #FFFFFF;
+  --panel: #F7F4EF;
+  --linia: #E7DFD3;
+  --tusz: #1E1A15;
+  --tusz-2: #5A5247;
+  --zloto: #D4A574;
+  --zloto-tekst: #85552A;
+  --ta-sama: #1F6B43;
+  --ta-sama-tlo: #E6F2EA;
+  --podobna: #8A5A00;
+  --podobna-tlo: #FBF0D9;
+  --inna: #8C2F2F;
+  --inna-tlo: #F7E4E2;
+  --poza: #3E4A5A;
+  --poza-tlo: #E8ECF1;
+  --szary: #9B8F80;
+  --font-naglowek: "Outfit", "Figtree", system-ui, sans-serif;
+  --font-tekst: "Figtree", system-ui, -apple-system, "Segoe UI", sans-serif;
+  color-scheme: light;
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0; background: var(--tlo); color: var(--tusz);
+  font: 16px/1.6 var(--font-tekst);
+  padding-block: 40px 72px; padding-inline: 20px;
+}
+.strona { max-width: 46rem; margin: 0 auto; display: grid; gap: 56px; }
+h1, h2, h3 { font-family: var(--font-naglowek); line-height: 1.2; text-wrap: balance; margin: 0; }
+h1 { font-size: clamp(1.9rem, 4.6vw, 2.6rem); font-weight: 700; letter-spacing: -0.01em; }
+h2 { font-size: 1.5rem; font-weight: 600; }
+h3 { font-size: 1.08rem; font-weight: 600; }
+p { margin: 0; }
+.naglowek { display: grid; gap: 16px; }
+.etykieta { font: 600 0.78rem/1 var(--font-tekst); letter-spacing: 0.08em; text-transform: uppercase; color: var(--zloto-tekst); }
+.lead { font-size: 1.12rem; color: var(--tusz-2); max-width: 40rem; }
+.sekcja { display: grid; gap: 20px; }
+.sekcja > p { max-width: 40rem; }
+.drobne { font-size: 0.92rem; color: var(--tusz-2); }
+.num { font-variant-numeric: tabular-nums; }
+
+/* Cel */
+.cel { background: var(--panel); border-left: 4px solid var(--zloto); padding: 22px 24px; display: grid; gap: 12px; }
+.cel strong { font-weight: 700; }
+
+/* Dziś a nowy sposób */
+.dwa { display: grid; grid-template-columns: repeat(auto-fit, minmax(16rem, 1fr)); gap: 16px; }
+.karta { border: 1px solid var(--linia); padding: 20px; display: grid; gap: 12px; align-content: start; min-width: 0; }
+.karta.nowy { border-color: var(--zloto); }
+.karta ul { margin: 0; padding-left: 1.1rem; display: grid; gap: 6px; }
+.przyklad { background: var(--panel); padding: 12px 14px; font-size: 0.94rem; }
+.przyklad b { font-weight: 600; }
+
+/* Kroki */
+.kroki { list-style: none; margin: 0; padding: 0; display: grid; gap: 0; }
+.krok { display: grid; grid-template-columns: 2.5rem 1fr; gap: 16px; position: relative; padding-bottom: 28px; }
+.krok:last-child { padding-bottom: 0; }
+.krok::before { content: ""; position: absolute; left: calc(1.25rem - 1px); top: 2.6rem; bottom: 0; width: 2px; background: var(--linia); }
+.krok:last-child::before { display: none; }
+.nr { width: 2.5rem; height: 2.5rem; border-radius: 50%; background: var(--zloto); color: var(--tusz);
+      display: grid; place-items: center; font: 700 1.05rem/1 var(--font-naglowek); }
+.krok-tresc { display: grid; gap: 8px; min-width: 0; padding-top: 6px; }
+.kto { font-size: 0.85rem; color: var(--tusz-2); }
+.kto b { color: var(--tusz); font-weight: 600; }
+.wynik { font-size: 0.94rem; background: var(--panel); padding: 10px 12px; }
+.slowa { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 6px; }
+.slowo { font-size: 0.86rem; padding: 3px 9px; border: 1px solid var(--linia); background: var(--tlo); }
+.slowo.wypada { text-decoration: line-through; color: var(--tusz-2); }
+.slowo.dodatek { border-color: var(--zloto); }
+
+/* Decyzja */
+.drabina { display: grid; gap: 12px; }
+.szczebel { display: grid; grid-template-columns: repeat(auto-fit, minmax(15rem, 1fr)); gap: 12px 20px; border: 1px solid var(--linia); padding: 16px 18px; }
+.pytanie { display: grid; gap: 6px; min-width: 0; }
+.pytanie .nr-maly { font: 600 0.78rem/1 var(--font-tekst); letter-spacing: 0.06em; text-transform: uppercase; color: var(--zloto-tekst); }
+.odpowiedz { display: grid; gap: 8px; align-content: start; min-width: 0; }
+.chip { display: inline-block; width: fit-content; font: 600 0.84rem/1 var(--font-tekst); padding: 6px 10px; }
+.chip.ta-sama { background: var(--ta-sama-tlo); color: var(--ta-sama); }
+.chip.podobna { background: var(--podobna-tlo); color: var(--podobna); }
+.chip.inna { background: var(--inna-tlo); color: var(--inna); }
+.chip.poza { background: var(--poza-tlo); color: var(--poza); }
+.para { font-size: 0.92rem; color: var(--tusz-2); }
+.para q { color: var(--tusz); quotes: "„" "”"; }
+
+/* Liczby */
+.paski { display: grid; gap: 18px; }
+.pasek-wiersz { display: grid; gap: 6px; }
+.pasek-opis { display: flex; justify-content: space-between; gap: 12px; flex-wrap: wrap; font-size: 0.95rem; }
+.pasek-opis span:last-child { color: var(--tusz-2); }
+.pasek { display: flex; height: 22px; background: var(--panel); overflow: hidden; }
+.pasek > div { height: 100%; }
+.p-ta-sama { background: var(--ta-sama); }
+.p-podobna { background: var(--zloto); }
+.p-stary { background: var(--szary); }
+.legenda { display: flex; flex-wrap: wrap; gap: 8px 20px; font-size: 0.88rem; color: var(--tusz-2); }
+.legenda i { display: inline-block; width: 12px; height: 12px; margin-right: 6px; vertical-align: -1px; }
+.duze { display: grid; grid-template-columns: repeat(auto-fit, minmax(13rem, 1fr)); gap: 16px; }
+.duza-liczba { border: 1px solid var(--linia); padding: 18px 20px; display: grid; gap: 6px; }
+.duza-liczba .liczba { font: 700 2.2rem/1 var(--font-naglowek); }
+.duza-liczba .liczba.dobra { color: var(--ta-sama); }
+.duza-liczba .liczba.slaba { color: var(--inna); }
+
+/* Powody */
+.powody { display: grid; gap: 12px; }
+.powod { display: grid; gap: 6px; padding: 16px 18px; background: var(--panel); }
+
+/* Dalej */
+.dalej { list-style: none; margin: 0; padding: 0; display: grid; gap: 10px; }
+.dalej li { display: grid; grid-template-columns: 7.5rem 1fr; gap: 14px; padding: 14px 16px; border: 1px solid var(--linia); align-items: start; }
+.stan { font: 600 0.8rem/1.3 var(--font-tekst); letter-spacing: 0.04em; text-transform: uppercase; }
+.stan.zrobione { color: var(--ta-sama); }
+.stan.teraz { color: var(--zloto-tekst); }
+.stan.potem { color: var(--tusz-2); }
+.decyzja { display: inline-block; margin-top: 6px; font: 600 0.8rem/1 var(--font-tekst); color: var(--inna); background: var(--inna-tlo); padding: 5px 8px; }
+@media (max-width: 30rem) { .dalej li { grid-template-columns: 1fr; gap: 6px; } }
+
+.slowniczek { display: grid; gap: 10px; }
+.slowniczek div { display: grid; grid-template-columns: 9rem 1fr; gap: 12px; font-size: 0.94rem; }
+@media (max-width: 30rem) { .slowniczek div { grid-template-columns: 1fr; gap: 2px; } }
+.slowniczek dt { font-weight: 600; }
+.slowniczek dd { margin: 0; color: var(--tusz-2); }
+</style>
+
+<main class="strona">
+
+<header class="naglowek">
+  <div class="etykieta">BeautyAudit · raport konkurencji · stan na 30.09.2026</div>
+  <h1>Jak program znajduje tę samą usługę u konkurencji</h1>
+  <p class="lead">W raporcie przy każdej usłudze salonu stoi cena rynkowa: ile ta sama usługa kosztuje w salonach w promieniu 15 km. Ta strona pokazuje, jak dziś wybieramy te „te same” usługi, co zmieniamy i po co.</p>
+</header>
+
+<section class="sekcja" aria-labelledby="cel">
+  <h2 id="cel">Cel</h2>
+  <div class="cel">
+    <p><strong>Cena rynkowa ma pochodzić wyłącznie z tych samych usług.</strong> Na 100 par, które program uzna za tę samą usługę, co najmniej 95 ma być nią naprawdę.</p>
+    <p>Porównanie manicure klasycznego z hybrydowym daje właścicielce fałszywy sygnał, że jest za droga albo za tania. Dlatego zła para jest gorsza niż brak porównania. Tam, gdzie tej samej usługi w okolicy nie ma, raport pokazuje uczciwie „ceny podobnych usług” albo nic.</p>
+  </div>
+</section>
+
+<section class="sekcja" aria-labelledby="dzis">
+  <h2 id="dzis">Dziś w raportach a nowy sposób</h2>
+  <div class="dwa">
+    <div class="karta">
+      <h3>Dziś w raportach</h3>
+      <ul>
+        <li>Program szuka u konkurencji usług, których <b>nazwa brzmi podobnie</b>, i odsiewa część z nich regułami.</li>
+        <li>Warianty z różnymi cenami (np. włosy krótkie i długie) są zlepione w jedną usługę.</li>
+        <li>Cenę dostaje ok. 85 na 100 usług, ale tylko mniej więcej <b>1 na 3</b> porównane usługi to naprawdę ta sama usługa.</li>
+      </ul>
+      <div class="przyklad"><b>Przykład błędu:</b> autorski zabieg „Siła jadu węża” za 240 zł dostał cenę rynkową 525 zł z 32 salonów. Żaden z nich nie ma tego zabiegu, więc cena wyszła z cudzych usług.</div>
+    </div>
+    <div class="karta nowy">
+      <h3>Nowy sposób (w testach)</h3>
+      <ul>
+        <li>Każdą ofertę program <b>rozbiera raz na części</b>: co to za zabieg, jaką metodą, na jakim obszarze, dla kogo, z jakimi dodatkami.</li>
+        <li>Dwie oferty to ta sama usługa tylko wtedy, gdy <b>zgadzają się wszystkie części</b>, a każdą różnicę ktoś rozstrzygnął.</li>
+        <li>Każdy wariant z własną ceną porównujemy osobno (Twoja decyzja z 29.09).</li>
+      </ul>
+      <div class="przyklad"><b>Analogia:</b> porównywarka cen w sklepie internetowym. Najpierw katalog produktów z ich cechami, potem każda oferta sklepu przypisana do produktu. Porównanie cen jest wtedy natychmiastowe i pewne.</div>
+    </div>
+  </div>
+</section>
+
+<section class="sekcja" aria-labelledby="kroki">
+  <h2 id="kroki">Nowy sposób krok po kroku</h2>
+  <p>Na przykładzie jednej oferty z cennika: <b>„Manicure hybrydowy + french (Asia)”, 150 zł, w kategorii „Paznokcie”</b>.</p>
+  <ol class="kroki">
+    <li class="krok">
+      <div class="nr" aria-hidden="true">1</div>
+      <div class="krok-tresc">
+        <h3>Zbieramy wszystko, co salon napisał o ofercie</h3>
+        <p>Nazwę, wariant, kategorię w cenniku, opis, zabieg wybrany w Booksy i nazwę salonu.</p>
+        <div class="kto"><b>Kto:</b> program, bez żadnego modelu. <b>Koszt:</b> 0 zł.</div>
+      </div>
+    </li>
+    <li class="krok">
+      <div class="nr" aria-hidden="true">2</div>
+      <div class="krok-tresc">
+        <h3>Rozbieramy ofertę na części</h3>
+        <p>Model językowy Z.ai czyta tekst i przepisuje z niego słowa do szufladek. Wolno mu tylko przepisywać, niczego nie dopisuje. Program sprawdza, czy każde słowo naprawdę stoi w tekście oferty.</p>
+        <div class="wynik">zabieg: <b>manicure</b> · metoda: <b>hybrydowy</b> · dodatek: <b>+ french</b> · wykonawca: <b>Asia</b></div>
+        <div class="kto"><b>Kto:</b> Z.ai, z abonamentu. <b>Koszt:</b> 0 zł dodatkowo, raz na każdą ofertę.</div>
+      </div>
+    </li>
+    <li class="krok">
+      <div class="nr" aria-hidden="true">3</div>
+      <div class="krok-tresc">
+        <h3>Zostawiamy tylko słowa, które opisują usługę</h3>
+        <p>Imię stylistki, promocje, czas trwania i numery kategorii wypadają. Resztę ujednolicamy: bez polskich znaków i końcówek, a wyrazy o tym samym znaczeniu łączy słownik zbudowany z danych („oczyszczenie” = „oczyszczanie”, „ritual” = „rytuał”).</p>
+        <div class="slowa" aria-label="Słowa oferty po ujednoliceniu">
+          <span class="slowo">manicure</span><span class="slowo">hybrydowy</span><span class="slowo dodatek">+ french (dodatek)</span><span class="slowo wypada">Asia</span><span class="slowo wypada">150 zł</span>
+        </div>
+        <div class="kto"><b>Kto:</b> program. <b>Koszt:</b> 0 zł.</div>
+      </div>
+    </li>
+    <li class="krok">
+      <div class="nr" aria-hidden="true">4</div>
+      <div class="krok-tresc">
+        <h3>Porównujemy z ofertami konkurencji w promieniu 15 km</h3>
+        <p>W testach program bierze do 120 najbardziej podobnych ofert z okolicy i dla każdej rozstrzyga: ta sama, podobna albo inna. Jak zapada ta decyzja, pokazuje następna część strony.</p>
+        <div class="kto"><b>Kto:</b> program; krótkie pytania do TypeSafe tylko o różnice, których jeszcze nie znamy. <b>Koszt:</b> ułamek grosza za pytanie, każda odpowiedź zapamiętana na zawsze.</div>
+      </div>
+    </li>
+    <li class="krok">
+      <div class="nr" aria-hidden="true">5</div>
+      <div class="krok-tresc">
+        <h3>Liczymy cenę rynkową tak jak dziś</h3>
+        <p>Tylko z ofert „ta sama”, po jednej z każdego salonu. Potrzebne są co najmniej 3 salony. Mediana ceny za minutę razy czas usługi salonu. Gdy salonów z tą samą usługą jest mniej niż 3, raport ma pokazać „ceny podobnych usług”.</p>
+        <div class="kto"><b>Kto:</b> program, w samym raporcie bez żadnego pytania do modeli. <b>Koszt:</b> 0 zł.</div>
+      </div>
+    </li>
+  </ol>
+</section>
+
+<section class="sekcja" aria-labelledby="decyzja">
+  <h2 id="decyzja">Jak zapada decyzja „ta sama / podobna / inna”</h2>
+  <p>Program zadaje pytania po kolei. Pierwsza odpowiedź „tak” kończy sprawę. Przykłady to prawdziwe oferty z Booksy.</p>
+  <div class="drabina">
+    <div class="szczebel">
+      <div class="pytanie">
+        <span class="nr-maly">Pytanie 1</span>
+        <h3>Czy któraś z ofert to szkolenie, voucher albo produkt?</h3>
+      </div>
+      <div class="odpowiedz">
+        <span class="chip poza">Tak: nie porównujemy</span>
+        <p class="para"><q>Japoński masaż twarzy KOBIDO</q> za 2000 zł w kategorii „SZKOLENIA” to kurs, a nie masaż za 250 zł.</p>
+      </div>
+    </div>
+    <div class="szczebel">
+      <div class="pytanie">
+        <span class="nr-maly">Pytanie 2</span>
+        <h3>Czy to w ogóle inny zabieg?</h3>
+      </div>
+      <div class="odpowiedz">
+        <span class="chip inna">Tak: inna</span>
+        <p class="para"><q>Pedicure hybrydowy</q> i <q>Manicure hybrydowy</q>.</p>
+      </div>
+    </div>
+    <div class="szczebel">
+      <div class="pytanie">
+        <span class="nr-maly">Pytanie 3</span>
+        <h3>Czy wszystkie słowa opisujące usługę są takie same?</h3>
+      </div>
+      <div class="odpowiedz">
+        <span class="chip ta-sama">Tak: ta sama</span>
+        <p class="para"><q>Manicure klasyczny</q> i <q>Manicure klasyczny — TOP STYLIST</q>. Poziom stylistki się nie liczy.</p>
+      </div>
+    </div>
+    <div class="szczebel">
+      <div class="pytanie">
+        <span class="nr-maly">Pytanie 4</span>
+        <h3>Czy jedna oferta ma w nazwie dodatek?</h3>
+      </div>
+      <div class="odpowiedz">
+        <span class="chip podobna">Tak: podobna</span>
+        <p class="para"><q>Manicure hybrydowy + french</q> i <q>Manicure hybrydowy</q>. Dodatek zmienia cenę.</p>
+      </div>
+    </div>
+    <div class="szczebel">
+      <div class="pytanie">
+        <span class="nr-maly">Pytanie 5</span>
+        <h3>Czy słowo, którym się różnią, zmienia usługę?</h3>
+        <p class="drobne">To jedyne miejsce, gdzie pytamy TypeSafe. Pytanie pada raz na daną różnicę, na przykład „czy UV przy przedłużaniu rzęs zmienia usługę?”, a odpowiedź obowiązuje potem dla wszystkich takich par na rynku.</p>
+      </div>
+      <div class="odpowiedz">
+        <span class="chip podobna">Zmienia: podobna</span>
+        <p class="para"><q>Depilacja pastą cukrową uda</q> i <q>Depilacja pastą cukrową nogi</q>. Uda to tylko część nóg.</p>
+        <span class="chip ta-sama">Nie zmienia: ta sama</span>
+        <p class="para"><q>Przedłużenie rzęs 2:1</q> i <q>Przedłużanie rzęs 2:1</q>. Inaczej zapisane, ta sama usługa.</p>
+        <span class="chip podobna">Nie wiadomo: podobna</span>
+        <p class="para"><q>Depilacja wąsik</q> i <q>Depilacja wąs</q>. Przy wątpliwości wybieramy ostrożnie, bo zła para jest gorsza niż brak porównania.</p>
+      </div>
+    </div>
+  </div>
+  <p class="drobne">Kategoria w cenniku i nazwa salonu też są częścią oferty. „Bikini klasyczne” w salonie laserowym (słowo „Laser” w nazwie salonu) i „Bikini klasyczne” w kategorii „Depilacja woskiem” to różne metody, więc wynik to „podobna”, choć nazwy są identyczne.</p>
+</section>
+
+<section class="sekcja" aria-labelledby="liczby">
+  <h2 id="liczby">Gdzie jesteśmy</h2>
+  <p>Sprawdzam wyniki ręcznie, parę po parze. Tak oceniłem już ok. 1900 par z 3 zestawów danych, w tym 2 testy na 18 salonach, których program wcześniej nie widział (A i B poniżej).</p>
+  <div class="duze">
+    <div class="duza-liczba">
+      <span class="liczba dobra num">97 na 100</span>
+      <span class="drobne">par uznanych przez nowy sposób za tę samą usługę to naprawdę ta sama usługa (cel: 95).</span>
+    </div>
+    <div class="duza-liczba">
+      <span class="liczba slaba num">ok. 35 na 100</span>
+      <span class="drobne">usług konkurencji, z których dziś liczymy cenę rynkową, to naprawdę ta sama usługa.</span>
+    </div>
+  </div>
+  <div class="paski" role="list" aria-label="Ile wierszy raportu dostaje cenę">
+    <h3>Ile wierszy raportu dostaje cenę</h3>
+    <div class="legenda">
+      <span><i style="background: var(--ta-sama)"></i>cena z tej samej usługi</span>
+      <span><i style="background: var(--zloto)"></i>tylko „ceny podobnych usług”</span>
+      <span><i style="background: var(--szary)"></i>cena dzisiejszym sposobem (z mieszanych usług)</span>
+    </div>
+    <div class="pasek-wiersz" role="listitem">
+      <div class="pasek-opis"><span>Dziś w raportach</span><span class="num">85% z ceną</span></div>
+      <div class="pasek" aria-hidden="true"><div class="p-stary" style="width: 85%"></div></div>
+    </div>
+    <div class="pasek-wiersz" role="listitem">
+      <div class="pasek-opis"><span>Nowy sposób, test A (18 salonów, 54 usługi)</span><span class="num">44% ta sama + 26% podobne</span></div>
+      <div class="pasek" aria-hidden="true"><div class="p-ta-sama" style="width: 44%"></div><div class="p-podobna" style="width: 26%"></div></div>
+    </div>
+    <div class="pasek-wiersz" role="listitem">
+      <div class="pasek-opis"><span>Nowy sposób, test B (18 innych salonów, 53 usługi)</span><span class="num">21% ta sama + 26% podobne</span></div>
+      <div class="pasek" aria-hidden="true"><div class="p-ta-sama" style="width: 21%"></div><div class="p-podobna" style="width: 26%"></div></div>
+    </div>
+    <p class="drobne">Tam, gdzie oba sposoby dały cenę, różnią się zwykle o 5–9%. Dzisiejsze 85% wygląda lepiej tylko dlatego, że liczy cenę także z usług, które nie są tą samą usługą.</p>
+  </div>
+</section>
+
+<section class="sekcja" aria-labelledby="dlaczego">
+  <h2 id="dlaczego">Dlaczego nie każdy wiersz dostanie cenę „ta sama”</h2>
+  <div class="powody">
+    <div class="powod">
+      <h3>Usługa autorska albo zestaw</h3>
+      <p>„KOBIDO JAPAN LIFT, pakiet 5 zabiegów” za 1200 zł, „Rytuał Owoce Miłości”, „Strzyżenie brody razem z brzytwą”. Takiej samej usługi nie ma nikt w okolicy, więc brak ceny jest tu prawdą, nie błędem.</p>
+    </div>
+    <div class="powod">
+      <h3>Tę samą usługę ma tylko 1–2 konkurentów</h3>
+      <p>Do mediany potrzebujemy co najmniej 3 salonów. Te wiersze mogłyby pokazać ceny tych 1–2 salonów bez mediany rynku. To decyzja do podjęcia.</p>
+    </div>
+    <div class="powod">
+      <h3>Program jeszcze nie rozpoznaje wszystkich tych samych par</h3>
+      <p>Dziś znajduje ponad połowę prawdziwych par (55–65 na 100). Tę część poprawiamy teraz: słowa z nazwy nie giną po drodze, słownik łączy więcej form tego samego słowa, a różnice po obu stronach oceniamy osobno.</p>
+    </div>
+  </div>
+</section>
+
+<section class="sekcja" aria-labelledby="dalej">
+  <h2 id="dalej">Co robimy i co dalej</h2>
+  <ol class="dalej">
+    <li><span class="stan zrobione">Zrobione</span><div>Nowy sposób działa w testach: 97 na 100 par trafnych na salonach, których program nie widział. Szkolenia, vouchery i produkty są poza porównaniem. Kod i dane są na GitHubie.</div></li>
+    <li><span class="stan teraz">Teraz</span><div>Podnosimy liczbę wierszy z ceną (Twoja decyzja z 30.09: najpierw to, potem wpięcie). Test A: z 35% do 44%. Trwa test na kolejnych 18 salonach (71 usług), który pokaże, czy poprawki działają na świeżych danych.</div></li>
+    <li><span class="stan potem">Następnie</span><div>Jak pokazywać wiersze, w których tę samą usługę ma tylko 1–2 konkurentów.<br><span class="decyzja">Twoja decyzja</span></div></li>
+    <li><span class="stan potem">Potem</span><div>Wpięcie do raportów z przełącznikiem w panelu admina, na start wyłączonym, oraz nowe tabele w bazie na rozebrane oferty.<br><span class="decyzja">Twoja zgoda: zmiana na produkcji</span></div></li>
+    <li><span class="stan potem">Na końcu</span><div>Rozebranie w tle ofert wszystkich salonów w regionach, w których robimy raporty. Wtedy program porówna każdą ofertę w okolicy, a nie tylko 120 najbardziej podobnych. Przed włączeniem policzę koszt i czas.<br><span class="decyzja">Twoja zgoda: automat w tle</span></div></li>
+  </ol>
+</section>
+
+<section class="sekcja" aria-labelledby="slowniczek">
+  <h2 id="slowniczek">Słowniczek</h2>
+  <dl class="slowniczek">
+    <div><dt>Oferta</dt><dd>Usługa z cennika albo jej wariant z własną ceną (np. strzyżenie: włosy krótkie 80 zł i długie 120 zł to dwie oferty).</dd></div>
+    <div><dt>Ta sama</dt><dd>Ta sama czynność, metoda, obszar, zakres i etap. Tylko z takich par liczymy cenę rynkową.</dd></div>
+    <div><dt>Podobna</dt><dd>Ten sam zabieg, ale inny szczegół albo dodatek. Trafia do wiersza „ceny podobnych usług”.</dd></div>
+    <div><dt>Z.ai</dt><dd>Model językowy w Twoim abonamencie. U nas tylko rozbiera tekst oferty na części.</dd></div>
+    <div><dt>TypeSafe</dt><dd>Model do krótkich pytań z odpowiedzią tak/nie. U nas rozstrzyga, czy dana różnica zmienia usługę. Płatny, ale to ułamki grosza za pytanie.</dd></div>
+  </dl>
+</section>
+
+</main>
