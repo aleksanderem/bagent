@@ -207,17 +207,13 @@ def klasy_raportu(out: Path, budzet: float) -> None:
     for s in wlasne:
         for c in obce:
             for klasa, strona in roznica_do_pytania(pod[s.id], pod[c.id]):
-                k = json.dumps(klasa, ensure_ascii=False)
-                if k in klasy:
-                    klasy[k]["par"] += 1
-                    continue
                 o_z, o_bez = (s, c) if strona is pod[s.id] else (c, s)
                 u = us[_usluga(o_z)]
-                klasy[k] = {"klasa": klasa, "par": 1, "oferta": o_z.id,
-                            "dopisek": kr._dopisek(rek[o_z.id], klasa[1], set(klasa[2].split()), kon.get(o_z.id),
-                                                   USTAWIENIA["slownik"]),
-                            "zabieg": (rek[o_z.id].get("zabieg") or {}).get("fraza") or "", "druga": o_bez.nazwa,
-                            "stan": stan_v12({**u, "warianty": [{"label": o_z.wariant}] if o_z.wariant else []})}
+                kr.dodaj_przyklad(klasy, klasa, o_bez, USTAWIENIA["slownik"], lambda: {
+                    "oferta": o_z.id, "dopisek": kr._dopisek(rek[o_z.id], klasa[1], set(klasa[2].split()), kon.get(o_z.id),
+                                                             USTAWIENIA["slownik"]),
+                    "zabieg": (rek[o_z.id].get("zabieg") or {}).get("fraza") or "", "druga": o_bez.nazwa,
+                    "stan": stan_v12({**u, "warianty": [{"label": o_z.wariant}] if o_z.wariant else []})})
     koszt = asyncio.run(kr.zapytaj(klasy, budzet, out / f"klasy_p{kr.WERSJA_PYTANIA}.json"))
     zam = kr.zamiany_ofert([(s, c) for s in wlasne for c in obce], rek, USTAWIENIA["slownik"], kon, USTAWIENIA["slowa"])
     koszt += asyncio.run(kr.zapytaj_zamiany(zam, budzet, out / f"zamiany_p{kr.WERSJA_ZAMIANY}.json"))

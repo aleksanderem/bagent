@@ -9,6 +9,7 @@ from __future__ import annotations
 
 from typesafe_sdk import Choice, Score
 
+from services.katalog_uslug.normalizacja import normalizuj, rdzen_slowa
 from services.katalog_uslug.slownik import INNE, SZERSZE, TO_SAMO, WEZSZE
 from services.typesafe_drzewo.drzewo_v14 import _poziomy, poziom_score
 
@@ -18,7 +19,21 @@ OPIS_POZIOMU = {"rdzen": "metoda, technika albo rodzaj zabiegu", "gdzie_ile": "o
                 "wylaczenie": "wyłączenie z usługi", "poziom": "poziom usługi", "inne": "szczegół usługi"}
 
 
-WERSJA_PYTANIA = 2  # v2 (29.09): obie oferty wprost, dopisek = tylko słowa różnicy; v1 zakładało „ten sam zabieg”
+WERSJA_PYTANIA = 3  # v2 (29.09): obie oferty wprost, dopisek = tylko słowa różnicy; v1 zakładało „ten sam zabieg”;
+# v3 (30.09, sprawdzian 9): to samo pytanie, ale przykład tylko „czysty” (przyklad_czysty + para jednostronna) —
+# pamięć v2 bywała rozstrzygnięta na parze, w której druga oferta miała dopisek innymi słowami
+
+
+def przyklad_czysty(dopisek: str, tekst_bez: str, slownik: dict[str, str] | None = None) -> bool:
+    """Czy para może być przykładem klasy: oferta bez dopisku (nazwa + wariant) nie ma go w żadnej postaci.
+    Odpowiedź na przykładzie przechodzi na wszystkie pary klasy, więc przykład, w którym druga oferta ma dopisek
+    sklejony („Maszynka(1długość)”) albo słowem, które słownik z nim utożsamia, uczy „dopisek nic nie zmienia”
+    (sprawdzian 9: 91,8% przez takie przykłady). Rdzeń dopisku ≥ 3 znaki szukany też wewnątrz słów (sklejenia
+    z liczbą), krótszy tylko jako całe słowo — „u” siedzi w połowie słów."""
+    s = slownik or {}
+    rdzenie = {r for t in normalizuj(tekst_bez).split() if (r := rdzen_slowa(t))}
+    rdzenie |= {s.get(r, r) for r in rdzenie}
+    return not any(w in rdzenie or (len(w) >= 3 and any(w in r for r in rdzenie)) for w in dopisek.split())
 
 
 def pytanie_klasy(poziom: str, dopisek: str, oferta: str, druga: str) -> Score:
@@ -98,5 +113,5 @@ def klasa_nieistotna(wpis: dict) -> bool:
 
 
 __all__ = ["NIE_WIADOMO", "NIE_WIADOMO_REL", "NIE_ZMIENIA", "OPIS_POZIOMU", "PROG_NIE_ZMIENIA", "PROG_TO_SAMO", "WERSJA_PYTANIA",
-           "WERSJA_ZAMIANY", "ZMIENIA", "klasa_nieistotna", "pytanie_klasy", "pytanie_zamiany", "rozstrzygnij",
-           "zamiana_rownowazna"]
+           "WERSJA_ZAMIANY", "ZMIENIA", "klasa_nieistotna", "przyklad_czysty", "pytanie_klasy", "pytanie_zamiany",
+           "rozstrzygnij", "zamiana_rownowazna"]

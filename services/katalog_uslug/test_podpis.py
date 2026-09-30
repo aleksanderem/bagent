@@ -1,8 +1,8 @@
 """Katalog usług — podpis oferty (zbiór rdzeni słów) i porównanie dwóch podpisów (plan 29.09), bez sieci."""
 from __future__ import annotations
 
-from services.katalog_uslug.podpis import (INNA, PODOBNA, TA_SAMA, Klasy, klasy_roznicy, podpis, porownaj,
-                                           roznica_do_pytania, slownictwo, zamiana_slow)
+from services.katalog_uslug.podpis import (INNA, PODOBNA, TA_SAMA, Klasy, klasy_do_rozstrzygniecia, klasy_obu_stron,
+                                           klasy_roznicy, podpis, porownaj, roznica_do_pytania, slownictwo, zamiana_slow)
 
 
 def rek(zabieg: str = "Strzyżenie", cechy: list[tuple[str, str]] | None = None, pozycja: str = "zabieg",
@@ -68,8 +68,9 @@ def test_dodatek_w_nazwie_zawsze_podobna_bez_pytania() -> None:
 def test_rozne_slowa_po_obu_stronach_to_podobna_bez_pytania() -> None:
     a, b = podpis(rek(zabieg="Depilacja", cechy=[("obszar", "łydki")])), podpis(rek(zabieg="Depilacja", cechy=[("obszar", "uda")]))
     assert porownaj(a, b, Klasy())[0] == PODOBNA
-    # 30.09: każda strona pytana osobno jak dopisek jednostronny („łydki” przy depilacji zmienia usługę → podobna)
-    assert {k[2] for k, _z in roznica_do_pytania(a, b)} == {"lydk", "uda"}
+    # sprawdzian 9: para dwustronna nie jest przykładem klasy — druga strona ma własny dopisek, który może być tym
+    # samym innymi słowami („BuzzCut” vs „strzyżenie maszynką”); klasy stron rozstrzyga para jednostronna
+    assert roznica_do_pytania(a, b) == []
 
 
 def test_nieprzypisane_slowo_wchodzi_do_zbioru() -> None:
@@ -250,11 +251,22 @@ def test_dopiski_po_obu_stronach_rozstrzygane_osobno_jak_jednostronne() -> None:
     a = podpis(rek(zabieg="Oczyszczanie", cechy=[("metoda", "wodorowe"), ("inne", "pielęgnacyjne")]))
     b = podpis(rek(zabieg="Oczyszczanie", cechy=[("metoda", "wodorowe"), ("obszar", "twarzy")]))
     assert porownaj(a, b, Klasy())[0] == PODOBNA
-    pytania = {k for k, _z in roznica_do_pytania(a, b)}
+    assert roznica_do_pytania(a, b) == []  # klasy stron rozstrzygają pary jednostronne (sprawdzian 9)
+    pytania = {k for k, _z in klasy_obu_stron(a, b)}
     assert {k[1] for k in pytania} == {"inne", "gdzie_ile"}
     assert porownaj(a, b, Klasy(opisowe=pytania))[0] == TA_SAMA
     jedna = next(k for k in pytania if k[1] == "inne")
     assert porownaj(a, b, Klasy(opisowe={jedna}))[0] == PODOBNA  # obie strony muszą być rozstrzygnięte
+
+
+def test_klasy_do_rozstrzygniecia_to_klasy_ktorych_szuka_porownanie() -> None:
+    a = podpis(rek(zabieg="Oczyszczanie", cechy=[("metoda", "wodorowe"), ("inne", "pielęgnacyjne")]))
+    b = podpis(rek(zabieg="Oczyszczanie", cechy=[("metoda", "wodorowe"), ("obszar", "twarzy")]))
+    assert set(klasy_do_rozstrzygniecia(a, b)) == {k for k, _z in klasy_obu_stron(a, b)}
+    c = podpis(rek(zabieg="Oczyszczanie", cechy=[("metoda", "wodorowe")]))
+    assert klasy_do_rozstrzygniecia(a, c) == [k for k, _z in klasy_roznicy(a, c)]
+    d = podpis(rek(zabieg="Tamponada", cechy=[("sklad", "z opatrunkiem")]))
+    assert klasy_do_rozstrzygniecia(d, podpis(rek(zabieg="Tamponada"))) == []  # dodatek w nazwie = podobna bez pytania
 
 
 def test_dopiski_po_obu_stronach_nie_dla_skladu_ani_dlugiej_roznicy() -> None:

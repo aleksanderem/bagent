@@ -108,6 +108,20 @@ możemy lepiej/taniej/szybciej … to ja Cię ograniczyłem”.
   cecha opisowa i wartość domyślna ze statystyk rynku (na danych z samych kandydatów ratują tyle złych par co
   dobrych — wrócić przy pełnych cennikach), próg P(„nie zmienia”)>0,5 (spr7 → 93%). Sufit teraz: ~⅓ wierszy to
   usługi autorskie/zestawy (brak tożsamej = poprawnie), ~¼ ma 1–2 salony. W toku sprawdzian 9 (18 salonów, 71 usług).
+- SPRAWDZIAN 9 (30.09 po południu, DOWÓD, 18 nowych salonów, reguły zamrożone; moja ocena na ślepo 657 par;
+  bagent dd0ec13): **91,8% trafnych „ta sama” — bramka ≥95% ✗.** Branże: Barber 84, Brwi 100, Depilacja 90,
+  Fryzjer 98, Masaż 98, Med-est 100, Paznokcie 100, Podologia 90, Salon Kosmetyczny 56. Wg mechanizmu: równe zbiory
+  słów 98,5% (53% par), dopisek jednostronny 95,0% (35%), zamiana słowa 55% (8%), dopiski po obu stronach 52% (4%).
+  Pokrycie wierszy: „ta sama” (≥3 salony) 42% (stary silnik: cena w 72%), 1–2 salony 23%, brak 35%. 77% ważonego
+  błędu to dwie usługi: „Hybryda na stopy” vs „Pedicure hybrydowy” (zamiana pedicure↔stopy „to samo” 0,92; moja
+  ocena: podobna — pedicure to też opracowanie stóp) i „Strzyżenie jedna długość maszynką” vs „Strzyżenie maszynką”.
+  MECHANIZM: klasa różnicy (wspólne słowa, poziom, dopisek) rozstrzygana na JEDNEJ parze-przykładzie, a przykład
+  bywał „brudny” — druga oferta miała dopisek innymi słowami („Combo - BuzzCut + Broda” → strzyżenie przy brodzie
+  „nic nie zmienia”; „Maszynka(1długość)”; „Pedicure hybrydowy” jako oferta bez „stóp”). Odpowiedź trafna dla
+  przykładu, pamięć uogólnia ją na pary, gdzie druga oferta naprawdę tego nie ma (broda ≠ strzyżenie + broda,
+  hybryda na stopy ≠ hybryda na dłonie). Reszta błędów (~2%): metoda tylko w kategorii (SHR/IPL przy „laserowej”),
+  „(do zabiegu)” = dodatek, „lub”, infuzja skóry głowy vs twarzy. Poprawka: przykład klasy tylko z różnicy
+  jednostronnej, w której oferta bez dopisku nie ma go w żadnej postaci; dowód na sprawdzianie 10.
 
 **Why:** koszt i jakość v14f utknęły (87–94%, 3/4 par) na ograniczeniach metody, nie na strojeniu.
 **How to apply:** nowa praca nad matchingiem idzie tym planem; v14f zostaje punktem odniesienia w pomiarach.

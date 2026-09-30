@@ -286,10 +286,22 @@ def zamiana_do_pytania(a: Podpis, b: Podpis) -> Zamiana | None:
 
 
 def roznica_do_pytania(a: Podpis, b: Podpis) -> list[tuple[Klasa, Podpis]]:
-    """Klasy, o które warto zapytać TypeSafe: para bez przeszkód, dopisek jednostronny bez składu."""
+    """Klasy, dla których ta para może być przykładem w pytaniu TypeSafe: para bez przeszkód, dopisek jednostronny
+    bez składu. Para dwustronna nie jest przykładem klas swoich stron (sprawdzian 9): druga strona ma własny dopisek,
+    który bywa tym samym innymi słowami („Combo - BuzzCut + Broda” → „strzyżenie przy brodzie nic nie zmienia”);
+    porownaj() i tak rozkłada ją na klasy stron, rozstrzygnięte na parach jednostronnych."""
+    if _przeszkoda(a, b) is not None:
+        return []
+    kl = klasy_roznicy(a, b)
+    return [] if kl is None or any(k[1] == "sklad" for k, _z in kl) else kl
+
+
+def klasy_do_rozstrzygniecia(a: Podpis, b: Podpis) -> list[Klasa]:
+    """Klasy, których porownaj() szuka w pamięci dla tej pary: dopisku jednostronnego albo obu stron różnicy
+    dwustronnej. Przykład do pytania o nie bywa w innej parze rynku (roznica_do_pytania)."""
     if _przeszkoda(a, b) is not None:
         return []
     kl = klasy_roznicy(a, b)
     if kl is None:
-        return klasy_obu_stron(a, b) or []
-    return [] if any(k[1] == "sklad" for k, _z in kl) else kl
+        kl = klasy_obu_stron(a, b) or []
+    return [] if any(k[1] == "sklad" for k, _z in kl) else [k for k, _z in kl]

@@ -33,7 +33,8 @@ from services.katalog_uslug import klasy as _klasy  # noqa: E402
 from services.katalog_uslug.ekstrakcja import Oferta, oferty_z_uslugi  # noqa: E402
 from services.katalog_uslug.klasy import NIE_ZMIENIA, WERSJA_PYTANIA, WERSJA_ZAMIANY, rozstrzygnij, zamiana_rownowazna  # noqa: E402
 from services.katalog_uslug.normalizacja import normalizuj, rdzen_slowa  # noqa: E402
-from services.katalog_uslug.podpis import (INNA, PODOBNA, TA_SAMA, Klasy, podpis, porownaj, roznica_do_pytania,  # noqa: E402
+from services.katalog_uslug.podpis import (INNA, PODOBNA, TA_SAMA, Klasy, klasy_do_rozstrzygniecia, podpis,  # noqa: E402
+                                           porownaj, roznica_do_pytania,
                                            slownictwo)
 
 
@@ -165,19 +166,23 @@ def klasy(budzet: float, proba: int = 0) -> None:
     pary, oferty, rek, x = podpisy()
     pod, kon, s = x["pod"], x["kon"], x["slownik"]
     kl: dict[str, dict] = {}
+
+    def przyklad(z: str, bez: str, klasa) -> dict:
+        return {"oferta": z, "dopisek": kr._dopisek(rek[z], klasa[1], set(klasa[2].split()), kon.get(z), s),
+                "zabieg": kr._nazwa(oferty[z]), "druga": kr._nazwa(oferty[bez]), "stan": kr._stan(oferty[z])}
+
     for q in pary:
         pa, pb = pod.get(q["a"]), pod.get(q["b"])
         if q["bez_wspolnych"] or pa is None or pb is None:
             continue
         for klasa, strona in roznica_do_pytania(pa, pb):
-            k = json.dumps(klasa, ensure_ascii=False)
-            if k in kl:
-                kl[k]["par"] += 1
-                continue
             o_z, o_bez = (oferty[q["a"]], oferty[q["b"]]) if strona is pa else (oferty[q["b"]], oferty[q["a"]])
-            kl[k] = {"klasa": klasa, "par": 1, "oferta": o_z.id,
-                     "dopisek": kr._dopisek(rek[o_z.id], klasa[1], set(klasa[2].split()), kon.get(o_z.id), s),
-                     "zabieg": kr._nazwa(o_z), "druga": kr._nazwa(o_bez), "stan": kr._stan(o_z)}
+            kr.dodaj_przyklad(kl, klasa, o_bez, s, lambda: przyklad(o_z.id, o_bez.id, klasa))
+    potrzebne = {json.dumps(k, ensure_ascii=False) for q in pary if not q["bez_wspolnych"] and q["a"] in pod and q["b"] in pod
+                 for k in klasy_do_rozstrzygniecia(pod[q["a"]], pod[q["b"]])}
+    us, _p, _o = pary_ofert()
+    z_puli = kr.przyklady_z_puli(kl, potrzebne, pod, oferty, salon_ofert(us, oferty), s, przyklad)
+    print(f"klas potrzebnych w porównaniach {len(potrzebne)}, przykładów z puli rynku {z_puli}", flush=True)
     koszt = asyncio.run(kr.zapytaj(kl, budzet))  # pamięć wspólna z w2 — ta sama klasa nie jest pytana drugi raz
     zam = kr.zamiany_ofert([(oferty[q["a"]], oferty[q["b"]]) for q in pary if not q["bez_wspolnych"]], rek, s, kon, x["slowa"], x["sal"])
     koszt_z = asyncio.run(kr.zapytaj_zamiany(zam, budzet, proba=proba))

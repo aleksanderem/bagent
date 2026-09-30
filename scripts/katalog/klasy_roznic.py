@@ -20,8 +20,8 @@ from pathlib import Path
 B = Path(__file__).resolve().parents[2]
 sys.path[:0] = [str(B), str(B / "scripts")]
 from services.katalog_uslug.ekstrakcja import WERSJA_PROMPTU  # noqa: E402
-from services.katalog_uslug.klasy import (NIE_ZMIENIA, WERSJA_PYTANIA, WERSJA_ZAMIANY, pytanie_klasy,  # noqa: E402
-                                          pytanie_zamiany, rozstrzygnij, zamiana_rownowazna)
+from services.katalog_uslug.klasy import (NIE_ZMIENIA, WERSJA_PYTANIA, WERSJA_ZAMIANY, przyklad_czysty,  # noqa: E402
+                                          pytanie_klasy, pytanie_zamiany, rozstrzygnij, zamiana_rownowazna)
 from services.katalog_uslug.normalizacja import normalizuj, rdzen_slowa  # noqa: E402
 from services.katalog_uslug.podpis import _wybrane_frazy, podpis, roznica_do_pytania, zamiana_do_pytania  # noqa: E402
 
@@ -71,19 +71,46 @@ def klasy_z_par(wariant: str, slownik: dict[str, str] | None = None, kon: dict |
             continue
         pa, pb = podpis(ra, slownik, kon.get(q["oa"].id), slowa), podpis(rb, slownik, kon.get(q["ob"].id), slowa)
         for klasa, strona in roznica_do_pytania(pa, pb):
-            klucz = json.dumps(klasa, ensure_ascii=False)
-            if klucz in klasy:
-                klasy[klucz]["par"] += 1
-                continue
             o_z, r_z, o_bez = (q["oa"], ra, q["ob"]) if strona is pa else (q["ob"], rb, q["oa"])
-            k_z = kon.get(o_z.id)
-            klasy[klucz] = {"klasa": klasa, "par": 1, "oferta": o_z.id,
-                            "dopisek": _dopisek(r_z, klasa[1], set(klasa[2].split()), k_z, slownik),
-                            "zabieg": o_z.nazwa + (f" — {o_z.wariant}" if o_z.wariant else ""), "druga": o_bez.nazwa + (f" — {o_bez.wariant}" if o_bez.wariant else ""),
-                            "stan": stan_v12({"nazwa": o_z.nazwa, "kategoria": o_z.kategoria, "opis": o_z.opis,
-                                              "warianty": [{"label": o_z.wariant}] if o_z.wariant else [],
-                                              "zabieg_booksy": o_z.zabieg_booksy, "typ_salonu": o_z.typ_salonu})}
+            dodaj_przyklad(klasy, klasa, o_bez, slownik, lambda: {
+                "oferta": o_z.id, "dopisek": _dopisek(r_z, klasa[1], set(klasa[2].split()), kon.get(o_z.id), slownik),
+                "zabieg": _nazwa(o_z), "druga": _nazwa(o_bez), "stan": _stan(o_z)})
     return klasy
+
+
+def dodaj_przyklad(klasy: dict[str, dict], klasa, o_bez, slownik: dict | None, przyklad) -> None:
+    """Klasa → licznik par i pierwszy CZYSTY przykład do pytania (klasy.przyklad_czysty, sprawdzian 9). Klasa bez
+    czystego przykładu nie jest pytana — zostaje istotna (zła para gorsza niż brak porównania)."""
+    w = klasy.setdefault(json.dumps(klasa, ensure_ascii=False), {"klasa": klasa, "par": 0})
+    w["par"] += 1
+    if "oferta" not in w and przyklad_czysty(klasa[2], _nazwa(o_bez), slownik):
+        w.update(przyklad())
+
+
+def przyklady_z_puli(klasy: dict[str, dict], potrzebne: set[str], pod: dict, oferty: dict, salon: dict[str, str],
+                     slownik: dict | None, przyklad) -> int:
+    """Klasa potrzebna w porównaniu (podpis.klasy_do_rozstrzygniecia), a bez czystego przykładu w parach podmiot–kandydat
+    → czysty przykład z pary dwóch innych ofert puli (różne salony) o DOKŁADNIE tej różnicy. Znaczenie słów nie zależy
+    od tego, kto jest podmiotem; bez tego klasy stron różnicy dwustronnej zostawały bez przykładu (sprawdzian 9 po
+    poprawce: −19 prawdziwych par). przyklad(a, b, klasa) → pola przykładu. Zwraca liczbę znalezionych przykładów."""
+    po_zbiorze: dict[frozenset[str], list[str]] = {}
+    for oid, p in pod.items():
+        po_zbiorze.setdefault(frozenset(p.zbior), []).append(oid)
+    znalezione = 0
+    for k in potrzebne:
+        if "oferta" in klasy.get(k, {}):
+            continue
+        klasa = tuple(json.loads(k))
+        wspolne, dopisek = frozenset(klasa[0].split()), frozenset(klasa[2].split())
+        for a in po_zbiorze.get(wspolne | dopisek, []):
+            b = next((b for b in po_zbiorze.get(wspolne, []) if salon.get(b) != salon.get(a)
+                      and przyklad_czysty(klasa[2], _nazwa(oferty[b]), slownik)
+                      and any(kl == klasa and z is pod[a] for kl, z in roznica_do_pytania(pod[a], pod[b]))), None)
+            if b is not None:
+                klasy.setdefault(k, {"klasa": klasa, "par": 0}).update(przyklad(a, b, klasa))
+                znalezione += 1
+                break
+    return znalezione
 
 
 def _nazwa(o) -> str:
@@ -160,13 +187,28 @@ async def zapytaj_zamiany(zamiany: dict[str, dict], budzet: float, plik: Path | 
     return tok[0] * CENA_TOK
 
 
+def _te_same_pytania(klasy: dict[str, dict], pamiec: dict, plik: Path) -> dict[str, dict]:
+    """Odpowiedzi poprzedniej wersji pamięci na DOKŁADNIE to samo pytanie (ten sam przykład, dopisek, obie nazwy) —
+    v3 zmieniła tylko wybór przykładu, więc takie odpowiedzi są ważne bez ponownego płacenia."""
+    stary = plik.with_name(plik.name.replace(f"_p{WERSJA_PYTANIA}", f"_p{WERSJA_PYTANIA - 1}"))
+    if stary == plik or not stary.exists():
+        return {}
+    poprz = json.loads(stary.read_text(encoding="utf-8"))
+    pola = ("oferta", "dopisek", "zabieg", "druga")
+    return {k: poprz[k] for k, v in klasy.items() if k not in pamiec and "oferta" in v and k in poprz
+            and poprz[k].get("score") is not None and all(poprz[k].get(p) == v.get(p) for p in pola)}
+
+
 async def zapytaj(klasy: dict[str, dict], budzet: float, plik: Path | None = None) -> float:
     plik = plik or PLIK
     from typesafe_sdk import AsyncTypeSafeClient
     pamiec = json.loads(plik.read_text(encoding="utf-8")) if plik.exists() else {}
-    nowe = [k for k in klasy if k not in pamiec]
+    pamiec.update(_te_same_pytania(klasy, pamiec, plik))
+    nowe = [k for k in klasy if k not in pamiec and "oferta" in klasy[k]]  # bez czystego przykładu — nie pytamy
     szac = len(nowe) * 700 * CENA_TOK
-    print(f"klas {len(klasy)}, nowych do pytania {len(nowe)}, szac. {szac:.3f} USD (budżet {budzet})", flush=True)
+    bez = sum("oferta" not in v for v in klasy.values())
+    print(f"klas {len(klasy)} (bez czystego przykładu {bez}), nowych do pytania {len(nowe)}, szac. {szac:.3f} USD "
+          f"(budżet {budzet})", flush=True)
     if szac > budzet:
         sys.exit("szacunek ponad budżet — przerwane")
     tok = [0]

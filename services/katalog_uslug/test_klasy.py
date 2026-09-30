@@ -1,8 +1,18 @@
 """Katalog usług — pytanie o klasę różnicy jednostronnej (bez sieci)."""
 from __future__ import annotations
 
-from services.katalog_uslug.klasy import (NIE_WIADOMO, NIE_ZMIENIA, ZMIENIA, pytanie_klasy, pytanie_zamiany,
-                                          rozstrzygnij, zamiana_rownowazna)
+from services.katalog_uslug.klasy import (NIE_WIADOMO, NIE_ZMIENIA, ZMIENIA, przyklad_czysty, pytanie_klasy,
+                                          pytanie_zamiany, rozstrzygnij, zamiana_rownowazna)
+
+
+def test_przyklad_klasy_odrzucony_gdy_druga_oferta_ma_dopisek_w_innej_postaci() -> None:
+    # sprawdzian 9: „Strzyżenie Maszynka(1długość)” jako oferta BEZ „jedna długość” — model słusznie odpowiedział
+    # „nie zmienia” dla tej pary, a pamięć przeniosła to na „Strzyżenie maszynką” bez długości
+    assert not przyklad_czysty("dlugosc jedn", "Strzyżenie Maszynka(1długość)")
+    assert przyklad_czysty("dlugosc jedn", "Strzyżenie maszynką")
+    assert not przyklad_czysty("maszynk strzyzen", "Combo - buzzcut + Broda", {"buzzcut": "maszynk"})
+    assert przyklad_czysty("u", "Hybryda na stopy")  # krótkie słowo tylko jako całe słowo, nie wewnątrz „hybryda”
+    assert not przyklad_czysty("stop", "Hybryda — stopy")
 
 
 def test_pytanie_nazywa_dopisek_zabieg_i_druga_oferte() -> None:
