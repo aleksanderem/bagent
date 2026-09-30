@@ -26,9 +26,9 @@ B = Path(__file__).resolve().parents[2]
 sys.path[:0] = [str(B), str(B / "scripts"), str(B / "scripts" / "katalog"), str(B / "scripts" / "typesafe")]
 import sprawdzian7 as s7  # noqa: E402
 from services.katalog_uslug import klasy as _klasy  # noqa: E402
-from services.katalog_uslug.dopasowanie import werdykty, wycen  # noqa: E402
+from services.katalog_uslug.wycena import wycen_oferty  # noqa: E402
 from services.katalog_uslug.klasy import NIE_ZMIENIA, rozstrzygnij, zamiana_rownowazna  # noqa: E402
-from services.katalog_uslug.podpis import PODOBNA, TA_SAMA, Klasy  # noqa: E402
+from services.katalog_uslug.podpis import Klasy  # noqa: E402
 
 POLA = ("id,booksy_id,category_name,name,description,variants,treatment_name,treatment_parent_id,booksy_treatment_id,"
         "is_package,is_active,price_grosze,duration_minutes")
@@ -101,18 +101,12 @@ def _podpis_wiersze() -> dict[str, dict]:
             continue
         ob = oferty[q["b"]]
         kand[q["a"]].append((_probka(ob, us[int(q["b"].split("#")[0])], q["sim"]), pod[q["b"]]))
-    wynik = {}
-    for oa, lst in kand.items():
-        o = oferty[oa]
-        u = us[int(oa.split("#")[0])]
-        podmiot = _probka(o, u, 1.0)
-        w = werdykty(pod[oa], lst, klasy)
-        r = wycen(podmiot, w)
-        r_pod = wycen(podmiot, [(s, TA_SAMA, p) for s, v, p in w if v == PODOBNA])  # cena z wiersza „podobne”
-        wynik[oa] = {"cena": r.market_price_grosze, "salonow": r.n_unique_salons, "status": r.status,
-                     "podobne_cena": r_pod.market_price_grosze, "podobne_salonow": r_pod.n_unique_salons,
-                     "ta_sama": [s["oferta"] for s in r.samples]}
-    return wynik
+    podmiot = {oa: (_probka(oferty[oa], us[int(oa.split("#")[0])], 1.0), pod[oa]) for oa in kand}
+    # ten sam kod co ścieżka raportu za przełącznikiem (etap 3) — suchy przebieg sprawdza dokładnie ją
+    return {oa: {"cena": w.wynik.market_price_grosze, "salonow": w.wynik.n_unique_salons, "status": w.wynik.status,
+                 "podobne_cena": w.podobne.market_price_grosze, "podobne_salonow": w.podobne.n_unique_salons,
+                 "ta_sama": [s["oferta"] for s in w.wynik.samples], "rodzaj": w.rodzaj}
+            for oa, w in wycen_oferty(podmiot, kand, klasy).items()}
 
 
 def _porownaj() -> None:
