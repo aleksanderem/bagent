@@ -23,6 +23,15 @@ _KONCOWKI = ("owie", "ami", "ach", "ego", "emu", "ymi", "imi", "ych", "ich", "ow
              "a", "e", "y", "i", "u", "o")
 
 
+# Telefony i e-maile z opisów Booksy („tel. 600 100 200”) — nie należą do tekstu oferty ani do danych w repo (30.09).
+_TELEFON = re.compile(r"(?<![\d#])(?:\+?48[ .-]?)?\d{3}[ .-]?\d{3}[ .-]?\d{3}(?![\d#])")
+_EMAIL = re.compile(r"[\w.+-]+@[\w-]+(?:\.[\w-]+)+")
+
+
+def bez_kontaktow(tekst: str) -> str:
+    return _TELEFON.sub("[telefon]", _EMAIL.sub("[e-mail]", tekst))
+
+
 def bez_polskich_znakow(slowo: str) -> str:
     return slowo.translate(_BEZ_ZNAKOW)
 

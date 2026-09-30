@@ -55,3 +55,11 @@ def test_rozne_slowa_zostaja_rozne(a: str, b: str) -> None:
 def test_pusty_tekst() -> None:
     assert normalizuj("") == ""
     assert normalizuj(None) == ""
+
+
+def test_bez_kontaktow_maskuje_telefony_i_maile_a_nie_liczby_uslugi() -> None:
+    from services.katalog_uslug.normalizacja import bez_kontaktow
+    assert bez_kontaktow("Zapisy tel. 600 100 200 lub 700-100-200, +48 800 100 200, 500100200") == \
+        "Zapisy tel. [telefon] lub [telefon], [telefon], [telefon]"
+    assert bez_kontaktow("pisz: salon@example.com") == "pisz: [e-mail]"
+    assert bez_kontaktow("Laser 755 808 1064nm, pakiet 3 zabiegi 1200 zł, 2:1") == "Laser 755 808 1064nm, pakiet 3 zabiegi 1200 zł, 2:1"

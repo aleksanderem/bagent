@@ -17,7 +17,7 @@ B = Path(__file__).resolve().parents[2]
 sys.path[:0] = [str(B), str(B / "scripts")]
 from services.katalog_uslug.ekstrakcja import (WERSJA_POZYCJI, Oferta, prompt_kategorii, prompt_pozycji_kategorii,  # noqa: E402
                                                prompt_salonow, rozdziel_zlepki, waliduj, waliduj_pozycje)
-from services.katalog_uslug.normalizacja import normalizuj  # noqa: E402
+from services.katalog_uslug.normalizacja import bez_kontaktow, normalizuj  # noqa: E402
 
 KLUCZ = Path.home() / ".config" / "zai" / "api_key"
 PACZKA = 20
@@ -26,7 +26,9 @@ PLIK_POZYCJI = f"pozycje_kategorii_v{WERSJA_POZYCJI}.json"  # obok kategorie.jso
 
 
 def id_kategorii(tekst: str) -> str:
-    return "k:" + hashlib.sha1(normalizuj(tekst).encode("utf-8")).hexdigest()[:12]
+    """Skrót tekstu kategorii bez telefonów i e-maili — dane w repo są maskowane (maskuj_kontakty.py), a klucz
+    musi być ten sam dla tekstu przed maskowaniem i po nim."""
+    return "k:" + hashlib.sha1(normalizuj(bez_kontaktow(tekst)).encode("utf-8")).hexdigest()[:12]
 
 
 def kategorie_ofert(oferty: list[Oferta]) -> list[Oferta]:
@@ -103,7 +105,7 @@ async def wyciagnij_pozycje(katalogi: list[Path], pamiec: Path, rownolegle: int 
 
 
 def id_salonu(nazwa: str) -> str:
-    return "s:" + hashlib.sha1(normalizuj(rozdziel_zlepki(nazwa)).encode("utf-8")).hexdigest()[:12]
+    return "s:" + hashlib.sha1(normalizuj(rozdziel_zlepki(bez_kontaktow(nazwa))).encode("utf-8")).hexdigest()[:12]
 
 
 def salony_ofert(nazwy: list[str]) -> list[Oferta]:
