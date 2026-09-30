@@ -72,7 +72,7 @@ def zbierz(a: argparse.Namespace) -> None:
         return
     v13s.SEED = a.ziarno
     v13s.uzyte_salony = lambda: v14s.uzyte_salony_v14() | {RAPORT_TESTOWY}
-    ns = argparse.Namespace(na_branze=2, uslug=3, kandydatow=150, podobienstwo=0.6)
+    ns = argparse.Namespace(na_branze=2, uslug=a.uslug, kandydatow=150, podobienstwo=0.6)
     uslugi, pary, salony = asyncio.run(v13s.zbierz(SupabaseService(), ns))
     po_a: dict[int, list[dict]] = defaultdict(list)
     for q in pary:
@@ -364,6 +364,7 @@ def main() -> None:
     ap.add_argument("--proba", type=int, default=0, help="z --klasy: zapytaj tylko o N najczęstszych nowych zamian")
     ap.add_argument("--wyjscie", default="sprawdzian7", help="katalog w dane/2026-09-29/ (nowy = nowe salony)")
     ap.add_argument("--na-grupe", type=int, default=999, help="--probka: najwyżej N par z grupy na branżę (reszta ważona)")
+    ap.add_argument("--uslug", type=int, default=3, help="--zbierz: usług podmiotu na salon (sprawdzian 9: 4 — pokrycie wierszy)")
     a = ap.parse_args()
     global OUT, V14
     OUT = OUT.parent / a.wyjscie
