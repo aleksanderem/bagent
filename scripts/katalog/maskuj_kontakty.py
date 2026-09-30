@@ -19,7 +19,7 @@ B = Path(__file__).resolve().parents[2]
 sys.path[:0] = [str(B)]
 from services.katalog_uslug.normalizacja import bez_kontaktow  # noqa: E402
 
-POLA_ID = frozenset({"id", "a", "b", "oferta", "usluga_a", "usluga_b", "id_oferty", "booksy_id", "salon", "cand_salon"})
+POLA_ID = frozenset({"id", "a", "b", "oferta", "usluga_a", "usluga_b", "id_oferty"})  # „salon” bywa nazwą salonu (z telefonem!)
 SAME_CYFRY = re.compile(r"\d+(?:#\d+)?")
 
 
