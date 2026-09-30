@@ -41,6 +41,15 @@ to 3–4 tygodnie pełnego limitu, więc NIE cały rynek naraz: regiony, w któr
 konkretnych raportów (zimny raport jak 279: ~15 tys. ofert ≈ 2 600 kredytów ≈ 4% tygodnia; kolejne raporty w tym
 samym mieście korzystają z tych samych rozbiorów). Równoległość: pewne 4 naraz (30 naraz → 429).
 
+## Opcja szybkości: GLM-5.3-FlashX (sprawdzone 30.09, na prośbę Alexa)
+- Z.ai deklaruje 200 tok./s (docs.z.ai/guides/vlm/glm-5.3-flash); nasz Flash zmierzony: ~70 tok./s (2 tys. tok. odpowiedzi
+  w 27–30 s) → paczka 12 ofert ~10 s zamiast ~28 s. Limit równoległości w API: 20 (tabela z panelu Alexa).
+- NIE jest w planie Pro (odpowiedź Z.ai 1311 „plan does not yet include access”); przez zwykłe API odmowa 1113 — brak salda.
+- Cennik API: 0,37 / 0,075 / 1,25 USD za 1 mln tokenów (wejście / z pamięci / wyjście) → ~0,003 USD na paczkę 12 ofert:
+  zimny raport jak 279 ~4 USD, typowy salon ~1 USD, cały rynek ~260–390 USD jednorazowo.
+- Jakość niezmierzona — prompt rozbioru był mierzony na Flash. Próba gotowa: `diagnoza/proba_flashx.py` (te same 13 paczek
+  raportu 279, zgodność podpisów z Flash + poziom odniesienia Flash vs Flash, ~0,04 USD) — po doładowaniu salda.
+
 ## Ryzyka
 - Czas raportu (zmierzone 30.09): dziś 6–13 min (raport 279, 245 usług: 13 min). Samo porównanie podpisem
   32 s dla 71 usług i ~13 tys. par, bez modelu. Wąskie gardło = rozbiór ofert przez Z.ai: ~5 tys. ofert/h przy
