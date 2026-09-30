@@ -57,6 +57,9 @@ sprawdzania pytaniami. Twarde bramki z CLAUDE.md obowiązują bez zmian.
   (podobna tylko przy dopisku innego zakresu: frezowanie, opracowanie podeszwy, „pełny”); oceny par liczę tą regułą.
   (2) Wiersz, w którym tę samą usługę ma tylko 1–2 konkurentów: pokazujemy ich ceny jako „ta sama usługa u N
   konkurentów”, BEZ mediany rynku (mediana dopiero od 3 salonów).
+- DECYZJA ALEXA (30.09 ~16:00, „najpierw dokończmy matching”): teraz tylko matching — sprawdzian 10 (dowód poprawki
+  przykładów) i dalsze poprawki trafności/odzysku. Etap 3 (suchy przebieg raportu 279, wpięcie za przełącznikiem,
+  rozbiór w tle, próby równoległości Z.ai) ODŁOŻONY do odwołania; nie zaczynam go sam.
 - Drzewo jak w cookbooku TypeSafe hierarchical_classification DO POZIOMU ZABIEGU: każdy poziom to wybór spośród
   dzieci poprzedniego, rodzeństwo się nie nakłada, wiązka 3 ścieżek, średnia geometryczna krawędzi; zabieg może
   mieć kilku rodziców (graf jak MeSH w cookbooku).
