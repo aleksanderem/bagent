@@ -52,6 +52,7 @@ class Podpis:
     pozycja: str = "zabieg"
     blokady: tuple[str, ...] = ()
     wlasne: frozenset[str] = frozenset()  # słowa samej oferty (nazwa, wariant) — do testu „nazwy bez treści”
+    laczenie: str = ""  # „lub” (jedno z kilku) / „razem” (+, i, oraz, z) / "" — z nazwy i wariantu (_laczenie)
 
 
 @dataclass(frozen=True)
@@ -185,7 +186,20 @@ def podpis(rek: dict[str, Any], slownik: dict[str, str] | None = None, kontekst:
     poz_kat = (kontekst or {}).get("pozycja_kategorii")  # sekcja cennika mówi, że to nie usługa — ma pierwszeństwo
     pozycja = poz_kat if poz_kat in POZA_POROWNANIEM else rek.get("pozycja") or "zabieg"
     return Podpis(frozenset(w for _p, w in poziomy), frozenset(poziomy), pozycja,
-                  wlasne=frozenset(wlasne | {w for _p, w in dopisane}))
+                  wlasne=frozenset(wlasne | {w for _p, w in dopisane}),
+                  laczenie=_laczenie(f"{rek.get('nazwa') or ''} {rek.get('wariant') or ''}"))
+
+
+ALTERNATYWA = re.compile(r"(?<!\S)(?:lub|albo)(?!\S)", re.IGNORECASE)
+RAZEM = re.compile(r"\+|(?<!\S)(?:i|oraz|z|ze|wraz)(?!\S)", re.IGNORECASE)
+
+
+def _laczenie(tekst: str) -> str:
+    """Jak nazwa łączy pozycje: „lub”/„albo” = jedna z nich w tej cenie, „+”/„i”/„oraz”/„z” = wszystkie razem. Zbiór słów
+    tego nie widzi („Depilacja uszu lub nosa” i „Depilacja uszu + nosa” mają te same słowa), a to poziom „gdzie i ile”
+    modelu — ile obszarów w cenie (testy B–D, 30.09: 3 błędne pary, zero prawdziwych). Przecinek i ukośnik bywają „albo”
+    i „i” — bez rozstrzygnięcia."""
+    return "lub" if ALTERNATYWA.search(tekst) else "razem" if RAZEM.search(tekst) else ""
 
 
 def _rdzen(p: Podpis) -> set[str]:
@@ -254,6 +268,8 @@ def _przeszkoda(a: Podpis, b: Podpis) -> tuple[str, str] | None:
         return PODOBNA, f"pozycja: {a.pozycja} / {b.pozycja}"
     if any(p.wlasne and p.wlasne <= PUSTE_NAZWY for p in (a, b)):
         return PODOBNA, "nazwa bez treści (combo / pakiet / premium) bez składu"
+    if {a.laczenie, b.laczenie} == {"lub", "razem"}:
+        return PODOBNA, "jedno z kilku („lub”) wobec wszystkich razem"
     return None
 
 

@@ -1,0 +1,5888 @@
+{
+ "[\"depilacj wasik\", \"kosmetyczn salon\", \"paznokc\"]": {
+  "klasa": [
+   "depilacj wasik",
+   "kosmetyczn salon",
+   "paznokc"
+  ],
+  "usluga": "Depilacja wąsika",
+  "a": "Depilacja wąsika",
+  "b": "Depilacja wąsika — Depilacja wąsika",
+  "kontekst_a": "salon typu „Salon Kosmetyczny”",
+  "kontekst_b": "salon typu „Paznokcie”",
+  "score": 0.06,
+  "rozklad": {
+   "0": 0.96,
+   "1": 0.01,
+   "2": 0.03
+  }
+ },
+ "[\"brwi makijaz permanentn\", \"brwi rzes\", \"estetyczn medycyn\"]": {
+  "klasa": [
+   "brwi makijaz permanentn",
+   "brwi rzes",
+   "estetyczn medycyn"
+  ],
+  "usluga": "Makijaż permanentny brwi",
+  "a": "Makijaż permanentny brwi",
+  "b": "Makijaż permanentny brwi",
+  "kontekst_a": "salon typu „Brwi i rzęsy”",
+  "kontekst_b": "salon typu „Medycyna Estetyczna”",
+  "score": 0.01,
+  "rozklad": {
+   "0": 1.0,
+   "1": 0.0,
+   "2": 0.0
+  }
+ },
+ "[\"brwi makijaz permanentn\", \"estetyczn medycyn\", \"kosmetyczn salon\"]": {
+  "klasa": [
+   "brwi makijaz permanentn",
+   "estetyczn medycyn",
+   "kosmetyczn salon"
+  ],
+  "usluga": "Makijaż permanentny brwi",
+  "a": "Makijaż permanentny brwi",
+  "b": "Makijaż permanentny brwi",
+  "kontekst_a": "salon typu „Medycyna Estetyczna”",
+  "kontekst_b": "salon typu „Salon Kosmetyczny”",
+  "score": 0.01,
+  "rozklad": {
+   "0": 1.0,
+   "1": 0.0,
+   "2": 0.0
+  }
+ },
+ "[\"mikrodermabrazj\", \"kosmetyczn salon\", \"podolog\"]": {
+  "klasa": [
+   "mikrodermabrazj",
+   "kosmetyczn salon",
+   "podolog"
+  ],
+  "usluga": "Mikrodermabrazja",
+  "a": "Mikrodermabrazja",
+  "b": "Mikrodermabrazja",
+  "kontekst_a": "salon typu „Salon Kosmetyczny”",
+  "kontekst_b": "salon typu „Podologia”",
+  "score": 0.67,
+  "rozklad": {
+   "0": 0.57,
+   "1": 0.19,
+   "2": 0.24
+  }
+ },
+ "[\"paznokc plytk rekonstrukcj\", \"masaz\", \"podolog\"]": {
+  "klasa": [
+   "paznokc plytk rekonstrukcj",
+   "masaz",
+   "podolog"
+  ],
+  "usluga": "Rekonstrukcja płytki paznokcia",
+  "a": "Rekonstrukcja płytki paznokcia",
+  "b": "Rekonstrukcja płytki paznokcia — Rekonstrukcja płytki paznokcia",
+  "kontekst_a": "salon typu „Masaż”",
+  "kontekst_b": "dział cennika „Podologia”",
+  "score": 0.95,
+  "rozklad": {
+   "0": 0.47,
+   "1": 0.11,
+   "2": 0.42
+  }
+ },
+ "[\"depilacj wasik\", \"brwi rzes\", \"paznokc\"]": {
+  "klasa": [
+   "depilacj wasik",
+   "brwi rzes",
+   "paznokc"
+  ],
+  "usluga": "Depilacja wąsika",
+  "a": "Depilacja wąsika",
+  "b": "Depilacja wąsika — Depilacja wąsika",
+  "kontekst_a": "salon typu „Brwi i rzęsy”",
+  "kontekst_b": "salon typu „Paznokcie”",
+  "score": 0.1,
+  "rozklad": {
+   "0": 0.95,
+   "1": 0.01,
+   "2": 0.04
+  }
+ },
+ "[\"rzes\", \"brwi rzes\", \"paznokc\"]": {
+  "klasa": [
+   "rzes",
+   "brwi rzes",
+   "paznokc"
+  ],
+  "usluga": "Zdejmowanie rzęs",
+  "a": "Zdejmowanie rzęs",
+  "b": "Usuwanie sztucznych rzęs",
+  "kontekst_a": "salon typu „Brwi i rzęsy”",
+  "kontekst_b": "salon typu „Paznokcie”",
+  "score": 0.27,
+  "rozklad": {
+   "0": 0.86,
+   "1": 0.02,
+   "2": 0.12
+  }
+ },
+ "[\"paznokc rekonstrukcj\", \"masaz\", \"paznokc\"]": {
+  "klasa": [
+   "paznokc rekonstrukcj",
+   "masaz",
+   "paznokc"
+  ],
+  "usluga": "Rekonstrukcja płytki paznokcia",
+  "a": "Rekonstrukcja płytki paznokcia",
+  "b": "Rekonstrukcja paznokci obgryzionych",
+  "kontekst_a": "salon typu „Masaż”",
+  "kontekst_b": "salon typu „Paznokcie”",
+  "score": 0.3,
+  "rozklad": {
+   "0": 0.84,
+   "1": 0.02,
+   "2": 0.14
+  }
+ },
+ "[\"brwi makijaz permanentn\", \"estetyczn medycyn\", \"paznokc\"]": {
+  "klasa": [
+   "brwi makijaz permanentn",
+   "estetyczn medycyn",
+   "paznokc"
+  ],
+  "usluga": "Makijaż permanentny brwi",
+  "a": "Makijaż permanentny brwi",
+  "b": "Makijaż permanentny brwi",
+  "kontekst_a": "salon typu „Medycyna Estetyczna”",
+  "kontekst_b": "salon typu „Paznokcie”",
+  "score": 0.06,
+  "rozklad": {
+   "0": 0.96,
+   "1": 0.01,
+   "2": 0.03
+  }
+ },
+ "[\"paznokc rekonstrukcj\", \"masaz\", \"podolog\"]": {
+  "klasa": [
+   "paznokc rekonstrukcj",
+   "masaz",
+   "podolog"
+  ],
+  "usluga": "Rekonstrukcja płytki paznokcia",
+  "a": "Rekonstrukcja płytki paznokcia",
+  "b": "Rekonstrukcja paznokcia",
+  "kontekst_a": "salon typu „Masaż”",
+  "kontekst_b": "dział cennika „Podologia”",
+  "score": 0.94,
+  "rozklad": {
+   "0": 0.48,
+   "1": 0.1,
+   "2": 0.42
+  }
+ },
+ "[\"rzes zdjec\", \"brwi rzes\", \"stylizacj\"]": {
+  "klasa": [
+   "rzes zdjec",
+   "brwi rzes",
+   "stylizacj"
+  ],
+  "usluga": "Ściągnięcie rzęs",
+  "a": "Ściągnięcie rzęs",
+  "b": "Ściągnięcie rzęs — Ściągnięcie rzęs",
+  "kontekst_a": "salon typu „Brwi i rzęsy”",
+  "kontekst_b": "dział cennika „Stylizacja rzęs”",
+  "score": 0.05,
+  "rozklad": {
+   "0": 0.97,
+   "1": 0.01,
+   "2": 0.02
+  }
+ },
+ "[\"rzes zdjec\", \"brwi rzes\", \"kosmetyczn salon\"]": {
+  "klasa": [
+   "rzes zdjec",
+   "brwi rzes",
+   "kosmetyczn salon"
+  ],
+  "usluga": "Ściągnięcie rzęs",
+  "a": "Ściągnięcie rzęs",
+  "b": "Ściągnięcie rzęs",
+  "kontekst_a": "salon typu „Brwi i rzęsy”",
+  "kontekst_b": "salon typu „Salon Kosmetyczny”",
+  "score": 0.06,
+  "rozklad": {
+   "0": 0.96,
+   "1": 0.02,
+   "2": 0.02
+  }
+ },
+ "[\"rzes\", \"paznokc\", \"przedluzan\"]": {
+  "klasa": [
+   "rzes",
+   "paznokc",
+   "przedluzan"
+  ],
+  "usluga": "Usuwanie sztucznych rzęs",
+  "a": "Usuwanie sztucznych rzęs",
+  "b": "Zdejmowanie rzęs",
+  "kontekst_a": "salon typu „Paznokcie”",
+  "kontekst_b": "dział cennika „Przedłużanie rzęs”",
+  "score": 0.28,
+  "rozklad": {
+   "0": 0.85,
+   "1": 0.02,
+   "2": 0.13
+  }
+ },
+ "[\"depilacj wasik\", \"paznokc\", \"twarz\"]": {
+  "klasa": [
+   "depilacj wasik",
+   "paznokc",
+   "twarz"
+  ],
+  "usluga": "Depilacja wąsika — Depilacja wąsika",
+  "a": "Depilacja wąsika — Depilacja wąsika",
+  "b": "Depilacja wąsika",
+  "kontekst_a": "salon typu „Paznokcie”",
+  "kontekst_b": "dział cennika „Depilacja twarzy”",
+  "score": 0.34,
+  "rozklad": {
+   "0": 0.82,
+   "1": 0.03,
+   "2": 0.15
+  }
+ },
+ "[\"paznokc rekonstrukcj\", \"paznokc\", \"podolog\"]": {
+  "klasa": [
+   "paznokc rekonstrukcj",
+   "paznokc",
+   "podolog"
+  ],
+  "usluga": "Rekonstrukcja paznokcia",
+  "a": "Rekonstrukcja paznokcia",
+  "b": "Rekonstrukcja Paznokcia",
+  "kontekst_a": "salon typu „Paznokcie”",
+  "kontekst_b": "salon typu „Podologia”",
+  "score": 1.22,
+  "rozklad": {
+   "0": 0.27,
+   "1": 0.24,
+   "2": 0.49
+  }
+ },
+ "[\"paznokc rekonstrukcj\", \"pedicur\", \"podolog\"]": {
+  "klasa": [
+   "paznokc rekonstrukcj",
+   "pedicur",
+   "podolog"
+  ],
+  "usluga": "Rekonstrukcja uszkodzenia paznokcia",
+  "a": "Rekonstrukcja uszkodzenia paznokcia",
+  "b": "Rekonstrukcja Paznokcia",
+  "kontekst_a": "dział cennika „Pedicure”",
+  "kontekst_b": "salon typu „Podologia”",
+  "score": 0.28,
+  "rozklad": {
+   "0": 0.85,
+   "1": 0.03,
+   "2": 0.12
+  }
+ },
+ "[\"brwi makijaz permanentn\", \"estetyczn medycyn\", \"makijaz\"]": {
+  "klasa": [
+   "brwi makijaz permanentn",
+   "estetyczn medycyn",
+   "makijaz"
+  ],
+  "usluga": "Makijaż permanentny brwi",
+  "a": "Makijaż permanentny brwi",
+  "b": "Makijaż permanentny brwi",
+  "kontekst_a": "salon typu „Medycyna Estetyczna”",
+  "kontekst_b": "salon typu „Makijaż”",
+  "score": 0.01,
+  "rozklad": {
+   "0": 0.99,
+   "1": 0.01,
+   "2": 0.0
+  }
+ },
+ "[\"podologiczn podstaw\", \"pedicur\", \"podolog\"]": {
+  "klasa": [
+   "podologiczn podstaw",
+   "pedicur",
+   "podolog"
+  ],
+  "usluga": "Podstawowy zabieg podologiczny — Podolog Patrycja",
+  "a": "Podstawowy zabieg podologiczny — Podolog Patrycja",
+  "b": "Podstawowy Zabieg Podologiczny",
+  "kontekst_a": "dział cennika „Pedicure podologiczny”",
+  "kontekst_b": "salon typu „Podologia”",
+  "score": 0.08,
+  "rozklad": {
+   "0": 0.96,
+   "1": 0.01,
+   "2": 0.03
+  }
+ },
+ "[\"paznokc rekonstrukcj\", \"manicur\", \"masaz\"]": {
+  "klasa": [
+   "paznokc rekonstrukcj",
+   "manicur",
+   "masaz"
+  ],
+  "usluga": "Rekonstrukcja paznokcia",
+  "a": "Rekonstrukcja paznokcia",
+  "b": "Rekonstrukcja płytki paznokcia",
+  "kontekst_a": "dział cennika „Manicure”",
+  "kontekst_b": "salon typu „Masaż”",
+  "score": 0.95,
+  "rozklad": {
+   "0": 0.51,
+   "1": 0.02,
+   "2": 0.47
+  }
+ },
+ "[\"depilacj wasik\", \"brwi stylizacj\", \"paznokc\"]": {
+  "klasa": [
+   "depilacj wasik",
+   "brwi stylizacj",
+   "paznokc"
+  ],
+  "usluga": "Depilacja wąsika — Depilacja wąsika",
+  "a": "Depilacja wąsika — Depilacja wąsika",
+  "b": "Depilacja wąsika — Depilacja wąsika",
+  "kontekst_a": "dział cennika „STYLIZACJA BRWI”",
+  "kontekst_b": "salon typu „Paznokcie”",
+  "score": 0.23,
+  "rozklad": {
+   "0": 0.87,
+   "1": 0.02,
+   "2": 0.11
+  }
+ },
+ "[\"manualn oczyszczan\", \"kosmetyczn salon\", \"podolog\"]": {
+  "klasa": [
+   "manualn oczyszczan",
+   "kosmetyczn salon",
+   "podolog"
+  ],
+  "usluga": "Oczyszczanie manualne",
+  "a": "Oczyszczanie manualne",
+  "b": "Oczyszczanie manualne",
+  "kontekst_a": "salon typu „Salon Kosmetyczny”",
+  "kontekst_b": "salon typu „Podologia”",
+  "score": 0.92,
+  "rozklad": {
+   "0": 0.43,
+   "1": 0.23,
+   "2": 0.34
+  }
+ },
+ "[\"brwi farbk koloryzacj regulacj\", \"estetyczn medycyn\", \"kosmetyczn salon\"]": {
+  "klasa": [
+   "brwi farbk koloryzacj regulacj",
+   "estetyczn medycyn",
+   "kosmetyczn salon"
+  ],
+  "usluga": "Koloryzacja brwi farbką wraz z regulacją",
+  "a": "Koloryzacja brwi farbką wraz z regulacją",
+  "b": "Koloryzacja brwi farbką z regulacją nowa stylistka",
+  "kontekst_a": "salon typu „Medycyna Estetyczna”",
+  "kontekst_b": "salon typu „Salon Kosmetyczny”",
+  "score": 0.01,
+  "rozklad": {
+   "0": 1.0,
+   "1": 0.0,
+   "2": 0.0
+  }
+ },
+ "[\"brod strzyzen\", \"barber\", \"barber shop\"]": {
+  "klasa": [
+   "brod strzyzen",
+   "barber",
+   "barber shop"
+  ],
+  "usluga": "Strzyżenie brody",
+  "a": "Strzyżenie brody",
+  "b": "Strzyżenie brody / Beard",
+  "kontekst_a": "dział cennika „💈 VLAD BARBER 💈”",
+  "kontekst_b": "salon typu „Barber shop”",
+  "score": 0.01,
+  "rozklad": {
+   "0": 1.0,
+   "1": 0.0,
+   "2": 0.0
+  }
+ },
+ "[\"masaz twarz\", \"paznokc\", \"pielegnacj\"]": {
+  "klasa": [
+   "masaz twarz",
+   "paznokc",
+   "pielegnacj"
+  ],
+  "usluga": "Masaż twarzy",
+  "a": "Masaż twarzy",
+  "b": "Masaż twarzy",
+  "kontekst_a": "salon typu „Paznokcie”",
+  "kontekst_b": "dział cennika „Pielęgnacja twarzy”",
+  "score": 0.56,
+  "rozklad": {
+   "0": 0.7,
+   "1": 0.04,
+   "2": 0.26
+  }
+ },
+ "[\"rzes\", \"paznokc\", \"stylizacj\"]": {
+  "klasa": [
+   "rzes",
+   "paznokc",
+   "stylizacj"
+  ],
+  "usluga": "Usuwanie sztucznych rzęs",
+  "a": "Usuwanie sztucznych rzęs",
+  "b": "Ściągnięcie rzęs",
+  "kontekst_a": "salon typu „Paznokcie”",
+  "kontekst_b": "dział cennika „Stylizacja rzęs”",
+  "score": 0.27,
+  "rozklad": {
+   "0": 0.85,
+   "1": 0.02,
+   "2": 0.13
+  }
+ },
+ "[\"kresk lini makijaz permanentn rzes\", \"estetyczn medycyn\", \"kosmetyczn salon\"]": {
+  "klasa": [
+   "kresk lini makijaz permanentn rzes",
+   "estetyczn medycyn",
+   "kosmetyczn salon"
+  ],
+  "usluga": "Kreska w linii rzęs - makijaż permanentny",
+  "a": "Kreska w linii rzęs - makijaż permanentny",
+  "b": "Kreska w linii rzęs",
+  "kontekst_a": "salon typu „Medycyna Estetyczna”",
+  "kontekst_b": "salon typu „Salon Kosmetyczny”",
+  "score": 0.01,
+  "rozklad": {
+   "0": 0.99,
+   "1": 0.01,
+   "2": 0.0
+  }
+ },
+ "[\"depilacj wasik\", \"brwi\", \"paznokc\"]": {
+  "klasa": [
+   "depilacj wasik",
+   "brwi",
+   "paznokc"
+  ],
+  "usluga": "Depilacja wąsika",
+  "a": "Depilacja wąsika",
+  "b": "Depilacja wąsika — Depilacja wąsika",
+  "kontekst_a": "dział cennika „BRWI”",
+  "kontekst_b": "salon typu „Paznokcie”",
+  "score": 0.15,
+  "rozklad": {
+   "0": 0.92,
+   "1": 0.01,
+   "2": 0.07
+  }
+ },
+ "[\"brwi makijaz permanentn\", \"depilacj\", \"estetyczn medycyn\"]": {
+  "klasa": [
+   "brwi makijaz permanentn",
+   "depilacj",
+   "estetyczn medycyn"
+  ],
+  "usluga": "Makijaż permanentny brwi",
+  "a": "Makijaż permanentny brwi",
+  "b": "Makijaż permanentny brwi",
+  "kontekst_a": "salon typu „Depilacja”",
+  "kontekst_b": "salon typu „Medycyna Estetyczna”",
+  "score": 0.02,
+  "rozklad": {
+   "0": 0.98,
+   "1": 0.01,
+   "2": 0.01
+  }
+ },
+ "[\"brwi farbk koloryzacj regulacj\", \"brwi rzes\", \"estetyczn medycyn\"]": {
+  "klasa": [
+   "brwi farbk koloryzacj regulacj",
+   "brwi rzes",
+   "estetyczn medycyn"
+  ],
+  "usluga": "Koloryzacja brwi farbką i regulacja",
+  "a": "Koloryzacja brwi farbką i regulacja",
+  "b": "Koloryzacja brwi farbką wraz z regulacją",
+  "kontekst_a": "salon typu „Brwi i rzęsy”",
+  "kontekst_b": "salon typu „Medycyna Estetyczna”",
+  "score": 0.01,
+  "rozklad": {
+   "0": 1.0,
+   "1": 0.0,
+   "2": 0.0
+  }
+ },
+ "[\"brwi makijaz permanentn\", \"estetyczn medycyn\", \"fryzjer\"]": {
+  "klasa": [
+   "brwi makijaz permanentn",
+   "estetyczn medycyn",
+   "fryzjer"
+  ],
+  "usluga": "Makijaż permanentny brwi",
+  "a": "Makijaż permanentny brwi",
+  "b": "Makijaż permanentny brwi",
+  "kontekst_a": "salon typu „Medycyna Estetyczna”",
+  "kontekst_b": "salon typu „Fryzjer”",
+  "score": 0.01,
+  "rozklad": {
+   "0": 1.0,
+   "1": 0.0,
+   "2": 0.0
+  }
+ },
+ "[\"paznokc rekonstrukcj\", \"manicur\", \"podolog\"]": {
+  "klasa": [
+   "paznokc rekonstrukcj",
+   "manicur",
+   "podolog"
+  ],
+  "usluga": "Rekonstrukcja obgryzionych paznokci",
+  "a": "Rekonstrukcja obgryzionych paznokci",
+  "b": "Rekonstrukcja Paznokcia",
+  "kontekst_a": "dział cennika „Manicure”",
+  "kontekst_b": "salon typu „Podologia”",
+  "score": 1.16,
+  "rozklad": {
+   "0": 0.4,
+   "1": 0.03,
+   "2": 0.56
+  }
+ },
+ "[\"podologiczn\", \"paznokc\", \"podolog\"]": {
+  "klasa": [
+   "podologiczn",
+   "paznokc",
+   "podolog"
+  ],
+  "usluga": "Pedicure podologiczny",
+  "a": "Pedicure podologiczny",
+  "b": "Podstawowy Zabieg Podologiczny",
+  "kontekst_a": "salon typu „Paznokcie”",
+  "kontekst_b": "salon typu „Podologia”",
+  "score": 0.25,
+  "rozklad": {
+   "0": 0.86,
+   "1": 0.02,
+   "2": 0.12
+  }
+ },
+ "[\"paznokc rekonstrukcj\", \"kosmetyczn salon\", \"masaz\"]": {
+  "klasa": [
+   "paznokc rekonstrukcj",
+   "kosmetyczn salon",
+   "masaz"
+  ],
+  "usluga": "REKONSTRUKCJA PAZNOKCIA — REKONSTRUKCJA PAZNOKCIA",
+  "a": "REKONSTRUKCJA PAZNOKCIA — REKONSTRUKCJA PAZNOKCIA",
+  "b": "Rekonstrukcja płytki paznokcia",
+  "kontekst_a": "salon typu „Salon Kosmetyczny”",
+  "kontekst_b": "salon typu „Masaż”",
+  "score": 0.19,
+  "rozklad": {
+   "0": 0.88,
+   "1": 0.05,
+   "2": 0.07
+  }
+ },
+ "[\"podologiczn\", \"kosmetyczn salon\", \"podolog\"]": {
+  "klasa": [
+   "podologiczn",
+   "kosmetyczn salon",
+   "podolog"
+  ],
+  "usluga": "Pedicure podologiczny",
+  "a": "Pedicure podologiczny",
+  "b": "Podstawowy Zabieg Podologiczny",
+  "kontekst_a": "salon typu „Salon Kosmetyczny”",
+  "kontekst_b": "salon typu „Podologia”",
+  "score": 0.1,
+  "rozklad": {
+   "0": 0.94,
+   "1": 0.01,
+   "2": 0.05
+  }
+ },
+ "[\"malowan pedicur\", \"masaz\", \"paznokc\"]": {
+  "klasa": [
+   "malowan pedicur",
+   "masaz",
+   "paznokc"
+  ],
+  "usluga": "Pedicure z malowaniem",
+  "a": "Pedicure z malowaniem",
+  "b": "Pedicure z malowaniem",
+  "kontekst_a": "salon typu „Masaż”",
+  "kontekst_b": "salon typu „Paznokcie”",
+  "score": 0.46,
+  "rozklad": {
+   "0": 0.74,
+   "1": 0.05,
+   "2": 0.21
+  }
+ },
+ "[\"rzes zdjec\", \"brwi rzes\", \"paznokc\"]": {
+  "klasa": [
+   "rzes zdjec",
+   "brwi rzes",
+   "paznokc"
+  ],
+  "usluga": "Ściągnięcie rzęs",
+  "a": "Ściągnięcie rzęs",
+  "b": "Ściągnięcie rzęs",
+  "kontekst_a": "salon typu „Brwi i rzęsy”",
+  "kontekst_b": "salon typu „Paznokcie”",
+  "score": 0.4,
+  "rozklad": {
+   "0": 0.77,
+   "1": 0.05,
+   "2": 0.18
+  }
+ },
+ "[\"depilacj wasik\", \"makijaz\", \"paznokc\"]": {
+  "klasa": [
+   "depilacj wasik",
+   "makijaz",
+   "paznokc"
+  ],
+  "usluga": "Depilacja wąsika",
+  "a": "Depilacja wąsika",
+  "b": "Depilacja wąsika — Depilacja wąsika",
+  "kontekst_a": "salon typu „Makijaż”",
+  "kontekst_b": "salon typu „Paznokcie”",
+  "score": 0.13,
+  "rozklad": {
+   "0": 0.93,
+   "1": 0.01,
+   "2": 0.06
+  }
+ },
+ "[\"depilacj wasik\", \"fryzjer\", \"paznokc\"]": {
+  "klasa": [
+   "depilacj wasik",
+   "fryzjer",
+   "paznokc"
+  ],
+  "usluga": "Depilacja wąsika",
+  "a": "Depilacja wąsika",
+  "b": "Depilacja wąsika — Depilacja wąsika",
+  "kontekst_a": "salon typu „Fryzjer”",
+  "kontekst_b": "salon typu „Paznokcie”",
+  "score": 0.06,
+  "rozklad": {
+   "0": 0.97,
+   "1": 0.01,
+   "2": 0.02
+  }
+ },
+ "[\"brwi makijaz permanentn\", \"estetyczn medycyn\", \"stylizacj\"]": {
+  "klasa": [
+   "brwi makijaz permanentn",
+   "estetyczn medycyn",
+   "stylizacj"
+  ],
+  "usluga": "Makijaż permanentny brwi",
+  "a": "Makijaż permanentny brwi",
+  "b": "Makijaż permanentny brwi",
+  "kontekst_a": "salon typu „Medycyna Estetyczna”",
+  "kontekst_b": "dział cennika „Stylizacja brwi”",
+  "score": 0.01,
+  "rozklad": {
+   "0": 0.99,
+   "1": 0.01,
+   "2": 0.0
+  }
+ },
+ "[\"damsk krotk strzyzen\", \"fryzjer\", \"fryzjerstw\"]": {
+  "klasa": [
+   "damsk krotk strzyzen",
+   "fryzjer",
+   "fryzjerstw"
+  ],
+  "usluga": "Strzyżenie Damskie Krótkie",
+  "a": "Strzyżenie Damskie Krótkie",
+  "b": "Strzyżenie damskie krótkie",
+  "kontekst_a": "salon typu „Fryzjer”",
+  "kontekst_b": "dział cennika „Fryzjerstwo damskie”",
+  "score": 0.01,
+  "rozklad": {
+   "0": 1.0,
+   "1": 0.0,
+   "2": 0.0
+  }
+ },
+ "[\"damsk krotk strzyzen\", \"barber shop\", \"fryzjer\"]": {
+  "klasa": [
+   "damsk krotk strzyzen",
+   "barber shop",
+   "fryzjer"
+  ],
+  "usluga": "Strzyżenie Damskie  Włosy Krótkie",
+  "a": "Strzyżenie Damskie  Włosy Krótkie",
+  "b": "Strzyżenie Damskie Krótkie",
+  "kontekst_a": "salon typu „Barber shop”",
+  "kontekst_b": "salon typu „Fryzjer”",
+  "score": 0.03,
+  "rozklad": {
+   "0": 0.98,
+   "1": 0.01,
+   "2": 0.01
+  }
+ },
+ "[\"damsk krotk strzyzen\", \"fryzjer\", \"paznokc\"]": {
+  "klasa": [
+   "damsk krotk strzyzen",
+   "fryzjer",
+   "paznokc"
+  ],
+  "usluga": "Strzyżenie Damskie Krótkie",
+  "a": "Strzyżenie Damskie Krótkie",
+  "b": "Strzyżenie damskie(krótkie)",
+  "kontekst_a": "salon typu „Fryzjer”",
+  "kontekst_b": "salon typu „Paznokcie”",
+  "score": 0.57,
+  "rozklad": {
+   "0": 0.7,
+   "1": 0.02,
+   "2": 0.28
+  }
+ },
+ "[\"paznokc rekonstrukcj\", \"podolog\", \"stylizacj\"]": {
+  "klasa": [
+   "paznokc rekonstrukcj",
+   "podolog",
+   "stylizacj"
+  ],
+  "usluga": "Rekonstrukcja Paznokcia",
+  "a": "Rekonstrukcja Paznokcia",
+  "b": "Rekonstrukcja obgryzionych paznokci",
+  "kontekst_a": "salon typu „Podologia”",
+  "kontekst_b": "dział cennika „Stylizacja paznokci”",
+  "score": 1.48,
+  "rozklad": {
+   "0": 0.24,
+   "1": 0.04,
+   "2": 0.72
+  }
+ },
+ "[\"damsk krotk strzyzen\", \"fryzjer\", \"kosmetyczn salon\"]": {
+  "klasa": [
+   "damsk krotk strzyzen",
+   "fryzjer",
+   "kosmetyczn salon"
+  ],
+  "usluga": "Strzyżenie Damskie Krótkie",
+  "a": "Strzyżenie Damskie Krótkie",
+  "b": "Strzyżenie damskie wł krótkie",
+  "kontekst_a": "salon typu „Fryzjer”",
+  "kontekst_b": "salon typu „Salon Kosmetyczny”",
+  "score": 0.04,
+  "rozklad": {
+   "0": 0.97,
+   "1": 0.01,
+   "2": 0.02
+  }
+ },
+ "[\"podologiczn podstaw\", \"inni\", \"podolog\"]": {
+  "klasa": [
+   "podologiczn podstaw",
+   "inni",
+   "podolog"
+  ],
+  "usluga": "Podstawowy zabieg podologiczny-podolog — Podstawowy zabieg podologiczny-podolog",
+  "a": "Podstawowy zabieg podologiczny-podolog — Podstawowy zabieg podologiczny-podolog",
+  "b": "Podstawowy Zabieg Podologiczny",
+  "kontekst_a": "salon typu „Inni”",
+  "kontekst_b": "salon typu „Podologia”",
+  "score": 0.21,
+  "rozklad": {
+   "0": 0.87,
+   "1": 0.04,
+   "2": 0.09
+  }
+ },
+ "[\"chorob paznokc\", \"podolog\", \"podologiczn\"]": {
+  "klasa": [
+   "chorob paznokc",
+   "podolog",
+   "podologiczn"
+  ],
+  "usluga": "Terapia Paznokci ze Zmianami Chorobowymi",
+  "a": "Terapia Paznokci ze Zmianami Chorobowymi",
+  "b": "Opracowanie paznokci zmienionych chorobowo",
+  "kontekst_a": "salon typu „Podologia”",
+  "kontekst_b": "dział cennika „Zabiegi podologiczne”",
+  "score": 0.03,
+  "rozklad": {
+   "0": 0.98,
+   "1": 0.01,
+   "2": 0.01
+  }
+ },
+ "[\"przedluzan rzes zdjec\", \"brwi rzes\", \"kosmetyczn salon\"]": {
+  "klasa": [
+   "przedluzan rzes zdjec",
+   "brwi rzes",
+   "kosmetyczn salon"
+  ],
+  "usluga": "Ściągnięcie rzęs",
+  "a": "Ściągnięcie rzęs",
+  "b": "Zdejmowanie rzęs",
+  "kontekst_a": "salon typu „Brwi i rzęsy”",
+  "kontekst_b": "salon typu „Salon Kosmetyczny”",
+  "score": 0.05,
+  "rozklad": {
+   "0": 0.96,
+   "1": 0.02,
+   "2": 0.02
+  }
+ },
+ "[\"paznokc rekonstrukcj\", \"masaz\", \"podologiczn\"]": {
+  "klasa": [
+   "paznokc rekonstrukcj",
+   "masaz",
+   "podologiczn"
+  ],
+  "usluga": "Rekonstrukcja płytki paznokcia",
+  "a": "Rekonstrukcja płytki paznokcia",
+  "b": "Rekonstrukcja paznokcia",
+  "kontekst_a": "salon typu „Masaż”",
+  "kontekst_b": "dział cennika „Zabiegi podologiczne”",
+  "score": 0.75,
+  "rozklad": {
+   "0": 0.59,
+   "1": 0.06,
+   "2": 0.35
+  }
+ },
+ "[\"rzes\", \"kosmetyczn salon\", \"paznokc\"]": {
+  "klasa": [
+   "rzes",
+   "kosmetyczn salon",
+   "paznokc"
+  ],
+  "usluga": "Ściąganie rzęs",
+  "a": "Ściąganie rzęs",
+  "b": "Usuwanie sztucznych rzęs",
+  "kontekst_a": "salon typu „Salon Kosmetyczny”",
+  "kontekst_b": "salon typu „Paznokcie”",
+  "score": 0.27,
+  "rozklad": {
+   "0": 0.83,
+   "1": 0.06,
+   "2": 0.11
+  }
+ },
+ "[\"kresk makijaz permanentn\", \"estetyczn medycyn\", \"kosmetyczn salon\"]": {
+  "klasa": [
+   "kresk makijaz permanentn",
+   "estetyczn medycyn",
+   "kosmetyczn salon"
+  ],
+  "usluga": "Kreska w linii rzęs - makijaż permanentny",
+  "a": "Kreska w linii rzęs - makijaż permanentny",
+  "b": "Makijaż permanentny Kreska Dekoracyjna Na Powiece",
+  "kontekst_a": "salon typu „Medycyna Estetyczna”",
+  "kontekst_b": "salon typu „Salon Kosmetyczny”",
+  "score": 0.01,
+  "rozklad": {
+   "0": 0.99,
+   "1": 0.01,
+   "2": 0.0
+  }
+ },
+ "[\"rzes zdjec\", \"brwi rzes\", \"przedluzan\"]": {
+  "klasa": [
+   "rzes zdjec",
+   "brwi rzes",
+   "przedluzan"
+  ],
+  "usluga": "Ściągnięcie rzęs",
+  "a": "Ściągnięcie rzęs",
+  "b": "Zdejmowanie rzęs",
+  "kontekst_a": "salon typu „Brwi i rzęsy”",
+  "kontekst_b": "dział cennika „Przedłużanie rzes”",
+  "score": 0.06,
+  "rozklad": {
+   "0": 0.97,
+   "1": 0.01,
+   "2": 0.02
+  }
+ },
+ "[\"kresk lini makijaz permanentn rzes\", \"brwi rzes\", \"estetyczn medycyn\"]": {
+  "klasa": [
+   "kresk lini makijaz permanentn rzes",
+   "brwi rzes",
+   "estetyczn medycyn"
+  ],
+  "usluga": "makijaż permanentny kreska w linii rzęs",
+  "a": "makijaż permanentny kreska w linii rzęs",
+  "b": "Kreska w linii rzęs - makijaż permanentny",
+  "kontekst_a": "salon typu „Brwi i rzęsy”",
+  "kontekst_b": "salon typu „Medycyna Estetyczna”",
+  "score": 0.11,
+  "rozklad": {
+   "0": 0.93,
+   "1": 0.02,
+   "2": 0.04
+  }
+ },
+ "[\"dekolt kobid masaz szyj twarz\", \"kosmetyczn salon\", \"podolog\"]": {
+  "klasa": [
+   "dekolt kobid masaz szyj twarz",
+   "kosmetyczn salon",
+   "podolog"
+  ],
+  "usluga": "Japoński masaż twarzy, szyi i dekoltu Kobido — Masaż Kobido",
+  "a": "Japoński masaż twarzy, szyi i dekoltu Kobido — Masaż Kobido",
+  "b": "KOBIDO masaż twarzy, szyi, dekoltu, barków",
+  "kontekst_a": "salon typu „Salon Kosmetyczny”",
+  "kontekst_b": "salon typu „Podologia”",
+  "score": 0.13,
+  "rozklad": {
+   "0": 0.93,
+   "1": 0.01,
+   "2": 0.06
+  }
+ },
+ "[\"manualn oczyszczan\", \"estetyczn medycyn\", \"podolog\"]": {
+  "klasa": [
+   "manualn oczyszczan",
+   "estetyczn medycyn",
+   "podolog"
+  ],
+  "usluga": "Oczyszczanie manualne",
+  "a": "Oczyszczanie manualne",
+  "b": "Oczyszczanie manualne",
+  "kontekst_a": "salon typu „Medycyna Estetyczna”",
+  "kontekst_b": "salon typu „Podologia”",
+  "score": 1.17,
+  "rozklad": {
+   "0": 0.29,
+   "1": 0.25,
+   "2": 0.46
+  }
+ },
+ "[\"mikrodermabrazj\", \"pielegnacj\", \"podolog\"]": {
+  "klasa": [
+   "mikrodermabrazj",
+   "pielegnacj",
+   "podolog"
+  ],
+  "usluga": "Mikrodermabrazja — Mikrodermabrazja",
+  "a": "Mikrodermabrazja — Mikrodermabrazja",
+  "b": "Mikrodermabrazja",
+  "kontekst_a": "dział cennika „Pielęgnacja twarzy”",
+  "kontekst_b": "salon typu „Podologia”",
+  "score": 1.68,
+  "rozklad": {
+   "0": 0.13,
+   "1": 0.06,
+   "2": 0.81
+  }
+ },
+ "[\"brod farbowan\", \"barber shop\", \"strzyzen\"]": {
+  "klasa": [
+   "brod farbowan",
+   "barber shop",
+   "strzyzen"
+  ],
+  "usluga": "Farbowanie brody. Naturalny efekt",
+  "a": "Farbowanie brody. Naturalny efekt",
+  "b": "Farbowanie brody (beard cover)",
+  "kontekst_a": "salon typu „Barber shop”",
+  "kontekst_b": "dział cennika „Strzyżenie”",
+  "score": 0.1,
+  "rozklad": {
+   "0": 0.94,
+   "1": 0.02,
+   "2": 0.04
+  }
+ },
+ "[\"mikrodermabrazj\", \"kosmetyczn\", \"podolog\"]": {
+  "klasa": [
+   "mikrodermabrazj",
+   "kosmetyczn",
+   "podolog"
+  ],
+  "usluga": "Mikrodermabrazja",
+  "a": "Mikrodermabrazja",
+  "b": "Mikrodermabrazja",
+  "kontekst_a": "dział cennika „ZABIEGI KOSMETYCZNE”",
+  "kontekst_b": "salon typu „Podologia”",
+  "score": 0.73,
+  "rozklad": {
+   "0": 0.55,
+   "1": 0.18,
+   "2": 0.27
+  }
+ },
+ "[\"brod farbowan\", \"barber shop\", \"skjegg\"]": {
+  "klasa": [
+   "brod farbowan",
+   "barber shop",
+   "skjegg"
+  ],
+  "usluga": "Farbowanie brody. Naturalny efekt",
+  "a": "Farbowanie brody. Naturalny efekt",
+  "b": "BALDER - odsiwianie brody",
+  "kontekst_a": "salon typu „Barber shop”",
+  "kontekst_b": "dział cennika „SKJEGG - BRODA”",
+  "score": 0.02,
+  "rozklad": {
+   "0": 0.99,
+   "1": 0.0,
+   "2": 0.01
+  }
+ },
+ "[\"depilacj nos uszu\", \"pielegnacj\", \"woskowan\"]": {
+  "klasa": [
+   "depilacj nos uszu",
+   "pielegnacj",
+   "woskowan"
+  ],
+  "usluga": "Depilacja uszu lub nosa",
+  "a": "Depilacja uszu lub nosa",
+  "b": "Depilacja uszu+nosa",
+  "kontekst_a": "dział cennika „Pielęgnacja”",
+  "kontekst_b": "dział cennika „Woskowanie”",
+  "score": 0.43,
+  "rozklad": {
+   "0": 0.73,
+   "1": 0.12,
+   "2": 0.15
+  }
+ },
+ "[\"depilacj nos uszu\", \"kosmetyczn salon\", \"pielegnacj\"]": {
+  "klasa": [
+   "depilacj nos uszu",
+   "kosmetyczn salon",
+   "pielegnacj"
+  ],
+  "usluga": "Depilacja nos — Depilacja nos/uszy",
+  "a": "Depilacja nos — Depilacja nos/uszy",
+  "b": "Depilacja uszu lub nosa",
+  "kontekst_a": "salon typu „Salon Kosmetyczny”",
+  "kontekst_b": "dział cennika „Pielęgnacja”",
+  "score": 0.11,
+  "rozklad": {
+   "0": 0.9,
+   "1": 0.09,
+   "2": 0.01
+  }
+ },
+ "[\"french hybryd manicur ombr\", \"kosmetyczn salon\", \"paznokc\"]": {
+  "klasa": [
+   "french hybryd manicur ombr",
+   "kosmetyczn salon",
+   "paznokc"
+  ],
+  "usluga": "Manicure hybrydowy french/ombre — Manicure hybrydowy french/ombre",
+  "a": "Manicure hybrydowy french/ombre — Manicure hybrydowy french/ombre",
+  "b": "Manicure hybrydowy french/ombre",
+  "kontekst_a": "salon typu „Salon Kosmetyczny”",
+  "kontekst_b": "salon typu „Paznokcie”",
+  "score": 0.08,
+  "rozklad": {
+   "0": 0.95,
+   "1": 0.01,
+   "2": 0.04
+  }
+ },
+ "[\"depilacj wasik\", \"cial\", \"paznokc\"]": {
+  "klasa": [
+   "depilacj wasik",
+   "cial",
+   "paznokc"
+  ],
+  "usluga": "Depilacja wąsika",
+  "a": "Depilacja wąsika",
+  "b": "Depilacja wąsika — Depilacja wąsika",
+  "kontekst_a": "dział cennika „Depilacja ciała”",
+  "kontekst_b": "salon typu „Paznokcie”",
+  "score": 0.52,
+  "rozklad": {
+   "0": 0.73,
+   "1": 0.02,
+   "2": 0.25
+  }
+ },
+ "[\"brod farbowan\", \"barber shop\", \"fryzjer\"]": {
+  "klasa": [
+   "brod farbowan",
+   "barber shop",
+   "fryzjer"
+  ],
+  "usluga": "Farbowanie brody. Naturalny efekt",
+  "a": "Farbowanie brody. Naturalny efekt",
+  "b": "Broda+ farbowanie",
+  "kontekst_a": "salon typu „Barber shop”",
+  "kontekst_b": "salon typu „Fryzjer”",
+  "score": 0.02,
+  "rozklad": {
+   "0": 0.99,
+   "1": 0.0,
+   "2": 0.01
+  }
+ },
+ "[\"depilacj wasik\", \"paznokc\", \"pielegnacj\"]": {
+  "klasa": [
+   "depilacj wasik",
+   "paznokc",
+   "pielegnacj"
+  ],
+  "usluga": "Depilacja wąsika — Depilacja wąsika",
+  "a": "Depilacja wąsika — Depilacja wąsika",
+  "b": "Depilacja wąsika",
+  "kontekst_a": "salon typu „Paznokcie”",
+  "kontekst_b": "dział cennika „Pielęgnacja”",
+  "score": 0.05,
+  "rozklad": {
+   "0": 0.97,
+   "1": 0.01,
+   "2": 0.02
+  }
+ },
+ "[\"depilacj laser mesk ramion\", \"cial\", \"kosmetyczn salon\"]": {
+  "klasa": [
+   "depilacj laser mesk ramion",
+   "cial",
+   "kosmetyczn salon"
+  ],
+  "usluga": "Ramiona — Mężczyźni",
+  "a": "Ramiona — Mężczyźni",
+  "b": "MĘŻCZYZNA: ramiona",
+  "kontekst_a": "dział cennika „Ciało”",
+  "kontekst_b": "salon typu „Salon Kosmetyczny”",
+  "score": 0.2,
+  "rozklad": {
+   "0": 0.89,
+   "1": 0.01,
+   "2": 0.1
+  }
+ },
+ "[\"brod damsk depilacj\", \"kosmetyczn salon\", \"twarz\"]": {
+  "klasa": [
+   "brod damsk depilacj",
+   "kosmetyczn salon",
+   "twarz"
+  ],
+  "usluga": "DEPILACJA LASEROWA - BRODA ( KOBIETY)",
+  "a": "DEPILACJA LASEROWA - BRODA ( KOBIETY)",
+  "b": "Broda — Kobiety",
+  "kontekst_a": "salon typu „Salon Kosmetyczny”",
+  "kontekst_b": "dział cennika „Twarz”",
+  "score": 0.09,
+  "rozklad": {
+   "0": 0.94,
+   "1": 0.03,
+   "2": 0.03
+  }
+ },
+ "[\"depilacj mesk pach\", \"cial\", \"kosmetyczn salon\"]": {
+  "klasa": [
+   "depilacj mesk pach",
+   "cial",
+   "kosmetyczn salon"
+  ],
+  "usluga": "Pachy — Mężczyźni",
+  "a": "Pachy — Mężczyźni",
+  "b": "MĘŻCZYZNA: pachy",
+  "kontekst_a": "dział cennika „Ciało”",
+  "kontekst_b": "salon typu „Salon Kosmetyczny”",
+  "score": 0.14,
+  "rozklad": {
+   "0": 0.92,
+   "1": 0.01,
+   "2": 0.07
+  }
+ },
+ "[\"depilacj laser ramion\", \"brwi rzes\", \"cial\"]": {
+  "klasa": [
+   "depilacj laser ramion",
+   "brwi rzes",
+   "cial"
+  ],
+  "usluga": "Depilacja laserowa RAMIONA",
+  "a": "Depilacja laserowa RAMIONA",
+  "b": "Ramiona — Kobiety",
+  "kontekst_a": "salon typu „Brwi i rzęsy”",
+  "kontekst_b": "dział cennika „Ciało”",
+  "score": 1.02,
+  "rozklad": {
+   "0": 0.48,
+   "1": 0.02,
+   "2": 0.5
+  }
+ },
+ "[\"depilacj pach\", \"brwi rzes\", \"cial\"]": {
+  "klasa": [
+   "depilacj pach",
+   "brwi rzes",
+   "cial"
+  ],
+  "usluga": "Depilacja Pachy",
+  "a": "Depilacja Pachy",
+  "b": "Pachy — Kobiety",
+  "kontekst_a": "salon typu „Brwi i rzęsy”",
+  "kontekst_b": "dział cennika „Ciało”",
+  "score": 1.16,
+  "rozklad": {
+   "0": 0.41,
+   "1": 0.02,
+   "2": 0.57
+  }
+ },
+ "[\"depilacj wasa\", \"estetyczn medycyn\", \"kosmetyczn salon\"]": {
+  "klasa": [
+   "depilacj wasa",
+   "estetyczn medycyn",
+   "kosmetyczn salon"
+  ],
+  "usluga": "Depilacja wąsa",
+  "a": "Depilacja wąsa",
+  "b": "Depilacja wąsa — Depilacja wąsa",
+  "kontekst_a": "salon typu „Medycyna Estetyczna”",
+  "kontekst_b": "salon typu „Salon Kosmetyczny”",
+  "score": 0.01,
+  "rozklad": {
+   "0": 1.0,
+   "1": 0.0,
+   "2": 0.0
+  }
+ },
+ "[\"depilacj wasa\", \"estetyczn medycyn\", \"fryzjer\"]": {
+  "klasa": [
+   "depilacj wasa",
+   "estetyczn medycyn",
+   "fryzjer"
+  ],
+  "usluga": "Depilacja wąsa",
+  "a": "Depilacja wąsa",
+  "b": "Depilacja wąsa",
+  "kontekst_a": "salon typu „Medycyna Estetyczna”",
+  "kontekst_b": "salon typu „Fryzjer”",
+  "score": 0.02,
+  "rozklad": {
+   "0": 0.98,
+   "1": 0.01,
+   "2": 0.01
+  }
+ },
+ "[\"brwi farbk koloryzacj regulacj\", \"estetyczn medycyn\", \"stylizacj\"]": {
+  "klasa": [
+   "brwi farbk koloryzacj regulacj",
+   "estetyczn medycyn",
+   "stylizacj"
+  ],
+  "usluga": "Koloryzacja brwi farbką wraz z regulacją",
+  "a": "Koloryzacja brwi farbką wraz z regulacją",
+  "b": "Koloryzacja brwi farbką +regulacja — Koloryzacja brwi farbką +regulacja",
+  "kontekst_a": "salon typu „Medycyna Estetyczna”",
+  "kontekst_b": "dział cennika „Stylizacja brwi”",
+  "score": 0.01,
+  "rozklad": {
+   "0": 1.0,
+   "1": 0.0,
+   "2": 0.0
+  }
+ },
+ "[\"brwi farbk koloryzacj regulacj\", \"estetyczn medycyn\", \"makijaz\"]": {
+  "klasa": [
+   "brwi farbk koloryzacj regulacj",
+   "estetyczn medycyn",
+   "makijaz"
+  ],
+  "usluga": "Koloryzacja brwi farbką wraz z regulacją",
+  "a": "Koloryzacja brwi farbką wraz z regulacją",
+  "b": "Koloryzacja brwi farbką + regulacja",
+  "kontekst_a": "salon typu „Medycyna Estetyczna”",
+  "kontekst_b": "salon typu „Makijaż”",
+  "score": 0.02,
+  "rozklad": {
+   "0": 0.98,
+   "1": 0.01,
+   "2": 0.01
+  }
+ },
+ "[\"brwi farbk koloryzacj regulacj\", \"estetyczn medycyn\", \"opraw\"]": {
+  "klasa": [
+   "brwi farbk koloryzacj regulacj",
+   "estetyczn medycyn",
+   "opraw"
+  ],
+  "usluga": "Koloryzacja brwi farbką wraz z regulacją",
+  "a": "Koloryzacja brwi farbką wraz z regulacją",
+  "b": "Koloryzacja brwi farbką i regulacja",
+  "kontekst_a": "salon typu „Medycyna Estetyczna”",
+  "kontekst_b": "dział cennika „Oprawa oka”",
+  "score": 0.62,
+  "rozklad": {
+   "0": 0.68,
+   "1": 0.03,
+   "2": 0.29
+  }
+ },
+ "[\"brwi farbk regulacj\", \"brwi rzes\", \"estetyczn medycyn\"]": {
+  "klasa": [
+   "brwi farbk regulacj",
+   "brwi rzes",
+   "estetyczn medycyn"
+  ],
+  "usluga": "Farbowanie farbka + regulacja brwi",
+  "a": "Farbowanie farbka + regulacja brwi",
+  "b": "Koloryzacja brwi farbką wraz z regulacją",
+  "kontekst_a": "salon typu „Brwi i rzęsy”",
+  "kontekst_b": "salon typu „Medycyna Estetyczna”",
+  "score": 0.06,
+  "rozklad": {
+   "0": 0.95,
+   "1": 0.03,
+   "2": 0.02
+  }
+ },
+ "[\"brwi farbk koloryzacj regulacj\", \"estetyczn medycyn\", \"oka opraw\"]": {
+  "klasa": [
+   "brwi farbk koloryzacj regulacj",
+   "estetyczn medycyn",
+   "oka opraw"
+  ],
+  "usluga": "Koloryzacja brwi farbką wraz z regulacją",
+  "a": "Koloryzacja brwi farbką wraz z regulacją",
+  "b": "Koloryzacja brwi farbką z regulacją",
+  "kontekst_a": "salon typu „Medycyna Estetyczna”",
+  "kontekst_b": "dział cennika „Oprawa oka”",
+  "score": 0.78,
+  "rozklad": {
+   "0": 0.6,
+   "1": 0.02,
+   "2": 0.38
+  }
+ },
+ "[\"brwi makijaz permanentn\", \"estetyczn medycyn\", \"podolog\"]": {
+  "klasa": [
+   "brwi makijaz permanentn",
+   "estetyczn medycyn",
+   "podolog"
+  ],
+  "usluga": "Makijaż permanentny brwi",
+  "a": "Makijaż permanentny brwi",
+  "b": "Makijaż permanentny brwi",
+  "kontekst_a": "salon typu „Medycyna Estetyczna”",
+  "kontekst_b": "salon typu „Podologia”",
+  "score": 0.13,
+  "rozklad": {
+   "0": 0.93,
+   "1": 0.01,
+   "2": 0.06
+  }
+ },
+ "[\"brwi makijaz permanentn\", \"estetyczn medycyn\", \"inni\"]": {
+  "klasa": [
+   "brwi makijaz permanentn",
+   "estetyczn medycyn",
+   "inni"
+  ],
+  "usluga": "Makijaż permanentny brwi",
+  "a": "Makijaż permanentny brwi",
+  "b": "Makijaż permanentny brwi — Makijaż permanentny brwi",
+  "kontekst_a": "salon typu „Medycyna Estetyczna”",
+  "kontekst_b": "salon typu „Inni”",
+  "score": 0.01,
+  "rozklad": {
+   "0": 0.99,
+   "1": 0.01,
+   "2": 0.0
+  }
+ },
+ "[\"brwi makijaz permanentn\", \"estetyczn medycyn\", \"oka stylizacj\"]": {
+  "klasa": [
+   "brwi makijaz permanentn",
+   "estetyczn medycyn",
+   "oka stylizacj"
+  ],
+  "usluga": "Makijaż permanentny brwi",
+  "a": "Makijaż permanentny brwi",
+  "b": "Makijaż permanentny brwi",
+  "kontekst_a": "salon typu „Medycyna Estetyczna”",
+  "kontekst_b": "dział cennika „STYLIZACJA OKA”",
+  "score": 0.41,
+  "rozklad": {
+   "0": 0.78,
+   "1": 0.03,
+   "2": 0.19
+  }
+ },
+ "[\"brwi makijaz permanentn\", \"estetyczn medycyn\", \"piercing tatuaz\"]": {
+  "klasa": [
+   "brwi makijaz permanentn",
+   "estetyczn medycyn",
+   "piercing tatuaz"
+  ],
+  "usluga": "Makijaż permanentny brwi",
+  "a": "Makijaż permanentny brwi",
+  "b": "Makijaż Permanentny Brwi",
+  "kontekst_a": "salon typu „Medycyna Estetyczna”",
+  "kontekst_b": "salon typu „Tatuaż i Piercing”",
+  "score": 0.02,
+  "rozklad": {
+   "0": 0.98,
+   "1": 0.01,
+   "2": 0.01
+  }
+ },
+ "[\"makijaz permanentn\", \"estetyczn medycyn\", \"kosmetyczn salon\"]": {
+  "klasa": [
+   "makijaz permanentn",
+   "estetyczn medycyn",
+   "kosmetyczn salon"
+  ],
+  "usluga": "Makijaż permanentny brwi",
+  "a": "Makijaż permanentny brwi",
+  "b": "Makijaż permanentny — Metoda Microblading",
+  "kontekst_a": "salon typu „Medycyna Estetyczna”",
+  "kontekst_b": "salon typu „Salon Kosmetyczny”",
+  "score": 0.01,
+  "rozklad": {
+   "0": 0.99,
+   "1": 0.01,
+   "2": 0.0
+  }
+ },
+ "[\"makijaz permanentn\", \"brwi rzes\", \"estetyczn medycyn\"]": {
+  "klasa": [
+   "makijaz permanentn",
+   "brwi rzes",
+   "estetyczn medycyn"
+  ],
+  "usluga": "Makijaż Permanentny Bwi",
+  "a": "Makijaż Permanentny Bwi",
+  "b": "Makijaż permanentny brwi",
+  "kontekst_a": "salon typu „Brwi i rzęsy”",
+  "kontekst_b": "salon typu „Medycyna Estetyczna”",
+  "score": 0.02,
+  "rozklad": {
+   "0": 0.99,
+   "1": 0.01,
+   "2": 0.0
+  }
+ },
+ "[\"keratyn\", \"fryzjer\", \"paznokc\"]": {
+  "klasa": [
+   "keratyn",
+   "fryzjer",
+   "paznokc"
+  ],
+  "usluga": "Keratyna",
+  "a": "Keratyna",
+  "b": "Keratyna",
+  "kontekst_a": "salon typu „Fryzjer”",
+  "kontekst_b": "salon typu „Paznokcie”",
+  "score": 1.33,
+  "rozklad": {
+   "0": 0.29,
+   "1": 0.1,
+   "2": 0.61
+  }
+ },
+ "[\"keratyn\", \"fryzjer\", \"pielegnacj\"]": {
+  "klasa": [
+   "keratyn",
+   "fryzjer",
+   "pielegnacj"
+  ],
+  "usluga": "Keratyna",
+  "a": "Keratyna",
+  "b": "Keratyna",
+  "kontekst_a": "salon typu „Fryzjer”",
+  "kontekst_b": "dział cennika „Pielegnacja”",
+  "score": 0.41,
+  "rozklad": {
+   "0": 0.68,
+   "1": 0.23,
+   "2": 0.09
+  }
+ },
+ "[\"keratyn\", \"fryzjer\", \"regeneracj\"]": {
+  "klasa": [
+   "keratyn",
+   "fryzjer",
+   "regeneracj"
+  ],
+  "usluga": "Keratyna",
+  "a": "Keratyna",
+  "b": "Keratyna prostująca",
+  "kontekst_a": "salon typu „Fryzjer”",
+  "kontekst_b": "dział cennika „REGENERACJE”",
+  "score": 0.4,
+  "rozklad": {
+   "0": 0.7,
+   "1": 0.21,
+   "2": 0.09
+  }
+ },
+ "[\"keratyn\", \"fryzjer\", \"kosmetyczn salon\"]": {
+  "klasa": [
+   "keratyn",
+   "fryzjer",
+   "kosmetyczn salon"
+  ],
+  "usluga": "Keratyna",
+  "a": "Keratyna",
+  "b": "Keratyna",
+  "kontekst_a": "salon typu „Fryzjer”",
+  "kontekst_b": "salon typu „Salon Kosmetyczny”",
+  "score": 0.23,
+  "rozklad": {
+   "0": 0.84,
+   "1": 0.09,
+   "2": 0.07
+  }
+ },
+ "[\"krotk mesk strzyzen\", \"barber shop\", \"fryzjer\"]": {
+  "klasa": [
+   "krotk mesk strzyzen",
+   "barber shop",
+   "fryzjer"
+  ],
+  "usluga": "Strzyżenie męskie (krótkie)",
+  "a": "Strzyżenie męskie (krótkie)",
+  "b": "Strzyżenie męskie krótkie",
+  "kontekst_a": "salon typu „Barber shop”",
+  "kontekst_b": "salon typu „Fryzjer”",
+  "score": 0.03,
+  "rozklad": {
+   "0": 0.98,
+   "1": 0.01,
+   "2": 0.01
+  }
+ },
+ "[\"keratyn\", \"fryzjer\", \"fryzjersk uslug\"]": {
+  "klasa": [
+   "keratyn",
+   "fryzjer",
+   "fryzjersk uslug"
+  ],
+  "usluga": "Keratyna",
+  "a": "Keratyna",
+  "b": "Keratyna",
+  "kontekst_a": "salon typu „Fryzjer”",
+  "kontekst_b": "dział cennika „Usługi fryzjerskie”",
+  "score": 0.06,
+  "rozklad": {
+   "0": 0.94,
+   "1": 0.05,
+   "2": 0.01
+  }
+ },
+ "[\"krotk mesk strzyzen\", \"fryzjer\", \"kosmetyczn salon\"]": {
+  "klasa": [
+   "krotk mesk strzyzen",
+   "fryzjer",
+   "kosmetyczn salon"
+  ],
+  "usluga": "Strzyżenie męskie krótkie",
+  "a": "Strzyżenie męskie krótkie",
+  "b": "Strzyżenie męskie włosy krótkie",
+  "kontekst_a": "salon typu „Fryzjer”",
+  "kontekst_b": "salon typu „Salon Kosmetyczny”",
+  "score": 0.02,
+  "rozklad": {
+   "0": 0.98,
+   "1": 0.01,
+   "2": 0.01
+  }
+ },
+ "[\"damsk krotk strzyzen\", \"fryzjer\", \"fryzjersk uslug\"]": {
+  "klasa": [
+   "damsk krotk strzyzen",
+   "fryzjer",
+   "fryzjersk uslug"
+  ],
+  "usluga": "Strzyżenie Damskie Krótkie",
+  "a": "Strzyżenie Damskie Krótkie",
+  "b": "Strzyżenie Damskie — Włosy krótkie",
+  "kontekst_a": "salon typu „Fryzjer”",
+  "kontekst_b": "dział cennika „Usługi fryzjerskie”",
+  "score": 0.01,
+  "rozklad": {
+   "0": 1.0,
+   "1": 0.0,
+   "2": 0.0
+  }
+ },
+ "[\"damsk krotk strzyzen\", \"fryzjer\", \"inni\"]": {
+  "klasa": [
+   "damsk krotk strzyzen",
+   "fryzjer",
+   "inni"
+  ],
+  "usluga": "Strzyżenie Damskie Krótkie",
+  "a": "Strzyżenie Damskie Krótkie",
+  "b": "Strzyżenie Damskie - Włosy Krótkie",
+  "kontekst_a": "salon typu „Fryzjer”",
+  "kontekst_b": "salon typu „Inni”",
+  "score": 0.05,
+  "rozklad": {
+   "0": 0.95,
+   "1": 0.04,
+   "2": 0.01
+  }
+ },
+ "[\"damsk krotk strzyzen\", \"fryzjer\", \"stylizacj\"]": {
+  "klasa": [
+   "damsk krotk strzyzen",
+   "fryzjer",
+   "stylizacj"
+  ],
+  "usluga": "Strzyżenie Damskie Krótkie",
+  "a": "Strzyżenie Damskie Krótkie",
+  "b": "Strzyżenie Damskie włosy krótkie",
+  "kontekst_a": "salon typu „Fryzjer”",
+  "kontekst_b": "dział cennika „STYLIZACJA WŁOSÓW U ZUZI (uczeń)”",
+  "score": 0.01,
+  "rozklad": {
+   "0": 1.0,
+   "1": 0.0,
+   "2": 0.0
+  }
+ },
+ "[\"krotk mesk strzyzen\", \"fryzjer\", \"uslug\"]": {
+  "klasa": [
+   "krotk mesk strzyzen",
+   "fryzjer",
+   "uslug"
+  ],
+  "usluga": "Strzyżenie męskie krótkie",
+  "a": "Strzyżenie męskie krótkie",
+  "b": "Strzyżenie męskie — Krótkie włosy",
+  "kontekst_a": "salon typu „Fryzjer”",
+  "kontekst_b": "dział cennika „Usługi dla Panów u Dominiki”",
+  "score": 0.01,
+  "rozklad": {
+   "0": 0.99,
+   "1": 0.01,
+   "2": 0.0
+  }
+ },
+ "[\"damsk krotk strzyzen\", \"fryzjer\", \"stryzen\"]": {
+  "klasa": [
+   "damsk krotk strzyzen",
+   "fryzjer",
+   "stryzen"
+  ],
+  "usluga": "Strzyżenie Damskie Krótkie",
+  "a": "Strzyżenie Damskie Krótkie",
+  "b": "Strzyżenie Damskie (krótkie włosy)",
+  "kontekst_a": "salon typu „Fryzjer”",
+  "kontekst_b": "dział cennika „STRYZENIE”",
+  "score": 0.03,
+  "rozklad": {
+   "0": 0.97,
+   "1": 0.02,
+   "2": 0.01
+  }
+ },
+ "[\"podologiczn podstaw\", \"paznokc\", \"podolog\"]": {
+  "klasa": [
+   "podologiczn podstaw",
+   "paznokc",
+   "podolog"
+  ],
+  "usluga": "Podstawowy Zabieg Podologiczny",
+  "a": "Podstawowy Zabieg Podologiczny",
+  "b": "Podstawowy Zabieg Podologiczny",
+  "kontekst_a": "salon typu „Paznokcie”",
+  "kontekst_b": "salon typu „Podologia”",
+  "score": 0.88,
+  "rozklad": {
+   "0": 0.55,
+   "1": 0.02,
+   "2": 0.43
+  }
+ },
+ "[\"paznokc\", \"inni\", \"podolog\"]": {
+  "klasa": [
+   "paznokc",
+   "inni",
+   "podolog"
+  ],
+  "usluga": "Rekonstrukca paznokcia — Rekonstrukca paznokcia",
+  "a": "Rekonstrukca paznokcia — Rekonstrukca paznokcia",
+  "b": "Rekonstrukcja Paznokcia",
+  "kontekst_a": "salon typu „Inni”",
+  "kontekst_b": "salon typu „Podologia”",
+  "score": 1.05,
+  "rozklad": {
+   "0": 0.35,
+   "1": 0.24,
+   "2": 0.41
+  }
+ },
+ "[\"paznokc rekonstrukcj\", \"podolog\", \"stop\"]": {
+  "klasa": [
+   "paznokc rekonstrukcj",
+   "podolog",
+   "stop"
+  ],
+  "usluga": "Rekonstrukcja Paznokcia",
+  "a": "Rekonstrukcja Paznokcia",
+  "b": "Rekonstrukcja paznokcia",
+  "kontekst_a": "salon typu „Podologia”",
+  "kontekst_b": "dział cennika „Stopy”",
+  "score": 0.38,
+  "rozklad": {
+   "0": 0.78,
+   "1": 0.06,
+   "2": 0.16
+  }
+ },
+ "[\"paznokc\", \"pielegnacj\", \"podolog\"]": {
+  "klasa": [
+   "paznokc",
+   "pielegnacj",
+   "podolog"
+  ],
+  "usluga": "Rekonstrucja paznokcia",
+  "a": "Rekonstrucja paznokcia",
+  "b": "Rekonstrukcja Paznokcia",
+  "kontekst_a": "dział cennika „PIELĘGNACJA STÓP”",
+  "kontekst_b": "salon typu „Podologia”",
+  "score": 0.6,
+  "rozklad": {
+   "0": 0.66,
+   "1": 0.08,
+   "2": 0.26
+  }
+ },
+ "[\"podstaw\", \"podolog\", \"podologiczn\"]": {
+  "klasa": [
+   "podstaw",
+   "podolog",
+   "podologiczn"
+  ],
+  "usluga": "Podstawowy Zabieg Podologiczny",
+  "a": "Podstawowy Zabieg Podologiczny",
+  "b": "Pedicure podstawowy",
+  "kontekst_a": "salon typu „Podologia”",
+  "kontekst_b": "dział cennika „Zabieg podologiczny”",
+  "score": 0.04,
+  "rozklad": {
+   "0": 0.98,
+   "1": 0.01,
+   "2": 0.01
+  }
+ },
+ "[\"paznokc plytk rekonstrukcj\", \"masaz\", \"obreb\"]": {
+  "klasa": [
+   "paznokc plytk rekonstrukcj",
+   "masaz",
+   "obreb"
+  ],
+  "usluga": "Rekonstrukcja płytki paznokcia",
+  "a": "Rekonstrukcja płytki paznokcia",
+  "b": "Rekonstrukcja płytki paznokciowej",
+  "kontekst_a": "salon typu „Masaż”",
+  "kontekst_b": "dział cennika „Zabiegi w obrębie paznokci”",
+  "score": 0.26,
+  "rozklad": {
+   "0": 0.86,
+   "1": 0.02,
+   "2": 0.12
+  }
+ },
+ "[\"paznokc plytk rekonstrukcj\", \"masaz\", \"pedicur\"]": {
+  "klasa": [
+   "paznokc plytk rekonstrukcj",
+   "masaz",
+   "pedicur"
+  ],
+  "usluga": "Rekonstrukcja płytki paznokcia",
+  "a": "Rekonstrukcja płytki paznokcia",
+  "b": "Rekonstrukcja płytki paznokcia",
+  "kontekst_a": "salon typu „Masaż”",
+  "kontekst_b": "dział cennika „Pedicure”",
+  "score": 1.13,
+  "rozklad": {
+   "0": 0.37,
+   "1": 0.13,
+   "2": 0.5
+  }
+ },
+ "[\"paznokc plytk rekonstrukcj\", \"masaz\", \"pielegnacj stop\"]": {
+  "klasa": [
+   "paznokc plytk rekonstrukcj",
+   "masaz",
+   "pielegnacj stop"
+  ],
+  "usluga": "Rekonstrukcja płytki paznokcia",
+  "a": "Rekonstrukcja płytki paznokcia",
+  "b": "Rekonstrukcja Płytki Paznokcia",
+  "kontekst_a": "salon typu „Masaż”",
+  "kontekst_b": "dział cennika „💜 PIELĘGNACJA STÓP”",
+  "score": 1.12,
+  "rozklad": {
+   "0": 0.4,
+   "1": 0.08,
+   "2": 0.52
+  }
+ },
+ "[\"paznokc rekonstrukcj\", \"fryzjer\", \"masaz\"]": {
+  "klasa": [
+   "paznokc rekonstrukcj",
+   "fryzjer",
+   "masaz"
+  ],
+  "usluga": "Rekonstrukcja paznokcia",
+  "a": "Rekonstrukcja paznokcia",
+  "b": "Rekonstrukcja płytki paznokcia",
+  "kontekst_a": "salon typu „Fryzjer”",
+  "kontekst_b": "salon typu „Masaż”",
+  "score": 0.55,
+  "rozklad": {
+   "0": 0.64,
+   "1": 0.17,
+   "2": 0.19
+  }
+ },
+ "[\"plytk rekonstrukcj\", \"masaz\", \"pedicur\"]": {
+  "klasa": [
+   "plytk rekonstrukcj",
+   "masaz",
+   "pedicur"
+  ],
+  "usluga": "Rekonstrukcja płytki paznokcia",
+  "a": "Rekonstrukcja płytki paznokcia",
+  "b": "Rekonstrukcja płytki pazokciowej — Rekonstrukcja płytki pazokciowej",
+  "kontekst_a": "salon typu „Masaż”",
+  "kontekst_b": "dział cennika „Pedicure”",
+  "score": 1.11,
+  "rozklad": {
+   "0": 0.38,
+   "1": 0.14,
+   "2": 0.48
+  }
+ },
+ "[\"paznokc rekonstrukcj\", \"masaz\", \"pedecur\"]": {
+  "klasa": [
+   "paznokc rekonstrukcj",
+   "masaz",
+   "pedecur"
+  ],
+  "usluga": "Rekonstrukcja płytki paznokcia",
+  "a": "Rekonstrukcja płytki paznokcia",
+  "b": "Rekonstrukcja paznokcia",
+  "kontekst_a": "salon typu „Masaż”",
+  "kontekst_b": "dział cennika „PEDECURE”",
+  "score": 1.53,
+  "rozklad": {
+   "0": 0.19,
+   "1": 0.09,
+   "2": 0.72
+  }
+ },
+ "[\"paznokc rekonstrukcj\", \"masaz\", \"stylizacj\"]": {
+  "klasa": [
+   "paznokc rekonstrukcj",
+   "masaz",
+   "stylizacj"
+  ],
+  "usluga": "Rekonstrukcja płytki paznokcia",
+  "a": "Rekonstrukcja płytki paznokcia",
+  "b": "Rekonstrukcja paznokcia — Rekonstrukcja paznokcia",
+  "kontekst_a": "salon typu „Masaż”",
+  "kontekst_b": "dział cennika „Stylizacja paznokci”",
+  "score": 0.2,
+  "rozklad": {
+   "0": 0.89,
+   "1": 0.02,
+   "2": 0.09
+  }
+ },
+ "[\"paznokc rekonstrukcj\", \"masaz\", \"pedicur\"]": {
+  "klasa": [
+   "paznokc rekonstrukcj",
+   "masaz",
+   "pedicur"
+  ],
+  "usluga": "Rekonstrukcja płytki paznokcia",
+  "a": "Rekonstrukcja płytki paznokcia",
+  "b": "Rekonstrukcja paznokcia☘️",
+  "kontekst_a": "salon typu „Masaż”",
+  "kontekst_b": "dział cennika „Pedicure 👣”",
+  "score": 1.29,
+  "rozklad": {
+   "0": 0.28,
+   "1": 0.16,
+   "2": 0.5599999999999999
+  }
+ },
+ "[\"paznokc zdobien\", \"estetyczn medycyn\", \"hybryd manicur\"]": {
+  "klasa": [
+   "paznokc zdobien",
+   "estetyczn medycyn",
+   "hybryd manicur"
+  ],
+  "usluga": "zdobienia paznokci — zdobienia paznokci",
+  "a": "zdobienia paznokci — zdobienia paznokci",
+  "b": "Zdobienie Paznokci",
+  "kontekst_a": "salon typu „Medycyna Estetyczna”",
+  "kontekst_b": "dział cennika „Manicure hybrydowa”",
+  "score": 0.35,
+  "rozklad": {
+   "0": 0.8,
+   "1": 0.06,
+   "2": 0.14
+  }
+ },
+ "[\"paznokc zdobien\", \"hybryd manicur\", \"manicur\"]": {
+  "klasa": [
+   "paznokc zdobien",
+   "hybryd manicur",
+   "manicur"
+  ],
+  "usluga": "Zdobienie Paznokci",
+  "a": "Zdobienie Paznokci",
+  "b": "Zdobienie paznokci",
+  "kontekst_a": "dział cennika „Manicure hybrydowa”",
+  "kontekst_b": "dział cennika „MANICURE”",
+  "score": 0.06,
+  "rozklad": {
+   "0": 0.97,
+   "1": 0.01,
+   "2": 0.02
+  }
+ },
+ "[\"paznokc zdobien\", \"hybryd manicur\", \"pielegnacj stop\"]": {
+  "klasa": [
+   "paznokc zdobien",
+   "hybryd manicur",
+   "pielegnacj stop"
+  ],
+  "usluga": "Zdobienie Paznokci",
+  "a": "Zdobienie Paznokci",
+  "b": "Zdobienie paznokci — Zdobienie paznokci",
+  "kontekst_a": "dział cennika „Manicure hybrydowa”",
+  "kontekst_b": "dział cennika „Pielęgnacja stóp”",
+  "score": 1.9,
+  "rozklad": {
+   "0": 0.05,
+   "1": 0.01,
+   "2": 0.94
+  }
+ },
+ "[\"malowan pedicur\", \"estetyczn medycyn\", \"masaz\"]": {
+  "klasa": [
+   "malowan pedicur",
+   "estetyczn medycyn",
+   "masaz"
+  ],
+  "usluga": "Pedicure z malowaniem",
+  "a": "Pedicure z malowaniem",
+  "b": "Pedicure z malowaniem",
+  "kontekst_a": "salon typu „Medycyna Estetyczna”",
+  "kontekst_b": "salon typu „Masaż”",
+  "score": 0.1,
+  "rozklad": {
+   "0": 0.94,
+   "1": 0.02,
+   "2": 0.04
+  }
+ },
+ "[\"paznokc zdobien\", \"hybryd manicur\", \"kosmetyczn salon\"]": {
+  "klasa": [
+   "paznokc zdobien",
+   "hybryd manicur",
+   "kosmetyczn salon"
+  ],
+  "usluga": "Zdobienie Paznokci",
+  "a": "Zdobienie Paznokci",
+  "b": "Zdobienia paznokci",
+  "kontekst_a": "dział cennika „Manicure hybrydowa”",
+  "kontekst_b": "salon typu „Salon Kosmetyczny”",
+  "score": 0.2,
+  "rozklad": {
+   "0": 0.87,
+   "1": 0.07,
+   "2": 0.06
+  }
+ },
+ "[\"dlugosc jedn strzyzen\", \"barber shop\", \"depilacj\"]": {
+  "klasa": [
+   "dlugosc jedn strzyzen",
+   "barber shop",
+   "depilacj"
+  ],
+  "usluga": "Strzyżenie na jedną długość",
+  "a": "Strzyżenie na jedną długość",
+  "b": "Strzyżenia na jedną długość",
+  "kontekst_a": "salon typu „Barber shop”",
+  "kontekst_b": "salon typu „Depilacja”",
+  "score": 0.91,
+  "rozklad": {
+   "0": 0.41,
+   "1": 0.27,
+   "2": 0.32
+  }
+ },
+ "[\"woskowan\", \"barber shop\", \"wosk\"]": {
+  "klasa": [
+   "woskowan",
+   "barber shop",
+   "wosk"
+  ],
+  "usluga": "Woskowanie",
+  "a": "Woskowanie",
+  "b": "Woskowanie- Wax",
+  "kontekst_a": "salon typu „Barber shop”",
+  "kontekst_b": "dział cennika „Wosk”",
+  "score": 0.74,
+  "rozklad": {
+   "0": 0.34,
+   "1": 0.58,
+   "2": 0.08
+  }
+ },
+ "[\"dlugosc jedn strzyzen\", \"barber\", \"barber shop\"]": {
+  "klasa": [
+   "dlugosc jedn strzyzen",
+   "barber",
+   "barber shop"
+  ],
+  "usluga": "Strzyżenie głowy na jedną długość (1 nakładka)",
+  "a": "Strzyżenie głowy na jedną długość (1 nakładka)",
+  "b": "Strzyżenie na jedną długość",
+  "kontekst_a": "dział cennika „Barber”",
+  "kontekst_b": "salon typu „Barber shop”",
+  "score": 0.02,
+  "rozklad": {
+   "0": 0.98,
+   "1": 0.01,
+   "2": 0.01
+  }
+ },
+ "[\"brod strzyzen\", \"barber shop\", \"fryzjer\"]": {
+  "klasa": [
+   "brod strzyzen",
+   "barber shop",
+   "fryzjer"
+  ],
+  "usluga": "Strzyżenie brody / Beard",
+  "a": "Strzyżenie brody / Beard",
+  "b": "Strzyżenie brody",
+  "kontekst_a": "salon typu „Barber shop”",
+  "kontekst_b": "salon typu „Fryzjer”",
+  "score": 0.01,
+  "rozklad": {
+   "0": 1.0,
+   "1": 0.0,
+   "2": 0.0
+  }
+ },
+ "[\"rzes set\", \"brwi rzes\", \"fryzjer\"]": {
+  "klasa": [
+   "rzes set",
+   "brwi rzes",
+   "fryzjer"
+  ],
+  "usluga": "Przedłużanie rzęs  express set",
+  "a": "Przedłużanie rzęs  express set",
+  "b": "EKSPRES SET - rzęsy w godzinę",
+  "kontekst_a": "salon typu „Brwi i rzęsy”",
+  "kontekst_b": "salon typu „Fryzjer”",
+  "score": 0.11,
+  "rozklad": {
+   "0": 0.94,
+   "1": 0.01,
+   "2": 0.05
+  }
+ },
+ "[\"rzes zdjec\", \"brwi rzes\", \"masaz\"]": {
+  "klasa": [
+   "rzes zdjec",
+   "brwi rzes",
+   "masaz"
+  ],
+  "usluga": "Ściągnięcie rzęs",
+  "a": "Ściągnięcie rzęs",
+  "b": "Ściągnięcie rzęs",
+  "kontekst_a": "salon typu „Brwi i rzęsy”",
+  "kontekst_b": "salon typu „Masaż”",
+  "score": 0.37,
+  "rozklad": {
+   "0": 0.79,
+   "1": 0.05,
+   "2": 0.16
+  }
+ },
+ "[\"rzes zdjec\", \"brwi rzes\", \"fryzjer\"]": {
+  "klasa": [
+   "rzes zdjec",
+   "brwi rzes",
+   "fryzjer"
+  ],
+  "usluga": "Ściągnięcie rzęs",
+  "a": "Ściągnięcie rzęs",
+  "b": "Ściągnięcie rzęs",
+  "kontekst_a": "salon typu „Brwi i rzęsy”",
+  "kontekst_b": "salon typu „Fryzjer”",
+  "score": 0.15,
+  "rozklad": {
+   "0": 0.91,
+   "1": 0.03,
+   "2": 0.06
+  }
+ },
+ "[\"przedluzan rzes zdjec\", \"brwi rzes\", \"stylizacj\"]": {
+  "klasa": [
+   "przedluzan rzes zdjec",
+   "brwi rzes",
+   "stylizacj"
+  ],
+  "usluga": "Ściągnięcie rzęs",
+  "a": "Ściągnięcie rzęs",
+  "b": "Zdejmowanie rzęs przedłużanych",
+  "kontekst_a": "salon typu „Brwi i rzęsy”",
+  "kontekst_b": "dział cennika „STYLIZACJA RZĘS”",
+  "score": 0.07,
+  "rozklad": {
+   "0": 0.96,
+   "1": 0.02,
+   "2": 0.02
+  }
+ },
+ "[\"zdjec\", \"brwi rzes\", \"rzes stylizacj\"]": {
+  "klasa": [
+   "zdjec",
+   "brwi rzes",
+   "rzes stylizacj"
+  ],
+  "usluga": "Ściągnięcie rzęs",
+  "a": "Ściągnięcie rzęs",
+  "b": "Ściągnięcie",
+  "kontekst_a": "salon typu „Brwi i rzęsy”",
+  "kontekst_b": "dział cennika „Stylizacja rzęs instruktor”",
+  "score": 0.03,
+  "rozklad": {
+   "0": 0.98,
+   "1": 0.01,
+   "2": 0.01
+  }
+ },
+ "[\"przedluzan rzes\", \"brwi rzes\", \"kosmetyczn salon\"]": {
+  "klasa": [
+   "przedluzan rzes",
+   "brwi rzes",
+   "kosmetyczn salon"
+  ],
+  "usluga": "Ściągnięcie rzęs",
+  "a": "Ściągnięcie rzęs",
+  "b": "Przedłużanie rzęs — Usunięcie rzęs",
+  "kontekst_a": "salon typu „Brwi i rzęsy”",
+  "kontekst_b": "salon typu „Salon Kosmetyczny”",
+  "score": 0.09,
+  "rozklad": {
+   "0": 0.94,
+   "1": 0.03,
+   "2": 0.03
+  }
+ },
+ "[\"rzes\", \"brwi rzes\", \"stylizacj\"]": {
+  "klasa": [
+   "rzes",
+   "brwi rzes",
+   "stylizacj"
+  ],
+  "usluga": "Ściągnięcie rzęs",
+  "a": "Ściągnięcie rzęs",
+  "b": "Usunięcie rzęs",
+  "kontekst_a": "salon typu „Brwi i rzęsy”",
+  "kontekst_b": "dział cennika „Stylizacja rzęs”",
+  "score": 0.06,
+  "rozklad": {
+   "0": 0.96,
+   "1": 0.01,
+   "2": 0.03
+  }
+ },
+ "[\"rzes zdjec\", \"brwi rzes\", \"lash perfect\"]": {
+  "klasa": [
+   "rzes zdjec",
+   "brwi rzes",
+   "lash perfect"
+  ],
+  "usluga": "Ściągnięcie rzęs",
+  "a": "Ściągnięcie rzęs",
+  "b": "Zdjęcie rzęs",
+  "kontekst_a": "salon typu „Brwi i rzęsy”",
+  "kontekst_b": "dział cennika „❤️PERFECT LASHES”",
+  "score": 0.11,
+  "rozklad": {
+   "0": 0.9299999999999999,
+   "1": 0.02,
+   "2": 0.05
+  }
+ },
+ "[\"rzes\", \"brwi rzes\", \"estetyczn medycyn\"]": {
+  "klasa": [
+   "rzes",
+   "brwi rzes",
+   "estetyczn medycyn"
+  ],
+  "usluga": "Ściągnięcie rzęs",
+  "a": "Ściągnięcie rzęs",
+  "b": "Usunięcie rzęs",
+  "kontekst_a": "salon typu „Brwi i rzęsy”",
+  "kontekst_b": "salon typu „Medycyna Estetyczna”",
+  "score": 0.09,
+  "rozklad": {
+   "0": 0.93,
+   "1": 0.04,
+   "2": 0.03
+  }
+ },
+ "[\"masaz twarz\", \"kosmetyczn salon\", \"paznokc\"]": {
+  "klasa": [
+   "masaz twarz",
+   "kosmetyczn salon",
+   "paznokc"
+  ],
+  "usluga": "Masaż twarzy",
+  "a": "Masaż twarzy",
+  "b": "Masaż twarzy",
+  "kontekst_a": "salon typu „Salon Kosmetyczny”",
+  "kontekst_b": "salon typu „Paznokcie”",
+  "score": 0.05,
+  "rozklad": {
+   "0": 0.97,
+   "1": 0.01,
+   "2": 0.02
+  }
+ },
+ "[\"masaz twarz\", \"masaz\", \"paznokc\"]": {
+  "klasa": [
+   "masaz twarz",
+   "masaz",
+   "paznokc"
+  ],
+  "usluga": "Masaż twarzy",
+  "a": "Masaż twarzy",
+  "b": "Masaż twarzy",
+  "kontekst_a": "salon typu „Masaż”",
+  "kontekst_b": "salon typu „Paznokcie”",
+  "score": 0.09,
+  "rozklad": {
+   "0": 0.94,
+   "1": 0.02,
+   "2": 0.04
+  }
+ },
+ "[\"rzes sztuczn\", \"brwi rzes\", \"paznokc\"]": {
+  "klasa": [
+   "rzes sztuczn",
+   "brwi rzes",
+   "paznokc"
+  ],
+  "usluga": "Usunięcte Sztucznych Rzęs",
+  "a": "Usunięcte Sztucznych Rzęs",
+  "b": "Usuwanie sztucznych rzęs",
+  "kontekst_a": "salon typu „Brwi i rzęsy”",
+  "kontekst_b": "salon typu „Paznokcie”",
+  "score": 0.35,
+  "rozklad": {
+   "0": 0.82,
+   "1": 0.02,
+   "2": 0.16
+  }
+ },
+ "[\"dekolt oczyszczan szyj wodor\", \"kosmetyczn salon\", \"twarz\"]": {
+  "klasa": [
+   "dekolt oczyszczan szyj wodor",
+   "kosmetyczn salon",
+   "twarz"
+  ],
+  "usluga": "Oczyszczanie wodorowe — Oczyszczanie wodorowe twarz+ szyja+ dekolt",
+  "a": "Oczyszczanie wodorowe — Oczyszczanie wodorowe twarz+ szyja+ dekolt",
+  "b": "Oczyszczanie wodorowe — Oczyszczanie wodorowe + szyja + dekolt",
+  "kontekst_a": "salon typu „Salon Kosmetyczny”",
+  "kontekst_b": "dział cennika „🧖‍♀️  ZABIEGI NA TWARZ”",
+  "score": 0.18,
+  "rozklad": {
+   "0": 0.84,
+   "1": 0.13,
+   "2": 0.03
+  }
+ },
+ "[\"rzes\", \"oka pielegnacj\", \"paznokc\"]": {
+  "klasa": [
+   "rzes",
+   "oka pielegnacj",
+   "paznokc"
+  ],
+  "usluga": "Ściągnięcie rzęs — Ściągnięcie rzęs",
+  "a": "Ściągnięcie rzęs — Ściągnięcie rzęs",
+  "b": "Usuwanie sztucznych rzęs",
+  "kontekst_a": "dział cennika „pielęgnacja oka”",
+  "kontekst_b": "salon typu „Paznokcie”",
+  "score": 0.87,
+  "rozklad": {
+   "0": 0.55,
+   "1": 0.03,
+   "2": 0.42
+  }
+ },
+ "[\"dekolt oczyszczan szyj twarz wodor\", \"kosmetolog\", \"kosmetyczn salon\"]": {
+  "klasa": [
+   "dekolt oczyszczan szyj twarz wodor",
+   "kosmetolog",
+   "kosmetyczn salon"
+  ],
+  "usluga": "Oczyszczanie wodorowe twarz + szyja + dekolt",
+  "a": "Oczyszczanie wodorowe twarz + szyja + dekolt",
+  "b": "Oczyszczanie wodorowe — Oczyszczanie wodorowe twarz+ szyja+ dekolt",
+  "kontekst_a": "dział cennika „Kosmetologia”",
+  "kontekst_b": "salon typu „Salon Kosmetyczny”",
+  "score": 0.01,
+  "rozklad": {
+   "0": 0.99,
+   "1": 0.01,
+   "2": 0.0
+  }
+ },
+ "[\"dekolt oczyszczan szyj twarz wodor\", \"estetyczn medycyn\", \"kosmetyczn salon\"]": {
+  "klasa": [
+   "dekolt oczyszczan szyj twarz wodor",
+   "estetyczn medycyn",
+   "kosmetyczn salon"
+  ],
+  "usluga": "💧Oczyszczanie Wodorowe Premium 💧 — TWARZ + SZYJA+ DEKOLT",
+  "a": "💧Oczyszczanie Wodorowe Premium 💧 — TWARZ + SZYJA+ DEKOLT",
+  "b": "Oczyszczanie wodorowe — Oczyszczanie wodorowe twarz+ szyja+ dekolt",
+  "kontekst_a": "salon typu „Medycyna Estetyczna”",
+  "kontekst_b": "salon typu „Salon Kosmetyczny”",
+  "score": 0.02,
+  "rozklad": {
+   "0": 0.99,
+   "1": 0.01,
+   "2": 0.0
+  }
+ },
+ "[\"dekolt oczyszczan szyj twarz wodor\", \"kosmetyczn salon\", \"pielegnacj\"]": {
+  "klasa": [
+   "dekolt oczyszczan szyj twarz wodor",
+   "kosmetyczn salon",
+   "pielegnacj"
+  ],
+  "usluga": "Oczyszczanie wodorowe — Oczyszczanie wodorowe twarz+ szyja+ dekolt",
+  "a": "Oczyszczanie wodorowe — Oczyszczanie wodorowe twarz+ szyja+ dekolt",
+  "b": "Oczyszczanie wodorowe — Twarz, szyja, dekolt",
+  "kontekst_a": "salon typu „Salon Kosmetyczny”",
+  "kontekst_b": "dział cennika „Zabiegi na twarz - pielęgnacyjne”",
+  "score": 0.09,
+  "rozklad": {
+   "0": 0.93,
+   "1": 0.05,
+   "2": 0.02
+  }
+ },
+ "[\"dekolt oczyszczan szyj twarz wodor\", \"kosmetyczn salon\", \"paznokc\"]": {
+  "klasa": [
+   "dekolt oczyszczan szyj twarz wodor",
+   "kosmetyczn salon",
+   "paznokc"
+  ],
+  "usluga": "Oczyszczanie wodorowe — Oczyszczanie wodorowe twarz+ szyja+ dekolt",
+  "a": "Oczyszczanie wodorowe — Oczyszczanie wodorowe twarz+ szyja+ dekolt",
+  "b": "Oczyszczanie wodorowe — twarz, szyja i dekolt",
+  "kontekst_a": "salon typu „Salon Kosmetyczny”",
+  "kontekst_b": "salon typu „Paznokcie”",
+  "score": 0.07,
+  "rozklad": {
+   "0": 0.96,
+   "1": 0.01,
+   "2": 0.03
+  }
+ },
+ "[\"dekolt gene szyj twarz\", \"estetyczn medycyn\", \"kosmetyczn salon\"]": {
+  "klasa": [
+   "dekolt gene szyj twarz",
+   "estetyczn medycyn",
+   "kosmetyczn salon"
+  ],
+  "usluga": "GENEO+ (twarz, szyja, dekolt)",
+  "a": "GENEO+ (twarz, szyja, dekolt)",
+  "b": "Geneo twarz szyja dekolt",
+  "kontekst_a": "salon typu „Medycyna Estetyczna”",
+  "kontekst_b": "salon typu „Salon Kosmetyczny”",
+  "score": 0.02,
+  "rozklad": {
+   "0": 0.99,
+   "1": 0.01,
+   "2": 0.0
+  }
+ },
+ "[\"depilacj wasik\", \"kosmetyczn salon\", \"twarz\"]": {
+  "klasa": [
+   "depilacj wasik",
+   "kosmetyczn salon",
+   "twarz"
+  ],
+  "usluga": "Depilacja pastą cukrową-wąsik",
+  "a": "Depilacja pastą cukrową-wąsik",
+  "b": "Depilacja wąsik",
+  "kontekst_a": "salon typu „Salon Kosmetyczny”",
+  "kontekst_b": "dział cennika „Twarz”",
+  "score": 0.08,
+  "rozklad": {
+   "0": 0.95,
+   "1": 0.02,
+   "2": 0.03
+  }
+ },
+ "[\"kresk makijaz permanentn\", \"estetyczn medycyn\", \"paznokc\"]": {
+  "klasa": [
+   "kresk makijaz permanentn",
+   "estetyczn medycyn",
+   "paznokc"
+  ],
+  "usluga": "Kreska w linii rzęs - makijaż permanentny",
+  "a": "Kreska w linii rzęs - makijaż permanentny",
+  "b": "Makijaż Permanentny Kreska Eyeliner",
+  "kontekst_a": "salon typu „Medycyna Estetyczna”",
+  "kontekst_b": "salon typu „Paznokcie”",
+  "score": 0.1,
+  "rozklad": {
+   "0": 0.94,
+   "1": 0.02,
+   "2": 0.04
+  }
+ },
+ "[\"kresk makijaz permanentn\", \"estetyczn medycyn\", \"fryzjer\"]": {
+  "klasa": [
+   "kresk makijaz permanentn",
+   "estetyczn medycyn",
+   "fryzjer"
+  ],
+  "usluga": "Kreska w linii rzęs - makijaż permanentny",
+  "a": "Kreska w linii rzęs - makijaż permanentny",
+  "b": "Kreska na powiece",
+  "kontekst_a": "salon typu „Medycyna Estetyczna”",
+  "kontekst_b": "salon typu „Fryzjer”",
+  "score": 0.04,
+  "rozklad": {
+   "0": 0.98,
+   "1": 0.01,
+   "2": 0.01
+  }
+ },
+ "[\"kresk makijaz permanentn\", \"brwi rzes\", \"estetyczn medycyn\"]": {
+  "klasa": [
+   "kresk makijaz permanentn",
+   "brwi rzes",
+   "estetyczn medycyn"
+  ],
+  "usluga": "Makijaż permanentny oczu (kreska)",
+  "a": "Makijaż permanentny oczu (kreska)",
+  "b": "Kreska w linii rzęs - makijaż permanentny",
+  "kontekst_a": "salon typu „Brwi i rzęsy”",
+  "kontekst_b": "salon typu „Medycyna Estetyczna”",
+  "score": 0.04,
+  "rozklad": {
+   "0": 0.98,
+   "1": 0.01,
+   "2": 0.01
+  }
+ },
+ "[\"manualn oczyszczan\", \"pielegnacj\", \"podolog\"]": {
+  "klasa": [
+   "manualn oczyszczan",
+   "pielegnacj",
+   "podolog"
+  ],
+  "usluga": "Oczyszczanie manualne",
+  "a": "Oczyszczanie manualne",
+  "b": "Oczyszczanie manualne",
+  "kontekst_a": "dział cennika „ZABIEGI PIELĘGNACYJNE”",
+  "kontekst_b": "salon typu „Podologia”",
+  "score": 1.12,
+  "rozklad": {
+   "0": 0.29,
+   "1": 0.31,
+   "2": 0.39999999999999997
+  }
+ },
+ "[\"manualn oczyszczan\", \"inni\", \"podolog\"]": {
+  "klasa": [
+   "manualn oczyszczan",
+   "inni",
+   "podolog"
+  ],
+  "usluga": "oczyszczanie manualne — oczyszczanie manualne",
+  "a": "oczyszczanie manualne — oczyszczanie manualne",
+  "b": "Oczyszczanie manualne",
+  "kontekst_a": "salon typu „Inni”",
+  "kontekst_b": "salon typu „Podologia”",
+  "score": 1.2,
+  "rozklad": {
+   "0": 0.22,
+   "1": 0.37,
+   "2": 0.41
+  }
+ },
+ "[\"manualn oczyszczan\", \"paznokc\", \"podolog\"]": {
+  "klasa": [
+   "manualn oczyszczan",
+   "paznokc",
+   "podolog"
+  ],
+  "usluga": "Oczyszczanie Manualne Twarzy",
+  "a": "Oczyszczanie Manualne Twarzy",
+  "b": "Oczyszczanie manualne",
+  "kontekst_a": "salon typu „Paznokcie”",
+  "kontekst_b": "salon typu „Podologia”",
+  "score": 0.24,
+  "rozklad": {
+   "0": 0.87,
+   "1": 0.03,
+   "2": 0.1
+  }
+ },
+ "[\"mikrodermabrazj\", \"kosmetyk\", \"podolog\"]": {
+  "klasa": [
+   "mikrodermabrazj",
+   "kosmetyk",
+   "podolog"
+  ],
+  "usluga": "Mikrodermabrazja",
+  "a": "Mikrodermabrazja",
+  "b": "Mikrodermabrazja",
+  "kontekst_a": "dział cennika „Kosmetyka twarzy”",
+  "kontekst_b": "salon typu „Podologia”",
+  "score": 1.71,
+  "rozklad": {
+   "0": 0.12,
+   "1": 0.04,
+   "2": 0.84
+  }
+ },
+ "[\"mikrodermabrazj\", \"estetyczn medycyn\", \"podolog\"]": {
+  "klasa": [
+   "mikrodermabrazj",
+   "estetyczn medycyn",
+   "podolog"
+  ],
+  "usluga": "Mikrodermabrazja - Twarz",
+  "a": "Mikrodermabrazja - Twarz",
+  "b": "Mikrodermabrazja",
+  "kontekst_a": "salon typu „Medycyna Estetyczna”",
+  "kontekst_b": "salon typu „Podologia”",
+  "score": 0.09,
+  "rozklad": {
+   "0": 0.94,
+   "1": 0.02,
+   "2": 0.04
+  }
+ },
+ "[\"mikrodermabrazj\", \"inni\", \"podolog\"]": {
+  "klasa": [
+   "mikrodermabrazj",
+   "inni",
+   "podolog"
+  ],
+  "usluga": "Mikrodermabrazja — Mikrodermabrazja",
+  "a": "Mikrodermabrazja — Mikrodermabrazja",
+  "b": "Mikrodermabrazja",
+  "kontekst_a": "salon typu „Inni”",
+  "kontekst_b": "salon typu „Podologia”",
+  "score": 0.67,
+  "rozklad": {
+   "0": 0.53,
+   "1": 0.26,
+   "2": 0.21
+  }
+ },
+ "[\"manualn oczyszczan\", \"brwi rzes\", \"podolog\"]": {
+  "klasa": [
+   "manualn oczyszczan",
+   "brwi rzes",
+   "podolog"
+  ],
+  "usluga": "Oczyszczanie twarzy manualne",
+  "a": "Oczyszczanie twarzy manualne",
+  "b": "Oczyszczanie manualne",
+  "kontekst_a": "salon typu „Brwi i rzęsy”",
+  "kontekst_b": "salon typu „Podologia”",
+  "score": 0.34,
+  "rozklad": {
+   "0": 0.81,
+   "1": 0.04,
+   "2": 0.15
+  }
+ },
+ "[\"mikrodermabrazj\", \"paznokc\", \"podolog\"]": {
+  "klasa": [
+   "mikrodermabrazj",
+   "paznokc",
+   "podolog"
+  ],
+  "usluga": "Mikrodermabrazja twarz — Mikrodermabrazja twarz",
+  "a": "Mikrodermabrazja twarz — Mikrodermabrazja twarz",
+  "b": "Mikrodermabrazja",
+  "kontekst_a": "salon typu „Paznokcie”",
+  "kontekst_b": "salon typu „Podologia”",
+  "score": 0.17,
+  "rozklad": {
+   "0": 0.91,
+   "1": 0.02,
+   "2": 0.07
+  }
+ },
+ "[\"mikrodermabrazj\", \"brwi rzes\", \"podolog\"]": {
+  "klasa": [
+   "mikrodermabrazj",
+   "brwi rzes",
+   "podolog"
+  ],
+  "usluga": "Mikrodermabrazja Twarz",
+  "a": "Mikrodermabrazja Twarz",
+  "b": "Mikrodermabrazja",
+  "kontekst_a": "salon typu „Brwi i rzęsy”",
+  "kontekst_b": "salon typu „Podologia”",
+  "score": 0.19,
+  "rozklad": {
+   "0": 0.89,
+   "1": 0.03,
+   "2": 0.08
+  }
+ },
+ "[\"mikrodermabrazj\", \"oczyszczan terap\", \"podolog\"]": {
+  "klasa": [
+   "mikrodermabrazj",
+   "oczyszczan terap",
+   "podolog"
+  ],
+  "usluga": "Mikrodermabrazja — Twarz",
+  "a": "Mikrodermabrazja — Twarz",
+  "b": "Mikrodermabrazja",
+  "kontekst_a": "dział cennika „Personalizowane terapie oczyszczania twarzy”",
+  "kontekst_b": "salon typu „Podologia”",
+  "score": 0.4,
+  "rozklad": {
+   "0": 0.79,
+   "1": 0.02,
+   "2": 0.19
+  }
+ },
+ "[\"chemiczn kwas mlek peeling twarz\", \"kosmetyczn salon\", \"masaz\"]": {
+  "klasa": [
+   "chemiczn kwas mlek peeling twarz",
+   "kosmetyczn salon",
+   "masaz"
+  ],
+  "usluga": "Peeling chemiczny z kwasem mlekowym",
+  "a": "Peeling chemiczny z kwasem mlekowym",
+  "b": "Peeling chemiczny z kwasem mlekowym — Zabieg podstawowy - twarz",
+  "kontekst_a": "salon typu „Salon Kosmetyczny”",
+  "kontekst_b": "salon typu „Masaż”",
+  "score": 0.57,
+  "rozklad": {
+   "0": 0.49,
+   "1": 0.44,
+   "2": 0.07
+  }
+ },
+ "[\"mikrodermabrazj\", \"estetyczn kosmetolog\", \"podolog\"]": {
+  "klasa": [
+   "mikrodermabrazj",
+   "estetyczn kosmetolog",
+   "podolog"
+  ],
+  "usluga": "Mikrodermabrazja",
+  "a": "Mikrodermabrazja",
+  "b": "Mikrodermabrazja",
+  "kontekst_a": "dział cennika „Kosmetologia estetyczna”",
+  "kontekst_b": "salon typu „Podologia”",
+  "score": 0.77,
+  "rozklad": {
+   "0": 0.54,
+   "1": 0.16,
+   "2": 0.3
+  }
+ },
+ "[\"fala posladk uda uderzeni\", \"kosmetyczn salon\", \"modelowan sylwetk\"]": {
+  "klasa": [
+   "fala posladk uda uderzeni",
+   "kosmetyczn salon",
+   "modelowan sylwetk"
+  ],
+  "usluga": "Fala uderzeniowa Całe uda + pośladki — Fala uderzeniowa Całe uda + pośladki (1 zabieg)",
+  "a": "Fala uderzeniowa Całe uda + pośladki — Fala uderzeniowa Całe uda + pośladki (1 zabieg)",
+  "b": "Fala uderzeniowa — Uda przód tył i pośladki",
+  "kontekst_a": "salon typu „Salon Kosmetyczny”",
+  "kontekst_b": "dział cennika „Zabiegi modelowania sylwetki”",
+  "score": 0.09,
+  "rozklad": {
+   "0": 0.94,
+   "1": 0.02,
+   "2": 0.04
+  }
+ },
+ "[\"keratyn\", \"fryzjer\", \"fryzjerstw\"]": {
+  "klasa": [
+   "keratyn",
+   "fryzjer",
+   "fryzjerstw"
+  ],
+  "usluga": "Keratyna",
+  "a": "Keratyna",
+  "b": "Keratyna",
+  "kontekst_a": "salon typu „Fryzjer”",
+  "kontekst_b": "dział cennika „Fryzjerstwo”",
+  "score": 0.04,
+  "rozklad": {
+   "0": 0.97,
+   "1": 0.02,
+   "2": 0.01
+  }
+ },
+ "[\"brod\", \"barber shop\", \"uslug\"]": {
+  "klasa": [
+   "brod",
+   "barber shop",
+   "uslug"
+  ],
+  "usluga": "Strzyżenie brody / Beard",
+  "a": "Strzyżenie brody / Beard",
+  "b": "Trymowanie brody",
+  "kontekst_a": "salon typu „Barber shop”",
+  "kontekst_b": "dział cennika „Usługi 🇵🇱🇬🇧 50%”",
+  "score": 0.01,
+  "rozklad": {
+   "0": 1.0,
+   "1": 0.0,
+   "2": 0.0
+  }
+ },
+ "[\"mikrodermabrazj\", \"kosmetyk\", \"pielegnacj\"]": {
+  "klasa": [
+   "mikrodermabrazj",
+   "kosmetyk",
+   "pielegnacj"
+  ],
+  "usluga": "Mikrodermabrazja",
+  "a": "Mikrodermabrazja",
+  "b": "Mikrodermabrazja — Mikrodermabrazja",
+  "kontekst_a": "dział cennika „KOSMETYKA”",
+  "kontekst_b": "dział cennika „Pielęgnacja twarzy”",
+  "score": 0.58,
+  "rozklad": {
+   "0": 0.58,
+   "1": 0.26,
+   "2": 0.16
+  }
+ },
+ "[\"manualn oczyszczan\", \"kosmetyczn salon\", \"kosmetyk\"]": {
+  "klasa": [
+   "manualn oczyszczan",
+   "kosmetyczn salon",
+   "kosmetyk"
+  ],
+  "usluga": "Oczyszczanie manualne",
+  "a": "Oczyszczanie manualne",
+  "b": "Oczyszczanie manualne",
+  "kontekst_a": "salon typu „Salon Kosmetyczny”",
+  "kontekst_b": "dział cennika „KOSMETYKA”",
+  "score": 0.17,
+  "rozklad": {
+   "0": 0.84,
+   "1": 0.15,
+   "2": 0.01
+  }
+ },
+ "[\"mikrodermabrazj\", \"kosmetyczn salon\", \"kosmetyk\"]": {
+  "klasa": [
+   "mikrodermabrazj",
+   "kosmetyczn salon",
+   "kosmetyk"
+  ],
+  "usluga": "Mikrodermabrazja",
+  "a": "Mikrodermabrazja",
+  "b": "Mikrodermabrazja",
+  "kontekst_a": "salon typu „Salon Kosmetyczny”",
+  "kontekst_b": "dział cennika „KOSMETYKA”",
+  "score": 0.17,
+  "rozklad": {
+   "0": 0.83,
+   "1": 0.16,
+   "2": 0.01
+  }
+ },
+ "[\"botox regeneracj\", \"fryzjer\", \"fryzjerstw\"]": {
+  "klasa": [
+   "botox regeneracj",
+   "fryzjer",
+   "fryzjerstw"
+  ],
+  "usluga": "Botox Regeneracja",
+  "a": "Botox Regeneracja",
+  "b": "Regeneracja botox",
+  "kontekst_a": "salon typu „Fryzjer”",
+  "kontekst_b": "dział cennika „Fryzjerstwo”",
+  "score": 0.26,
+  "rozklad": {
+   "0": 0.77,
+   "1": 0.2,
+   "2": 0.03
+  }
+ },
+ "[\"paznokc zdobien\", \"hybryd manicur\", \"kosmetyk\"]": {
+  "klasa": [
+   "paznokc zdobien",
+   "hybryd manicur",
+   "kosmetyk"
+  ],
+  "usluga": "Zdobienie Paznokci",
+  "a": "Zdobienie Paznokci",
+  "b": "zdobienia paznokci — zdobienia paznokci",
+  "kontekst_a": "dział cennika „Manicure hybrydowa”",
+  "kontekst_b": "dział cennika „Kosmetyka”",
+  "score": 0.26,
+  "rozklad": {
+   "0": 0.84,
+   "1": 0.05,
+   "2": 0.11
+  }
+ },
+ "[\"paznokc plytk rekonstrukcj\", \"masaz\", \"specjalistyczn\"]": {
+  "klasa": [
+   "paznokc plytk rekonstrukcj",
+   "masaz",
+   "specjalistyczn"
+  ],
+  "usluga": "Rekonstrukcja płytki paznokcia",
+  "a": "Rekonstrukcja płytki paznokcia",
+  "b": "Rekonstrukcja płytki paznokciowej — Rekonstrukcja płytki paznokciowej",
+  "kontekst_a": "salon typu „Masaż”",
+  "kontekst_b": "dział cennika „Zabiegi specjalistyczne”",
+  "score": 0.3,
+  "rozklad": {
+   "0": 0.8,
+   "1": 0.09,
+   "2": 0.11
+  }
+ },
+ "[\"paznokc plytk rekonstrukcj\", \"masaz\", \"podolog u\"]": {
+  "klasa": [
+   "paznokc plytk rekonstrukcj",
+   "masaz",
+   "podolog u"
+  ],
+  "usluga": "Rekonstrukcja płytki paznokcia",
+  "a": "Rekonstrukcja płytki paznokcia",
+  "b": "Rekonstrukcja płytki paznokciowej",
+  "kontekst_a": "salon typu „Masaż”",
+  "kontekst_b": "dział cennika „Podologia u Agnieszki”",
+  "score": 0.94,
+  "rozklad": {
+   "0": 0.5,
+   "1": 0.06,
+   "2": 0.44
+  }
+ },
+ "[\"brod\", \"barber shop\", \"dodatk\"]": {
+  "klasa": [
+   "brod",
+   "barber shop",
+   "dodatk"
+  ],
+  "usluga": "Strzyżenie brody / Beard",
+  "a": "Strzyżenie brody / Beard",
+  "b": "Trymowanie brody",
+  "kontekst_a": "salon typu „Barber shop”",
+  "kontekst_b": "dział cennika „DODATKI”",
+  "score": 0.03,
+  "rozklad": {
+   "0": 0.98,
+   "1": 0.01,
+   "2": 0.01
+  }
+ },
+ "[\"mikrodermabrazj\", \"kosmetyczn\", \"kosmetyk\"]": {
+  "klasa": [
+   "mikrodermabrazj",
+   "kosmetyczn",
+   "kosmetyk"
+  ],
+  "usluga": "Mikrodermabrazja",
+  "a": "Mikrodermabrazja",
+  "b": "Mikrodermabrazja",
+  "kontekst_a": "dział cennika „ZABIEGI KOSMETYCZNE”",
+  "kontekst_b": "dział cennika „KOSMETYKA”",
+  "score": 0.17,
+  "rozklad": {
+   "0": 0.86,
+   "1": 0.11,
+   "2": 0.03
+  }
+ },
+ "[\"botox\", \"fryzjer\", \"fryzjerstw\"]": {
+  "klasa": [
+   "botox",
+   "fryzjer",
+   "fryzjerstw"
+  ],
+  "usluga": "Botox włosów",
+  "a": "Botox włosów",
+  "b": "Regeneracja botox",
+  "kontekst_a": "salon typu „Fryzjer”",
+  "kontekst_b": "dział cennika „Fryzjerstwo”",
+  "score": 0.02,
+  "rozklad": {
+   "0": 0.98,
+   "1": 0.01,
+   "2": 0.01
+  }
+ },
+ "[\"manualn oczyszczan\", \"brwi rzes\", \"kosmetyk\"]": {
+  "klasa": [
+   "manualn oczyszczan",
+   "brwi rzes",
+   "kosmetyk"
+  ],
+  "usluga": "Oczyszczanie twarzy manualne",
+  "a": "Oczyszczanie twarzy manualne",
+  "b": "Oczyszczanie manualne",
+  "kontekst_a": "salon typu „Brwi i rzęsy”",
+  "kontekst_b": "dział cennika „KOSMETYKA”",
+  "score": 0.09,
+  "rozklad": {
+   "0": 0.94,
+   "1": 0.03,
+   "2": 0.03
+  }
+ },
+ "[\"manualn oczyszczan\", \"kosmetyk\", \"pielegnacj\"]": {
+  "klasa": [
+   "manualn oczyszczan",
+   "kosmetyk",
+   "pielegnacj"
+  ],
+  "usluga": "Oczyszczanie manualne",
+  "a": "Oczyszczanie manualne",
+  "b": "Oczyszczanie manualne",
+  "kontekst_a": "dział cennika „KOSMETYKA”",
+  "kontekst_b": "dział cennika „ZABIEGI PIELĘGNACYJNE”",
+  "score": 0.28,
+  "rozklad": {
+   "0": 0.78,
+   "1": 0.16,
+   "2": 0.06
+  }
+ },
+ "[\"manualn oczyszczan\", \"kosmetyk\", \"specjalistyczn\"]": {
+  "klasa": [
+   "manualn oczyszczan",
+   "kosmetyk",
+   "specjalistyczn"
+  ],
+  "usluga": "Oczyszczanie manualne",
+  "a": "Oczyszczanie manualne",
+  "b": "Oczyszczanie manualne",
+  "kontekst_a": "dział cennika „KOSMETYKA”",
+  "kontekst_b": "dział cennika „Zabiegi Specjalistyczne”",
+  "score": 0.31,
+  "rozklad": {
+   "0": 0.73,
+   "1": 0.23,
+   "2": 0.04
+  }
+ },
+ "[\"mikrodermabrazj\", \"estetyczn medycyn\", \"kosmetyk\"]": {
+  "klasa": [
+   "mikrodermabrazj",
+   "estetyczn medycyn",
+   "kosmetyk"
+  ],
+  "usluga": "Mikrodermabrazja - Twarz",
+  "a": "Mikrodermabrazja - Twarz",
+  "b": "Mikrodermabrazja",
+  "kontekst_a": "salon typu „Medycyna Estetyczna”",
+  "kontekst_b": "dział cennika „KOSMETYKA”",
+  "score": 0.01,
+  "rozklad": {
+   "0": 0.99,
+   "1": 0.01,
+   "2": 0.0
+  }
+ },
+ "[\"manualn oczyszczan\", \"kosmetyk\", \"personalizowan\"]": {
+  "klasa": [
+   "manualn oczyszczan",
+   "kosmetyk",
+   "personalizowan"
+  ],
+  "usluga": "Oczyszczanie manualne",
+  "a": "Oczyszczanie manualne",
+  "b": "Oczyszczanie manualne — Twarz",
+  "kontekst_a": "dział cennika „KOSMETYKA”",
+  "kontekst_b": "dział cennika „Personalizowane terapie oczyszczania twarzy”",
+  "score": 0.14,
+  "rozklad": {
+   "0": 0.9,
+   "1": 0.06,
+   "2": 0.04
+  }
+ },
+ "[\"manualn oczyszczan\", \"kosmetyk\", \"paznokc\"]": {
+  "klasa": [
+   "manualn oczyszczan",
+   "kosmetyk",
+   "paznokc"
+  ],
+  "usluga": "Oczyszczanie manualne",
+  "a": "Oczyszczanie manualne",
+  "b": "Oczyszczanie Manualne Twarzy",
+  "kontekst_a": "dział cennika „KOSMETYKA”",
+  "kontekst_b": "salon typu „Paznokcie”",
+  "score": 0.86,
+  "rozklad": {
+   "0": 0.38,
+   "1": 0.38,
+   "2": 0.24
+  }
+ },
+ "[\"mikrodermabrazj\", \"kosmetyk\", \"paznokc\"]": {
+  "klasa": [
+   "mikrodermabrazj",
+   "kosmetyk",
+   "paznokc"
+  ],
+  "usluga": "Mikrodermabrazja",
+  "a": "Mikrodermabrazja",
+  "b": "Mikrodermabrazja twarz — Mikrodermabrazja twarz",
+  "kontekst_a": "dział cennika „KOSMETYKA”",
+  "kontekst_b": "salon typu „Paznokcie”",
+  "score": 0.47,
+  "rozklad": {
+   "0": 0.63,
+   "1": 0.28,
+   "2": 0.09
+  }
+ },
+ "[\"mikrodermabrazj\", \"kosmetyk\", \"oczyszczan personalizowan terap\"]": {
+  "klasa": [
+   "mikrodermabrazj",
+   "kosmetyk",
+   "oczyszczan personalizowan terap"
+  ],
+  "usluga": "Mikrodermabrazja",
+  "a": "Mikrodermabrazja",
+  "b": "Mikrodermabrazja — Twarz",
+  "kontekst_a": "dział cennika „KOSMETYKA”",
+  "kontekst_b": "dział cennika „Personalizowane terapie oczyszczania twarzy”",
+  "score": 0.14,
+  "rozklad": {
+   "0": 0.9,
+   "1": 0.05,
+   "2": 0.05
+  }
+ },
+ "[\"mikrodermabrazj\", \"estetyczn kosmetolog\", \"kosmetyk\"]": {
+  "klasa": [
+   "mikrodermabrazj",
+   "estetyczn kosmetolog",
+   "kosmetyk"
+  ],
+  "usluga": "Mikrodermabrazja",
+  "a": "Mikrodermabrazja",
+  "b": "Mikrodermabrazja",
+  "kontekst_a": "dział cennika „Kosmetologia estetyczna”",
+  "kontekst_b": "dział cennika „KOSMETYKA”",
+  "score": 0.14,
+  "rozklad": {
+   "0": 0.87,
+   "1": 0.12,
+   "2": 0.01
+  }
+ },
+ "[\"mikrodermabrazj\", \"brwi rzes\", \"kosmetyk\"]": {
+  "klasa": [
+   "mikrodermabrazj",
+   "brwi rzes",
+   "kosmetyk"
+  ],
+  "usluga": "Mikrodermabrazja Twarz",
+  "a": "Mikrodermabrazja Twarz",
+  "b": "Mikrodermabrazja",
+  "kontekst_a": "salon typu „Brwi i rzęsy”",
+  "kontekst_b": "dział cennika „KOSMETYKA”",
+  "score": 0.06,
+  "rozklad": {
+   "0": 0.95,
+   "1": 0.03,
+   "2": 0.02
+  }
+ },
+ "[\"chorob oczyszczan paznokc zmienion\", \"podolog\", \"podologiczn\"]": {
+  "klasa": [
+   "chorob oczyszczan paznokc zmienion",
+   "podolog",
+   "podologiczn"
+  ],
+  "usluga": "Oczyszczanie paznokcia zmienionego chorobowo",
+  "a": "Oczyszczanie paznokcia zmienionego chorobowo",
+  "b": "Oczyszczanie paznokcia zmienionego chorobowo",
+  "kontekst_a": "salon typu „Podologia”",
+  "kontekst_b": "dział cennika „Zabiegi podologiczne”",
+  "score": 0.03,
+  "rozklad": {
+   "0": 0.98,
+   "1": 0.01,
+   "2": 0.01
+  }
+ },
+ "[\"kobid masaz\", \"fizjoterap\", \"masaz\"]": {
+  "klasa": [
+   "kobid masaz",
+   "fizjoterap",
+   "masaz"
+  ],
+  "usluga": "Masaż Kobido",
+  "a": "Masaż Kobido",
+  "b": "KOBIDO JAPAN LIFT — Jeden masaż",
+  "kontekst_a": "salon typu „Fizjoterapia”",
+  "kontekst_b": "salon typu „Masaż”",
+  "score": 0.11,
+  "rozklad": {
+   "0": 0.91,
+   "1": 0.06,
+   "2": 0.03
+  }
+ },
+ "[\"chorob oczyszczan paznokc zmienion\", \"pedicur\", \"podolog\"]": {
+  "klasa": [
+   "chorob oczyszczan paznokc zmienion",
+   "pedicur",
+   "podolog"
+  ],
+  "usluga": "Oczyszczanie Paznokcia Zmien. Chorobowo",
+  "a": "Oczyszczanie Paznokcia Zmien. Chorobowo",
+  "b": "Oczyszczanie paznokcia zmienionego chorobowo",
+  "kontekst_a": "dział cennika „Pedicure”",
+  "kontekst_b": "salon typu „Podologia”",
+  "score": 0.19,
+  "rozklad": {
+   "0": 0.9,
+   "1": 0.01,
+   "2": 0.09
+  }
+ },
+ "[\"bankiet\", \"kosmetolog\", \"kosmetyczn salon\"]": {
+  "klasa": [
+   "bankiet",
+   "kosmetolog",
+   "kosmetyczn salon"
+  ],
+  "usluga": "Zabieg bankietowy",
+  "a": "Zabieg bankietowy",
+  "b": "Zabieg bankietowy",
+  "kontekst_a": "dział cennika „Kosmetologia”",
+  "kontekst_b": "salon typu „Salon Kosmetyczny”",
+  "score": 0.22,
+  "rozklad": {
+   "0": 0.78,
+   "1": 0.21,
+   "2": 0.01
+  }
+ },
+ "[\"chorob oczyszczan paznokc zmienion\", \"podolog\", \"podolog podologiczn\"]": {
+  "klasa": [
+   "chorob oczyszczan paznokc zmienion",
+   "podolog",
+   "podolog podologiczn"
+  ],
+  "usluga": "Oczyszczanie paznokcia zmienionego chorobowo",
+  "a": "Oczyszczanie paznokcia zmienionego chorobowo",
+  "b": "Oczyszczenie paznokcia zmienionego chorobowo",
+  "kontekst_a": "salon typu „Podologia”",
+  "kontekst_b": "dział cennika „Zabiegi Podologiczne (Podologia)”",
+  "score": 0.01,
+  "rozklad": {
+   "0": 1.0,
+   "1": 0.0,
+   "2": 0.0
+  }
+ },
+ "[\"kobid masaz\", \"kosmetyk\", \"masaz\"]": {
+  "klasa": [
+   "kobid masaz",
+   "kosmetyk",
+   "masaz"
+  ],
+  "usluga": "Masaż Kobido — Masaż Kobido",
+  "a": "Masaż Kobido — Masaż Kobido",
+  "b": "KOBIDO JAPAN LIFT — Jeden masaż",
+  "kontekst_a": "dział cennika „Kosmetyka”",
+  "kontekst_b": "salon typu „Masaż”",
+  "score": 0.24,
+  "rozklad": {
+   "0": 0.86,
+   "1": 0.04,
+   "2": 0.1
+  }
+ },
+ "[\"kobid masaz\", \"kosmetyczn salon\", \"masaz\"]": {
+  "klasa": [
+   "kobid masaz",
+   "kosmetyczn salon",
+   "masaz"
+  ],
+  "usluga": "Masaż Kobido",
+  "a": "Masaż Kobido",
+  "b": "KOBIDO JAPAN LIFT — Jeden masaż",
+  "kontekst_a": "salon typu „Salon Kosmetyczny”",
+  "kontekst_b": "salon typu „Masaż”",
+  "score": 0.19,
+  "rozklad": {
+   "0": 0.88,
+   "1": 0.05,
+   "2": 0.07
+  }
+ },
+ "[\"kobid masaz\", \"manualn terap\", \"masaz\"]": {
+  "klasa": [
+   "kobid masaz",
+   "manualn terap",
+   "masaz"
+  ],
+  "usluga": "Masaż Kobido",
+  "a": "Masaż Kobido",
+  "b": "KOBIDO JAPAN LIFT — Jeden masaż",
+  "kontekst_a": "dział cennika „Terapia manualna”",
+  "kontekst_b": "salon typu „Masaż”",
+  "score": 0.42,
+  "rozklad": {
+   "0": 0.74,
+   "1": 0.09,
+   "2": 0.17
+  }
+ },
+ "[\"bank chinsk masaz ujedrniajac\", \"masaz\", \"pielegnacj\"]": {
+  "klasa": [
+   "bank chinsk masaz ujedrniajac",
+   "masaz",
+   "pielegnacj"
+  ],
+  "usluga": "Masaż bańką chińską ujędrniający",
+  "a": "Masaż bańką chińską ujędrniający",
+  "b": "Masaż ujędrniający bańką chińską — Masaż ujędrniający bańką chińską",
+  "kontekst_a": "salon typu „Masaż”",
+  "kontekst_b": "dział cennika „Pielęgnacja ciała”",
+  "score": 0.25,
+  "rozklad": {
+   "0": 0.83,
+   "1": 0.1,
+   "2": 0.07
+  }
+ },
+ "[\"kobid masaz\", \"kosmetolog\", \"masaz\"]": {
+  "klasa": [
+   "kobid masaz",
+   "kosmetolog",
+   "masaz"
+  ],
+  "usluga": "Zabieg z masażem KOBIDO — Zabieg z masażem KOBIDO",
+  "a": "Zabieg z masażem KOBIDO — Zabieg z masażem KOBIDO",
+  "b": "KOBIDO JAPAN LIFT — Jeden masaż",
+  "kontekst_a": "dział cennika „KOSMETOLOGIA”",
+  "kontekst_b": "salon typu „Masaż”",
+  "score": 0.28,
+  "rozklad": {
+   "0": 0.83,
+   "1": 0.07,
+   "2": 0.1
+  }
+ },
+ "[\"kobid lifting masaz\", \"kosmetyczn salon\", \"masaz\"]": {
+  "klasa": [
+   "kobid lifting masaz",
+   "kosmetyczn salon",
+   "masaz"
+  ],
+  "usluga": "KOBIDO japoński masaż liftingujący",
+  "a": "KOBIDO japoński masaż liftingujący",
+  "b": "KOBIDO JAPAN LIFT — Jeden masaż",
+  "kontekst_a": "salon typu „Salon Kosmetyczny”",
+  "kontekst_b": "salon typu „Masaż”",
+  "score": 0.13,
+  "rozklad": {
+   "0": 0.91,
+   "1": 0.05,
+   "2": 0.04
+  }
+ },
+ "[\"kobid lifting masaz\", \"kosmetolog\", \"masaz\"]": {
+  "klasa": [
+   "kobid lifting masaz",
+   "kosmetolog",
+   "masaz"
+  ],
+  "usluga": "Masaż liftingujący Kobido — Masaż liftingujący Kobido",
+  "a": "Masaż liftingujący Kobido — Masaż liftingujący Kobido",
+  "b": "KOBIDO JAPAN LIFT — Jeden masaż",
+  "kontekst_a": "dział cennika „Kosmetologia”",
+  "kontekst_b": "salon typu „Masaż”",
+  "score": 0.26,
+  "rozklad": {
+   "0": 0.83,
+   "1": 0.08,
+   "2": 0.09
+  }
+ },
+ "[\"gorac kamien masaz\", \"fizjoterap\", \"masaz\"]": {
+  "klasa": [
+   "gorac kamien masaz",
+   "fizjoterap",
+   "masaz"
+  ],
+  "usluga": "Masaż gorącymi kamieniami — Masaż gorącymi kamieniami",
+  "a": "Masaż gorącymi kamieniami — Masaż gorącymi kamieniami",
+  "b": "Masaż gorącymi kamieniami",
+  "kontekst_a": "dział cennika „FIZJOTERAPIA”",
+  "kontekst_b": "salon typu „Masaż”",
+  "score": 0.13,
+  "rozklad": {
+   "0": 0.9,
+   "1": 0.08,
+   "2": 0.02
+  }
+ },
+ "[\"gorac kamien masaz\", \"masaz\", \"specjaln\"]": {
+  "klasa": [
+   "gorac kamien masaz",
+   "masaz",
+   "specjaln"
+  ],
+  "usluga": "Masaż gorącymi kamieniami",
+  "a": "Masaż gorącymi kamieniami",
+  "b": "GORĄCE KAMIENIE WULKANICZNE",
+  "kontekst_a": "salon typu „Masaż”",
+  "kontekst_b": "dział cennika „SPECJALNE”",
+  "score": 0.03,
+  "rozklad": {
+   "0": 0.98,
+   "1": 0.02,
+   "2": 0.0
+  }
+ },
+ "[\"gorac kamien masaz\", \"fryzjer\", \"masaz\"]": {
+  "klasa": [
+   "gorac kamien masaz",
+   "fryzjer",
+   "masaz"
+  ],
+  "usluga": "Masaż Gorącymi Kamieniami 1h",
+  "a": "Masaż Gorącymi Kamieniami 1h",
+  "b": "Masaż gorącymi kamieniami",
+  "kontekst_a": "salon typu „Fryzjer”",
+  "kontekst_b": "salon typu „Masaż”",
+  "score": 0.09,
+  "rozklad": {
+   "0": 0.93,
+   "1": 0.05,
+   "2": 0.02
+  }
+ },
+ "[\"gorac kamien masaz\", \"masaz\", \"pielegnacj\"]": {
+  "klasa": [
+   "gorac kamien masaz",
+   "masaz",
+   "pielegnacj"
+  ],
+  "usluga": "Masaż gorącymi kamieniami",
+  "a": "Masaż gorącymi kamieniami",
+  "b": "Masaż ciała — 1 MASAŻ GORĄCYMI KAMIENIAMI CIAŁA",
+  "kontekst_a": "salon typu „Masaż”",
+  "kontekst_b": "dział cennika „Pielęgnacja ciała”",
+  "score": 0.26,
+  "rozklad": {
+   "0": 0.84,
+   "1": 0.06,
+   "2": 0.1
+  }
+ },
+ "[\"farbowan jeden kolor sredn\", \"fryzjerstw\", \"koloryzacj\"]": {
+  "klasa": [
+   "farbowan jeden kolor sredn",
+   "fryzjerstw",
+   "koloryzacj"
+  ],
+  "usluga": "Farbowanie całość jeden kolor - średnie",
+  "a": "Farbowanie całość jeden kolor - średnie",
+  "b": "Farbowanie w jeden kolor średnie",
+  "kontekst_a": "dział cennika „Fryzjerstwo”",
+  "kontekst_b": "dział cennika „Koloryzacja”",
+  "score": 0.07,
+  "rozklad": {
+   "0": 0.95,
+   "1": 0.03,
+   "2": 0.02
+  }
+ },
+ "[\"jeden kolor sredn\", \"fryzjer\", \"fryzjerstw\"]": {
+  "klasa": [
+   "jeden kolor sredn",
+   "fryzjer",
+   "fryzjerstw"
+  ],
+  "usluga": "Koloryzacja jeden kolor -wł.średnie",
+  "a": "Koloryzacja jeden kolor -wł.średnie",
+  "b": "Farbowanie całość jeden kolor - średnie",
+  "kontekst_a": "salon typu „Fryzjer”",
+  "kontekst_b": "dział cennika „Fryzjerstwo”",
+  "score": 0.02,
+  "rozklad": {
+   "0": 0.99,
+   "1": 0.01,
+   "2": 0.0
+  }
+ },
+ "[\"infuzj tlen\", \"estetyczn medycyn\", \"kosmetyczn salon\"]": {
+  "klasa": [
+   "infuzj tlen",
+   "estetyczn medycyn",
+   "kosmetyczn salon"
+  ],
+  "usluga": "INFUZJA TLENOWA — Twarz",
+  "a": "INFUZJA TLENOWA — Twarz",
+  "b": "Infuzja tlenowa",
+  "kontekst_a": "salon typu „Medycyna Estetyczna”",
+  "kontekst_b": "salon typu „Salon Kosmetyczny”",
+  "score": 0.01,
+  "rozklad": {
+   "0": 1.0,
+   "1": 0.0,
+   "2": 0.0
+  }
+ },
+ "[\"farbowan jeden kolor sredn\", \"fryzjer\", \"fryzjerstw\"]": {
+  "klasa": [
+   "farbowan jeden kolor sredn",
+   "fryzjer",
+   "fryzjerstw"
+  ],
+  "usluga": "Farbowanie w jeden kolor,włosy średnie",
+  "a": "Farbowanie w jeden kolor,włosy średnie",
+  "b": "Farbowanie całość jeden kolor - średnie",
+  "kontekst_a": "salon typu „Fryzjer”",
+  "kontekst_b": "dział cennika „Fryzjerstwo”",
+  "score": 0.01,
+  "rozklad": {
+   "0": 0.99,
+   "1": 0.01,
+   "2": 0.0
+  }
+ },
+ "[\"cale farbowan jeden kolor sredn\", \"fryzjer\", \"fryzjerstw\"]": {
+  "klasa": [
+   "cale farbowan jeden kolor sredn",
+   "fryzjer",
+   "fryzjerstw"
+  ],
+  "usluga": "Farbowanie włosów średnie cała dług(jeden kolor)",
+  "a": "Farbowanie włosów średnie cała dług(jeden kolor)",
+  "b": "Farbowanie całość jeden kolor - średnie",
+  "kontekst_a": "salon typu „Fryzjer”",
+  "kontekst_b": "dział cennika „Fryzjerstwo”",
+  "score": 0.01,
+  "rozklad": {
+   "0": 1.0,
+   "1": 0.0,
+   "2": 0.0
+  }
+ },
+ "[\"depilacj\", \"kosmetyczn salon\", \"paznokc\"]": {
+  "klasa": [
+   "depilacj",
+   "kosmetyczn salon",
+   "paznokc"
+  ],
+  "usluga": "Depilacja nóg",
+  "a": "Depilacja nóg",
+  "b": "Depilacja całe nogi",
+  "kontekst_a": "salon typu „Salon Kosmetyczny”",
+  "kontekst_b": "salon typu „Paznokcie”",
+  "score": 0.09,
+  "rozklad": {
+   "0": 0.94,
+   "1": 0.02,
+   "2": 0.04
+  }
+ },
+ "[\"depilacj\", \"fryzjer\", \"kosmetyczn salon\"]": {
+  "klasa": [
+   "depilacj",
+   "fryzjer",
+   "kosmetyczn salon"
+  ],
+  "usluga": "Depilacja całe nogi",
+  "a": "Depilacja całe nogi",
+  "b": "Depilacja nóg",
+  "kontekst_a": "salon typu „Fryzjer”",
+  "kontekst_b": "salon typu „Salon Kosmetyczny”",
+  "score": 0.01,
+  "rozklad": {
+   "0": 0.99,
+   "1": 0.01,
+   "2": 0.0
+  }
+ },
+ "[\"liposukcj\", \"estetyczn kosmetolog\", \"kosmetyk\"]": {
+  "klasa": [
+   "liposukcj",
+   "estetyczn kosmetolog",
+   "kosmetyk"
+  ],
+  "usluga": "Liposukcja ultradźwiękowa — pojedynczy zabieg",
+  "a": "Liposukcja ultradźwiękowa — pojedynczy zabieg",
+  "b": "Liposukcja kawitacyjna",
+  "kontekst_a": "dział cennika „Kosmetologia Estetyczna”",
+  "kontekst_b": "dział cennika „Kosmetyka profesjonalna”",
+  "score": 0.14,
+  "rozklad": {
+   "0": 0.9,
+   "1": 0.07,
+   "2": 0.03
+  }
+ },
+ "[\"body wrapping\", \"estetyczn medycyn\", \"kosmetyczn salon\"]": {
+  "klasa": [
+   "body wrapping",
+   "estetyczn medycyn",
+   "kosmetyczn salon"
+  ],
+  "usluga": "Body wrapping",
+  "a": "Body wrapping",
+  "b": "Body Wrapping",
+  "kontekst_a": "salon typu „Medycyna Estetyczna”",
+  "kontekst_b": "salon typu „Salon Kosmetyczny”",
+  "score": 0.07,
+  "rozklad": {
+   "0": 0.95,
+   "1": 0.04,
+   "2": 0.01
+  }
+ },
+ "[\"brod comb trymowan\", \"barber\", \"inni\"]": {
+  "klasa": [
+   "brod comb trymowan",
+   "barber",
+   "inni"
+  ],
+  "usluga": "Combo (głowa Strzyżenie + broda Trymowanie)",
+  "a": "Combo (głowa Strzyżenie + broda Trymowanie)",
+  "b": "Combo( str+ trymowania brody)",
+  "kontekst_a": "dział cennika „Benjamin senior barber”",
+  "kontekst_b": "salon typu „Inni”",
+  "score": 0.02,
+  "rozklad": {
+   "0": 0.98,
+   "1": 0.01,
+   "2": 0.01
+  }
+ },
+ "[\"krotk paznokc przedluzen\", \"paznokc\", \"stylizacj\"]": {
+  "klasa": [
+   "krotk paznokc przedluzen",
+   "paznokc",
+   "stylizacj"
+  ],
+  "usluga": "Przedłużenie paznokci / krótkie",
+  "a": "Przedłużenie paznokci / krótkie",
+  "b": "Przedłużenie wszystkich paznokci - krótkie",
+  "kontekst_a": "salon typu „Paznokcie”",
+  "kontekst_b": "dział cennika „Stylizacja paznokci”",
+  "score": 0.01,
+  "rozklad": {
+   "0": 0.99,
+   "1": 0.0,
+   "2": 0.01
+  }
+ },
+ "[\"henn komplet\", \"kosmetyczn salon\", \"kosmetyk\"]": {
+  "klasa": [
+   "henn komplet",
+   "kosmetyczn salon",
+   "kosmetyk"
+  ],
+  "usluga": "henna komplet",
+  "a": "henna komplet",
+  "b": "Henna komplet — henna komplet",
+  "kontekst_a": "salon typu „Salon Kosmetyczny”",
+  "kontekst_b": "dział cennika „Kosmetyka”",
+  "score": 0.6,
+  "rozklad": {
+   "0": 0.41,
+   "1": 0.58,
+   "2": 0.01
+  }
+ },
+ "[\"bankiet banquet gene glow lifting rytual total zaffir\", \"estetyczn medycyn\", \"kosmetyczn salon\"]": {
+  "klasa": [
+   "bankiet banquet gene glow lifting rytual total zaffir",
+   "estetyczn medycyn",
+   "kosmetyczn salon"
+  ],
+  "usluga": "🥂Rytuał Banquet: Geneo™&Zaffiro (Total Glow&Lift)",
+  "a": "🥂Rytuał Banquet: Geneo™&Zaffiro (Total Glow&Lift)",
+  "b": "🥂Rytuał Banquet: Geneo™&Zaffiro (Total Glow&Lift)",
+  "kontekst_a": "salon typu „Medycyna Estetyczna”",
+  "kontekst_b": "salon typu „Salon Kosmetyczny”",
+  "score": 0.08,
+  "rozklad": {
+   "0": 0.93,
+   "1": 0.07,
+   "2": 0.0
+  }
+ },
+ "[\"henn komplet\", \"kosmetyczn salon\", \"kosmetyk mala\"]": {
+  "klasa": [
+   "henn komplet",
+   "kosmetyczn salon",
+   "kosmetyk mala"
+  ],
+  "usluga": "henna komplet",
+  "a": "henna komplet",
+  "b": "Henna komplet — Henna komplet",
+  "kontekst_a": "salon typu „Salon Kosmetyczny”",
+  "kontekst_b": "dział cennika „Mała Kosmetyka”",
+  "score": 0.71,
+  "rozklad": {
+   "0": 0.38,
+   "1": 0.54,
+   "2": 0.08
+  }
+ },
+ "[\"masaz sport\", \"kosmetyczn salon\", \"masaz\"]": {
+  "klasa": [
+   "masaz sport",
+   "kosmetyczn salon",
+   "masaz"
+  ],
+  "usluga": "Masaż sportowy (Agnieszka)",
+  "a": "Masaż sportowy (Agnieszka)",
+  "b": "Masaż sportowy",
+  "kontekst_a": "salon typu „Salon Kosmetyczny”",
+  "kontekst_b": "salon typu „Masaż”",
+  "score": 0.12,
+  "rozklad": {
+   "0": 0.9,
+   "1": 0.08,
+   "2": 0.02
+  }
+ },
+ "[\"infuzj tlen\", \"estetyczn medycyn\", \"kosmetyk\"]": {
+  "klasa": [
+   "infuzj tlen",
+   "estetyczn medycyn",
+   "kosmetyk"
+  ],
+  "usluga": "INFUZJA TLENOWA — Twarz",
+  "a": "INFUZJA TLENOWA — Twarz",
+  "b": "infuzja tlenowa — infuzja tlenowa",
+  "kontekst_a": "salon typu „Medycyna Estetyczna”",
+  "kontekst_b": "dział cennika „Kosmetyka”",
+  "score": 0.01,
+  "rozklad": {
+   "0": 0.99,
+   "1": 0.01,
+   "2": 0.0
+  }
+ },
+ "[\"infuzj tlen\", \"estetyczn medycyn\", \"pielegnacj\"]": {
+  "klasa": [
+   "infuzj tlen",
+   "estetyczn medycyn",
+   "pielegnacj"
+  ],
+  "usluga": "INFUZJA TLENOWA — Twarz",
+  "a": "INFUZJA TLENOWA — Twarz",
+  "b": "Infuzja tlenowa",
+  "kontekst_a": "salon typu „Medycyna Estetyczna”",
+  "kontekst_b": "dział cennika „ZABIEGI PIELĘGNACYJNE”",
+  "score": 0.02,
+  "rozklad": {
+   "0": 0.99,
+   "1": 0.01,
+   "2": 0.0
+  }
+ },
+ "[\"henn komplet\", \"kosmetyczn salon\", \"paznokc\"]": {
+  "klasa": [
+   "henn komplet",
+   "kosmetyczn salon",
+   "paznokc"
+  ],
+  "usluga": "henna komplet",
+  "a": "henna komplet",
+  "b": "Henna komplet",
+  "kontekst_a": "salon typu „Salon Kosmetyczny”",
+  "kontekst_b": "salon typu „Paznokcie”",
+  "score": 0.94,
+  "rozklad": {
+   "0": 0.17,
+   "1": 0.73,
+   "2": 0.1
+  }
+ },
+ "[\"jeden kolor sredn\", \"fryzjerstw\", \"koloryzacj\"]": {
+  "klasa": [
+   "jeden kolor sredn",
+   "fryzjerstw",
+   "koloryzacj"
+  ],
+  "usluga": "Farbowanie całość jeden kolor - średnie",
+  "a": "Farbowanie całość jeden kolor - średnie",
+  "b": "Farba jeden kolor ( włosy średnie )",
+  "kontekst_a": "dział cennika „Fryzjerstwo”",
+  "kontekst_b": "dział cennika „KOLORYZACJE”",
+  "score": 0.07,
+  "rozklad": {
+   "0": 0.95,
+   "1": 0.03,
+   "2": 0.02
+  }
+ },
+ "[\"infuzj tlen\", \"estetyczn medycyn\", \"hydradimond oczyszczan\"]": {
+  "klasa": [
+   "infuzj tlen",
+   "estetyczn medycyn",
+   "hydradimond oczyszczan"
+  ],
+  "usluga": "INFUZJA TLENOWA — Twarz",
+  "a": "INFUZJA TLENOWA — Twarz",
+  "b": "Infuzja tlenowa",
+  "kontekst_a": "salon typu „Medycyna Estetyczna”",
+  "kontekst_b": "dział cennika „HydraDimond - Zabieg oczyszczający”",
+  "score": 0.07,
+  "rozklad": {
+   "0": 0.94,
+   "1": 0.05,
+   "2": 0.01
+  }
+ },
+ "[\"form przedluzan zelow\", \"manicur\", \"paznokc\"]": {
+  "klasa": [
+   "form przedluzan zelow",
+   "manicur",
+   "paznokc"
+  ],
+  "usluga": "Przedłużanie paznokci na formie żelem",
+  "a": "Przedłużanie paznokci na formie żelem",
+  "b": "Przedłużanie na formie żelem",
+  "kontekst_a": "dział cennika „Manicure”",
+  "kontekst_b": "salon typu „Paznokcie”",
+  "score": 0.09,
+  "rozklad": {
+   "0": 0.95,
+   "1": 0.01,
+   "2": 0.04
+  }
+ },
+ "[\"infuzj tlen\", \"estetyczn medycyn\", \"fryzjer\"]": {
+  "klasa": [
+   "infuzj tlen",
+   "estetyczn medycyn",
+   "fryzjer"
+  ],
+  "usluga": "INFUZJA TLENOWA — Twarz",
+  "a": "INFUZJA TLENOWA — Twarz",
+  "b": "Zabieg infuzji tlenowej",
+  "kontekst_a": "salon typu „Medycyna Estetyczna”",
+  "kontekst_b": "salon typu „Fryzjer”",
+  "score": 0.02,
+  "rozklad": {
+   "0": 0.98,
+   "1": 0.01,
+   "2": 0.01
+  }
+ },
+ "[\"farbowan kolor sredn\", \"fryzjer\", \"fryzjerstw\"]": {
+  "klasa": [
+   "farbowan kolor sredn",
+   "fryzjer",
+   "fryzjerstw"
+  ],
+  "usluga": "Farbowanie 1 kolor (włosy średnie)",
+  "a": "Farbowanie 1 kolor (włosy średnie)",
+  "b": "Farbowanie całość jeden kolor - średnie",
+  "kontekst_a": "salon typu „Fryzjer”",
+  "kontekst_b": "dział cennika „Fryzjerstwo”",
+  "score": 0.01,
+  "rozklad": {
+   "0": 0.99,
+   "1": 0.01,
+   "2": 0.0
+  }
+ },
+ "[\"infuzj tlen\", \"kosmetyczn salon\", \"masaz\"]": {
+  "klasa": [
+   "infuzj tlen",
+   "kosmetyczn salon",
+   "masaz"
+  ],
+  "usluga": "Infuzja tlenowa",
+  "a": "Infuzja tlenowa",
+  "b": "Infuzja tlenowa",
+  "kontekst_a": "salon typu „Salon Kosmetyczny”",
+  "kontekst_b": "salon typu „Masaż”",
+  "score": 0.4,
+  "rozklad": {
+   "0": 0.67,
+   "1": 0.26,
+   "2": 0.07
+  }
+ },
+ "[\"hybryd stop\", \"kosmetyczn salon\", \"paznokc\"]": {
+  "klasa": [
+   "hybryd stop",
+   "kosmetyczn salon",
+   "paznokc"
+  ],
+  "usluga": "Hybryda na stopy",
+  "a": "Hybryda na stopy",
+  "b": "Hybryda na stopy",
+  "kontekst_a": "salon typu „Salon Kosmetyczny”",
+  "kontekst_b": "dział cennika „Paznokcie”",
+  "score": 0.74,
+  "rozklad": {
+   "0": 0.61,
+   "1": 0.05,
+   "2": 0.34
+  }
+ },
+ "[\"ciaz masaz\", \"fizjoterap\", \"masaz\"]": {
+  "klasa": [
+   "ciaz masaz",
+   "fizjoterap",
+   "masaz"
+  ],
+  "usluga": "Masaż dla kobiet w ciąży",
+  "a": "Masaż dla kobiet w ciąży",
+  "b": "masaż ciążowy — masaż ciążowy",
+  "kontekst_a": "salon typu „Fizjoterapia”",
+  "kontekst_b": "salon typu „Masaż”",
+  "score": 0.06,
+  "rozklad": {
+   "0": 0.95,
+   "1": 0.03,
+   "2": 0.02
+  }
+ },
+ "[\"hybryd\", \"kosmetyczn salon\", \"paznokc\"]": {
+  "klasa": [
+   "hybryd",
+   "kosmetyczn salon",
+   "paznokc"
+  ],
+  "usluga": "Hybryda na stopy",
+  "a": "Hybryda na stopy",
+  "b": "Pedicure z hybrydą",
+  "kontekst_a": "salon typu „Salon Kosmetyczny”",
+  "kontekst_b": "salon typu „Paznokcie”",
+  "score": 0.53,
+  "rozklad": {
+   "0": 0.71,
+   "1": 0.04,
+   "2": 0.25
+  }
+ },
+ "[\"hybryd stop\", \"kosmetyczn salon\", \"pedicur\"]": {
+  "klasa": [
+   "hybryd stop",
+   "kosmetyczn salon",
+   "pedicur"
+  ],
+  "usluga": "Hybryda na stopy",
+  "a": "Hybryda na stopy",
+  "b": "Hybryda na stopy",
+  "kontekst_a": "salon typu „Salon Kosmetyczny”",
+  "kontekst_b": "dział cennika „Pedicure”",
+  "score": 0.53,
+  "rozklad": {
+   "0": 0.69,
+   "1": 0.08,
+   "2": 0.23
+  }
+ },
+ "[\"dlugosc jedn maszynk strzyzen\", \"barber shop\", \"fryzjer\"]": {
+  "klasa": [
+   "dlugosc jedn maszynk strzyzen",
+   "barber shop",
+   "fryzjer"
+  ],
+  "usluga": "Strzyżenie jedna długość maszynką",
+  "a": "Strzyżenie jedna długość maszynką",
+  "b": "Strzyżenie maszynką na jedną długość",
+  "kontekst_a": "salon typu „Barber shop”",
+  "kontekst_b": "salon typu „Fryzjer”",
+  "score": 0.21,
+  "rozklad": {
+   "0": 0.84,
+   "1": 0.12,
+   "2": 0.04
+  }
+ },
+ "[\"kawitacyjn peeling\", \"kosmetyczn salon\", \"pielegnacj\"]": {
+  "klasa": [
+   "kawitacyjn peeling",
+   "kosmetyczn salon",
+   "pielegnacj"
+  ],
+  "usluga": "Peeling kawitacyjny",
+  "a": "Peeling kawitacyjny",
+  "b": "Peeling kawitacyjny",
+  "kontekst_a": "salon typu „Salon Kosmetyczny”",
+  "kontekst_b": "dział cennika „Pielęgnacja twarzy”",
+  "score": 0.54,
+  "rozklad": {
+   "0": 0.5,
+   "1": 0.47,
+   "2": 0.03
+  }
+ },
+ "[\"dlugosc jedn maszynk strzyzen\", \"barber\", \"barber shop\"]": {
+  "klasa": [
+   "dlugosc jedn maszynk strzyzen",
+   "barber",
+   "barber shop"
+  ],
+  "usluga": "Strzyżenie maszynką na jedną długość",
+  "a": "Strzyżenie maszynką na jedną długość",
+  "b": "Strzyżenie jedna długość maszynką",
+  "kontekst_a": "dział cennika „Barber Kris”",
+  "kontekst_b": "salon typu „Barber shop”",
+  "score": 0.07,
+  "rozklad": {
+   "0": 0.94,
+   "1": 0.05,
+   "2": 0.01
+  }
+ },
+ "[\"infuzj tlen\", \"masaz\", \"pielegnacj\"]": {
+  "klasa": [
+   "infuzj tlen",
+   "masaz",
+   "pielegnacj"
+  ],
+  "usluga": "Infuzja tlenowa",
+  "a": "Infuzja tlenowa",
+  "b": "Infuzja tlenowa — twarz",
+  "kontekst_a": "salon typu „Masaż”",
+  "kontekst_b": "dział cennika „Zabiegi pielęgnacyjne na twarz”",
+  "score": 1.09,
+  "rozklad": {
+   "0": 0.23,
+   "1": 0.44,
+   "2": 0.33
+  }
+ },
+ "[\"cial drenaz limfatyczn\", \"kosmetyczn salon\", \"masaz\"]": {
+  "klasa": [
+   "cial drenaz limfatyczn",
+   "kosmetyczn salon",
+   "masaz"
+  ],
+  "usluga": "Drenaż limfatyczny masaz ciala — Standard",
+  "a": "Drenaż limfatyczny masaz ciala — Standard",
+  "b": "DRENAŻ LIMFATYCZNY — 60min",
+  "kontekst_a": "salon typu „Salon Kosmetyczny”",
+  "kontekst_b": "salon typu „Masaż”",
+  "score": 0.03,
+  "rozklad": {
+   "0": 0.97,
+   "1": 0.02,
+   "2": 0.01
+  }
+ },
+ "[\"geometr henn pudr regulacj\", \"kosmetyczn salon\", \"stylizacj\"]": {
+  "klasa": [
+   "geometr henn pudr regulacj",
+   "kosmetyczn salon",
+   "stylizacj"
+  ],
+  "usluga": "Henna pudrowa + geometria + regulacja",
+  "a": "Henna pudrowa + geometria + regulacja",
+  "b": "Henna pudrowa + geometria + regulacja — Henna pudrowa + geometria + regulacja",
+  "kontekst_a": "salon typu „Salon Kosmetyczny”",
+  "kontekst_b": "dział cennika „Stylizacja brwi”",
+  "score": 0.02,
+  "rozklad": {
+   "0": 0.98,
+   "1": 0.01,
+   "2": 0.01
+  }
+ },
+ "[\"kawitacyjn peeling\", \"kosmetyczn\", \"pielegnacj\"]": {
+  "klasa": [
+   "kawitacyjn peeling",
+   "kosmetyczn",
+   "pielegnacj"
+  ],
+  "usluga": "Peeling kawitacyjny",
+  "a": "Peeling kawitacyjny",
+  "b": "Peeling kawitacyjny",
+  "kontekst_a": "dział cennika „Zabiegi kosmetyczne”",
+  "kontekst_b": "dział cennika „Pielęgnacja twarzy”",
+  "score": 0.59,
+  "rozklad": {
+   "0": 0.6,
+   "1": 0.21,
+   "2": 0.19
+  }
+ },
+ "[\"infuzj tlen\", \"kosmetyczn\", \"masaz\"]": {
+  "klasa": [
+   "infuzj tlen",
+   "kosmetyczn",
+   "masaz"
+  ],
+  "usluga": "Infuzja tlenowa Twarz — Infuzja Tlenowa twarz",
+  "a": "Infuzja tlenowa Twarz — Infuzja Tlenowa twarz",
+  "b": "Infuzja tlenowa",
+  "kontekst_a": "dział cennika „Zabiegi kosmetyczne”",
+  "kontekst_b": "salon typu „Masaż”",
+  "score": 0.04,
+  "rozklad": {
+   "0": 0.98,
+   "1": 0.01,
+   "2": 0.01
+  }
+ },
+ "[\"hybryd stop\", \"brwi rzes\", \"kosmetyczn salon\"]": {
+  "klasa": [
+   "hybryd stop",
+   "brwi rzes",
+   "kosmetyczn salon"
+  ],
+  "usluga": "Hybryda na stopach",
+  "a": "Hybryda na stopach",
+  "b": "Hybryda na stopy",
+  "kontekst_a": "salon typu „Brwi i rzęsy”",
+  "kontekst_b": "salon typu „Salon Kosmetyczny”",
+  "score": 0.22,
+  "rozklad": {
+   "0": 0.87,
+   "1": 0.05,
+   "2": 0.08
+  }
+ },
+ "[\"infuzj tlen\", \"kosmetolog\", \"masaz\"]": {
+  "klasa": [
+   "infuzj tlen",
+   "kosmetolog",
+   "masaz"
+  ],
+  "usluga": "Infuzja tlenowa",
+  "a": "Infuzja tlenowa",
+  "b": "Infuzja tlenowa",
+  "kontekst_a": "dział cennika „Kosmetologia”",
+  "kontekst_b": "salon typu „Masaż”",
+  "score": 0.29,
+  "rozklad": {
+   "0": 0.75,
+   "1": 0.21,
+   "2": 0.04
+  }
+ },
+ "[\"kawitacyjn peeling\", \"kosmetolog\", \"pielegnacj\"]": {
+  "klasa": [
+   "kawitacyjn peeling",
+   "kosmetolog",
+   "pielegnacj"
+  ],
+  "usluga": "Peeling kawitacyjny",
+  "a": "Peeling kawitacyjny",
+  "b": "Peeling kawitacyjny",
+  "kontekst_a": "dział cennika „Kosmetologia”",
+  "kontekst_b": "dział cennika „Pielęgnacja twarzy”",
+  "score": 0.32,
+  "rozklad": {
+   "0": 0.77,
+   "1": 0.14,
+   "2": 0.09
+  }
+ },
+ "[\"iglow mezoterap\", \"estetyczn medycyn\", \"kosmetyczn salon\"]": {
+  "klasa": [
+   "iglow mezoterap",
+   "estetyczn medycyn",
+   "kosmetyczn salon"
+  ],
+  "usluga": "Mezoterapia igłowa",
+  "a": "Mezoterapia igłowa",
+  "b": "Mezoterapia igłowa",
+  "kontekst_a": "salon typu „Medycyna Estetyczna”",
+  "kontekst_b": "salon typu „Salon Kosmetyczny”",
+  "score": 0.18,
+  "rozklad": {
+   "0": 0.82,
+   "1": 0.17,
+   "2": 0.01
+  }
+ },
+ "[\"hybryd\", \"fryzjer\", \"kosmetyczn salon\"]": {
+  "klasa": [
+   "hybryd",
+   "fryzjer",
+   "kosmetyczn salon"
+  ],
+  "usluga": "Pedicure hybrydowy",
+  "a": "Pedicure hybrydowy",
+  "b": "Hybryda na stopy",
+  "kontekst_a": "salon typu „Fryzjer”",
+  "kontekst_b": "salon typu „Salon Kosmetyczny”",
+  "score": 0.09,
+  "rozklad": {
+   "0": 0.95,
+   "1": 0.01,
+   "2": 0.04
+  }
+ },
+ "[\"cial drenaz limfatyczn\", \"fryzjer\", \"masaz\"]": {
+  "klasa": [
+   "cial drenaz limfatyczn",
+   "fryzjer",
+   "masaz"
+  ],
+  "usluga": "Drenaż limfatyczny",
+  "a": "Drenaż limfatyczny",
+  "b": "DRENAŻ LIMFATYCZNY — 60min",
+  "kontekst_a": "salon typu „Fryzjer”",
+  "kontekst_b": "salon typu „Masaż”",
+  "score": 0.55,
+  "rozklad": {
+   "0": 0.62,
+   "1": 0.22,
+   "2": 0.16
+  }
+ },
+ "[\"drenaz limfatyczn\", \"fizjoterap\", \"masaz\"]": {
+  "klasa": [
+   "drenaz limfatyczn",
+   "fizjoterap",
+   "masaz"
+  ],
+  "usluga": "Drenaż limfatyczny",
+  "a": "Drenaż limfatyczny",
+  "b": "DRENAŻ LIMFATYCZNY — 60min",
+  "kontekst_a": "salon typu „Fizjoterapia”",
+  "kontekst_b": "salon typu „Masaż”",
+  "score": 0.22,
+  "rozklad": {
+   "0": 0.79,
+   "1": 0.2,
+   "2": 0.01
+  }
+ },
+ "[\"geometr henn pudr regulacj\", \"brwi rzes\", \"stylizacj\"]": {
+  "klasa": [
+   "geometr henn pudr regulacj",
+   "brwi rzes",
+   "stylizacj"
+  ],
+  "usluga": "Henna pudrowa z geometrią + regulacja",
+  "a": "Henna pudrowa z geometrią + regulacja",
+  "b": "Henna pudrowa + geometria + regulacja — Henna pudrowa + geometria + regulacja",
+  "kontekst_a": "salon typu „Brwi i rzęsy”",
+  "kontekst_b": "dział cennika „Stylizacja brwi”",
+  "score": 0.02,
+  "rozklad": {
+   "0": 0.99,
+   "1": 0.0,
+   "2": 0.01
+  }
+ },
+ "[\"cial drenaz limfatyczn\", \"masaz\", \"pielegnacj\"]": {
+  "klasa": [
+   "cial drenaz limfatyczn",
+   "masaz",
+   "pielegnacj"
+  ],
+  "usluga": "DRENAŻ LIMFATYCZNY — 60min",
+  "a": "DRENAŻ LIMFATYCZNY — 60min",
+  "b": "Drenaż limfatyczny — 1 zabieg",
+  "kontekst_a": "salon typu „Masaż”",
+  "kontekst_b": "dział cennika „Pielęgnacja ciała”",
+  "score": 0.23,
+  "rozklad": {
+   "0": 0.85,
+   "1": 0.06,
+   "2": 0.09
+  }
+ },
+ "[\"drenaz limfatyczn\", \"fala medical storz uderzeni\", \"masaz\"]": {
+  "klasa": [
+   "drenaz limfatyczn",
+   "fala medical storz uderzeni",
+   "masaz"
+  ],
+  "usluga": "Drenaż limfatyczny",
+  "a": "Drenaż limfatyczny",
+  "b": "DRENAŻ LIMFATYCZNY — 60min",
+  "kontekst_a": "dział cennika „STORZ MEDICAL® - FALA UDERZENIOWA”",
+  "kontekst_b": "salon typu „Masaż”",
+  "score": 0.21,
+  "rozklad": {
+   "0": 0.83,
+   "1": 0.14,
+   "2": 0.03
+  }
+ },
+ "[\"cial drenaz limfatyczn\", \"estetyczn medycyn\", \"masaz\"]": {
+  "klasa": [
+   "cial drenaz limfatyczn",
+   "estetyczn medycyn",
+   "masaz"
+  ],
+  "usluga": "Masaż limfatyczny (drenaż limfatyczny)",
+  "a": "Masaż limfatyczny (drenaż limfatyczny)",
+  "b": "DRENAŻ LIMFATYCZNY — 60min",
+  "kontekst_a": "salon typu „Medycyna Estetyczna”",
+  "kontekst_b": "salon typu „Masaż”",
+  "score": 0.25,
+  "rozklad": {
+   "0": 0.77,
+   "1": 0.21,
+   "2": 0.02
+  }
+ },
+ "[\"kawitacyjn peeling\", \"kosmetyk\", \"pielegnacj\"]": {
+  "klasa": [
+   "kawitacyjn peeling",
+   "kosmetyk",
+   "pielegnacj"
+  ],
+  "usluga": "Peeling kawitacyjny — Peeling kawitacyjny",
+  "a": "Peeling kawitacyjny — Peeling kawitacyjny",
+  "b": "Peeling kawitacyjny",
+  "kontekst_a": "dział cennika „Kosmetyka”",
+  "kontekst_b": "dział cennika „Pielęgnacja twarzy”",
+  "score": 0.65,
+  "rozklad": {
+   "0": 0.55,
+   "1": 0.26,
+   "2": 0.19
+  }
+ },
+ "[\"dlugosc jedn maszynk strzyzen\", \"barber shop\", \"fryzjersk uslug\"]": {
+  "klasa": [
+   "dlugosc jedn maszynk strzyzen",
+   "barber shop",
+   "fryzjersk uslug"
+  ],
+  "usluga": "Strzyżenie jedna długość maszynką",
+  "a": "Strzyżenie jedna długość maszynką",
+  "b": "Strzyżenie maszynką na jedną długość",
+  "kontekst_a": "salon typu „Barber shop”",
+  "kontekst_b": "dział cennika „Usługi fryzjerskie”",
+  "score": 0.18,
+  "rozklad": {
+   "0": 0.86,
+   "1": 0.09,
+   "2": 0.05
+  }
+ },
+ "[\"kawitacyjn peeling sonoforez\", \"kosmetolog\", \"pielegnacj\"]": {
+  "klasa": [
+   "kawitacyjn peeling sonoforez",
+   "kosmetolog",
+   "pielegnacj"
+  ],
+  "usluga": "Peeling kawitacyjny+ sonoforeza",
+  "a": "Peeling kawitacyjny+ sonoforeza",
+  "b": "Peeling kawitacyjny + sonoforeza",
+  "kontekst_a": "dział cennika „Kosmetologia”",
+  "kontekst_b": "dział cennika „Pielęgnacja twarzy”",
+  "score": 0.4,
+  "rozklad": {
+   "0": 0.74,
+   "1": 0.13,
+   "2": 0.13
+  }
+ },
+ "[\"kawitacyjn peeling sonoforez\", \"kosmetyczn salon\", \"pielegnacj\"]": {
+  "klasa": [
+   "kawitacyjn peeling sonoforez",
+   "kosmetyczn salon",
+   "pielegnacj"
+  ],
+  "usluga": "Peeling kawitacyjny +sonoforeza — Peeling kawitacyjny +sonoforeza",
+  "a": "Peeling kawitacyjny +sonoforeza — Peeling kawitacyjny +sonoforeza",
+  "b": "Peeling kawitacyjny + sonoforeza",
+  "kontekst_a": "salon typu „Salon Kosmetyczny”",
+  "kontekst_b": "dział cennika „Pielęgnacja twarzy”",
+  "score": 0.35,
+  "rozklad": {
+   "0": 0.6799999999999999,
+   "1": 0.28,
+   "2": 0.04
+  }
+ },
+ "[\"kawitacyjn peeling\", \"estetyczn medycyn\", \"pielegnacj\"]": {
+  "klasa": [
+   "kawitacyjn peeling",
+   "estetyczn medycyn",
+   "pielegnacj"
+  ],
+  "usluga": "Peeling kawitacyjny",
+  "a": "Peeling kawitacyjny",
+  "b": "Peeling kawitacyjny",
+  "kontekst_a": "salon typu „Medycyna Estetyczna”",
+  "kontekst_b": "dział cennika „Pielęgnacja twarzy”",
+  "score": 0.44,
+  "rozklad": {
+   "0": 0.6,
+   "1": 0.36,
+   "2": 0.04
+  }
+ },
+ "[\"dlugosc jedn maszynk strzyzen\", \"art barber\", \"barber shop\"]": {
+  "klasa": [
+   "dlugosc jedn maszynk strzyzen",
+   "art barber",
+   "barber shop"
+  ],
+  "usluga": "Strzyżenie maszynką na jedną długość",
+  "a": "Strzyżenie maszynką na jedną długość",
+  "b": "Strzyżenie jedna długość maszynką",
+  "kontekst_a": "dział cennika „Art Barber ( KIRILL )”",
+  "kontekst_b": "salon typu „Barber shop”",
+  "score": 0.05,
+  "rozklad": {
+   "0": 0.96,
+   "1": 0.04,
+   "2": 0.0
+  }
+ },
+ "[\"dlugosc jedn maszynk strzyzen\", \"barber shop\", \"unlmtd wlasciciel\"]": {
+  "klasa": [
+   "dlugosc jedn maszynk strzyzen",
+   "barber shop",
+   "unlmtd wlasciciel"
+  ],
+  "usluga": "Strzyżenie jedna długość maszynką",
+  "a": "Strzyżenie jedna długość maszynką",
+  "b": "Strzyżenie maszynką na jedną długość",
+  "kontekst_a": "salon typu „Barber shop”",
+  "kontekst_b": "dział cennika „ŻENIA ( Wlaściciel UNLMTD )”",
+  "score": 0.69,
+  "rozklad": {
+   "0": 0.59,
+   "1": 0.14,
+   "2": 0.27
+  }
+ },
+ "[\"dlugosc maszynk strzyzen\", \"barber shop\", \"fryzjerstw\"]": {
+  "klasa": [
+   "dlugosc maszynk strzyzen",
+   "barber shop",
+   "fryzjerstw"
+  ],
+  "usluga": "Strzyżenie jedna długość maszynką",
+  "a": "Strzyżenie jedna długość maszynką",
+  "b": "Strzyżenie maszynką (1 długość)",
+  "kontekst_a": "salon typu „Barber shop”",
+  "kontekst_b": "dział cennika „FRYZJERSTWO MĘSKIE”",
+  "score": 0.07,
+  "rozklad": {
+   "0": 0.96,
+   "1": 0.02,
+   "2": 0.02
+  }
+ },
+ "[\"ciaz masaz\", \"kosmetyczn salon\", \"masaz\"]": {
+  "klasa": [
+   "ciaz masaz",
+   "kosmetyczn salon",
+   "masaz"
+  ],
+  "usluga": "Masaż dla kobiet w ciąży",
+  "a": "Masaż dla kobiet w ciąży",
+  "b": "masaż ciążowy — masaż ciążowy",
+  "kontekst_a": "salon typu „Salon Kosmetyczny”",
+  "kontekst_b": "salon typu „Masaż”",
+  "score": 0.11,
+  "rozklad": {
+   "0": 0.92,
+   "1": 0.05,
+   "2": 0.03
+  }
+ },
+ "[\"dlugosc maszynk strzyzen\", \"barber shop\", \"uslug\"]": {
+  "klasa": [
+   "dlugosc maszynk strzyzen",
+   "barber shop",
+   "uslug"
+  ],
+  "usluga": "Strzyżenie jedna długość maszynką",
+  "a": "Strzyżenie jedna długość maszynką",
+  "b": "Strzyżenie maszynką ( 1 długość )",
+  "kontekst_a": "salon typu „Barber shop”",
+  "kontekst_b": "dział cennika „Usługi”",
+  "score": 0.12,
+  "rozklad": {
+   "0": 0.89,
+   "1": 0.1,
+   "2": 0.01
+  }
+ },
+ "[\"ciaz masaz\", \"masaz\", \"zdrowotn\"]": {
+  "klasa": [
+   "ciaz masaz",
+   "masaz",
+   "zdrowotn"
+  ],
+  "usluga": "masaż ciążowy — masaż ciążowy",
+  "a": "masaż ciążowy — masaż ciążowy",
+  "b": "MASAŻ CIĄŻOWY/PRENATALNY — MASAŻ CIĄŻOWY/PRENATALNY",
+  "kontekst_a": "salon typu „Masaż”",
+  "kontekst_b": "dział cennika „MASAŻE ZDROWOTNE”",
+  "score": 0.02,
+  "rozklad": {
+   "0": 0.98,
+   "1": 0.02,
+   "2": 0.0
+  }
+ },
+ "[\"dlugosc jedn maszynk strzyzen\", \"barber shop\", \"fryzjerstw\"]": {
+  "klasa": [
+   "dlugosc jedn maszynk strzyzen",
+   "barber shop",
+   "fryzjerstw"
+  ],
+  "usluga": "Strzyżenie jedna długość maszynką",
+  "a": "Strzyżenie jedna długość maszynką",
+  "b": "Strzyżenie męskie maszynką jedna długości",
+  "kontekst_a": "salon typu „Barber shop”",
+  "kontekst_b": "dział cennika „Fryzjerstwo męskie”",
+  "score": 0.07,
+  "rozklad": {
+   "0": 0.96,
+   "1": 0.02,
+   "2": 0.02
+  }
+ },
+ "[\"hybryd stop\", \"fryzjer\", \"kosmetyczn salon\"]": {
+  "klasa": [
+   "hybryd stop",
+   "fryzjer",
+   "kosmetyczn salon"
+  ],
+  "usluga": "Hybryda u stóp",
+  "a": "Hybryda u stóp",
+  "b": "Hybryda na stopy",
+  "kontekst_a": "salon typu „Fryzjer”",
+  "kontekst_b": "salon typu „Salon Kosmetyczny”",
+  "score": 0.14,
+  "rozklad": {
+   "0": 0.91,
+   "1": 0.04,
+   "2": 0.05
+  }
+ },
+ "[\"infuzj tlen\", \"kosmetyk\", \"masaz\"]": {
+  "klasa": [
+   "infuzj tlen",
+   "kosmetyk",
+   "masaz"
+  ],
+  "usluga": "Infuzja tlenowa",
+  "a": "Infuzja tlenowa",
+  "b": "Infuzja tlenowa",
+  "kontekst_a": "dział cennika „Kosmetyka”",
+  "kontekst_b": "salon typu „Masaż”",
+  "score": 0.36,
+  "rozklad": {
+   "0": 0.69,
+   "1": 0.25,
+   "2": 0.06
+  }
+ },
+ "[\"infuzj tlen\", \"estetyczn medycyn\", \"masaz\"]": {
+  "klasa": [
+   "infuzj tlen",
+   "estetyczn medycyn",
+   "masaz"
+  ],
+  "usluga": "💧Infuzja tlenowa - twarz",
+  "a": "💧Infuzja tlenowa - twarz",
+  "b": "Infuzja tlenowa",
+  "kontekst_a": "salon typu „Medycyna Estetyczna”",
+  "kontekst_b": "salon typu „Masaż”",
+  "score": 0.02,
+  "rozklad": {
+   "0": 0.98,
+   "1": 0.01,
+   "2": 0.01
+  }
+ },
+ "[\"infuzj tlen\", \"brwi rzes\", \"masaz\"]": {
+  "klasa": [
+   "infuzj tlen",
+   "brwi rzes",
+   "masaz"
+  ],
+  "usluga": "Infuzja tlenowa",
+  "a": "Infuzja tlenowa",
+  "b": "Infuzja tlenowa",
+  "kontekst_a": "salon typu „Brwi i rzęsy”",
+  "kontekst_b": "salon typu „Masaż”",
+  "score": 0.69,
+  "rozklad": {
+   "0": 0.5,
+   "1": 0.31,
+   "2": 0.19
+  }
+ },
+ "[\"hybryd\", \"brwi rzes\", \"kosmetyczn salon\"]": {
+  "klasa": [
+   "hybryd",
+   "brwi rzes",
+   "kosmetyczn salon"
+  ],
+  "usluga": "Pedicure Hybrydowy",
+  "a": "Pedicure Hybrydowy",
+  "b": "Hybryda na stopy",
+  "kontekst_a": "salon typu „Brwi i rzęsy”",
+  "kontekst_b": "salon typu „Salon Kosmetyczny”",
+  "score": 0.15,
+  "rozklad": {
+   "0": 0.91,
+   "1": 0.03,
+   "2": 0.06
+  }
+ },
+ "[\"iglow mezoterap\", \"estetyczn kosmetolog\", \"estetyczn medycyn\"]": {
+  "klasa": [
+   "iglow mezoterap",
+   "estetyczn kosmetolog",
+   "estetyczn medycyn"
+  ],
+  "usluga": "Mezoterapia igłowa",
+  "a": "Mezoterapia igłowa",
+  "b": "Mezoterapia igłowa",
+  "kontekst_a": "dział cennika „Kosmetologia estetyczna”",
+  "kontekst_b": "salon typu „Medycyna Estetyczna”",
+  "score": 0.12,
+  "rozklad": {
+   "0": 0.88,
+   "1": 0.12,
+   "2": 0.0
+  }
+ },
+ "[\"hybryd\", \"kosmetyczn salon\", \"masaz\"]": {
+  "klasa": [
+   "hybryd",
+   "kosmetyczn salon",
+   "masaz"
+  ],
+  "usluga": "Hybryda na stopy",
+  "a": "Hybryda na stopy",
+  "b": "Pedicure Hybrydowy",
+  "kontekst_a": "salon typu „Salon Kosmetyczny”",
+  "kontekst_b": "salon typu „Masaż”",
+  "score": 0.19,
+  "rozklad": {
+   "0": 0.88,
+   "1": 0.04,
+   "2": 0.08
+  }
+ },
+ "[\"geometr henn pudr regulacj\", \"paznokc\", \"stylizacj\"]": {
+  "klasa": [
+   "geometr henn pudr regulacj",
+   "paznokc",
+   "stylizacj"
+  ],
+  "usluga": "Henna pudrowa z geometrią + regulacja",
+  "a": "Henna pudrowa z geometrią + regulacja",
+  "b": "Henna pudrowa + geometria + regulacja — Henna pudrowa + geometria + regulacja",
+  "kontekst_a": "salon typu „Paznokcie”",
+  "kontekst_b": "dział cennika „Stylizacja brwi”",
+  "score": 0.07,
+  "rozklad": {
+   "0": 0.96,
+   "1": 0.01,
+   "2": 0.03
+  }
+ },
+ "[\"tonowan\", \"fryzjer\", \"fryzjerstw\"]": {
+  "klasa": [
+   "tonowan",
+   "fryzjer",
+   "fryzjerstw"
+  ],
+  "usluga": "Tonowanie — średniе",
+  "a": "Tonowanie — średniе",
+  "b": "Tonowanie — Tonowanie średnie włosy",
+  "kontekst_a": "dział cennika „Fryzjer”",
+  "kontekst_b": "dział cennika „FRYZJERSTWO💈💇‍♂️🪮”",
+  "score": 0.04,
+  "rozklad": {
+   "0": 0.96,
+   "1": 0.03,
+   "2": 0.01
+  }
+ },
+ "[\"geometr henn pudr regulacj\", \"brwi stylizacj\", \"stylizacj\"]": {
+  "klasa": [
+   "geometr henn pudr regulacj",
+   "brwi stylizacj",
+   "stylizacj"
+  ],
+  "usluga": "Henna pudrowa z geometrią + regulacja",
+  "a": "Henna pudrowa z geometrią + regulacja",
+  "b": "Henna pudrowa + geometria + regulacja — Henna pudrowa + geometria + regulacja",
+  "kontekst_a": "dział cennika „Stylizacja brwi Ala”",
+  "kontekst_b": "dział cennika „Stylizacja brwi”",
+  "score": 0.01,
+  "rozklad": {
+   "0": 1.0,
+   "1": 0.0,
+   "2": 0.0
+  }
+ },
+ "[\"geometr henn pudr regulacj\", \"piercing tatuaz\", \"stylizacj\"]": {
+  "klasa": [
+   "geometr henn pudr regulacj",
+   "piercing tatuaz",
+   "stylizacj"
+  ],
+  "usluga": "Henna Pudrowa z Geometrią, regulacją",
+  "a": "Henna Pudrowa z Geometrią, regulacją",
+  "b": "Henna pudrowa + geometria + regulacja — Henna pudrowa + geometria + regulacja",
+  "kontekst_a": "salon typu „Tatuaż i Piercing”",
+  "kontekst_b": "dział cennika „Stylizacja brwi”",
+  "score": 0.09,
+  "rozklad": {
+   "0": 0.95,
+   "1": 0.01,
+   "2": 0.04
+  }
+ },
+ "[\"geometr henn pudr regulacj\", \"estetyczn medycyn\", \"stylizacj\"]": {
+  "klasa": [
+   "geometr henn pudr regulacj",
+   "estetyczn medycyn",
+   "stylizacj"
+  ],
+  "usluga": "Henna pudrowa z geometrią i regulacja",
+  "a": "Henna pudrowa z geometrią i regulacja",
+  "b": "Henna pudrowa + geometria + regulacja — Henna pudrowa + geometria + regulacja",
+  "kontekst_a": "salon typu „Medycyna Estetyczna”",
+  "kontekst_b": "dział cennika „Stylizacja brwi”",
+  "score": 0.03,
+  "rozklad": {
+   "0": 0.98,
+   "1": 0.01,
+   "2": 0.01
+  }
+ },
+ "[\"geometr henn pudr regulacj\", \"oka opraw\", \"stylizacj\"]": {
+  "klasa": [
+   "geometr henn pudr regulacj",
+   "oka opraw",
+   "stylizacj"
+  ],
+  "usluga": "Henna pudrowa z geometrią + regulacja",
+  "a": "Henna pudrowa z geometrią + regulacja",
+  "b": "Henna pudrowa + geometria + regulacja — Henna pudrowa + geometria + regulacja",
+  "kontekst_a": "dział cennika „OPRAWA OKA”",
+  "kontekst_b": "dział cennika „Stylizacja brwi”",
+  "score": 1.43,
+  "rozklad": {
+   "0": 0.28,
+   "1": 0.01,
+   "2": 0.71
+  }
+ },
+ "[\"koloryzacj wieloton wlos\", \"fryzjer\", \"fryzjerstw\"]": {
+  "klasa": [
+   "koloryzacj wieloton wlos",
+   "fryzjer",
+   "fryzjerstw"
+  ],
+  "usluga": "Koloryzacja wielotonowa włosy krótkie",
+  "a": "Koloryzacja wielotonowa włosy krótkie",
+  "b": "Koloryzacja wielotonowa włosy krókie",
+  "kontekst_a": "salon typu „Fryzjer”",
+  "kontekst_b": "dział cennika „Fryzjerstwo damskie (płatność gotówką)”",
+  "score": 0.02,
+  "rozklad": {
+   "0": 0.99,
+   "1": 0.0,
+   "2": 0.01
+  }
+ },
+ "[\"kawitacyjn peeling\", \"kosmetologiczn uslug\", \"pielegnacj\"]": {
+  "klasa": [
+   "kawitacyjn peeling",
+   "kosmetologiczn uslug",
+   "pielegnacj"
+  ],
+  "usluga": "Peeling kawitacyjny",
+  "a": "Peeling kawitacyjny",
+  "b": "Peeling kawitacyjny",
+  "kontekst_a": "dział cennika „Usługi kosmetologiczne”",
+  "kontekst_b": "dział cennika „Pielęgnacja twarzy”",
+  "score": 0.31,
+  "rozklad": {
+   "0": 0.77,
+   "1": 0.15,
+   "2": 0.08
+  }
+ },
+ "[\"kawitacyjn peeling\", \"masaz\", \"pielegnacj\"]": {
+  "klasa": [
+   "kawitacyjn peeling",
+   "masaz",
+   "pielegnacj"
+  ],
+  "usluga": "Peeling kawitacyjny",
+  "a": "Peeling kawitacyjny",
+  "b": "Peeling kawitacyjny",
+  "kontekst_a": "salon typu „Masaż”",
+  "kontekst_b": "dział cennika „Pielęgnacja twarzy”",
+  "score": 1.32,
+  "rozklad": {
+   "0": 0.18,
+   "1": 0.33,
+   "2": 0.49
+  }
+ },
+ "[\"kawitacyjn peeling\", \"oczyszczan wodor\", \"pielegnacj\"]": {
+  "klasa": [
+   "kawitacyjn peeling",
+   "oczyszczan wodor",
+   "pielegnacj"
+  ],
+  "usluga": "Peeling kawitacyjny ✨",
+  "a": "Peeling kawitacyjny ✨",
+  "b": "Peeling kawitacyjny",
+  "kontekst_a": "dział cennika „Oczyszczanie wodorowe ✨”",
+  "kontekst_b": "dział cennika „Pielęgnacja twarzy”",
+  "score": 0.38,
+  "rozklad": {
+   "0": 0.78,
+   "1": 0.07,
+   "2": 0.15
+  }
+ },
+ "[\"kawitacyjn peeling sonoforez\", \"kosmetyczn\", \"pielegnacj\"]": {
+  "klasa": [
+   "kawitacyjn peeling sonoforez",
+   "kosmetyczn",
+   "pielegnacj"
+  ],
+  "usluga": "Peeling kawitacyjny+sonoforeza",
+  "a": "Peeling kawitacyjny+sonoforeza",
+  "b": "Peeling kawitacyjny + sonoforeza",
+  "kontekst_a": "dział cennika „Zabiegi kosmetyczne”",
+  "kontekst_b": "dział cennika „Pielęgnacja twarzy”",
+  "score": 0.39,
+  "rozklad": {
+   "0": 0.75,
+   "1": 0.11,
+   "2": 0.14
+  }
+ },
+ "[\"kawitacyjn peeling\", \"kosmetolog pielengnacyjn\", \"pielegnacj\"]": {
+  "klasa": [
+   "kawitacyjn peeling",
+   "kosmetolog pielengnacyjn",
+   "pielegnacj"
+  ],
+  "usluga": "Peeling kawitacyjny",
+  "a": "Peeling kawitacyjny",
+  "b": "Peeling kawitacyjny",
+  "kontekst_a": "dział cennika „Kosmetologią Pielengnacyjna”",
+  "kontekst_b": "dział cennika „Pielęgnacja twarzy”",
+  "score": 0.45,
+  "rozklad": {
+   "0": 0.68,
+   "1": 0.19,
+   "2": 0.13
+  }
+ },
+ "[\"kawitacyjn peeling\", \"fryzjer\", \"pielegnacj\"]": {
+  "klasa": [
+   "kawitacyjn peeling",
+   "fryzjer",
+   "pielegnacj"
+  ],
+  "usluga": "Peeling Kawitacyjny — Peeling Kawitacyjny",
+  "a": "Peeling Kawitacyjny — Peeling Kawitacyjny",
+  "b": "Peeling kawitacyjny",
+  "kontekst_a": "salon typu „Fryzjer”",
+  "kontekst_b": "dział cennika „Pielęgnacja twarzy”",
+  "score": 1.06,
+  "rozklad": {
+   "0": 0.24,
+   "1": 0.46,
+   "2": 0.3
+  }
+ },
+ "[\"1 hybryd napraw paznokc\", \"fryzjer\", \"manicur\"]": {
+  "klasa": [
+   "1 hybryd napraw paznokc",
+   "fryzjer",
+   "manicur"
+  ],
+  "usluga": "Naprawa 1 paznokcia  hybrydowego",
+  "a": "Naprawa 1 paznokcia  hybrydowego",
+  "b": "Naprawa 1 paznokcia (hybryda)",
+  "kontekst_a": "salon typu „Fryzjer”",
+  "kontekst_b": "dział cennika „Manicure”",
+  "score": 0.36,
+  "rozklad": {
+   "0": 0.81,
+   "1": 0.02,
+   "2": 0.17
+  }
+ },
+ "[\"1 hybryd napraw paznokc\", \"manicur\", \"paznokc\"]": {
+  "klasa": [
+   "1 hybryd napraw paznokc",
+   "manicur",
+   "paznokc"
+  ],
+  "usluga": "Naprawa 1 paznokcia (hybryda)",
+  "a": "Naprawa 1 paznokcia (hybryda)",
+  "b": "Naprawa 1 paznokcia hybryda",
+  "kontekst_a": "dział cennika „Manicure”",
+  "kontekst_b": "salon typu „Paznokcie”",
+  "score": 0.09,
+  "rozklad": {
+   "0": 0.95,
+   "1": 0.01,
+   "2": 0.04
+  }
+ },
+ "[\"1 hybryd napraw paznokc\", \"kosmetyczn salon\", \"manicur\"]": {
+  "klasa": [
+   "1 hybryd napraw paznokc",
+   "kosmetyczn salon",
+   "manicur"
+  ],
+  "usluga": "Naprawa 1 paznokcia hybrydowego",
+  "a": "Naprawa 1 paznokcia hybrydowego",
+  "b": "Naprawa 1 paznokcia (hybryda)",
+  "kontekst_a": "salon typu „Salon Kosmetyczny”",
+  "kontekst_b": "dział cennika „Manicure”",
+  "score": 0.15,
+  "rozklad": {
+   "0": 0.91,
+   "1": 0.02,
+   "2": 0.07
+  }
+ },
+ "[\"dlugosc jedn maszynk strzyzen\", \"barber shop\", \"barbersk fryzjerstw\"]": {
+  "klasa": [
+   "dlugosc jedn maszynk strzyzen",
+   "barber shop",
+   "barbersk fryzjerstw"
+  ],
+  "usluga": "Strzyżenie jedna długość maszynką",
+  "a": "Strzyżenie jedna długość maszynką",
+  "b": "Strzyżenie maszynką jedna długość",
+  "kontekst_a": "salon typu „Barber shop”",
+  "kontekst_b": "dział cennika „FRYZJERSTWO MĘSKIE (BARBERSKIE)”",
+  "score": 0.03,
+  "rozklad": {
+   "0": 0.98,
+   "1": 0.01,
+   "2": 0.01
+  }
+ },
+ "[\"hybryd napraw paznokc\", \"gabrys uslug\", \"manicur\"]": {
+  "klasa": [
+   "hybryd napraw paznokc",
+   "gabrys uslug",
+   "manicur"
+  ],
+  "usluga": "Naprawa paznokcia hybrydowego",
+  "a": "Naprawa paznokcia hybrydowego",
+  "b": "Naprawa 1 paznokcia (hybryda)",
+  "kontekst_a": "dział cennika „USŁUGI GABRYSIA”",
+  "kontekst_b": "dział cennika „Manicure”",
+  "score": 0.26,
+  "rozklad": {
+   "0": 0.85,
+   "1": 0.04,
+   "2": 0.11
+  }
+ },
+ "[\"dlugosc jedn maszynk strzyzen\", \"barber shop\", \"uslug\"]": {
+  "klasa": [
+   "dlugosc jedn maszynk strzyzen",
+   "barber shop",
+   "uslug"
+  ],
+  "usluga": "Strzyżenie jedna długość maszynką",
+  "a": "Strzyżenie jedna długość maszynką",
+  "b": "Strzyżenie maszynką jedna długość",
+  "kontekst_a": "salon typu „Barber shop”",
+  "kontekst_b": "dział cennika „Usługi dla Panów”",
+  "score": 0.06,
+  "rozklad": {
+   "0": 0.95,
+   "1": 0.04,
+   "2": 0.01
+  }
+ },
+ "[\"dlugosc jedn maszynk strzyzen\", \"barber shop\", \"popularn uslug\"]": {
+  "klasa": [
+   "dlugosc jedn maszynk strzyzen",
+   "barber shop",
+   "popularn uslug"
+  ],
+  "usluga": "Strzyżenie jedna długość maszynką",
+  "a": "Strzyżenie jedna długość maszynką",
+  "b": "Strzyżenie maszynką na jedną długość",
+  "kontekst_a": "salon typu „Barber shop”",
+  "kontekst_b": "dział cennika „Popularne usługi”",
+  "score": 0.06,
+  "rozklad": {
+   "0": 0.95,
+   "1": 0.05,
+   "2": 0.0
+  }
+ },
+ "[\"hybryd napraw paznokc\", \"kosmetyczn salon\", \"manicur\"]": {
+  "klasa": [
+   "hybryd napraw paznokc",
+   "kosmetyczn salon",
+   "manicur"
+  ],
+  "usluga": "Naprawa Jednego paznokcia hybrydowego",
+  "a": "Naprawa Jednego paznokcia hybrydowego",
+  "b": "Naprawa 1 paznokcia (hybryda)",
+  "kontekst_a": "salon typu „Salon Kosmetyczny”",
+  "kontekst_b": "dział cennika „Manicure”",
+  "score": 0.14,
+  "rozklad": {
+   "0": 0.92,
+   "1": 0.02,
+   "2": 0.06
+  }
+ },
+ "[\"dlugosc jedn maszynk strzyzen\", \"barber shop\", \"stylizacj\"]": {
+  "klasa": [
+   "dlugosc jedn maszynk strzyzen",
+   "barber shop",
+   "stylizacj"
+  ],
+  "usluga": "Strzyżenie jedna długość maszynką",
+  "a": "Strzyżenie jedna długość maszynką",
+  "b": "Strzyżenie maszynka ( na jedną długość )",
+  "kontekst_a": "salon typu „Barber shop”",
+  "kontekst_b": "dział cennika „Stylizacja inni fryzjerzy”",
+  "score": 0.25,
+  "rozklad": {
+   "0": 0.83,
+   "1": 0.09,
+   "2": 0.08
+  }
+ },
+ "[\"dlugosc jedn maszynk strzyzen\", \"barber fryzjer\", \"barber shop\"]": {
+  "klasa": [
+   "dlugosc jedn maszynk strzyzen",
+   "barber fryzjer",
+   "barber shop"
+  ],
+  "usluga": "Strzyżenie Maszynką Jedna Długość",
+  "a": "Strzyżenie Maszynką Jedna Długość",
+  "b": "Strzyżenie jedna długość maszynką",
+  "kontekst_a": "dział cennika „Barber - Fryzjer męski”",
+  "kontekst_b": "salon typu „Barber shop”",
+  "score": 0.04,
+  "rozklad": {
+   "0": 0.97,
+   "1": 0.02,
+   "2": 0.01
+  }
+ },
+ "[\"dlugosc maszynk strzyzen\", \"barber shop\", \"barbersk uslug\"]": {
+  "klasa": [
+   "dlugosc maszynk strzyzen",
+   "barber shop",
+   "barbersk uslug"
+  ],
+  "usluga": "Strzyżenie jedna długość maszynką",
+  "a": "Strzyżenie jedna długość maszynką",
+  "b": "Strzyżenie męskie maszynką na 1 długość",
+  "kontekst_a": "salon typu „Barber shop”",
+  "kontekst_b": "dział cennika „USŁUGI BARBERSKIE”",
+  "score": 0.04,
+  "rozklad": {
+   "0": 0.96,
+   "1": 0.03,
+   "2": 0.01
+  }
+ },
+ "[\"dlugosc jedn maszynk strzyzen\", \"barber shop\", \"brwi rzes\"]": {
+  "klasa": [
+   "dlugosc jedn maszynk strzyzen",
+   "barber shop",
+   "brwi rzes"
+  ],
+  "usluga": "Strzyżenie jedna długość maszynką",
+  "a": "Strzyżenie jedna długość maszynką",
+  "b": "strzyżenie maszynką na jedną długość",
+  "kontekst_a": "salon typu „Barber shop”",
+  "kontekst_b": "salon typu „Brwi i rzęsy”",
+  "score": 0.67,
+  "rozklad": {
+   "0": 0.61,
+   "1": 0.11,
+   "2": 0.28
+  }
+ },
+ "[\"dlugosc maszynk strzyzen\", \"barber shop\", \"fryzjer\"]": {
+  "klasa": [
+   "dlugosc maszynk strzyzen",
+   "barber shop",
+   "fryzjer"
+  ],
+  "usluga": "Strzyżenie jedna długość maszynką",
+  "a": "Strzyżenie jedna długość maszynką",
+  "b": "Strzyżenie męskie maszynką 1 długość",
+  "kontekst_a": "salon typu „Barber shop”",
+  "kontekst_b": "salon typu „Fryzjer”",
+  "score": 0.26,
+  "rozklad": {
+   "0": 0.8,
+   "1": 0.13,
+   "2": 0.07
+  }
+ },
+ "[\"dlugosc jedn maszynk strzyzen\", \"barber shop\", \"dodatk uslug\"]": {
+  "klasa": [
+   "dlugosc jedn maszynk strzyzen",
+   "barber shop",
+   "dodatk uslug"
+  ],
+  "usluga": "Strzyżenie jedna długość maszynką",
+  "a": "Strzyżenie jedna długość maszynką",
+  "b": "Strzyżenie maszynką na jedną długość — Strzyżenie maszynką na jedną długość",
+  "kontekst_a": "salon typu „Barber shop”",
+  "kontekst_b": "dział cennika „usługi dodatkowe”",
+  "score": 0.19,
+  "rozklad": {
+   "0": 0.83,
+   "1": 0.14,
+   "2": 0.03
+  }
+ },
+ "[\"dlugosc jedn maszynk strzyzen\", \"barber shop\", \"estetyczn medycyn\"]": {
+  "klasa": [
+   "dlugosc jedn maszynk strzyzen",
+   "barber shop",
+   "estetyczn medycyn"
+  ],
+  "usluga": "Strzyżenie jedna długość maszynką",
+  "a": "Strzyżenie jedna długość maszynką",
+  "b": "Strzyżenie męskie - maszynka jedną długość",
+  "kontekst_a": "salon typu „Barber shop”",
+  "kontekst_b": "salon typu „Medycyna Estetyczna”",
+  "score": 0.28,
+  "rozklad": {
+   "0": 0.78,
+   "1": 0.16,
+   "2": 0.06
+  }
+ },
+ "[\"kobid masaz transbukaln\", \"estetyczn medycyn\", \"masaz\"]": {
+  "klasa": [
+   "kobid masaz transbukaln",
+   "estetyczn medycyn",
+   "masaz"
+  ],
+  "usluga": "Masaż Kobido + Masaż Transbukalny",
+  "a": "Masaż Kobido + Masaż Transbukalny",
+  "b": "Masaż Kobido + masaż transbukalny promocja",
+  "kontekst_a": "salon typu „Medycyna Estetyczna”",
+  "kontekst_b": "salon typu „Masaż”",
+  "score": 0.18,
+  "rozklad": {
+   "0": 0.88,
+   "1": 0.07,
+   "2": 0.05
+  }
+ },
+ "[\"kobid masaz transbukaln\", \"blisk rytual\", \"masaz\"]": {
+  "klasa": [
+   "kobid masaz transbukaln",
+   "blisk rytual",
+   "masaz"
+  ],
+  "usluga": "Kobido + masaż transbukalny",
+  "a": "Kobido + masaż transbukalny",
+  "b": "Masaż Kobido + masaż transbukalny promocja",
+  "kontekst_a": "dział cennika „Bliskie Rytuały”",
+  "kontekst_b": "salon typu „Masaż”",
+  "score": 0.18,
+  "rozklad": {
+   "0": 0.88,
+   "1": 0.07,
+   "2": 0.05
+  }
+ },
+ "[\"kobid transbukaln\", \"masaz\", \"medycyn naturaln\"]": {
+  "klasa": [
+   "kobid transbukaln",
+   "masaz",
+   "medycyn naturaln"
+  ],
+  "usluga": "Masaż Kobido + masaż transbukalny promocja",
+  "a": "Masaż Kobido + masaż transbukalny promocja",
+  "b": "Kobido + Transbukalny",
+  "kontekst_a": "salon typu „Masaż”",
+  "kontekst_b": "salon typu „Medycyna Naturalna”",
+  "score": 0.13,
+  "rozklad": {
+   "0": 0.9,
+   "1": 0.07,
+   "2": 0.03
+  }
+ },
+ "[\"kobid masaz transbukaln\", \"kosmetyczn salon\", \"masaz\"]": {
+  "klasa": [
+   "kobid masaz transbukaln",
+   "kosmetyczn salon",
+   "masaz"
+  ],
+  "usluga": "Masaż Transbukalny + Kobido",
+  "a": "Masaż Transbukalny + Kobido",
+  "b": "Masaż Kobido + masaż transbukalny promocja",
+  "kontekst_a": "salon typu „Salon Kosmetyczny”",
+  "kontekst_b": "salon typu „Masaż”",
+  "score": 0.31,
+  "rozklad": {
+   "0": 0.81,
+   "1": 0.07,
+   "2": 0.12
+  }
+ },
+ "[\"ciaz masaz\", \"masaz\", \"specjaln\"]": {
+  "klasa": [
+   "ciaz masaz",
+   "masaz",
+   "specjaln"
+  ],
+  "usluga": "masaż ciążowy — masaż ciążowy",
+  "a": "masaż ciążowy — masaż ciążowy",
+  "b": "Masaż ciążowy",
+  "kontekst_a": "salon typu „Masaż”",
+  "kontekst_b": "dział cennika „Masaż specjalny”",
+  "score": 0.03,
+  "rozklad": {
+   "0": 0.98,
+   "1": 0.02,
+   "2": 0.0
+  }
+ },
+ "[\"ciaz masaz\", \"masaz\", \"zdrow\"]": {
+  "klasa": [
+   "ciaz masaz",
+   "masaz",
+   "zdrow"
+  ],
+  "usluga": "masaż ciążowy — masaż ciążowy",
+  "a": "masaż ciążowy — masaż ciążowy",
+  "b": "Masaż kobiety w ciąży",
+  "kontekst_a": "salon typu „Masaż”",
+  "kontekst_b": "salon typu „Zdrowie”",
+  "score": 0.03,
+  "rozklad": {
+   "0": 0.97,
+   "1": 0.02,
+   "2": 0.01
+  }
+ },
+ "[\"masaz\", \"fizjoterap\", \"masaz\"]": {
+  "klasa": [
+   "masaz",
+   "fizjoterap",
+   "masaz"
+  ],
+  "usluga": "Masaż prenatalny",
+  "a": "Masaż prenatalny",
+  "b": "masaż ciążowy — masaż ciążowy",
+  "kontekst_a": "salon typu „Fizjoterapia”",
+  "kontekst_b": "salon typu „Masaż”",
+  "score": 0.06,
+  "rozklad": {
+   "0": 0.96,
+   "1": 0.03,
+   "2": 0.01
+  }
+ },
+ "[\"ciaz masaz\", \"depilacj\", \"masaz\"]": {
+  "klasa": [
+   "ciaz masaz",
+   "depilacj",
+   "masaz"
+  ],
+  "usluga": "Masaż dla kobiet w ciąży — Masaż dla kobiet w ciąży",
+  "a": "Masaż dla kobiet w ciąży — Masaż dla kobiet w ciąży",
+  "b": "masaż ciążowy — masaż ciążowy",
+  "kontekst_a": "salon typu „Depilacja”",
+  "kontekst_b": "salon typu „Masaż”",
+  "score": 0.1,
+  "rozklad": {
+   "0": 0.93,
+   "1": 0.04,
+   "2": 0.03
+  }
+ },
+ "[\"ciaz masaz\", \"diet trening\", \"masaz\"]": {
+  "klasa": [
+   "ciaz masaz",
+   "diet trening",
+   "masaz"
+  ],
+  "usluga": "Masaż dla kobiet w ciąży",
+  "a": "Masaż dla kobiet w ciąży",
+  "b": "masaż ciążowy — masaż ciążowy",
+  "kontekst_a": "salon typu „Trening i Dieta”",
+  "kontekst_b": "salon typu „Masaż”",
+  "score": 0.07,
+  "rozklad": {
+   "0": 0.95,
+   "1": 0.04,
+   "2": 0.01
+  }
+ },
+ "[\"masaz\", \"masaz\", \"stref zdrow\"]": {
+  "klasa": [
+   "masaz",
+   "masaz",
+   "stref zdrow"
+  ],
+  "usluga": "masaż ciążowy — masaż ciążowy",
+  "a": "masaż ciążowy — masaż ciążowy",
+  "b": "Masaż dla przyszłej mamy",
+  "kontekst_a": "salon typu „Masaż”",
+  "kontekst_b": "dział cennika „STREFA ZDROWIA”",
+  "score": 0.02,
+  "rozklad": {
+   "0": 0.99,
+   "1": 0.01,
+   "2": 0.0
+  }
+ },
+ "[\"infuzj tlen\", \"masaz\", \"peeling\"]": {
+  "klasa": [
+   "infuzj tlen",
+   "masaz",
+   "peeling"
+  ],
+  "usluga": "Infuzja tlenowa",
+  "a": "Infuzja tlenowa",
+  "b": "Infuzja tlenowa",
+  "kontekst_a": "salon typu „Masaż”",
+  "kontekst_b": "dział cennika „peelingi”",
+  "score": 0.3,
+  "rozklad": {
+   "0": 0.75,
+   "1": 0.2,
+   "2": 0.05
+  }
+ },
+ "[\"infuzj tlen\", \"fryzjer\", \"masaz\"]": {
+  "klasa": [
+   "infuzj tlen",
+   "fryzjer",
+   "masaz"
+  ],
+  "usluga": "Infuzja tlenowa — Infuzja tlenowa",
+  "a": "Infuzja tlenowa — Infuzja tlenowa",
+  "b": "Infuzja tlenowa",
+  "kontekst_a": "salon typu „Fryzjer”",
+  "kontekst_b": "salon typu „Masaż”",
+  "score": 0.54,
+  "rozklad": {
+   "0": 0.55,
+   "1": 0.36,
+   "2": 0.09
+  }
+ },
+ "[\"infuzj tlen\", \"kosmetyczk\", \"masaz\"]": {
+  "klasa": [
+   "infuzj tlen",
+   "kosmetyczk",
+   "masaz"
+  ],
+  "usluga": "Nawilżająca - Infuzja tlenowa — Twarz",
+  "a": "Nawilżająca - Infuzja tlenowa — Twarz",
+  "b": "Infuzja tlenowa",
+  "kontekst_a": "dział cennika „Kosmetyczka”",
+  "kontekst_b": "salon typu „Masaż”",
+  "score": 0.08,
+  "rozklad": {
+   "0": 0.95,
+   "1": 0.02,
+   "2": 0.03
+  }
+ },
+ "[\"infuzj tlen\", \"masaz\", \"paznokc\"]": {
+  "klasa": [
+   "infuzj tlen",
+   "masaz",
+   "paznokc"
+  ],
+  "usluga": "Infuzja tlenowa",
+  "a": "Infuzja tlenowa",
+  "b": "Infuzja tlenowa",
+  "kontekst_a": "salon typu „Masaż”",
+  "kontekst_b": "salon typu „Paznokcie”",
+  "score": 0.69,
+  "rozklad": {
+   "0": 0.48,
+   "1": 0.35,
+   "2": 0.17
+  }
+ },
+ "[\"infuzj tlen\", \"kosmetolog pielegnacj\", \"masaz\"]": {
+  "klasa": [
+   "infuzj tlen",
+   "kosmetolog pielegnacj",
+   "masaz"
+  ],
+  "usluga": "Infuzja tlenowa",
+  "a": "Infuzja tlenowa",
+  "b": "Infuzja tlenowa",
+  "kontekst_a": "dział cennika „KOSMETOLOGIA PIELĘGNACYJNA”",
+  "kontekst_b": "salon typu „Masaż”",
+  "score": 0.42,
+  "rozklad": {
+   "0": 0.64,
+   "1": 0.3,
+   "2": 0.06
+  }
+ },
+ "[\"infuzj tlen\", \"masaz\", \"podolog\"]": {
+  "klasa": [
+   "infuzj tlen",
+   "masaz",
+   "podolog"
+  ],
+  "usluga": "Infuzja tlenowa",
+  "a": "Infuzja tlenowa",
+  "b": "Infuzja tlenowa",
+  "kontekst_a": "salon typu „Masaż”",
+  "kontekst_b": "salon typu „Podologia”",
+  "score": 0.44,
+  "rozklad": {
+   "0": 0.68,
+   "1": 0.2,
+   "2": 0.12
+  }
+ },
+ "[\"infuzj tlen\", \"masaz\", \"upiekszajac\"]": {
+  "klasa": [
+   "infuzj tlen",
+   "masaz",
+   "upiekszajac"
+  ],
+  "usluga": "Infuzja tlenowa",
+  "a": "Infuzja tlenowa",
+  "b": "Infuzja tlenowa",
+  "kontekst_a": "salon typu „Masaż”",
+  "kontekst_b": "dział cennika „Zabiegi upiększające”",
+  "score": 0.26,
+  "rozklad": {
+   "0": 0.76,
+   "1": 0.21,
+   "2": 0.03
+  }
+ },
+ "[\"infuzj tlen\", \"masaz\", \"trychologiczn\"]": {
+  "klasa": [
+   "infuzj tlen",
+   "masaz",
+   "trychologiczn"
+  ],
+  "usluga": "Infuzja tlenowa",
+  "a": "Infuzja tlenowa",
+  "b": "Infuzja tlenowa — Infuzja tlenowa",
+  "kontekst_a": "salon typu „Masaż”",
+  "kontekst_b": "dział cennika „Zabiegi trychologiczne”",
+  "score": 1.31,
+  "rozklad": {
+   "0": 0.24,
+   "1": 0.22,
+   "2": 0.54
+  }
+ },
+ "[\"hybryd stop\", \"kosmetyczn salon\", \"podolog\"]": {
+  "klasa": [
+   "hybryd stop",
+   "kosmetyczn salon",
+   "podolog"
+  ],
+  "usluga": "Hybryda na stopy",
+  "a": "Hybryda na stopy",
+  "b": "Hybryda u stóp — Hybryda u stóp",
+  "kontekst_a": "salon typu „Salon Kosmetyczny”",
+  "kontekst_b": "salon typu „Podologia”",
+  "score": 0.59,
+  "rozklad": {
+   "0": 0.69,
+   "1": 0.03,
+   "2": 0.28
+  }
+ },
+ "[\"infuzj tlen\", \"fotostarzen naczynek przebarwien zmarszczk\", \"masaz\"]": {
+  "klasa": [
+   "infuzj tlen",
+   "fotostarzen naczynek przebarwien zmarszczk",
+   "masaz"
+  ],
+  "usluga": "Infuzja tlenowa — Infuzja tlenowa twarz",
+  "a": "Infuzja tlenowa — Infuzja tlenowa twarz",
+  "b": "Infuzja tlenowa",
+  "kontekst_a": "dział cennika „FOTOSTARZENIE ZMARSZCZKI PRZEBARWIENIA NACZYNKA”",
+  "kontekst_b": "salon typu „Masaż”",
+  "score": 0.06,
+  "rozklad": {
+   "0": 0.96,
+   "1": 0.02,
+   "2": 0.02
+  }
+ },
+ "[\"hybryd stop\", \"depilacj\", \"kosmetyczn salon\"]": {
+  "klasa": [
+   "hybryd stop",
+   "depilacj",
+   "kosmetyczn salon"
+  ],
+  "usluga": "Hybryda u stóp",
+  "a": "Hybryda u stóp",
+  "b": "Hybryda na stopy",
+  "kontekst_a": "salon typu „Depilacja”",
+  "kontekst_b": "salon typu „Salon Kosmetyczny”",
+  "score": 0.21,
+  "rozklad": {
+   "0": 0.87,
+   "1": 0.06,
+   "2": 0.07
+  }
+ },
+ "[\"hybryd\", \"kosmetyczn salon\", \"motoryzacj\"]": {
+  "klasa": [
+   "hybryd",
+   "kosmetyczn salon",
+   "motoryzacj"
+  ],
+  "usluga": "Hybryda na stopy",
+  "a": "Hybryda na stopy",
+  "b": "Pedicure Hybrydowy",
+  "kontekst_a": "salon typu „Salon Kosmetyczny”",
+  "kontekst_b": "salon typu „Motoryzacja”",
+  "score": 0.17,
+  "rozklad": {
+   "0": 0.9,
+   "1": 0.03,
+   "2": 0.07
+  }
+ },
+ "[\"hybryd stop\", \"kosmetyczn salon\", \"manicur\"]": {
+  "klasa": [
+   "hybryd stop",
+   "kosmetyczn salon",
+   "manicur"
+  ],
+  "usluga": "Hybryda na stopy",
+  "a": "Hybryda na stopy",
+  "b": "Hybryda u stop",
+  "kontekst_a": "salon typu „Salon Kosmetyczny”",
+  "kontekst_b": "dział cennika „Manicure”",
+  "score": 1.44,
+  "rozklad": {
+   "0": 0.26,
+   "1": 0.04,
+   "2": 0.7
+  }
+ },
+ "[\"hybryd stop\", \"kosmetyczn salon\", \"pielegnacj\"]": {
+  "klasa": [
+   "hybryd stop",
+   "kosmetyczn salon",
+   "pielegnacj"
+  ],
+  "usluga": "Hybryda na stopy",
+  "a": "Hybryda na stopy",
+  "b": "Pedicure hybrydowy",
+  "kontekst_a": "salon typu „Salon Kosmetyczny”",
+  "kontekst_b": "dział cennika „Pielęgnacja Stóp”",
+  "score": 0.24,
+  "rozklad": {
+   "0": 0.85,
+   "1": 0.06,
+   "2": 0.09
+  }
+ },
+ "[\"hybryd\", \"kosmetyczn salon\", \"paznokc stylizacj\"]": {
+  "klasa": [
+   "hybryd",
+   "kosmetyczn salon",
+   "paznokc stylizacj"
+  ],
+  "usluga": "Hybryda na stopy",
+  "a": "Hybryda na stopy",
+  "b": "Pedicure hybrydowy",
+  "kontekst_a": "salon typu „Salon Kosmetyczny”",
+  "kontekst_b": "dział cennika „Stylizacja paznokci”",
+  "score": 0.99,
+  "rozklad": {
+   "0": 0.48,
+   "1": 0.05,
+   "2": 0.47
+  }
+ },
+ "[\"hybryd\", \"kosmetyczn salon\", \"manicur\"]": {
+  "klasa": [
+   "hybryd",
+   "kosmetyczn salon",
+   "manicur"
+  ],
+  "usluga": "Hybryda na stopy",
+  "a": "Hybryda na stopy",
+  "b": "Pedicure hybrydowy",
+  "kontekst_a": "salon typu „Salon Kosmetyczny”",
+  "kontekst_b": "dział cennika „Manicure”",
+  "score": 1.35,
+  "rozklad": {
+   "0": 0.31,
+   "1": 0.03,
+   "2": 0.66
+  }
+ },
+ "[\"ust\", \"estetyczn medycyn\", \"kosmetyczn salon\"]": {
+  "klasa": [
+   "ust",
+   "estetyczn medycyn",
+   "kosmetyczn salon"
+  ],
+  "usluga": "Powiększane ust",
+  "a": "Powiększane ust",
+  "b": "Wypełnienie  ust",
+  "kontekst_a": "salon typu „Medycyna Estetyczna”",
+  "kontekst_b": "salon typu „Salon Kosmetyczny”",
+  "score": 0.01,
+  "rozklad": {
+   "0": 0.99,
+   "1": 0.01,
+   "2": 0.0
+  }
+ },
+ "[\"iglow mezoterap\", \"estetyczn medycyn\", \"estetyk kosmetyczn\"]": {
+  "klasa": [
+   "iglow mezoterap",
+   "estetyczn medycyn",
+   "estetyk kosmetyczn"
+  ],
+  "usluga": "Mezoterapia igłowa",
+  "a": "Mezoterapia igłowa",
+  "b": "Mezoterapia igłowa",
+  "kontekst_a": "salon typu „Medycyna Estetyczna”",
+  "kontekst_b": "dział cennika „Estetyka kosmetyczna”",
+  "score": 0.14,
+  "rozklad": {
+   "0": 0.87,
+   "1": 0.13,
+   "2": 0.0
+  }
+ },
+ "[\"iglow mezoterap\", \"estetyczn medycyn\", \"specjalistyczn\"]": {
+  "klasa": [
+   "iglow mezoterap",
+   "estetyczn medycyn",
+   "specjalistyczn"
+  ],
+  "usluga": "Mezoterapia igłowa",
+  "a": "Mezoterapia igłowa",
+  "b": "Mezoterapia igłowa",
+  "kontekst_a": "salon typu „Medycyna Estetyczna”",
+  "kontekst_b": "dział cennika „Zabiegi Specjalistyczne”",
+  "score": 0.18,
+  "rozklad": {
+   "0": 0.82,
+   "1": 0.18,
+   "2": 0.0
+  }
+ },
+ "[\"iglow mezoterap\", \"estetyczn medycyn\", \"inni\"]": {
+  "klasa": [
+   "iglow mezoterap",
+   "estetyczn medycyn",
+   "inni"
+  ],
+  "usluga": "Mezoterapia igłowa",
+  "a": "Mezoterapia igłowa",
+  "b": "Mezoterapia igłową",
+  "kontekst_a": "salon typu „Medycyna Estetyczna”",
+  "kontekst_b": "salon typu „Inni”",
+  "score": 0.27,
+  "rozklad": {
+   "0": 0.74,
+   "1": 0.26,
+   "2": 0.0
+  }
+ },
+ "[\"botox bruksizm\", \"brwi rzes\", \"estetyczn medycyn\"]": {
+  "klasa": [
+   "botox bruksizm",
+   "brwi rzes",
+   "estetyczn medycyn"
+  ],
+  "usluga": "BTX Bruksizm",
+  "a": "BTX Bruksizm",
+  "b": "Botox bruksizm",
+  "kontekst_a": "salon typu „Brwi i rzęsy”",
+  "kontekst_b": "salon typu „Medycyna Estetyczna”",
+  "score": 0.12,
+  "rozklad": {
+   "0": 0.92,
+   "1": 0.04,
+   "2": 0.04
+  }
+ },
+ "[\"bruksizm\", \"estetyczn medycyn\", \"kosmetyczn salon\"]": {
+  "klasa": [
+   "bruksizm",
+   "estetyczn medycyn",
+   "kosmetyczn salon"
+  ],
+  "usluga": "Botox bruksizm",
+  "a": "Botox bruksizm",
+  "b": "BRUKSIZM BTX",
+  "kontekst_a": "salon typu „Medycyna Estetyczna”",
+  "kontekst_b": "salon typu „Salon Kosmetyczny”",
+  "score": 0.04,
+  "rozklad": {
+   "0": 0.96,
+   "1": 0.04,
+   "2": 0.0
+  }
+ },
+ "[\"botox bruksizm\", \"btx\", \"estetyczn medycyn\"]": {
+  "klasa": [
+   "botox bruksizm",
+   "btx",
+   "estetyczn medycyn"
+  ],
+  "usluga": "Botoks bruksizm (zaciskanie zębów)",
+  "a": "Botoks bruksizm (zaciskanie zębów)",
+  "b": "Botox bruksizm",
+  "kontekst_a": "dział cennika „BTX”",
+  "kontekst_b": "salon typu „Medycyna Estetyczna”",
+  "score": 0.05,
+  "rozklad": {
+   "0": 0.96,
+   "1": 0.02,
+   "2": 0.02
+  }
+ },
+ "[\"botox bruksizm\", \"estetyczn medycyn\", \"szczecin\"]": {
+  "klasa": [
+   "botox bruksizm",
+   "estetyczn medycyn",
+   "szczecin"
+  ],
+  "usluga": "Botox bruksizm",
+  "a": "Botox bruksizm",
+  "b": "Botoks bruksizm, zaciskanie zębów",
+  "kontekst_a": "salon typu „Medycyna Estetyczna”",
+  "kontekst_b": "dział cennika „BOTOKS Szczecin”",
+  "score": 0.09,
+  "rozklad": {
+   "0": 0.92,
+   "1": 0.07,
+   "2": 0.01
+  }
+ },
+ "[\"botox bruksizm\", \"estetyczn medycyn\", \"kosmetyczn salon\"]": {
+  "klasa": [
+   "botox bruksizm",
+   "estetyczn medycyn",
+   "kosmetyczn salon"
+  ],
+  "usluga": "Botox bruksizm",
+  "a": "Botox bruksizm",
+  "b": "Botoks - leczenie bruksizmu",
+  "kontekst_a": "salon typu „Medycyna Estetyczna”",
+  "kontekst_b": "salon typu „Salon Kosmetyczny”",
+  "score": 0.04,
+  "rozklad": {
+   "0": 0.96,
+   "1": 0.03,
+   "2": 0.01
+  }
+ },
+ "[\"bruksizm\", \"estetyczn medycyn\", \"kosmetyk twarz\"]": {
+  "klasa": [
+   "bruksizm",
+   "estetyczn medycyn",
+   "kosmetyk twarz"
+  ],
+  "usluga": "Botox bruksizm",
+  "a": "Botox bruksizm",
+  "b": "Btx — Bruksizm",
+  "kontekst_a": "salon typu „Medycyna Estetyczna”",
+  "kontekst_b": "dział cennika „Kosmetyka twarzy”",
+  "score": 0.11,
+  "rozklad": {
+   "0": 0.91,
+   "1": 0.06,
+   "2": 0.03
+  }
+ },
+ "[\"brod comb strzyzen trymowan\", \"barber\", \"fryzjer\"]": {
+  "klasa": [
+   "brod comb strzyzen trymowan",
+   "barber",
+   "fryzjer"
+  ],
+  "usluga": "Combo (głowa Strzyżenie + broda Trymowanie)",
+  "a": "Combo (głowa Strzyżenie + broda Trymowanie)",
+  "b": "Combo  (strzyżenie włosów + trymowanie brody)",
+  "kontekst_a": "dział cennika „Benjamin senior barber”",
+  "kontekst_b": "salon typu „Fryzjer”",
+  "score": 0.04,
+  "rozklad": {
+   "0": 0.97,
+   "1": 0.01,
+   "2": 0.02
+  }
+ },
+ "[\"brod comb strzyzen trymowan\", \"barber\", \"barber shop\"]": {
+  "klasa": [
+   "brod comb strzyzen trymowan",
+   "barber",
+   "barber shop"
+  ],
+  "usluga": "Combo (głowa Strzyżenie + broda Trymowanie)",
+  "a": "Combo (głowa Strzyżenie + broda Trymowanie)",
+  "b": "Combo (strzyżenie + trymowanie brody)",
+  "kontekst_a": "dział cennika „Benjamin senior barber”",
+  "kontekst_b": "salon typu „Barber shop”",
+  "score": 0.01,
+  "rozklad": {
+   "0": 0.99,
+   "1": 0.01,
+   "2": 0.0
+  }
+ },
+ "[\"brwi depilacj henn\", \"inni\", \"paznokc\"]": {
+  "klasa": [
+   "brwi depilacj henn",
+   "inni",
+   "paznokc"
+  ],
+  "usluga": "HENNA BRWI + DEPILACJA — HENNA BRWI + DEPILACJA",
+  "a": "HENNA BRWI + DEPILACJA — HENNA BRWI + DEPILACJA",
+  "b": "Henna brwi + depilacja",
+  "kontekst_a": "salon typu „Inni”",
+  "kontekst_b": "salon typu „Paznokcie”",
+  "score": 0.29,
+  "rozklad": {
+   "0": 0.81,
+   "1": 0.08,
+   "2": 0.11
+  }
+ },
+ "[\"brwi geometr henn regulacj\", \"brwi rzes\", \"kosmetyczn salon\"]": {
+  "klasa": [
+   "brwi geometr henn regulacj",
+   "brwi rzes",
+   "kosmetyczn salon"
+  ],
+  "usluga": "Henna brwi+regulacja+geometria",
+  "a": "Henna brwi+regulacja+geometria",
+  "b": "Henna+Geometria+Regulacja brwi",
+  "kontekst_a": "salon typu „Brwi i rzęsy”",
+  "kontekst_b": "salon typu „Salon Kosmetyczny”",
+  "score": 0.02,
+  "rozklad": {
+   "0": 0.98,
+   "1": 0.01,
+   "2": 0.01
+  }
+ },
+ "[\"brwi depilacj henn\", \"kosmetyczn salon\", \"paznokc\"]": {
+  "klasa": [
+   "brwi depilacj henn",
+   "kosmetyczn salon",
+   "paznokc"
+  ],
+  "usluga": "Henna brwi + depilacja",
+  "a": "Henna brwi + depilacja",
+  "b": "Henna brwi + depilacja",
+  "kontekst_a": "salon typu „Salon Kosmetyczny”",
+  "kontekst_b": "salon typu „Paznokcie”",
+  "score": 0.13,
+  "rozklad": {
+   "0": 0.92,
+   "1": 0.03,
+   "2": 0.05
+  }
+ },
+ "[\"brwi geometr henn regulacj\", \"estetyczn medycyn\", \"kosmetyczn salon\"]": {
+  "klasa": [
+   "brwi geometr henn regulacj",
+   "estetyczn medycyn",
+   "kosmetyczn salon"
+  ],
+  "usluga": "Henna / farbka brwi + geometria + regulacja",
+  "a": "Henna / farbka brwi + geometria + regulacja",
+  "b": "Henna+Geometria+Regulacja brwi",
+  "kontekst_a": "salon typu „Medycyna Estetyczna”",
+  "kontekst_b": "salon typu „Salon Kosmetyczny”",
+  "score": 0.01,
+  "rozklad": {
+   "0": 0.99,
+   "1": 0.01,
+   "2": 0.0
+  }
+ },
+ "[\"depilacj nos uszu\", \"kosmetyk\", \"pielegnacj\"]": {
+  "klasa": [
+   "depilacj nos uszu",
+   "kosmetyk",
+   "pielegnacj"
+  ],
+  "usluga": "Depilacja nos — Depilacja nos/uszy",
+  "a": "Depilacja nos — Depilacja nos/uszy",
+  "b": "Depilacja uszu lub nosa",
+  "kontekst_a": "dział cennika „Kosmetyka”",
+  "kontekst_b": "dział cennika „Pielęgnacja”",
+  "score": 0.14,
+  "rozklad": {
+   "0": 0.88,
+   "1": 0.1,
+   "2": 0.02
+  }
+ }
+}

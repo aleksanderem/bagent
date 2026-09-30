@@ -1,0 +1,1692 @@
+{
+ "paznokc rekonstrukcj": {
+  "klasa": "paznokc rekonstrukcj",
+  "usluga": "Rekonstrukcja Paznokcia",
+  "score": 1.11,
+  "rozklad": {
+   "0": 0.44,
+   "1": 0.01,
+   "2": 0.55
+  }
+ },
+ "damsk krotk strzyzen": {
+  "klasa": "damsk krotk strzyzen",
+  "usluga": "Strzyżenie Damskie Krótkie",
+  "score": 0.02,
+  "rozklad": {
+   "0": 0.98,
+   "1": 0.01,
+   "2": 0.01
+  }
+ },
+ "depilacj wasik": {
+  "klasa": "depilacj wasik",
+  "usluga": "Depilacja wąsika",
+  "score": 0.0,
+  "rozklad": {
+   "0": 1.0,
+   "1": 0.0,
+   "2": 0.0
+  }
+ },
+ "rzes zdjec": {
+  "klasa": "rzes zdjec",
+  "usluga": "Ściągnięcie rzęs rzes",
+  "score": 0.04,
+  "rozklad": {
+   "0": 0.97,
+   "1": 0.02,
+   "2": 0.01
+  }
+ },
+ "rzes": {
+  "klasa": "rzes",
+  "usluga": "rzęs rzes",
+  "score": 0.27,
+  "rozklad": {
+   "0": 0.81,
+   "1": 0.12,
+   "2": 0.07
+  }
+ },
+ "brwi makijaz permanentn": {
+  "klasa": "brwi makijaz permanentn",
+  "usluga": "Makijaż permanentny brwi",
+  "score": 0.0,
+  "rozklad": {
+   "0": 1.0,
+   "1": 0.0,
+   "2": 0.0
+  }
+ },
+ "mikrodermabrazj": {
+  "klasa": "mikrodermabrazj",
+  "usluga": "Mikrodermabrazja",
+  "score": 1.89,
+  "rozklad": {
+   "0": 0.01,
+   "1": 0.1,
+   "2": 0.89
+  }
+ },
+ "podologiczn podstaw": {
+  "klasa": "podologiczn podstaw",
+  "usluga": "Podologiczny Podstawowy",
+  "score": 0.1,
+  "rozklad": {
+   "0": 0.92,
+   "1": 0.05,
+   "2": 0.03
+  }
+ },
+ "paznokc plytk rekonstrukcj": {
+  "klasa": "paznokc plytk rekonstrukcj",
+  "usluga": "Rekonstrukcja płytki paznokcia",
+  "score": 1.26,
+  "rozklad": {
+   "0": 0.36,
+   "1": 0.01,
+   "2": 0.63
+  }
+ },
+ "manualn oczyszczan": {
+  "klasa": "manualn oczyszczan",
+  "usluga": "Oczyszczanie manualne",
+  "score": 1.87,
+  "rozklad": {
+   "0": 0.01,
+   "1": 0.1,
+   "2": 0.89
+  }
+ },
+ "keratyn": {
+  "klasa": "keratyn",
+  "usluga": "Keratyna",
+  "score": 1.22,
+  "rozklad": {
+   "0": 0.14,
+   "1": 0.5,
+   "2": 0.36
+  }
+ },
+ "brwi farbk koloryzacj regulacj": {
+  "klasa": "brwi farbk koloryzacj regulacj",
+  "usluga": "Koloryzacja brwi farbką regulacją",
+  "score": 0.0,
+  "rozklad": {
+   "0": 1.0,
+   "1": 0.0,
+   "2": 0.0
+  }
+ },
+ "brod strzyzen": {
+  "klasa": "brod strzyzen",
+  "usluga": "Strzyżenie brody",
+  "score": 0.0,
+  "rozklad": {
+   "0": 1.0,
+   "1": 0.0,
+   "2": 0.0
+  }
+ },
+ "podologiczn": {
+  "klasa": "podologiczn",
+  "usluga": "Podologiczny",
+  "score": 0.1,
+  "rozklad": {
+   "0": 0.92,
+   "1": 0.05,
+   "2": 0.03
+  }
+ },
+ "masaz twarz": {
+  "klasa": "masaz twarz",
+  "usluga": "Masaż twarzy",
+  "score": 0.01,
+  "rozklad": {
+   "0": 1.0,
+   "1": 0.0,
+   "2": 0.0
+  }
+ },
+ "kresk makijaz permanentn": {
+  "klasa": "kresk makijaz permanentn",
+  "usluga": "makijaż permanentny Kreska MAKIJAŻ PERMANENTNY",
+  "score": 0.1,
+  "rozklad": {
+   "0": 0.93,
+   "1": 0.04,
+   "2": 0.03
+  }
+ },
+ "krotk mesk strzyzen": {
+  "klasa": "krotk mesk strzyzen",
+  "usluga": "Strzyżenie męskie krótkie",
+  "score": 0.09,
+  "rozklad": {
+   "0": 0.9299999999999999,
+   "1": 0.04,
+   "2": 0.03
+  }
+ },
+ "kresk lini makijaz permanentn rzes": {
+  "klasa": "kresk lini makijaz permanentn rzes",
+  "usluga": "makijaż permanentny Kreska linii rzęs MAKIJAŻ PERMANENTNY",
+  "score": 0.0,
+  "rozklad": {
+   "0": 1.0,
+   "1": 0.0,
+   "2": 0.0
+  }
+ },
+ "paznokc zdobien": {
+  "klasa": "paznokc zdobien",
+  "usluga": "Zdobienie Paznokci",
+  "score": 1.77,
+  "rozklad": {
+   "0": 0.11,
+   "1": 0.01,
+   "2": 0.88
+  }
+ },
+ "brod": {
+  "klasa": "brod",
+  "usluga": "brody",
+  "score": 0.92,
+  "rozklad": {
+   "0": 0.26,
+   "1": 0.56,
+   "2": 0.18
+  }
+ },
+ "brod farbowan": {
+  "klasa": "brod farbowan",
+  "usluga": "Farbowanie brody",
+  "score": 0.0,
+  "rozklad": {
+   "0": 1.0,
+   "1": 0.0,
+   "2": 0.0
+  }
+ },
+ "dekolt oczyszczan szyj twarz wodor": {
+  "klasa": "dekolt oczyszczan szyj twarz wodor",
+  "usluga": "Oczyszczanie wodorowe twarz szyja dekolt",
+  "score": 0.06,
+  "rozklad": {
+   "0": 0.97,
+   "1": 0.0,
+   "2": 0.03
+  }
+ },
+ "malowan pedicur": {
+  "klasa": "malowan pedicur",
+  "usluga": "Pedicure malowaniem",
+  "score": 0.01,
+  "rozklad": {
+   "0": 1.0,
+   "1": 0.0,
+   "2": 0.0
+  }
+ },
+ "przedluzan rzes zdjec": {
+  "klasa": "przedluzan rzes zdjec",
+  "usluga": "Ściągnięcie rzęs Przedłużanie rzes",
+  "score": 0.01,
+  "rozklad": {
+   "0": 0.99,
+   "1": 0.01,
+   "2": 0.0
+  }
+ },
+ "depilacj nos uszu": {
+  "klasa": "depilacj nos uszu",
+  "usluga": "Depilacja uszu nosa",
+  "score": 0.08,
+  "rozklad": {
+   "0": 0.96,
+   "1": 0.01,
+   "2": 0.03
+  }
+ },
+ "depilacj wasa": {
+  "klasa": "depilacj wasa",
+  "usluga": "Depilacja wąsa",
+  "score": 0.0,
+  "rozklad": {
+   "0": 1.0,
+   "1": 0.0,
+   "2": 0.0
+  }
+ },
+ "paznokc": {
+  "klasa": "paznokc",
+  "usluga": "Paznokcia",
+  "score": 1.03,
+  "rozklad": {
+   "0": 0.47,
+   "1": 0.03,
+   "2": 0.5
+  }
+ },
+ "makijaz permanentn": {
+  "klasa": "makijaz permanentn",
+  "usluga": "Makijaż permanentny",
+  "score": 1.12,
+  "rozklad": {
+   "0": 0.38,
+   "1": 0.11,
+   "2": 0.51
+  }
+ },
+ "chorob paznokc": {
+  "klasa": "chorob paznokc",
+  "usluga": "Paznokci Chorobowymi",
+  "score": 0.59,
+  "rozklad": {
+   "0": 0.68,
+   "1": 0.05,
+   "2": 0.27
+  }
+ },
+ "dlugosc jedn strzyzen": {
+  "klasa": "dlugosc jedn strzyzen",
+  "usluga": "Strzyżenie jedną długość",
+  "score": 0.96,
+  "rozklad": {
+   "0": 0.39,
+   "1": 0.25,
+   "2": 0.36
+  }
+ },
+ "dekolt kobid masaz szyj twarz": {
+  "klasa": "dekolt kobid masaz szyj twarz",
+  "usluga": "masaż KOBIDO twarzy, szyi, dekoltu, Masaż",
+  "score": 0.2,
+  "rozklad": {
+   "0": 0.89,
+   "1": 0.01,
+   "2": 0.1
+  }
+ },
+ "botox regeneracj": {
+  "klasa": "botox regeneracj",
+  "usluga": "Regeneracja botox",
+  "score": 1.75,
+  "rozklad": {
+   "0": 0.01,
+   "1": 0.23,
+   "2": 0.76
+  }
+ },
+ "brod damsk depilacj": {
+  "klasa": "brod damsk depilacj",
+  "usluga": "Depilacja Broda Kobiety",
+  "score": 0.0,
+  "rozklad": {
+   "0": 1.0,
+   "1": 0.0,
+   "2": 0.0
+  }
+ },
+ "beard brod strzyzen": {
+  "klasa": "beard brod strzyzen",
+  "usluga": "Strzyżenie brody Beard",
+  "score": 0.0,
+  "rozklad": {
+   "0": 1.0,
+   "1": 0.0,
+   "2": 0.0
+  }
+ },
+ "french hybryd manicur ombr": {
+  "klasa": "french hybryd manicur ombr",
+  "usluga": "Manicure hybrydowy french ombre",
+  "score": 0.04,
+  "rozklad": {
+   "0": 0.98,
+   "1": 0.01,
+   "2": 0.01
+  }
+ },
+ "depilacj laser mesk ramion": {
+  "klasa": "depilacj laser mesk ramion",
+  "usluga": "Depilacja laserowa Ramiona Mężczyźni",
+  "score": 0.0,
+  "rozklad": {
+   "0": 1.0,
+   "1": 0.0,
+   "2": 0.0
+  }
+ },
+ "depilacj laser ramion": {
+  "klasa": "depilacj laser ramion",
+  "usluga": "Depilacja laserowa Ramiona",
+  "score": 0.0,
+  "rozklad": {
+   "0": 1.0,
+   "1": 0.0,
+   "2": 0.0
+  }
+ },
+ "depilacj mesk pach": {
+  "klasa": "depilacj mesk pach",
+  "usluga": "Depilacja Pachy Mężczyźni",
+  "score": 0.0,
+  "rozklad": {
+   "0": 1.0,
+   "1": 0.0,
+   "2": 0.0
+  }
+ },
+ "depilacj pach": {
+  "klasa": "depilacj pach",
+  "usluga": "Depilacja Pachy",
+  "score": 0.0,
+  "rozklad": {
+   "0": 1.0,
+   "1": 0.0,
+   "2": 0.0
+  }
+ },
+ "brwi farbk regulacj": {
+  "klasa": "brwi farbk regulacj",
+  "usluga": "brwi farbką regulacją",
+  "score": 0.01,
+  "rozklad": {
+   "0": 1.0,
+   "1": 0.0,
+   "2": 0.0
+  }
+ },
+ "rzes set": {
+  "klasa": "rzes set",
+  "usluga": "rzęs rzes",
+  "score": 0.25,
+  "rozklad": {
+   "0": 0.8200000000000001,
+   "1": 0.12,
+   "2": 0.06
+  }
+ },
+ "woskowan": {
+  "klasa": "woskowan",
+  "usluga": "Woskowanie-",
+  "score": 1.91,
+  "rozklad": {
+   "0": 0.02,
+   "1": 0.06,
+   "2": 0.92
+  }
+ },
+ "podstaw": {
+  "klasa": "podstaw",
+  "usluga": "Podstawowy",
+  "score": 1.11,
+  "rozklad": {
+   "0": 0.0,
+   "1": 0.88,
+   "2": 0.12
+  }
+ },
+ "plytk rekonstrukcj": {
+  "klasa": "plytk rekonstrukcj",
+  "usluga": "Rekonstrukcja płytki",
+  "score": 1.07,
+  "rozklad": {
+   "0": 0.42,
+   "1": 0.09,
+   "2": 0.49
+  }
+ },
+ "zdjec": {
+  "klasa": "zdjec",
+  "usluga": "Ściągnięcie",
+  "score": 1.7,
+  "rozklad": {
+   "0": 0.04,
+   "1": 0.23,
+   "2": 0.73
+  }
+ },
+ "przedluzan rzes": {
+  "klasa": "przedluzan rzes",
+  "usluga": "rzęs Przedłużanie rzes",
+  "score": 0.04,
+  "rozklad": {
+   "0": 0.97,
+   "1": 0.02,
+   "2": 0.01
+  }
+ },
+ "botox": {
+  "klasa": "botox",
+  "usluga": "botox",
+  "score": 1.83,
+  "rozklad": {
+   "0": 0.0,
+   "1": 0.16,
+   "2": 0.84
+  }
+ },
+ "rzes sztuczn": {
+  "klasa": "rzes sztuczn",
+  "usluga": "sztucznych rzęs",
+  "score": 0.07,
+  "rozklad": {
+   "0": 0.95,
+   "1": 0.02,
+   "2": 0.03
+  }
+ },
+ "chemiczn kwas mlek peeling twarz": {
+  "klasa": "chemiczn kwas mlek peeling twarz",
+  "usluga": "Peeling chemiczny kwasem mlekowym twarz",
+  "score": 0.0,
+  "rozklad": {
+   "0": 1.0,
+   "1": 0.0,
+   "2": 0.0
+  }
+ },
+ "dekolt oczyszczan szyj wodor": {
+  "klasa": "dekolt oczyszczan szyj wodor",
+  "usluga": "Oczyszczanie wodorowe szyja dekolt",
+  "score": 0.01,
+  "rozklad": {
+   "0": 1.0,
+   "1": 0.0,
+   "2": 0.0
+  }
+ },
+ "dekolt gene szyj twarz": {
+  "klasa": "dekolt gene szyj twarz",
+  "usluga": "Geneo twarz szyja dekolt",
+  "score": 0.08,
+  "rozklad": {
+   "0": 0.95,
+   "1": 0.02,
+   "2": 0.03
+  }
+ },
+ "fala posladk uda uderzeni": {
+  "klasa": "fala posladk uda uderzeni",
+  "usluga": "Fala uderzeniowa Uda pośladki",
+  "score": 0.03,
+  "rozklad": {
+   "0": 0.98,
+   "1": 0.01,
+   "2": 0.01
+  }
+ },
+ "mesk pedicur": {
+  "klasa": "mesk pedicur",
+  "usluga": "Pedicure męski",
+  "score": 0.01,
+  "rozklad": {
+   "0": 1.0,
+   "1": 0.0,
+   "2": 0.0
+  }
+ },
+ "gorac kamien masaz": {
+  "klasa": "gorac kamien masaz",
+  "usluga": "Masaż gorącymi kamieniami masaż",
+  "score": 1.96,
+  "rozklad": {
+   "0": 0.02,
+   "1": 0.01,
+   "2": 0.97
+  }
+ },
+ "kobid masaz": {
+  "klasa": "kobid masaz",
+  "usluga": "KOBIDO Kobido",
+  "score": 0.9,
+  "rozklad": {
+   "0": 0.21,
+   "1": 0.67,
+   "2": 0.12
+  }
+ },
+ "2 3d przedluzan rzes": {
+  "klasa": "2 3d przedluzan rzes",
+  "usluga": "Przedłużanie rzęs 2-3D Rzęs",
+  "score": 0.01,
+  "rozklad": {
+   "0": 1.0,
+   "1": 0.0,
+   "2": 0.0
+  }
+ },
+ "kombinowan manicur": {
+  "klasa": "kombinowan manicur",
+  "usluga": "Manicure kombinowany",
+  "score": 0.03,
+  "rozklad": {
+   "0": 0.98,
+   "1": 0.01,
+   "2": 0.01
+  }
+ },
+ "bikin depilacj klasyczn laser": {
+  "klasa": "bikin depilacj klasyczn laser",
+  "usluga": "Depilacja bikini Bikini klasyczne",
+  "score": 0.01,
+  "rozklad": {
+   "0": 1.0,
+   "1": 0.0,
+   "2": 0.0
+  }
+ },
+ "chorob oczyszczan paznokc zmienion": {
+  "klasa": "chorob oczyszczan paznokc zmienion",
+  "usluga": "Oczyszczanie paznokcia zmienionego chorobowo",
+  "score": 0.93,
+  "rozklad": {
+   "0": 0.53,
+   "1": 0.01,
+   "2": 0.46
+  }
+ },
+ "swiecowan uszu": {
+  "klasa": "swiecowan uszu",
+  "usluga": "Świecowanie uszu",
+  "score": 0.01,
+  "rozklad": {
+   "0": 0.99,
+   "1": 0.01,
+   "2": 0.0
+  }
+ },
+ "koreansk rytual twarz": {
+  "klasa": "koreansk rytual twarz",
+  "usluga": "rytuał Koreański twarzy",
+  "score": 0.01,
+  "rozklad": {
+   "0": 1.0,
+   "1": 0.0,
+   "2": 0.0
+  }
+ },
+ "head rytual spa": {
+  "klasa": "head rytual spa",
+  "usluga": "HEAD SPA Ritual",
+  "score": 0.01,
+  "rozklad": {
+   "0": 0.99,
+   "1": 0.01,
+   "2": 0.0
+  }
+ },
+ "brwi makijaz ombr permanentn": {
+  "klasa": "brwi makijaz ombr permanentn",
+  "usluga": "Brwi Permanentne Ombre Brows Makijaż permanentny",
+  "score": 0.0,
+  "rozklad": {
+   "0": 1.0,
+   "1": 0.0,
+   "2": 0.0
+  }
+ },
+ "kobid lifting masaz": {
+  "klasa": "kobid lifting masaz",
+  "usluga": "KOBIDO LIFT Kobido",
+  "score": 0.89,
+  "rozklad": {
+   "0": 0.2,
+   "1": 0.71,
+   "2": 0.09
+  }
+ },
+ "brod odsiwian": {
+  "klasa": "brod odsiwian",
+  "usluga": "Cover/odsiwianie Brody",
+  "score": 0.23,
+  "rozklad": {
+   "0": 0.85,
+   "1": 0.07,
+   "2": 0.08
+  }
+ },
+ "bank chinsk masaz ujedrniajac": {
+  "klasa": "bank chinsk masaz ujedrniajac",
+  "usluga": "Masaż bańką chińską ujędrniający masaż",
+  "score": 1.99,
+  "rozklad": {
+   "0": 0.0,
+   "1": 0.01,
+   "2": 0.99
+  }
+ },
+ "2 3d metod przedluzan rzes": {
+  "klasa": "2 3d metod przedluzan rzes",
+  "usluga": "Przedłużanie rzęs metodą 2-3D Rzęs",
+  "score": 0.0,
+  "rozklad": {
+   "0": 1.0,
+   "1": 0.0,
+   "2": 0.0
+  }
+ },
+ "brod cover odsiwian": {
+  "klasa": "brod cover odsiwian",
+  "usluga": "Cover/odsiwianie Brody",
+  "score": 0.15,
+  "rozklad": {
+   "0": 0.9,
+   "1": 0.05,
+   "2": 0.05
+  }
+ },
+ "bankiet": {
+  "klasa": "bankiet",
+  "usluga": "bankietowy",
+  "score": 1.32,
+  "rozklad": {
+   "0": 0.04,
+   "1": 0.6,
+   "2": 0.36
+  }
+ },
+ "3d metod przedluzan rzes": {
+  "klasa": "3d metod przedluzan rzes",
+  "usluga": "Przedłużanie rzęs metodą 2-3D Rzęs",
+  "score": 0.01,
+  "rozklad": {
+   "0": 1.0,
+   "1": 0.0,
+   "2": 0.0
+  }
+ },
+ "laser rece": {
+  "klasa": "laser rece",
+  "usluga": "laserowa Ręce",
+  "score": 0.02,
+  "rozklad": {
+   "0": 0.98,
+   "1": 0.01,
+   "2": 0.01
+  }
+ },
+ "krotk modelowan wlos": {
+  "klasa": "krotk modelowan wlos",
+  "usluga": "Modelowanie krótkie włosy",
+  "score": 0.03,
+  "rozklad": {
+   "0": 0.98,
+   "1": 0.01,
+   "2": 0.01
+  }
+ },
+ "hybryd manicur": {
+  "klasa": "hybryd manicur",
+  "usluga": "Manicure hybrydowy",
+  "score": 0.02,
+  "rozklad": {
+   "0": 0.98,
+   "1": 0.01,
+   "2": 0.01
+  }
+ },
+ "klasyczn manicur": {
+  "klasa": "klasyczn manicur",
+  "usluga": "Manicure klasyczny",
+  "score": 0.03,
+  "rozklad": {
+   "0": 0.98,
+   "1": 0.01,
+   "2": 0.01
+  }
+ },
+ "mesk strzyzen": {
+  "klasa": "mesk strzyzen",
+  "usluga": "Strzyżenie męskie",
+  "score": 0.12,
+  "rozklad": {
+   "0": 0.92,
+   "1": 0.03,
+   "2": 0.05
+  }
+ },
+ "japonsk manicur": {
+  "klasa": "japonsk manicur",
+  "usluga": "Manicure japoński",
+  "score": 0.02,
+  "rozklad": {
+   "0": 0.98,
+   "1": 0.01,
+   "2": 0.01
+  }
+ },
+ "henn rzes": {
+  "klasa": "henn rzes",
+  "usluga": "Henna rzęs",
+  "score": 0.01,
+  "rozklad": {
+   "0": 1.0,
+   "1": 0.0,
+   "2": 0.0
+  }
+ },
+ "infuzj tlen twarz": {
+  "klasa": "infuzj tlen twarz",
+  "usluga": "INFUZJA TLENOWA Twarz",
+  "score": 0.0,
+  "rozklad": {
+   "0": 1.0,
+   "1": 0.0,
+   "2": 0.0
+  }
+ },
+ "hybryd pedicur": {
+  "klasa": "hybryd pedicur",
+  "usluga": "Pedicure hybrydowy",
+  "score": 0.01,
+  "rozklad": {
+   "0": 1.0,
+   "1": 0.0,
+   "2": 0.0
+  }
+ },
+ "brwi henn pudr": {
+  "klasa": "brwi henn pudr",
+  "usluga": "Henna Pudrowa brwi",
+  "score": 0.01,
+  "rozklad": {
+   "0": 1.0,
+   "1": 0.0,
+   "2": 0.0
+  }
+ },
+ "infuzj szyj tlen twarz": {
+  "klasa": "infuzj szyj tlen twarz",
+  "usluga": "Infuzja tlenowa Twarz+ szyja",
+  "score": 0.01,
+  "rozklad": {
+   "0": 1.0,
+   "1": 0.0,
+   "2": 0.0
+  }
+ },
+ "dekolt infuzj szyj tlen twarz": {
+  "klasa": "dekolt infuzj szyj tlen twarz",
+  "usluga": "INFUZJA TLENOWA Twarz+szyja+dekolt",
+  "score": 0.02,
+  "rozklad": {
+   "0": 0.99,
+   "1": 0.0,
+   "2": 0.01
+  }
+ },
+ "brod comb strzyzen trymowan": {
+  "klasa": "brod comb strzyzen trymowan",
+  "usluga": "Strzyżenie broda Trymowanie",
+  "score": 0.0,
+  "rozklad": {
+   "0": 1.0,
+   "1": 0.0,
+   "2": 0.0
+  }
+ },
+ "farbowan jeden kolor sredn": {
+  "klasa": "farbowan jeden kolor sredn",
+  "usluga": "Farbowanie jeden kolor średnie",
+  "score": 1.59,
+  "rozklad": {
+   "0": 0.06,
+   "1": 0.28,
+   "2": 0.66
+  }
+ },
+ "5:1 przedluzan rzes": {
+  "klasa": "5:1 przedluzan rzes",
+  "usluga": "Przedłużanie rzęs 5:1 RZĘS",
+  "score": 0.01,
+  "rozklad": {
+   "0": 1.0,
+   "1": 0.0,
+   "2": 0.0
+  }
+ },
+ "brod strzyzen trymowan": {
+  "klasa": "brod strzyzen trymowan",
+  "usluga": "Strzyżenie broda Trymowanie",
+  "score": 0.0,
+  "rozklad": {
+   "0": 1.0,
+   "1": 0.0,
+   "2": 0.0
+  }
+ },
+ "infuzj tlen": {
+  "klasa": "infuzj tlen",
+  "usluga": "INFUZJA TLENOWA",
+  "score": 1.47,
+  "rozklad": {
+   "0": 0.07,
+   "1": 0.39,
+   "2": 0.54
+  }
+ },
+ "depilacj": {
+  "klasa": "depilacj",
+  "usluga": "Depilacja",
+  "score": 1.99,
+  "rozklad": {
+   "0": 0.0,
+   "1": 0.0,
+   "2": 1.0
+  }
+ },
+ "depilacj nog": {
+  "klasa": "depilacj nog",
+  "usluga": "Depilacja nóg",
+  "score": 0.0,
+  "rozklad": {
+   "0": 1.0,
+   "1": 0.0,
+   "2": 0.0
+  }
+ },
+ "henn komplet": {
+  "klasa": "henn komplet",
+  "usluga": "Henna henna komplet",
+  "score": 1.88,
+  "rozklad": {
+   "0": 0.01,
+   "1": 0.1,
+   "2": 0.89
+  }
+ },
+ "lecznicz masaz plec": {
+  "klasa": "lecznicz masaz plec",
+  "usluga": "masaż Leczniczy pleców Masaże lecznicze",
+  "score": 0.03,
+  "rozklad": {
+   "0": 0.99,
+   "1": 0.0,
+   "2": 0.01
+  }
+ },
+ "botox farbk laminacj lifting rzes": {
+  "klasa": "botox farbk laminacj lifting rzes",
+  "usluga": "Laminacja rzęs laminacja Lifting botox farba",
+  "score": 0.01,
+  "rozklad": {
+   "0": 1.0,
+   "1": 0.0,
+   "2": 0.0
+  }
+ },
+ "jeden kolor sredn": {
+  "klasa": "jeden kolor sredn",
+  "usluga": "jeden kolor średnie",
+  "score": 1.49,
+  "rozklad": {
+   "0": 0.02,
+   "1": 0.48,
+   "2": 0.5
+  }
+ },
+ "cale farbowan jeden kolor sredn": {
+  "klasa": "cale farbowan jeden kolor sredn",
+  "usluga": "Farbowanie jeden kolor średnie",
+  "score": 1.57,
+  "rozklad": {
+   "0": 0.06,
+   "1": 0.3,
+   "2": 0.64
+  }
+ },
+ "5:1 przedluzan rzes stylizacj": {
+  "klasa": "5:1 przedluzan rzes stylizacj",
+  "usluga": "Przedłużanie rzęs 5:1 STYLIZACJA RZĘS",
+  "score": 0.01,
+  "rozklad": {
+   "0": 1.0,
+   "1": 0.0,
+   "2": 0.0
+  }
+ },
+ "depilacj klatk laser mesk piersi": {
+  "klasa": "depilacj klatk laser mesk piersi",
+  "usluga": "Depilacja laserowa Klatka piersiowa MEN Depilację",
+  "score": 0.0,
+  "rozklad": {
+   "0": 1.0,
+   "1": 0.0,
+   "2": 0.0
+  }
+ },
+ "brod comb glow strzyzen trymowan": {
+  "klasa": "brod comb glow strzyzen trymowan",
+  "usluga": "Strzyżenie głowa broda Trymowanie",
+  "score": 0.32,
+  "rozklad": {
+   "0": 0.83,
+   "1": 0.01,
+   "2": 0.16
+  }
+ },
+ "nos uszu": {
+  "klasa": "nos uszu",
+  "usluga": "uszy nos",
+  "score": 0.31,
+  "rozklad": {
+   "0": 0.8099999999999999,
+   "1": 0.06,
+   "2": 0.13
+  }
+ },
+ "brod comb trymowan": {
+  "klasa": "brod comb trymowan",
+  "usluga": "broda Trymowanie",
+  "score": 1.06,
+  "rozklad": {
+   "0": 0.4,
+   "1": 0.14,
+   "2": 0.46
+  }
+ },
+ "liposukcj": {
+  "klasa": "liposukcj",
+  "usluga": "Liposukcja",
+  "score": 1.97,
+  "rozklad": {
+   "0": 0.0,
+   "1": 0.02,
+   "2": 0.98
+  }
+ },
+ "body wrapping": {
+  "klasa": "body wrapping",
+  "usluga": "Body wrapping",
+  "score": 1.32,
+  "rozklad": {
+   "0": 0.33,
+   "1": 0.01,
+   "2": 0.66
+  }
+ },
+ "masaz sport": {
+  "klasa": "masaz sport",
+  "usluga": "Masaż sportowy",
+  "score": 1.99,
+  "rozklad": {
+   "0": 0.0,
+   "1": 0.0,
+   "2": 1.0
+  }
+ },
+ "krotk paznokc przedluzen": {
+  "klasa": "krotk paznokc przedluzen",
+  "usluga": "Przedłużenie paznokci krótkie",
+  "score": 1.09,
+  "rozklad": {
+   "0": 0.44,
+   "1": 0.02,
+   "2": 0.54
+  }
+ },
+ "depilacj dlon laser palc": {
+  "klasa": "depilacj dlon laser palc",
+  "usluga": "Depilacja laserowa dłoń palce",
+  "score": 0.01,
+  "rozklad": {
+   "0": 1.0,
+   "1": 0.0,
+   "2": 0.0
+  }
+ },
+ "manualn mask oczyszczan twarz": {
+  "klasa": "manualn mask oczyszczan twarz",
+  "usluga": "Oczyszczanie manualne maską OCZYSZCZANIE TWARZY",
+  "score": 0.01,
+  "rozklad": {
+   "0": 1.0,
+   "1": 0.0,
+   "2": 0.0
+  }
+ },
+ "mask oczyszczan twarz": {
+  "klasa": "mask oczyszczan twarz",
+  "usluga": "Oczyszczanie maską OCZYSZCZANIE TWARZY",
+  "score": 0.01,
+  "rozklad": {
+   "0": 1.0,
+   "1": 0.0,
+   "2": 0.0
+  }
+ },
+ "bankiet banquet gene glow lifting rytual total zaffir": {
+  "klasa": "bankiet banquet gene glow lifting rytual total zaffir",
+  "usluga": "Geneo™&Zaffiro Rytuał Banquet Total Glow&Lift BANKIETOWE",
+  "score": 1.23,
+  "rozklad": {
+   "0": 0.03,
+   "1": 0.72,
+   "2": 0.25
+  }
+ },
+ "twarz": {
+  "klasa": "twarz",
+  "usluga": "Twarz",
+  "score": 0.05,
+  "rozklad": {
+   "0": 0.97,
+   "1": 0.02,
+   "2": 0.01
+  }
+ },
+ "form przedluzan zelow": {
+  "klasa": "form przedluzan zelow",
+  "usluga": "Przedłużanie formie żelem",
+  "score": 1.01,
+  "rozklad": {
+   "0": 0.43,
+   "1": 0.13,
+   "2": 0.44
+  }
+ },
+ "bez hybryd pedicur podeszw pol": {
+  "klasa": "bez hybryd pedicur podeszw pol",
+  "usluga": "pedicure hybrydowy bez podeszwy pół",
+  "score": 0.01,
+  "rozklad": {
+   "0": 0.99,
+   "1": 0.01,
+   "2": 0.0
+  }
+ },
+ "damsk depilacj kolan laser lydk": {
+  "klasa": "damsk depilacj kolan laser lydk",
+  "usluga": "Depilacja laserowa łeydki+ kolana WOMEN Depilację",
+  "score": 0.03,
+  "rozklad": {
+   "0": 0.98,
+   "1": 0.01,
+   "2": 0.01
+  }
+ },
+ "farbowan kolor sredn": {
+  "klasa": "farbowan kolor sredn",
+  "usluga": "Farbowanie kolor średnie",
+  "score": 1.44,
+  "rozklad": {
+   "0": 0.11,
+   "1": 0.34,
+   "2": 0.55
+  }
+ },
+ "depilacj kolan laser lydk": {
+  "klasa": "depilacj kolan laser lydk",
+  "usluga": "Depilacja laserowa łeydki+ kolana Depilację",
+  "score": 0.03,
+  "rozklad": {
+   "0": 0.98,
+   "1": 0.01,
+   "2": 0.01
+  }
+ },
+ "depilacj klatk laser mesk": {
+  "klasa": "depilacj klatk laser mesk",
+  "usluga": "Depilacja laserowa Klatka MEN Depilację",
+  "score": 0.01,
+  "rozklad": {
+   "0": 1.0,
+   "1": 0.0,
+   "2": 0.0
+  }
+ },
+ "cale depilacj laser nogi": {
+  "klasa": "cale depilacj laser nogi",
+  "usluga": "Depilacja laserowa Całe nogi",
+  "score": 0.0,
+  "rozklad": {
+   "0": 1.0,
+   "1": 0.0,
+   "2": 0.0
+  }
+ },
+ "kawitacyjn peeling twarz": {
+  "klasa": "kawitacyjn peeling twarz",
+  "usluga": "Peeling kawitacyjny twarzy",
+  "score": 0.0,
+  "rozklad": {
+   "0": 1.0,
+   "1": 0.0,
+   "2": 0.0
+  }
+ },
+ "dlugosc jedn maszynk strzyzen": {
+  "klasa": "dlugosc jedn maszynk strzyzen",
+  "usluga": "Strzyżenie jedna długość maszynką",
+  "score": 0.56,
+  "rozklad": {
+   "0": 0.66,
+   "1": 0.12,
+   "2": 0.22
+  }
+ },
+ "brwi regulacj": {
+  "klasa": "brwi regulacj",
+  "usluga": "Regulacja brwi",
+  "score": 0.0,
+  "rozklad": {
+   "0": 1.0,
+   "1": 0.0,
+   "2": 0.0
+  }
+ },
+ "brwi henn regulacj": {
+  "klasa": "brwi henn regulacj",
+  "usluga": "Henna brwi regulacją",
+  "score": 0.0,
+  "rozklad": {
+   "0": 1.0,
+   "1": 0.0,
+   "2": 0.0
+  }
+ },
+ "hybryd stop": {
+  "klasa": "hybryd stop",
+  "usluga": "Hybryda stopy",
+  "score": 0.77,
+  "rozklad": {
+   "0": 0.58,
+   "1": 0.07,
+   "2": 0.35
+  }
+ },
+ "kawitacyjn peeling": {
+  "klasa": "kawitacyjn peeling",
+  "usluga": "Peeling kawitacyjny",
+  "score": 1.93,
+  "rozklad": {
+   "0": 0.01,
+   "1": 0.04,
+   "2": 0.95
+  }
+ },
+ "sredn tonowan wlos": {
+  "klasa": "sredn tonowan wlos",
+  "usluga": "Tonowanie średnie włosy",
+  "score": 0.04,
+  "rozklad": {
+   "0": 0.97,
+   "1": 0.02,
+   "2": 0.01
+  }
+ },
+ "hybryd": {
+  "klasa": "hybryd",
+  "usluga": "Hybryda",
+  "score": 1.33,
+  "rozklad": {
+   "0": 0.06,
+   "1": 0.55,
+   "2": 0.39
+  }
+ },
+ "ciaz masaz": {
+  "klasa": "ciaz masaz",
+  "usluga": "masaż ciążowy",
+  "score": 1.85,
+  "rozklad": {
+   "0": 0.06,
+   "1": 0.03,
+   "2": 0.91
+  }
+ },
+ "dlug keratyn prostowan wlos": {
+  "klasa": "dlug keratyn prostowan wlos",
+  "usluga": "prostowanie Keratynowe włosy długie włosów",
+  "score": 0.01,
+  "rozklad": {
+   "0": 1.0,
+   "1": 0.0,
+   "2": 0.0
+  }
+ },
+ "cial drenaz limfatyczn": {
+  "klasa": "cial drenaz limfatyczn",
+  "usluga": "Drenaż limfatyczny drenaż ciała",
+  "score": 1.34,
+  "rozklad": {
+   "0": 0.33,
+   "1": 0.01,
+   "2": 0.66
+  }
+ },
+ "dlug tonowan wlos": {
+  "klasa": "dlug tonowan wlos",
+  "usluga": "Tonowanie długie włosy",
+  "score": 0.03,
+  "rozklad": {
+   "0": 0.98,
+   "1": 0.01,
+   "2": 0.01
+  }
+ },
+ "geometr henn pudr regulacj": {
+  "klasa": "geometr henn pudr regulacj",
+  "usluga": "Henna pudrowa geometria regulacja",
+  "score": 1.18,
+  "rozklad": {
+   "0": 0.28,
+   "1": 0.25,
+   "2": 0.47000000000000003
+  }
+ },
+ "brwi geometr henn pudr regulacj": {
+  "klasa": "brwi geometr henn pudr regulacj",
+  "usluga": "Henna pudrowa geometria regulacja brwi",
+  "score": 0.01,
+  "rozklad": {
+   "0": 1.0,
+   "1": 0.0,
+   "2": 0.0
+  }
+ },
+ "depilacj wasik wosk": {
+  "klasa": "depilacj wasik wosk",
+  "usluga": "Depilacja Wosk wąsik woskiem",
+  "score": 0.0,
+  "rozklad": {
+   "0": 1.0,
+   "1": 0.0,
+   "2": 0.0
+  }
+ },
+ "powiekszan ust": {
+  "klasa": "powiekszan ust",
+  "usluga": "Powiększanie ust powiększanie powiększane",
+  "score": 0.01,
+  "rozklad": {
+   "0": 1.0,
+   "1": 0.0,
+   "2": 0.0
+  }
+ },
+ "krotk tonowan wlos": {
+  "klasa": "krotk tonowan wlos",
+  "usluga": "Tonowanie krótkie włosy",
+  "score": 0.05,
+  "rozklad": {
+   "0": 0.96,
+   "1": 0.02,
+   "2": 0.02
+  }
+ },
+ "kawitacyjn peeling sonoforez twarz": {
+  "klasa": "kawitacyjn peeling sonoforez twarz",
+  "usluga": "Peeling kawitacyjny sonoforeza twarzy",
+  "score": 0.0,
+  "rozklad": {
+   "0": 1.0,
+   "1": 0.0,
+   "2": 0.0
+  }
+ },
+ "cale laser nogi": {
+  "klasa": "cale laser nogi",
+  "usluga": "laserowa Całe nogi",
+  "score": 0.01,
+  "rozklad": {
+   "0": 1.0,
+   "1": 0.0,
+   "2": 0.0
+  }
+ },
+ "refleksolog stop": {
+  "klasa": "refleksolog stop",
+  "usluga": "STÓP REFLEKSOLOGIA",
+  "score": 0.01,
+  "rozklad": {
+   "0": 0.99,
+   "1": 0.01,
+   "2": 0.0
+  }
+ },
+ "4 6d rzes uzupelnien": {
+  "klasa": "4 6d rzes uzupelnien",
+  "usluga": "Uzupełnianie rzęs 4-6D Uzupełnienie",
+  "score": 0.01,
+  "rozklad": {
+   "0": 1.0,
+   "1": 0.0,
+   "2": 0.0
+  }
+ },
+ "wasik wosk": {
+  "klasa": "wasik wosk",
+  "usluga": "Wosk wąsik woskiem",
+  "score": 0.01,
+  "rozklad": {
+   "0": 0.99,
+   "1": 0.01,
+   "2": 0.0
+  }
+ },
+ "iglow mezoterap": {
+  "klasa": "iglow mezoterap",
+  "usluga": "Mezoterapia igłowa",
+  "score": 1.89,
+  "rozklad": {
+   "0": 0.01,
+   "1": 0.1,
+   "2": 0.89
+  }
+ },
+ "drenaz limfatyczn": {
+  "klasa": "drenaz limfatyczn",
+  "usluga": "Drenaż limfatyczny drenaż",
+  "score": 1.97,
+  "rozklad": {
+   "0": 0.01,
+   "1": 0.02,
+   "2": 0.97
+  }
+ },
+ "bez brwi henn regulacj": {
+  "klasa": "bez brwi henn regulacj",
+  "usluga": "Henna brwi bez regulacji",
+  "score": 0.0,
+  "rozklad": {
+   "0": 1.0,
+   "1": 0.0,
+   "2": 0.0
+  }
+ },
+ "dlugosc maszynk strzyzen": {
+  "klasa": "dlugosc maszynk strzyzen",
+  "usluga": "Strzyżenie długość maszynką",
+  "score": 0.79,
+  "rozklad": {
+   "0": 0.54,
+   "1": 0.13,
+   "2": 0.33
+  }
+ },
+ "kawitacyjn peeling sonoforez": {
+  "klasa": "kawitacyjn peeling sonoforez",
+  "usluga": "Peeling kawitacyjny sonoforeza",
+  "score": 1.92,
+  "rozklad": {
+   "0": 0.02,
+   "1": 0.04,
+   "2": 0.94
+  }
+ },
+ "6 8d rzes uzupelnien": {
+  "klasa": "6 8d rzes uzupelnien",
+  "usluga": "Uzupełnienie rzęs 6-8D",
+  "score": 0.01,
+  "rozklad": {
+   "0": 0.99,
+   "1": 0.01,
+   "2": 0.0
+  }
+ },
+ "koloryzacj krotk wieloton wlos": {
+  "klasa": "koloryzacj krotk wieloton wlos",
+  "usluga": "Koloryzacja wielotonowa krótkie",
+  "score": 0.37,
+  "rozklad": {
+   "0": 0.74,
+   "1": 0.15,
+   "2": 0.11
+  }
+ },
+ "wasik": {
+  "klasa": "wasik",
+  "usluga": "wąsik",
+  "score": 0.02,
+  "rozklad": {
+   "0": 0.99,
+   "1": 0.01,
+   "2": 0.0
+  }
+ },
+ "brwi depilacj nos uszu wosk": {
+  "klasa": "brwi depilacj nos uszu wosk",
+  "usluga": "Depilacja woskiem nos uszy, brwi",
+  "score": 0.26,
+  "rozklad": {
+   "0": 0.87,
+   "1": 0.0,
+   "2": 0.13
+  }
+ },
+ "botox bruksizm": {
+  "klasa": "botox bruksizm",
+  "usluga": "Botoks bruksizm botox",
+  "score": 0.59,
+  "rozklad": {
+   "0": 0.6,
+   "1": 0.21,
+   "2": 0.19
+  }
+ },
+ "1 hybryd napraw paznokc": {
+  "klasa": "1 hybryd napraw paznokc",
+  "usluga": "Naprawa 1 paznokcia (hybryda)",
+  "score": 1.18,
+  "rozklad": {
+   "0": 0.4,
+   "1": 0.02,
+   "2": 0.58
+  }
+ },
+ "hybryd pedicur spa": {
+  "klasa": "hybryd pedicur spa",
+  "usluga": "Pedicure hybrydowy SPA",
+  "score": 0.01,
+  "rozklad": {
+   "0": 1.0,
+   "1": 0.0,
+   "2": 0.0
+  }
+ },
+ "kobid masaz transbukaln": {
+  "klasa": "kobid masaz transbukaln",
+  "usluga": "Masaż Kobido masaż transbukalny MASAŻ",
+  "score": 0.7,
+  "rozklad": {
+   "0": 0.6,
+   "1": 0.1,
+   "2": 0.3
+  }
+ },
+ "brwi makijaz permanentn ust": {
+  "klasa": "brwi makijaz permanentn ust",
+  "usluga": "Makijaż permanentny brwi ust",
+  "score": 0.14,
+  "rozklad": {
+   "0": 0.92,
+   "1": 0.01,
+   "2": 0.07
+  }
+ },
+ "masaz": {
+  "klasa": "masaz",
+  "usluga": "masaż",
+  "score": 2.0,
+  "rozklad": {
+   "0": 0.0,
+   "1": 0.0,
+   "2": 1.0
+  }
+ },
+ "brwi geometr henn regulacj": {
+  "klasa": "brwi geometr henn regulacj",
+  "usluga": "Henna brwi henna +Geometria +Regulacja",
+  "score": 0.01,
+  "rozklad": {
+   "0": 1.0,
+   "1": 0.0,
+   "2": 0.0
+  }
+ },
+ "hybryd napraw paznokc": {
+  "klasa": "hybryd napraw paznokc",
+  "usluga": "Naprawa paznokcia (hybryda)",
+  "score": 1.04,
+  "rozklad": {
+   "0": 0.47,
+   "1": 0.01,
+   "2": 0.52
+  }
+ },
+ "kobid masaz transbukaln twarz": {
+  "klasa": "kobid masaz transbukaln twarz",
+  "usluga": "Masaż Kobido masaż transbukalny MASAŻ TWARZY",
+  "score": 0.01,
+  "rozklad": {
+   "0": 1.0,
+   "1": 0.0,
+   "2": 0.0
+  }
+ },
+ "bruksizm": {
+  "klasa": "bruksizm",
+  "usluga": "bruksizm",
+  "score": 0.87,
+  "rozklad": {
+   "0": 0.23,
+   "1": 0.66,
+   "2": 0.11
+  }
+ },
+ "brwi depilacj henn": {
+  "klasa": "brwi depilacj henn",
+  "usluga": "Henna brwi depilacja",
+  "score": 0.02,
+  "rozklad": {
+   "0": 0.99,
+   "1": 0.01,
+   "2": 0.0
+  }
+ },
+ "dlug keratyn wlos": {
+  "klasa": "dlug keratyn wlos",
+  "usluga": "Keratynowe włosy długie włosów",
+  "score": 0.03,
+  "rozklad": {
+   "0": 0.98,
+   "1": 0.01,
+   "2": 0.01
+  }
+ },
+ "kontrol podologiczn": {
+  "klasa": "kontrol podologiczn",
+  "usluga": "Kontrola Podologiczna",
+  "score": 0.23,
+  "rozklad": {
+   "0": 0.86,
+   "1": 0.05,
+   "2": 0.09
+  }
+ },
+ "1ml bruzd nosow warg wypelnian": {
+  "klasa": "1ml bruzd nosow warg wypelnian",
+  "usluga": "Wypełnienie bruzd wargowo-nosowych 1ml",
+  "score": 0.0,
+  "rozklad": {
+   "0": 1.0,
+   "1": 0.0,
+   "2": 0.0
+  }
+ },
+ "tonowan": {
+  "klasa": "tonowan",
+  "usluga": "Tonowanie",
+  "score": 1.56,
+  "rozklad": {
+   "0": 0.11,
+   "1": 0.21,
+   "2": 0.68
+  }
+ },
+ "koloryzacj wieloton wlos": {
+  "klasa": "koloryzacj wieloton wlos",
+  "usluga": "Koloryzacja wielotonowa",
+  "score": 1.04,
+  "rozklad": {
+   "0": 0.29,
+   "1": 0.37,
+   "2": 0.34
+  }
+ },
+ "dlon uzupelnien zelow": {
+  "klasa": "dlon uzupelnien zelow",
+  "usluga": "Uzupełnienie żelowe dłoni",
+  "score": 0.02,
+  "rozklad": {
+   "0": 0.98,
+   "1": 0.01,
+   "2": 0.01
+  }
+ },
+ "kobid transbukaln": {
+  "klasa": "kobid transbukaln",
+  "usluga": "Kobido transbukalny",
+  "score": 0.56,
+  "rozklad": {
+   "0": 0.62,
+   "1": 0.2,
+   "2": 0.18
+  }
+ },
+ "4 6d rzes stylizacj": {
+  "klasa": "4 6d rzes stylizacj",
+  "usluga": "rzęs 4/6D Stylizacja",
+  "score": 0.04,
+  "rozklad": {
+   "0": 0.97,
+   "1": 0.02,
+   "2": 0.01
+  }
+ },
+ "dlon masaz": {
+  "klasa": "dlon masaz",
+  "usluga": "Masaż Dłoni masaź",
+  "score": 0.03,
+  "rozklad": {
+   "0": 0.98,
+   "1": 0.01,
+   "2": 0.01
+  }
+ },
+ "depilacj do kolan": {
+  "klasa": "depilacj do kolan",
+  "usluga": "Depilacja do kolan",
+  "score": 0.04,
+  "rozklad": {
+   "0": 0.97,
+   "1": 0.01,
+   "2": 0.02
+  }
+ },
+ "pekajac piet terap": {
+  "klasa": "pekajac piet terap",
+  "usluga": "Terapia pięt pękających",
+  "score": 0.0,
+  "rozklad": {
+   "0": 1.0,
+   "1": 0.0,
+   "2": 0.0
+  }
+ },
+ "ust": {
+  "klasa": "ust",
+  "usluga": "ust",
+  "score": 1.09,
+  "rozklad": {
+   "0": 0.08,
+   "1": 0.75,
+   "2": 0.17
+  }
+ }
+}

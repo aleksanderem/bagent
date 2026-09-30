@@ -1,0 +1,556 @@
+diff --git a/scripts/katalog/klasy_roznic.py b/scripts/katalog/klasy_roznic.py
+index 730e8ee..09c459c 100644
+--- a/scripts/katalog/klasy_roznic.py
++++ b/scripts/katalog/klasy_roznic.py
+@@ -19,11 +19,14 @@ from pathlib import Path
+ 
+ B = Path(__file__).resolve().parents[2]
+ sys.path[:0] = [str(B), str(B / "scripts")]
+-from services.katalog_uslug.ekstrakcja import WERSJA_PROMPTU  # noqa: E402
+-from services.katalog_uslug.klasy import (NIE_ZMIENIA, WERSJA_PYTANIA, WERSJA_ZAMIANY, przyklad_czysty,  # noqa: E402
+-                                          pytanie_klasy, pytanie_zamiany, rozstrzygnij, zamiana_rownowazna)
++from services.katalog_uslug.ekstrakcja import LACZNIKI, WERSJA_PROMPTU  # noqa: E402
++from services.katalog_uslug.klasy import (NIE_ZMIENIA, WERSJA_DZIEDZINY, WERSJA_JEDNOZNACZNOSCI,  # noqa: E402
++                                          WERSJA_PYTANIA, WERSJA_ZAMIANY, przyklad_czysty, pytanie_dziedziny,
++                                          pytanie_jednoznacznosci, pytanie_klasy, pytanie_zamiany, rozstrzygnij,
++                                          zamiana_rownowazna)
+ from services.katalog_uslug.normalizacja import normalizuj, rdzen_slowa  # noqa: E402
+-from services.katalog_uslug.podpis import _wybrane_frazy, podpis, roznica_do_pytania, zamiana_do_pytania  # noqa: E402
++from services.katalog_uslug.podpis import (_slowa, _wybrane_frazy, klasa_dziedziny, klucz_roznicy, podpis,  # noqa: E402
++                                           roznica_do_pytania, zamiana_do_pytania)
+ 
+ 
+ def slownictwo_rynku(rek: dict, slownik: dict | None) -> frozenset[str]:
+@@ -43,6 +46,8 @@ MODEL = "jev-1.13.0"
+ CENA_TOK = 0.042 / 1e6
+ PLIK = B / "scripts" / "katalog" / "dane" / "2026-09-29" / f"w{WERSJA_PROMPTU}" / f"klasy_p{WERSJA_PYTANIA}.json"
+ PLIK_ZAMIAN = PLIK.parent / f"zamiany_p{WERSJA_ZAMIANY}.json"
++PLIK_DZIEDZIN = PLIK.parent / f"dziedziny_p{WERSJA_DZIEDZINY}.json"
++PLIK_JEDNOZNACZNOSCI = PLIK.parent / f"jednoznacznosc_p{WERSJA_JEDNOZNACZNOSCI}.json"
+ 
+ 
+ def _dopisek(rek: dict, poziom: str, slowa: set[str], kontekst: dict | None = None, slownik: dict | None = None) -> str:
+@@ -58,6 +63,24 @@ def _dopisek(rek: dict, poziom: str, slowa: set[str], kontekst: dict | None = No
+     return " ".join(wynik) or " ".join(sorted(slowa))
+ 
+ 
++def _nazwa_wspolna(o, rek: dict, kontekst: dict | None, slownik: dict | None, slowa: set[str]) -> str:
++    """Wspólne słowa pary w brzmieniu i kolejności nazwy oferty, z łącznikami między nimi („Hybryda na stopy”, nie
++    „Hybryda stopy” — pytanie o jednoznaczność v1, test C: 0,58 / 0,35 zamiast „tak”); słowa spoza nazwy (z działu
++    cennika) z przodu, w brzmieniu frazy (_dopisek)."""
++    s = slownik or {}
++
++    def rdzenie(tok: str) -> set[str]:
++        return {s.get(r, r) for t in normalizuj(tok).split() if (r := rdzen_slowa(t))}
++
++    tokeny = f"{o.nazwa} {o.wariant}".split()
++    wsp = [bool(rdzenie(t) & slowa) for t in tokeny]
++    wynik = [t for i, t in enumerate(tokeny)
++             if wsp[i] or (normalizuj(t) in LACZNIKI and any(wsp[:i]) and any(wsp[i + 1:]))]
++    brak = slowa - {w for i, t in enumerate(tokeny) if wsp[i] for w in rdzenie(t)}
++    z_dzialu = _dopisek(rek, "", brak, kontekst, s) if brak else ""
++    return " ".join(x for x in (z_dzialu, " ".join(wynik)) if x)
++
++
+ def klasy_z_par(wariant: str, slownik: dict[str, str] | None = None, kon: dict | None = None) -> dict[str, dict]:
+     kon = kon or {}
+     op.tp.OUT = op.tp.OUT.parent / f"w{WERSJA_PROMPTU}" / "wszystkie"
+@@ -187,6 +210,95 @@ async def zapytaj_zamiany(zamiany: dict[str, dict], budzet: float, plik: Path |
+     return tok[0] * CENA_TOK
+ 
+ 
++def _kontekst_dziedziny(o, p, slownik: dict | None) -> str:
++    """Kontekst oferty dokładnie tak, jak wszedł do dziedziny podpisu (podpis._dziedzina): typ salonu albo dział."""
++    if p.dziedzina == frozenset(_slowa(o.typ_salonu or "", slownik or {})):
++        return f"salon typu „{o.typ_salonu}”"
++    return f"dział cennika „{o.kategoria.strip()}”"
++
++
++def dziedziny_ofert(pary: list[tuple[str, str]], pod: dict, oferty: dict, rek: dict, kon: dict,
++                    slownik: dict | None) -> dict[str, dict]:
++    """Klasy dziedziny (podpis.klasa_dziedziny) par „ta sama” według słów → reprezentant: wspólna nazwa w brzmieniu
++    oferty i oba konteksty; oferta_a = strona pierwszej dziedziny klucza (stan w porządku klucza)."""
++    wynik: dict[str, dict] = {}
++    for a, b in pary:
++        pa, pb = pod[a], pod[b]
++        if (d := klasa_dziedziny(pa, pb)) is None:
++            continue
++        k = json.dumps(d, ensure_ascii=False)
++        if k in wynik:
++            wynik[k]["par"] += 1
++            continue
++        if klucz_roznicy(pa.dziedzina) != d[1]:
++            a, b, pa, pb = b, a, pb, pa
++        # pełna nazwa oferty: same wspólne słowa bywają nieczytelne („rzęs” — próba v1 testu D)
++        wynik[k] = {"klasa": list(d), "par": 1, "usluga": _nazwa(oferty[a]), "a": _nazwa(oferty[a]), "b": _nazwa(oferty[b]),
++                    "stan": {"oferta_a": {"kontekst": _kontekst_dziedziny(oferty[a], pa, slownik)},
++                             "oferta_b": {"kontekst": _kontekst_dziedziny(oferty[b], pb, slownik)}}}
++    return wynik
++
++
++def jednoznacznosc_ofert(pary: list[tuple[str, str]], pod: dict, oferty: dict, rek: dict, kon: dict,
++                         slownik: dict | None) -> dict[str, dict]:
++    """Wspólne słowa par z różną dziedziną z kontekstu → reprezentant: te słowa w brzmieniu oferty (pytanie, czy sama
++    nazwa wskazuje część ciała — klasy.pytanie_jednoznacznosci). Dopiski spoza wspólnych słów nie wchodzą do nazwy."""
++    wynik: dict[str, dict] = {}
++    for a, b in pary:
++        if (d := klasa_dziedziny(pod[a], pod[b])) is None:
++            continue
++        if d[0] in wynik:
++            wynik[d[0]]["par"] += 1
++            continue
++        usluga = _nazwa_wspolna(oferty[a], rek[a], kon.get(a), slownik, set(d[0].split()))
++        wynik[d[0]] = {"klasa": d[0], "par": 1, "usluga": usluga, "stan": {"usluga": usluga}}
++    return wynik
++
++
++async def _zapytaj_score(klasy: dict[str, dict], pytanie, plik: Path, budzet: float, proba: int, tok_na: int,
++                         pola: tuple[str, ...], nazwa: str) -> float:
++    """Wspólny przebieg pytań Score raz na klasę z pamięcią (dziedziny, jednoznaczność): nowe klasy od najczęstszych,
++    próba = N pierwszych, szacunek przed wywołaniem, brak odpowiedzi zapisany jawnie (= klasa nierozstrzygnięta)."""
++    from typesafe_sdk import AsyncTypeSafeClient
++    pamiec = json.loads(plik.read_text(encoding="utf-8")) if plik.exists() else {}
++    nowe = sorted((k for k in klasy if k not in pamiec), key=lambda k: -klasy[k]["par"])
++    nowe = nowe[:proba] if proba else nowe  # próba: najczęstsze klasy, obejrzane przed pełnym przebiegiem
++    szac = len(nowe) * tok_na * CENA_TOK
++    print(f"klas {nazwa} {len(klasy)}, nowych do pytania {len(nowe)}, szac. {szac:.4f} USD (budżet {budzet})", flush=True)
++    if szac > budzet:
++        sys.exit("szacunek ponad budżet — przerwane")
++    tok, sem = [0], asyncio.Semaphore(6)
++    async with AsyncTypeSafeClient(api_key=KLUCZ.read_text(encoding="utf-8").strip(), model=MODEL, timeout=60.0) as c:
++        async def jedna(k: str) -> None:
++            z = klasy[k]
++            opis = {x: z[x] for x in pola}
++            async with sem:
++                try:
++                    r = await c.system_one(z["stan"], {"s": pytanie(z)}, model=MODEL)
++                    tok[0] += r.usage.input_tokens or 0
++                    sc = r.scores["s"]
++                    pamiec[k] = {**opis, "score": sc.score, "rozklad": dict(sc.probabilities)}
++                except Exception as e:  # noqa: BLE001 — brak odpowiedzi = klasa nierozstrzygnięta, zapisane jawnie
++                    pamiec[k] = {**opis, "score": None, "blad": f"{type(e).__name__}: {str(e)[:120]}"}
++        await asyncio.gather(*(jedna(k) for k in nowe))
++    plik.parent.mkdir(parents=True, exist_ok=True)
++    plik.write_text(json.dumps(pamiec, ensure_ascii=False, indent=1), encoding="utf-8")
++    return tok[0] * CENA_TOK
++
++
++async def zapytaj_dziedziny(dz: dict[str, dict], budzet: float, plik: Path | None = None, proba: int = 0) -> float:
++    for z in dz.values():
++        z.setdefault("kontekst_a", z["stan"]["oferta_a"]["kontekst"])
++        z.setdefault("kontekst_b", z["stan"]["oferta_b"]["kontekst"])
++    return await _zapytaj_score(dz, lambda z: pytanie_dziedziny(z["usluga"]), plik or PLIK_DZIEDZIN, budzet, proba, 600,
++                                ("klasa", "usluga", "a", "b", "kontekst_a", "kontekst_b"), "dziedziny")
++
++
++async def zapytaj_jednoznacznosci(jz: dict[str, dict], budzet: float, plik: Path | None = None, proba: int = 0) -> float:
++    return await _zapytaj_score(jz, lambda _z: pytanie_jednoznacznosci(), plik or PLIK_JEDNOZNACZNOSCI, budzet, proba,
++                                400, ("klasa", "usluga"), "jednoznaczności nazwy")
++
++
+ def _te_same_pytania(klasy: dict[str, dict], pamiec: dict, plik: Path) -> dict[str, dict]:
+     """Odpowiedzi poprzedniej wersji pamięci na DOKŁADNIE to samo pytanie (ten sam przykład, dopisek, obie nazwy) —
+     v3 zmieniła tylko wybór przykładu, więc takie odpowiedzi są ważne bez ponownego płacenia."""
+diff --git a/scripts/katalog/porownanie_silnikow.py b/scripts/katalog/porownanie_silnikow.py
+index 8fcf894..3a54ab0 100644
+--- a/scripts/katalog/porownanie_silnikow.py
++++ b/scripts/katalog/porownanie_silnikow.py
+@@ -25,10 +25,7 @@ from pathlib import Path
+ B = Path(__file__).resolve().parents[2]
+ sys.path[:0] = [str(B), str(B / "scripts"), str(B / "scripts" / "katalog"), str(B / "scripts" / "typesafe")]
+ import sprawdzian7 as s7  # noqa: E402
+-from services.katalog_uslug import klasy as _klasy  # noqa: E402
+ from services.katalog_uslug.wycena import wycen_oferty  # noqa: E402
+-from services.katalog_uslug.klasy import NIE_ZMIENIA, rozstrzygnij, zamiana_rownowazna  # noqa: E402
+-from services.katalog_uslug.podpis import Klasy  # noqa: E402
+ 
+ POLA = ("id,booksy_id,category_name,name,description,variants,treatment_name,treatment_parent_id,booksy_treatment_id,"
+         "is_package,is_active,price_grosze,duration_minutes")
+@@ -90,10 +87,7 @@ def _podpis_wiersze() -> dict[str, dict]:
+     """Oferta podmiotu → wynik wyceny podpisem (ta sama / podobne)."""
+     pary, oferty, _rek, x = s7.podpisy()
+     pod = x["pod"]
+-    roz = json.loads(s7.kr.PLIK.read_text(encoding="utf-8"))
+-    zam = json.loads(s7.kr.PLIK_ZAMIAN.read_text(encoding="utf-8")) if s7.kr.PLIK_ZAMIAN.exists() else {}
+-    klasy = Klasy(opisowe={tuple(v["klasa"]) for v in roz.values() if _klasy.klasa_nieistotna(v)},
+-                  rownowazne={tuple(v["klasa"]) for v in zam.values() if zamiana_rownowazna(v)})
++    klasy = s7.klasy_rynku()
+     us, _p, _s = s7.dane()
+     kand: dict[str, list] = defaultdict(list)
+     for q in pary:
+diff --git a/scripts/katalog/sprawdzian7.py b/scripts/katalog/sprawdzian7.py
+index 54d9e76..18d05c1 100644
+--- a/scripts/katalog/sprawdzian7.py
++++ b/scripts/katalog/sprawdzian7.py
+@@ -31,11 +31,12 @@ B = Path(__file__).resolve().parents[2]
+ sys.path[:0] = [str(B), str(B / "scripts"), str(B / "scripts" / "typesafe")]
+ from services.katalog_uslug import klasy as _klasy  # noqa: E402
+ from services.katalog_uslug.ekstrakcja import Oferta, oferty_z_uslugi  # noqa: E402
+-from services.katalog_uslug.klasy import NIE_ZMIENIA, WERSJA_PYTANIA, WERSJA_ZAMIANY, rozstrzygnij, zamiana_rownowazna  # noqa: E402
++from services.katalog_uslug.klasy import (NIE_ZMIENIA, WERSJA_PYTANIA, WERSJA_ZAMIANY, dziedzina_zgodna,  # noqa: E402
++                                          nazwa_okresla_czesc, rozstrzygnij, zamiana_rownowazna)
+ from services.katalog_uslug.dopasowanie import straznik_ceny  # noqa: E402
+ from services.katalog_uslug.normalizacja import normalizuj, rdzen_slowa  # noqa: E402
+-from services.katalog_uslug.podpis import (INNA, PODOBNA, TA_SAMA, Klasy, klasy_do_rozstrzygniecia, podpis,  # noqa: E402
+-                                           porownaj, roznica_do_pytania,
++from services.katalog_uslug.podpis import (INNA, PODOBNA, TA_SAMA, Klasy, klasa_dziedziny,  # noqa: E402
++                                           klasy_do_rozstrzygniecia, podpis, porownaj, porownaj_slowa, roznica_do_pytania,
+                                            slownictwo)
+ 
+ 
+@@ -158,7 +159,7 @@ def podpisy() -> tuple[list[dict], dict[str, Oferta], dict[str, dict], dict[str,
+     s = _slownik()
+     slowa = kr.slownictwo_rynku(rek, s)
+     sal = km.kontekst_salonu(salon_ofert(us, oferty), OUT / "salony.json") if (OUT / "salony.json").exists() else {}
+-    pod = {o.id: podpis(rek[o.id], s, kon.get(o.id), slowa, sal.get(o.id)) for o in wyc if o.id in rek}
++    pod = {o.id: podpis(rek[o.id], s, kon.get(o.id), slowa, sal.get(o.id), o.typ_salonu) for o in wyc if o.id in rek}
+     x_slowa = slowa
+     return pary, oferty, rek, {"kon": kon, "pod": pod, "slownik": s, "slowa": x_slowa, "sal": sal}
+ 
+@@ -196,13 +197,59 @@ def klasy(budzet: float, proba: int = 0) -> None:
+     print(f"klas {len(kl)}, zamian {len(zam)}; koszt {koszt + koszt_z:.4f} USD")
+ 
+ 
++def _wczytaj(p: Path) -> dict:
++    return json.loads(p.read_text(encoding="utf-8")) if p.exists() else {}
++
++
++def klasy_rynku(dziedziny: bool = True) -> Klasy:
++    """Rozstrzygnięcia z pamięci (wspólnej dla zbiorów): dopiski, zamiany i — gdy `dziedziny` — dziedzina z kontekstu
++    (nazwy, które same wskazują część ciała, i potwierdzone pary kontekstów)."""
++    roz, zam = _wczytaj(kr.PLIK), _wczytaj(kr.PLIK_ZAMIAN)
++    dz, jz = (_wczytaj(kr.PLIK_DZIEDZIN), _wczytaj(kr.PLIK_JEDNOZNACZNOSCI)) if dziedziny else ({}, {})
++    return Klasy(opisowe={tuple(v["klasa"]) for v in roz.values() if _klasy.klasa_nieistotna(v)},
++                 rownowazne={tuple(v["klasa"]) for v in zam.values() if zamiana_rownowazna(v)},
++                 dziedziny={tuple(v["klasa"]) for v in dz.values() if dziedzina_zgodna(v)},
++                 jednoznaczne={v["klasa"] for v in jz.values() if nazwa_okresla_czesc(v)})
++
++
++def dziedziny(budzet: float, proba: int = 0) -> None:
++    """Pary „ta sama” według słów (po strażniku ceny) z różną dziedziną z kontekstu: najpierw raz na nazwę „czy sama
++    wskazuje część ciała”, potem kontekst tylko dla nazw, które nie wskazują — TypeSafe raz na klasę; próba: N
++    najczęstszych klas każdego kroku."""
++    pary, oferty, rek, x = podpisy()
++    pod, kon, s = x["pod"], x["kon"], x["slownik"]
++    kl = klasy_rynku(dziedziny=False)
++    ts = [(q["a"], q["b"]) for q in pary if not q["bez_wspolnych"] and q["a"] in pod and q["b"] in pod
++          and straznik_ceny(*porownaj_slowa(pod[q["a"]], pod[q["b"]], kl), oferty[q["a"]].cena_zl,
++                            oferty[q["b"]].cena_zl)[0] == TA_SAMA]
++    jz = kr.jednoznacznosc_ofert(ts, pod, oferty, rek, kon, s)
++    koszt = asyncio.run(kr.zapytaj_jednoznacznosci(jz, budzet, proba=proba))
++    pj = _wczytaj(kr.PLIK_JEDNOZNACZNOSCI)
++    jedn = {k for k in jz if k in pj and nazwa_okresla_czesc(pj[k])}
++    print(f"nazw z różnym kontekstem {len(jz)}: same wskazują część ciała {len(jedn)}, z odpowiedzią "
++          f"{sum(k in pj for k in jz)}")
++    for k in sorted((k for k in jz if k in pj), key=lambda k: -jz[k]["par"])[:proba]:
++        v = pj[k]
++        sc = "brak" if v.get("score") is None else f"{v['score']:.2f}"
++        print(f"  {'=' if k in jedn else ' '} {sc} „{v['usluga']}” — par {jz[k]['par']}")
++    dz = kr.dziedziny_ofert([p for p in ts if (d := klasa_dziedziny(pod[p[0]], pod[p[1]])) and d[0] not in jedn],
++                            pod, oferty, rek, kon, s)
++    koszt += asyncio.run(kr.zapytaj_dziedziny(dz, budzet, proba=proba))
++    pd = _wczytaj(kr.PLIK_DZIEDZIN)
++    print(f"par „ta sama” według słów {len(ts)}, klas kontekstu (nazwy wieloznaczne) {len(dz)}, z odpowiedzią "
++          f"{sum(k in pd for k in dz)}, ta sama część ciała {sum(dziedzina_zgodna(pd[k]) for k in dz if k in pd)}; "
++          f"koszt {koszt:.4f} USD")
++    for k in sorted((k for k in dz if k in pd), key=lambda k: -dz[k]["par"])[:proba]:
++        v = pd[k]
++        sc = "brak" if v.get("score") is None else f"{v['score']:.2f}"
++        print(f"  {'=' if dziedzina_zgodna(v) else ' '} {sc} „{v['usluga']}”: {v['kontekst_a']} / {v['kontekst_b']}"
++              f" — par {dz[k]['par']}")
++
++
+ def werdykty() -> tuple[list[dict], dict[str, Oferta]]:
+     pary, oferty, _rek, x = podpisy()
+     pod = x["pod"]
+-    roz = json.loads(kr.PLIK.read_text(encoding="utf-8"))
+-    zam = json.loads(kr.PLIK_ZAMIAN.read_text(encoding="utf-8")) if kr.PLIK_ZAMIAN.exists() else {}
+-    kl = Klasy(opisowe={tuple(v["klasa"]) for v in roz.values() if _klasy.klasa_nieistotna(v)},
+-               rownowazne={tuple(v["klasa"]) for v in zam.values() if zamiana_rownowazna(v)})
++    kl = klasy_rynku()
+     for q in pary:
+         pa, pb = pod.get(q["a"]), pod.get(q["b"])
+         if q["bez_wspolnych"]:
+@@ -363,7 +410,7 @@ def przelicz() -> None:
+ 
+ def main() -> None:
+     ap = argparse.ArgumentParser()
+-    for k in ("zbierz", "wyciagnij", "salony", "klasy", "probka", "wynik", "przelicz"):
++    for k in ("zbierz", "wyciagnij", "salony", "klasy", "dziedziny", "probka", "wynik", "przelicz"):
+         ap.add_argument(f"--{k}", action="store_true")
+     ap.add_argument("--ziarno", type=int, default=ZIARNO)
+     ap.add_argument("--rownolegle", type=int, default=4)
+@@ -389,6 +436,8 @@ def main() -> None:
+         asyncio.run(wyciagnij_salony(a.rownolegle))
+     if a.klasy:
+         klasy(a.budzet, a.proba)
++    if a.dziedziny:  # po --klasy: dziedziny pyta się o pary „ta sama” według rozstrzygniętych słów
++        dziedziny(a.budzet, a.proba)
+     if a.probka:
+         NA_GRUPE.update({g: a.na_grupe for g in ("obie", "tylko_podpis", "tylko_v14f")})
+         probka()
+diff --git a/services/katalog_uslug/klasy.py b/services/katalog_uslug/klasy.py
+index a38b1af..3b6499f 100644
+--- a/services/katalog_uslug/klasy.py
++++ b/services/katalog_uslug/klasy.py
+@@ -89,6 +89,72 @@ def pytanie_zamiany(slowa_a: str, slowa_b: str, oferta_a: str, oferta_b: str) ->
+                               "examples": ["nazwa techniki salonu bez opisu"]}})
+ 
+ 
++# 30.09 (testy B–D): te same słowa nazwy, inna część ciała według działu cennika albo typu salonu.
++# v2 po próbie 40 klas testu D: v1 pytało „czy WEDŁUG MIEJSCA w cenniku ta sama część ciała” — czytane dosłownie dawało
++# „nie wiadomo”, gdy typ salonu milczy, a nazwa przesądza („Depilacja wąsika” w salonie paznokci 0,70, „Masaż twarzy”
++# 0,95); v2 pyta, czy miejsce WSKAZUJE INNĄ część ciała, i podaje pełną nazwę oferty zamiast samych wspólnych słów („rzęs”);
++# v3: typ salonu to główna specjalizacja, nie miejsce usługi — v2 czytało „salon typu Paznokcie” jako wskazanie paznokci
++# przy usługach na rzęsy w takim salonie („Zdejmowanie rzęs” 1,13, „Ściągnięcie rzęs” 1,16)
++WERSJA_DZIEDZINY = 3
++TA_SAMA_DZIEDZINA, NIE_WIADOMO_DZIEDZINA, INNA_DZIEDZINA = 0, 1, 2
++
++
++def pytanie_dziedziny(usluga: str) -> Score:
++    """Para „ta sama” według słów, ale z różnym kontekstem w cenniku (podpis._dziedzina: dział cennika albo typ salonu).
++    Pytamy tylko o poziom 1 modelu tej samej usługi — czy to ta sama część ciała. Stan ma tylko oba konteksty, bo
++    odpowiedź przechodzi na wszystkie pary klasy (lekcja z przykładów „czystych”, sprawdzian 9); nazwa to pełna nazwa
++    oferty-reprezentanta (jej dopiski rozstrzygnięto jako nieistotne). Score 3 poziomów z routingiem najbliższym poziomem
++    (cookbook entity_alignment), jak pytanie o dopisek; „ta sama” tylko przy najbliższym poziomie „ta sama” — zła para
++    gorsza niż brak porównania."""
++    return Score(
++        instructions=(f"Dwie oferty z różnych salonów to ta sama usługa według nazwy: „{usluga}”. Różni je tylko miejsce "
++                      "w cenniku: `oferta_a.kontekst` i `oferta_b.kontekst` — dział cennika albo typ salonu. Typ salonu to "
++                      "jego główna specjalizacja; salony mają też usługi spoza niej. Czy miejsce w cenniku którejś "
++                      "z ofert wskazuje, że tę usługę wykonuje się tam na innej części ciała niż w drugiej?"),
++        criteria=_poziomy(
++            ("nie: miejsca w cenniku nie wskazują innej części ciała — pasują do tej samej albo nic o niej nie mówią, "
++             "a nazwa usługi ją określa",
++             ["strzyżenie brody w barber shopie i w salonie fryzjerskim",
++              "henna brwi w salonie paznokci i w dziale „Brwi”"]),
++            ("nie wiadomo: nazwa pasuje do kilku części ciała, a z miejsc w cenniku nie da się ustalić, czy to ta sama",
++             ["peeling bez działu w salonie wielobranżowym i peeling w dziale „Twarz”"]),
++            ("tak: miejsca w cenniku wskazują na różne części ciała",
++             ["peeling w dziale „Twarz” i peeling w dziale „Ciało”",
++              "zdjęcie hybrydy w dziale „Pedicure” i w dziale „Manicure”"])))
++
++
++# 30.09 po teście D: kontekst tylko przy nazwach pasujących do kilku części ciała. v2: nazwa ze wspólnych słów
++# w brzmieniu oferty Z ŁĄCZNIKAMI (v1 „Hybryda stopy” zamiast „Hybryda na stopy” — 0,58 / 0,35, test C)
++WERSJA_JEDNOZNACZNOSCI = 2
++NAZWA_OKRESLA, NAZWA_NIE_WIADOMO, NAZWA_WIELE = 0, 1, 2
++
++
++def pytanie_jednoznacznosci() -> Score:
++    """Czy sama nazwa usługi (wspólne słowa pary) mówi, na której części ciała się ją wykonuje. Tak → poziom 1 modelu
++    wynika z nazwy i miejsce w cenniku nic nie zmienia; pytanie o kontekst zadane przy każdej parze gubiło prawdziwe
++    pary (test D: „Strzyżenie damskie” w salonie paznokci, „Masaż twarzy” w dziale „Pielęgnacja twarzy” — 48 prawdziwych
++    za 18 błędnych). Klasa = wspólne słowa pary, raz dla rynku; Score jak pozostałe pytania o klasy."""
++    return Score(
++        instructions="Czy sama nazwa usługi `usluga` z cennika salonu beauty mówi, na której części ciała się ją wykonuje?",
++        criteria=_poziomy(
++            ("tak: nazwa wskazuje jedną część ciała albo obszar pracy",
++             ["„Strzyżenie damskie” — włosy", "„Depilacja wąsika” — twarz", "„Manicure hybrydowy” — paznokcie dłoni"]),
++            ("nie wiadomo: z samej nazwy nie wiadomo, czego dotyczy usługa",
++             ["nazwa własna zabiegu bez opisu"]),
++            ("nie: taką usługę wykonuje się na różnych częściach ciała, a nazwa nie mówi, na której",
++             ["„Peeling” — twarz albo ciało", "„Zdobienie paznokci” — dłonie albo stopy", "„Masaż” — twarz, ciało albo głowa"])))
++
++
++def nazwa_okresla_czesc(wpis: dict) -> bool:
++    """Wpis z pamięci jednoznaczności → czy nazwa sama wskazuje część ciała. Brak odpowiedzi = nie (sprawdzamy kontekst)."""
++    return wpis.get("score") is not None and rozstrzygnij(wpis["score"]) == NAZWA_OKRESLA
++
++
++def dziedzina_zgodna(wpis: dict) -> bool:
++    """Wpis z pamięci dziedzin → czy różny kontekst to ta sama część ciała. Brak odpowiedzi = nie."""
++    return wpis.get("score") is not None and rozstrzygnij(wpis["score"]) == TA_SAMA_DZIEDZINA
++
++
+ def zamiana_rownowazna(wpis: dict) -> bool:
+     """Wpis z pamięci zamian → czy różne słowa to ta sama rzecz. Brak odpowiedzi = nie."""
+     return wpis.get("relacja") == TO_SAMO and (wpis.get("rozklad") or {}).get(TO_SAMO, 0.0) >= PROG_TO_SAMO
+@@ -112,6 +178,8 @@ def klasa_nieistotna(wpis: dict) -> bool:
+     return float((wpis.get("rozklad") or {}).get(str(NIE_ZMIENIA), 0.0)) > PROG_NIE_ZMIENIA
+ 
+ 
+-__all__ = ["NIE_WIADOMO", "NIE_WIADOMO_REL", "NIE_ZMIENIA", "OPIS_POZIOMU", "PROG_NIE_ZMIENIA", "PROG_TO_SAMO", "WERSJA_PYTANIA",
++__all__ = ["INNA_DZIEDZINA", "NIE_WIADOMO", "NIE_WIADOMO_DZIEDZINA", "NIE_WIADOMO_REL", "NIE_ZMIENIA", "TA_SAMA_DZIEDZINA",
++           "WERSJA_DZIEDZINY", "WERSJA_JEDNOZNACZNOSCI", "dziedzina_zgodna", "nazwa_okresla_czesc", "pytanie_dziedziny",
++           "pytanie_jednoznacznosci", "OPIS_POZIOMU", "PROG_NIE_ZMIENIA", "PROG_TO_SAMO", "WERSJA_PYTANIA",
+            "WERSJA_ZAMIANY", "ZMIENIA", "klasa_nieistotna", "przyklad_czysty", "pytanie_klasy", "pytanie_zamiany",
+            "rozstrzygnij", "zamiana_rownowazna"]
+diff --git a/services/katalog_uslug/podpis.py b/services/katalog_uslug/podpis.py
+index 971489f..146aef4 100644
+--- a/services/katalog_uslug/podpis.py
++++ b/services/katalog_uslug/podpis.py
+@@ -38,6 +38,7 @@ PUSTE_NAZWY = frozenset({"comb", "combo", "pakiet", "zestaw", "komplet", "seri",
+                          "gold", "vip", "standard", "express", "ekspres", "mini", "maxi", "classic"})
+ Klasa = tuple[str, str, str]  # (wspólne słowa, poziom dopisku, dopisek)
+ Zamiana = tuple[str, str, str]  # (wspólne słowa, słowa tylko po jednej stronie, słowa tylko po drugiej) — strony w porządku
++Dziedzina = tuple[str, str, str]  # (wspólne słowa, dziedzina jednej oferty, dziedzina drugiej) — dziedziny w porządku
+ # Najwyżej tyle słów po każdej stronie różnicy dwustronnej pytamy jako „inna nazwa tej samej rzeczy” — dłuższa różnica
+ # to inny zestaw cech, a pytanie o nią byłoby sędzią całej pary (wyłączonym 28.09).
+ MAKS_ZAMIANY = 2
+@@ -52,6 +53,7 @@ class Podpis:
+     pozycja: str = "zabieg"
+     blokady: tuple[str, ...] = ()
+     wlasne: frozenset[str] = frozenset()  # słowa samej oferty (nazwa, wariant) — do testu „nazwy bez treści”
++    dziedzina: frozenset[str] = frozenset()  # poziom 1 modelu z kontekstu oferty (_dziedzina) — poza zbiorem słów
+ 
+ 
+ @dataclass(frozen=True)
+@@ -60,6 +62,8 @@ class Klasy:
+     opisowe: Iterable[Klasa] = field(default_factory=frozenset)
+     domyslne: Iterable[Klasa] = field(default_factory=frozenset)
+     rownowazne: Iterable[Zamiana] = field(default_factory=frozenset)  # różne słowa, ta sama rzecz („głowy” / „włosów”)
++    dziedziny: Iterable[Dziedzina] = field(default_factory=frozenset)  # różny kontekst, ta sama część ciała
++    jednoznaczne: Iterable[str] = field(default_factory=frozenset)  # wspólne słowa, które same wskazują część ciała
+ 
+ 
+ def _slowa(fraza: str, slownik: dict[str, str]) -> list[str]:
+@@ -129,6 +133,28 @@ def _z_salonu(salon: dict[str, Any] | None, role_oferty: set[str]) -> list[tuple
+     return [("rdzen", f) for r, _zr, f in _frazy(salon) if r == "metoda" and f]
+ 
+ 
++# Słowa działu o KIM albo DLA KOGO (wykonawca, grupa klientów, poziom, etap, liczby) nie mówią o części ciała.
++ROLE_POZA_DZIEDZINA = frozenset({"specjalista", "dla_kogo", "poziom", "etap", "sesje", "liczba", "rozmiar", "wylaczenie"})
++
++
++def _dziedzina(kontekst: dict[str, Any] | None, zbior: frozenset[str], slownik: dict[str, str],
++               typ_salonu: str | None) -> frozenset[str]:
++    """Poziom 1 modelu tej samej usługi (dziedzina: paznokcie, włosy, stopy…) z kontekstu oferty — nazwa często go nie
++    mówi: „Rekonstrukcja paznokcia” u podologa i w dziale „Manicure”, „Infuzja tlenowa” w gabinecie i w dziale
++    trychologii (testy B–D, 30.09: te same słowa, inna część ciała). Słowa nazwy działu cennika, których podpis nie ma —
++    bez fraz o wykonawcy, grupie klientów, poziomie i liczbach i bez szumu; słowo, którego rozkład działu nie przypisał,
++    też się liczy (dział „KOSMETYKA” bez żadnej frazy — test D). Dział bez takich słów, bez nazwy albo lista pozycji →
++    typ salonu z Booksy. Nie wchodzi do zbioru słów: różne dziedziny rozstrzyga pytanie o klasę (klasa_dziedziny)."""
++    nazwa = (kontekst or {}).get("nazwa") or ""
++    if kontekst is not None and not LISTA.search(f" {nazwa} "):
++        poza = {w for r, _zr, f in _frazy(kontekst) if r in ROLE_POZA_DZIEDZINA and f for w in _slowa(f, slownik)}
++        poza |= {w for f in kontekst.get("szum") or () for w in _slowa(str(f), slownik)}
++        d = set(_slowa(nazwa, slownik)) - poza - zbior
++        if d:
++            return frozenset(d)
++    return frozenset(_slowa(typ_salonu or "", slownik))
++
++
+ def _wybrane_frazy(rek: dict[str, Any], kontekst: dict[str, Any] | None = None,
+                    slownik: dict[str, str] | None = None, salon: dict[str, Any] | None = None) -> list[tuple[str, str]]:
+     """(poziom, fraza) wchodzące do podpisu — reguła doboru źródeł z nagłówka modułu.
+@@ -164,7 +190,8 @@ def slownictwo(rekordy: Iterable[dict[str, Any]], slownik: dict[str, str] | None
+ 
+ 
+ def podpis(rek: dict[str, Any], slownik: dict[str, str] | None = None, kontekst: dict[str, Any] | None = None,
+-           slownictwo: frozenset[str] | None = None, salon: dict[str, Any] | None = None) -> Podpis:
++           slownictwo: frozenset[str] | None = None, salon: dict[str, Any] | None = None,
++           typ_salonu: str | None = None) -> Podpis:
+     """Słowa nazwy i wariantu, których model nie przypisał (ani do cechy, ani do szumu), wchodzą do zbioru jako „inne”
+     — pomiar 29.09: to głównie słowa oczywiste („włosy” w wariancie „Włosy długie”) i pominięte „combo” / „komplet”;
+     więcej słów = mniej fałszywych „ta sama”, a blokada gubiła pary.
+@@ -184,8 +211,10 @@ def podpis(rek: dict[str, Any], slownik: dict[str, str] | None = None, kontekst:
+     poziomy |= dopisane
+     poz_kat = (kontekst or {}).get("pozycja_kategorii")  # sekcja cennika mówi, że to nie usługa — ma pierwszeństwo
+     pozycja = poz_kat if poz_kat in POZA_POROWNANIEM else rek.get("pozycja") or "zabieg"
+-    return Podpis(frozenset(w for _p, w in poziomy), frozenset(poziomy), pozycja,
+-                  wlasne=frozenset(wlasne | {w for _p, w in dopisane}))
++    zbior = frozenset(w for _p, w in poziomy)
++    dziedzina = _dziedzina(kontekst, zbior, s, typ_salonu) if (kontekst is not None or typ_salonu) else frozenset()
++    return Podpis(zbior, frozenset(poziomy), pozycja, wlasne=frozenset(wlasne | {w for _p, w in dopisane}),
++                  dziedzina=dziedzina)
+ 
+ 
+ def _rdzen(p: Podpis) -> set[str]:
+@@ -257,9 +286,29 @@ def _przeszkoda(a: Podpis, b: Podpis) -> tuple[str, str] | None:
+     return None
+ 
+ 
++def klasa_dziedziny(a: Podpis, b: Podpis) -> Dziedzina | None:
++    """Klasa do potwierdzenia, gdy obie oferty mają znaną, ale RÓŻNĄ dziedzinę z kontekstu: (wspólne słowa, dziedzina,
++    dziedzina). Raz na klasę dla rynku, jak dopiski i zamiany."""
++    if not a.dziedzina or not b.dziedzina or a.dziedzina == b.dziedzina:
++        return None
++    x, y = sorted((klucz_roznicy(a.dziedzina), klucz_roznicy(b.dziedzina)))
++    return klucz_roznicy(a.zbior & b.zbior), x, y
++
++
+ def porownaj(a: Podpis, b: Podpis, klasy: Klasy) -> tuple[str, str]:
+-    """→ (werdykt, powód). Dopisek na poziomie składu = dodatek w nazwie = podobna (model tej samej usługi) —
+-    bez pytania; pozostałe poziomy dopisku muszą być WSZYSTKIE rozstrzygnięte jako nieistotne."""
++    """→ (werdykt, powód). „Ta sama” według słów zostaje przy tej samej dziedzinie z kontekstu, przy nazwie, która sama
++    wskazuje część ciała (klasy.jednoznaczne — wtedy kontekst nic nie zmienia), albo przy różnej dziedzinie potwierdzonej
++    jako ta sama część ciała (klasa_dziedziny); inaczej podobna."""
++    w, powod = porownaj_slowa(a, b, klasy)
++    if w == TA_SAMA and (d := klasa_dziedziny(a, b)) is not None and d[0] not in set(klasy.jednoznaczne) \
++            and d not in set(klasy.dziedziny):
++        return PODOBNA, f"dziedzina z kontekstu „{d[1]}” / „{d[2]}” niepotwierdzona ({powod})"
++    return w, powod
++
++
++def porownaj_slowa(a: Podpis, b: Podpis, klasy: Klasy) -> tuple[str, str]:
++    """→ (werdykt, powód) z samych zbiorów słów. Dopisek na poziomie składu = dodatek w nazwie = podobna (model tej
++    samej usługi) — bez pytania; pozostałe poziomy dopisku muszą być WSZYSTKIE rozstrzygnięte jako nieistotne."""
+     if (p := _przeszkoda(a, b)) is not None:
+         return p
+     if a.zbior == b.zbior:
+diff --git a/services/katalog_uslug/test_podpis.py b/services/katalog_uslug/test_podpis.py
+index d327590..ac44433 100644
+--- a/services/katalog_uslug/test_podpis.py
++++ b/services/katalog_uslug/test_podpis.py
+@@ -1,7 +1,7 @@
+ """Katalog usług — podpis oferty (zbiór rdzeni słów) i porównanie dwóch podpisów (plan 29.09), bez sieci."""
+ from __future__ import annotations
+ 
+-from services.katalog_uslug.podpis import (INNA, PODOBNA, TA_SAMA, Klasy, klasy_do_rozstrzygniecia, klasy_obu_stron,
++from services.katalog_uslug.podpis import (INNA, PODOBNA, TA_SAMA, Klasy, klasa_dziedziny, klasy_do_rozstrzygniecia, klasy_obu_stron,
+                                            klasy_roznicy, podpis, porownaj, roznica_do_pytania, slownictwo, zamiana_slow)
+ 
+ 
+@@ -285,3 +285,51 @@ def test_slowo_nazwy_pokryte_wlasna_fraza_nie_udaje_zabiegu_z_kontekstu() -> Non
+               "cechy": [{"rola": "obszar", "fraza": "Bikini", "zrodlo": "nazwa"},
+                         {"rola": "metoda", "fraza": "klasyczne", "zrodlo": "nazwa"}]}
+     assert "depilacj" in podpis(bikini).zbior
++
++
++def test_dziedzina_z_dzialu_cennika_ktorego_nazwa_nie_mowi() -> None:
++    rekon = rek(zabieg="Rekonstrukcja", cechy=[("obszar", "paznokcia")])
++    manicure = podpis(rekon, kontekst=_kat("Manicure", "Manicure", []), typ_salonu="Salon Kosmetyczny")
++    podolog = podpis(rekon, typ_salonu="Podologia")  # bez działu → typ salonu z Booksy
++    assert manicure.dziedzina == {"manicur"} and podolog.dziedzina == {"podolog"}
++    assert manicure.zbior == podolog.zbior  # dziedzina nie wchodzi do zbioru słów
++    assert klasa_dziedziny(manicure, podolog) == ("paznokc rekonstrukcj", "manicur", "podolog")
++
++
++def test_dzial_nazywajacy_to_co_nazwa_albo_lista_daje_typ_salonu() -> None:
++    rekon = rek(zabieg="Rekonstrukcja", cechy=[("obszar", "paznokcia")])
++    ten_sam = podpis(rekon, kontekst=_kat("Rekonstrukcja paznokci", "Rekonstrukcja", [("obszar", "paznokci")]),
++                     typ_salonu="Podologia")
++    lista = podpis(rekon, kontekst=_kat("Manicure / Pedicure", "Manicure / Pedicure", []), typ_salonu="Paznokcie")
++    assert ten_sam.dziedzina == {"podolog"} and lista.dziedzina == {"paznokc"}
++
++
++def test_rozna_dziedzina_ta_sama_dopiero_po_potwierdzeniu_klasy() -> None:
++    rekon = rek(zabieg="Rekonstrukcja", cechy=[("obszar", "paznokcia")])
++    a = podpis(rekon, kontekst=_kat("Pedicure", "Pedicure", []), typ_salonu="Paznokcie")
++    b = podpis(rekon, typ_salonu="Podologia")
++    assert porownaj(a, b, Klasy())[0] == PODOBNA
++    assert porownaj(a, b, Klasy(dziedziny={klasa_dziedziny(a, b)}))[0] == TA_SAMA
++    rowna = podpis(rekon, kontekst=_kat("Podologia", "Podologia", []), typ_salonu="Salon Kosmetyczny")
++    assert klasa_dziedziny(rowna, b) is None and porownaj(rowna, b, Klasy())[0] == TA_SAMA
++    bez = podpis(rekon)  # bez kontekstu (zbiory ocenione przed 30.09) — dziedzina nieznana, bez sprawdzenia
++    assert bez.dziedzina == frozenset() and porownaj(bez, b, Klasy())[0] == TA_SAMA
++
++
++def test_nazwa_okreslajaca_czesc_ciala_nie_wymaga_kontekstu() -> None:
++    strzyzenie = rek(zabieg="Strzyżenie", cechy=[("dla_kogo", "damskie")])
++    a, b = podpis(strzyzenie, typ_salonu="Paznokcie"), podpis(strzyzenie, typ_salonu="Fryzjer")
++    d = klasa_dziedziny(a, b)
++    assert d is not None and porownaj(a, b, Klasy())[0] == PODOBNA
++    assert porownaj(a, b, Klasy(jednoznaczne={d[0]}))[0] == TA_SAMA
++
++
++def test_dzial_bez_rozkladu_liczy_sie_slowami_a_wykonawca_i_szum_nie() -> None:
++    mikro = rek(zabieg="Mikrodermabrazja")
++    kosm = podpis(mikro, kontekst={"nazwa": "KOSMETYKA", "zabieg": {"fraza": ""}, "cechy": [], "szum": []},
++                  typ_salonu="Podologia")
++    assert kosm.dziedzina == {"kosmetyk"}
++    lidia = podpis(mikro, kontekst=_kat("Lidia", "", [("specjalista", "Lidia")]), typ_salonu="Salon Kosmetyczny")
++    oferta = podpis(mikro, kontekst={"nazwa": "OFERTA", "zabieg": {"fraza": ""}, "cechy": [], "szum": ["OFERTA"]},
++                    typ_salonu="Salon Kosmetyczny")
++    assert lidia.dziedzina == oferta.dziedzina == {"salon", "kosmetyczn"}

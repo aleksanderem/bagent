@@ -285,3 +285,12 @@ def test_slowo_nazwy_pokryte_wlasna_fraza_nie_udaje_zabiegu_z_kontekstu() -> Non
               "cechy": [{"rola": "obszar", "fraza": "Bikini", "zrodlo": "nazwa"},
                         {"rola": "metoda", "fraza": "klasyczne", "zrodlo": "nazwa"}]}
     assert "depilacj" in podpis(bikini).zbior
+
+
+def test_jedno_z_kilku_lub_to_nie_wszystkie_razem() -> None:
+    def oferta(nazwa: str) -> dict:
+        return {**rek(zabieg="Depilacja", cechy=[("obszar", "uszu"), ("obszar", "nosa")]), "nazwa": nazwa}
+    lub, plus = podpis(oferta("Depilacja uszu lub nosa")), podpis(oferta("Depilacja uszu + nosa"))
+    assert lub.zbior == plus.zbior and porownaj(lub, plus, Klasy()) == (PODOBNA, "jedno z kilku („lub”) wobec wszystkich razem")
+    przecinek = podpis(oferta("Depilacja uszu, nosa"))  # przecinek i ukośnik bywają „albo” — bez rozstrzygnięcia
+    assert porownaj(lub, przecinek, Klasy())[0] == TA_SAMA and porownaj(lub, podpis(oferta("Depilacja uszu lub nosa")), Klasy())[0] == TA_SAMA

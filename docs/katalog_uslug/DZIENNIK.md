@@ -147,6 +147,25 @@ możemy lepiej/taniej/szybciej … to ja Cię ograniczyłem”.
   keratynowe; pozycja dodatek/zabieg niespójna przy Olaplex). Pokrycie wierszy: „ta sama” ≥3 salony 34% + 1–2 salony 19%
   = 53%, tylko podobne 21%, brak 26% (stary silnik z ceną 87%). Sygnał ceny (testy A–D, oceny „ta sama”): różnica cen ≥5×
   w 2/1076 par prawdziwych (0,2%) i 21/93 błędnych (23%); ≥3× — 1,6% vs 34%.
+- 30.09 ~17:00 (bagent be0f4ca): DECYZJA ALEXA „od 5×” — strażnik ceny (`dopasowanie.straznik_ceny`, PROG_CENY 5,0):
+  para z ceną różną ≥ 5× nigdy „ta sama” (→ podobne), w wycenie raportu i w pomiarach. Test D 89,5% → 91,8%; A–C bez
+  strat (97,5 / 98,0 / 98,3%); 1042 pary 98,3%. Pokrycie wierszy bez zmian (D: 34% + 19%).
+- 30.09 ~17:40: ODRZUCONE — „dziedzina z kontekstu” (poziom 1 modelu z działu cennika albo typu salonu; TypeSafe Score
+  raz na klasę: najpierw „czy sama nazwa wskazuje część ciała”, potem dla nazw wieloznacznych „czy miejsca w cenniku
+  wskazują inną część ciała”; 4 wersje pytań po próbach po 40 klas, razem ~0,02 USD). Bilans na testach A–D (ważony,
+  te same pary, słowa bez zmian): usuwa 18,6 błędnych par, ale 66,1 prawdziwych (3,5 : 1); wariant „weto tylko przy
+  wyraźnie innej części ciała” — nic nie usuwa. Przyczyna: TypeSafe waha się między „nie wiadomo” a „inna” także przy
+  oczywistych parach („Peeling kawitacyjny” w dziale „Kosmetyka” vs „Pielęgnacja twarzy”, „Hybryda na stopy” w salonie
+  kosmetycznym vs dział „Pedicure”), a salon z masażem i rekonstrukcją paznokcia za 70 zł jest niejednoznaczny z samej
+  natury. Kod: `docs/katalog_uslug/odrzucone/dziedzina_z_kontekstu_2026-09-30.patch` (git apply), odpowiedzi:
+  `dane/2026-09-29/w2/{dziedziny,jednoznacznosc}_p*_odrzucone.json`. Nie wracać bez nowego sygnału (np. pełne menu salonu).
+  Odrzucone też (pomiar, bez modelu): „zestaw ≠ pojedynczy zabieg” (C: −59 prawdziwych — GLM niespójny w pozycji
+  zestaw/zabieg) i „nazwa z + wobec nazwy bez połączenia” (5,8 błędnych za 43 prawdziwe).
+- 30.09 ~17:50: PRZYJĘTE — „lub/albo” wobec „+ / i / oraz / z” (`podpis._laczenie`, przeszkoda przed porównaniem
+  słów): „Depilacja uszu lub nosa” (jedno w cenie) ≠ „Depilacja uszu + nosa” (oba) — poziom „gdzie i ile”, zbiór słów
+  tego nie widzi; przecinek i ukośnik bez rozstrzygnięcia. Bilans A–D: 3 błędne pary usunięte, zero prawdziwych.
+  Wyniki: A 97,5% (201), B 98,3% (804), C 98,6% (771), D 92,0% (579); łącznie A–D 96,8%; 1042 pary 98,3% / odzysk 54%.
+  Pokrycie wierszy bez zmian. Reguły zamrożone na test E (sprawdzian 11, nowe salony).
 
 **Why:** koszt i jakość v14f utknęły (87–94%, 3/4 par) na ograniczeniach metody, nie na strojeniu.
 **How to apply:** nowa praca nad matchingiem idzie tym planem; v14f zostaje punktem odniesienia w pomiarach.
