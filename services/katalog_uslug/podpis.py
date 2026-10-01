@@ -139,6 +139,8 @@ def _wybrane_frazy(rek: dict[str, Any], kontekst: dict[str, Any] | None = None,
     a zabieg Booksy liczy się tylko, gdy kategoria nie mówi, co się robi (pomiar 29.09: „Uda + pośladki” w „Fale
     radiowe” dostało zabieg z etykiety Booksy „Liposukcja ultradźwiękowa”). salon: rozkład nazwy salonu (`_z_salonu`)."""
     frazy = [(r, zr, f) for r, zr, f in _frazy(rek) if r in POZIOM_ROLI and f]
+    if rek.get("dzial"):  # rozbiór działu (1.10): model sam przypisał ofercie to, co z nagłówka i salonu jej dotyczy
+        return [(POZIOM_ROLI[r], f) for r, zr, f in frazy if zr != "opis" or r in Z_OPISU]
     wlasne = [(r, f) for r, zr, f in frazy if zr in WLASNE]
     role = {r for r, _f in wlasne}
     wynik = [(POZIOM_ROLI[r], f) for r, zr, f in frazy if zr in WLASNE or (zr == "opis" and r in Z_OPISU)]
@@ -200,6 +202,8 @@ def podpis(rek: dict[str, Any], slownik: dict[str, str] | None = None, kontekst:
     „Symetryczne” przy piercingu brwi → fałszywa „ta sama” z pojedynczym przekłuciem). Szum spoza słownictwa rynku
     (promocje, płatność, marketing) zostaje szumem."""
     s = slownik or {}
+    if rek.get("dzial"):  # rozbiór działu: kontekst kategorii i salonu jest już w rekordzie, pozycja też
+        kontekst, salon = None, None
     poziomy = {(poz, w) for poz, f in _wybrane_frazy(rek, kontekst, s, salon) for w in _slowa(f, s)}
     dopisane = {("inne", w) for w in _slowa(" ".join(rek.get("nieprzypisane") or ()), s)}
     if slownictwo:

@@ -157,6 +157,9 @@ def podpisy() -> tuple[list[dict], dict[str, Oferta], dict[str, dict], dict[str,
     # listy do rozbioru, cała paczka przepadała (1.10: łączenie „20 ml” zmieniło, które pary mają wspólne słowa, i w teście
     # E zniknęły rekordy ~990 par). Walidacja na WSZYSTKICH ofertach zbioru — rekord jest przypisany po id i nazwie.
     rek, _ = tp.rekordy("p12", list(oferty.values()))
+    if os.environ.get("KATALOG_ROZBIOR") == "dzial":  # rozbiór działu (dzialy.py, 1.10) zamiast p12 + reguł kontekstu
+        dz = _modul("dzialy", B / "scripts" / "katalog" / "dzialy.py")
+        rek, _ = dz.rekordy(OUT / dz.PLIK, oferty, salon_ofert(us, oferty))
     kon = km.kontekst(wyc, OUT / "kategorie.json")
     s = _slownik()
     slowa = kr.slownictwo_rynku(rek, s)

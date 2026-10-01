@@ -15,7 +15,7 @@ from typing import Any
 
 from services.katalog_uslug.normalizacja import normalizuj
 
-POZYCJE = ("zabieg", "pakiet", "zestaw", "dodatek", "produkt", "konsultacja", "voucher", "inne")
+POZYCJE = ("zabieg", "pakiet", "zestaw", "dodatek", "produkt", "konsultacja", "voucher", "szkolenie", "inne")
 ROLE = ("metoda", "obszar", "rozmiar", "liczba", "dla_kogo", "miejsce", "etap", "sesje", "sklad", "wylaczenie", "poziom",
         "specjalista", "inne")
 POLA = ("nazwa", "wariant", "kategoria", "opis", "zabieg_booksy")
@@ -88,6 +88,64 @@ def prompt(oferty: list[Oferta]) -> str:
     return PROMPT + json.dumps(dane, ensure_ascii=False, indent=1)
 
 
+# Rozbiór DZIAŁU (decyzja Alexa 1.10, po raporcie 279): zamiast reguł w kodzie, które słowa nagłówka działu i nazwy
+# salonu dokleić do oferty (każdy nowy układ cennika wymagał nowej reguły), model czyta dział w całości — jak klientka
+# czytająca cennik — i sam przypisuje każdej ofercie to, co jej dotyczy. Jedno wywołanie widzi wszystkie oferty działu,
+# więc decyzja o nagłówku jest jedna dla działu, nie losowa przy każdej ofercie (niespójność z pomiaru 29.09).
+WERSJA_DZIALU = 3
+ZRODLA = ("nazwa", "wariant", "zabieg_booksy", "opis", "dzial", "salon")
+
+PROMPT_DZIALU = """Rozkładasz oferty z cenników salonów (Booksy) na części. Oferty są pogrupowane w DZIAŁY: dział to
+nagłówek, pod którym salon wypisał usługi, z nazwą i typem salonu. Czytasz dział w całości, jak klientka czytająca
+cennik: nagłówek działu i nazwa salonu mówią coś o usługach pod nimi. Dla KAŻDEJ oferty zwróć jeden rekord.
+
+Zasady:
+1. Frazy KOPIUJESZ dosłownie — te same słowa w tej samej formie i z tymi samymi końcówkami, bez tłumaczenia,
+   poprawiania literówek i dopisywania. Źródło frazy: nazwa | wariant | zabieg_booksy | opis oferty albo dzial
+   (nagłówek jej działu) | salon (nazwa salonu). Nie przenosisz słów z innego działu ani z innej oferty.
+2. Każde słowo pól „nazwa” i „wariant” trafia do jednej frazy: zabiegu, cechy albo szumu. Słowa „combo”,
+   „komplet”, „zestaw”, „pakiet”, „seria” nigdy nie są szumem.
+3. Rekord opisuje usługę w całości. Nagłówek działu, nazwa salonu i zabieg_booksy uzupełniają to, czego nazwa
+   i wariant oferty nie mówią: zabieg, metodę, obszar, dla kogo, liczbę zabiegów w pakiecie. Gdy nagłówek wymienia
+   kilka rodzajów usług, ofercie przypisujesz tylko część, która jej dotyczy; to, co nagłówek mówi o wszystkich
+   usługach działu, przypisujesz każdej. Czego oferta mówi sama, nie dublujesz; gdy mówi co innego niż nagłówek,
+   liczy się oferta. Nazwa salonu dotyczy usług tylko wtedy, gdy nazywa jedną rzecz, którą salon robi.
+4. zabieg = najkrótsza fraza nazywająca czynność (np. „Strzyżenie”, „Masaż”, „Depilacja”, „Manicure”,
+   „Mezoterapia”); przymiotniki i dopełnienia mówiące JAK, CZYM albo JAKI rodzaj idą do cechy „metoda”.
+   Samo urządzenie, metoda albo część ciała nie jest czynnością — gdy nazwa oferty nie mówi, co się robi,
+   zabieg pochodzi z nagłówka działu albo z zabieg_booksy, a słowo z nazwy idzie do cechy.
+5. Role cech: metoda (technika, rodzaj, urządzenie, preparat, marka), obszar (część ciała, miejsce),
+   rozmiar (długość, rozmiar, gęstość, objętość, np. „długie”, „do ramion”, „2:1”, „4-6D”),
+   liczba (sztuki, obszary, osoby, „każdy kolejny”), dla_kogo (męskie, damskie, dziecięce, dla par),
+   etap (pierwszy zabieg, uzupełnienie, korekta, zdjęcie, kontrola, „do 3 tyg.”), sesje (pakiet / seria N),
+   sklad (każdy dodatkowy element poza zabiegiem głównym: „+ mycie”, „z maską”, „+ ampułka”),
+   wylaczenie („bez strzyżenia”, „bez malowania”), poziom (basic, premium, lux, express, mini, rozszerzony),
+   miejsce (gdzie wykonywana: „mobilne”, „z dojazdem”), specjalista (poziom lub imię wykonawcy: top stylist,
+   master, junior, imię), inne (coś ważnego spoza listy).
+6. szum = słowa bez znaczenia dla usługi: promocje, rabaty, czas trwania, numeracja, emotki, zachęty.
+7. Z opisu bierzesz WYŁĄCZNIE: wyłączenia („bez strzyżenia”), osobno płatne usługi wliczone w cenę („w cenie
+   strzyżenie”) i liczby („cena za 1 modzel”, „każdy kolejny”). Zwykłych kroków usługi i zachęt z opisu nie wypisujesz.
+8. pozycja: zabieg (zwykła pojedyncza usługa — domyślnie) | pakiet (kilka wizyt tego samego) | zestaw (kilka różnych
+   zabiegów razem) | dodatek | produkt | konsultacja | voucher | szkolenie | inne. Nagłówek działu też o tym mówi.
+
+Odpowiedź — wyłącznie JSON:
+{"oferty": [{"id": "<id oferty>", "nazwa": "<dosłowna nazwa oferty>", "pozycja": "...",
+  "zabieg": {"fraza": "...", "zrodlo": "nazwa|wariant|zabieg_booksy|opis|dzial|salon"},
+  "cechy": [{"rola": "...", "fraza": "...", "zrodlo": "..."}], "szum": ["..."]}]}
+
+Działy:
+"""
+
+
+def prompt_dzialu(dzialy: list[tuple[str, str, list[Oferta]]]) -> str:
+    """dzialy = [(nagłówek działu, nazwa salonu, oferty działu)] — typ salonu z ofert (ten sam w dziale)."""
+    dane = [{"dzial": naglowek, "salon": salon, "typ_salonu": of[0].typ_salonu if of else "",
+             "oferty": [{k: v for k, v in asdict(o).items()
+                         if k in ("id", "nazwa", "wariant", "zabieg_booksy", "opis") and (v or k == "id")} for o in of]}
+            for naglowek, salon, of in dzialy]
+    return PROMPT_DZIALU + json.dumps(dane, ensure_ascii=False, indent=1)
+
+
 def _frazy(rek: dict[str, Any]) -> list[str]:
     z = rek.get("zabieg") or {}
     return [str(z.get("fraza") or ""), *(str(c.get("fraza") or "") for c in rek.get("cechy") or []),
@@ -99,8 +157,10 @@ def _w_tekscie(fraza: str, tekst: str) -> bool:
     return not f or f" {f} " in f" {tekst} "
 
 
-def waliduj(oferty: list[Oferta], odp: dict[str, Any]) -> tuple[dict[str, dict[str, Any]], list[str]]:
-    """→ (id oferty → rekord z polem `nieprzypisane`, błędy). Zła liczba rekordów odrzuca całą paczkę."""
+def waliduj(oferty: list[Oferta], odp: dict[str, Any],
+            salony: dict[str, str] | None = None) -> tuple[dict[str, dict[str, Any]], list[str]]:
+    """→ (id oferty → rekord z polem `nieprzypisane`, błędy). Zła liczba rekordów odrzuca całą paczkę.
+    `salony` (rozbiór działu): id oferty → nazwa salonu — fraza z nazwy salonu też jest tekstem tej oferty."""
     rek = odp.get("oferty") if isinstance(odp, dict) else None
     if not isinstance(rek, list) or len(rek) != len(oferty):
         return {}, [f"liczba rekordów {len(rek) if isinstance(rek, list) else 'brak'} ≠ {len(oferty)} ofert"]
@@ -116,7 +176,7 @@ def waliduj(oferty: list[Oferta], odp: dict[str, Any]) -> tuple[dict[str, dict[s
         if normalizuj(str(r.get("nazwa") or "")) != normalizuj(o.nazwa):
             bledy.append(f"{oid}: nazwa w odpowiedzi ≠ nazwa oferty")
             continue
-        tekst = " ".join(normalizuj(getattr(o, p)) for p in POLA)
+        tekst = " ".join(normalizuj(t) for t in (*(getattr(o, p) for p in POLA), (salony or {}).get(oid, "")))
         obce = [f for f in _frazy(r) if not _w_tekscie(f, tekst)]
         if obce:  # parafraza albo przeciek od sąsiada — rekord zostaje, ale nie może dać „ta sama”
             bledy.append(f"{oid}: fraza spoza tekstu oferty: {obce[:3]}")
