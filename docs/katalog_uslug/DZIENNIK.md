@@ -195,6 +195,18 @@ możemy lepiej/taniej/szybciej … to ja Cię ograniczyłem”.
   (literówki, „średnie (do ramion)”, poziom wykonawcy, „20 ml”), reszta to poprawne „podobne” (inny zakres, dodatek,
   pakiet). Błąd D nadal skupiony w „Rekonstrukcji paznokcia” (podologia vs manicure — sam kontekst salonu).
 
+- TEST F / SPRAWDZIAN 12 (1.10 wieczór, DOWÓD, 18 nowych salonów z 18 miast, ziarno 20261012, reguły zamrożone
+  bagent 8b30f64; rozbiór GLM 7134/7208 ofert, klasy + zamiany TypeSafe 0,07 USD; moja ocena na ślepo 543 par; bagent
+  7c8e447): **96,9% trafnych „ta sama” (317/327) — bramka 95% ✓.** Branże: Barber 100 (34), Brwi 100 (51), Depilacja
+  100 (1), Fryzjer 96 (27), Masaż 95 (55), Med-est 92 (59), Paznokcie 100 (23), Podologia 98 (52), Salon kosm. 100 (25);
+  warianty 66/66. Błędy (10): 6 granicznych przy ostrej ocenie („bikini pogłębione” = „głębokie” jako zamiana słów,
+  masaż „regeneracyjny” = „leczniczy” wg działu salonu, przedszkolak w dziale damskim i męskim, drenaż w dziale
+  „Endermologia”), 2 prawdziwe — ombre brwi (makijaż permanentny) uznane za ombre włosów: klasa dopisku liczona tylko
+  na wspólnym słowie „ombre”, bez dziedziny (por. odrzucona „dziedzina z kontekstu”), 1 kwas migdałowy wobec „kwasów”.
+  Odzysk ~32% (próba reszty 150/6675). **Pokrycie wierszy 46,5% (≥3 salony 34% + 1–2 salony 13%) — poniżej celu ~50%;**
+  tylko podobne 17%, brak 37% (Depilacja 6/8 bez ceny — laser „broda”, „palce u nóg” w małym mieście); stary silnik
+  z ceną 73%, różnica median tam, gdzie oba mają cenę, 15% (n=23). Łącznie testy A–F: pokrycie 52,3% (203/388 wierszy).
+
 **Why:** koszt i jakość v14f utknęły (87–94%, 3/4 par) na ograniczeniach metody, nie na strojeniu.
 **How to apply:** nowa praca nad matchingiem idzie tym planem; v14f zostaje punktem odniesienia w pomiarach.
 Model tej samej usługi ([[feedback_model_tej_samej_uslugi]]) bez zmian. Poprzednie ustalenie drzewa:
