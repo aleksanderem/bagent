@@ -225,6 +225,26 @@ możemy lepiej/taniej/szybciej … to ja Cię ograniczyłem”.
   (raz na dział), bilans na A–F i dowód na nowych salonach per branża, potem ponownie raport 279. Dane: `raport_279/`
   (`probka_oceny.json`, `ocena_claude.json`, `porownanie_raportu.json`, `bez_porownania.json`).
 
+- 1.10 ~22:30 DECYZJA ALEXA („tak”, po uwadze „marnujesz tokeny na pojedyncze przypadki”): zamiast reguł, które słowa
+  nagłówka działu i nazwy salonu doklejać do oferty — jeden mechanizm, w którym kontekst rozstrzyga model.
+  Wersja 1 (bagent 6e54fa4, `dzialy.py`): GLM czyta dział naraz i sam dopisuje frazy nagłówka. Próba 40 ofert dobra
+  (laser CO2 trafia do każdej usługi działu), ale test F: −68 prawdziwych par za −3 błędne — ten sam nagłówek u dwóch
+  salonów dostawał raz „kobiety”, raz „pastą cukrową”. ODRZUCONA (niespójność, nie treść).
+  Wersja 2 (bagent a97d7d9, 429e3fe, `stosowalnosc.py`): części kontekstu STAŁE (nagłówek, nazwa salonu i etykieta
+  Booksy rozłożone raz na tekst), a TypeSafe Noul rozstrzyga raz na (część, nazwa oferty) z pamięcią: „czy ta fraza
+  dopowiada coś, co odróżnia usługę — zabieg (gdy nazwa go nie mówi), metodę, obszar, dla kogo, ile zabiegów”; zabieg
+  z kontekstu tylko, gdy TypeSafe uzna, że sama nazwa nie mówi, co to za zabieg. Pytanie v1 („czy mówi coś prawdziwego”)
+  w próbie dopisywało „Medycyna Estetyczna”, „Kosmetologia”, „Hair” — zawężone. Przy okazji wyszła wada starego
+  mechanizmu: różnica po obu stronach rozstrzygana dwiema osobnymi zgodami stron („brwi” przy ombre — nie zmienia,
+  „koloryzacja” przy ombre — nie zmienia ⇒ makijaż permanentny = farbowanie włosów); dotąd maskowały ją słowa
+  doklejane regułami. Teraz różnica po obu stronach tylko przez wspólną ocenę (zamiana), domyślnie.
+  Wynik (moja ocena na ślepo, pary ze zmienionym werdyktem + nowa próba 279): test F trafność 97,4% → 96,2% (382
+  trafnych w obu; błędów 10 → 15, z tego 6 spornych: typ lasera tylko w opisie, usługa z dojazdem), wiersze z ceną
+  „ta sama” 47% → 55% (≥3 salony 34% bez zmian, 1–2 salony 13% → 21%); raport 279 trafność 78% → ok. 97% (71/73
+  ocenionych), oferty z ceną „ta sama” 22% → 21% (znika dział laserowy porównywany z usuwaniem ręcznym). Koszt nocy
+  TypeSafe ~1,1 USD (próby, oba zbiory, klasy), GLM w abonamencie. F i 279 posłużyły do poprawek — dowód: test G
+  (sprawdzian 13, 18 nowych salonów, ziarno 20261013), rozbiór w toku.
+
 **Why:** koszt i jakość v14f utknęły (87–94%, 3/4 par) na ograniczeniach metody, nie na strojeniu.
 **How to apply:** nowa praca nad matchingiem idzie tym planem; v14f zostaje punktem odniesienia w pomiarach.
 Model tej samej usługi ([[feedback_model_tej_samej_uslugi]]) bez zmian. Poprzednie ustalenie drzewa:
