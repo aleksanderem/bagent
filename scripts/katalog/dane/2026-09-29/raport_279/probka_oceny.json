@@ -1,0 +1,2002 @@
+[
+ {
+  "i": 0,
+  "a": "42881443",
+  "b": "6333807",
+  "podpis": "ta_sama",
+  "powod": "dopisek nie zmienia usługi: znamion",
+  "oa": {
+   "nazwa": "Usuwanie zmian skórnych",
+   "wariant": "Usuwanie zmian skórnych",
+   "kategoria": "Usuwanie kurzajek i zmian skórnych (laser CO2)",
+   "opis": "⭕️ Zabieg usuwania zmian skórnych wykonywany po wcześniejszej ocenie specjalisty. Podczas wizyty oceniany jest rodzaj, wielkość oraz liczba zmian skórnych. Na tej podstawie dobierana jest odpowiednia ",
+   "cena": 199,
+   "typ": "Medycyna Estetyczna",
+   "zabieg_booksy": ""
+  },
+  "ob": {
+   "nazwa": "Usuwanie zmian skórnych/ znamion",
+   "wariant": "",
+   "kategoria": "Usuwanie zmian skórnych brodawki/ włokniaki",
+   "opis": "Usuwanie znamion nieinwazyjną metodą za pomocą koagulacji.",
+   "cena": 150,
+   "typ": "Medycyna Estetyczna",
+   "zabieg_booksy": "Usuwanie znamion"
+  }
+ },
+ {
+  "i": 1,
+  "a": "42881397",
+  "b": "6358966",
+  "podpis": "ta_sama",
+  "powod": "dopisek nie zmienia usługi: barwnik kurzajek pieprzyk plamek wlokniak zolt | od",
+  "oa": {
+   "nazwa": "Laser CO2 - usuwanie zmian skórnych (kurzajek, włókniaków, pieprzyków, zmian barwnikowych, plamek żółtych) OD 199ZŁ PROMOCJA",
+   "wariant": "Laser CO2 - usuwanie zmian skórnych (kurzajek, włókniaków, pieprzyków, zmian barwnikowych, plamek żółtych) OD 199ZŁ PROMOCJA",
+   "kategoria": "Promocje sierpnia",
+   "opis": "Laser CO2 - usuwanie zmian skórnych (kurzajek, włókniaków, pieprzyków, zmian barwnikowych, plamek żółtych) OD 199ZŁ PROMOCJA Zmiany skórne takie jak kurzajki i włókniaki to problem wielu osób w każdym",
+   "cena": 199,
+   "typ": "Medycyna Estetyczna",
+   "zabieg_booksy": "Laser CO2"
+  },
+  "ob": {
+   "nazwa": "Usunięcie zmiany skórnej- laserem CO2",
+   "wariant": "Usunięcie zmiany skórnej- laserem CO2",
+   "kategoria": "Usunięcie zmiany laserowe/plasmą",
+   "opis": "",
+   "cena": 350,
+   "typ": "Inni",
+   "zabieg_booksy": ""
+  }
+ },
+ {
+  "i": 2,
+  "a": "42881536#1",
+  "b": "6370057",
+  "podpis": "ta_sama",
+  "powod": "dopisek nie zmienia usługi: botox like ptx",
+  "oa": {
+   "nazwa": "Mezoterapia 💉 AQUASHINE - 1 ampułka",
+   "wariant": "1 zabieg",
+   "kategoria": "Mezoterapia igłowa (nawilżenie i blask)",
+   "opis": "Aquashine to produkt o działaniu przeciwstarzeniowym, rekomendowany w celu likwidacji zmarszczek oraz rewitalizacji zmęczonej lub wysuszonej skóry twarzy, szyi, dekoltu i rąk. Regeneruje zmęczoną i pr",
+   "cena": 750,
+   "typ": "Medycyna Estetyczna",
+   "zabieg_booksy": "Mezoterapia"
+  },
+  "ob": {
+   "nazwa": "Botox Like (Aquashine PTX) - 1 ampułka",
+   "wariant": "",
+   "kategoria": "MEZOTERAPIA",
+   "opis": "**Mezoterapia igłowa Aquashine PTX** to zaawansowany zabieg, który skutecznie odżywia, nawilża i rewitalizuje skórę, rozluźniając przy tym mięśnie mimiczne. Polega na precyzyjnym wstrzykiwaniu specjal",
+   "cena": 900,
+   "typ": "Zdrowie",
+   "zabieg_booksy": "Mezoterapia igłowa"
+  }
+ },
+ {
+  "i": 3,
+  "a": "42881562#1",
+  "b": "6744845",
+  "podpis": "podobna",
+  "powod": "różne słowa: 3 dlon lifting oczu odmladzan okolic pakiet / mikroigl przod uda",
+  "oa": {
+   "nazwa": "VIRTUE RF okolica oczu lub dłoni - lifting i odmładzanie",
+   "wariant": "Pakiet 3 zabiegów",
+   "kategoria": "Lifting i ujędrnianie twarzy (Virtue RF)",
+   "opis": "VIRTUE RF okolica oczu lub dłoni - lifting i odmładzanie ⭕️ Virtue RF skutecznie wspiera poprawę jakości skóry również w delikatnych obszarach takich jak okolica oczu oraz dłonie. Zabieg pomaga popraw",
+   "cena": 2400,
+   "typ": "Medycyna Estetyczna",
+   "zabieg_booksy": ""
+  },
+  "ob": {
+   "nazwa": "VIRTUE RF uda przód",
+   "wariant": "VIRTUE RF uda przód",
+   "kategoria": "Radiofrekwencja mikroigłowa VIRTUE RF",
+   "opis": "",
+   "cena": 1400,
+   "typ": "Salon Kosmetyczny",
+   "zabieg_booksy": ""
+  }
+ },
+ {
+  "i": 4,
+  "a": "42881524#2",
+  "b": "5819223",
+  "podpis": "ta_sama",
+  "powod": "dopisek nie zmienia usługi: redukcj zmarszczk",
+  "oa": {
+   "nazwa": "BOTOKS - redukcja zmarszczek",
+   "wariant": "3 okolice",
+   "kategoria": "Botoks i medycyna estetyczna",
+   "opis": "Botoks to jeden z najpopularniejszych zabiegów medycyny estetycznej, stosowany w celu redukcji zmarszczek mimicznych i profilaktyki ich pogłębiania. Preparat czasowo rozluźnia mięśnie odpowiedzialne z",
+   "cena": 1499,
+   "typ": "Medycyna Estetyczna",
+   "zabieg_booksy": "Botoks"
+  },
+  "ob": {
+   "nazwa": "BOTOKS - 3 okolice",
+   "wariant": "",
+   "kategoria": "KOSMETOLOGIA ESTETYCZNA",
+   "opis": "**Zabieg powoduje unierychomienie mięśni, dzięki czemu możliwe jest zredukowanie zmarszczek mimicznych w górnej części twarzy. Z tego względu, preparat ma szerokie zastosowanie w medycynie estetycznej",
+   "cena": 750,
+   "typ": "Medycyna Estetyczna",
+   "zabieg_booksy": "Botoks"
+  }
+ },
+ {
+  "i": 5,
+  "a": "42881435",
+  "b": "6377463",
+  "podpis": "ta_sama",
+  "powod": "równe podpisy",
+  "oa": {
+   "nazwa": "Usuwanie kurzajki",
+   "wariant": "Usuwanie kurzajki",
+   "kategoria": "Usuwanie kurzajek i zmian skórnych (laser CO2)",
+   "opis": "⭕️ Zabieg usuwania zmian skórnych wykonywany po wcześniejszej ocenie specjalisty. Podczas wizyty oceniany jest rodzaj, wielkość oraz liczba zmian skórnych. Na tej podstawie dobierana jest odpowiednia ",
+   "cena": 199,
+   "typ": "Medycyna Estetyczna",
+   "zabieg_booksy": ""
+  },
+  "ob": {
+   "nazwa": "Usuwanie kurzajek",
+   "wariant": "",
+   "kategoria": "Zabiegi pielęgnacyjne",
+   "opis": "",
+   "cena": 200,
+   "typ": "Masaż",
+   "zabieg_booksy": "Usuwanie kurzajek i brodawek"
+  }
+ },
+ {
+  "i": 6,
+  "a": "42881515#2",
+  "b": "6380599#3",
+  "podpis": "podobna",
+  "powod": "różne słowa: 4 mesk mt pakiet stop thunder / brod",
+  "oa": {
+   "nazwa": "Depilacja laserowa - Stopy - Thunder MT",
+   "wariant": "Pakiet 4 zabiegów",
+   "kategoria": "Depilacja laserowa — mężczyźni (Thunder MT)",
+   "opis": "⭕️ Laser Thunder MT to jedna z najnowocześniejszych technologii trwałej redukcji owłosienia na świecie. Urządzenie zostało stworzone przez renomowaną włoską firmę Quanta System i zdobyło nagrodę Perła",
+   "cena": 1250,
+   "typ": "Medycyna Estetyczna",
+   "zabieg_booksy": "Depilacja laserowa"
+  },
+  "ob": {
+   "nazwa": "Depilacja laserowa",
+   "wariant": "broda",
+   "kategoria": "🧼 DEPILACJA (laserowa i woskiem)",
+   "opis": "",
+   "cena": 100,
+   "typ": "Salon Kosmetyczny",
+   "zabieg_booksy": "Depilacja laserowa"
+  }
+ },
+ {
+  "i": 7,
+  "a": "42881622",
+  "b": "6268276",
+  "podpis": "ta_sama",
+  "powod": "równe podpisy",
+  "oa": {
+   "nazwa": "Henna pudrowa +regulacja brwi",
+   "wariant": "Henna pudrowa +regulacja brwi",
+   "kategoria": "Stylizacja brwi",
+   "opis": "",
+   "cena": 120,
+   "typ": "Medycyna Estetyczna",
+   "zabieg_booksy": "Henna pudrowa"
+  },
+  "ob": {
+   "nazwa": "Henna Pudrowa Brwi+Regulacja",
+   "wariant": "",
+   "kategoria": "Henna pudrowa",
+   "opis": "",
+   "cena": 85,
+   "typ": "Brwi i rzęsy",
+   "zabieg_booksy": "Henna pudrowa"
+  }
+ },
+ {
+  "i": 8,
+  "a": "42881582",
+  "b": "6191412",
+  "podpis": "podobna",
+  "powod": "różne słowa: ipl naczynek rumien / alma dekolt harmon szyj",
+  "oa": {
+   "nazwa": "IPL twarz - usuwanie przebarwień, rumienia i naczynek",
+   "wariant": "IPL twarz - usuwanie przebarwień, rumienia i naczynek",
+   "kategoria": "Przebarwienia i naczynka (laser Frax, IPL)",
+   "opis": "IPL twarz - usuwanie przebarwień, rumienia i naczynek ⭕️ IPL Candela to skuteczna terapia światłem przeznaczona do redukcji przebarwień, rumienia, rozszerzonych naczynek oraz oznak fotostarzenia skóry",
+   "cena": 900,
+   "typ": "Medycyna Estetyczna",
+   "zabieg_booksy": ""
+  },
+  "ob": {
+   "nazwa": "Usuwanie przebarwień - twarz + szyja + dekolt",
+   "wariant": "",
+   "kategoria": "Alma Harmony",
+   "opis": "",
+   "cena": 1200,
+   "typ": "Medycyna Estetyczna",
+   "zabieg_booksy": "Zabieg laserowy"
+  }
+ },
+ {
+  "i": 9,
+  "a": "42881513#2",
+  "b": "6366663",
+  "podpis": "ta_sama",
+  "powod": "dopisek nie zmienia usługi: 1 mesk",
+  "oa": {
+   "nazwa": "Depilacja laserowa - Ramiona -  Thunder MT",
+   "wariant": "1 zabieg",
+   "kategoria": "Depilacja laserowa — mężczyźni (Thunder MT)",
+   "opis": "⭕️ Laser Thunder MT to jedna z najnowocześniejszych technologii trwałej redukcji owłosienia na świecie. Urządzenie zostało stworzone przez renomowaną włoską firmę Quanta System i zdobyło nagrodę Perła",
+   "cena": 550,
+   "typ": "Medycyna Estetyczna",
+   "zabieg_booksy": "Depilacja laserowa"
+  },
+  "ob": {
+   "nazwa": "Epilacja laserowa Thunder MT- ramiona",
+   "wariant": "",
+   "kategoria": "Epilacja Laserowa Thunder MT - ciało",
+   "opis": "W pakiecie taniej! * 1100 zł/ 4 zabiegi * 1580 zł/ 6 zabiegów **Depilacja laserowa Thunder MT – skuteczność i komfort w jednym** Laser Thunder MT to najwyższej klasy technologia do trwałej redukcji ow",
+   "cena": 380,
+   "typ": "Salon Kosmetyczny",
+   "zabieg_booksy": "Depilacja laserowa"
+  }
+ },
+ {
+  "i": 10,
+  "a": "42881546#0",
+  "b": "6171963",
+  "podpis": "ta_sama",
+  "powod": "inna nazwa tego samego: „1ml” / „ampulk”",
+  "oa": {
+   "nazwa": "Xela Rederm - 1 ampułka",
+   "wariant": "1 zabieg",
+   "kategoria": "Mezoterapia igłowa (nawilżenie i blask)",
+   "opis": "Redermalizacja jest metodą, która pomaga przeciwdziałać starzeniu się skóry i odbudowuje ją. Wywiera wpływ na wszystkie trzy podstawowe mechanizmy starzenia się skóry, czyli : reguluje biochemiczne i ",
+   "cena": 850,
+   "typ": "Medycyna Estetyczna",
+   "zabieg_booksy": ""
+  },
+  "ob": {
+   "nazwa": "Xela Rederm 1.1 1ml",
+   "wariant": "",
+   "kategoria": "MEZOTERAPIA IGŁOWA",
+   "opis": "",
+   "cena": 900,
+   "typ": "Salon Kosmetyczny",
+   "zabieg_booksy": "Mezoterapia igłowa"
+  }
+ },
+ {
+  "i": 11,
+  "a": "42881430",
+  "b": "6192905",
+  "podpis": "ta_sama",
+  "powod": "inna nazwa tego samego: „brodawk” / „rogowiak”",
+  "oa": {
+   "nazwa": "Usuwanie brodawki łojotokowej",
+   "wariant": "Usuwanie brodawki łojotokowej",
+   "kategoria": "Usuwanie kurzajek i zmian skórnych (laser CO2)",
+   "opis": "⭕️ Zabieg usuwania zmian skórnych wykonywany po wcześniejszej ocenie specjalisty. Podczas wizyty oceniany jest rodzaj, wielkość oraz liczba zmian skórnych. Na tej podstawie dobierana jest odpowiednia ",
+   "cena": 199,
+   "typ": "Medycyna Estetyczna",
+   "zabieg_booksy": ""
+  },
+  "ob": {
+   "nazwa": "Usuwanie rogowiaków łojotokowych",
+   "wariant": "",
+   "kategoria": "Chirurgia Laserowa",
+   "opis": "",
+   "cena": 699,
+   "typ": "Depilacja",
+   "zabieg_booksy": "Laser CO2"
+  }
+ },
+ {
+  "i": 12,
+  "a": "42881607#1",
+  "b": "6334989",
+  "podpis": "podobna",
+  "powod": "różne słowa: 3 pakiet przebud regeneracj resurfacing skor twarz / frakcyjn",
+  "oa": {
+   "nazwa": "Laser CO2 Resurfacing - Twarz + Szyja + Dekolt- przebudowa i regeneracja skóry",
+   "wariant": "Pakiet 3 zabiegów",
+   "kategoria": "Resurfacing laserowy twarzy (CO2)",
+   "opis": "Laser CO2 Resurfacing - Twarz + Szyja + Dekolt- przebudowa i regeneracja skóry ⭕️ Najbardziej kompleksowa procedura Laser CO2 Resurfacing obejmująca twarz, szyję oraz dekolt. Zabieg wspiera intensywną",
+   "cena": 4500,
+   "typ": "Medycyna Estetyczna",
+   "zabieg_booksy": "Laser CO2"
+  },
+  "ob": {
+   "nazwa": "Laser frakcyjny CO2 - DEKOLT+SZYJA",
+   "wariant": "",
+   "kategoria": "Laser Frakcyjny CO2 - NOWOŚĆ!",
+   "opis": "**Laser CO2** to terapia mająca na celu trwałą i całkowitą regenerację skóry poprzez intensywną stymulację nowego kolagenu i elastyny. Działanie lasera polega przede wszystkim na tworzeniu mikrouszkod",
+   "cena": 2000,
+   "typ": "Salon Kosmetyczny",
+   "zabieg_booksy": "Laser CO2"
+  }
+ },
+ {
+  "i": 13,
+  "a": "42881552#1",
+  "b": "6165655",
+  "podpis": "ta_sama",
+  "powod": "dopisek nie zmienia usługi: proxn przebarwien rewitalizacj | 1 koloryt pierwsz wyrownan",
+  "oa": {
+   "nazwa": "PRO XN I stopnia - Twarz + Szyja - wyrównanie kolorytu i pierwsze przebarwienia",
+   "wariant": "1 zabieg",
+   "kategoria": "Przebarwienia i rewitalizacja (ProXN)",
+   "opis": "PRO XN I stopnia - Twarz + Szyja - wyrównanie kolorytu i pierwsze przebarwienia ⭕️ Terapia PRO XN I stopnia przeznaczona jest dla osób z nierównym kolorytem skóry, pierwszymi przebarwieniami oraz ozna",
+   "cena": 600,
+   "typ": "Medycyna Estetyczna",
+   "zabieg_booksy": ""
+  },
+  "ob": {
+   "nazwa": "PRO XN zabieg I stopnia twarz + szyja",
+   "wariant": "",
+   "kategoria": "PRO XN",
+   "opis": "",
+   "cena": 400,
+   "typ": "Salon Kosmetyczny",
+   "zabieg_booksy": "Zabiegi na twarz"
+  }
+ },
+ {
+  "i": 14,
+  "a": "42881608#0",
+  "b": "6272953#1",
+  "podpis": "ta_sama",
+  "powod": "dopisek nie zmienia usługi: 1 | przebud regeneracj skor",
+  "oa": {
+   "nazwa": "Laser CO2 Resurfacing - Twarz + Szyja - przebudowa i regeneracja skóry",
+   "wariant": "1 zabieg",
+   "kategoria": "Resurfacing laserowy twarzy (CO2)",
+   "opis": "Laser CO2 Resurfacing - Twarz + Szyja - przebudowa i regeneracja skóry ⭕️ Kompleksowa terapia laserowa obejmująca twarz oraz szyję. Laser CO2 stymuluje procesy regeneracyjne skóry, pobudza produkcję k",
+   "cena": 1500,
+   "typ": "Medycyna Estetyczna",
+   "zabieg_booksy": "Laser CO2"
+  },
+  "ob": {
+   "nazwa": "LASEROWY RESURFACING TWARZY CO2",
+   "wariant": "Twarz + szyja",
+   "kategoria": "ZABIEGI LASEROWE",
+   "opis": "",
+   "cena": 1600,
+   "typ": "Medycyna Estetyczna",
+   "zabieg_booksy": "Zabieg laserowy"
+  }
+ },
+ {
+  "i": 15,
+  "a": "42881513#1",
+  "b": "6818152",
+  "podpis": "podobna",
+  "powod": "różne słowa: 4 laser mesk mt pakiet thunder / wosk",
+  "oa": {
+   "nazwa": "Depilacja laserowa - Ramiona -  Thunder MT",
+   "wariant": "Pakiet 4 zabiegów",
+   "kategoria": "Depilacja laserowa — mężczyźni (Thunder MT)",
+   "opis": "⭕️ Laser Thunder MT to jedna z najnowocześniejszych technologii trwałej redukcji owłosienia na świecie. Urządzenie zostało stworzone przez renomowaną włoską firmę Quanta System i zdobyło nagrodę Perła",
+   "cena": 2100,
+   "typ": "Medycyna Estetyczna",
+   "zabieg_booksy": "Depilacja laserowa"
+  },
+  "ob": {
+   "nazwa": "Depilacja Ramiona",
+   "wariant": "",
+   "kategoria": "DEPILACJA WOSKOWA",
+   "opis": "",
+   "cena": 85,
+   "typ": "Salon Kosmetyczny",
+   "zabieg_booksy": "Depilacja ciała"
+  }
+ },
+ {
+  "i": 16,
+  "a": "42881601",
+  "b": "6239795",
+  "podpis": "podobna",
+  "powod": "różne słowa: czol mt naczynek thunder / clearlight ld808 szyj",
+  "oa": {
+   "nazwa": "Thunder MT - usuwanie przebarwień i naczynek - czoło",
+   "wariant": "Thunder MT - usuwanie przebarwień i naczynek - czoło",
+   "kategoria": "Zamykanie naczynek i rumień (laser) - Thunder MT",
+   "opis": "Thunder MT - usuwanie przebarwień i naczynek - czoło ⭕️ Laser Thunder MT skutecznie wspiera redukcję przebarwień, rumienia oraz widocznych naczynek na skórze. Zaawansowana technologia laserowa pozwala",
+   "cena": 500,
+   "typ": "Medycyna Estetyczna",
+   "zabieg_booksy": ""
+  },
+  "ob": {
+   "nazwa": "Usuwanie Przebarwień Clearlight LD808 - szyja",
+   "wariant": "",
+   "kategoria": "Usuwanie Przebarwień Clearlight LD808",
+   "opis": "",
+   "cena": 300,
+   "typ": "Medycyna Estetyczna",
+   "zabieg_booksy": "Zabieg na przebarwienia"
+  }
+ },
+ {
+  "i": 17,
+  "a": "42881617",
+  "b": "7229914",
+  "podpis": "ta_sama",
+  "powod": "równe podpisy",
+  "oa": {
+   "nazwa": "Brwi- Laminacja brwi+farbowanie+regulacja+botoks",
+   "wariant": "Brwi- Laminacja brwi+farbowanie+regulacja+botoks",
+   "kategoria": "Stylizacja brwi",
+   "opis": "",
+   "cena": 170,
+   "typ": "Medycyna Estetyczna",
+   "zabieg_booksy": "Laminacja brwi"
+  },
+  "ob": {
+   "nazwa": "Laminacja brwi + regulacja + farbowanie + botox",
+   "wariant": "",
+   "kategoria": "",
+   "opis": "",
+   "cena": 160,
+   "typ": "Brwi i rzęsy",
+   "zabieg_booksy": "Laminacja brwi"
+  }
+ },
+ {
+  "i": 18,
+  "a": "42881510#2",
+  "b": "6366658",
+  "podpis": "ta_sama",
+  "powod": "dopisek nie zmienia usługi: 1 mesk",
+  "oa": {
+   "nazwa": "Depilacja laserowa - Plecy - Thunder MT",
+   "wariant": "1 zabieg",
+   "kategoria": "Depilacja laserowa — mężczyźni (Thunder MT)",
+   "opis": "⭕️ Laser Thunder MT to jedna z najnowocześniejszych technologii trwałej redukcji owłosienia na świecie. Urządzenie zostało stworzone przez renomowaną włoską firmę Quanta System i zdobyło nagrodę Perła",
+   "cena": 600,
+   "typ": "Medycyna Estetyczna",
+   "zabieg_booksy": "Depilacja laserowa"
+  },
+  "ob": {
+   "nazwa": "Epilacja laserowa Thunder MT- plecy",
+   "wariant": "",
+   "kategoria": "Epilacja Laserowa Thunder MT - ciało",
+   "opis": "W pakiecie taniej! * 1800 zł/ 4 zabiegi * 2490 zł/ 6 zabiegów **Depilacja laserowa Thunder MT – skuteczność i komfort w jednym** Laser Thunder MT to najwyższej klasy technologia do trwałej redukcji ow",
+   "cena": 550,
+   "typ": "Salon Kosmetyczny",
+   "zabieg_booksy": "Depilacja laserowa"
+  }
+ },
+ {
+  "i": 19,
+  "a": "42881447",
+  "b": "6333807",
+  "podpis": "ta_sama",
+  "powod": "dopisek nie zmienia usługi: zmian",
+  "oa": {
+   "nazwa": "Usuwanie znamion skórnych",
+   "wariant": "Usuwanie znamion skórnych",
+   "kategoria": "Usuwanie kurzajek i zmian skórnych (laser CO2)",
+   "opis": "⭕️ Zabieg usuwania zmian skórnych wykonywany po wcześniejszej ocenie specjalisty. Podczas wizyty oceniany jest rodzaj, wielkość oraz liczba zmian skórnych. Na tej podstawie dobierana jest odpowiednia ",
+   "cena": 199,
+   "typ": "Medycyna Estetyczna",
+   "zabieg_booksy": "Usuwanie znamion"
+  },
+  "ob": {
+   "nazwa": "Usuwanie zmian skórnych/ znamion",
+   "wariant": "",
+   "kategoria": "Usuwanie zmian skórnych brodawki/ włokniaki",
+   "opis": "Usuwanie znamion nieinwazyjną metodą za pomocą koagulacji.",
+   "cena": 150,
+   "typ": "Medycyna Estetyczna",
+   "zabieg_booksy": "Usuwanie znamion"
+  }
+ },
+ {
+  "i": 20,
+  "a": "42881439",
+  "b": "6341566",
+  "podpis": "ta_sama",
+  "powod": "równe podpisy",
+  "oa": {
+   "nazwa": "Usuwanie prosaka",
+   "wariant": "Usuwanie prosaka",
+   "kategoria": "Usuwanie kurzajek i zmian skórnych (laser CO2)",
+   "opis": "⭕️ Zabieg usuwania zmian skórnych wykonywany po wcześniejszej ocenie specjalisty. Podczas wizyty oceniany jest rodzaj, wielkość oraz liczba zmian skórnych. Na tej podstawie dobierana jest odpowiednia ",
+   "cena": 199,
+   "typ": "Medycyna Estetyczna",
+   "zabieg_booksy": ""
+  },
+  "ob": {
+   "nazwa": "Usunięcie prosaków",
+   "wariant": "",
+   "kategoria": "Zabiegi oczyszczająco-pielęgnacyjne",
+   "opis": "",
+   "cena": 40,
+   "typ": "Salon Kosmetyczny",
+   "zabieg_booksy": "Oczyszczanie manualne twarzy"
+  }
+ },
+ {
+  "i": 21,
+  "a": "42881621",
+  "b": "5889751",
+  "podpis": "ta_sama",
+  "powod": "równe podpisy",
+  "oa": {
+   "nazwa": "Henna brwi",
+   "wariant": "Henna brwi",
+   "kategoria": "Stylizacja brwi",
+   "opis": "",
+   "cena": 60,
+   "typ": "Medycyna Estetyczna",
+   "zabieg_booksy": "Henna brwi"
+  },
+  "ob": {
+   "nazwa": "Henna brwi",
+   "wariant": "Henna brwi",
+   "kategoria": "Paznokcie",
+   "opis": "",
+   "cena": 50,
+   "typ": "Fryzjer",
+   "zabieg_booksy": "Henna brwi"
+  }
+ },
+ {
+  "i": 22,
+  "a": "42881548#0",
+  "b": "6741916",
+  "podpis": "podobna",
+  "powod": "różne słowa: 1 pro resc skor szyj terap tradzik treatment twarz xn / set therap",
+  "oa": {
+   "nazwa": "PRO XN ACNE Rescue Treatment - Twarz + Szyja - terapia skóry trądzikowej",
+   "wariant": "1 zabieg",
+   "kategoria": "Przebarwienia i rewitalizacja (ProXN)",
+   "opis": "PRO XN ACNE Rescue Treatment - Twarz + Szyja - terapia skóry trądzikowej ⭕️ Specjalistyczna terapia przeznaczona dla skóry problematycznej, tłustej oraz trądzikowej. Zabieg wspiera wyciszenie zmian za",
+   "cena": 700,
+   "typ": "Medycyna Estetyczna",
+   "zabieg_booksy": ""
+  },
+  "ob": {
+   "nazwa": "Acne Therapy Set",
+   "wariant": "Acne Therapy Set",
+   "kategoria": "Peelingi chemiczne / Kwasy",
+   "opis": "94% skuteczności terapii trądzikowych potwierdzonej badaniami! Pierwszy dwufazowy, kompleksowy zabieg przeciwtrądzikowy z aktywatorem procesu, rozwiązujący trzy główne problemy skóry trądzikowej: zask",
+   "cena": 350,
+   "typ": "Salon Kosmetyczny",
+   "zabieg_booksy": ""
+  }
+ },
+ {
+  "i": 23,
+  "a": "42881471#2",
+  "b": "6432121",
+  "podpis": "podobna",
+  "powod": "różne słowa: 6 damsk mt pakiet thunder / alexdual xlas",
+  "oa": {
+   "nazwa": "Depilacja laserowa - Broda - Thunder MT",
+   "wariant": "Pakiet 6 zabiegów",
+   "kategoria": "Depilacja laserowa — kobiety (Thunder MT)",
+   "opis": "⭕️ Laser Thunder MT to jedna z najnowocześniejszych technologii trwałej redukcji owłosienia na świecie. Urządzenie zostało stworzone przez renomowaną włoską firmę Quanta System i zdobyło nagrodę Perła",
+   "cena": 1320,
+   "typ": "Medycyna Estetyczna",
+   "zabieg_booksy": "Depilacja laserowa"
+  },
+  "ob": {
+   "nazwa": "Depilacja laserowa- broda",
+   "wariant": "",
+   "kategoria": "Depilacja laserowa XLASE AlexDual",
+   "opis": "",
+   "cena": 250,
+   "typ": "Salon Kosmetyczny",
+   "zabieg_booksy": "Depilacja laserowa"
+  }
+ },
+ {
+  "i": 24,
+  "a": "42881414#0",
+  "b": "6387364",
+  "podpis": "ta_sama",
+  "powod": "dopisek nie zmienia usługi: twarz",
+  "oa": {
+   "nazwa": "Zabieg Dermapen + BioRepeel",
+   "wariant": "Twarz",
+   "kategoria": "Pakiety miesiąca (oszczędzasz najwięcej)",
+   "opis": "Regeneracja i blask w jednym zabiegu — mocniejsza przebudowa skóry niż każdy z etapów osobno. BioRepeel przygotowuje i rewitalizuje skórę, a Dermapen pobudza ją do produkcji kolagenu i lepszego wchłan",
+   "cena": 750,
+   "typ": "Medycyna Estetyczna",
+   "zabieg_booksy": ""
+  },
+  "ob": {
+   "nazwa": "Dermapen + BioRePeel",
+   "wariant": "",
+   "kategoria": "ZABIEGI KOSMETYCZNE",
+   "opis": "",
+   "cena": 699,
+   "typ": "Salon Kosmetyczny",
+   "zabieg_booksy": "Dermapen"
+  }
+ },
+ {
+  "i": 25,
+  "a": "42881428",
+  "b": "6276970",
+  "podpis": "ta_sama",
+  "powod": "równe podpisy",
+  "oa": {
+   "nazwa": "Usuwanie brodawek",
+   "wariant": "Usuwanie brodawek",
+   "kategoria": "Usuwanie kurzajek i zmian skórnych (laser CO2)",
+   "opis": "⭕️ Zabieg usuwania zmian skórnych wykonywany po wcześniejszej ocenie specjalisty. Podczas wizyty oceniany jest rodzaj, wielkość oraz liczba zmian skórnych. Na tej podstawie dobierana jest odpowiednia ",
+   "cena": 199,
+   "typ": "Medycyna Estetyczna",
+   "zabieg_booksy": ""
+  },
+  "ob": {
+   "nazwa": "Usunięcie Brodawki",
+   "wariant": "",
+   "kategoria": "Podologia",
+   "opis": "",
+   "cena": 80,
+   "typ": "Fryzjer",
+   "zabieg_booksy": "Pedicure podologiczny"
+  }
+ },
+ {
+  "i": 26,
+  "a": "42881409#0",
+  "b": "6492108#1",
+  "podpis": "podobna",
+  "powod": "jedno z kilku („lub”) wobec wszystkich razem",
+  "oa": {
+   "nazwa": "X-WAVE Fala uderzeniowa - 1 obszar - modelowanie sylwetki i redukcja cellulitu",
+   "wariant": "Pakiet 10 zabiegów",
+   "kategoria": "Promocje sierpnia",
+   "opis": "X-WAVE Fala uderzeniowa - 1 obszar - modelowanie sylwetki i redukcja cellulitu Możliwe obszary do wyboru: pośladki, uda przód, uda tył, bryczesy, łydki, ramiona, brzuch, boczki. ⭕️ X-WAVE to zaawansow",
+   "cena": 2200,
+   "typ": "Medycyna Estetyczna",
+   "zabieg_booksy": ""
+  },
+  "ob": {
+   "nazwa": "UDA 1/2 (tył lub przód) redukcja cellulitu",
+   "wariant": "5 ZABIEGÓW",
+   "kategoria": "Redukcja cellulitu Storz Medical",
+   "opis": "Storz Medical D-Actor, czyli fala uderzeniowa jest jedną z najbardziej skutecznych metod w redukcji zaawansowanego, zwłókniałego cellulitu oraz zbitej tkanki tłuszczowej. Podczas zabiegu działanie fal",
+   "cena": 1600,
+   "typ": "Medycyna Estetyczna",
+   "zabieg_booksy": "Usuwanie cellulitu"
+  }
+ },
+ {
+  "i": 27,
+  "a": "42881474#1",
+  "b": "6349713",
+  "podpis": "podobna",
+  "powod": "różne słowa: 6 cial damsk mt pakiet thunder / twarz",
+  "oa": {
+   "nazwa": "Depilacja laserowa - Całe ciało - Thunder MT",
+   "wariant": "Pakiet 6 zabiegów",
+   "kategoria": "Depilacja laserowa — kobiety (Thunder MT)",
+   "opis": "⭕️ Laser Thunder MT to jedna z najnowocześniejszych technologii trwałej redukcji owłosienia na świecie. Urządzenie zostało stworzone przez renomowaną włoską firmę Quanta System i zdobyło nagrodę Perła",
+   "cena": 5400,
+   "typ": "Medycyna Estetyczna",
+   "zabieg_booksy": "Depilacja laserowa"
+  },
+  "ob": {
+   "nazwa": "Depilacja laserowa- cała twarz",
+   "wariant": "Depilacja laserowa- cała twarz",
+   "kategoria": "Depilacja laserowa",
+   "opis": "",
+   "cena": 230,
+   "typ": "Salon Kosmetyczny",
+   "zabieg_booksy": "Depilacja laserowa"
+  }
+ },
+ {
+  "i": 28,
+  "a": "42881398",
+  "b": "6510024",
+  "podpis": "ta_sama",
+  "powod": "dopisek nie zmienia usługi: mezoterap peptyd terap | glow skor",
+  "oa": {
+   "nazwa": "Mezoterapia Pakiet 4 zabiegi DR CYJ - peptydowa terapia skóra głowy PROMOCJA",
+   "wariant": "Mezoterapia Pakiet 4 zabiegi DR CYJ - peptydowa terapia skóra głowy PROMOCJA",
+   "kategoria": "Promocje sierpnia",
+   "opis": "Mezoterapia Pakiet 4 zabiegi DR CYJ - peptydowa terapia skóra głowy PROMOCJA 🔷 Gęste i zdrowe włosy to jedno z Twoich marzeń? Mezoterapia skóry głowy DR CYJ to idealne rozwiązanie dla Ciebie! 🔷 Mezote",
+   "cena": 1800,
+   "typ": "Medycyna Estetyczna",
+   "zabieg_booksy": "Mezoterapia"
+  },
+  "ob": {
+   "nazwa": "Pakiet 4 zabiegi Dr.Cyj",
+   "wariant": "",
+   "kategoria": "PAKIETY",
+   "opis": "",
+   "cena": 3200,
+   "typ": "Medycyna Estetyczna",
+   "zabieg_booksy": ""
+  }
+ },
+ {
+  "i": 29,
+  "a": "42881655",
+  "b": "76100",
+  "podpis": "podobna",
+  "powod": "brak rekordu wyciągania",
+  "oa": {
+   "nazwa": "Regeneracja Kroplówka Terapia - 6x Gojenie żylaków, odleżyn, ran po zabiegach",
+   "wariant": "Regeneracja Kroplówka Terapia - 6x Gojenie żylaków, odleżyn, ran po zabiegach",
+   "kategoria": "Kroplówki witaminowe",
+   "opis": "Regeneracja Kroplówka Terapia - 6x Gojenie żylaków, odleżyn, ran po zabiegach Kroplówka naczyniowa wspomagająca leczenie miażdżycy, żylaków, odleżyn i ran pozabiegowych poprawia ukrwienie tkanek i mik",
+   "cena": 3000,
+   "typ": "Medycyna Estetyczna",
+   "zabieg_booksy": ""
+  },
+  "ob": {
+   "nazwa": "Regeneracja do koloryzacji",
+   "wariant": "",
+   "kategoria": "FRYZJERSTWO / KOLORYZACJA",
+   "opis": "",
+   "cena": 60,
+   "typ": "Fryzjer",
+   "zabieg_booksy": "Regeneracja włosów"
+  }
+ },
+ {
+  "i": 30,
+  "a": "42881475#1",
+  "b": "6366644",
+  "podpis": "ta_sama",
+  "powod": "dopisek nie zmienia usługi: 1 damsk",
+  "oa": {
+   "nazwa": "Depilacja laserowa - Całe nogi - Thunder MT",
+   "wariant": "1 zabieg",
+   "kategoria": "Depilacja laserowa — kobiety (Thunder MT)",
+   "opis": "⭕️ Laser Thunder MT to jedna z najnowocześniejszych technologii trwałej redukcji owłosienia na świecie. Urządzenie zostało stworzone przez renomowaną włoską firmę Quanta System i zdobyło nagrodę Perła",
+   "cena": 600,
+   "typ": "Medycyna Estetyczna",
+   "zabieg_booksy": "Depilacja laserowa"
+  },
+  "ob": {
+   "nazwa": "Epilacja laserowa Thunder MT- całe nogi",
+   "wariant": "",
+   "kategoria": "Epilacja Laserowa Thunder MT - ciało",
+   "opis": "W pakiecie taniej! * 2240 zł/ 4 zabiegi * 3150 zł/ 6 zabiegów **Depilacja laserowa Thunder MT – skuteczność i komfort w jednym** Laser Thunder MT to najwyższej klasy technologia do trwałej redukcji ow",
+   "cena": 625,
+   "typ": "Salon Kosmetyczny",
+   "zabieg_booksy": "Depilacja laserowa"
+  }
+ },
+ {
+  "i": 31,
+  "a": "42881416",
+  "b": "5522182",
+  "podpis": "ta_sama",
+  "powod": "dopisek nie zmienia usługi: lekarsk",
+  "oa": {
+   "nazwa": "Konsultacja lekarska Medycyna estetyczna",
+   "wariant": "Konsultacja lekarska Medycyna estetyczna",
+   "kategoria": "Konsultacje (bezpłatne)",
+   "opis": "Konsultacja z lekarzem przed zabiegami medycyny estetycznej. Podczas wizyty lekarz przeprowadzi wywiad medyczny, oceni stan skóry oraz omówi dostępne możliwości terapii. Wspólnie zostanie dobrany plan",
+   "cena": 199,
+   "typ": "Medycyna Estetyczna",
+   "zabieg_booksy": ""
+  },
+  "ob": {
+   "nazwa": "Konsultacja medycyna estetyczna",
+   "wariant": "",
+   "kategoria": "PIERWSZA WIZYTA I KONSULTACJA (obowiązkowa)",
+   "opis": "",
+   "cena": 50,
+   "typ": "Medycyna Estetyczna",
+   "zabieg_booksy": "Konsultacja lekarza medycyny estetycznej"
+  }
+ },
+ {
+  "i": 32,
+  "a": "42881528",
+  "b": "6252431",
+  "podpis": "ta_sama",
+  "powod": "równe podpisy",
+  "oa": {
+   "nazwa": "Modelowanie ust",
+   "wariant": "Modelowanie ust",
+   "kategoria": "Powiększanie i modelowanie ust",
+   "opis": "",
+   "cena": 800,
+   "typ": "Medycyna Estetyczna",
+   "zabieg_booksy": ""
+  },
+  "ob": {
+   "nazwa": "Modelowanie ust",
+   "wariant": "",
+   "kategoria": "Usta ",
+   "opis": "",
+   "cena": 1100,
+   "typ": "Medycyna Estetyczna",
+   "zabieg_booksy": "Powiększanie ust"
+  }
+ },
+ {
+  "i": 33,
+  "a": "42881532#1",
+  "b": "206682",
+  "podpis": "ta_sama",
+  "powod": "dopisek nie zmienia usługi: stymulator tkank",
+  "oa": {
+   "nazwa": "💉NUCLEOFIL STRONG",
+   "wariant": "1 zabieg",
+   "kategoria": "Stymulatory tkankowe (ujędrnienie skóry)",
+   "opis": "Nucleofill to preparat do głębokiej odnowy i biostymulacji skóry, opracowany na bazie naturalnych polinukleotydów. Biostymulacja skóry polega na stymulowaniu jej własnych możliwości regeneracyjnych – ",
+   "cena": 1000,
+   "typ": "Medycyna Estetyczna",
+   "zabieg_booksy": ""
+  },
+  "ob": {
+   "nazwa": "Stymulator NUCLEOFIL STRONG",
+   "wariant": "1 zabieg",
+   "kategoria": "Stymulatory Tkankowe - wykonywane przez lekarza",
+   "opis": "Zabieg wykonywany przez **lekarzy**. Cena zależy od ilości obszarów poddanych zabiegowi. **Cena minimalna obejmuje obszar twarzy - 2 ml.** **Stymulatory tkankowe** to innowacyjne preparaty wykorzystyw",
+   "cena": 1100,
+   "typ": "Medycyna Estetyczna",
+   "zabieg_booksy": "Stymulacja i ujędrnianie skóry twarzy"
+  }
+ },
+ {
+  "i": 34,
+  "a": "42881473#0",
+  "b": "6366671",
+  "podpis": "ta_sama",
+  "powod": "dopisek nie zmienia usługi: 1 damsk",
+  "oa": {
+   "nazwa": "Depilacja laserowa - Cała twarz - Thunder MT",
+   "wariant": "1 zabieg",
+   "kategoria": "Depilacja laserowa — kobiety (Thunder MT)",
+   "opis": "⭕️ Laser Thunder MT to jedna z najnowocześniejszych technologii trwałej redukcji owłosienia na świecie. Urządzenie zostało stworzone przez renomowaną włoską firmę Quanta System i zdobyło nagrodę Perła",
+   "cena": 250,
+   "typ": "Medycyna Estetyczna",
+   "zabieg_booksy": "Depilacja laserowa"
+  },
+  "ob": {
+   "nazwa": "Epilacja laserowa Thunder MT- cała twarz",
+   "wariant": "",
+   "kategoria": "Epilacja Laserowa Thunder MT - twarz",
+   "opis": "W pakiecie taniej! * 1050 zł/ 4 zabiegi * 1500 zł/ 6 zabiegów **Depilacja laserowa Thunder MT – skuteczność i komfort w jednym** Laser Thunder MT to najwyższej klasy technologia do trwałej redukcji ow",
+   "cena": 350,
+   "typ": "Salon Kosmetyczny",
+   "zabieg_booksy": "Depilacja laserowa"
+  }
+ },
+ {
+  "i": 35,
+  "a": "42881451#1",
+  "b": "6395865",
+  "podpis": "ta_sama",
+  "powod": "dopisek nie zmienia usługi: cellulit coolwaves",
+  "oa": {
+   "nazwa": "Onda Coolwaves - 1 obszar - redukcja tkanki tłuszczowej i cellulitu",
+   "wariant": "1 zabieg",
+   "kategoria": "Modelowanie sylwetki i cellulit (Onda)",
+   "opis": "Onda Coolwaves - 1 obszar - redukcja tkanki tłuszczowej i cellulitu Trwała redukcja lokalnego tłuszczu i ujędrnienie skóry — mikrofale Coolwaves docierają tam, gdzie dieta nie sięga. Onda wykorzystuje",
+   "cena": 700,
+   "typ": "Medycyna Estetyczna",
+   "zabieg_booksy": ""
+  },
+  "ob": {
+   "nazwa": "Onda - 1 obszar",
+   "wariant": "",
+   "kategoria": "ONDA redukcja tkanki tłuszczowej ",
+   "opis": "W pakiecie oszczędasz! * 1450zł - 4 zabiegi Opracowanie obszaru 15cm x 15cm. ONDA DEKA wykorzystuje unikalne mikrofale Coolwaves™, które selektywnie docierają do tkanki tłuszczowej i w nieinwazyjny sp",
+   "cena": 450,
+   "typ": "Depilacja",
+   "zabieg_booksy": "Usuwanie cellulitu"
+  }
+ },
+ {
+  "i": 36,
+  "a": "42881452#1",
+  "b": "6346541#16",
+  "podpis": "podobna",
+  "powod": "różne słowa: 1 cellulit obszar redukcj tkank tluszcz / 4x cial glowic modelowan obustronn przylozen stref sylwetk",
+  "oa": {
+   "nazwa": "Onda Coolwaves - 2 obszary - redukcja tkanki tłuszczowej i cellulitu",
+   "wariant": "1 zabieg",
+   "kategoria": "Modelowanie sylwetki i cellulit (Onda)",
+   "opis": "Onda Coolwaves - 2 obszary - redukcja tkanki tłuszczowej i cellulitu Trwała redukcja lokalnego tłuszczu i ujędrnienie skóry — mikrofale Coolwaves docierają tam, gdzie dieta nie sięga. Onda wykorzystuj",
+   "cena": 800,
+   "typ": "Medycyna Estetyczna",
+   "zabieg_booksy": ""
+  },
+  "ob": {
+   "nazwa": "✨✨ Modelowanie sylwetki Onda Coolwaves",
+   "wariant": "2 strefy ciała obustronnie (4 x 2 przyłożenia głowicy)",
+   "kategoria": "Onda Coolwaves - zabiegi modelujące",
+   "opis": "Onda Coolwaves™ to technologia wykorzystująca unikalne mikrofale Coolwaves™. Fale te działają na 3 poziomach: tkanki tłuszczowej, cellulitu oraz skóry, pozwalają szybko i skutecznie wyszczuplić brzuch",
+   "cena": 1000,
+   "typ": "Medycyna Estetyczna",
+   "zabieg_booksy": ""
+  }
+ },
+ {
+  "i": 37,
+  "a": "42881434",
+  "b": "5826624",
+  "podpis": "podobna",
+  "powod": "różne słowa: kurzajek u usuwan / strzyzen",
+  "oa": {
+   "nazwa": "Usuwanie kurzajek u dziecka",
+   "wariant": "Usuwanie kurzajek u dziecka",
+   "kategoria": "Usuwanie kurzajek i zmian skórnych (laser CO2)",
+   "opis": "⭕️ Usuwanie wielu kurzajek (brodawek wirusowych) u dziecka po kwalifikacji do zabiegu. W trakcie wizyty specjalista ocenia liczbę oraz wielkość zmian i przedstawia plan terapii. Cennik orientacyjny: 💎",
+   "cena": 199,
+   "typ": "Medycyna Estetyczna",
+   "zabieg_booksy": ""
+  },
+  "ob": {
+   "nazwa": "Strzyżenie dziecka",
+   "wariant": "",
+   "kategoria": "Fryzjerstwo",
+   "opis": "",
+   "cena": 90,
+   "typ": "Fryzjer",
+   "zabieg_booksy": "Strzyżenie damskie"
+  }
+ },
+ {
+  "i": 38,
+  "a": "42881502#1",
+  "b": "229657",
+  "podpis": "podobna",
+  "powod": "różne słowa: 6 dlon mesk mt pakiet thunder / twarz",
+  "oa": {
+   "nazwa": "Depilacja laserowa - Dłonie - Thunder MT",
+   "wariant": "Pakiet 6 zabiegów",
+   "kategoria": "Depilacja laserowa — mężczyźni (Thunder MT)",
+   "opis": "⭕️ Laser Thunder MT to jedna z najnowocześniejszych technologii trwałej redukcji owłosienia na świecie. Urządzenie zostało stworzone przez renomowaną włoską firmę Quanta System i zdobyło nagrodę Perła",
+   "cena": 1800,
+   "typ": "Medycyna Estetyczna",
+   "zabieg_booksy": "Depilacja laserowa"
+  },
+  "ob": {
+   "nazwa": "Depilacja laserowa -  Twarz",
+   "wariant": "",
+   "kategoria": "",
+   "opis": "",
+   "cena": 180,
+   "typ": "Salon Kosmetyczny",
+   "zabieg_booksy": "Depilacja laserowa"
+  }
+ },
+ {
+  "i": 39,
+  "a": "42881406#1",
+  "b": "6744831",
+  "podpis": "ta_sama",
+  "powod": "dopisek nie zmienia usługi: lifting przebud skor ujedrnian",
+  "oa": {
+   "nazwa": "VIRTUE RF twarz - lifting, ujędrnienie i przebudowa skóry",
+   "wariant": "Pakiet 3 zabiegów",
+   "kategoria": "Promocje sierpnia",
+   "opis": "VIRTUE RF twarz - lifting, ujędrnienie i przebudowa skóry ⭕️ Virtue RF to nowoczesne mikronakłuwanie radiofrekwencyjne, które skutecznie wspiera lifting, zagęszczenie oraz przebudowę skóry. Połączenie",
+   "cena": 3000,
+   "typ": "Medycyna Estetyczna",
+   "zabieg_booksy": ""
+  },
+  "ob": {
+   "nazwa": "Pakiet 3 zabiegów VIRTUE RF na twarz",
+   "wariant": "",
+   "kategoria": "Radiofrekwencja mikroigłowa VIRTUE RF",
+   "opis": "",
+   "cena": 2700,
+   "typ": "Salon Kosmetyczny",
+   "zabieg_booksy": "Zabiegi na twarz"
+  }
+ },
+ {
+  "i": 40,
+  "a": "42881609#0",
+  "b": "6199603#1",
+  "podpis": "ta_sama",
+  "powod": "dopisek nie zmienia usługi: lifting naturaln skor ujedrnian",
+  "oa": {
+   "nazwa": "Endermolift LPG Alliance twarz - naturalny lifting i ujędrnienie skóry",
+   "wariant": "1 zabieg",
+   "kategoria": "Lifting i modelowanie twarzy (Endermolift LPG)",
+   "opis": "Endermolift LPG Alliance twarz - naturalny lifting i ujędrnienie skóry ⭕️ Endermolift LPG Alliance to naturalny lifting twarzy wykorzystujący opatentowaną technologię stymulacji skóry bez użycia igieł",
+   "cena": 200,
+   "typ": "Medycyna Estetyczna",
+   "zabieg_booksy": ""
+  },
+  "ob": {
+   "nazwa": "Endermolift LPG Alliance® twarz",
+   "wariant": "1 zabieg",
+   "kategoria": "MODELOWANIE SYLWETKI",
+   "opis": "Endermolift LPG Alliance® – lifting i stymulacja skóry twarzy Endermolift LPG Alliance® to nowoczesny, nieinwazyjny zabieg liftingujący na twarz, szyję i okolice oczu, wykorzystujący opatentowaną tech",
+   "cena": 200,
+   "typ": "Medycyna Estetyczna",
+   "zabieg_booksy": "Endermologia"
+  }
+ },
+ {
+  "i": 41,
+  "a": "42881527#0",
+  "b": "6796563",
+  "podpis": "ta_sama",
+  "powod": "równe podpisy",
+  "oa": {
+   "nazwa": "Leczenie nadpotliwości",
+   "wariant": "dłonie",
+   "kategoria": "Botoks i medycyna estetyczna",
+   "opis": "Leczenie nadpotliwości z wykorzystaniem toksyny botulinowej to skuteczna metoda ograniczania nadmiernego wydzielania potu. Zabieg pomaga zwiększyć komfort codziennego życia, poprawia pewność siebie i ",
+   "cena": 999,
+   "typ": "Medycyna Estetyczna",
+   "zabieg_booksy": ""
+  },
+  "ob": {
+   "nazwa": "Leczenie nadpotliwości dłonie",
+   "wariant": "",
+   "kategoria": "BOTOKS - wygładzanie zmarszczek",
+   "opis": "",
+   "cena": 1500,
+   "typ": "Medycyna Estetyczna",
+   "zabieg_booksy": "Botoks"
+  }
+ },
+ {
+  "i": 42,
+  "a": "42881409#1",
+  "b": "6210755",
+  "podpis": "ta_sama",
+  "powod": "dopisek nie zmienia usługi: cellulit modelowan redukcj sylwetk",
+  "oa": {
+   "nazwa": "X-WAVE Fala uderzeniowa - 1 obszar - modelowanie sylwetki i redukcja cellulitu",
+   "wariant": "Pakiet 5 zabiegów",
+   "kategoria": "Promocje sierpnia",
+   "opis": "X-WAVE Fala uderzeniowa - 1 obszar - modelowanie sylwetki i redukcja cellulitu Możliwe obszary do wyboru: pośladki, uda przód, uda tył, bryczesy, łydki, ramiona, brzuch, boczki. ⭕️ X-WAVE to zaawansow",
+   "cena": 1250,
+   "typ": "Medycyna Estetyczna",
+   "zabieg_booksy": ""
+  },
+  "ob": {
+   "nazwa": "FALA UDERZENIOWA X-WAVE PAKIET 5 ZABIEGÓW 1 OBSZAR",
+   "wariant": "",
+   "kategoria": "",
+   "opis": "**Fala Uderzeniowa – Terapia Akustyczna** Zabieg wykorzystujący impulsy fal akustycznych o wysokiej energii w celu stymulacji mikrokrążenia, przyspieszenia metabolizmu komórkowego oraz rozbijania tkan",
+   "cena": 999,
+   "typ": "Salon Kosmetyczny",
+   "zabieg_booksy": "Fala uderzeniowa"
+  }
+ },
+ {
+  "i": 43,
+  "a": "42881440",
+  "b": "6360731",
+  "podpis": "ta_sama",
+  "powod": "równe podpisy",
+  "oa": {
+   "nazwa": "Usuwanie prosaków",
+   "wariant": "Usuwanie prosaków",
+   "kategoria": "Usuwanie kurzajek i zmian skórnych (laser CO2)",
+   "opis": "⭕️ Zabieg usuwania zmian skórnych wykonywany po wcześniejszej ocenie specjalisty. Podczas wizyty oceniany jest rodzaj, wielkość oraz liczba zmian skórnych. Na tej podstawie dobierana jest odpowiednia ",
+   "cena": 199,
+   "typ": "Medycyna Estetyczna",
+   "zabieg_booksy": ""
+  },
+  "ob": {
+   "nazwa": "Usuwanie prosaków",
+   "wariant": "",
+   "kategoria": "Elektrokoagulacja ",
+   "opis": "",
+   "cena": 100,
+   "typ": "Salon Kosmetyczny",
+   "zabieg_booksy": "Usuwanie wągrów i zaskórników"
+  }
+ },
+ {
+  "i": 44,
+  "a": "42881518#1",
+  "b": "6366667",
+  "podpis": "ta_sama",
+  "powod": "dopisek nie zmienia usługi: 1 mesk",
+  "oa": {
+   "nazwa": "Depilacja laserowa - Wąsik - Thunder MT",
+   "wariant": "1 zabieg",
+   "kategoria": "Depilacja laserowa — mężczyźni (Thunder MT)",
+   "opis": "⭕️ Laser Thunder MT to jedna z najnowocześniejszych technologii trwałej redukcji owłosienia na świecie. Urządzenie zostało stworzone przez renomowaną włoską firmę Quanta System i zdobyło nagrodę Perła",
+   "cena": 270,
+   "typ": "Medycyna Estetyczna",
+   "zabieg_booksy": "Depilacja laserowa"
+  },
+  "ob": {
+   "nazwa": "Epilacja laserowa Thunder MT- wąsik",
+   "wariant": "",
+   "kategoria": "Epilacja Laserowa Thunder MT - twarz",
+   "opis": "W pakiecie taniej! * 690 zł/ 4 zabiegi * 890 zł/ 6 zabiegów **Depilacja laserowa Thunder MT – skuteczność i komfort w jednym** Laser Thunder MT to najwyższej klasy technologia do trwałej redukcji owło",
+   "cena": 200,
+   "typ": "Salon Kosmetyczny",
+   "zabieg_booksy": "Depilacja laserowa"
+  }
+ },
+ {
+  "i": 45,
+  "a": "42881496#1",
+  "b": "6154997#3",
+  "podpis": "podobna",
+  "powod": "różne słowa: 6 mesk mt pakiet podstaw thunder / 1 klasyczn za",
+  "oa": {
+   "nazwa": "Depilacja laserowa - Bikini podstawowe - Thunder MT",
+   "wariant": "Pakiet 6 zabiegów",
+   "kategoria": "Depilacja laserowa — mężczyźni (Thunder MT)",
+   "opis": "Depilacja laserowa - Bikini podstawowe - Thunder MT ⭕️ Laser Thunder MT to jedna z najnowocześniejszych technologii trwałej redukcji owłosienia na świecie. Urządzenie zostało stworzone przez renomowan",
+   "cena": 1800,
+   "typ": "Medycyna Estetyczna",
+   "zabieg_booksy": "Depilacja laserowa"
+  },
+  "ob": {
+   "nazwa": "Depilacja laserowa - bikini klasyczne",
+   "wariant": "Za 1 zabieg",
+   "kategoria": "Miejsca intymne",
+   "opis": "",
+   "cena": 200,
+   "typ": "Salon Kosmetyczny",
+   "zabieg_booksy": "Depilacja laserowa"
+  }
+ },
+ {
+  "i": 46,
+  "a": "42881494#0",
+  "b": "7318309",
+  "podpis": "podobna",
+  "powod": "rdzen: „mt thunder” tylko po jednej stronie",
+  "oa": {
+   "nazwa": "Depilacja laserowa - Bikini brazylijskie - Thunder MT",
+   "wariant": "1 zabieg",
+   "kategoria": "Depilacja laserowa — mężczyźni (Thunder MT)",
+   "opis": "Depilacja laserowa - Bikini brazylijskie - Thunder MT ⭕️ Laser Thunder MT to jedna z najnowocześniejszych technologii trwałej redukcji owłosienia na świecie. Urządzenie zostało stworzone przez renomow",
+   "cena": 550,
+   "typ": "Medycyna Estetyczna",
+   "zabieg_booksy": "Depilacja laserowa"
+  },
+  "ob": {
+   "nazwa": "Depilacja laserowa bikini",
+   "wariant": "",
+   "kategoria": "",
+   "opis": "",
+   "cena": 150,
+   "typ": "Depilacja",
+   "zabieg_booksy": "Depilacja bikini"
+  }
+ },
+ {
+  "i": 47,
+  "a": "42881409#0",
+  "b": "6382332#2",
+  "podpis": "podobna",
+  "powod": "różne słowa: 10 cellulit fala modelowan obszar pakiet redukcj sylwetk uderzeni wave x / 3 cial deka duza duze onda part wyszczuplan",
+  "oa": {
+   "nazwa": "X-WAVE Fala uderzeniowa - 1 obszar - modelowanie sylwetki i redukcja cellulitu",
+   "wariant": "Pakiet 10 zabiegów",
+   "kategoria": "Promocje sierpnia",
+   "opis": "X-WAVE Fala uderzeniowa - 1 obszar - modelowanie sylwetki i redukcja cellulitu Możliwe obszary do wyboru: pośladki, uda przód, uda tył, bryczesy, łydki, ramiona, brzuch, boczki. ⭕️ X-WAVE to zaawansow",
+   "cena": 2200,
+   "typ": "Medycyna Estetyczna",
+   "zabieg_booksy": ""
+  },
+  "ob": {
+   "nazwa": "Onda DEKA / Wyszczuplenie/ 1 duża partia ciała",
+   "wariant": "Onda DEKA / Wyszczuplenie/ 3 duże partie ciała",
+   "kategoria": "ONDA DEKA 31 MAJA",
+   "opis": "**Onda DEKA – modelowanie sylwetki / redukcja cellulitu / ujędrnienie skóry** Do wyboru: brzuch, boczki, uda przód, uda tył, uda wewnętrzne, uda zewnętrzne, ramiona/pelikany Zaawansowany zabieg wykorz",
+   "cena": 1500,
+   "typ": "Salon Kosmetyczny",
+   "zabieg_booksy": "Zabiegi na ciało i modelowanie sylwetki"
+  }
+ },
+ {
+  "i": 48,
+  "a": "42881431",
+  "b": "5903742",
+  "podpis": "ta_sama",
+  "powod": "dopisek nie zmienia usługi: kurzajek",
+  "oa": {
+   "nazwa": "Usuwanie brodawki wirusowej (kurzajki)",
+   "wariant": "Usuwanie brodawki wirusowej (kurzajki)",
+   "kategoria": "Usuwanie kurzajek i zmian skórnych (laser CO2)",
+   "opis": "⭕️ Zabieg usuwania zmian skórnych wykonywany po wcześniejszej ocenie specjalisty. Podczas wizyty oceniany jest rodzaj, wielkość oraz liczba zmian skórnych. Na tej podstawie dobierana jest odpowiednia ",
+   "cena": 199,
+   "typ": "Medycyna Estetyczna",
+   "zabieg_booksy": ""
+  },
+  "ob": {
+   "nazwa": "Usunięcie brodawki wirusowej",
+   "wariant": "",
+   "kategoria": "Podologia",
+   "opis": "",
+   "cena": 120,
+   "typ": "Podologia",
+   "zabieg_booksy": "Pedicure podologiczny"
+  }
+ },
+ {
+  "i": 49,
+  "a": "42881492#1",
+  "b": "302229",
+  "podpis": "ta_sama",
+  "powod": "dopisek nie zmienia usługi: 1 damsk",
+  "oa": {
+   "nazwa": "Depilacja laserowa - Wąsik - Thunder MT",
+   "wariant": "1 zabieg",
+   "kategoria": "Depilacja laserowa — kobiety (Thunder MT)",
+   "opis": "⭕️ Laser Thunder MT to jedna z najnowocześniejszych technologii trwałej redukcji owłosienia na świecie. Urządzenie zostało stworzone przez renomowaną włoską firmę Quanta System i zdobyło nagrodę Perła",
+   "cena": 220,
+   "typ": "Medycyna Estetyczna",
+   "zabieg_booksy": "Depilacja laserowa"
+  },
+  "ob": {
+   "nazwa": "Depilacja laserowa - wąsik",
+   "wariant": "Depilacja laserowa - wąsik",
+   "kategoria": "Depilacja laserowa Thunder MT",
+   "opis": "Depilacja laserowa - wąsik 250zł zamiast 300zł Thunder MT to najnowocześniejszy, najszybszy i najskuteczniejszy laser na rynku światowym, którego zadaniem jest trwałe usunięcie owłosienia. Dzięki spec",
+   "cena": 250,
+   "typ": "Inni",
+   "zabieg_booksy": "Depilacja laserowa"
+  }
+ },
+ {
+  "i": 50,
+  "a": "42881429",
+  "b": "6192905",
+  "podpis": "ta_sama",
+  "powod": "inna nazwa tego samego: „brodawk” / „rogowiak”",
+  "oa": {
+   "nazwa": "Usuwanie brodawek łojotokowych",
+   "wariant": "Usuwanie brodawek łojotokowych",
+   "kategoria": "Usuwanie kurzajek i zmian skórnych (laser CO2)",
+   "opis": "⭕️ Zabieg usuwania zmian skórnych wykonywany po wcześniejszej ocenie specjalisty. Podczas wizyty oceniany jest rodzaj, wielkość oraz liczba zmian skórnych. Na tej podstawie dobierana jest odpowiednia ",
+   "cena": 199,
+   "typ": "Medycyna Estetyczna",
+   "zabieg_booksy": ""
+  },
+  "ob": {
+   "nazwa": "Usuwanie rogowiaków łojotokowych",
+   "wariant": "",
+   "kategoria": "Chirurgia Laserowa",
+   "opis": "",
+   "cena": 699,
+   "typ": "Depilacja",
+   "zabieg_booksy": "Laser CO2"
+  }
+ },
+ {
+  "i": 51,
+  "a": "42881624",
+  "b": "6377760",
+  "podpis": "ta_sama",
+  "powod": "równe podpisy",
+  "oa": {
+   "nazwa": "Laminacja rzęs+farbowanie+botoks",
+   "wariant": "Laminacja rzęs+farbowanie+botoks",
+   "kategoria": "Stylizacja brwi",
+   "opis": "",
+   "cena": 190,
+   "typ": "Medycyna Estetyczna",
+   "zabieg_booksy": "Laminacja rzęs"
+  },
+  "ob": {
+   "nazwa": "Laminowanie rzęs+farbowanie+botox",
+   "wariant": "",
+   "kategoria": "RZĘSY",
+   "opis": "",
+   "cena": 210,
+   "typ": "Salon Kosmetyczny",
+   "zabieg_booksy": "Laminacja rzęs"
+  }
+ },
+ {
+  "i": 52,
+  "a": "42881524#1",
+  "b": "6176701",
+  "podpis": "ta_sama",
+  "powod": "dopisek nie zmienia usługi: redukcj zmarszczk",
+  "oa": {
+   "nazwa": "BOTOKS - redukcja zmarszczek",
+   "wariant": "2 okolice",
+   "kategoria": "Botoks i medycyna estetyczna",
+   "opis": "Botoks to jeden z najpopularniejszych zabiegów medycyny estetycznej, stosowany w celu redukcji zmarszczek mimicznych i profilaktyki ich pogłębiania. Preparat czasowo rozluźnia mięśnie odpowiedzialne z",
+   "cena": 1099,
+   "typ": "Medycyna Estetyczna",
+   "zabieg_booksy": "Botoks"
+  },
+  "ob": {
+   "nazwa": "Botoks - 2 okolice",
+   "wariant": "",
+   "kategoria": "Medycyna Estetyczna",
+   "opis": "Zabieg z użyciem toksyny botulinowej to skuteczna i bezpieczna metoda redukcji zmarszczek mimicznych. Działa poprzez czasowe rozluźnienie mięśni odpowiedzialnych za powstawanie zmarszczek, dzięki czem",
+   "cena": 1450,
+   "typ": "Salon Kosmetyczny",
+   "zabieg_booksy": "Botoks"
+  }
+ },
+ {
+  "i": 53,
+  "a": "42881454#1",
+  "b": "6149079",
+  "podpis": "podobna",
+  "powod": "różne słowa: 1 4 cellulit coolwaves obszar tkank / 4x dwie glowic plec pro",
+  "oa": {
+   "nazwa": "Onda Coolwaves - 4 obszary - redukcja tkanki tłuszczowej i cellulitu",
+   "wariant": "1 zabieg",
+   "kategoria": "Modelowanie sylwetki i cellulit (Onda)",
+   "opis": "Onda Coolwaves - 4 obszary - redukcja tkanki tłuszczowej i cellulitu Możliwe obszary: brzuch + boczki, uda tył + przód Trwała redukcja lokalnego tłuszczu i ujędrnienie skóry — mikrofale Coolwaves doci",
+   "cena": 1800,
+   "typ": "Medycyna Estetyczna",
+   "zabieg_booksy": ""
+  },
+  "ob": {
+   "nazwa": "4X ONDA PRO PLECY DWIE GŁOWICE REDUKCJA TŁUSZCZU",
+   "wariant": "",
+   "kategoria": "SUPER NOWOŚĆ PAKIETY ",
+   "opis": "PAKIET 4 ZABIEGÓW Zabieg Onda odpowiada za redukcję tkanki tłuszczowej. Dobrze sprawdza się podczas leczenia celulitu, niezależnie od stopnia jego zaawansowania. Co sprawia, że efekty Onda Deka są wid",
+   "cena": 3520,
+   "typ": "Salon Kosmetyczny",
+   "zabieg_booksy": "Lifting"
+  }
+ },
+ {
+  "i": 54,
+  "a": "42881477#0",
+  "b": "58734",
+  "podpis": "podobna",
+  "powod": "różne słowa: 4 damsk klatk mt pakiet piersi thunder / bikin plytk",
+  "oa": {
+   "nazwa": "Depilacja laserowa - Klatka piersiowa - Thunder MT",
+   "wariant": "Pakiet 4 zabiegów",
+   "kategoria": "Depilacja laserowa — kobiety (Thunder MT)",
+   "opis": "⭕️ Laser Thunder MT to jedna z najnowocześniejszych technologii trwałej redukcji owłosienia na świecie. Urządzenie zostało stworzone przez renomowaną włoską firmę Quanta System i zdobyło nagrodę Perła",
+   "cena": 2100,
+   "typ": "Medycyna Estetyczna",
+   "zabieg_booksy": "Depilacja laserowa"
+  },
+  "ob": {
+   "nazwa": "Depilacja laserowa - bikini płytkie",
+   "wariant": "",
+   "kategoria": "DEPILACJA LASEROWA",
+   "opis": "Depilacja laserowa bikini to bezpieczna i skuteczna metoda pozbycia się niechcianych włosów z okolic bikini, szczególnie tych widocznych przy noszeniu strojów kąpielowych. Oferujemy nowoczesne zabiegi",
+   "cena": 285,
+   "typ": "Salon Kosmetyczny",
+   "zabieg_booksy": "Depilacja laserowa"
+  }
+ },
+ {
+  "i": 55,
+  "a": "42881607#0",
+  "b": "6233803#8",
+  "podpis": "ta_sama",
+  "powod": "dopisek nie zmienia usługi: resurfacing | 1 | przebud regeneracj skor",
+  "oa": {
+   "nazwa": "Laser CO2 Resurfacing - Twarz + Szyja + Dekolt- przebudowa i regeneracja skóry",
+   "wariant": "1 zabieg",
+   "kategoria": "Resurfacing laserowy twarzy (CO2)",
+   "opis": "Laser CO2 Resurfacing - Twarz + Szyja + Dekolt- przebudowa i regeneracja skóry ⭕️ Najbardziej kompleksowa procedura Laser CO2 Resurfacing obejmująca twarz, szyję oraz dekolt. Zabieg wspiera intensywną",
+   "cena": 1800,
+   "typ": "Medycyna Estetyczna",
+   "zabieg_booksy": "Laser CO2"
+  },
+  "ob": {
+   "nazwa": "LASER CO2",
+   "wariant": "Twarz + Szyja + Dekolt",
+   "kategoria": "LASERY",
+   "opis": "**Laser frakcyjny CO₂ (Fracti CO2)** Zaawansowany laser frakcyjny CO₂ stosowany w intensywnej regeneracji i przebudowie skóry. Działa poprzez kontrolowane mikrouszkodzenia skóry, stymulując produkcję ",
+   "cena": 2500,
+   "typ": "Medycyna Estetyczna",
+   "zabieg_booksy": "Laser CO2"
+  }
+ },
+ {
+  "i": 56,
+  "a": "42881530#1",
+  "b": "6273758",
+  "podpis": "ta_sama",
+  "powod": "dopisek nie zmienia usługi: 1",
+  "oa": {
+   "nazwa": "💉Ejal 40",
+   "wariant": "1 zabieg",
+   "kategoria": "Stymulatory tkankowe (ujędrnienie skóry)",
+   "opis": "Preparat z nieusieciowanym kwasem hialuronowym rekomendowany dla cery wiotkiej, odwodnionej, przesuszonej, narażonej na promieniowanie UV i działanie klimatyzacji, skóry z rozstępami, przebarwieniami.",
+   "cena": 600,
+   "typ": "Medycyna Estetyczna",
+   "zabieg_booksy": ""
+  },
+  "ob": {
+   "nazwa": "Ejal 40",
+   "wariant": "",
+   "kategoria": "STYMULATORY TKANKOWE ",
+   "opis": "",
+   "cena": 500,
+   "typ": "Brwi i rzęsy",
+   "zabieg_booksy": "Stymulacja i ujędrnianie skóry twarzy"
+  }
+ },
+ {
+  "i": 57,
+  "a": "42881438",
+  "b": "4142311",
+  "podpis": "ta_sama",
+  "powod": "dopisek nie zmienia usługi: laser skorn zmian",
+  "oa": {
+   "nazwa": "Usuwanie naczyniaków rubinowych",
+   "wariant": "Usuwanie naczyniaków rubinowych",
+   "kategoria": "Usuwanie kurzajek i zmian skórnych (laser CO2)",
+   "opis": "⭕️ Zabieg usuwania zmian skórnych wykonywany po wcześniejszej ocenie specjalisty. Podczas wizyty oceniany jest rodzaj, wielkość oraz liczba zmian skórnych. Na tej podstawie dobierana jest odpowiednia ",
+   "cena": 199,
+   "typ": "Medycyna Estetyczna",
+   "zabieg_booksy": ""
+  },
+  "ob": {
+   "nazwa": "Naczyniak (rubinowy)",
+   "wariant": "Naczyniak (rubinowy)",
+   "kategoria": "Usuwanie zmian skórnych",
+   "opis": "",
+   "cena": 80,
+   "typ": "Salon Kosmetyczny",
+   "zabieg_booksy": ""
+  }
+ },
+ {
+  "i": 58,
+  "a": "42881524#0",
+  "b": "6194323",
+  "podpis": "podobna",
+  "powod": "różne słowa: 1 okolic redukcj / lwia",
+  "oa": {
+   "nazwa": "BOTOKS - redukcja zmarszczek",
+   "wariant": "1 okolica",
+   "kategoria": "Botoks i medycyna estetyczna",
+   "opis": "Botoks to jeden z najpopularniejszych zabiegów medycyny estetycznej, stosowany w celu redukcji zmarszczek mimicznych i profilaktyki ich pogłębiania. Preparat czasowo rozluźnia mięśnie odpowiedzialne z",
+   "cena": 599,
+   "typ": "Medycyna Estetyczna",
+   "zabieg_booksy": "Botoks"
+  },
+  "ob": {
+   "nazwa": "Botoks - lwia zmarszczka",
+   "wariant": "",
+   "kategoria": "BOTOKS",
+   "opis": "",
+   "cena": 400,
+   "typ": "Medycyna Estetyczna",
+   "zabieg_booksy": "Botoks"
+  }
+ },
+ {
+  "i": 59,
+  "a": "42881625",
+  "b": "5859735",
+  "podpis": "ta_sama",
+  "powod": "dopisek nie zmienia usługi: stylizacj",
+  "oa": {
+   "nazwa": "Regulacja brwi + henna brwi i rzęs",
+   "wariant": "Regulacja brwi + henna brwi i rzęs",
+   "kategoria": "Stylizacja brwi",
+   "opis": "",
+   "cena": 110,
+   "typ": "Medycyna Estetyczna",
+   "zabieg_booksy": "Henna brwi"
+  },
+  "ob": {
+   "nazwa": "Henna rzęs i brwi + regulacja brwi",
+   "wariant": "",
+   "kategoria": "Rzęsy & Brwi",
+   "opis": "",
+   "cena": 83.33,
+   "typ": "Paznokcie",
+   "zabieg_booksy": "Henna brwi"
+  }
+ },
+ {
+  "i": 60,
+  "a": "42881409#0",
+  "b": "6247563",
+  "podpis": "podobna",
+  "powod": "różne słowa: 1 10 cellulit fala obszar pakiet redukcj uderzeni wave x / 5 cial",
+  "oa": {
+   "nazwa": "X-WAVE Fala uderzeniowa - 1 obszar - modelowanie sylwetki i redukcja cellulitu",
+   "wariant": "Pakiet 10 zabiegów",
+   "kategoria": "Promocje sierpnia",
+   "opis": "X-WAVE Fala uderzeniowa - 1 obszar - modelowanie sylwetki i redukcja cellulitu Możliwe obszary do wyboru: pośladki, uda przód, uda tył, bryczesy, łydki, ramiona, brzuch, boczki. ⭕️ X-WAVE to zaawansow",
+   "cena": 2200,
+   "typ": "Medycyna Estetyczna",
+   "zabieg_booksy": ""
+  },
+  "ob": {
+   "nazwa": "Modelowanie sylwetki",
+   "wariant": "5 zabiegów",
+   "kategoria": "Zabiegi na ciało",
+   "opis": "Redukcja cellulitu, drenaż i poprawa jędrności skóry. Cena dotyczy 1 strefy ciała: nogi, pośladki, brzuch, plecy, ręce.",
+   "cena": 399,
+   "typ": "Medycyna Estetyczna",
+   "zabieg_booksy": "Zabiegi na ciało i modelowanie sylwetki"
+  }
+ },
+ {
+  "i": 61,
+  "a": "42881543",
+  "b": "6203771",
+  "podpis": "ta_sama",
+  "powod": "dopisek nie zmienia usługi: guna mezoterap",
+  "oa": {
+   "nazwa": "Mezoterapia Tropokolagen Guna - 3 ampułki",
+   "wariant": "Mezoterapia Tropokolagen Guna - 3 ampułki",
+   "kategoria": "Mezoterapia igłowa (nawilżenie i blask)",
+   "opis": "Tropokolagen GUNA to nowoczesny zabieg bioregeneracyjny oparty na podaniu oczyszczonego, bioaktywnego kolagenu typu I, który jest identyczny z naturalnie występującym kolagenem w ludzkiej skórze. Zabi",
+   "cena": 800,
+   "typ": "Medycyna Estetyczna",
+   "zabieg_booksy": "Mezoterapia"
+  },
+  "ob": {
+   "nazwa": "Tropokolagen 3 ampułki",
+   "wariant": "Tropokolagen 3 ampułki",
+   "kategoria": "MEDYCYNA ESTETYCZNA",
+   "opis": "",
+   "cena": 1000,
+   "typ": "Salon Kosmetyczny",
+   "zabieg_booksy": ""
+  }
+ },
+ {
+  "i": 62,
+  "a": "42881527#2",
+  "b": "5835572",
+  "podpis": "ta_sama",
+  "powod": "inna nazwa tego samego: „botox potliwosc” / „nadpotliwosc”",
+  "oa": {
+   "nazwa": "Leczenie nadpotliwości",
+   "wariant": "pachy",
+   "kategoria": "Botoks i medycyna estetyczna",
+   "opis": "Leczenie nadpotliwości z wykorzystaniem toksyny botulinowej to skuteczna metoda ograniczania nadmiernego wydzielania potu. Zabieg pomaga zwiększyć komfort codziennego życia, poprawia pewność siebie i ",
+   "cena": 1199,
+   "typ": "Medycyna Estetyczna",
+   "zabieg_booksy": ""
+  },
+  "ob": {
+   "nazwa": "BTX Leczenie potliwości pachy",
+   "wariant": "",
+   "kategoria": "Redukcja zmarszczek BTX",
+   "opis": "",
+   "cena": 800,
+   "typ": "Salon Kosmetyczny",
+   "zabieg_booksy": "Botoks"
+  }
+ },
+ {
+  "i": 63,
+  "a": "42881524#0",
+  "b": "5679129",
+  "podpis": "ta_sama",
+  "powod": "równe podpisy",
+  "oa": {
+   "nazwa": "BOTOKS - redukcja zmarszczek",
+   "wariant": "1 okolica",
+   "kategoria": "Botoks i medycyna estetyczna",
+   "opis": "Botoks to jeden z najpopularniejszych zabiegów medycyny estetycznej, stosowany w celu redukcji zmarszczek mimicznych i profilaktyki ich pogłębiania. Preparat czasowo rozluźnia mięśnie odpowiedzialne z",
+   "cena": 599,
+   "typ": "Medycyna Estetyczna",
+   "zabieg_booksy": "Botoks"
+  },
+  "ob": {
+   "nazwa": "Redukcja zmarszczek - 1 okolica",
+   "wariant": "",
+   "kategoria": "Botoks - redukcja zmarszczek",
+   "opis": "**Botoks – redukcja zmarszczek Warszawa Wola** Zadbaj o młodszy, świeży wygląd bez operacji! Oferuję profesjonalne zabiegi z użyciem botoksu, które skutecznie wygładzają zmarszczki mimiczne i zapobieg",
+   "cena": 600,
+   "typ": "Medycyna Estetyczna",
+   "zabieg_booksy": "Botoks"
+  }
+ },
+ {
+  "i": 64,
+  "a": "42881527#1",
+  "b": "6219680",
+  "podpis": "ta_sama",
+  "powod": "równe podpisy",
+  "oa": {
+   "nazwa": "Leczenie nadpotliwości",
+   "wariant": "stopy",
+   "kategoria": "Botoks i medycyna estetyczna",
+   "opis": "Leczenie nadpotliwości z wykorzystaniem toksyny botulinowej to skuteczna metoda ograniczania nadmiernego wydzielania potu. Zabieg pomaga zwiększyć komfort codziennego życia, poprawia pewność siebie i ",
+   "cena": 1199,
+   "typ": "Medycyna Estetyczna",
+   "zabieg_booksy": ""
+  },
+  "ob": {
+   "nazwa": "Leczenie nadpotliwości stopy",
+   "wariant": "",
+   "kategoria": "MEDYCYNA ESTETYCZNA",
+   "opis": "",
+   "cena": 2400,
+   "typ": "Medycyna Estetyczna",
+   "zabieg_booksy": "Leczenie nadpotliwości stóp"
+  }
+ },
+ {
+  "i": 65,
+  "a": "42881485#0",
+  "b": "7229945#4",
+  "podpis": "podobna",
+  "powod": "różne słowa: 1 damsk mt palc thunder / bikin cale glebok nogi",
+  "oa": {
+   "nazwa": "Depilacja laserowa - Palce - Thunder MT",
+   "wariant": "1 zabieg",
+   "kategoria": "Depilacja laserowa — kobiety (Thunder MT)",
+   "opis": "⭕️ Laser Thunder MT to jedna z najnowocześniejszych technologii trwałej redukcji owłosienia na świecie. Urządzenie zostało stworzone przez renomowaną włoską firmę Quanta System i zdobyło nagrodę Perła",
+   "cena": 220,
+   "typ": "Medycyna Estetyczna",
+   "zabieg_booksy": "Depilacja laserowa"
+  },
+  "ob": {
+   "nazwa": "Depilacja Laserowa",
+   "wariant": "Bikini głębokie+ całe nogi",
+   "kategoria": "Depilacja Laserowa",
+   "opis": "",
+   "cena": 490,
+   "typ": "Depilacja",
+   "zabieg_booksy": "Depilacja laserowa"
+  }
+ },
+ {
+  "i": 66,
+  "a": "42881408#0",
+  "b": "6182493",
+  "podpis": "podobna",
+  "powod": "różne słowa: 3 lifting pakiet przebud rf skor ujedrnian virt / fale premium radi ultraliftingujac",
+  "oa": {
+   "nazwa": "VIRTUE RF twarz + szyja - lifting, ujędrnienie i przebudowa skóry",
+   "wariant": "Pakiet 3 zabiegów",
+   "kategoria": "Promocje sierpnia",
+   "opis": "VIRTUE RF twarz + szyja - lifting, ujędrnienie i przebudowa skóry ⭕️ Kompleksowa terapia obejmująca twarz i szyję, wspierająca przebudowę skóry oraz poprawę jej napięcia. Virtue RF pobudza naturalne p",
+   "cena": 3600,
+   "typ": "Medycyna Estetyczna",
+   "zabieg_booksy": ""
+  },
+  "ob": {
+   "nazwa": "Fale radiowe twarz + szyja",
+   "wariant": "",
+   "kategoria": "Zabiegi PREMIUM🥇🏆🏆UltraLIFTINGUJACE 40+50+60+70🎯🎯🎯",
+   "opis": "**Termolifting RF** to zabieg, do którego wykonania wykorzystuje się specyficzne właściwości **fal radiowych**. Jego efektem jest jędrna, pozbawiona zmarszczek skóra, ale także redukcja tkanki tłuszcz",
+   "cena": 700,
+   "typ": "Medycyna Estetyczna",
+   "zabieg_booksy": "Lifting falą radiową"
+  }
+ },
+ {
+  "i": 67,
+  "a": "42881541",
+  "b": "6247842#0",
+  "podpis": "ta_sama",
+  "powod": "dopisek nie zmienia usługi: mezoterap",
+  "oa": {
+   "nazwa": "Mezoterapia Tropokolagen Guna - 1 ampułka",
+   "wariant": "Mezoterapia Tropokolagen Guna - 1 ampułka",
+   "kategoria": "Mezoterapia igłowa (nawilżenie i blask)",
+   "opis": "Tropokolagen GUNA to nowoczesny zabieg bioregeneracyjny oparty na podaniu oczyszczonego, bioaktywnego kolagenu typu I, który jest identyczny z naturalnie występującym kolagenem w ludzkiej skórze. Zabi",
+   "cena": 400,
+   "typ": "Medycyna Estetyczna",
+   "zabieg_booksy": "Mezoterapia"
+  },
+  "ob": {
+   "nazwa": "Tropokolagen Guna",
+   "wariant": "1 ampułka",
+   "kategoria": "Medycyna Estetyczna",
+   "opis": "",
+   "cena": 400,
+   "typ": "Inni",
+   "zabieg_booksy": ""
+  }
+ },
+ {
+  "i": 68,
+  "a": "42881407#1",
+  "b": "6371526#3",
+  "podpis": "podobna",
+  "powod": "różne słowa: 1 dekolt lifting przebud szyj twarz / blizn nowosc piers redukcj rozstep",
+  "oa": {
+   "nazwa": "VIRTUE RF twarz + szyja + dekolt - lifting, ujędrnienie i przebudowa skóry",
+   "wariant": "1 zabieg",
+   "kategoria": "Promocje sierpnia",
+   "opis": "VIRTUE RF twarz + szyja + dekolt - lifting, ujędrnienie i przebudowa skóry ⭕️ Najbardziej kompleksowa terapia Virtue RF obejmująca twarz, szyję oraz dekolt. Zabieg pobudza procesy regeneracyjne skóry,",
+   "cena": 1700,
+   "typ": "Medycyna Estetyczna",
+   "zabieg_booksy": ""
+  },
+  "ob": {
+   "nazwa": "Virtue RF NOWOŚĆ! Redukcja blizn i rozstępów, ujędrnienie skóry",
+   "wariant": "Piersi",
+   "kategoria": "RF",
+   "opis": "Virtue RF NOWOŚĆ! Redukcja blizn i rozstępów, ujędrnienie skóry",
+   "cena": 1800,
+   "typ": "Medycyna Estetyczna",
+   "zabieg_booksy": ""
+  }
+ },
+ {
+  "i": 69,
+  "a": "42881493#1",
+  "b": "38202",
+  "podpis": "podobna",
+  "powod": "różne słowa: 1 mesk mt thunder / duet light lumenis sheer",
+  "oa": {
+   "nazwa": "Depilacja laserowa - Baki - Thunder MT",
+   "wariant": "1 zabieg",
+   "kategoria": "Depilacja laserowa — mężczyźni (Thunder MT)",
+   "opis": "⭕️ Laser Thunder MT to jedna z najnowocześniejszych technologii trwałej redukcji owłosienia na świecie. Urządzenie zostało stworzone przez renomowaną włoską firmę Quanta System i zdobyło nagrodę Perła",
+   "cena": 270,
+   "typ": "Medycyna Estetyczna",
+   "zabieg_booksy": "Depilacja laserowa"
+  },
+  "ob": {
+   "nazwa": "Depilacja laserowa baki",
+   "wariant": "",
+   "kategoria": "Depilacja laserowa LUMENIS LIGHT SHEER DUET ®",
+   "opis": "Metoda opiera się na zastosowaniu wiązki lasera, która niszczy jedynie mieszek włosowy. Światło lasera nie wpływa na naskórek i nie powoduje uczucia bólu.",
+   "cena": 150,
+   "typ": "Salon Kosmetyczny",
+   "zabieg_booksy": "Depilacja laserowa"
+  }
+ },
+ {
+  "i": 70,
+  "a": "42881484#1",
+  "b": "6168083",
+  "podpis": "podobna",
+  "powod": "różne słowa: 1 damsk mt thunder / desir lightsheer",
+  "oa": {
+   "nazwa": "Depilacja laserowa - Pachy - Thunder MT",
+   "wariant": "1 zabieg",
+   "kategoria": "Depilacja laserowa — kobiety (Thunder MT)",
+   "opis": "⭕️ Laser Thunder MT to jedna z najnowocześniejszych technologii trwałej redukcji owłosienia na świecie. Urządzenie zostało stworzone przez renomowaną włoską firmę Quanta System i zdobyło nagrodę Perła",
+   "cena": 250,
+   "typ": "Medycyna Estetyczna",
+   "zabieg_booksy": "Depilacja laserowa"
+  },
+  "ob": {
+   "nazwa": "Depilacja laserowa pachy",
+   "wariant": "",
+   "kategoria": "Depilacja laserowa LightSheer DESIRE",
+   "opis": "",
+   "cena": 170,
+   "typ": "Salon Kosmetyczny",
+   "zabieg_booksy": "Depilacja laserowa"
+  }
+ },
+ {
+  "i": 71,
+  "a": "42881544#1",
+  "b": "221111",
+  "podpis": "ta_sama",
+  "powod": "dopisek nie zmienia usługi: iglow mezoterap | 1 ampulk",
+  "oa": {
+   "nazwa": "Neauvia Hydro Deluxe - 1 ampułka",
+   "wariant": "1 zabieg",
+   "kategoria": "Mezoterapia igłowa (nawilżenie i blask)",
+   "opis": "Neauvia Hydro Deluxe zawiera 18 mg/ml czystego kwasu hialuronowego. Takie stężenie pozwala uzyskać rezultaty, widoczne już od pierwszego zabiegu. Preparat zawiera także 0,01% hydroksyapatytu wapnia, k",
+   "cena": 500,
+   "typ": "Medycyna Estetyczna",
+   "zabieg_booksy": ""
+  },
+  "ob": {
+   "nazwa": "Neauvia Hydro Deluxe",
+   "wariant": "",
+   "kategoria": "🎁 Pakiet 3 zabiegów ",
+   "opis": "",
+   "cena": 1350,
+   "typ": "Medycyna Estetyczna",
+   "zabieg_booksy": "Stymulacja i ujędrnianie skóry twarzy"
+  }
+ },
+ {
+  "i": 72,
+  "a": "42881489#1",
+  "b": "6968128#2",
+  "podpis": "podobna",
+  "powod": "różne słowa: 6 damsk mt pakiet rece thunder / mesk rak ramion",
+  "oa": {
+   "nazwa": "Depilacja laserowa - Ręce - Thunder MT",
+   "wariant": "Pakiet 6 zabiegów",
+   "kategoria": "Depilacja laserowa — kobiety (Thunder MT)",
+   "opis": "⭕️ Laser Thunder MT to jedna z najnowocześniejszych technologii trwałej redukcji owłosienia na świecie. Urządzenie zostało stworzone przez renomowaną włoską firmę Quanta System i zdobyło nagrodę Perła",
+   "cena": 2850,
+   "typ": "Medycyna Estetyczna",
+   "zabieg_booksy": "Depilacja laserowa"
+  },
+  "ob": {
+   "nazwa": "Depilacja laserowa rąk",
+   "wariant": "Depilacja laserowa Ramiona",
+   "kategoria": "MĘSKA DEPILACJA lASEROWA",
+   "opis": "",
+   "cena": 280,
+   "typ": "Depilacja",
+   "zabieg_booksy": "Depilacja laserowa"
+  }
+ },
+ {
+  "i": 73,
+  "a": "42881465#1",
+  "b": "6356361",
+  "podpis": "ta_sama",
+  "powod": "dopisek nie zmienia usługi: premium | 1 odswiezen skor",
+  "oa": {
+   "nazwa": "Oczyszczanie wodorowe Premium twarz + szyja + dekolt - oczyszczenie i odświeżenie skóry",
+   "wariant": "1 zabieg",
+   "kategoria": "Oczyszczanie i peelingi twarzy",
+   "opis": "Oczyszczanie wodorowe Premium twarz + szyja + dekolt - oczyszczenie i odświeżenie skóry ⭕️ Kompleksowa procedura oczyszczania wodorowego InPure obejmująca twarz, szyję i dekolt. Zabieg łączy oczyszcza",
+   "cena": 700,
+   "typ": "Medycyna Estetyczna",
+   "zabieg_booksy": ""
+  },
+  "ob": {
+   "nazwa": "Oczyszczanie wodorowe - Twarz, Szyja, Dekolt",
+   "wariant": "Oczyszczanie wodorowe - Twarz, Szyja, Dekolt",
+   "kategoria": "OCZYSZCZANIE WODOROWE",
+   "opis": "Do zabiegu dodajemy serum i maskę.",
+   "cena": 320,
+   "typ": "Salon Kosmetyczny",
+   "zabieg_booksy": "Wodorowe oczyszczanie twarzy"
+  }
+ },
+ {
+  "i": 74,
+  "a": "42881534#1",
+  "b": "6243788#0",
+  "podpis": "ta_sama",
+  "powod": "dopisek nie zmienia usługi: regeneracj | pakiet",
+  "oa": {
+   "nazwa": "Regeneracja Linerase",
+   "wariant": "Pakiet 3 zabiegów",
+   "kategoria": "Stymulatory tkankowe (ujędrnienie skóry)",
+   "opis": "Stanowi kategorię stymulatora służącego do rekonstrukcji i odbudowy tkanek. Tworząc optymalne warunki fizjologiczne do wytwarzania nowego kolagenu, terapia LINERASE wykazuje skuteczność w regeneracji ",
+   "cena": 2250,
+   "typ": "Medycyna Estetyczna",
+   "zabieg_booksy": ""
+  },
+  "ob": {
+   "nazwa": "Linerase",
+   "wariant": "3 zabiegi",
+   "kategoria": "BIOSTYMULATORY TKANKOWE ",
+   "opis": "**Linerase** to innowacyjny preparat stosowany w medycynie estetycznej, który bazuje na kolagenie typu I. Jego celem jest regeneracja skóry, poprawa jej elastyczności, jędrności i redukcja zmarszczek.",
+   "cena": 4400,
+   "typ": "Medycyna Estetyczna",
+   "zabieg_booksy": "Usuwanie zmarszczek"
+  }
+ },
+ {
+  "i": 75,
+  "a": "42881517#1",
+  "b": "6397288#1",
+  "podpis": "podobna",
+  "powod": "różne słowa: mt thunder / primelas",
+  "oa": {
+   "nazwa": "Depilacja laserowa - Uszy - Thunder MT",
+   "wariant": "Pakiet 4 zabiegów",
+   "kategoria": "Depilacja laserowa — mężczyźni (Thunder MT)",
+   "opis": "⭕️ Laser Thunder MT to jedna z najnowocześniejszych technologii trwałej redukcji owłosienia na świecie. Urządzenie zostało stworzone przez renomowaną włoską firmę Quanta System i zdobyło nagrodę Perła",
+   "cena": 1000,
+   "typ": "Medycyna Estetyczna",
+   "zabieg_booksy": "Depilacja laserowa"
+  },
+  "ob": {
+   "nazwa": "Depilacja laserowa USZY",
+   "wariant": "PAKIET 4 ZABIEGÓW",
+   "kategoria": "EPILACJA LASEREM PRIMELASE CENNIK DLA MĘŻCZYZN",
+   "opis": "",
+   "cena": 500,
+   "typ": "Depilacja",
+   "zabieg_booksy": "Depilacja laserowa"
+  }
+ },
+ {
+  "i": 76,
+  "a": "42881551#0",
+  "b": "6165656",
+  "podpis": "ta_sama",
+  "powod": "dopisek nie zmienia usługi: przebarwien redukcj | 1 koloryt skor wyrownan",
+  "oa": {
+   "nazwa": "PRO XN II stopnia - Twarz + Szyja- redukcja przebarwień i wyrównanie kolorytu skóry",
+   "wariant": "1 zabieg",
+   "kategoria": "Przebarwienia i rewitalizacja (ProXN)",
+   "opis": "PRO XN II stopnia - Twarz + Szyja- redukcja przebarwień i wyrównanie kolorytu skóry ⭕️ Zaawansowana terapia PRO XN przeznaczona dla osób z widocznymi przebarwieniami oraz nierównomiernym kolorytem skó",
+   "cena": 700,
+   "typ": "Medycyna Estetyczna",
+   "zabieg_booksy": ""
+  },
+  "ob": {
+   "nazwa": "PRO XN zabieg II stopnia twarz+szyja",
+   "wariant": "",
+   "kategoria": "PRO XN",
+   "opis": "",
+   "cena": 450,
+   "typ": "Salon Kosmetyczny",
+   "zabieg_booksy": "Zabiegi na twarz"
+  }
+ },
+ {
+  "i": 77,
+  "a": "42881460#1",
+  "b": "6206253",
+  "podpis": "podobna",
+  "powod": "różne słowa: 10 3 fala modelowan pakiet sylwetk uderzeni wave x / 1 15x15cm mikrofal onda tkank tluszcz zimn",
+  "oa": {
+   "nazwa": "X-WAVE Fala uderzeniowa - 3 obszary - modelowanie sylwetki i redukcja cellulitu",
+   "wariant": "Pakiet 10 zabiegów",
+   "kategoria": "Cellulit — fala uderzeniowa (X-Wave)",
+   "opis": "X-WAVE Fala uderzeniowa - 3 obszary - modelowanie sylwetki i redukcja cellulitu Skuteczne uderzenie w cellulit i wiotką skórę — akustyczna fala, która przebudowuje tkankę od środka. Fala uderzeniowa d",
+   "cena": 3400,
+   "typ": "Medycyna Estetyczna",
+   "zabieg_booksy": ""
+  },
+  "ob": {
+   "nazwa": "Zimne mikrofale Onda 1 obszar 15x15cm",
+   "wariant": "",
+   "kategoria": "REDUKCJA TKANKI TŁUSZCZOWEJ I CELLULITU Onda",
+   "opis": "Modelowanie sylwetki, redukcja tkanki tłuszczowej i cellulitu Chcesz pozbyć się drugiego podbródka, fałdek na brzuchu, kilku centymetrów w talii, a może ujędrnić swoje pośladki czy pożegnać cellulit n",
+   "cena": 750,
+   "typ": "Medycyna Estetyczna",
+   "zabieg_booksy": "Zabiegi na ciało i modelowanie sylwetki"
+  }
+ },
+ {
+  "i": 78,
+  "a": "42881542",
+  "b": "6376053",
+  "podpis": "ta_sama",
+  "powod": "dopisek nie zmienia usługi: guna mezoterap",
+  "oa": {
+   "nazwa": "Mezoterapia Tropokolagen Guna - 2 ampułki",
+   "wariant": "Mezoterapia Tropokolagen Guna - 2 ampułki",
+   "kategoria": "Mezoterapia igłowa (nawilżenie i blask)",
+   "opis": "Tropokolagen GUNA to nowoczesny zabieg bioregeneracyjny oparty na podaniu oczyszczonego, bioaktywnego kolagenu typu I, który jest identyczny z naturalnie występującym kolagenem w ludzkiej skórze. Zabi",
+   "cena": 600,
+   "typ": "Medycyna Estetyczna",
+   "zabieg_booksy": "Mezoterapia"
+  },
+  "ob": {
+   "nazwa": "Tropokolagen 2 ampułki",
+   "wariant": "",
+   "kategoria": "TROPOKOLAGEN",
+   "opis": "",
+   "cena": 700,
+   "typ": "Medycyna Estetyczna",
+   "zabieg_booksy": "Stymulacja i ujędrnianie skóry twarzy"
+  }
+ },
+ {
+  "i": 79,
+  "a": "42881476#0",
+  "b": "2735189#1",
+  "podpis": "podobna",
+  "powod": "różne słowa: 1 damsk dlon mt thunder / pach",
+  "oa": {
+   "nazwa": "Depilacja laserowa - Dłonie - Thunder MT",
+   "wariant": "1 zabieg",
+   "kategoria": "Depilacja laserowa — kobiety (Thunder MT)",
+   "opis": "⭕️ Laser Thunder MT to jedna z najnowocześniejszych technologii trwałej redukcji owłosienia na świecie. Urządzenie zostało stworzone przez renomowaną włoską firmę Quanta System i zdobyło nagrodę Perła",
+   "cena": 250,
+   "typ": "Medycyna Estetyczna",
+   "zabieg_booksy": "Depilacja laserowa"
+  },
+  "ob": {
+   "nazwa": "Depilacja laserowa",
+   "wariant": "Pachy",
+   "kategoria": "Depilacja laserowa",
+   "opis": "",
+   "cena": 150,
+   "typ": "Fizjoterapia",
+   "zabieg_booksy": "Depilacja laserowa"
+  }
+ }
+]

@@ -1,0 +1,2222 @@
+[
+{
+"treatment_name": "Kroplówka Wspomaganie \"po chemioterapii\"",
+"subject_price_grosze": 80000,
+"subject_duration_minutes": 90,
+"market_median_grosze": null,
+"sample_size": 1,
+"verification_status": "subject_only",
+"comparison_tier": "identity",
+"sub_variant_label": null
+},
+{
+"treatment_name": "Kroplówka Wspomaganie w trakcie leczenia nowotworów",
+"subject_price_grosze": 80000,
+"subject_duration_minutes": 90,
+"market_median_grosze": null,
+"sample_size": 1,
+"verification_status": "subject_only",
+"comparison_tier": "identity",
+"sub_variant_label": null
+},
+{
+"treatment_name": "Paznokcie Kroplówka Beauty - Glow skin, Hair , Nails - Advanced",
+"subject_price_grosze": 70000,
+"subject_duration_minutes": 90,
+"market_median_grosze": 68750,
+"sample_size": 4,
+"verification_status": "verified",
+"comparison_tier": "identity",
+"sub_variant_label": null
+},
+{
+"treatment_name": "Paznokcie Kroplówka Beauty - Glow skin, Hair , Nails - Basic",
+"subject_price_grosze": 50000,
+"subject_duration_minutes": 90,
+"market_median_grosze": 68750,
+"sample_size": 4,
+"verification_status": "verified",
+"comparison_tier": "identity",
+"sub_variant_label": null
+},
+{
+"treatment_name": "Depilacja laserowa - cała twarz - Thunder MT - mężczyźni",
+"subject_price_grosze": 140000,
+"subject_duration_minutes": 15,
+"market_median_grosze": null,
+"sample_size": 0,
+"verification_status": "subject_only",
+"comparison_tier": "identity",
+"sub_variant_label": null
+},
+{
+"treatment_name": "Depilacja laserowa - całe ciało - Thunder MT - mężczyźni",
+"subject_price_grosze": 440000,
+"subject_duration_minutes": 90,
+"market_median_grosze": null,
+"sample_size": 0,
+"verification_status": "subject_only",
+"comparison_tier": "identity",
+"sub_variant_label": null
+},
+{
+"treatment_name": "Depilacja laserowa - klatka piersiowa - Thunder MT - mężczyźni",
+"subject_price_grosze": 240000,
+"subject_duration_minutes": 45,
+"market_median_grosze": null,
+"sample_size": 0,
+"verification_status": "subject_only",
+"comparison_tier": "identity",
+"sub_variant_label": null
+},
+{
+"treatment_name": "Depilacja laserowa - linia biała - Thunder MT - mężczyźni",
+"subject_price_grosze": 100000,
+"subject_duration_minutes": 15,
+"market_median_grosze": null,
+"sample_size": 1,
+"verification_status": "subject_only",
+"comparison_tier": "identity",
+"sub_variant_label": null
+},
+{
+"treatment_name": "Depilacja laserowa - łydki - Thunder MT - mężczyźni",
+"subject_price_grosze": 190000,
+"subject_duration_minutes": 30,
+"market_median_grosze": null,
+"sample_size": 1,
+"verification_status": "subject_only",
+"comparison_tier": "identity",
+"sub_variant_label": null
+},
+{
+"treatment_name": "Depilacja laserowa - okolice brodawek sutkowych - Thunder MT - mężczyźni",
+"subject_price_grosze": 100000,
+"subject_duration_minutes": 15,
+"market_median_grosze": null,
+"sample_size": 1,
+"verification_status": "subject_only",
+"comparison_tier": "identity",
+"sub_variant_label": null
+},
+{
+"treatment_name": "Onda Coolwaves - 1 obszar - redukcja tkanki tłuszczowej i cellulitu",
+"subject_price_grosze": 70000,
+"subject_duration_minutes": 45,
+"market_median_grosze": null,
+"sample_size": 1,
+"verification_status": "subject_only",
+"comparison_tier": "identity",
+"sub_variant_label": null
+},
+{
+"treatment_name": "VIRTUE RF ręce - ujędrnianie i przebudowa skóry",
+"subject_price_grosze": 150000,
+"subject_duration_minutes": 45,
+"market_median_grosze": null,
+"sample_size": 1,
+"verification_status": "subject_only",
+"comparison_tier": "identity",
+"sub_variant_label": null
+},
+{
+"treatment_name": "VIRTUE RF twarz - lifting, ujędrnienie i przebudowa skóry",
+"subject_price_grosze": 110000,
+"subject_duration_minutes": 60,
+"market_median_grosze": null,
+"sample_size": 2,
+"verification_status": "subject_only",
+"comparison_tier": "identity",
+"sub_variant_label": null
+},
+{
+"treatment_name": "Mezoterapia 💉 AQUASHINE - 1 ampułka",
+"subject_price_grosze": 75000,
+"subject_duration_minutes": 60,
+"market_median_grosze": null,
+"sample_size": 1,
+"verification_status": "subject_only",
+"comparison_tier": "identity",
+"sub_variant_label": null
+},
+{
+"treatment_name": "Łączona terapia IPL + Frax - Twarz + Szyja + Dekolt",
+"subject_price_grosze": 270000,
+"subject_duration_minutes": 75,
+"market_median_grosze": null,
+"sample_size": 2,
+"verification_status": "subject_only",
+"comparison_tier": "identity",
+"sub_variant_label": null
+},
+{
+"treatment_name": "Laser Tulowy Frax - Twarz + Szyja + Dekolt - regeneracja i odmładzanie skóry",
+"subject_price_grosze": 480000,
+"subject_duration_minutes": 120,
+"market_median_grosze": null,
+"sample_size": 0,
+"verification_status": "subject_only",
+"comparison_tier": "identity",
+"sub_variant_label": null
+},
+{
+"treatment_name": "Laser Tulowy Frax - Twarz/Szyja/Dekolt - regeneracja i odmładzanie skóry",
+"subject_price_grosze": 270000,
+"subject_duration_minutes": 60,
+"market_median_grosze": null,
+"sample_size": 0,
+"verification_status": "subject_only",
+"comparison_tier": "identity",
+"sub_variant_label": null
+},
+{
+"treatment_name": "Laser Tulowy Frax - Twarz + Szyja - regeneracja i odmładzanie skóry",
+"subject_price_grosze": 170000,
+"subject_duration_minutes": 90,
+"market_median_grosze": null,
+"sample_size": 1,
+"verification_status": "subject_only",
+"comparison_tier": "identity",
+"sub_variant_label": null
+},
+{
+"treatment_name": "Depilacja laserowa - stopy - Thunder MT - kobiety",
+"subject_price_grosze": 30000,
+"subject_duration_minutes": 15,
+"market_median_grosze": null,
+"sample_size": 0,
+"verification_status": "subject_only",
+"comparison_tier": "identity",
+"sub_variant_label": null
+},
+{
+"treatment_name": "Depilacja laserowa - uda - Thunder MT - kobiety",
+"subject_price_grosze": 45000,
+"subject_duration_minutes": 30,
+"market_median_grosze": null,
+"sample_size": 0,
+"verification_status": "subject_only",
+"comparison_tier": "identity",
+"sub_variant_label": null
+},
+{
+"treatment_name": "Depilacja laserowa - wąsik - Thunder MT - kobiety",
+"subject_price_grosze": 100000,
+"subject_duration_minutes": 15,
+"market_median_grosze": null,
+"sample_size": 0,
+"verification_status": "subject_only",
+"comparison_tier": "identity",
+"sub_variant_label": null
+},
+{
+"treatment_name": "Depilacja laserowa - baki - Thunder MT - mężczyźni",
+"subject_price_grosze": 120000,
+"subject_duration_minutes": 15,
+"market_median_grosze": null,
+"sample_size": 2,
+"verification_status": "subject_only",
+"comparison_tier": "identity",
+"sub_variant_label": null
+},
+{
+"treatment_name": "Depilacja laserowa - bikini brazylijskie - Thunder MT - mężczyźni",
+"subject_price_grosze": 270000,
+"subject_duration_minutes": 30,
+"market_median_grosze": null,
+"sample_size": 0,
+"verification_status": "subject_only",
+"comparison_tier": "identity",
+"sub_variant_label": null
+},
+{
+"treatment_name": "Depilacja laserowa - bikini pełne - Thunder MT - mężczyźni",
+"subject_price_grosze": 190000,
+"subject_duration_minutes": 30,
+"market_median_grosze": null,
+"sample_size": 0,
+"verification_status": "subject_only",
+"comparison_tier": "identity",
+"sub_variant_label": null
+},
+{
+"treatment_name": "Depilacja laserowa - bikini podstawowe - Thunder MT - mężczyźni",
+"subject_price_grosze": 140000,
+"subject_duration_minutes": 15,
+"market_median_grosze": null,
+"sample_size": 0,
+"verification_status": "subject_only",
+"comparison_tier": "identity",
+"sub_variant_label": null
+},
+{
+"treatment_name": "Depilacja laserowa - broda - Thunder MT - mężczyźni",
+"subject_price_grosze": 120000,
+"subject_duration_minutes": 15,
+"market_median_grosze": null,
+"sample_size": 0,
+"verification_status": "subject_only",
+"comparison_tier": "identity",
+"sub_variant_label": null
+},
+{
+"treatment_name": "Depilacja laserowa - brzuch - Thunder MT - mężczyźni",
+"subject_price_grosze": 240000,
+"subject_duration_minutes": 45,
+"market_median_grosze": null,
+"sample_size": 0,
+"verification_status": "subject_only",
+"comparison_tier": "identity",
+"sub_variant_label": null
+},
+{
+"treatment_name": "Kroplówka Detox, Alkohol, Używki - Regeneracja",
+"subject_price_grosze": 80000,
+"subject_duration_minutes": 90,
+"market_median_grosze": 52500,
+"sample_size": 5,
+"verification_status": "verified",
+"comparison_tier": "identity",
+"sub_variant_label": null
+},
+{
+"treatment_name": "Kroplówka NAD + ANTY-AGING - CelluNAD 500mg",
+"subject_price_grosze": 150000,
+"subject_duration_minutes": 90,
+"market_median_grosze": null,
+"sample_size": 2,
+"verification_status": "subject_only",
+"comparison_tier": "identity",
+"sub_variant_label": null
+},
+{
+"treatment_name": "Kroplówka NAD + ANTY-AGING - NAD + Boost 300mg",
+"subject_price_grosze": 100000,
+"subject_duration_minutes": 90,
+"market_median_grosze": 80000,
+"sample_size": 3,
+"verification_status": "verified",
+"comparison_tier": "identity",
+"sub_variant_label": null
+},
+{
+"treatment_name": "Kroplówka NAD + ANTY-AGING - NAD + Restore 500mg",
+"subject_price_grosze": 130000,
+"subject_duration_minutes": 90,
+"market_median_grosze": 70000,
+"sample_size": 4,
+"verification_status": "verified",
+"comparison_tier": "identity",
+"sub_variant_label": null
+},
+{
+"treatment_name": "Kroplówka NAD + ANTY-AGING - NAD + Vital 200mg",
+"subject_price_grosze": 80000,
+"subject_duration_minutes": 90,
+"market_median_grosze": null,
+"sample_size": 2,
+"verification_status": "subject_only",
+"comparison_tier": "identity",
+"sub_variant_label": null
+},
+{
+"treatment_name": "Kroplówka NAD + ANTY-AGING - NeuroNAD 300mg",
+"subject_price_grosze": 90000,
+"subject_duration_minutes": 90,
+"market_median_grosze": null,
+"sample_size": 2,
+"verification_status": "subject_only",
+"comparison_tier": "identity",
+"sub_variant_label": null
+},
+{
+"treatment_name": "Kroplówka NAD + ANTY-AGING - NeuroNAD VIP 500mg",
+"subject_price_grosze": 180000,
+"subject_duration_minutes": 90,
+"market_median_grosze": null,
+"sample_size": 1,
+"verification_status": "subject_only",
+"comparison_tier": "identity",
+"sub_variant_label": null
+},
+{
+"treatment_name": "Mezoterapia igłowa Cytocare 532 - 1 ampułka",
+"subject_price_grosze": 50000,
+"subject_duration_minutes": 60,
+"market_median_grosze": null,
+"sample_size": 2,
+"verification_status": "subject_only",
+"comparison_tier": "identity",
+"sub_variant_label": null
+},
+{
+"treatment_name": "Redukcja opadających kącików ust",
+"subject_price_grosze": 119900,
+"subject_duration_minutes": 30,
+"market_median_grosze": 59880,
+"sample_size": 29,
+"verification_status": "verified",
+"comparison_tier": "identity",
+"sub_variant_label": null
+},
+{
+"treatment_name": "Paznokcie Kroplówka Beauty - Glow skin, Hair , Nails - VIP",
+"subject_price_grosze": 70000,
+"subject_duration_minutes": 90,
+"market_median_grosze": null,
+"sample_size": 2,
+"verification_status": "subject_only",
+"comparison_tier": "identity",
+"sub_variant_label": null
+},
+{
+"treatment_name": "Regeneracja Kroplówka Terapia - 6x Gojenie żylaków, odleżyn, ran po zabiegach",
+"subject_price_grosze": 300000,
+"subject_duration_minutes": 90,
+"market_median_grosze": null,
+"sample_size": 0,
+"verification_status": "subject_only",
+"comparison_tier": "identity",
+"sub_variant_label": null
+},
+{
+"treatment_name": "Regeneracja Kroplówka Terapia - 6x Leczenie miażdzycy tętnic",
+"subject_price_grosze": 300000,
+"subject_duration_minutes": 90,
+"market_median_grosze": null,
+"sample_size": 0,
+"verification_status": "subject_only",
+"comparison_tier": "identity",
+"sub_variant_label": null
+},
+{
+"treatment_name": "Laminacja rzęs + farbowanie",
+"subject_price_grosze": 18000,
+"subject_duration_minutes": 70,
+"market_median_grosze": 17000,
+"sample_size": 78,
+"verification_status": "verified",
+"comparison_tier": "identity",
+"sub_variant_label": null
+},
+{
+"treatment_name": "Depilacja laserowa - kark / szyja - Thunder MT - mężczyźni",
+"subject_price_grosze": 195000,
+"subject_duration_minutes": 15,
+"market_median_grosze": null,
+"sample_size": 0,
+"verification_status": "subject_only",
+"comparison_tier": "identity",
+"sub_variant_label": null
+},
+{
+"treatment_name": "Nie wiem co wybrać - brwi",
+"subject_price_grosze": 6000,
+"subject_duration_minutes": 100,
+"market_median_grosze": 15667,
+"sample_size": 14,
+"verification_status": "verified",
+"comparison_tier": "identity",
+"sub_variant_label": null
+},
+{
+"treatment_name": "Regeneracja Kroplówka CEREBROLIZYNA TERAPIA - 10x Wspomaganie w leczeniu demencji, Alzheimera, po udarze",
+"subject_price_grosze": 500000,
+"subject_duration_minutes": 90,
+"market_median_grosze": null,
+"sample_size": 0,
+"verification_status": "subject_only",
+"comparison_tier": "identity",
+"sub_variant_label": null
+},
+{
+"treatment_name": "Regeneracja Kroplówka CEREBROLIZYNA TERAPIA - 1x Wspomaganie w leczeniu demencji, Alzheimera, po udarze",
+"subject_price_grosze": 70000,
+"subject_duration_minutes": 90,
+"market_median_grosze": null,
+"sample_size": 0,
+"verification_status": "subject_only",
+"comparison_tier": "identity",
+"sub_variant_label": null
+},
+{
+"treatment_name": "Regeneracja Kroplówka Detox, Alkohol, Używki - Anty kac",
+"subject_price_grosze": 50000,
+"subject_duration_minutes": 90,
+"market_median_grosze": 52500,
+"sample_size": 3,
+"verification_status": "verified",
+"comparison_tier": "identity",
+"sub_variant_label": null
+},
+{
+"treatment_name": "Regeneracja Kroplówka Detox, Alkohol, Używki - Detox",
+"subject_price_grosze": 70000,
+"subject_duration_minutes": 90,
+"market_median_grosze": 52500,
+"sample_size": 3,
+"verification_status": "verified",
+"comparison_tier": "identity",
+"sub_variant_label": null
+},
+{
+"treatment_name": "Regeneracja Kroplówka Sport - Gojenie",
+"subject_price_grosze": 70000,
+"subject_duration_minutes": 90,
+"market_median_grosze": 60000,
+"sample_size": 6,
+"verification_status": "verified",
+"comparison_tier": "identity",
+"sub_variant_label": null
+},
+{
+"treatment_name": "Regeneracja Kroplówka Sport - Leczenie kontuzji",
+"subject_price_grosze": 70000,
+"subject_duration_minutes": 90,
+"market_median_grosze": 110000,
+"sample_size": 3,
+"verification_status": "verified",
+"comparison_tier": "identity",
+"sub_variant_label": null
+},
+{
+"treatment_name": "Regeneracja Kroplówka Terapia - 1x Gojenie żylaków, odleżyn, ran po zabiegach",
+"subject_price_grosze": 70000,
+"subject_duration_minutes": 90,
+"market_median_grosze": null,
+"sample_size": 0,
+"verification_status": "subject_only",
+"comparison_tier": "identity",
+"sub_variant_label": null
+},
+{
+"treatment_name": "Endermologia Alliance - modelowanie sylwetki i redukcja cellulitu",
+"subject_price_grosze": 120000,
+"subject_duration_minutes": 60,
+"market_median_grosze": null,
+"sample_size": 10,
+"verification_status": "subject_only",
+"comparison_tier": "identity",
+"sub_variant_label": null
+},
+{
+"treatment_name": "Usuwanie prosaków",
+"subject_price_grosze": 19900,
+"subject_duration_minutes": 20,
+"market_median_grosze": 10000,
+"sample_size": 27,
+"verification_status": "verified",
+"comparison_tier": "identity",
+"sub_variant_label": null
+},
+{
+"treatment_name": "Usuwanie zmian skórnych u dziecka",
+"subject_price_grosze": 19900,
+"subject_duration_minutes": 30,
+"market_median_grosze": 20000,
+"sample_size": 24,
+"verification_status": "verified",
+"comparison_tier": "identity",
+"sub_variant_label": null
+},
+{
+"treatment_name": "Łączona terapia IPL + Frax - Szyja",
+"subject_price_grosze": 150000,
+"subject_duration_minutes": 45,
+"market_median_grosze": null,
+"sample_size": 2,
+"verification_status": "subject_only",
+"comparison_tier": "identity",
+"sub_variant_label": null
+},
+{
+"treatment_name": "Depilacja laserowa - bikini podstawowe - Thunder MT - kobiety",
+"subject_price_grosze": 30000,
+"subject_duration_minutes": 15,
+"market_median_grosze": null,
+"sample_size": 0,
+"verification_status": "subject_only",
+"comparison_tier": "identity",
+"sub_variant_label": null
+},
+{
+"treatment_name": "Depilacja laserowa - całe ciało - Thunder MT - kobiety",
+"subject_price_grosze": 550000,
+"subject_duration_minutes": 90,
+"market_median_grosze": null,
+"sample_size": 0,
+"verification_status": "subject_only",
+"comparison_tier": "identity",
+"sub_variant_label": null
+},
+{
+"treatment_name": "Depilacja laserowa - okolica między brwiami - Thunder MT - kobiety",
+"subject_price_grosze": 80000,
+"subject_duration_minutes": 15,
+"market_median_grosze": null,
+"sample_size": 1,
+"verification_status": "subject_only",
+"comparison_tier": "identity",
+"sub_variant_label": null
+},
+{
+"treatment_name": "Dermapen 4 - twarz + szyja + dekolt - regeneracja i przebudowa skóry",
+"subject_price_grosze": 300000,
+"subject_duration_minutes": 75,
+"market_median_grosze": null,
+"sample_size": 3,
+"verification_status": "subject_only",
+"comparison_tier": "identity",
+"sub_variant_label": null
+},
+{
+"treatment_name": "Depilacja laserowa - całe nogi - Thunder MT - mężczyźni",
+"subject_price_grosze": 240000,
+"subject_duration_minutes": 45,
+"market_median_grosze": null,
+"sample_size": 0,
+"verification_status": "subject_only",
+"comparison_tier": "identity",
+"sub_variant_label": null
+},
+{
+"treatment_name": "Depilacja laserowa - dłonie - Thunder MT - mężczyźni",
+"subject_price_grosze": 30000,
+"subject_duration_minutes": 15,
+"market_median_grosze": null,
+"sample_size": 0,
+"verification_status": "subject_only",
+"comparison_tier": "identity",
+"sub_variant_label": null
+},
+{
+"treatment_name": "Lipoliza iniekcyjna - likwidowanie tkanki tłuszczowej do 10ml",
+"subject_price_grosze": 200000,
+"subject_duration_minutes": 30,
+"market_median_grosze": null,
+"sample_size": 1,
+"verification_status": "subject_only",
+"comparison_tier": "identity",
+"sub_variant_label": null
+},
+{
+"treatment_name": "Endermologia Alliance + Drenaż limfatyczny - modelowanie sylwetki i redukcja obrzęków",
+"subject_price_grosze": 250000,
+"subject_duration_minutes": 100,
+"market_median_grosze": null,
+"sample_size": 4,
+"verification_status": "subject_only",
+"comparison_tier": "identity",
+"sub_variant_label": null
+},
+{
+"treatment_name": "Mezoterapia Tropokolagen Guna - 3 ampułki",
+"subject_price_grosze": 80000,
+"subject_duration_minutes": 80,
+"market_median_grosze": 80000,
+"sample_size": 41,
+"verification_status": "verified",
+"comparison_tier": "identity",
+"sub_variant_label": null
+},
+{
+"treatment_name": "💉NUCLEOFIL STRONG",
+"subject_price_grosze": 210000,
+"subject_duration_minutes": 60,
+"market_median_grosze": null,
+"sample_size": 4,
+"verification_status": "subject_only",
+"comparison_tier": "identity",
+"sub_variant_label": null
+},
+{
+"treatment_name": "BioRePeel - rewitalizacja, rozświetlenie i odnowa skóry",
+"subject_price_grosze": 30000,
+"subject_duration_minutes": 60,
+"market_median_grosze": 35500,
+"sample_size": 50,
+"verification_status": "verified",
+"comparison_tier": "identity",
+"sub_variant_label": null
+},
+{
+"treatment_name": "Nie wiem co wybrać - zabieg na ciało",
+"subject_price_grosze": 13000,
+"subject_duration_minutes": 75,
+"market_median_grosze": 20792,
+"sample_size": 49,
+"verification_status": "verified",
+"comparison_tier": "identity",
+"sub_variant_label": null
+},
+{
+"treatment_name": "Nie wiem co wybrać - zabieg na twarz",
+"subject_price_grosze": 20000,
+"subject_duration_minutes": 75,
+"market_median_grosze": 25000,
+"sample_size": 54,
+"verification_status": "verified",
+"comparison_tier": "identity",
+"sub_variant_label": null
+},
+{
+"treatment_name": "Depilacja laserowa - Całe ciało - Thunder MT",
+"subject_price_grosze": 120000,
+"subject_duration_minutes": 90,
+"market_median_grosze": null,
+"sample_size": 0,
+"verification_status": "subject_only",
+"comparison_tier": "identity",
+"sub_variant_label": null
+},
+{
+"treatment_name": "IPL twarz 3 zabiegi - usuwanie przebarwień, rumienia i naczynek",
+"subject_price_grosze": 150000,
+"subject_duration_minutes": 30,
+"market_median_grosze": null,
+"sample_size": 0,
+"verification_status": "subject_only",
+"comparison_tier": "identity",
+"sub_variant_label": null
+},
+{
+"treatment_name": "Łączona terapia IPL + Frax - Twarz 3 zabiegi",
+"subject_price_grosze": 450000,
+"subject_duration_minutes": 45,
+"market_median_grosze": null,
+"sample_size": 3,
+"verification_status": "subject_only",
+"comparison_tier": "identity",
+"sub_variant_label": null
+},
+{
+"treatment_name": "Laser CO2 Resurfacing - Twarz - przebudowa i regeneracja skóry",
+"subject_price_grosze": 110000,
+"subject_duration_minutes": 60,
+"market_median_grosze": null,
+"sample_size": 2,
+"verification_status": "subject_only",
+"comparison_tier": "identity",
+"sub_variant_label": null
+},
+{
+"treatment_name": "Laser CO2 - usuwanie zmian skórnych (kurzajek, włókniaków, pieprzyków, zmian barwnikowych, plamek żółtych) OD 199ZŁ PROMOCJA",
+"subject_price_grosze": 19900,
+"subject_duration_minutes": 30,
+"market_median_grosze": 33333,
+"sample_size": 20,
+"verification_status": "verified",
+"comparison_tier": "identity",
+"sub_variant_label": null
+},
+{
+"treatment_name": "VIRTUE RF twarz - lifting, ujędrnienie i przebudowa skóry",
+"subject_price_grosze": 300000,
+"subject_duration_minutes": 60,
+"market_median_grosze": null,
+"sample_size": 2,
+"verification_status": "subject_only",
+"comparison_tier": "identity",
+"sub_variant_label": null
+},
+{
+"treatment_name": "Konsultacja lekarska Medycyna estetyczna",
+"subject_price_grosze": 19900,
+"subject_duration_minutes": 15,
+"market_median_grosze": 21250,
+"sample_size": 17,
+"verification_status": "verified",
+"comparison_tier": "identity",
+"sub_variant_label": null
+},
+{
+"treatment_name": "Laser Tulowy Frax 3 zabiegi - Twarz/Szyja/Dekolt - regeneracja i odmładzanie skóry",
+"subject_price_grosze": 270000,
+"subject_duration_minutes": 60,
+"market_median_grosze": null,
+"sample_size": 2,
+"verification_status": "subject_only",
+"comparison_tier": "identity",
+"sub_variant_label": null
+},
+{
+"treatment_name": "Onda Coolwaves - 2 obszary - redukcja tkanki tłuszczowej i cellulitu",
+"subject_price_grosze": 280000,
+"subject_duration_minutes": 60,
+"market_median_grosze": null,
+"sample_size": 2,
+"verification_status": "subject_only",
+"comparison_tier": "identity",
+"sub_variant_label": null
+},
+{
+"treatment_name": "Regulacja brwi + henna brwi i rzęs",
+"subject_price_grosze": 13000,
+"subject_duration_minutes": 50,
+"market_median_grosze": 11667,
+"sample_size": 25,
+"verification_status": "verified",
+"comparison_tier": "identity",
+"sub_variant_label": null
+},
+{
+"treatment_name": "Onda Coolwaves - 3 obszary - redukcja tkanki tłuszczowej i cellulitu",
+"subject_price_grosze": 360000,
+"subject_duration_minutes": 90,
+"market_median_grosze": null,
+"sample_size": 2,
+"verification_status": "subject_only",
+"comparison_tier": "identity",
+"sub_variant_label": null
+},
+{
+"treatment_name": "Onda Coolwaves - 4 obszary - redukcja tkanki tłuszczowej i cellulitu",
+"subject_price_grosze": 180000,
+"subject_duration_minutes": 120,
+"market_median_grosze": null,
+"sample_size": 1,
+"verification_status": "subject_only",
+"comparison_tier": "identity",
+"sub_variant_label": null
+},
+{
+"treatment_name": "REDTOUCH cała twarz - stymulacja kolagenu i odmładzanie skóry",
+"subject_price_grosze": 300000,
+"subject_duration_minutes": 60,
+"market_median_grosze": null,
+"sample_size": 1,
+"verification_status": "subject_only",
+"comparison_tier": "identity",
+"sub_variant_label": null
+},
+{
+"treatment_name": "Konsultacja usuwania zmian skórnych z zabiegiem",
+"subject_price_grosze": 19900,
+"subject_duration_minutes": 20,
+"market_median_grosze": 13333,
+"sample_size": 22,
+"verification_status": "verified",
+"comparison_tier": "identity",
+"sub_variant_label": null
+},
+{
+"treatment_name": "Usuwanie brodawek",
+"subject_price_grosze": 19900,
+"subject_duration_minutes": 20,
+"market_median_grosze": 10000,
+"sample_size": 28,
+"verification_status": "verified",
+"comparison_tier": "identity",
+"sub_variant_label": null
+},
+{
+"treatment_name": "Usuwanie brodawek łojotokowych",
+"subject_price_grosze": 19900,
+"subject_duration_minutes": 20,
+"market_median_grosze": 10000,
+"sample_size": 25,
+"verification_status": "verified",
+"comparison_tier": "identity",
+"sub_variant_label": null
+},
+{
+"treatment_name": "Usuwanie brodawki łojotokowej",
+"subject_price_grosze": 19900,
+"subject_duration_minutes": 20,
+"market_median_grosze": 11000,
+"sample_size": 24,
+"verification_status": "verified",
+"comparison_tier": "identity",
+"sub_variant_label": null
+},
+{
+"treatment_name": "Usuwanie brodawki wirusowej (kurzajki)",
+"subject_price_grosze": 19900,
+"subject_duration_minutes": 20,
+"market_median_grosze": 10000,
+"sample_size": 33,
+"verification_status": "verified",
+"comparison_tier": "identity",
+"sub_variant_label": null
+},
+{
+"treatment_name": "Usuwanie drobnych zmian skórnych",
+"subject_price_grosze": 19900,
+"subject_duration_minutes": 20,
+"market_median_grosze": 12000,
+"sample_size": 27,
+"verification_status": "verified",
+"comparison_tier": "identity",
+"sub_variant_label": null
+},
+{
+"treatment_name": "Usuwanie kurzajek",
+"subject_price_grosze": 19900,
+"subject_duration_minutes": 20,
+"market_median_grosze": 12000,
+"sample_size": 30,
+"verification_status": "verified",
+"comparison_tier": "identity",
+"sub_variant_label": null
+},
+{
+"treatment_name": "Usuwanie kurzajek u dziecka",
+"subject_price_grosze": 19900,
+"subject_duration_minutes": 30,
+"market_median_grosze": 14500,
+"sample_size": 33,
+"verification_status": "verified",
+"comparison_tier": "identity",
+"sub_variant_label": null
+},
+{
+"treatment_name": "Usuwanie kurzajki",
+"subject_price_grosze": 19900,
+"subject_duration_minutes": 20,
+"market_median_grosze": 11000,
+"sample_size": 27,
+"verification_status": "verified",
+"comparison_tier": "identity",
+"sub_variant_label": null
+},
+{
+"treatment_name": "Usuwanie kurzajki u dziecka",
+"subject_price_grosze": 19900,
+"subject_duration_minutes": 30,
+"market_median_grosze": 15000,
+"sample_size": 37,
+"verification_status": "verified",
+"comparison_tier": "identity",
+"sub_variant_label": null
+},
+{
+"treatment_name": "Usuwanie naczyniaka rubinowego",
+"subject_price_grosze": 19900,
+"subject_duration_minutes": 20,
+"market_median_grosze": 10000,
+"sample_size": 31,
+"verification_status": "verified",
+"comparison_tier": "identity",
+"sub_variant_label": null
+},
+{
+"treatment_name": "Usuwanie naczyniaków rubinowych",
+"subject_price_grosze": 19900,
+"subject_duration_minutes": 20,
+"market_median_grosze": 10333,
+"sample_size": 34,
+"verification_status": "verified",
+"comparison_tier": "identity",
+"sub_variant_label": null
+},
+{
+"treatment_name": "Usuwanie prosaka",
+"subject_price_grosze": 19900,
+"subject_duration_minutes": 20,
+"market_median_grosze": 12000,
+"sample_size": 25,
+"verification_status": "verified",
+"comparison_tier": "identity",
+"sub_variant_label": null
+},
+{
+"treatment_name": "Usuwanie włókniaka",
+"subject_price_grosze": 19900,
+"subject_duration_minutes": 20,
+"market_median_grosze": 12667,
+"sample_size": 22,
+"verification_status": "verified",
+"comparison_tier": "identity",
+"sub_variant_label": null
+},
+{
+"treatment_name": "Usuwanie włókniaków",
+"subject_price_grosze": 19900,
+"subject_duration_minutes": 20,
+"market_median_grosze": 13333,
+"sample_size": 23,
+"verification_status": "verified",
+"comparison_tier": "identity",
+"sub_variant_label": null
+},
+{
+"treatment_name": "Regulacja brwi pęsetą lub woskiem",
+"subject_price_grosze": 6000,
+"subject_duration_minutes": 30,
+"market_median_grosze": 5000,
+"sample_size": 21,
+"verification_status": "verified",
+"comparison_tier": "identity",
+"sub_variant_label": null
+},
+{
+"treatment_name": "Usuwanie zmian skórnych",
+"subject_price_grosze": 19900,
+"subject_duration_minutes": 20,
+"market_median_grosze": 12000,
+"sample_size": 27,
+"verification_status": "verified",
+"comparison_tier": "identity",
+"sub_variant_label": null
+},
+{
+"treatment_name": "Usuwanie zmian skórnych u dziecka - konsultacja i zabieg",
+"subject_price_grosze": 19900,
+"subject_duration_minutes": 30,
+"market_median_grosze": 20000,
+"sample_size": 21,
+"verification_status": "verified",
+"comparison_tier": "identity",
+"sub_variant_label": null
+},
+{
+"treatment_name": "Usuwanie zmian skórnych u dziecka - konsultacja i zabieg podczas jednej wizyty",
+"subject_price_grosze": 19900,
+"subject_duration_minutes": 20,
+"market_median_grosze": 20000,
+"sample_size": 16,
+"verification_status": "verified",
+"comparison_tier": "identity",
+"sub_variant_label": null
+},
+{
+"treatment_name": "Usuwanie znamion skórnych",
+"subject_price_grosze": 19900,
+"subject_duration_minutes": 20,
+"market_median_grosze": 13333,
+"sample_size": 24,
+"verification_status": "verified",
+"comparison_tier": "identity",
+"sub_variant_label": null
+},
+{
+"treatment_name": "IPL dekolt - usuwanie przebarwień, rumienia i naczynek",
+"subject_price_grosze": 80000,
+"subject_duration_minutes": 30,
+"market_median_grosze": null,
+"sample_size": 0,
+"verification_status": "subject_only",
+"comparison_tier": "identity",
+"sub_variant_label": null
+},
+{
+"treatment_name": "IPL dłonie - usuwanie przebarwień, rumienia i naczynek",
+"subject_price_grosze": 120000,
+"subject_duration_minutes": 30,
+"market_median_grosze": null,
+"sample_size": 0,
+"verification_status": "subject_only",
+"comparison_tier": "identity",
+"sub_variant_label": null
+},
+{
+"treatment_name": "IPL policzki - usuwanie przebarwień, rumienia i naczynek",
+"subject_price_grosze": 120000,
+"subject_duration_minutes": 30,
+"market_median_grosze": null,
+"sample_size": 0,
+"verification_status": "subject_only",
+"comparison_tier": "identity",
+"sub_variant_label": null
+},
+{
+"treatment_name": "IPL szyja - usuwanie przebarwień, rumienia i naczynek",
+"subject_price_grosze": 150000,
+"subject_duration_minutes": 30,
+"market_median_grosze": null,
+"sample_size": 0,
+"verification_status": "subject_only",
+"comparison_tier": "identity",
+"sub_variant_label": null
+},
+{
+"treatment_name": "IPL twarz - usuwanie przebarwień, rumienia i naczynek",
+"subject_price_grosze": 80000,
+"subject_duration_minutes": 30,
+"market_median_grosze": null,
+"sample_size": 0,
+"verification_status": "subject_only",
+"comparison_tier": "identity",
+"sub_variant_label": null
+},
+{
+"treatment_name": "Łączona terapia IPL + Frax - Dekolt",
+"subject_price_grosze": 450000,
+"subject_duration_minutes": 45,
+"market_median_grosze": null,
+"sample_size": 2,
+"verification_status": "subject_only",
+"comparison_tier": "identity",
+"sub_variant_label": null
+},
+{
+"treatment_name": "Łączona terapia IPL + Frax - Dłonie",
+"subject_price_grosze": 360000,
+"subject_duration_minutes": 45,
+"market_median_grosze": null,
+"sample_size": 2,
+"verification_status": "subject_only",
+"comparison_tier": "identity",
+"sub_variant_label": null
+},
+{
+"treatment_name": "Łączona terapia IPL + Frax - Twarz",
+"subject_price_grosze": 450000,
+"subject_duration_minutes": 45,
+"market_median_grosze": null,
+"sample_size": 2,
+"verification_status": "subject_only",
+"comparison_tier": "identity",
+"sub_variant_label": null
+},
+{
+"treatment_name": "Łączona terapia IPL + Frax - Twarz + Szyja",
+"subject_price_grosze": 540000,
+"subject_duration_minutes": 60,
+"market_median_grosze": null,
+"sample_size": 1,
+"verification_status": "subject_only",
+"comparison_tier": "identity",
+"sub_variant_label": null
+},
+{
+"treatment_name": "Depilacja laserowa - baki - Thunder MT  - kobiety",
+"subject_price_grosze": 11000,
+"subject_duration_minutes": 15,
+"market_median_grosze": null,
+"sample_size": 2,
+"verification_status": "subject_only",
+"comparison_tier": "identity",
+"sub_variant_label": null
+},
+{
+"treatment_name": "Depilacja laserowa - bikini brazylijskie - Thunder MT - kobiety",
+"subject_price_grosze": 180000,
+"subject_duration_minutes": 30,
+"market_median_grosze": null,
+"sample_size": 0,
+"verification_status": "subject_only",
+"comparison_tier": "identity",
+"sub_variant_label": null
+},
+{
+"treatment_name": "Depilacja laserowa - bikini pełne - Thunder MT - kobiety",
+"subject_price_grosze": 180000,
+"subject_duration_minutes": 30,
+"market_median_grosze": null,
+"sample_size": 0,
+"verification_status": "subject_only",
+"comparison_tier": "identity",
+"sub_variant_label": null
+},
+{
+"treatment_name": "Depilacja laserowa - broda - Thunder MT - kobiety",
+"subject_price_grosze": 80000,
+"subject_duration_minutes": 15,
+"market_median_grosze": null,
+"sample_size": 1,
+"verification_status": "subject_only",
+"comparison_tier": "identity",
+"sub_variant_label": null
+},
+{
+"treatment_name": "Depilacja laserowa - brzuch - Thunder MT - kobiety",
+"subject_price_grosze": 300000,
+"subject_duration_minutes": 45,
+"market_median_grosze": null,
+"sample_size": 0,
+"verification_status": "subject_only",
+"comparison_tier": "identity",
+"sub_variant_label": null
+},
+{
+"treatment_name": "Depilacja laserowa - cała twarz - Thunder MT - kobiety",
+"subject_price_grosze": 150000,
+"subject_duration_minutes": 15,
+"market_median_grosze": null,
+"sample_size": 0,
+"verification_status": "subject_only",
+"comparison_tier": "identity",
+"sub_variant_label": null
+},
+{
+"treatment_name": "Depilacja laserowa - całe nogi - Thunder MT - kobiety",
+"subject_price_grosze": 60000,
+"subject_duration_minutes": 45,
+"market_median_grosze": null,
+"sample_size": 0,
+"verification_status": "subject_only",
+"comparison_tier": "identity",
+"sub_variant_label": null
+},
+{
+"treatment_name": "Regulacja woskiem - wąsik/ broda/ baczki",
+"subject_price_grosze": 4000,
+"subject_duration_minutes": 25,
+"market_median_grosze": null,
+"sample_size": 2,
+"verification_status": "subject_only",
+"comparison_tier": "identity",
+"sub_variant_label": null
+},
+{
+"treatment_name": "Depilacja laserowa - dłonie - Thunder MT - kobiety",
+"subject_price_grosze": 150000,
+"subject_duration_minutes": 15,
+"market_median_grosze": null,
+"sample_size": 1,
+"verification_status": "subject_only",
+"comparison_tier": "identity",
+"sub_variant_label": null
+},
+{
+"treatment_name": "Depilacja laserowa - klatka piersiowa - Thunder MT - kobiety",
+"subject_price_grosze": 60000,
+"subject_duration_minutes": 45,
+"market_median_grosze": null,
+"sample_size": 0,
+"verification_status": "subject_only",
+"comparison_tier": "identity",
+"sub_variant_label": null
+},
+{
+"treatment_name": "Depilacja laserowa - linia biała - Thunder MT - kobiety",
+"subject_price_grosze": 80000,
+"subject_duration_minutes": 15,
+"market_median_grosze": null,
+"sample_size": 2,
+"verification_status": "subject_only",
+"comparison_tier": "identity",
+"sub_variant_label": null
+},
+{
+"treatment_name": "Depilacja laserowa - łydki - Thunder MT - kobiety",
+"subject_price_grosze": 45000,
+"subject_duration_minutes": 30,
+"market_median_grosze": null,
+"sample_size": 0,
+"verification_status": "subject_only",
+"comparison_tier": "identity",
+"sub_variant_label": null
+},
+{
+"treatment_name": "Kroplówka Sport - Regeneracja",
+"subject_price_grosze": 60000,
+"subject_duration_minutes": 90,
+"market_median_grosze": 37425,
+"sample_size": 8,
+"verification_status": "verified",
+"comparison_tier": "identity",
+"sub_variant_label": null
+},
+{
+"treatment_name": "Depilacja laserowa - okolice brodawek sutkowych - Thunder MT - kobiety",
+"subject_price_grosze": 80000,
+"subject_duration_minutes": 15,
+"market_median_grosze": null,
+"sample_size": 2,
+"verification_status": "subject_only",
+"comparison_tier": "identity",
+"sub_variant_label": null
+},
+{
+"treatment_name": "Depilacja laserowa - Pachy + Bikini pełne / brazylijskie + Łydki - Thunder MT",
+"subject_price_grosze": 420000,
+"subject_duration_minutes": 45,
+"market_median_grosze": null,
+"sample_size": 0,
+"verification_status": "subject_only",
+"comparison_tier": "identity",
+"sub_variant_label": null
+},
+{
+"treatment_name": "Depilacja laserowa - Pachy + Bikini pełne / brazylijskie - Thunder MT",
+"subject_price_grosze": 280000,
+"subject_duration_minutes": 30,
+"market_median_grosze": null,
+"sample_size": 0,
+"verification_status": "subject_only",
+"comparison_tier": "identity",
+"sub_variant_label": null
+},
+{
+"treatment_name": "Mikropunktura - terapia blizn i rozstępów",
+"subject_price_grosze": 35000,
+"subject_duration_minutes": 45,
+"market_median_grosze": 45000,
+"sample_size": 17,
+"verification_status": "verified",
+"comparison_tier": "identity",
+"sub_variant_label": null
+},
+{
+"treatment_name": "Depilacja laserowa - pachy - Thunder MT - kobiety",
+"subject_price_grosze": 90000,
+"subject_duration_minutes": 15,
+"market_median_grosze": null,
+"sample_size": 0,
+"verification_status": "subject_only",
+"comparison_tier": "identity",
+"sub_variant_label": null
+},
+{
+"treatment_name": "Depilacja laserowa - palce - Thunder MT - kobiety",
+"subject_price_grosze": 80000,
+"subject_duration_minutes": 15,
+"market_median_grosze": null,
+"sample_size": 1,
+"verification_status": "subject_only",
+"comparison_tier": "identity",
+"sub_variant_label": null
+},
+{
+"treatment_name": "Depilacja laserowa - plecy - Thunder MT - kobiety",
+"subject_price_grosze": 300000,
+"subject_duration_minutes": 45,
+"market_median_grosze": null,
+"sample_size": 0,
+"verification_status": "subject_only",
+"comparison_tier": "identity",
+"sub_variant_label": null
+},
+{
+"treatment_name": "Depilacja laserowa - przedramiona - Thunder MT - kobiety",
+"subject_price_grosze": 180000,
+"subject_duration_minutes": 30,
+"market_median_grosze": null,
+"sample_size": 0,
+"verification_status": "subject_only",
+"comparison_tier": "identity",
+"sub_variant_label": null
+},
+{
+"treatment_name": "Depilacja laserowa - ramiona - Thunder MT - kobiety",
+"subject_price_grosze": 45000,
+"subject_duration_minutes": 30,
+"market_median_grosze": null,
+"sample_size": 0,
+"verification_status": "subject_only",
+"comparison_tier": "identity",
+"sub_variant_label": null
+},
+{
+"treatment_name": "Depilacja laserowa - ręce - Thunder MT - kobiety",
+"subject_price_grosze": 60000,
+"subject_duration_minutes": 45,
+"market_median_grosze": null,
+"sample_size": 1,
+"verification_status": "subject_only",
+"comparison_tier": "identity",
+"sub_variant_label": null
+},
+{
+"treatment_name": "Kroplówka Odporność - Advanced",
+"subject_price_grosze": 70000,
+"subject_duration_minutes": 90,
+"market_median_grosze": 75000,
+"sample_size": 5,
+"verification_status": "verified",
+"comparison_tier": "identity",
+"sub_variant_label": null
+},
+{
+"treatment_name": "Kroplówka Odporność - Basic",
+"subject_price_grosze": 50000,
+"subject_duration_minutes": 90,
+"market_median_grosze": 75000,
+"sample_size": 5,
+"verification_status": "verified",
+"comparison_tier": "identity",
+"sub_variant_label": null
+},
+{
+"treatment_name": "Kroplówka Odporność - VIP",
+"subject_price_grosze": 80000,
+"subject_duration_minutes": 90,
+"market_median_grosze": 101250,
+"sample_size": 4,
+"verification_status": "verified",
+"comparison_tier": "identity",
+"sub_variant_label": null
+},
+{
+"treatment_name": "Kroplówka Regeneracja ośrodkowego układu nerwowego",
+"subject_price_grosze": 80000,
+"subject_duration_minutes": 90,
+"market_median_grosze": null,
+"sample_size": 2,
+"verification_status": "subject_only",
+"comparison_tier": "identity",
+"sub_variant_label": null
+},
+{
+"treatment_name": "Kroplówka Terapia - 1x Leczenie miażdzycy tętnic",
+"subject_price_grosze": 70000,
+"subject_duration_minutes": 90,
+"market_median_grosze": null,
+"sample_size": 0,
+"verification_status": "subject_only",
+"comparison_tier": "identity",
+"sub_variant_label": null
+},
+{
+"treatment_name": "Depilacja laserowa - pachy - Thunder MT - mężczyźni",
+"subject_price_grosze": 30000,
+"subject_duration_minutes": 15,
+"market_median_grosze": null,
+"sample_size": 0,
+"verification_status": "subject_only",
+"comparison_tier": "identity",
+"sub_variant_label": null
+},
+{
+"treatment_name": "Depilacja laserowa - palce - Thunder MT - mężczyźni",
+"subject_price_grosze": 120000,
+"subject_duration_minutes": 15,
+"market_median_grosze": null,
+"sample_size": 1,
+"verification_status": "subject_only",
+"comparison_tier": "identity",
+"sub_variant_label": null
+},
+{
+"treatment_name": "Depilacja laserowa - plecy - Thunder MT - mężczyźni",
+"subject_price_grosze": 330000,
+"subject_duration_minutes": 45,
+"market_median_grosze": null,
+"sample_size": 0,
+"verification_status": "subject_only",
+"comparison_tier": "identity",
+"sub_variant_label": null
+},
+{
+"treatment_name": "Depilacja laserowa - przedramiona - Thunder MT - mężczyźni",
+"subject_price_grosze": 270000,
+"subject_duration_minutes": 30,
+"market_median_grosze": null,
+"sample_size": 0,
+"verification_status": "subject_only",
+"comparison_tier": "identity",
+"sub_variant_label": null
+},
+{
+"treatment_name": "Depilacja laserowa - przestrzeń między brwiami - Thunder MT - mężczyźni",
+"subject_price_grosze": 22000,
+"subject_duration_minutes": 15,
+"market_median_grosze": null,
+"sample_size": 0,
+"verification_status": "subject_only",
+"comparison_tier": "identity",
+"sub_variant_label": null
+},
+{
+"treatment_name": "Depilacja laserowa - ramiona -  Thunder MT - mężczyźni",
+"subject_price_grosze": 55000,
+"subject_duration_minutes": 30,
+"market_median_grosze": null,
+"sample_size": 0,
+"verification_status": "subject_only",
+"comparison_tier": "identity",
+"sub_variant_label": null
+},
+{
+"treatment_name": "Depilacja laserowa - ręce - Thunder MT - mężczyźni",
+"subject_price_grosze": 330000,
+"subject_duration_minutes": 45,
+"market_median_grosze": null,
+"sample_size": 0,
+"verification_status": "subject_only",
+"comparison_tier": "identity",
+"sub_variant_label": null
+},
+{
+"treatment_name": "Depilacja laserowa - stopy - Thunder MT - mężczyźni",
+"subject_price_grosze": 140000,
+"subject_duration_minutes": 15,
+"market_median_grosze": null,
+"sample_size": 0,
+"verification_status": "subject_only",
+"comparison_tier": "identity",
+"sub_variant_label": null
+},
+{
+"treatment_name": "Depilacja laserowa - uda - Thunder MT - mężczyźni",
+"subject_price_grosze": 270000,
+"subject_duration_minutes": 30,
+"market_median_grosze": null,
+"sample_size": 0,
+"verification_status": "subject_only",
+"comparison_tier": "identity",
+"sub_variant_label": null
+},
+{
+"treatment_name": "Depilacja laserowa - uszy - Thunder MT - mężczyźni",
+"subject_price_grosze": 22000,
+"subject_duration_minutes": 15,
+"market_median_grosze": null,
+"sample_size": 1,
+"verification_status": "subject_only",
+"comparison_tier": "identity",
+"sub_variant_label": null
+},
+{
+"treatment_name": "Depilacja laserowa - wąsik - Thunder MT - mężczyźni",
+"subject_price_grosze": 100000,
+"subject_duration_minutes": 15,
+"market_median_grosze": null,
+"sample_size": 0,
+"verification_status": "subject_only",
+"comparison_tier": "identity",
+"sub_variant_label": null
+},
+{
+"treatment_name": "VIRTUE RF boczki - ujędrnianie i przebudowa skóry",
+"subject_price_grosze": 80000,
+"subject_duration_minutes": 45,
+"market_median_grosze": null,
+"sample_size": 0,
+"verification_status": "subject_only",
+"comparison_tier": "identity",
+"sub_variant_label": null
+},
+{
+"treatment_name": "VIRTUE RF brzuch - ujędrnianie i przebudowa skóry",
+"subject_price_grosze": 300000,
+"subject_duration_minutes": 45,
+"market_median_grosze": null,
+"sample_size": 1,
+"verification_status": "subject_only",
+"comparison_tier": "identity",
+"sub_variant_label": null
+},
+{
+"treatment_name": "VIRTUE RF pelikany (ramiona) - ujędrnianie i przebudowa skóry",
+"subject_price_grosze": 210000,
+"subject_duration_minutes": 45,
+"market_median_grosze": null,
+"sample_size": 1,
+"verification_status": "subject_only",
+"comparison_tier": "identity",
+"sub_variant_label": null
+},
+{
+"treatment_name": "VIRTUE RF twarz + szyja + dekolt - lifting, ujędrnienie i przebudowa skóry",
+"subject_price_grosze": 180000,
+"subject_duration_minutes": 95,
+"market_median_grosze": null,
+"sample_size": 2,
+"verification_status": "subject_only",
+"comparison_tier": "identity",
+"sub_variant_label": null
+},
+{
+"treatment_name": "VIRTUE RF twarz + szyja - lifting, ujędrnienie i przebudowa skóry",
+"subject_price_grosze": 360000,
+"subject_duration_minutes": 75,
+"market_median_grosze": null,
+"sample_size": 1,
+"verification_status": "subject_only",
+"comparison_tier": "identity",
+"sub_variant_label": null
+},
+{
+"treatment_name": "VIRTUE RF uda - ujędrnianie i przebudowa skóry",
+"subject_price_grosze": 360000,
+"subject_duration_minutes": 45,
+"market_median_grosze": null,
+"sample_size": 1,
+"verification_status": "subject_only",
+"comparison_tier": "identity",
+"sub_variant_label": null
+},
+{
+"treatment_name": "Laser CO2 Resurfacing - Twarz + Szyja + Dekolt- przebudowa i regeneracja skóry",
+"subject_price_grosze": 450000,
+"subject_duration_minutes": 90,
+"market_median_grosze": null,
+"sample_size": 1,
+"verification_status": "subject_only",
+"comparison_tier": "identity",
+"sub_variant_label": null
+},
+{
+"treatment_name": "Laser CO2 Resurfacing - Twarz + Szyja - przebudowa i regeneracja skóry",
+"subject_price_grosze": 390000,
+"subject_duration_minutes": 75,
+"market_median_grosze": null,
+"sample_size": 3,
+"verification_status": "subject_only",
+"comparison_tier": "identity",
+"sub_variant_label": null
+},
+{
+"treatment_name": "Dermapen 4 - twarz - regeneracja i przebudowa skóry",
+"subject_price_grosze": 60000,
+"subject_duration_minutes": 45,
+"market_median_grosze": null,
+"sample_size": 5,
+"verification_status": "subject_only",
+"comparison_tier": "identity",
+"sub_variant_label": null
+},
+{
+"treatment_name": "REDTOUCH dekolt - stymulacja kolagenu i odmładzanie skóry",
+"subject_price_grosze": 165000,
+"subject_duration_minutes": 40,
+"market_median_grosze": null,
+"sample_size": 3,
+"verification_status": "subject_only",
+"comparison_tier": "identity",
+"sub_variant_label": null
+},
+{
+"treatment_name": "REDTOUCH dłonie - stymulacja kolagenu i odmładzanie skóry",
+"subject_price_grosze": 60000,
+"subject_duration_minutes": 45,
+"market_median_grosze": null,
+"sample_size": 0,
+"verification_status": "subject_only",
+"comparison_tier": "identity",
+"sub_variant_label": null
+},
+{
+"treatment_name": "Dermapen 4 - twarz + szyja- regeneracja i przebudowa skóry",
+"subject_price_grosze": 90000,
+"subject_duration_minutes": 60,
+"market_median_grosze": null,
+"sample_size": 4,
+"verification_status": "subject_only",
+"comparison_tier": "identity",
+"sub_variant_label": null
+},
+{
+"treatment_name": "BOTOKS - redukcja zmarszczek",
+"subject_price_grosze": 59900,
+"subject_duration_minutes": 30,
+"market_median_grosze": 73500,
+"sample_size": 30,
+"verification_status": "verified",
+"comparison_tier": "identity",
+"sub_variant_label": null
+},
+{
+"treatment_name": "Broda brukowana",
+"subject_price_grosze": 149900,
+"subject_duration_minutes": 30,
+"market_median_grosze": 60000,
+"sample_size": 29,
+"verification_status": "verified",
+"comparison_tier": "identity",
+"sub_variant_label": null
+},
+{
+"treatment_name": "Gummy Smile (likwidacja uśmiechu dziąsłowego)",
+"subject_price_grosze": 139900,
+"subject_duration_minutes": 30,
+"market_median_grosze": 80000,
+"sample_size": 49,
+"verification_status": "verified",
+"comparison_tier": "identity",
+"sub_variant_label": null
+},
+{
+"treatment_name": "REDTOUCH okolica ust - stymulacja kolagenu i odmładzanie skóry",
+"subject_price_grosze": 50000,
+"subject_duration_minutes": 25,
+"market_median_grosze": null,
+"sample_size": 0,
+"verification_status": "subject_only",
+"comparison_tier": "identity",
+"sub_variant_label": null
+},
+{
+"treatment_name": "REDTOUCH szyja - stymulacja kolagenu i odmładzanie skóry",
+"subject_price_grosze": 70000,
+"subject_duration_minutes": 35,
+"market_median_grosze": null,
+"sample_size": 1,
+"verification_status": "subject_only",
+"comparison_tier": "identity",
+"sub_variant_label": null
+},
+{
+"treatment_name": "REDTOUCH twarz + szyja + dekolt - stymulacja kolagenu i odmładzanie skóry",
+"subject_price_grosze": 450000,
+"subject_duration_minutes": 120,
+"market_median_grosze": null,
+"sample_size": 1,
+"verification_status": "subject_only",
+"comparison_tier": "identity",
+"sub_variant_label": null
+},
+{
+"treatment_name": "REDTOUCH twarz + szyja - stymulacja kolagenu i odmładzanie skóry",
+"subject_price_grosze": 180000,
+"subject_duration_minutes": 90,
+"market_median_grosze": null,
+"sample_size": 1,
+"verification_status": "subject_only",
+"comparison_tier": "identity",
+"sub_variant_label": null
+},
+{
+"treatment_name": "Królicze zmarszczki",
+"subject_price_grosze": 119900,
+"subject_duration_minutes": 30,
+"market_median_grosze": 80000,
+"sample_size": 50,
+"verification_status": "verified",
+"comparison_tier": "identity",
+"sub_variant_label": null
+},
+{
+"treatment_name": "Leczenie bruksizmu",
+"subject_price_grosze": 109900,
+"subject_duration_minutes": 30,
+"market_median_grosze": 120000,
+"sample_size": 50,
+"verification_status": "verified",
+"comparison_tier": "identity",
+"sub_variant_label": null
+},
+{
+"treatment_name": "Leczenie nadpotliwości",
+"subject_price_grosze": 119900,
+"subject_duration_minutes": 45,
+"market_median_grosze": 150000,
+"sample_size": 46,
+"verification_status": "verified",
+"comparison_tier": "identity",
+"sub_variant_label": null
+},
+{
+"treatment_name": "Lip Flip",
+"subject_price_grosze": 119900,
+"subject_duration_minutes": 30,
+"market_median_grosze": 45000,
+"sample_size": 44,
+"verification_status": "extreme_outlier",
+"comparison_tier": "identity",
+"sub_variant_label": null
+},
+{
+"treatment_name": "Onda Coolwaves - 3 obszary - redukcja tkanki tłuszczowej i cellulitu",
+"subject_price_grosze": 140000,
+"subject_duration_minutes": 90,
+"market_median_grosze": null,
+"sample_size": 0,
+"verification_status": "subject_only",
+"comparison_tier": "identity",
+"sub_variant_label": null
+},
+{
+"treatment_name": "Lipoliza iniekcyjna - likwidacja podwójnego podbródka",
+"subject_price_grosze": 37500,
+"subject_duration_minutes": 30,
+"market_median_grosze": null,
+"sample_size": 1,
+"verification_status": "subject_only",
+"comparison_tier": "identity",
+"sub_variant_label": null
+},
+{
+"treatment_name": "Lipoliza iniekcyjna - likwidowanie tkanki tłuszczowej do 20ml",
+"subject_price_grosze": 80000,
+"subject_duration_minutes": 45,
+"market_median_grosze": null,
+"sample_size": 2,
+"verification_status": "subject_only",
+"comparison_tier": "identity",
+"sub_variant_label": null
+},
+{
+"treatment_name": "Endermologia Alliance Express - modelowanie sylwetki i redukcja cellulitu",
+"subject_price_grosze": 20000,
+"subject_duration_minutes": 30,
+"market_median_grosze": null,
+"sample_size": 5,
+"verification_status": "subject_only",
+"comparison_tier": "identity",
+"sub_variant_label": null
+},
+{
+"treatment_name": "Endermologia Alliance - modelowanie sylwetki i redukcja cellulitu",
+"subject_price_grosze": 30000,
+"subject_duration_minutes": 60,
+"market_median_grosze": null,
+"sample_size": 6,
+"verification_status": "subject_only",
+"comparison_tier": "identity",
+"sub_variant_label": null
+},
+{
+"treatment_name": "X-WAVE Fala uderzeniowa - 1 obszar - modelowanie sylwetki i redukcja cellulitu",
+"subject_price_grosze": 137500,
+"subject_duration_minutes": 20,
+"market_median_grosze": null,
+"sample_size": 3,
+"verification_status": "subject_only",
+"comparison_tier": "identity",
+"sub_variant_label": null
+},
+{
+"treatment_name": "X-WAVE Fala uderzeniowa - 2 obszary - modelowanie sylwetki i redukcja cellulitu",
+"subject_price_grosze": 270000,
+"subject_duration_minutes": 40,
+"market_median_grosze": null,
+"sample_size": 1,
+"verification_status": "subject_only",
+"comparison_tier": "identity",
+"sub_variant_label": null
+},
+{
+"treatment_name": "X-WAVE Fala uderzeniowa - 3 obszary - modelowanie sylwetki i redukcja cellulitu",
+"subject_price_grosze": 210000,
+"subject_duration_minutes": 60,
+"market_median_grosze": null,
+"sample_size": 1,
+"verification_status": "subject_only",
+"comparison_tier": "identity",
+"sub_variant_label": null
+},
+{
+"treatment_name": "Body Shape - 1 obszar - rzeźbienie mięśni i modelowanie sylwetki",
+"subject_price_grosze": 40000,
+"subject_duration_minutes": 30,
+"market_median_grosze": null,
+"sample_size": 2,
+"verification_status": "subject_only",
+"comparison_tier": "identity",
+"sub_variant_label": null
+},
+{
+"treatment_name": "Body Shape - 2 obszary - rzeźbienie mięśni i modelowanie sylwetki",
+"subject_price_grosze": 200000,
+"subject_duration_minutes": 60,
+"market_median_grosze": null,
+"sample_size": 4,
+"verification_status": "subject_only",
+"comparison_tier": "identity",
+"sub_variant_label": null
+},
+{
+"treatment_name": "PRX-T33 - biorewitalizacja i przebudowa skóry",
+"subject_price_grosze": 30000,
+"subject_duration_minutes": 60,
+"market_median_grosze": 44500,
+"sample_size": 56,
+"verification_status": "verified",
+"comparison_tier": "identity",
+"sub_variant_label": null
+},
+{
+"treatment_name": "Body Shape - 3 obszary - rzeźbienie mięśni i modelowanie sylwetki",
+"subject_price_grosze": 90000,
+"subject_duration_minutes": 90,
+"market_median_grosze": null,
+"sample_size": 5,
+"verification_status": "subject_only",
+"comparison_tier": "identity",
+"sub_variant_label": null
+},
+{
+"treatment_name": "Drenaż limfatyczny - 30 minut - redukcja obrzęków i uczucia ciężkich nóg",
+"subject_price_grosze": 13000,
+"subject_duration_minutes": 30,
+"market_median_grosze": 12450,
+"sample_size": 30,
+"verification_status": "verified",
+"comparison_tier": "identity",
+"sub_variant_label": null
+},
+{
+"treatment_name": "Drenaż limfatyczny - 60 minut - redukcja obrzęków i uczucia ciężkich nóg",
+"subject_price_grosze": 15000,
+"subject_duration_minutes": 60,
+"market_median_grosze": null,
+"sample_size": 3,
+"verification_status": "subject_only",
+"comparison_tier": "identity",
+"sub_variant_label": null
+},
+{
+"treatment_name": "Oczyszczanie wodorowe - oczyszczenie i odświeżenie skóry - twarz",
+"subject_price_grosze": 34900,
+"subject_duration_minutes": 60,
+"market_median_grosze": null,
+"sample_size": 1,
+"verification_status": "subject_only",
+"comparison_tier": "identity",
+"sub_variant_label": null
+},
+{
+"treatment_name": "Oczyszczanie wodorowe Premium twarz - oczyszczenie i odświeżenie skóry",
+"subject_price_grosze": 49900,
+"subject_duration_minutes": 75,
+"market_median_grosze": null,
+"sample_size": 3,
+"verification_status": "subject_only",
+"comparison_tier": "identity",
+"sub_variant_label": null
+},
+{
+"treatment_name": "Oczyszczanie wodorowe Premium twarz + szyja + dekolt - oczyszczenie i odświeżenie skóry",
+"subject_price_grosze": 69900,
+"subject_duration_minutes": 95,
+"market_median_grosze": null,
+"sample_size": 1,
+"verification_status": "subject_only",
+"comparison_tier": "identity",
+"sub_variant_label": null
+},
+{
+"treatment_name": "Oczyszczanie wodorowe + PRO XN - oczyszczenie i regeneracja skóry - twarz",
+"subject_price_grosze": 64900,
+"subject_duration_minutes": 75,
+"market_median_grosze": null,
+"sample_size": 4,
+"verification_status": "subject_only",
+"comparison_tier": "identity",
+"sub_variant_label": null
+},
+{
+"treatment_name": "Mezoterapia nawilżająca - NCTF 135HA",
+"subject_price_grosze": 105000,
+"subject_duration_minutes": 45,
+"market_median_grosze": null,
+"sample_size": 5,
+"verification_status": "subject_only",
+"comparison_tier": "identity",
+"sub_variant_label": null
+},
+{
+"treatment_name": "Mezoterapia Tropokolagen Guna - 1 ampułka",
+"subject_price_grosze": 40000,
+"subject_duration_minutes": 45,
+"market_median_grosze": 49500,
+"sample_size": 56,
+"verification_status": "verified",
+"comparison_tier": "identity",
+"sub_variant_label": null
+},
+{
+"treatment_name": "Mezoterapia Tropokolagen Guna - 2 ampułki",
+"subject_price_grosze": 60000,
+"subject_duration_minutes": 70,
+"market_median_grosze": 70000,
+"sample_size": 46,
+"verification_status": "verified",
+"comparison_tier": "identity",
+"sub_variant_label": null
+},
+{
+"treatment_name": "Neauvia Hydro Deluxe - 1 ampułka",
+"subject_price_grosze": 50000,
+"subject_duration_minutes": 60,
+"market_median_grosze": null,
+"sample_size": 1,
+"verification_status": "subject_only",
+"comparison_tier": "identity",
+"sub_variant_label": null
+},
+{
+"treatment_name": "Xela Rederm - 1 ampułka",
+"subject_price_grosze": 85000,
+"subject_duration_minutes": 60,
+"market_median_grosze": null,
+"sample_size": 1,
+"verification_status": "subject_only",
+"comparison_tier": "identity",
+"sub_variant_label": null
+},
+{
+"treatment_name": "💉Ejal 40",
+"subject_price_grosze": 150000,
+"subject_duration_minutes": 60,
+"market_median_grosze": null,
+"sample_size": 2,
+"verification_status": "subject_only",
+"comparison_tier": "identity",
+"sub_variant_label": null
+},
+{
+"treatment_name": "💉Karisma",
+"subject_price_grosze": 270000,
+"subject_duration_minutes": 30,
+"market_median_grosze": null,
+"sample_size": 0,
+"verification_status": "subject_only",
+"comparison_tier": "identity",
+"sub_variant_label": null
+},
+{
+"treatment_name": "💉PROFHILO",
+"subject_price_grosze": 270000,
+"subject_duration_minutes": 60,
+"market_median_grosze": null,
+"sample_size": 4,
+"verification_status": "subject_only",
+"comparison_tier": "identity",
+"sub_variant_label": null
+},
+{
+"treatment_name": "Regeneracja Linerase",
+"subject_price_grosze": 270000,
+"subject_duration_minutes": 60,
+"market_median_grosze": null,
+"sample_size": 5,
+"verification_status": "subject_only",
+"comparison_tier": "identity",
+"sub_variant_label": null
+},
+{
+"treatment_name": "Rewitalizacja 💉Jalupro® HMW",
+"subject_price_grosze": 240000,
+"subject_duration_minutes": 60,
+"market_median_grosze": null,
+"sample_size": 0,
+"verification_status": "subject_only",
+"comparison_tier": "identity",
+"sub_variant_label": null
+},
+{
+"treatment_name": "EstGen - regeneracja i odbudowa skóry z sonoforezą",
+"subject_price_grosze": 35000,
+"subject_duration_minutes": 45,
+"market_median_grosze": 25000,
+"sample_size": 35,
+"verification_status": "verified",
+"comparison_tier": "identity",
+"sub_variant_label": null
+},
+{
+"treatment_name": "PRO XN ACNE Rescue Treatment - Twarz + Szyja - terapia skóry trądzikowej",
+"subject_price_grosze": 70000,
+"subject_duration_minutes": 45,
+"market_median_grosze": null,
+"sample_size": 1,
+"verification_status": "subject_only",
+"comparison_tier": "identity",
+"sub_variant_label": null
+},
+{
+"treatment_name": "PRO XN Bright Up Treatment - Twarz + Szyja- redukcja przebarwień i rozświetlenie skóry",
+"subject_price_grosze": 70000,
+"subject_duration_minutes": 60,
+"market_median_grosze": null,
+"sample_size": 1,
+"verification_status": "subject_only",
+"comparison_tier": "identity",
+"sub_variant_label": null
+},
+{
+"treatment_name": "PRO XN III stopnia + Dermapen 4 - Twarz + Szyja- intensywna redukcja przebarwień i przebudowa skóry",
+"subject_price_grosze": 140000,
+"subject_duration_minutes": 75,
+"market_median_grosze": null,
+"sample_size": 5,
+"verification_status": "subject_only",
+"comparison_tier": "identity",
+"sub_variant_label": null
+},
+{
+"treatment_name": "PRO XN II stopnia - Twarz + Szyja- redukcja przebarwień i wyrównanie kolorytu skóry",
+"subject_price_grosze": 180000,
+"subject_duration_minutes": 45,
+"market_median_grosze": null,
+"sample_size": 0,
+"verification_status": "subject_only",
+"comparison_tier": "identity",
+"sub_variant_label": null
+},
+{
+"treatment_name": "PRO XN I stopnia - Twarz + Szyja - wyrównanie kolorytu i pierwsze przebarwienia",
+"subject_price_grosze": 150000,
+"subject_duration_minutes": 45,
+"market_median_grosze": null,
+"sample_size": 0,
+"verification_status": "subject_only",
+"comparison_tier": "identity",
+"sub_variant_label": null
+},
+{
+"treatment_name": "PRO XN Xantohumol Recovery Treatment - Twarz + Szyja- regeneracja skóry po zabiegach",
+"subject_price_grosze": 150000,
+"subject_duration_minutes": 15,
+"market_median_grosze": null,
+"sample_size": 2,
+"verification_status": "subject_only",
+"comparison_tier": "identity",
+"sub_variant_label": null
+},
+{
+"treatment_name": "Peeling kawitacyjny - oczyszczenie i odświeżenie skóry - twarz",
+"subject_price_grosze": 29000,
+"subject_duration_minutes": 40,
+"market_median_grosze": 13733,
+"sample_size": 64,
+"verification_status": "verified",
+"comparison_tier": "identity",
+"sub_variant_label": null
+},
+{
+"treatment_name": "Mezoterapia skóry głowy Dermaheal - zahamowanie wypadania i odżywienie włosów",
+"subject_price_grosze": 35000,
+"subject_duration_minutes": 35,
+"market_median_grosze": null,
+"sample_size": 3,
+"verification_status": "subject_only",
+"comparison_tier": "identity",
+"sub_variant_label": null
+},
+{
+"treatment_name": "Mezoterapia skóry głowy Dr Cyj - stymulacja wzrostu włosów i ograniczenie wypadania",
+"subject_price_grosze": 70000,
+"subject_duration_minutes": 30,
+"market_median_grosze": null,
+"sample_size": 8,
+"verification_status": "subject_only",
+"comparison_tier": "identity",
+"sub_variant_label": null
+},
+{
+"treatment_name": "Modelowanie ust",
+"subject_price_grosze": 80000,
+"subject_duration_minutes": 75,
+"market_median_grosze": 112500,
+"sample_size": 27,
+"verification_status": "verified",
+"comparison_tier": "identity",
+"sub_variant_label": null
+},
+{
+"treatment_name": "Rewitalizacja ust Xela Rederm",
+"subject_price_grosze": 60000,
+"subject_duration_minutes": 60,
+"market_median_grosze": 69900,
+"sample_size": 39,
+"verification_status": "verified",
+"comparison_tier": "identity",
+"sub_variant_label": null
+},
+{
+"treatment_name": "Endermolift LPG Alliance twarz - naturalny lifting i ujędrnienie skóry",
+"subject_price_grosze": 20000,
+"subject_duration_minutes": 60,
+"market_median_grosze": null,
+"sample_size": 6,
+"verification_status": "subject_only",
+"comparison_tier": "identity",
+"sub_variant_label": null
+},
+{
+"treatment_name": "Brwi- Laminacja brwi+farbowanie+regulacja+botoks",
+"subject_price_grosze": 15000,
+"subject_duration_minutes": 80,
+"market_median_grosze": 19378,
+"sample_size": 66,
+"verification_status": "verified",
+"comparison_tier": "identity",
+"sub_variant_label": null
+},
+{
+"treatment_name": "Brwi - stylizacja farbka+ regulacja",
+"subject_price_grosze": 9000,
+"subject_duration_minutes": 60,
+"market_median_grosze": 12000,
+"sample_size": 30,
+"verification_status": "verified",
+"comparison_tier": "identity",
+"sub_variant_label": null
+},
+{
+"treatment_name": "Brwi- Stylizacja (farbka+regulacja)",
+"subject_price_grosze": 9000,
+"subject_duration_minutes": 45,
+"market_median_grosze": 10000,
+"sample_size": 65,
+"verification_status": "verified",
+"comparison_tier": "identity",
+"sub_variant_label": null
+},
+{
+"treatment_name": "Brwi- stylizacja henna+regulacja+botoks",
+"subject_price_grosze": 10000,
+"subject_duration_minutes": 60,
+"market_median_grosze": 12000,
+"sample_size": 11,
+"verification_status": "verified",
+"comparison_tier": "identity",
+"sub_variant_label": null
+},
+{
+"treatment_name": "Henna brwi",
+"subject_price_grosze": 6000,
+"subject_duration_minutes": 45,
+"market_median_grosze": 7500,
+"sample_size": 33,
+"verification_status": "verified",
+"comparison_tier": "identity",
+"sub_variant_label": null
+},
+{
+"treatment_name": "Henna pudrowa +regulacja brwi",
+"subject_price_grosze": 12000,
+"subject_duration_minutes": 75,
+"market_median_grosze": 15000,
+"sample_size": 31,
+"verification_status": "verified",
+"comparison_tier": "identity",
+"sub_variant_label": null
+},
+{
+"treatment_name": "Henna rzęs",
+"subject_price_grosze": 4000,
+"subject_duration_minutes": 25,
+"market_median_grosze": 5000,
+"sample_size": 76,
+"verification_status": "verified",
+"comparison_tier": "identity",
+"sub_variant_label": null
+},
+{
+"treatment_name": "Laminacja brwi + farbowanie + regulacja",
+"subject_price_grosze": 15000,
+"subject_duration_minutes": 70,
+"market_median_grosze": 16333,
+"sample_size": 83,
+"verification_status": "verified",
+"comparison_tier": "identity",
+"sub_variant_label": null
+},
+{
+"treatment_name": "Laminacja brwi + laminacja rzęs",
+"subject_price_grosze": 27000,
+"subject_duration_minutes": 120,
+"market_median_grosze": 35000,
+"sample_size": 65,
+"verification_status": "verified",
+"comparison_tier": "identity",
+"sub_variant_label": null
+},
+{
+"treatment_name": "Laminacja brwi + regulacja",
+"subject_price_grosze": 13000,
+"subject_duration_minutes": 45,
+"market_median_grosze": 10900,
+"sample_size": 82,
+"verification_status": "verified",
+"comparison_tier": "identity",
+"sub_variant_label": null
+},
+{
+"treatment_name": "Laminacja rzęs+farbowanie+botoks",
+"subject_price_grosze": 19000,
+"subject_duration_minutes": 80,
+"market_median_grosze": 19556,
+"sample_size": 69,
+"verification_status": "verified",
+"comparison_tier": "identity",
+"sub_variant_label": null
+}
+]
