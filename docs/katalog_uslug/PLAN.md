@@ -206,3 +206,25 @@ podpis „ta sama” w 19–35%, tylko „podobne” 26–31%, bez porównania 3
 Wiersze wyceniane tylko przez stary silnik: ~połowa to usługi autorskie i markowe (tożsamej nie ma — stary bierze
 cudze), ~połowa ma 1–2 salony „ta sama” (odzysk ~65% prawdziwych par). Decyzja Alexa: wpinać teraz czy najpierw
 kaskada (a) domyślne zabiegu, (b) opisowe, (c) dopełnienie menu (część tego planu, niezrobiona) i nowy sprawdzian.
+
+## Etap 3 — podpięcie za przełącznikiem (projekt 1.10, po decyzji Alexa „Podpinamy”)
+Test F: 96,9% trafnych „ta sama”, pokrycie 46,5% (A–F 52%). Ograniczenie z pomiaru: raport 279 to 15 444 oferty
+do rozbioru (kandydaci ≥ 0,6, do 120 na usługę) = 1287 paczek GLM ≈ 2,6 h przy 4 naraz i ~2600 kredytów Z.ai, a pomost
+na żywo ma 40 wywołań / 75 s na raport. Podpis wymaga więc rozbioru ZAWCZASU (etap 4); raport dobiera tylko braki.
+Kroki — każdy osobny PR; migracja, zapis i wdrożenie na produkcji po „tak” Alexa:
+1. Pamięć w bazie (migracja w BEAUTY_AUDIT): `oferta_cechy` (klucz oferty → rekord rozbioru, model, wersja promptu,
+   data) oraz klasy różnic, zamiany, słownik rynku, rozkłady kategorii i nazw salonów. Start: import pamięci z testów
+   A–F i raportu 279 (~60 tys. ofert).
+2. bagent: `settings.matching_source` („stary” | „podpis”, domyślnie „stary”) + wpis w `registrySerwery.ts` (wzór
+   `TAXONOMY_VETO_SOURCE`). W `compute_pricing_comparisons_v2` gałąź „podpis”: oferty z pamięci → `wycena.wycen_oferty`;
+   wiersz, dla którego brak rozbioru konkurencji, liczy stary silnik (oznaczone w provenance). Stary silnik liczony
+   zawsze obok — porównanie w provenance i w kontrolce.
+3. Rozbiór w tle (etap 4): kolejka na wzór `taxonomy_queue` — najpierw pule zamówionych raportów, potem regiony
+   z raportami. Rachunek przed włączeniem (bramka #1): GLM 0 USD, ale kredyty abonamentu — 4 naraz ≈ 5 tys. ofert/h
+   ≈ 830 kredytów/h (limit 12 tys. / 5 h, 60 tys. / tydzień); dzienny przydział w panelu, stop na pierwszym 429.
+4. Klasy różnic i zamiany dla nowych ofert: TypeSafe raz na klasę, po rozbiorze (~0,07 USD na 7 tys. ofert);
+   brak odpowiedzi = „podobna”. Pamięć klas idzie za słownikiem (`przenies_pamiec`).
+5. Kontrolka w /admin/crawlers: źródło matchingu, pokrycie pamięci dla ostatnich raportów, ostatni przebieg
+   rozbioru, błędy doby, kredyty Z.ai, koszt TypeSafe.
+Do decyzji Alexa przed krokiem 3: dzienny przydział kredytów Z.ai na rozbiór (abonament dzielony z innymi zadaniami).
+Krok 0 (w toku, tylko odczyt): przebieg próbny raportu 279 obok tego, co raport pokazał klientce.
