@@ -160,6 +160,11 @@ def podpisy() -> tuple[list[dict], dict[str, Oferta], dict[str, dict], dict[str,
     if os.environ.get("KATALOG_ROZBIOR") == "dzial":  # rozbiór działu (dzialy.py, 1.10) zamiast p12 + reguł kontekstu
         dz = _modul("dzialy", B / "scripts" / "katalog" / "dzialy.py")
         rek, _ = dz.rekordy(OUT / dz.PLIK, oferty, salon_ofert(us, oferty))
+    elif os.environ.get("KATALOG_ROZBIOR") == "stosowalnosc":  # p12 + kontekst rozstrzygnięty przez TypeSafe (1.10)
+        from types import SimpleNamespace
+        st = _modul("stosowalnosc", B / "scripts" / "katalog" / "stosowalnosc.py")
+        rek = st.rekordy(SimpleNamespace(OUT=OUT, pary_ofert=pary_ofert, do_wyciagniecia=do_wyciagniecia, tp=tp, km=km,
+                                         salon_ofert=salon_ofert, _slownik=_slownik))
     kon = km.kontekst(wyc, OUT / "kategorie.json")
     s = _slownik()
     slowa = kr.slownictwo_rynku(rek, s)
