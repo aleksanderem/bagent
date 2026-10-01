@@ -244,6 +244,19 @@ możemy lepiej/taniej/szybciej … to ja Cię ograniczyłem”.
   ocenionych), oferty z ceną „ta sama” 22% → 21% (znika dział laserowy porównywany z usuwaniem ręcznym). Koszt nocy
   TypeSafe ~1,1 USD (próby, oba zbiory, klasy), GLM w abonamencie. F i 279 posłużyły do poprawek — dowód: test G
   (sprawdzian 13, 18 nowych salonów, ziarno 20261013), rozbiór w toku.
+- TEST G / SPRAWDZIAN 13 (2.10 noc, DOWÓD, 18 nowych salonów z 18 miast, ziarno 20261013; obie wersje na tych samych
+  salonach: stara = p12 + reguły kontekstu + ścieżka „obie strony”, nowa = kontekst od TypeSafe, bagent 429e3fe;
+  rozbiór GLM 7924/7957 ofert; TypeSafe 0,39 USD; moja ocena na ślepo 295 par — wszystkie różnice wersji do 30 na
+  branżę + do 12 par wspólnych na branżę, ważone liczebnością): **trafność „ta sama” stara 97,0% (798 par), nowa
+  96,8% (733 par)**. Branże (stara → nowa): Barber 71 → 70 (jedna usługa „Modelowanie” w barberze sparowana
+  z modelowaniem damskim u fryzjerów — dla kogo wynika tylko z typu salonu, którego żadna wersja nie bierze), Brwi
+  100 → 99, Depilacja 86 → 86 (7 par), Fryzjer 98 → 98, Masaż 100 → 97, Med-est 100 → 100, Paznokcie 100 → 100,
+  Podologia 100 → 100, Salon kosm. 100 → 91 (23 pary). Wiersze z ceną „ta sama” 53% → 56% (≥3 salony 39 → 38%,
+  1–2 salony 14 → 18%); stary silnik z ceną 79%, mediana różnicy tam, gdzie obie metody mają cenę, 7 → 9%.
+  Podsumowanie trzech zbiorów (trafność / wiersze z ceną „ta sama”): F 97,4 → 96,2% / 47 → 55%, G 97,0 → 96,8% /
+  53 → 56%, raport 279 78 → ~97% / 22 → 21% ofert. Nowy mechanizm usuwa wywrotkę na nowym układzie cennika (279)
+  bez straty na świeżych salonach (różnica G w granicach próby). Dane: `sprawdzian13/` (`probka_oceny.json` z wagami,
+  `ocena_claude.json`). Nie zmierzono odzysku (próby reszty) ani rozkładu wielkości próbki.
 
 **Why:** koszt i jakość v14f utknęły (87–94%, 3/4 par) na ograniczeniach metody, nie na strojeniu.
 **How to apply:** nowa praca nad matchingiem idzie tym planem; v14f zostaje punktem odniesienia w pomiarach.

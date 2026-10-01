@@ -1,0 +1,6592 @@
+{
+"wagi": {
+"Barber shop|nowa": [
+16,
+16
+],
+"Barber shop|obie": [
+31,
+12
+],
+"Barber shop|stara": [
+46,
+30
+],
+"Brwi i rzęsy|nowa": [
+7,
+7
+],
+"Brwi i rzęsy|obie": [
+94,
+12
+],
+"Brwi i rzęsy|stara": [
+2,
+2
+],
+"Depilacja|obie": [
+7,
+7
+],
+"Fryzjer|nowa": [
+12,
+12
+],
+"Fryzjer|obie": [
+34,
+12
+],
+"Fryzjer|stara": [
+7,
+7
+],
+"Masaż|nowa": [
+44,
+30
+],
+"Masaż|obie": [
+115,
+12
+],
+"Masaż|stara": [
+91,
+30
+],
+"Medycyna Estetyczna|nowa": [
+14,
+14
+],
+"Medycyna Estetyczna|obie": [
+16,
+12
+],
+"Paznokcie|nowa": [
+6,
+6
+],
+"Paznokcie|obie": [
+244,
+12
+],
+"Paznokcie|stara": [
+10,
+10
+],
+"Podologia|nowa": [
+8,
+8
+],
+"Podologia|obie": [
+62,
+12
+],
+"Podologia|stara": [
+14,
+14
+],
+"Salon Kosmetyczny|nowa": [
+2,
+2
+],
+"Salon Kosmetyczny|obie": [
+21,
+12
+],
+"Salon Kosmetyczny|stara": [
+4,
+4
+]
+},
+"pary": [
+{
+"zbior": "sprawdzian13",
+"klucz": "53388573|6941948",
+"a": {
+"nazwa": "Masaż klasyczny całościowy",
+"wariant": "Masaż klasyczny całościowy",
+"kategoria": "Masaż podstawowy",
+"opis": "Masaż klasyczny to jedna z najbardziej popularnych form masażu. Najczęściej stosowane techniki to: głaskanie, rozcieranie, ugniatanie, oklepywania i w",
+"cena": 260,
+"typ": "Masaż",
+"zabieg_booksy": "Masaż ciała"
+},
+"b": {
+"nazwa": "Masaż klasyczny",
+"wariant": "",
+"kategoria": "",
+"opis": "Masaż klasyczny jest najsłynniejsza forma masażu -- usprawnienia funkcjonowanie stawów oraz mięśni, wpływa korzystnie na ich elastyczność i ukrwienie.",
+"cena": 140,
+"typ": "Masaż",
+"zabieg_booksy": "Masaż ciała"
+}
+},
+{
+"zbior": "sprawdzian13",
+"klucz": "48984116|6120327",
+"a": {
+"nazwa": "Przedłużanie rzęs 3D",
+"wariant": "",
+"kategoria": "",
+"opis": "",
+"cena": 230,
+"typ": "Brwi i rzęsy",
+"zabieg_booksy": "Rzęsy 3d"
+},
+"b": {
+"nazwa": "Przedłużanie rzęs 3D",
+"wariant": "",
+"kategoria": "Przedłużanie i zagęszczanie rzęs Patrycja ",
+"opis": "",
+"cena": 180,
+"typ": "Salon Kosmetyczny",
+"zabieg_booksy": "Przedłużanie rzęs"
+}
+},
+{
+"zbior": "sprawdzian13",
+"klucz": "53388573|5910497#3",
+"a": {
+"nazwa": "Masaż klasyczny całościowy",
+"wariant": "Masaż klasyczny całościowy",
+"kategoria": "Masaż podstawowy",
+"opis": "Masaż klasyczny to jedna z najbardziej popularnych form masażu. Najczęściej stosowane techniki to: głaskanie, rozcieranie, ugniatanie, oklepywania i w",
+"cena": 260,
+"typ": "Masaż",
+"zabieg_booksy": "Masaż ciała"
+},
+"b": {
+"nazwa": "Masaż klasyczny całego ciała",
+"wariant": "120 min",
+"kategoria": "Masaze i zabiegi na cialo",
+"opis": "Masaż klasyczny to jedna z najpopularniejszych i najbardziej znanych form masażu na świecie. Jest to ogólna technika masażu o średniej sile nacisku, k",
+"cena": 380,
+"typ": "Masaż",
+"zabieg_booksy": "Masaż ciała"
+}
+},
+{
+"zbior": "sprawdzian13",
+"klucz": "53388567|6451576",
+"a": {
+"nazwa": "KOBIDO - Japoński Lifting Twarzy",
+"wariant": "KOBIDO - Japoński Lifting Twarzy",
+"kategoria": "Masaże Twarzy",
+"opis": "Masaż KOBIDO łączy elementy akupresury, masażu i refleksologii i oznacza starożytną drogę do piękna. Jest to naturalna technika odmładzania skóry, tzw",
+"cena": 300,
+"typ": "Masaż",
+"zabieg_booksy": "Japoński masaż twarzy kobido"
+},
+"b": {
+"nazwa": "KOBIDO",
+"wariant": "",
+"kategoria": "MASAŻE",
+"opis": "Kobido to wywodzący się z Japonii jeden z najstarszych masaży na świecie. Przez pierwszych kilka stuleci tylko rodzina cesarska mogła włączać go do sw",
+"cena": 190,
+"typ": "Salon Kosmetyczny",
+"zabieg_booksy": "Japoński masaż twarzy kobido"
+}
+},
+{
+"zbior": "sprawdzian13",
+"klucz": "49203586|6171644",
+"a": {
+"nazwa": "Henna rzęs",
+"wariant": "",
+"kategoria": "Henna brwi i rzęs",
+"opis": "",
+"cena": 60,
+"typ": "Paznokcie",
+"zabieg_booksy": "Henna rzęs"
+},
+"b": {
+"nazwa": "Henna rzęs",
+"wariant": "",
+"kategoria": "Stylizacja rzęs ",
+"opis": "",
+"cena": 35,
+"typ": "Salon Kosmetyczny",
+"zabieg_booksy": "Henna rzęs"
+}
+},
+{
+"zbior": "sprawdzian13",
+"klucz": "49203582|6278551",
+"a": {
+"nazwa": "Pedicure męski",
+"wariant": "",
+"kategoria": "Pedicure",
+"opis": "",
+"cena": 180,
+"typ": "Paznokcie",
+"zabieg_booksy": "Pedicure klasyczny"
+},
+"b": {
+"nazwa": "Pedicure męski",
+"wariant": "Pedicure męski",
+"kategoria": "Kosmetyka",
+"opis": "",
+"cena": 110,
+"typ": "Fryzjer",
+"zabieg_booksy": "Pedicure podologiczny"
+}
+},
+{
+"zbior": "sprawdzian13",
+"klucz": "53388579|6921306",
+"a": {
+"nazwa": "Masaż ciepłymi kamieniami",
+"wariant": "Masaż ciepłymi kamieniami",
+"kategoria": "Masaż relaksacyjny",
+"opis": "Masaż ten ma właściwości mocno rozgrzewające i relaksujące. Zabieg wpływa na obniżenie napięcia nerwowego oraz poprawę funkcjonowania układu krążenia.",
+"cena": 330,
+"typ": "Masaż",
+"zabieg_booksy": "Masaż ciała"
+},
+"b": {
+"nazwa": "Masaż gorącymi kamieniami",
+"wariant": "",
+"kategoria": "MASAŻE I RYTUAŁY - strefa relaksu 💆‍♀️💆‍♂️",
+"opis": "Masaż ciepłymi ma działanie witalizujące i lecznicze, doskonale likwiduje wszelkie spięcia i bóle mięśni, oddziałuje na cały organizm, stanowiąc eleme",
+"cena": 220,
+"typ": "Salon Kosmetyczny",
+"zabieg_booksy": "Masaż gorącymi kamieniami"
+}
+},
+{
+"zbior": "sprawdzian13",
+"klucz": "44059016|7342690",
+"a": {
+"nazwa": "Łydki+kolana",
+"wariant": "",
+"kategoria": "Depilacja laserowa",
+"opis": "",
+"cena": 160,
+"typ": "Depilacja",
+"zabieg_booksy": "Depilacja nóg"
+},
+"b": {
+"nazwa": "Epilacja - łydki+kolana",
+"wariant": "Epilacja - łydki+kolana",
+"kategoria": "Epilacja laserowa",
+"opis": "",
+"cena": 400,
+"typ": "Medycyna Estetyczna",
+"zabieg_booksy": "Depilacja laserowa"
+}
+},
+{
+"zbior": "sprawdzian13",
+"klucz": "49451048|7388887",
+"a": {
+"nazwa": "Depilacja woskiem wąsika",
+"wariant": "",
+"kategoria": "Depilacja woskiem",
+"opis": "",
+"cena": 20,
+"typ": "Podologia",
+"zabieg_booksy": "Depilacja wąsika"
+},
+"b": {
+"nazwa": "Depilacja wąsika",
+"wariant": "",
+"kategoria": "Depilacja woskiem",
+"opis": "",
+"cena": 25,
+"typ": "Brwi i rzęsy",
+"zabieg_booksy": "Depilacja wąsika"
+}
+},
+{
+"zbior": "sprawdzian13",
+"klucz": "49203582|5820516",
+"a": {
+"nazwa": "Pedicure męski",
+"wariant": "",
+"kategoria": "Pedicure",
+"opis": "",
+"cena": 180,
+"typ": "Paznokcie",
+"zabieg_booksy": "Pedicure klasyczny"
+},
+"b": {
+"nazwa": "Pedicure męski",
+"wariant": "",
+"kategoria": "Pedicure",
+"opis": "",
+"cena": 170,
+"typ": "Paznokcie",
+"zabieg_booksy": "Pedicure podologiczny"
+}
+},
+{
+"zbior": "sprawdzian13",
+"klucz": "38027420|7188405",
+"a": {
+"nazwa": "Broda",
+"wariant": "",
+"kategoria": "Depilacja laserowa",
+"opis": "",
+"cena": 100,
+"typ": "Salon Kosmetyczny",
+"zabieg_booksy": "Depilacja twarzy"
+},
+"b": {
+"nazwa": "Broda",
+"wariant": "",
+"kategoria": "DEPILACJA LASEROWA🌸*-35zł na 1ą wiz. przy umów.📲 ",
+"opis": "",
+"cena": 200,
+"typ": "Paznokcie",
+"zabieg_booksy": "Depilacja laserowa"
+}
+},
+{
+"zbior": "sprawdzian13",
+"klucz": "50054299|7271191",
+"a": {
+"nazwa": "Strzyżenie włosów maszynką ( jedna długość)",
+"wariant": "",
+"kategoria": "Olga",
+"opis": "Strzyżenie włosów maszynką na jedną długość na całej powierzchni głowy bez cieniowania strzyżonych obszarów.",
+"cena": 50,
+"typ": "Barber shop",
+"zabieg_booksy": "Strzyżenie męskie"
+},
+"b": {
+"nazwa": "Strzyżenie maszynką na jedną długość",
+"wariant": "",
+"kategoria": "",
+"opis": "Strzyżenie maszynką na jedną długość to minimalistyczne cięcie całej fryzury na jednolitą długość, które zapewnia równy, czysty efekt bez konieczności",
+"cena": 70,
+"typ": "Barber shop",
+"zabieg_booksy": "Strzyżenie męskie"
+}
+},
+{
+"zbior": "sprawdzian13",
+"klucz": "38027377|5609927",
+"a": {
+"nazwa": "zagęszczenie linii rzęs",
+"wariant": "",
+"kategoria": "Oczy",
+"opis": "",
+"cena": 800,
+"typ": "Salon Kosmetyczny",
+"zabieg_booksy": "Makijaż permanentny"
+},
+"b": {
+"nazwa": "Permanentna kreska zagęszczająca linie rzęs",
+"wariant": "",
+"kategoria": "Makijaż permanentny oka",
+"opis": "",
+"cena": 350,
+"typ": "Brwi i rzęsy",
+"zabieg_booksy": "Makijaż permanentny"
+}
+},
+{
+"zbior": "sprawdzian13",
+"klucz": "49775818|6979958",
+"a": {
+"nazwa": "Modelowanie włosów długich",
+"wariant": "",
+"kategoria": "Modelowanie",
+"opis": "",
+"cena": 80,
+"typ": "Fryzjer",
+"zabieg_booksy": "Stylizacja włosów"
+},
+"b": {
+"nazwa": "Modelowanie włosy długie",
+"wariant": "",
+"kategoria": "Usługi damskie ",
+"opis": "",
+"cena": 100,
+"typ": "Fryzjer",
+"zabieg_booksy": "Stylizacja włosów"
+}
+},
+{
+"zbior": "sprawdzian13",
+"klucz": "38027377|1971552",
+"a": {
+"nazwa": "zagęszczenie linii rzęs",
+"wariant": "",
+"kategoria": "Oczy",
+"opis": "",
+"cena": 800,
+"typ": "Salon Kosmetyczny",
+"zabieg_booksy": "Makijaż permanentny"
+},
+"b": {
+"nazwa": "Zagęszczenie lini rzęs",
+"wariant": "",
+"kategoria": "MAKIJAŻ PERMANENTNY",
+"opis": "Subtelne podkreślenie spojrzenia. Zagęszczanie linii rzęs to delikatna forma makijażu permanentnego, która optycznie zagęszcza rzęsy i nadaje oczom wy",
+"cena": 900,
+"typ": "Salon Kosmetyczny",
+"zabieg_booksy": "Makijaż permanentny"
+}
+},
+{
+"zbior": "sprawdzian13",
+"klucz": "53388573|6020448#1",
+"a": {
+"nazwa": "Masaż klasyczny całościowy",
+"wariant": "Masaż klasyczny całościowy",
+"kategoria": "Masaż podstawowy",
+"opis": "Masaż klasyczny to jedna z najbardziej popularnych form masażu. Najczęściej stosowane techniki to: głaskanie, rozcieranie, ugniatanie, oklepywania i w",
+"cena": 260,
+"typ": "Masaż",
+"zabieg_booksy": "Masaż ciała"
+},
+"b": {
+"nazwa": "Masaż klasyczny",
+"wariant": "60 min",
+"kategoria": "Masaż ciała",
+"opis": "Masaż klasyczny to jeden z najpopularniejszych zabiegów leczniczych i relaksacyjnych na ciało. Ten rodzaj masażu łączy w sobie elementy masażu lecznic",
+"cena": 210,
+"typ": "Salon Kosmetyczny",
+"zabieg_booksy": "Masaż ciała"
+}
+},
+{
+"zbior": "sprawdzian13",
+"klucz": "53090822|5835990",
+"a": {
+"nazwa": "Konsultacja - makijaż permanentny",
+"wariant": "",
+"kategoria": "",
+"opis": "",
+"cena": 1,
+"typ": "Brwi i rzęsy",
+"zabieg_booksy": "Makijaż permanentny"
+},
+"b": {
+"nazwa": "Konsultacja",
+"wariant": "",
+"kategoria": "",
+"opis": "Konsultacja przed wykonaniem zabiegu. Dotyczy makijażu permanentnego lub laserowego usuwania tatuażu bądź usuwania/ rozjaśniania makijażu permanentneg",
+"cena": 0.0,
+"typ": "Salon Kosmetyczny",
+"zabieg_booksy": "Makijaż permanentny brwi"
+}
+},
+{
+"zbior": "sprawdzian13",
+"klucz": "50054299|7273925",
+"a": {
+"nazwa": "Strzyżenie włosów maszynką ( jedna długość)",
+"wariant": "",
+"kategoria": "Olga",
+"opis": "Strzyżenie włosów maszynką na jedną długość na całej powierzchni głowy bez cieniowania strzyżonych obszarów.",
+"cena": 50,
+"typ": "Barber shop",
+"zabieg_booksy": "Strzyżenie męskie"
+},
+"b": {
+"nazwa": "Strzyżenie maszynką na jedną długość/ One length",
+"wariant": "",
+"kategoria": "",
+"opis": "",
+"cena": 40,
+"typ": "Barber shop",
+"zabieg_booksy": "Strzyżenie męskie"
+}
+},
+{
+"zbior": "sprawdzian13",
+"klucz": "50086374|7306824",
+"a": {
+"nazwa": "Manicure męski",
+"wariant": "",
+"kategoria": "",
+"opis": "",
+"cena": 100,
+"typ": "Paznokcie",
+"zabieg_booksy": "Manicure i pedicure dla mężczyzn"
+},
+"b": {
+"nazwa": "Manicure dla mężczyzn",
+"wariant": "",
+"kategoria": "MANICURE ",
+"opis": "",
+"cena": 60,
+"typ": "Salon Kosmetyczny",
+"zabieg_booksy": "Manicure i pedicure dla mężczyzn"
+}
+},
+{
+"zbior": "sprawdzian13",
+"klucz": "49451048|5550162",
+"a": {
+"nazwa": "Depilacja woskiem wąsika",
+"wariant": "",
+"kategoria": "Depilacja woskiem",
+"opis": "",
+"cena": 20,
+"typ": "Podologia",
+"zabieg_booksy": "Depilacja wąsika"
+},
+"b": {
+"nazwa": "Depilacja wąsik",
+"wariant": "",
+"kategoria": "Depilacja woskiem",
+"opis": "",
+"cena": 20,
+"typ": "Salon Kosmetyczny",
+"zabieg_booksy": "Depilacja wąsika"
+}
+},
+{
+"zbior": "sprawdzian13",
+"klucz": "49451048|7347939",
+"a": {
+"nazwa": "Depilacja woskiem wąsika",
+"wariant": "",
+"kategoria": "Depilacja woskiem",
+"opis": "",
+"cena": 20,
+"typ": "Podologia",
+"zabieg_booksy": "Depilacja wąsika"
+},
+"b": {
+"nazwa": "Depilacja wąsika",
+"wariant": "",
+"kategoria": "DEPILACJA",
+"opis": "",
+"cena": 25,
+"typ": "Salon Kosmetyczny",
+"zabieg_booksy": "Depilacja woskiem"
+}
+},
+{
+"zbior": "sprawdzian13",
+"klucz": "38027377|5656075",
+"a": {
+"nazwa": "zagęszczenie linii rzęs",
+"wariant": "",
+"kategoria": "Oczy",
+"opis": "",
+"cena": 800,
+"typ": "Salon Kosmetyczny",
+"zabieg_booksy": "Makijaż permanentny"
+},
+"b": {
+"nazwa": "Makijaż permanentny - zagęszczenie lini rzęs",
+"wariant": "",
+"kategoria": "",
+"opis": "",
+"cena": 900,
+"typ": "Salon Kosmetyczny",
+"zabieg_booksy": "Makijaż permanentny"
+}
+},
+{
+"zbior": "sprawdzian13",
+"klucz": "53388579|6887493",
+"a": {
+"nazwa": "Masaż ciepłymi kamieniami",
+"wariant": "Masaż ciepłymi kamieniami",
+"kategoria": "Masaż relaksacyjny",
+"opis": "Masaż ten ma właściwości mocno rozgrzewające i relaksujące. Zabieg wpływa na obniżenie napięcia nerwowego oraz poprawę funkcjonowania układu krążenia.",
+"cena": 330,
+"typ": "Masaż",
+"zabieg_booksy": "Masaż ciała"
+},
+"b": {
+"nazwa": "🟩 Masaż gorącymi kamieniami",
+"wariant": "🟩 Masaż gorącymi kamieniami",
+"kategoria": "🟩 MASAŻE - relaks w mieście",
+"opis": "Masaż gorącymi kamieniami – masaż rozgrzewający i rozluźniający całego ciała, który działa przeciwbólowo oraz antystresowo. Idealny czas na relaks!",
+"cena": 400,
+"typ": "Salon Kosmetyczny",
+"zabieg_booksy": "Masaż gorącymi kamieniami"
+}
+},
+{
+"zbior": "sprawdzian13",
+"klucz": "53090799|6884241",
+"a": {
+"nazwa": "Rzęsy 3-4D",
+"wariant": "",
+"kategoria": "",
+"opis": "",
+"cena": 270,
+"typ": "Brwi i rzęsy",
+"zabieg_booksy": "Przedłużanie rzęs"
+},
+"b": {
+"nazwa": "Przedłużenie rzęs 3-4D",
+"wariant": "",
+"kategoria": "Stylizacja brwi i rzęs",
+"opis": "",
+"cena": 220,
+"typ": "Paznokcie",
+"zabieg_booksy": "Przedłużanie rzęs"
+}
+},
+{
+"zbior": "sprawdzian13",
+"klucz": "53388567|6094067",
+"a": {
+"nazwa": "KOBIDO - Japoński Lifting Twarzy",
+"wariant": "KOBIDO - Japoński Lifting Twarzy",
+"kategoria": "Masaże Twarzy",
+"opis": "Masaż KOBIDO łączy elementy akupresury, masażu i refleksologii i oznacza starożytną drogę do piękna. Jest to naturalna technika odmładzania skóry, tzw",
+"cena": 300,
+"typ": "Masaż",
+"zabieg_booksy": "Japoński masaż twarzy kobido"
+},
+"b": {
+"nazwa": "Japoński masaż twarzy Kobido",
+"wariant": "",
+"kategoria": "Masaże częściowe",
+"opis": "**Kobido – japoński rytuał liftingujący** Kobido to głęboki masaż twarzy, który łączy relaks i naturalny efekt liftingu. Zabieg rozpoczyna się od dema",
+"cena": 260,
+"typ": "Masaż",
+"zabieg_booksy": "Japoński masaż twarzy kobido"
+}
+},
+{
+"zbior": "sprawdzian13",
+"klucz": "53388573|5906117",
+"a": {
+"nazwa": "Masaż klasyczny całościowy",
+"wariant": "Masaż klasyczny całościowy",
+"kategoria": "Masaż podstawowy",
+"opis": "Masaż klasyczny to jedna z najbardziej popularnych form masażu. Najczęściej stosowane techniki to: głaskanie, rozcieranie, ugniatanie, oklepywania i w",
+"cena": 260,
+"typ": "Masaż",
+"zabieg_booksy": "Masaż ciała"
+},
+"b": {
+"nazwa": "Masaż klasyczny",
+"wariant": "",
+"kategoria": "",
+"opis": "Klasyczny masaż to profesjonalna metoda terapeutyczna, która wykorzystuje różne techniki manipulacji tkanek miękkich w celu relaksu i poprawy zdrowia.",
+"cena": 100,
+"typ": "Masaż",
+"zabieg_booksy": "Masaż ciała"
+}
+},
+{
+"zbior": "sprawdzian13",
+"klucz": "50054299|7238673",
+"a": {
+"nazwa": "Strzyżenie włosów maszynką ( jedna długość)",
+"wariant": "",
+"kategoria": "Olga",
+"opis": "Strzyżenie włosów maszynką na jedną długość na całej powierzchni głowy bez cieniowania strzyżonych obszarów.",
+"cena": 50,
+"typ": "Barber shop",
+"zabieg_booksy": "Strzyżenie męskie"
+},
+"b": {
+"nazwa": "Strzyżenie maszynką na jedną długość",
+"wariant": "",
+"kategoria": "",
+"opis": "Strzyżenie maszynką na wybraną długość na całej głowie. Równe, czyste i estetyczne wykończenie.",
+"cena": 60,
+"typ": "Barber shop",
+"zabieg_booksy": "Strzyżenie męskie"
+}
+},
+{
+"zbior": "sprawdzian13",
+"klucz": "49451037|3100383",
+"a": {
+"nazwa": "Rozszerzony zabieg podologiczny",
+"wariant": "",
+"kategoria": "Zabiegi podologiczne",
+"opis": "Skròcenie, oczyszczanie i oszlifowanie paznokci zrogowqciałych ( przerośniẹtych, zmienionych chorobowo), opracowanie skòrek, oczyszczanie wałòw okołop",
+"cena": 190,
+"typ": "Podologia",
+"zabieg_booksy": "Pedicure podologiczny"
+},
+"b": {
+"nazwa": "Rozszerzony Zabieg Podologiczny",
+"wariant": "",
+"kategoria": "",
+"opis": "Wstępna ocena stanu stóp . Przygotowanie stóp do zabiegu - dezynfekcja , aplikacja odpowiednich preparatów Opracowanie paznokci i skóry na podeszwach ",
+"cena": 180,
+"typ": "Podologia",
+"zabieg_booksy": "Zabieg podologiczny"
+}
+},
+{
+"zbior": "sprawdzian13",
+"klucz": "49775818|6140881",
+"a": {
+"nazwa": "Modelowanie włosów długich",
+"wariant": "",
+"kategoria": "Modelowanie",
+"opis": "",
+"cena": 80,
+"typ": "Fryzjer",
+"zabieg_booksy": "Stylizacja włosów"
+},
+"b": {
+"nazwa": "Modelowanie włosy długie",
+"wariant": "",
+"kategoria": "Fryzjerstwo",
+"opis": "",
+"cena": 100,
+"typ": "Fryzjer",
+"zabieg_booksy": "Fryzura ślubna"
+}
+},
+{
+"zbior": "sprawdzian13",
+"klucz": "49775818|6972387#3",
+"a": {
+"nazwa": "Modelowanie włosów długich",
+"wariant": "",
+"kategoria": "Modelowanie",
+"opis": "",
+"cena": 80,
+"typ": "Fryzjer",
+"zabieg_booksy": "Stylizacja włosów"
+},
+"b": {
+"nazwa": "Modelowanie włosów",
+"wariant": "Viktoria (fryzjer-stylista) Włosy długie",
+"kategoria": "Dział damski",
+"opis": "",
+"cena": 100,
+"typ": "Fryzjer",
+"zabieg_booksy": "Stylizacja włosów"
+}
+},
+{
+"zbior": "sprawdzian13",
+"klucz": "49451048|5557233",
+"a": {
+"nazwa": "Depilacja woskiem wąsika",
+"wariant": "",
+"kategoria": "Depilacja woskiem",
+"opis": "",
+"cena": 20,
+"typ": "Podologia",
+"zabieg_booksy": "Depilacja wąsika"
+},
+"b": {
+"nazwa": "Depilacja woskiem wąsik",
+"wariant": "Depilacja wąsik",
+"kategoria": "Depilacja",
+"opis": "",
+"cena": 20,
+"typ": "Salon Kosmetyczny",
+"zabieg_booksy": "Depilacja twarzy"
+}
+},
+{
+"zbior": "sprawdzian13",
+"klucz": "50054299|7279989",
+"a": {
+"nazwa": "Strzyżenie włosów maszynką ( jedna długość)",
+"wariant": "",
+"kategoria": "Olga",
+"opis": "Strzyżenie włosów maszynką na jedną długość na całej powierzchni głowy bez cieniowania strzyżonych obszarów.",
+"cena": 50,
+"typ": "Barber shop",
+"zabieg_booksy": "Strzyżenie męskie"
+},
+"b": {
+"nazwa": "Strzyżenie maszynką na jedną długość",
+"wariant": "",
+"kategoria": "Senior Barber ( Stela )",
+"opis": "",
+"cena": 60,
+"typ": "Barber shop",
+"zabieg_booksy": "Strzyżenie męskie"
+}
+},
+{
+"zbior": "sprawdzian13",
+"klucz": "53416621|5944039",
+"a": {
+"nazwa": "Zabieg Retix C",
+"wariant": "",
+"kategoria": "Zabiegi kosmetologiczne na twarz",
+"opis": "Retix C to przede wszystkim **zabieg odmładzający**, ale wykonuje się go także u osób młodszych, borykających się z różnymi problemami skórnymi. Reduk",
+"cena": 350,
+"typ": "Medycyna Estetyczna",
+"zabieg_booksy": "Zabiegi na twarz"
+},
+"b": {
+"nazwa": "Zabieg Retix C złuszczająca terapia",
+"wariant": "",
+"kategoria": "PEELINGI CHEMICZNE ",
+"opis": "Intensywna kuracja odmaładzająca i odbudowyjąca skórę z retinolem, witaminą C i antyoksydantami. SPOSÓB DZIAŁANIA: preparat stymuluje odnowę tkankową,",
+"cena": 250,
+"typ": "Medycyna Estetyczna",
+"zabieg_booksy": "Peeling chemiczny"
+}
+},
+{
+"zbior": "sprawdzian13",
+"klucz": "53388579|5897663",
+"a": {
+"nazwa": "Masaż ciepłymi kamieniami",
+"wariant": "Masaż ciepłymi kamieniami",
+"kategoria": "Masaż relaksacyjny",
+"opis": "Masaż ten ma właściwości mocno rozgrzewające i relaksujące. Zabieg wpływa na obniżenie napięcia nerwowego oraz poprawę funkcjonowania układu krążenia.",
+"cena": 330,
+"typ": "Masaż",
+"zabieg_booksy": "Masaż ciała"
+},
+"b": {
+"nazwa": "Masaż gorącymi kamieniami",
+"wariant": "",
+"kategoria": "",
+"opis": "Masaż gorącymi kamieniami to relaksujący i przyjemny zabieg, który pozwala rozluźnić mięśnie, oczyścić organizm z toksyn, zniwelować stres, złagodzić ",
+"cena": 170,
+"typ": "Masaż",
+"zabieg_booksy": "Masaż gorącymi kamieniami"
+}
+},
+{
+"zbior": "sprawdzian13",
+"klucz": "53090802|5769104",
+"a": {
+"nazwa": "Rzęsy 6-8D",
+"wariant": "",
+"kategoria": "",
+"opis": "",
+"cena": 340,
+"typ": "Brwi i rzęsy",
+"zabieg_booksy": "Przedłużanie rzęs"
+},
+"b": {
+"nazwa": "Rzęsy 6:8D",
+"wariant": "",
+"kategoria": "",
+"opis": "",
+"cena": 190,
+"typ": "Brwi i rzęsy",
+"zabieg_booksy": "Rzesy 8d"
+}
+},
+{
+"zbior": "sprawdzian13",
+"klucz": "53416613#1|6954194",
+"a": {
+"nazwa": "Masaż bańką chińską",
+"wariant": "Nogi i brzuch",
+"kategoria": "Modelowanie sylwetki ",
+"opis": "",
+"cena": 150,
+"typ": "Medycyna Estetyczna",
+"zabieg_booksy": "Masaż bańką chińską"
+},
+"b": {
+"nazwa": "Masaż bańką chińską( całe nogi+ brzuch)",
+"wariant": "",
+"kategoria": "MASAŻ BAŃKĄ CHIŃSKĄ ",
+"opis": "Masaż bańką chińską nie sprowadza się wyłącznie do działania leczniczego. Wpływa korzystnie na wygląd sylwetki, pozwalając pozbyć się niedoskonałości.",
+"cena": 130,
+"typ": "Masaż",
+"zabieg_booksy": "Masaż bańką chińską"
+}
+},
+{
+"zbior": "sprawdzian13",
+"klucz": "49451048|6679468",
+"a": {
+"nazwa": "Depilacja woskiem wąsika",
+"wariant": "",
+"kategoria": "Depilacja woskiem",
+"opis": "",
+"cena": 20,
+"typ": "Podologia",
+"zabieg_booksy": "Depilacja wąsika"
+},
+"b": {
+"nazwa": "Depilacja Wąsik",
+"wariant": "",
+"kategoria": "Depilacja woskiem  ✔️",
+"opis": "",
+"cena": 40,
+"typ": "Salon Kosmetyczny",
+"zabieg_booksy": "Depilacja ciała"
+}
+},
+{
+"zbior": "sprawdzian13",
+"klucz": "49775818|6142523",
+"a": {
+"nazwa": "Modelowanie włosów długich",
+"wariant": "",
+"kategoria": "Modelowanie",
+"opis": "",
+"cena": 80,
+"typ": "Fryzjer",
+"zabieg_booksy": "Stylizacja włosów"
+},
+"b": {
+"nazwa": "Modelowanie Włosy Długie",
+"wariant": "",
+"kategoria": "Stylizacja włosów",
+"opis": "",
+"cena": 130,
+"typ": "Fryzjer",
+"zabieg_booksy": "Stylizacja włosów"
+}
+},
+{
+"zbior": "sprawdzian13",
+"klucz": "50054299|7257421",
+"a": {
+"nazwa": "Strzyżenie włosów maszynką ( jedna długość)",
+"wariant": "",
+"kategoria": "Olga",
+"opis": "Strzyżenie włosów maszynką na jedną długość na całej powierzchni głowy bez cieniowania strzyżonych obszarów.",
+"cena": 50,
+"typ": "Barber shop",
+"zabieg_booksy": "Strzyżenie męskie"
+},
+"b": {
+"nazwa": "Strzyżenie włosów maszynką na jedną długość",
+"wariant": "",
+"kategoria": "",
+"opis": "strzyżenie maszynką bez cieniowania boków+kontur (clipper cut to one length without thinning the sides+contour)",
+"cena": 50,
+"typ": "Barber shop",
+"zabieg_booksy": "Strzyżenie męskie"
+}
+},
+{
+"zbior": "sprawdzian13",
+"klucz": "53090822|6036420",
+"a": {
+"nazwa": "Konsultacja - makijaż permanentny",
+"wariant": "",
+"kategoria": "",
+"opis": "",
+"cena": 1,
+"typ": "Brwi i rzęsy",
+"zabieg_booksy": "Makijaż permanentny"
+},
+"b": {
+"nazwa": "Konsultacja",
+"wariant": "",
+"kategoria": "MAKIJAŻ PERMANENTNY ",
+"opis": "Przedstawienie zabiegu makijażu permanentnego. Omówimy wszystkie wskazania, przeciwskazania oraz pielęgnację pozabiegową. Odpowiem również na każde nu",
+"cena": 0.0,
+"typ": "Brwi i rzęsy",
+"zabieg_booksy": "Makijaż permanentny"
+}
+},
+{
+"zbior": "sprawdzian13",
+"klucz": "53388573|5897151#0",
+"a": {
+"nazwa": "Masaż klasyczny całościowy",
+"wariant": "Masaż klasyczny całościowy",
+"kategoria": "Masaż podstawowy",
+"opis": "Masaż klasyczny to jedna z najbardziej popularnych form masażu. Najczęściej stosowane techniki to: głaskanie, rozcieranie, ugniatanie, oklepywania i w",
+"cena": 260,
+"typ": "Masaż",
+"zabieg_booksy": "Masaż ciała"
+},
+"b": {
+"nazwa": "Masaż klasyczny",
+"wariant": "Masaż klasyczny",
+"kategoria": "Usługi mobilne ",
+"opis": "Masaż działa wskutek rozprowadzania po całym organizmie przez krew biologicznie czynnych związków uwolnionych z tkanek przez zabieg oraz na drodze odr",
+"cena": 180,
+"typ": "Masaż",
+"zabieg_booksy": "Masaż ciała"
+}
+},
+{
+"zbior": "sprawdzian13",
+"klucz": "38027420|7138102",
+"a": {
+"nazwa": "Broda",
+"wariant": "",
+"kategoria": "Depilacja laserowa",
+"opis": "",
+"cena": 100,
+"typ": "Salon Kosmetyczny",
+"zabieg_booksy": "Depilacja twarzy"
+},
+"b": {
+"nazwa": "Broda",
+"wariant": "",
+"kategoria": "depilacja laserowa",
+"opis": "",
+"cena": 210,
+"typ": "Salon Kosmetyczny",
+"zabieg_booksy": "Depilacja laserowa"
+}
+},
+{
+"zbior": "sprawdzian13",
+"klucz": "49451048|6651226",
+"a": {
+"nazwa": "Depilacja woskiem wąsika",
+"wariant": "",
+"kategoria": "Depilacja woskiem",
+"opis": "",
+"cena": 20,
+"typ": "Podologia",
+"zabieg_booksy": "Depilacja wąsika"
+},
+"b": {
+"nazwa": "Depilacja wąsika woskiem",
+"wariant": "",
+"kategoria": "STYLIZACJA BRWI I RZĘS",
+"opis": "",
+"cena": 40,
+"typ": "Salon Kosmetyczny",
+"zabieg_booksy": "Depilacja wąsika"
+}
+},
+{
+"zbior": "sprawdzian13",
+"klucz": "38027377|6469704",
+"a": {
+"nazwa": "zagęszczenie linii rzęs",
+"wariant": "",
+"kategoria": "Oczy",
+"opis": "",
+"cena": 800,
+"typ": "Salon Kosmetyczny",
+"zabieg_booksy": "Makijaż permanentny"
+},
+"b": {
+"nazwa": "Kreski zagęszczające linię rzęs",
+"wariant": "",
+"kategoria": "Makijaż Permanentny ",
+"opis": "",
+"cena": 800,
+"typ": "Salon Kosmetyczny",
+"zabieg_booksy": "Makijaż permanentny"
+}
+},
+{
+"zbior": "sprawdzian13",
+"klucz": "50054309|7276661",
+"a": {
+"nazwa": "Modelowanie",
+"wariant": "",
+"kategoria": "Modelowanie",
+"opis": "Modelowanie, czesanie z myciem i pielęgnacją oraz użyciem produktów do układania włosów.",
+"cena": 40,
+"typ": "Barber shop",
+"zabieg_booksy": "Stylizacja włosów"
+},
+"b": {
+"nazwa": "Modelowanie",
+"wariant": "",
+"kategoria": "DAMSKA STREFA",
+"opis": "W cenie mycie, pielęgnacja podstawowa.",
+"cena": 100,
+"typ": "Fryzjer",
+"zabieg_booksy": "Stylizacja włosów"
+}
+},
+{
+"zbior": "sprawdzian13",
+"klucz": "50054295|5362160",
+"a": {
+"nazwa": "Strzyżenie włosów maszynką",
+"wariant": "",
+"kategoria": "Theo",
+"opis": "Strzyżenie włosów maszynką na jedną długość na całej powierzchni głowy bez cieniowania strzyżonych obszarów.",
+"cena": 40,
+"typ": "Barber shop",
+"zabieg_booksy": "Strzyżenie męskie"
+},
+"b": {
+"nazwa": "Strzyżenie Męskie Maszynką Na Jedną Długość",
+"wariant": "",
+"kategoria": "Strzyżenie męskie ",
+"opis": "**Strzyżenie męskie maszynką** polega na równomiernym skracaniu włosów za pomocą maszynki do strzyżenia, często z użyciem różnych nakładek, aby uzyska",
+"cena": 45,
+"typ": "Fryzjer",
+"zabieg_booksy": "Strzyżenie męskie"
+}
+},
+{
+"zbior": "sprawdzian13",
+"klucz": "53416621|6864881#1",
+"a": {
+"nazwa": "Zabieg Retix C",
+"wariant": "",
+"kategoria": "Zabiegi kosmetologiczne na twarz",
+"opis": "Retix C to przede wszystkim **zabieg odmładzający**, ale wykonuje się go także u osób młodszych, borykających się z różnymi problemami skórnymi. Reduk",
+"cena": 350,
+"typ": "Medycyna Estetyczna",
+"zabieg_booksy": "Zabiegi na twarz"
+},
+"b": {
+"nazwa": "🔴 Retix C",
+"wariant": "Twarz",
+"kategoria": "Kosmetologia 🧖‍♀️",
+"opis": "✨ Retix C – terapia odmładzająca i rozjaśniająca skórę ✨ Retix C to intensywny zabieg anti-aging, który łączy moc stabilnej witaminy C z retinolem, za",
+"cena": 250,
+"typ": "Medycyna Estetyczna",
+"zabieg_booksy": "Peeling chemiczny"
+}
+},
+{
+"zbior": "sprawdzian13",
+"klucz": "50054309|7237751",
+"a": {
+"nazwa": "Modelowanie",
+"wariant": "",
+"kategoria": "Modelowanie",
+"opis": "Modelowanie, czesanie z myciem i pielęgnacją oraz użyciem produktów do układania włosów.",
+"cena": 40,
+"typ": "Barber shop",
+"zabieg_booksy": "Stylizacja włosów"
+},
+"b": {
+"nazwa": "Modelowanie",
+"wariant": "",
+"kategoria": "Klaudia",
+"opis": "Mycie z pielęgnacją oraz suszeniem włosów. Podkreślenie naturalnej struktury włosów.",
+"cena": 150,
+"typ": "Fryzjer",
+"zabieg_booksy": "Stylizacja włosów"
+}
+},
+{
+"zbior": "sprawdzian13",
+"klucz": "50054299|7273622",
+"a": {
+"nazwa": "Strzyżenie włosów maszynką ( jedna długość)",
+"wariant": "",
+"kategoria": "Olga",
+"opis": "Strzyżenie włosów maszynką na jedną długość na całej powierzchni głowy bez cieniowania strzyżonych obszarów.",
+"cena": 50,
+"typ": "Barber shop",
+"zabieg_booksy": "Strzyżenie męskie"
+},
+"b": {
+"nazwa": "Strzyżenie włosów - maszynką na jedną długość.",
+"wariant": "Strzyżenie włosów - maszynką na jedną długość.",
+"kategoria": "BARBER: Dorota, Marta, Julia",
+"opis": "Szybkie cięcie maszynką włosów na jedną długość.",
+"cena": 35,
+"typ": "Barber shop",
+"zabieg_booksy": "Strzyżenie damskie"
+}
+},
+{
+"zbior": "sprawdzian13",
+"klucz": "53388579|6022089",
+"a": {
+"nazwa": "Masaż ciepłymi kamieniami",
+"wariant": "Masaż ciepłymi kamieniami",
+"kategoria": "Masaż relaksacyjny",
+"opis": "Masaż ten ma właściwości mocno rozgrzewające i relaksujące. Zabieg wpływa na obniżenie napięcia nerwowego oraz poprawę funkcjonowania układu krążenia.",
+"cena": 330,
+"typ": "Masaż",
+"zabieg_booksy": "Masaż ciała"
+},
+"b": {
+"nazwa": "Masaż gorącymi kamieniami",
+"wariant": "",
+"kategoria": "Strefa relaksu",
+"opis": "Podczas sesji wykorzystywane są podgrzewane gładkie kamienie. Pomaga rozluźnić mięśnie, poprawić krążenie krwi, złagodzić stres. Rezerwacja masażu wym",
+"cena": 352,
+"typ": "Masaż",
+"zabieg_booksy": "Masaż gorącymi kamieniami"
+}
+},
+{
+"zbior": "sprawdzian13",
+"klucz": "53388573|2670230",
+"a": {
+"nazwa": "Masaż klasyczny całościowy",
+"wariant": "Masaż klasyczny całościowy",
+"kategoria": "Masaż podstawowy",
+"opis": "Masaż klasyczny to jedna z najbardziej popularnych form masażu. Najczęściej stosowane techniki to: głaskanie, rozcieranie, ugniatanie, oklepywania i w",
+"cena": 260,
+"typ": "Masaż",
+"zabieg_booksy": "Masaż ciała"
+},
+"b": {
+"nazwa": "Masaż klasyczny całego ciała",
+"wariant": "",
+"kategoria": "",
+"opis": "",
+"cena": 240,
+"typ": "Masaż",
+"zabieg_booksy": "Masaż ciała"
+}
+},
+{
+"zbior": "sprawdzian13",
+"klucz": "53388579|5894724",
+"a": {
+"nazwa": "Masaż ciepłymi kamieniami",
+"wariant": "Masaż ciepłymi kamieniami",
+"kategoria": "Masaż relaksacyjny",
+"opis": "Masaż ten ma właściwości mocno rozgrzewające i relaksujące. Zabieg wpływa na obniżenie napięcia nerwowego oraz poprawę funkcjonowania układu krążenia.",
+"cena": 330,
+"typ": "Masaż",
+"zabieg_booksy": "Masaż ciała"
+},
+"b": {
+"nazwa": "masaż gorącymi kamieniami",
+"wariant": "zabieg 60 min",
+"kategoria": "",
+"opis": "Masaż łączy w sobie zalety masażu ze szczególnymi właściwościami wulkanicznych kamieni bazaltowych. Przywraca harmonię ciała i umysłu, powoduje przypł",
+"cena": 140,
+"typ": "Masaż",
+"zabieg_booksy": "Masaż gorącymi kamieniami"
+}
+},
+{
+"zbior": "sprawdzian13",
+"klucz": "53416621|6935651",
+"a": {
+"nazwa": "Zabieg Retix C",
+"wariant": "",
+"kategoria": "Zabiegi kosmetologiczne na twarz",
+"opis": "Retix C to przede wszystkim **zabieg odmładzający**, ale wykonuje się go także u osób młodszych, borykających się z różnymi problemami skórnymi. Reduk",
+"cena": 350,
+"typ": "Medycyna Estetyczna",
+"zabieg_booksy": "Zabiegi na twarz"
+},
+"b": {
+"nazwa": "Retix C",
+"wariant": "",
+"kategoria": "Oczyszczanie i pielęgnacja skóry ",
+"opis": "Retix C to intensywny zabieg złuszczająco–regenerujący z retinolem i witaminą C. Pobudza odnowę skóry, poprawia jej strukturę, rozjaśnia przebarwienia",
+"cena": 400,
+"typ": "Salon Kosmetyczny",
+"zabieg_booksy": "Peeling twarzy"
+}
+},
+{
+"zbior": "sprawdzian13",
+"klucz": "49451048|6308605#0",
+"a": {
+"nazwa": "Depilacja woskiem wąsika",
+"wariant": "",
+"kategoria": "Depilacja woskiem",
+"opis": "",
+"cena": 20,
+"typ": "Podologia",
+"zabieg_booksy": "Depilacja wąsika"
+},
+"b": {
+"nazwa": "Depilacja woskiem",
+"wariant": "Wąsik",
+"kategoria": "Depilacja woskiem ",
+"opis": "",
+"cena": 25,
+"typ": "Brwi i rzęsy",
+"zabieg_booksy": "Depilacja woskiem"
+}
+},
+{
+"zbior": "sprawdzian13",
+"klucz": "53416621|6832989",
+"a": {
+"nazwa": "Zabieg Retix C",
+"wariant": "",
+"kategoria": "Zabiegi kosmetologiczne na twarz",
+"opis": "Retix C to przede wszystkim **zabieg odmładzający**, ale wykonuje się go także u osób młodszych, borykających się z różnymi problemami skórnymi. Reduk",
+"cena": 350,
+"typ": "Medycyna Estetyczna",
+"zabieg_booksy": "Zabiegi na twarz"
+},
+"b": {
+"nazwa": "Retix C - retinolowa kuracja",
+"wariant": "1 zabieg",
+"kategoria": "Zabiegi na twarz",
+"opis": "Retinol jest jedną z najbardziej skutecznych i dobrze przebadanych substancji odmładzających. Wiele osób ciągle jednak obawia się ryzyka podrażnień pr",
+"cena": 450,
+"typ": "Medycyna Estetyczna",
+"zabieg_booksy": "Zabiegi kwasami"
+}
+},
+{
+"zbior": "sprawdzian13",
+"klucz": "53416621|6401542",
+"a": {
+"nazwa": "Zabieg Retix C",
+"wariant": "",
+"kategoria": "Zabiegi kosmetologiczne na twarz",
+"opis": "Retix C to przede wszystkim **zabieg odmładzający**, ale wykonuje się go także u osób młodszych, borykających się z różnymi problemami skórnymi. Reduk",
+"cena": 350,
+"typ": "Medycyna Estetyczna",
+"zabieg_booksy": "Zabiegi na twarz"
+},
+"b": {
+"nazwa": "Retix C",
+"wariant": "",
+"kategoria": "Zabiegi na twarz/oczyszczanie twarzy",
+"opis": "Retix C to kompleksowy zabieg odmładzająco-rozświetlający dla skórę twarzy i ciała o szerokim zastosowaniu. Jest idealny dla skóry, która doświadcza p",
+"cena": 360,
+"typ": "Salon Kosmetyczny",
+"zabieg_booksy": "Zabiegi na twarz"
+}
+},
+{
+"zbior": "sprawdzian13",
+"klucz": "53184091|5633692",
+"a": {
+"nazwa": "Henna komplet farbką",
+"wariant": "",
+"kategoria": "",
+"opis": "",
+"cena": 85,
+"typ": "Salon Kosmetyczny",
+"zabieg_booksy": "Henna brwi"
+},
+"b": {
+"nazwa": "Henna Brwi z zastosowaniem Farbki",
+"wariant": "",
+"kategoria": "Oprawa oka",
+"opis": "",
+"cena": 60,
+"typ": "Salon Kosmetyczny",
+"zabieg_booksy": "Henna brwi"
+}
+},
+{
+"zbior": "sprawdzian13",
+"klucz": "50086372|7306959",
+"a": {
+"nazwa": "Pedicure hybrydowy z opracowaniem podeszwy",
+"wariant": "",
+"kategoria": "",
+"opis": "",
+"cena": 190,
+"typ": "Paznokcie",
+"zabieg_booksy": "Pedicure hybrydowy"
+},
+"b": {
+"nazwa": "Pedicure hybrydowy z opracowaniem podeszwy",
+"wariant": "",
+"kategoria": "Pedicure ",
+"opis": "Zabieg pielęgnacyjny polegający na usunięciu skórek, opracowaniu paznokci, malowaniu lakierem hybrydowym oraz opracowaniu podeszwy stopy frezarką oraz",
+"cena": 150,
+"typ": "Paznokcie",
+"zabieg_booksy": "Pedicure podologiczny"
+}
+},
+{
+"zbior": "sprawdzian13",
+"klucz": "49775818|6975052",
+"a": {
+"nazwa": "Modelowanie włosów długich",
+"wariant": "",
+"kategoria": "Modelowanie",
+"opis": "",
+"cena": 80,
+"typ": "Fryzjer",
+"zabieg_booksy": "Stylizacja włosów"
+},
+"b": {
+"nazwa": "Modelowanie włosy długie",
+"wariant": "",
+"kategoria": "Modelowanie ",
+"opis": "",
+"cena": 90,
+"typ": "Fryzjer",
+"zabieg_booksy": ""
+}
+},
+{
+"zbior": "sprawdzian13",
+"klucz": "50054299|5862962",
+"a": {
+"nazwa": "Strzyżenie włosów maszynką ( jedna długość)",
+"wariant": "",
+"kategoria": "Olga",
+"opis": "Strzyżenie włosów maszynką na jedną długość na całej powierzchni głowy bez cieniowania strzyżonych obszarów.",
+"cena": 50,
+"typ": "Barber shop",
+"zabieg_booksy": "Strzyżenie męskie"
+},
+"b": {
+"nazwa": "Strzyżenie maszynką na jedną długość",
+"wariant": "",
+"kategoria": "",
+"opis": "",
+"cena": 30,
+"typ": "Barber shop",
+"zabieg_booksy": "Strzyżenie męskie"
+}
+},
+{
+"zbior": "sprawdzian13",
+"klucz": "50054310|7266044",
+"a": {
+"nazwa": "Strzyżenie długich włosów",
+"wariant": "",
+"kategoria": "Strzyżenie długich włosów",
+"opis": "Usługa strzyżenia nożyczkami męskich włosów długich i półdługich wraz z modelowaniem i pielęgnacją.",
+"cena": 100,
+"typ": "Barber shop",
+"zabieg_booksy": "Strzyżenie męskie"
+},
+"b": {
+"nazwa": "Strzyżenie męskie długich włosów",
+"wariant": "",
+"kategoria": "",
+"opis": "(Precyzyjne cięcie długich włosów z zachowaniem naturalnego kształtu i objętości. Stylizacja dopasowana do indywidualnych potrzeb i rodzaju włosów)",
+"cena": 130,
+"typ": "Barber shop",
+"zabieg_booksy": "Strzyżenie męskie"
+}
+},
+{
+"zbior": "sprawdzian13",
+"klucz": "49451020|7336524",
+"a": {
+"nazwa": "Mikrodermabrazja diamentowa twarzy, szyji, dekold",
+"wariant": "",
+"kategoria": "Zabiegi kosmetyczne",
+"opis": "Oczywiscie twarzy, szyji i dekoldu mikrodermabrazją diamentową plus maska algowa",
+"cena": 180,
+"typ": "Podologia",
+"zabieg_booksy": "Pielęgnacja i oczyszczanie twarzy"
+},
+"b": {
+"nazwa": "Mikrodermabrazja diamentowa -Twarz+Szyja+Dekolt",
+"wariant": "",
+"kategoria": "Pielęgnacja  podstawowa",
+"opis": "",
+"cena": 230,
+"typ": "Salon Kosmetyczny",
+"zabieg_booksy": "Mikrodermabrazja"
+}
+},
+{
+"zbior": "sprawdzian13",
+"klucz": "49203582|4265234",
+"a": {
+"nazwa": "Pedicure męski",
+"wariant": "",
+"kategoria": "Pedicure",
+"opis": "",
+"cena": 180,
+"typ": "Paznokcie",
+"zabieg_booksy": "Pedicure klasyczny"
+},
+"b": {
+"nazwa": "Pedicure męski",
+"wariant": "",
+"kategoria": "Pedicure",
+"opis": "",
+"cena": 115,
+"typ": "Paznokcie",
+"zabieg_booksy": "Pedicure klasyczny"
+}
+},
+{
+"zbior": "sprawdzian13",
+"klucz": "48984116|6122337",
+"a": {
+"nazwa": "Przedłużanie rzęs 3D",
+"wariant": "",
+"kategoria": "",
+"opis": "",
+"cena": 230,
+"typ": "Brwi i rzęsy",
+"zabieg_booksy": "Rzęsy 3d"
+},
+"b": {
+"nazwa": "Przedłużenie rzęs 3D",
+"wariant": "",
+"kategoria": "RZĘSY",
+"opis": "",
+"cena": 160,
+"typ": "Salon Kosmetyczny",
+"zabieg_booksy": "Przedłużanie rzęs"
+}
+},
+{
+"zbior": "sprawdzian13",
+"klucz": "50054295|5942032",
+"a": {
+"nazwa": "Strzyżenie włosów maszynką",
+"wariant": "",
+"kategoria": "Theo",
+"opis": "Strzyżenie włosów maszynką na jedną długość na całej powierzchni głowy bez cieniowania strzyżonych obszarów.",
+"cena": 40,
+"typ": "Barber shop",
+"zabieg_booksy": "Strzyżenie męskie"
+},
+"b": {
+"nazwa": "Strzyżenie Na Jedną Długość",
+"wariant": "",
+"kategoria": "",
+"opis": "Usługa obejmuje strzyżenie maszynką na jedną długość na całej głowie",
+"cena": 50,
+"typ": "Barber shop",
+"zabieg_booksy": "Strzyżenie męskie"
+}
+},
+{
+"zbior": "sprawdzian13",
+"klucz": "49203582|5885883",
+"a": {
+"nazwa": "Pedicure męski",
+"wariant": "",
+"kategoria": "Pedicure",
+"opis": "",
+"cena": 180,
+"typ": "Paznokcie",
+"zabieg_booksy": "Pedicure klasyczny"
+},
+"b": {
+"nazwa": "Pedicure męski",
+"wariant": "",
+"kategoria": "Pedicure klasyczny ",
+"opis": "",
+"cena": 180,
+"typ": "Paznokcie",
+"zabieg_booksy": "Pedicure hybrydowy"
+}
+},
+{
+"zbior": "sprawdzian13",
+"klucz": "50054310|5473282",
+"a": {
+"nazwa": "Strzyżenie długich włosów",
+"wariant": "",
+"kategoria": "Strzyżenie długich włosów",
+"opis": "Usługa strzyżenia nożyczkami męskich włosów długich i półdługich wraz z modelowaniem i pielęgnacją.",
+"cena": 100,
+"typ": "Barber shop",
+"zabieg_booksy": "Strzyżenie męskie"
+},
+"b": {
+"nazwa": "Strzyżenie długich włosów",
+"wariant": "",
+"kategoria": "",
+"opis": "Konsultacja, mycie włosów, strzyżenie przy użyciu wielu technik, głównie nożyczkami, stylizacja",
+"cena": 100,
+"typ": "Barber shop",
+"zabieg_booksy": "Strzyżenie męskie"
+}
+},
+{
+"zbior": "sprawdzian13",
+"klucz": "50054310|7262216",
+"a": {
+"nazwa": "Strzyżenie długich włosów",
+"wariant": "",
+"kategoria": "Strzyżenie długich włosów",
+"opis": "Usługa strzyżenia nożyczkami męskich włosów długich i półdługich wraz z modelowaniem i pielęgnacją.",
+"cena": 100,
+"typ": "Barber shop",
+"zabieg_booksy": "Strzyżenie męskie"
+},
+"b": {
+"nazwa": "Strzyżenie męskie długie włosy",
+"wariant": "",
+"kategoria": "DZIAŁ MĘSKI",
+"opis": "Usługa obejmuje: konsultacje, mycie, strzyżenie oraz stylizację. Cena może być większa w przypadku dłuższych lub gęstszych włosów .",
+"cena": 90,
+"typ": "Fryzjer",
+"zabieg_booksy": "Strzyżenie męskie"
+}
+},
+{
+"zbior": "sprawdzian13",
+"klucz": "38027420|6464844",
+"a": {
+"nazwa": "Broda",
+"wariant": "",
+"kategoria": "Depilacja laserowa",
+"opis": "",
+"cena": 100,
+"typ": "Salon Kosmetyczny",
+"zabieg_booksy": "Depilacja twarzy"
+},
+"b": {
+"nazwa": "Broda laser",
+"wariant": "",
+"kategoria": "DEPILACJA (EPILACJA) LASEROWA PRIMELASE",
+"opis": "",
+"cena": 140,
+"typ": "Fryzjer",
+"zabieg_booksy": "Depilacja laserowa"
+}
+},
+{
+"zbior": "sprawdzian13",
+"klucz": "53388579|6924735",
+"a": {
+"nazwa": "Masaż ciepłymi kamieniami",
+"wariant": "Masaż ciepłymi kamieniami",
+"kategoria": "Masaż relaksacyjny",
+"opis": "Masaż ten ma właściwości mocno rozgrzewające i relaksujące. Zabieg wpływa na obniżenie napięcia nerwowego oraz poprawę funkcjonowania układu krążenia.",
+"cena": 330,
+"typ": "Masaż",
+"zabieg_booksy": "Masaż ciała"
+},
+"b": {
+"nazwa": "Massage gorącymi kamieniami",
+"wariant": "",
+"kategoria": "Masaż ",
+"opis": "Masaż gorącymi kamieniami To wyjątkowo relaksujący rytuał, który łączy ciepło naturalnych, gładkich kamieni bazaltowych z technikami masażu klasyczneg",
+"cena": 260,
+"typ": "Paznokcie",
+"zabieg_booksy": "Masaż gorącymi kamieniami"
+}
+},
+{
+"zbior": "sprawdzian13",
+"klucz": "53388573|5833368",
+"a": {
+"nazwa": "Masaż klasyczny całościowy",
+"wariant": "Masaż klasyczny całościowy",
+"kategoria": "Masaż podstawowy",
+"opis": "Masaż klasyczny to jedna z najbardziej popularnych form masażu. Najczęściej stosowane techniki to: głaskanie, rozcieranie, ugniatanie, oklepywania i w",
+"cena": 260,
+"typ": "Masaż",
+"zabieg_booksy": "Masaż ciała"
+},
+"b": {
+"nazwa": "Masaż Klasyczny",
+"wariant": "",
+"kategoria": "Masaż Klasyczny",
+"opis": "To jeden z najbardziej uniwersalnych i skutecznych masaży, polecany zarówno dla osób zestresowanych, jak i tych, które zmagają się z napięciem mięśnio",
+"cena": 220,
+"typ": "Masaż",
+"zabieg_booksy": "Masaż ciała"
+}
+},
+{
+"zbior": "sprawdzian13",
+"klucz": "49775818|6131024",
+"a": {
+"nazwa": "Modelowanie włosów długich",
+"wariant": "",
+"kategoria": "Modelowanie",
+"opis": "",
+"cena": 80,
+"typ": "Fryzjer",
+"zabieg_booksy": "Stylizacja włosów"
+},
+"b": {
+"nazwa": "Modelowanie włosy długie",
+"wariant": "",
+"kategoria": "Modelowanie + stylizacja",
+"opis": "",
+"cena": 140,
+"typ": "Fryzjer",
+"zabieg_booksy": "Stylizacja włosów"
+}
+},
+{
+"zbior": "sprawdzian13",
+"klucz": "50054295|7274189",
+"a": {
+"nazwa": "Strzyżenie włosów maszynką",
+"wariant": "",
+"kategoria": "Theo",
+"opis": "Strzyżenie włosów maszynką na jedną długość na całej powierzchni głowy bez cieniowania strzyżonych obszarów.",
+"cena": 40,
+"typ": "Barber shop",
+"zabieg_booksy": "Strzyżenie męskie"
+},
+"b": {
+"nazwa": "Strzyżenie męskie maszynką",
+"wariant": "",
+"kategoria": "Fryzjerstwo",
+"opis": "(mycie włosów, strzyżenie)",
+"cena": 70,
+"typ": "Fryzjer",
+"zabieg_booksy": "Strzyżenie męskie"
+}
+},
+{
+"zbior": "sprawdzian13",
+"klucz": "53388573|5906021",
+"a": {
+"nazwa": "Masaż klasyczny całościowy",
+"wariant": "Masaż klasyczny całościowy",
+"kategoria": "Masaż podstawowy",
+"opis": "Masaż klasyczny to jedna z najbardziej popularnych form masażu. Najczęściej stosowane techniki to: głaskanie, rozcieranie, ugniatanie, oklepywania i w",
+"cena": 260,
+"typ": "Masaż",
+"zabieg_booksy": "Masaż ciała"
+},
+"b": {
+"nazwa": "Masaż klasyczny",
+"wariant": "",
+"kategoria": "",
+"opis": "_Masaż klasyczny to_ _podstawowa forma terapii manualnej, wykorzystująca zestaw technik (głaskanie, ugniatanie, rozcieranie) do redukcji napięcia mięś",
+"cena": 150,
+"typ": "Masaż",
+"zabieg_booksy": "Masaż ciała"
+}
+},
+{
+"zbior": "sprawdzian13",
+"klucz": "49203582|5846397",
+"a": {
+"nazwa": "Pedicure męski",
+"wariant": "",
+"kategoria": "Pedicure",
+"opis": "",
+"cena": 180,
+"typ": "Paznokcie",
+"zabieg_booksy": "Pedicure klasyczny"
+},
+"b": {
+"nazwa": "Pedicure męski",
+"wariant": "",
+"kategoria": "Pedicure",
+"opis": "",
+"cena": 70,
+"typ": "Paznokcie",
+"zabieg_booksy": "Pedicure klasyczny"
+}
+},
+{
+"zbior": "sprawdzian13",
+"klucz": "44059016|7352969",
+"a": {
+"nazwa": "Łydki+kolana",
+"wariant": "",
+"kategoria": "Depilacja laserowa",
+"opis": "",
+"cena": 160,
+"typ": "Depilacja",
+"zabieg_booksy": "Depilacja nóg"
+},
+"b": {
+"nazwa": "Łydki z kolanami",
+"wariant": "",
+"kategoria": "Depilacja laserowa okolice nóg ",
+"opis": "",
+"cena": 280,
+"typ": "Zdrowie",
+"zabieg_booksy": "Depilacja laserowa"
+}
+},
+{
+"zbior": "sprawdzian13",
+"klucz": "53416621|6318772",
+"a": {
+"nazwa": "Zabieg Retix C",
+"wariant": "",
+"kategoria": "Zabiegi kosmetologiczne na twarz",
+"opis": "Retix C to przede wszystkim **zabieg odmładzający**, ale wykonuje się go także u osób młodszych, borykających się z różnymi problemami skórnymi. Reduk",
+"cena": 350,
+"typ": "Medycyna Estetyczna",
+"zabieg_booksy": "Zabiegi na twarz"
+},
+"b": {
+"nazwa": "Retix C",
+"wariant": "",
+"kategoria": "PEELINGI CHEMICZNE",
+"opis": "✨ Intensywna regeneracja + rozświetlenie i efekt odmłodzenia Zaawansowany zabieg retinolowy wspomagający intensywną regenerację skóry oraz redukcję pr",
+"cena": 380,
+"typ": "SPA i wellness",
+"zabieg_booksy": "Peeling chemiczny"
+}
+},
+{
+"zbior": "sprawdzian13",
+"klucz": "49775818|6973008",
+"a": {
+"nazwa": "Modelowanie włosów długich",
+"wariant": "",
+"kategoria": "Modelowanie",
+"opis": "",
+"cena": 80,
+"typ": "Fryzjer",
+"zabieg_booksy": "Stylizacja włosów"
+},
+"b": {
+"nazwa": "Modelowanie włosy długie",
+"wariant": "",
+"kategoria": "",
+"opis": "",
+"cena": 70,
+"typ": "Fryzjer",
+"zabieg_booksy": "Stylizacja włosów"
+}
+},
+{
+"zbior": "sprawdzian13",
+"klucz": "49451048|5572861",
+"a": {
+"nazwa": "Depilacja woskiem wąsika",
+"wariant": "",
+"kategoria": "Depilacja woskiem",
+"opis": "",
+"cena": 20,
+"typ": "Podologia",
+"zabieg_booksy": "Depilacja wąsika"
+},
+"b": {
+"nazwa": "Depilacja woskiem wąsik",
+"wariant": "",
+"kategoria": "Depilacja",
+"opis": "",
+"cena": 30,
+"typ": "Salon Kosmetyczny",
+"zabieg_booksy": "Depilacja woskiem"
+}
+},
+{
+"zbior": "sprawdzian13",
+"klucz": "50054299|7273604",
+"a": {
+"nazwa": "Strzyżenie włosów maszynką ( jedna długość)",
+"wariant": "",
+"kategoria": "Olga",
+"opis": "Strzyżenie włosów maszynką na jedną długość na całej powierzchni głowy bez cieniowania strzyżonych obszarów.",
+"cena": 50,
+"typ": "Barber shop",
+"zabieg_booksy": "Strzyżenie męskie"
+},
+"b": {
+"nazwa": "Strzyżenie włosów - maszynką na jedną długość.",
+"wariant": "Strzyżenie włosów - maszynką na jedną długość.",
+"kategoria": "SENIOR BARBER: Martyna,Monika,Przemek,Magda,Aga",
+"opis": "Szybkie cięcie maszynką włosów na jedną długość.",
+"cena": 45,
+"typ": "Barber shop",
+"zabieg_booksy": "Strzyżenie męskie"
+}
+},
+{
+"zbior": "sprawdzian13",
+"klucz": "49775818|3483004",
+"a": {
+"nazwa": "Modelowanie włosów długich",
+"wariant": "",
+"kategoria": "Modelowanie",
+"opis": "",
+"cena": 80,
+"typ": "Fryzjer",
+"zabieg_booksy": "Stylizacja włosów"
+},
+"b": {
+"nazwa": "Modelowanie (włosy długie)",
+"wariant": "Modelowanie (włosy długie)",
+"kategoria": "Modelowanie",
+"opis": "Modelowanie, włosy długie.",
+"cena": 95,
+"typ": "Fryzjer",
+"zabieg_booksy": ""
+}
+},
+{
+"zbior": "sprawdzian13",
+"klucz": "53388567|5910396",
+"a": {
+"nazwa": "KOBIDO - Japoński Lifting Twarzy",
+"wariant": "KOBIDO - Japoński Lifting Twarzy",
+"kategoria": "Masaże Twarzy",
+"opis": "Masaż KOBIDO łączy elementy akupresury, masażu i refleksologii i oznacza starożytną drogę do piękna. Jest to naturalna technika odmładzania skóry, tzw",
+"cena": 300,
+"typ": "Masaż",
+"zabieg_booksy": "Japoński masaż twarzy kobido"
+},
+"b": {
+"nazwa": "KOBIDO - japoński lifting twarzy",
+"wariant": "KOBIDO - japoński lifting twarzy",
+"kategoria": "KOBIDO - japoński lifting twarzy",
+"opis": "KOBIDO to niepowtarzalna forma sztuki masażu, która oznacza „Starożytną drogę do Piękna”. To rytuał podlegający ściśle określonym regułom, bazujący na",
+"cena": 220,
+"typ": "Masaż",
+"zabieg_booksy": "Japoński masaż twarzy kobido"
+}
+},
+{
+"zbior": "sprawdzian13",
+"klucz": "38027420|5601090",
+"a": {
+"nazwa": "Broda",
+"wariant": "",
+"kategoria": "Depilacja laserowa",
+"opis": "",
+"cena": 100,
+"typ": "Salon Kosmetyczny",
+"zabieg_booksy": "Depilacja twarzy"
+},
+"b": {
+"nazwa": "Broda",
+"wariant": "",
+"kategoria": "Male partie ciała ",
+"opis": "",
+"cena": 69,
+"typ": "Depilacja",
+"zabieg_booksy": "Depilacja laserowa"
+}
+},
+{
+"zbior": "sprawdzian13",
+"klucz": "53388573|5910898",
+"a": {
+"nazwa": "Masaż klasyczny całościowy",
+"wariant": "Masaż klasyczny całościowy",
+"kategoria": "Masaż podstawowy",
+"opis": "Masaż klasyczny to jedna z najbardziej popularnych form masażu. Najczęściej stosowane techniki to: głaskanie, rozcieranie, ugniatanie, oklepywania i w",
+"cena": 260,
+"typ": "Masaż",
+"zabieg_booksy": "Masaż ciała"
+},
+"b": {
+"nazwa": "Masaż klasyczny",
+"wariant": "",
+"kategoria": "Masaż klasyczny",
+"opis": "Masaż klasycznym, jest najczęściej wybieranym rodzajem masażu. To zabieg od którego warto zacząć swoją przygodę z masażem, jak i wykonywać go systemat",
+"cena": 105,
+"typ": "Masaż",
+"zabieg_booksy": "Masaż ciała"
+}
+},
+{
+"zbior": "sprawdzian13",
+"klucz": "53388567|3878250",
+"a": {
+"nazwa": "KOBIDO - Japoński Lifting Twarzy",
+"wariant": "KOBIDO - Japoński Lifting Twarzy",
+"kategoria": "Masaże Twarzy",
+"opis": "Masaż KOBIDO łączy elementy akupresury, masażu i refleksologii i oznacza starożytną drogę do piękna. Jest to naturalna technika odmładzania skóry, tzw",
+"cena": 300,
+"typ": "Masaż",
+"zabieg_booksy": "Japoński masaż twarzy kobido"
+},
+"b": {
+"nazwa": "🌸 Masaż Kobido",
+"wariant": "",
+"kategoria": "Strefa twarzy 🧖🏻‍♀️",
+"opis": "Kobido to japoński rytuał masażu twarzy, znany jako naturalna alternatywa dla liftingu. Łączy w sobie techniki głębokiego masażu, drenażu limfatyczneg",
+"cena": 190,
+"typ": "Masaż",
+"zabieg_booksy": "Japoński masaż twarzy kobido"
+}
+},
+{
+"zbior": "sprawdzian13",
+"klucz": "53388573|3033775#0",
+"a": {
+"nazwa": "Masaż klasyczny całościowy",
+"wariant": "Masaż klasyczny całościowy",
+"kategoria": "Masaż podstawowy",
+"opis": "Masaż klasyczny to jedna z najbardziej popularnych form masażu. Najczęściej stosowane techniki to: głaskanie, rozcieranie, ugniatanie, oklepywania i w",
+"cena": 260,
+"typ": "Masaż",
+"zabieg_booksy": "Masaż ciała"
+},
+"b": {
+"nazwa": "Masaż klasyczny",
+"wariant": "Masaż klasyczny ⋅ 30 min",
+"kategoria": "Masaże dla zdrowia",
+"opis": "Masaż klasyczny to najpopularniejsza i najbardziej uniwersalna forma masażu, której celem jest odprężenie, poprawa krążenia oraz redukcja napięć mięśn",
+"cena": 80,
+"typ": "Masaż",
+"zabieg_booksy": "Masaż ciała"
+}
+},
+{
+"zbior": "sprawdzian13",
+"klucz": "53090799|6932464#0",
+"a": {
+"nazwa": "Rzęsy 3-4D",
+"wariant": "",
+"kategoria": "",
+"opis": "",
+"cena": 270,
+"typ": "Brwi i rzęsy",
+"zabieg_booksy": "Przedłużanie rzęs"
+},
+"b": {
+"nazwa": "Przedłużanie rzęs 3-4D",
+"wariant": "Stylistka Weronika",
+"kategoria": "Przedłużanie rzęs",
+"opis": "",
+"cena": 195,
+"typ": "Brwi i rzęsy",
+"zabieg_booksy": "Przedłużanie rzęs"
+}
+},
+{
+"zbior": "sprawdzian13",
+"klucz": "53388573|5909006",
+"a": {
+"nazwa": "Masaż klasyczny całościowy",
+"wariant": "Masaż klasyczny całościowy",
+"kategoria": "Masaż podstawowy",
+"opis": "Masaż klasyczny to jedna z najbardziej popularnych form masażu. Najczęściej stosowane techniki to: głaskanie, rozcieranie, ugniatanie, oklepywania i w",
+"cena": 260,
+"typ": "Masaż",
+"zabieg_booksy": "Masaż ciała"
+},
+"b": {
+"nazwa": "Masaż Klasyczny",
+"wariant": "",
+"kategoria": "Masaż ",
+"opis": "to podstawowa technika masażu, która polega na wykonywaniu różnych chwytow i ruchow na mięśniach i tkankach miękkich Ma on na celu poprawę krążenia kr",
+"cena": 100,
+"typ": "Masaż",
+"zabieg_booksy": "Masaż ciała"
+}
+},
+{
+"zbior": "sprawdzian13",
+"klucz": "50054295|7278372",
+"a": {
+"nazwa": "Strzyżenie włosów maszynką",
+"wariant": "",
+"kategoria": "Theo",
+"opis": "Strzyżenie włosów maszynką na jedną długość na całej powierzchni głowy bez cieniowania strzyżonych obszarów.",
+"cena": 40,
+"typ": "Barber shop",
+"zabieg_booksy": "Strzyżenie męskie"
+},
+"b": {
+"nazwa": "Strzyżenie włosów maszynką (buzz cut)",
+"wariant": "",
+"kategoria": "",
+"opis": "",
+"cena": 60,
+"typ": "Barber shop",
+"zabieg_booksy": "Strzyżenie buzz cut"
+}
+},
+{
+"zbior": "sprawdzian13",
+"klucz": "49451048|7340313",
+"a": {
+"nazwa": "Depilacja woskiem wąsika",
+"wariant": "",
+"kategoria": "Depilacja woskiem",
+"opis": "",
+"cena": 20,
+"typ": "Podologia",
+"zabieg_booksy": "Depilacja wąsika"
+},
+"b": {
+"nazwa": "Depilacja wąsika",
+"wariant": "Depilacja wąsika",
+"kategoria": "DEPILACJA WOSKIEM",
+"opis": "",
+"cena": 30,
+"typ": "Paznokcie",
+"zabieg_booksy": "Depilacja wąsika"
+}
+},
+{
+"zbior": "sprawdzian13",
+"klucz": "49451048|3500811",
+"a": {
+"nazwa": "Depilacja woskiem wąsika",
+"wariant": "",
+"kategoria": "Depilacja woskiem",
+"opis": "",
+"cena": 20,
+"typ": "Podologia",
+"zabieg_booksy": "Depilacja wąsika"
+},
+"b": {
+"nazwa": "Depilacja Wąsika",
+"wariant": "",
+"kategoria": "DEPILACJA WOSKIEM",
+"opis": "",
+"cena": 30,
+"typ": "Salon Kosmetyczny",
+"zabieg_booksy": "Depilacja wąsika"
+}
+},
+{
+"zbior": "sprawdzian13",
+"klucz": "48984116|6131695",
+"a": {
+"nazwa": "Przedłużanie rzęs 3D",
+"wariant": "",
+"kategoria": "",
+"opis": "",
+"cena": 230,
+"typ": "Brwi i rzęsy",
+"zabieg_booksy": "Rzęsy 3d"
+},
+"b": {
+"nazwa": "Przedłużanie rzęs 3D",
+"wariant": "",
+"kategoria": "Stylizacja brwi i rzęs",
+"opis": "",
+"cena": 200,
+"typ": "Medycyna Estetyczna",
+"zabieg_booksy": "Przedłużanie rzęs"
+}
+},
+{
+"zbior": "sprawdzian13",
+"klucz": "49775818|6972387#2",
+"a": {
+"nazwa": "Modelowanie włosów długich",
+"wariant": "",
+"kategoria": "Modelowanie",
+"opis": "",
+"cena": 80,
+"typ": "Fryzjer",
+"zabieg_booksy": "Stylizacja włosów"
+},
+"b": {
+"nazwa": "Modelowanie włosów",
+"wariant": "Elena (top stylista) włosy długie",
+"kategoria": "Dział damski",
+"opis": "",
+"cena": 110,
+"typ": "Fryzjer",
+"zabieg_booksy": "Stylizacja włosów"
+}
+},
+{
+"zbior": "sprawdzian13",
+"klucz": "50054295|7238673",
+"a": {
+"nazwa": "Strzyżenie włosów maszynką",
+"wariant": "",
+"kategoria": "Theo",
+"opis": "Strzyżenie włosów maszynką na jedną długość na całej powierzchni głowy bez cieniowania strzyżonych obszarów.",
+"cena": 40,
+"typ": "Barber shop",
+"zabieg_booksy": "Strzyżenie męskie"
+},
+"b": {
+"nazwa": "Strzyżenie maszynką na jedną długość",
+"wariant": "",
+"kategoria": "",
+"opis": "Strzyżenie maszynką na wybraną długość na całej głowie. Równe, czyste i estetyczne wykończenie.",
+"cena": 60,
+"typ": "Barber shop",
+"zabieg_booksy": "Strzyżenie męskie"
+}
+},
+{
+"zbior": "sprawdzian13",
+"klucz": "49451048|6651620",
+"a": {
+"nazwa": "Depilacja woskiem wąsika",
+"wariant": "",
+"kategoria": "Depilacja woskiem",
+"opis": "",
+"cena": 20,
+"typ": "Podologia",
+"zabieg_booksy": "Depilacja wąsika"
+},
+"b": {
+"nazwa": "Depilacja wąsik",
+"wariant": "",
+"kategoria": "DEPILACJA WOSKIEM ",
+"opis": "",
+"cena": 30,
+"typ": "Paznokcie",
+"zabieg_booksy": "Depilacja twarzy"
+}
+},
+{
+"zbior": "sprawdzian13",
+"klucz": "53388573|6018423#1",
+"a": {
+"nazwa": "Masaż klasyczny całościowy",
+"wariant": "Masaż klasyczny całościowy",
+"kategoria": "Masaż podstawowy",
+"opis": "Masaż klasyczny to jedna z najbardziej popularnych form masażu. Najczęściej stosowane techniki to: głaskanie, rozcieranie, ugniatanie, oklepywania i w",
+"cena": 260,
+"typ": "Masaż",
+"zabieg_booksy": "Masaż ciała"
+},
+"b": {
+"nazwa": "Masaż klasyczny",
+"wariant": "75 minut",
+"kategoria": "✨ Masaże terapeutyczne ✨",
+"opis": "_**Masaż klasyczny**_ _to jedna z najbardziej popularnych i powszechnie znanych form masażu na świecie. Ta uniwersalna technika, charakteryzująca się ",
+"cena": 230,
+"typ": "Masaż",
+"zabieg_booksy": "Masaż ciała"
+}
+},
+{
+"zbior": "sprawdzian13",
+"klucz": "53388579|5984845",
+"a": {
+"nazwa": "Masaż ciepłymi kamieniami",
+"wariant": "Masaż ciepłymi kamieniami",
+"kategoria": "Masaż relaksacyjny",
+"opis": "Masaż ten ma właściwości mocno rozgrzewające i relaksujące. Zabieg wpływa na obniżenie napięcia nerwowego oraz poprawę funkcjonowania układu krążenia.",
+"cena": 330,
+"typ": "Masaż",
+"zabieg_booksy": "Masaż ciała"
+},
+"b": {
+"nazwa": "Masaż gorącymi kamieniami",
+"wariant": "",
+"kategoria": "FIZJOTERAPIA / MASAŻ",
+"opis": "Masaż gorącymi kamieniami to antidotum na zmęczenia, stany osłabienia i zły nastrój. To także łagodnie działający, ale skuteczny lek na bóle kręgosłup",
+"cena": 200,
+"typ": "Podologia",
+"zabieg_booksy": "Masaż gorącymi kamieniami"
+}
+},
+{
+"zbior": "sprawdzian13",
+"klucz": "50054299|7237902",
+"a": {
+"nazwa": "Strzyżenie włosów maszynką ( jedna długość)",
+"wariant": "",
+"kategoria": "Olga",
+"opis": "Strzyżenie włosów maszynką na jedną długość na całej powierzchni głowy bez cieniowania strzyżonych obszarów.",
+"cena": 50,
+"typ": "Barber shop",
+"zabieg_booksy": "Strzyżenie męskie"
+},
+"b": {
+"nazwa": "Strzyżenie maszynką na jedną długość",
+"wariant": "",
+"kategoria": "Fryzjerzy: Aleksander, Natalia ",
+"opis": "Konsultacja, mycie włosów głowy przed i po strzyżeniu, strzyżenie wyłącznie maszynką (max. dwie nasadki), stosowanie kosmetyki profesjonalne do pielęg",
+"cena": 55,
+"typ": "Fryzjer",
+"zabieg_booksy": "Strzyżenie męskie"
+}
+},
+{
+"zbior": "sprawdzian13",
+"klucz": "49451048|5569535",
+"a": {
+"nazwa": "Depilacja woskiem wąsika",
+"wariant": "",
+"kategoria": "Depilacja woskiem",
+"opis": "",
+"cena": 20,
+"typ": "Podologia",
+"zabieg_booksy": "Depilacja wąsika"
+},
+"b": {
+"nazwa": "depilacja woskiem Wąsik",
+"wariant": "",
+"kategoria": "DEPILACJA WOSK TWARZ ",
+"opis": "",
+"cena": 50,
+"typ": "Salon Kosmetyczny",
+"zabieg_booksy": "Depilacja woskiem"
+}
+},
+{
+"zbior": "sprawdzian13",
+"klucz": "50054310|6699660",
+"a": {
+"nazwa": "Strzyżenie długich włosów",
+"wariant": "",
+"kategoria": "Strzyżenie długich włosów",
+"opis": "Usługa strzyżenia nożyczkami męskich włosów długich i półdługich wraz z modelowaniem i pielęgnacją.",
+"cena": 100,
+"typ": "Barber shop",
+"zabieg_booksy": "Strzyżenie męskie"
+},
+"b": {
+"nazwa": "Strzyżenie męskie długie",
+"wariant": "",
+"kategoria": "FRYZJERSTWO",
+"opis": "Strzyżenie męskie włosów długich",
+"cena": 130,
+"typ": "Fryzjer",
+"zabieg_booksy": "Strzyżenie męskie"
+}
+},
+{
+"zbior": "sprawdzian13",
+"klucz": "44059016|5533488",
+"a": {
+"nazwa": "Łydki+kolana",
+"wariant": "",
+"kategoria": "Depilacja laserowa",
+"opis": "",
+"cena": 160,
+"typ": "Depilacja",
+"zabieg_booksy": "Depilacja nóg"
+},
+"b": {
+"nazwa": "Łydki + kolana - Laser Epilacja",
+"wariant": "",
+"kategoria": "Epilacja Laserowa NOGI",
+"opis": "",
+"cena": 300,
+"typ": "Salon Kosmetyczny",
+"zabieg_booksy": "Depilacja laserowa"
+}
+},
+{
+"zbior": "sprawdzian13",
+"klucz": "53388579|5909228",
+"a": {
+"nazwa": "Masaż ciepłymi kamieniami",
+"wariant": "Masaż ciepłymi kamieniami",
+"kategoria": "Masaż relaksacyjny",
+"opis": "Masaż ten ma właściwości mocno rozgrzewające i relaksujące. Zabieg wpływa na obniżenie napięcia nerwowego oraz poprawę funkcjonowania układu krążenia.",
+"cena": 330,
+"typ": "Masaż",
+"zabieg_booksy": "Masaż ciała"
+},
+"b": {
+"nazwa": "Masaż gorącymi kamieniami",
+"wariant": "",
+"kategoria": "Masaże relaksacyjne",
+"opis": "",
+"cena": 180,
+"typ": "Masaż",
+"zabieg_booksy": "Masaż gorącymi kamieniami"
+}
+},
+{
+"zbior": "sprawdzian13",
+"klucz": "49775818|6367031",
+"a": {
+"nazwa": "Modelowanie włosów długich",
+"wariant": "",
+"kategoria": "Modelowanie",
+"opis": "",
+"cena": 80,
+"typ": "Fryzjer",
+"zabieg_booksy": "Stylizacja włosów"
+},
+"b": {
+"nazwa": "modelowanie włosów długich",
+"wariant": "",
+"kategoria": "Modelowanie",
+"opis": "",
+"cena": 80,
+"typ": "Fryzjer",
+"zabieg_booksy": "Stylizacja włosów"
+}
+},
+{
+"zbior": "sprawdzian13",
+"klucz": "53416621|6863614#0",
+"a": {
+"nazwa": "Zabieg Retix C",
+"wariant": "",
+"kategoria": "Zabiegi kosmetologiczne na twarz",
+"opis": "Retix C to przede wszystkim **zabieg odmładzający**, ale wykonuje się go także u osób młodszych, borykających się z różnymi problemami skórnymi. Reduk",
+"cena": 350,
+"typ": "Medycyna Estetyczna",
+"zabieg_booksy": "Zabiegi na twarz"
+},
+"b": {
+"nazwa": "Retix C",
+"wariant": "Twarz",
+"kategoria": "Terapia kwasami",
+"opis": "Zabieg Retix C to intensywna terapia, która skutecznie wspomaga regenerację skóry, przywracając jej zdrowy i młodszy wygląd. Dzięki wysokiej koncentra",
+"cena": 450,
+"typ": "Salon Kosmetyczny",
+"zabieg_booksy": "Zabiegi na twarz"
+}
+},
+{
+"zbior": "sprawdzian13",
+"klucz": "49775818|6973290",
+"a": {
+"nazwa": "Modelowanie włosów długich",
+"wariant": "",
+"kategoria": "Modelowanie",
+"opis": "",
+"cena": 80,
+"typ": "Fryzjer",
+"zabieg_booksy": "Stylizacja włosów"
+},
+"b": {
+"nazwa": "Modelowanie włosy długie",
+"wariant": "",
+"kategoria": "MODELOWANIE",
+"opis": "",
+"cena": 80,
+"typ": "Fryzjer",
+"zabieg_booksy": "Strzyżenie damskie"
+}
+},
+{
+"zbior": "sprawdzian13",
+"klucz": "50054309|5941664",
+"a": {
+"nazwa": "Modelowanie",
+"wariant": "",
+"kategoria": "Modelowanie",
+"opis": "Modelowanie, czesanie z myciem i pielęgnacją oraz użyciem produktów do układania włosów.",
+"cena": 40,
+"typ": "Barber shop",
+"zabieg_booksy": "Stylizacja włosów"
+},
+"b": {
+"nazwa": "Modelowanie włosów",
+"wariant": "",
+"kategoria": "Modelowanie włosów",
+"opis": "",
+"cena": 90,
+"typ": "Fryzjer",
+"zabieg_booksy": "Stylizacja włosów"
+}
+},
+{
+"zbior": "sprawdzian13",
+"klucz": "49203582|6177100",
+"a": {
+"nazwa": "Pedicure męski",
+"wariant": "",
+"kategoria": "Pedicure",
+"opis": "",
+"cena": 180,
+"typ": "Paznokcie",
+"zabieg_booksy": "Pedicure klasyczny"
+},
+"b": {
+"nazwa": "Pedicure męski",
+"wariant": "",
+"kategoria": "Paznokcie",
+"opis": "",
+"cena": 150,
+"typ": "Salon Kosmetyczny",
+"zabieg_booksy": "Manicure i pedicure dla mężczyzn"
+}
+},
+{
+"zbior": "sprawdzian13",
+"klucz": "50054299|7237912",
+"a": {
+"nazwa": "Strzyżenie włosów maszynką ( jedna długość)",
+"wariant": "",
+"kategoria": "Olga",
+"opis": "Strzyżenie włosów maszynką na jedną długość na całej powierzchni głowy bez cieniowania strzyżonych obszarów.",
+"cena": 50,
+"typ": "Barber shop",
+"zabieg_booksy": "Strzyżenie męskie"
+},
+"b": {
+"nazwa": "Strzyżenie maszynką na jedną długość",
+"wariant": "",
+"kategoria": "Fryzjerka Viktoriia",
+"opis": "Opis: konsultacja, mycie włosów głowy przed i po strzyżeniu, strzyżenie wyłącznie maszynką (max. dwie nasadki), stosowanie kosmetyki profesjonalne do ",
+"cena": 65,
+"typ": "Fryzjer",
+"zabieg_booksy": "Strzyżenie męskie"
+}
+},
+{
+"zbior": "sprawdzian13",
+"klucz": "49203582|5893017",
+"a": {
+"nazwa": "Pedicure męski",
+"wariant": "",
+"kategoria": "Pedicure",
+"opis": "",
+"cena": 180,
+"typ": "Paznokcie",
+"zabieg_booksy": "Pedicure klasyczny"
+},
+"b": {
+"nazwa": "Pedicure męski",
+"wariant": "",
+"kategoria": "",
+"opis": "",
+"cena": 90,
+"typ": "Paznokcie",
+"zabieg_booksy": "Pedicure żelowy"
+}
+},
+{
+"zbior": "sprawdzian13",
+"klucz": "49775818|6137933#2",
+"a": {
+"nazwa": "Modelowanie włosów długich",
+"wariant": "",
+"kategoria": "Modelowanie",
+"opis": "",
+"cena": 80,
+"typ": "Fryzjer",
+"zabieg_booksy": "Stylizacja włosów"
+},
+"b": {
+"nazwa": "Modelowanie włosy długie",
+"wariant": "Mistrz Stylista",
+"kategoria": "Dział Damski",
+"opis": "",
+"cena": 110,
+"typ": "Fryzjer",
+"zabieg_booksy": ""
+}
+},
+{
+"zbior": "sprawdzian13",
+"klucz": "55158880|6830703",
+"a": {
+"nazwa": "COMBO Z BRZYTWĄ + FARBOWANIE BRODY",
+"wariant": "",
+"kategoria": "BARBER",
+"opis": "Strzyżenie włosów, brody ,gorący ręcznik ,konturowanie brzytwą , użycie kosmetyków barberskich ( doradztwo ) + odsiwanie, zmiana koloru .",
+"cena": 180,
+"typ": "Barber shop",
+"zabieg_booksy": "Farbowanie brody"
+},
+"b": {
+"nazwa": "Combo Z Brzytwa + Farbowanie brody",
+"wariant": "",
+"kategoria": "KLAUDIA BARBER",
+"opis": "",
+"cena": 170,
+"typ": "Barber shop",
+"zabieg_booksy": "Farbowanie brody"
+}
+},
+{
+"zbior": "sprawdzian13",
+"klucz": "48984116|6134245",
+"a": {
+"nazwa": "Przedłużanie rzęs 3D",
+"wariant": "",
+"kategoria": "",
+"opis": "",
+"cena": 230,
+"typ": "Brwi i rzęsy",
+"zabieg_booksy": "Rzęsy 3d"
+},
+"b": {
+"nazwa": "Przedłużanie rzęs metoda 3D",
+"wariant": "",
+"kategoria": "Zagęszczanie rzęs",
+"opis": "",
+"cena": 160,
+"typ": "Salon Kosmetyczny",
+"zabieg_booksy": "Przedłużanie rzęs"
+}
+},
+{
+"zbior": "sprawdzian13",
+"klucz": "49451048|5935864",
+"a": {
+"nazwa": "Depilacja woskiem wąsika",
+"wariant": "",
+"kategoria": "Depilacja woskiem",
+"opis": "",
+"cena": 20,
+"typ": "Podologia",
+"zabieg_booksy": "Depilacja wąsika"
+},
+"b": {
+"nazwa": "Depilacja wąsik",
+"wariant": "",
+"kategoria": "Depilacja woskiem",
+"opis": "",
+"cena": 30,
+"typ": "Salon Kosmetyczny",
+"zabieg_booksy": "Depilacja woskiem"
+}
+},
+{
+"zbior": "sprawdzian13",
+"klucz": "53388567|5849056#1",
+"a": {
+"nazwa": "KOBIDO - Japoński Lifting Twarzy",
+"wariant": "KOBIDO - Japoński Lifting Twarzy",
+"kategoria": "Masaże Twarzy",
+"opis": "Masaż KOBIDO łączy elementy akupresury, masażu i refleksologii i oznacza starożytną drogę do piękna. Jest to naturalna technika odmładzania skóry, tzw",
+"cena": 300,
+"typ": "Masaż",
+"zabieg_booksy": "Japoński masaż twarzy kobido"
+},
+"b": {
+"nazwa": "KOBIDO",
+"wariant": "Kobido - Twarz",
+"kategoria": "KOBIDO",
+"opis": "Masaż Kobido to japońska technika liftingującego masażu twarzy, która łączy intensywne ruchy manualne z głębokim odprężeniem. Pobudza krążenie, ujędrn",
+"cena": 233,
+"typ": "Salon Kosmetyczny",
+"zabieg_booksy": "Japoński masaż twarzy kobido"
+}
+},
+{
+"zbior": "sprawdzian13",
+"klucz": "53416621|5976878",
+"a": {
+"nazwa": "Zabieg Retix C",
+"wariant": "",
+"kategoria": "Zabiegi kosmetologiczne na twarz",
+"opis": "Retix C to przede wszystkim **zabieg odmładzający**, ale wykonuje się go także u osób młodszych, borykających się z różnymi problemami skórnymi. Reduk",
+"cena": 350,
+"typ": "Medycyna Estetyczna",
+"zabieg_booksy": "Zabiegi na twarz"
+},
+"b": {
+"nazwa": "RETIX C",
+"wariant": "",
+"kategoria": "PEELINGI CHEMICZNE",
+"opis": "Zabieg Retix C jest silną kuracją odmładzająca, odbudowującą skórę. Do tego celu wykorzystujemy ampułkę z witaminą C i antyoksydantami oraz maskę z re",
+"cena": 320,
+"typ": "Salon Kosmetyczny",
+"zabieg_booksy": "Peeling chemiczny"
+}
+},
+{
+"zbior": "sprawdzian13",
+"klucz": "49203582|6231640",
+"a": {
+"nazwa": "Pedicure męski",
+"wariant": "",
+"kategoria": "Pedicure",
+"opis": "",
+"cena": 180,
+"typ": "Paznokcie",
+"zabieg_booksy": "Pedicure klasyczny"
+},
+"b": {
+"nazwa": "Pedicure męski",
+"wariant": "",
+"kategoria": "Paznokcie",
+"opis": "",
+"cena": 130,
+"typ": "Fryzjer",
+"zabieg_booksy": "Manicure i pedicure dla mężczyzn"
+}
+},
+{
+"zbior": "sprawdzian13",
+"klucz": "53416621|6864321",
+"a": {
+"nazwa": "Zabieg Retix C",
+"wariant": "",
+"kategoria": "Zabiegi kosmetologiczne na twarz",
+"opis": "Retix C to przede wszystkim **zabieg odmładzający**, ale wykonuje się go także u osób młodszych, borykających się z różnymi problemami skórnymi. Reduk",
+"cena": 350,
+"typ": "Medycyna Estetyczna",
+"zabieg_booksy": "Zabiegi na twarz"
+},
+"b": {
+"nazwa": "Zabieg złuszczający Retix C",
+"wariant": "Zabieg złuszczający Retix C",
+"kategoria": "Zabiegi na twarz",
+"opis": "Mocno złuszczający zabieg z czystym retinolem i witaminą C. działa silnie odmładzająco i rozjaśniająco. Wyrównuje koloryt, rozjaśnia przebarwienia, wy",
+"cena": 250,
+"typ": "Fryzjer",
+"zabieg_booksy": ""
+}
+},
+{
+"zbior": "sprawdzian13",
+"klucz": "50054299|5942032",
+"a": {
+"nazwa": "Strzyżenie włosów maszynką ( jedna długość)",
+"wariant": "",
+"kategoria": "Olga",
+"opis": "Strzyżenie włosów maszynką na jedną długość na całej powierzchni głowy bez cieniowania strzyżonych obszarów.",
+"cena": 50,
+"typ": "Barber shop",
+"zabieg_booksy": "Strzyżenie męskie"
+},
+"b": {
+"nazwa": "Strzyżenie Na Jedną Długość",
+"wariant": "",
+"kategoria": "",
+"opis": "Usługa obejmuje strzyżenie maszynką na jedną długość na całej głowie",
+"cena": 50,
+"typ": "Barber shop",
+"zabieg_booksy": "Strzyżenie męskie"
+}
+},
+{
+"zbior": "sprawdzian13",
+"klucz": "49775818|6142750",
+"a": {
+"nazwa": "Modelowanie włosów długich",
+"wariant": "",
+"kategoria": "Modelowanie",
+"opis": "",
+"cena": 80,
+"typ": "Fryzjer",
+"zabieg_booksy": "Stylizacja włosów"
+},
+"b": {
+"nazwa": "Modelowanie /włosy dlugie",
+"wariant": "",
+"kategoria": "Popularne",
+"opis": "",
+"cena": 90,
+"typ": "Brwi i rzęsy",
+"zabieg_booksy": "Stylizacja włosów"
+}
+},
+{
+"zbior": "sprawdzian13",
+"klucz": "53090822|5839890",
+"a": {
+"nazwa": "Konsultacja - makijaż permanentny",
+"wariant": "",
+"kategoria": "",
+"opis": "",
+"cena": 1,
+"typ": "Brwi i rzęsy",
+"zabieg_booksy": "Makijaż permanentny"
+},
+"b": {
+"nazwa": "Konsultacja",
+"wariant": "",
+"kategoria": "",
+"opis": "Konsultacja telefoniczna przed zabiegiem makijażu permanentnego lub po jego wykonaniu.",
+"cena": 0.0,
+"typ": "Brwi i rzęsy",
+"zabieg_booksy": "Makijaż permanentny brwi"
+}
+},
+{
+"zbior": "sprawdzian13",
+"klucz": "38027377|7198314",
+"a": {
+"nazwa": "zagęszczenie linii rzęs",
+"wariant": "",
+"kategoria": "Oczy",
+"opis": "",
+"cena": 800,
+"typ": "Salon Kosmetyczny",
+"zabieg_booksy": "Makijaż permanentny"
+},
+"b": {
+"nazwa": "Kreska permanentna zagęszczenie lini rzęs",
+"wariant": "",
+"kategoria": "MAKIJAŻ PERMANENTNY - terminy indywidualne",
+"opis": "",
+"cena": 800,
+"typ": "Brwi i rzęsy",
+"zabieg_booksy": "Makijaż permanentny"
+}
+},
+{
+"zbior": "sprawdzian13",
+"klucz": "53388573|1856863",
+"a": {
+"nazwa": "Masaż klasyczny całościowy",
+"wariant": "Masaż klasyczny całościowy",
+"kategoria": "Masaż podstawowy",
+"opis": "Masaż klasyczny to jedna z najbardziej popularnych form masażu. Najczęściej stosowane techniki to: głaskanie, rozcieranie, ugniatanie, oklepywania i w",
+"cena": 260,
+"typ": "Masaż",
+"zabieg_booksy": "Masaż ciała"
+},
+"b": {
+"nazwa": "Masaż klasyczny całego ciała",
+"wariant": "",
+"kategoria": "",
+"opis": "",
+"cena": 180,
+"typ": "Masaż",
+"zabieg_booksy": "Masaż ciała"
+}
+},
+{
+"zbior": "sprawdzian13",
+"klucz": "53416621|6824763#0",
+"a": {
+"nazwa": "Zabieg Retix C",
+"wariant": "",
+"kategoria": "Zabiegi kosmetologiczne na twarz",
+"opis": "Retix C to przede wszystkim **zabieg odmładzający**, ale wykonuje się go także u osób młodszych, borykających się z różnymi problemami skórnymi. Reduk",
+"cena": 350,
+"typ": "Medycyna Estetyczna",
+"zabieg_booksy": "Zabiegi na twarz"
+},
+"b": {
+"nazwa": "Retix C",
+"wariant": "Twarz",
+"kategoria": "Zabiegi na twarz",
+"opis": "Retix C – intensywna terapia odmładzająca skóry Retix C to zaawansowany zabieg kosmetologiczny, który skutecznie regeneruje skórę, przywracając jej mł",
+"cena": 300,
+"typ": "Salon Kosmetyczny",
+"zabieg_booksy": ""
+}
+},
+{
+"zbior": "sprawdzian13",
+"klucz": "50086367|6646854",
+"a": {
+"nazwa": "Żel na naturalnej płytce kolor",
+"wariant": "",
+"kategoria": "",
+"opis": "",
+"cena": 190,
+"typ": "Paznokcie",
+"zabieg_booksy": "Paznokcie żelowe"
+},
+"b": {
+"nazwa": "Żel na naturalnej płytce+ kolor",
+"wariant": "",
+"kategoria": "",
+"opis": "",
+"cena": 150,
+"typ": "Salon Kosmetyczny",
+"zabieg_booksy": "Paznokcie żelowe"
+}
+},
+{
+"zbior": "sprawdzian13",
+"klucz": "53388567|6927808",
+"a": {
+"nazwa": "KOBIDO - Japoński Lifting Twarzy",
+"wariant": "KOBIDO - Japoński Lifting Twarzy",
+"kategoria": "Masaże Twarzy",
+"opis": "Masaż KOBIDO łączy elementy akupresury, masażu i refleksologii i oznacza starożytną drogę do piękna. Jest to naturalna technika odmładzania skóry, tzw",
+"cena": 300,
+"typ": "Masaż",
+"zabieg_booksy": "Japoński masaż twarzy kobido"
+},
+"b": {
+"nazwa": "KOBIDO",
+"wariant": "",
+"kategoria": "Masaż ",
+"opis": "**Masaż Kobido** to japoński lifting twarzy bez skalpela. Naturalnie ujędrnia, poprawia owal i rozluźnia mięśnie. Efekt widoczny już po pierwszym zabi",
+"cena": 249,
+"typ": "Paznokcie",
+"zabieg_booksy": "Japoński masaż twarzy kobido"
+}
+},
+{
+"zbior": "sprawdzian13",
+"klucz": "55158880|6830750",
+"a": {
+"nazwa": "COMBO Z BRZYTWĄ + FARBOWANIE BRODY",
+"wariant": "",
+"kategoria": "BARBER",
+"opis": "Strzyżenie włosów, brody ,gorący ręcznik ,konturowanie brzytwą , użycie kosmetyków barberskich ( doradztwo ) + odsiwanie, zmiana koloru .",
+"cena": 180,
+"typ": "Barber shop",
+"zabieg_booksy": "Farbowanie brody"
+},
+"b": {
+"nazwa": "Combo z brzytwą+Farbowanie  brody",
+"wariant": "",
+"kategoria": "OLENA BARBER",
+"opis": "",
+"cena": 170,
+"typ": "Barber shop",
+"zabieg_booksy": "Strzyżenie włosów i zarostu"
+}
+},
+{
+"zbior": "sprawdzian13",
+"klucz": "53451546|6982550",
+"a": {
+"nazwa": "Depilacja laserowa - Całe plecy | вся спина",
+"wariant": "",
+"kategoria": "DEPILACJA LASEROWA | PRICE LIST MĘSKI | MEN 😎",
+"opis": "Jeśli jesteś pierwszy raz WAŻNE JEST, aby zapisać się na bezpłatną konsultację przed główną wizytą. Nie widzisz odpowiedniego dla siebie terminu? Zadz",
+"cena": 300,
+"typ": "Depilacja",
+"zabieg_booksy": "Depilacja dla mężczyzn"
+},
+"b": {
+"nazwa": "Depilacja laserowa - całe plecy",
+"wariant": "",
+"kategoria": "CENNIK DEPILACJI LASEROWEJ DLA PANÓW LASERDIODOWY ",
+"opis": "Opis: komfortowe i precyzyjne usunięcie owłosienia LASEREM DIODOWYM z całych pleców. Powiedz stop tradycyjnemu goleniu się i zaoszczędź czas i pieniąd",
+"cena": 450,
+"typ": "Depilacja",
+"zabieg_booksy": "Depilacja laserowa"
+}
+},
+{
+"zbior": "sprawdzian13",
+"klucz": "53388579|6306053#1",
+"a": {
+"nazwa": "Masaż ciepłymi kamieniami",
+"wariant": "Masaż ciepłymi kamieniami",
+"kategoria": "Masaż relaksacyjny",
+"opis": "Masaż ten ma właściwości mocno rozgrzewające i relaksujące. Zabieg wpływa na obniżenie napięcia nerwowego oraz poprawę funkcjonowania układu krążenia.",
+"cena": 330,
+"typ": "Masaż",
+"zabieg_booksy": "Masaż ciała"
+},
+"b": {
+"nazwa": "Masaż gorącymi kamieniami",
+"wariant": "90 min",
+"kategoria": "",
+"opis": "🔥 Masaż Gorącymi Kamieniami Rytuał oparty na działaniu ciepła pochodzącego z kamieni bazaltowych. Rozluźnia napięte mięśnie, poprawia krążenie i wprow",
+"cena": 270,
+"typ": "Masaż",
+"zabieg_booksy": "Masaż gorącymi kamieniami"
+}
+},
+{
+"zbior": "sprawdzian13",
+"klucz": "49451048|5549902",
+"a": {
+"nazwa": "Depilacja woskiem wąsika",
+"wariant": "",
+"kategoria": "Depilacja woskiem",
+"opis": "",
+"cena": 20,
+"typ": "Podologia",
+"zabieg_booksy": "Depilacja wąsika"
+},
+"b": {
+"nazwa": "Depilacja wąsik",
+"wariant": "",
+"kategoria": "",
+"opis": "",
+"cena": 30,
+"typ": "Paznokcie",
+"zabieg_booksy": "Depilacja woskiem"
+}
+},
+{
+"zbior": "sprawdzian13",
+"klucz": "53388573|6018423#3",
+"a": {
+"nazwa": "Masaż klasyczny całościowy",
+"wariant": "Masaż klasyczny całościowy",
+"kategoria": "Masaż podstawowy",
+"opis": "Masaż klasyczny to jedna z najbardziej popularnych form masażu. Najczęściej stosowane techniki to: głaskanie, rozcieranie, ugniatanie, oklepywania i w",
+"cena": 260,
+"typ": "Masaż",
+"zabieg_booksy": "Masaż ciała"
+},
+"b": {
+"nazwa": "Masaż klasyczny",
+"wariant": "120 minut",
+"kategoria": "✨ Masaże terapeutyczne ✨",
+"opis": "_**Masaż klasyczny**_ _to jedna z najbardziej popularnych i powszechnie znanych form masażu na świecie. Ta uniwersalna technika, charakteryzująca się ",
+"cena": 340,
+"typ": "Masaż",
+"zabieg_booksy": "Masaż ciała"
+}
+},
+{
+"zbior": "sprawdzian13",
+"klucz": "53388579|5865439",
+"a": {
+"nazwa": "Masaż ciepłymi kamieniami",
+"wariant": "Masaż ciepłymi kamieniami",
+"kategoria": "Masaż relaksacyjny",
+"opis": "Masaż ten ma właściwości mocno rozgrzewające i relaksujące. Zabieg wpływa na obniżenie napięcia nerwowego oraz poprawę funkcjonowania układu krążenia.",
+"cena": 330,
+"typ": "Masaż",
+"zabieg_booksy": "Masaż ciała"
+},
+"b": {
+"nazwa": "Masaż gorącymi kamieniami",
+"wariant": "Masażystka Marta",
+"kategoria": "| MASAŻ | ",
+"opis": "Zabieg polega na wykorzystaniu rozgrzanych kamieni do wykonywania masażu. Ciepło kamieni pomaga rozluźnić mięśnie, zwiększyć przepływ krwi i wprowadzi",
+"cena": 190,
+"typ": "Salon Kosmetyczny",
+"zabieg_booksy": "Masaż gorącymi kamieniami"
+}
+},
+{
+"zbior": "sprawdzian13",
+"klucz": "49775818|6137933#3",
+"a": {
+"nazwa": "Modelowanie włosów długich",
+"wariant": "",
+"kategoria": "Modelowanie",
+"opis": "",
+"cena": 80,
+"typ": "Fryzjer",
+"zabieg_booksy": "Stylizacja włosów"
+},
+"b": {
+"nazwa": "Modelowanie włosy długie",
+"wariant": "Stylista Stażysta",
+"kategoria": "Dział Damski",
+"opis": "",
+"cena": 100,
+"typ": "Fryzjer",
+"zabieg_booksy": ""
+}
+},
+{
+"zbior": "sprawdzian13",
+"klucz": "53388573|6020711",
+"a": {
+"nazwa": "Masaż klasyczny całościowy",
+"wariant": "Masaż klasyczny całościowy",
+"kategoria": "Masaż podstawowy",
+"opis": "Masaż klasyczny to jedna z najbardziej popularnych form masażu. Najczęściej stosowane techniki to: głaskanie, rozcieranie, ugniatanie, oklepywania i w",
+"cena": 260,
+"typ": "Masaż",
+"zabieg_booksy": "Masaż ciała"
+},
+"b": {
+"nazwa": "Classic (Masaż Klasyczny)",
+"wariant": "",
+"kategoria": "",
+"opis": "Zabieg bazujący na masażu klasycznym. Masaż na całe ciało lub jego partie.",
+"cena": 160,
+"typ": "Masaż",
+"zabieg_booksy": "Masaż ciała"
+}
+},
+{
+"zbior": "sprawdzian13",
+"klucz": "49775818|6970135",
+"a": {
+"nazwa": "Modelowanie włosów długich",
+"wariant": "",
+"kategoria": "Modelowanie",
+"opis": "",
+"cena": 80,
+"typ": "Fryzjer",
+"zabieg_booksy": "Stylizacja włosów"
+},
+"b": {
+"nazwa": "Modelowanie włosy długie",
+"wariant": "",
+"kategoria": "",
+"opis": "",
+"cena": 100,
+"typ": "Fryzjer",
+"zabieg_booksy": "Prostowanie włosów"
+}
+},
+{
+"zbior": "sprawdzian13",
+"klucz": "50054299|5772152",
+"a": {
+"nazwa": "Strzyżenie włosów maszynką ( jedna długość)",
+"wariant": "",
+"kategoria": "Olga",
+"opis": "Strzyżenie włosów maszynką na jedną długość na całej powierzchni głowy bez cieniowania strzyżonych obszarów.",
+"cena": 50,
+"typ": "Barber shop",
+"zabieg_booksy": "Strzyżenie męskie"
+},
+"b": {
+"nazwa": "Strzyżenie maszynką na jedną długość",
+"wariant": "",
+"kategoria": "",
+"opis": "",
+"cena": 30,
+"typ": "Barber shop",
+"zabieg_booksy": "Strzyżenie męskie"
+}
+},
+{
+"zbior": "sprawdzian13",
+"klucz": "38027420|6463062",
+"a": {
+"nazwa": "Broda",
+"wariant": "",
+"kategoria": "Depilacja laserowa",
+"opis": "",
+"cena": 100,
+"typ": "Salon Kosmetyczny",
+"zabieg_booksy": "Depilacja twarzy"
+},
+"b": {
+"nazwa": "Broda",
+"wariant": "",
+"kategoria": "Depilacja laserowa",
+"opis": "",
+"cena": 155,
+"typ": "Medycyna Estetyczna",
+"zabieg_booksy": "Depilacja laserowa"
+}
+},
+{
+"zbior": "sprawdzian13",
+"klucz": "53388573|6475257#2",
+"a": {
+"nazwa": "Masaż klasyczny całościowy",
+"wariant": "Masaż klasyczny całościowy",
+"kategoria": "Masaż podstawowy",
+"opis": "Masaż klasyczny to jedna z najbardziej popularnych form masażu. Najczęściej stosowane techniki to: głaskanie, rozcieranie, ugniatanie, oklepywania i w",
+"cena": 260,
+"typ": "Masaż",
+"zabieg_booksy": "Masaż ciała"
+},
+"b": {
+"nazwa": "Masaż Klasyczny",
+"wariant": "Całe ciało",
+"kategoria": "MASAŻE",
+"opis": "Masaż klasyczny – Twój sposób na relaks i kontuzje Masaż klasyczny jest fenomenalnym wyborem, ponieważ łączy w sobie najbardziej pożądane rezultaty re",
+"cena": 250,
+"typ": "Salon Kosmetyczny",
+"zabieg_booksy": ""
+}
+},
+{
+"zbior": "sprawdzian13",
+"klucz": "38027420|7152577",
+"a": {
+"nazwa": "Broda",
+"wariant": "",
+"kategoria": "Depilacja laserowa",
+"opis": "",
+"cena": 100,
+"typ": "Salon Kosmetyczny",
+"zabieg_booksy": "Depilacja twarzy"
+},
+"b": {
+"nazwa": "Broda",
+"wariant": "",
+"kategoria": "Depilacja laserowa",
+"opis": "",
+"cena": 160,
+"typ": "Salon Kosmetyczny",
+"zabieg_booksy": "Depilacja laserowa"
+}
+},
+{
+"zbior": "sprawdzian13",
+"klucz": "50054310|7266553",
+"a": {
+"nazwa": "Strzyżenie długich włosów",
+"wariant": "",
+"kategoria": "Strzyżenie długich włosów",
+"opis": "Usługa strzyżenia nożyczkami męskich włosów długich i półdługich wraz z modelowaniem i pielęgnacją.",
+"cena": 100,
+"typ": "Barber shop",
+"zabieg_booksy": "Strzyżenie męskie"
+},
+"b": {
+"nazwa": "Długie włosy",
+"wariant": "",
+"kategoria": "barber",
+"opis": "Strzyżenie włosów długich nożyczkami, mycie i stylizacja włosów ( zdjęcia poglądowe).",
+"cena": 95,
+"typ": "Barber shop",
+"zabieg_booksy": "Strzyżenie męskie"
+}
+},
+{
+"zbior": "sprawdzian13",
+"klucz": "53388579|5973012#0",
+"a": {
+"nazwa": "Masaż ciepłymi kamieniami",
+"wariant": "Masaż ciepłymi kamieniami",
+"kategoria": "Masaż relaksacyjny",
+"opis": "Masaż ten ma właściwości mocno rozgrzewające i relaksujące. Zabieg wpływa na obniżenie napięcia nerwowego oraz poprawę funkcjonowania układu krążenia.",
+"cena": 330,
+"typ": "Masaż",
+"zabieg_booksy": "Masaż ciała"
+},
+"b": {
+"nazwa": "Masaż gorącymi kamieniami",
+"wariant": "Masaż gorącymi kamieniami 60 min.",
+"kategoria": "Masaż",
+"opis": "Masaż gorącymi kamieniami to niezwykle relaksująca technika masażu, która wykorzystuje ciepło naturalnych, gładkich kamieni do redukcji napięcia i str",
+"cena": 220,
+"typ": "Salon Kosmetyczny",
+"zabieg_booksy": "Masaż gorącymi kamieniami"
+}
+},
+{
+"zbior": "sprawdzian13",
+"klucz": "53388567|5904787",
+"a": {
+"nazwa": "KOBIDO - Japoński Lifting Twarzy",
+"wariant": "KOBIDO - Japoński Lifting Twarzy",
+"kategoria": "Masaże Twarzy",
+"opis": "Masaż KOBIDO łączy elementy akupresury, masażu i refleksologii i oznacza starożytną drogę do piękna. Jest to naturalna technika odmładzania skóry, tzw",
+"cena": 300,
+"typ": "Masaż",
+"zabieg_booksy": "Japoński masaż twarzy kobido"
+},
+"b": {
+"nazwa": "Masaż Kobido",
+"wariant": "",
+"kategoria": "Zabiegi na twarz",
+"opis": "Masaż Kobido to jeden z najbardziej cenionych rytuałów pracy na twarzy, wywodzący się z japońskiej tradycji. Łączy w sobie precyzyjne techniki manualn",
+"cena": 220,
+"typ": "Fizjoterapia",
+"zabieg_booksy": "Japoński masaż twarzy kobido"
+}
+},
+{
+"zbior": "sprawdzian13",
+"klucz": "49775818|6137933#0",
+"a": {
+"nazwa": "Modelowanie włosów długich",
+"wariant": "",
+"kategoria": "Modelowanie",
+"opis": "",
+"cena": 80,
+"typ": "Fryzjer",
+"zabieg_booksy": "Stylizacja włosów"
+},
+"b": {
+"nazwa": "Modelowanie włosy długie",
+"wariant": "Stylista",
+"kategoria": "Dział Damski",
+"opis": "",
+"cena": 100,
+"typ": "Fryzjer",
+"zabieg_booksy": ""
+}
+},
+{
+"zbior": "sprawdzian13",
+"klucz": "53090822|5680315",
+"a": {
+"nazwa": "Konsultacja - makijaż permanentny",
+"wariant": "",
+"kategoria": "",
+"opis": "",
+"cena": 1,
+"typ": "Brwi i rzęsy",
+"zabieg_booksy": "Makijaż permanentny"
+},
+"b": {
+"nazwa": "Konsultacja",
+"wariant": "",
+"kategoria": "MAKIJAŻ PERMANENTNY",
+"opis": "Bezpłatne spotkanie w salonie, podczas którego klientka może zadać nurtujące ją pytania na temat makijażu permanentnego brwi oraz sprawdzić, czy zabie",
+"cena": 0.0,
+"typ": "Salon Kosmetyczny",
+"zabieg_booksy": "Makijaż permanentny brwi"
+}
+},
+{
+"zbior": "sprawdzian13",
+"klucz": "53388579|5906574",
+"a": {
+"nazwa": "Masaż ciepłymi kamieniami",
+"wariant": "Masaż ciepłymi kamieniami",
+"kategoria": "Masaż relaksacyjny",
+"opis": "Masaż ten ma właściwości mocno rozgrzewające i relaksujące. Zabieg wpływa na obniżenie napięcia nerwowego oraz poprawę funkcjonowania układu krążenia.",
+"cena": 330,
+"typ": "Masaż",
+"zabieg_booksy": "Masaż ciała"
+},
+"b": {
+"nazwa": "Masaż gorącymi kamieniami",
+"wariant": "",
+"kategoria": "Masaże relaksacyjne ( wyciszenie układu nerwowego)",
+"opis": "Magma - Masaż gorącymi kamieniami wulkanicznymi Poczuj kojącą moc głębi Ziemi. Masaż gorącymi kamieniami to powrót do źródła energii i relaksu. Zabieg",
+"cena": 290,
+"typ": "Masaż",
+"zabieg_booksy": "Masaż gorącymi kamieniami"
+}
+},
+{
+"zbior": "sprawdzian13",
+"klucz": "53388579|5907391",
+"a": {
+"nazwa": "Masaż ciepłymi kamieniami",
+"wariant": "Masaż ciepłymi kamieniami",
+"kategoria": "Masaż relaksacyjny",
+"opis": "Masaż ten ma właściwości mocno rozgrzewające i relaksujące. Zabieg wpływa na obniżenie napięcia nerwowego oraz poprawę funkcjonowania układu krążenia.",
+"cena": 330,
+"typ": "Masaż",
+"zabieg_booksy": "Masaż ciała"
+},
+"b": {
+"nazwa": "Masaż gorącymi kamieniami",
+"wariant": "",
+"kategoria": "",
+"opis": "Masaż relaksacyjny polegający na użyciu bazaltowych kamieni podgrzanych do temperatury około 60 stopni. Przynosi ulgę, głębsze odprężenie oraz poprzez",
+"cena": 220,
+"typ": "Masaż",
+"zabieg_booksy": "Masaż gorącymi kamieniami"
+}
+},
+{
+"zbior": "sprawdzian13",
+"klucz": "53388567|3998830#0",
+"a": {
+"nazwa": "KOBIDO - Japoński Lifting Twarzy",
+"wariant": "KOBIDO - Japoński Lifting Twarzy",
+"kategoria": "Masaże Twarzy",
+"opis": "Masaż KOBIDO łączy elementy akupresury, masażu i refleksologii i oznacza starożytną drogę do piękna. Jest to naturalna technika odmładzania skóry, tzw",
+"cena": 300,
+"typ": "Masaż",
+"zabieg_booksy": "Japoński masaż twarzy kobido"
+},
+"b": {
+"nazwa": "Masaż Kobido",
+"wariant": "Masaż Kobido",
+"kategoria": "",
+"opis": "Japoński rytuał twarzy, najbardziej zaawansowana sztuka z zakresu masażu twarzy, nazywany liftingiem bez skalpela. Poprzez swoją złożoność i intensywn",
+"cena": 230,
+"typ": "Fizjoterapia",
+"zabieg_booksy": "Japoński masaż twarzy kobido"
+}
+},
+{
+"zbior": "sprawdzian13",
+"klucz": "49775803|6971923",
+"a": {
+"nazwa": "Klasyczne męskie z myciem",
+"wariant": "",
+"kategoria": "Strzyżenie męskie",
+"opis": "",
+"cena": 50,
+"typ": "Fryzjer",
+"zabieg_booksy": "Strzyżenie męskie"
+},
+"b": {
+"nazwa": "Strzyżenie męskie z myciem",
+"wariant": "",
+"kategoria": "Strzyżenia męskie ",
+"opis": "",
+"cena": 60,
+"typ": "Fryzjer",
+"zabieg_booksy": "Strzyżenie męskie"
+}
+},
+{
+"zbior": "sprawdzian13",
+"klucz": "49203582|6223444",
+"a": {
+"nazwa": "Pedicure męski",
+"wariant": "",
+"kategoria": "Pedicure",
+"opis": "",
+"cena": 180,
+"typ": "Paznokcie",
+"zabieg_booksy": "Pedicure klasyczny"
+},
+"b": {
+"nazwa": "Pedicure męski",
+"wariant": "",
+"kategoria": "PEDICURE",
+"opis": "",
+"cena": 100,
+"typ": "Paznokcie",
+"zabieg_booksy": "French pedicure"
+}
+},
+{
+"zbior": "sprawdzian13",
+"klucz": "50054295|6789712",
+"a": {
+"nazwa": "Strzyżenie włosów maszynką",
+"wariant": "",
+"kategoria": "Theo",
+"opis": "Strzyżenie włosów maszynką na jedną długość na całej powierzchni głowy bez cieniowania strzyżonych obszarów.",
+"cena": 40,
+"typ": "Barber shop",
+"zabieg_booksy": "Strzyżenie męskie"
+},
+"b": {
+"nazwa": "Strzyżenie Męskie maszynką",
+"wariant": "",
+"kategoria": "Strzyżenia Męskie + Barber",
+"opis": "Strzyżenie Męskie włosów maszynką na jedną długość lub cieniowanie boków",
+"cena": 75,
+"typ": "Fryzjer",
+"zabieg_booksy": "Strzyżenie męskie"
+}
+},
+{
+"zbior": "sprawdzian13",
+"klucz": "38027377|6033179",
+"a": {
+"nazwa": "zagęszczenie linii rzęs",
+"wariant": "",
+"kategoria": "Oczy",
+"opis": "",
+"cena": 800,
+"typ": "Salon Kosmetyczny",
+"zabieg_booksy": "Makijaż permanentny"
+},
+"b": {
+"nazwa": "Kreska zagęszczająca w linii rzęs",
+"wariant": "",
+"kategoria": "Makijaż permanentny",
+"opis": "",
+"cena": 400,
+"typ": "Brwi i rzęsy",
+"zabieg_booksy": "Makijaż permanentny"
+}
+},
+{
+"zbior": "sprawdzian13",
+"klucz": "44059057|5934252",
+"a": {
+"nazwa": "Twarz + szyja + dekolt",
+"wariant": "",
+"kategoria": "Mikroprądy",
+"opis": "Mikrostymulacja – mikroprądy (lifting twarzy) Mikroprądy to jeden z najskuteczniejszych zabiegów nieinwazyjnego liftingu twarzy. Delikatne impulsy ele",
+"cena": 250,
+"typ": "Depilacja",
+"zabieg_booksy": "Lifting twarzy"
+},
+"b": {
+"nazwa": "Mikroprądy(twarz szyja dekolt)",
+"wariant": "",
+"kategoria": "MIKROPRĄDY (zamiana BOTOKSU)",
+"opis": "Zabieg aparatowy + maseczka algowa+ maseczka kremowa Mocna poprawa jędrności twarzy szyi dekoltu,przekrwienia cery,lifting effekt,limfadrenaz(likwidac",
+"cena": 300,
+"typ": "Salon Kosmetyczny",
+"zabieg_booksy": ""
+}
+},
+{
+"zbior": "sprawdzian13",
+"klucz": "44059057|5934576",
+"a": {
+"nazwa": "Twarz + szyja + dekolt",
+"wariant": "",
+"kategoria": "Mikroprądy",
+"opis": "Mikrostymulacja – mikroprądy (lifting twarzy) Mikroprądy to jeden z najskuteczniejszych zabiegów nieinwazyjnego liftingu twarzy. Delikatne impulsy ele",
+"cena": 250,
+"typ": "Depilacja",
+"zabieg_booksy": "Lifting twarzy"
+},
+"b": {
+"nazwa": "Mikroprądy twarzy, szyja, dekolt",
+"wariant": "",
+"kategoria": "Zabiegi na twarz",
+"opis": "Biolifting mikroprądami to nowoczesny zabieg, który kompleksowo dba o młody wygląd i kondycję skóry, wykorzystując zaawansowane technologie. Procedura",
+"cena": 180,
+"typ": "SPA i wellness",
+"zabieg_booksy": "Lifting twarzy"
+}
+},
+{
+"zbior": "sprawdzian13",
+"klucz": "49451048|6627714",
+"a": {
+"nazwa": "Depilacja woskiem wąsika",
+"wariant": "",
+"kategoria": "Depilacja woskiem",
+"opis": "",
+"cena": 20,
+"typ": "Podologia",
+"zabieg_booksy": "Depilacja wąsika"
+},
+"b": {
+"nazwa": "Depilacja wąsików woskiem",
+"wariant": "",
+"kategoria": "Henna brwi ",
+"opis": "",
+"cena": 30,
+"typ": "Brwi i rzęsy",
+"zabieg_booksy": "Depilacja woskiem"
+}
+},
+{
+"zbior": "sprawdzian13",
+"klucz": "38027377|6551573",
+"a": {
+"nazwa": "zagęszczenie linii rzęs",
+"wariant": "",
+"kategoria": "Oczy",
+"opis": "",
+"cena": 800,
+"typ": "Salon Kosmetyczny",
+"zabieg_booksy": "Makijaż permanentny"
+},
+"b": {
+"nazwa": "Zagęszczenie linii rzęs",
+"wariant": "",
+"kategoria": "🖊️ Makijaż permanentny MONIKA 🙎🏼‍♀️",
+"opis": "Metodę makijażu permanentnego ustalam indywidualnie do potrzeb klientki i jej preferencji na umówionej wizycie. Jeżeli posiada Pani makijaż permanentn",
+"cena": 500,
+"typ": "Paznokcie",
+"zabieg_booksy": "Makijaż permanentny"
+}
+},
+{
+"zbior": "sprawdzian13",
+"klucz": "53090822|6938596",
+"a": {
+"nazwa": "Konsultacja - makijaż permanentny",
+"wariant": "",
+"kategoria": "",
+"opis": "",
+"cena": 1,
+"typ": "Brwi i rzęsy",
+"zabieg_booksy": "Makijaż permanentny"
+},
+"b": {
+"nazwa": "Konsultacja (makijaż permanentny)",
+"wariant": "Konsultacja (makijaż permanentny)",
+"kategoria": "Makijaż permanentny",
+"opis": "",
+"cena": 0.0,
+"typ": "Salon Kosmetyczny",
+"zabieg_booksy": "Makijaż permanentny"
+}
+},
+{
+"zbior": "sprawdzian13",
+"klucz": "50054309|7262814",
+"a": {
+"nazwa": "Modelowanie",
+"wariant": "",
+"kategoria": "Modelowanie",
+"opis": "Modelowanie, czesanie z myciem i pielęgnacją oraz użyciem produktów do układania włosów.",
+"cena": 40,
+"typ": "Barber shop",
+"zabieg_booksy": "Stylizacja włosów"
+},
+"b": {
+"nazwa": "Modelowanie włosów",
+"wariant": "",
+"kategoria": "Modelowanie włosów ",
+"opis": "_Stylizacja -to sposób na nadanie włosom kształtu i objętości przy użyciu suszarek na grzebień do szczotkowania i rostownicy._",
+"cena": 120,
+"typ": "Fryzjer",
+"zabieg_booksy": "Upięcia włosów"
+}
+},
+{
+"zbior": "sprawdzian13",
+"klucz": "53416621|6936579",
+"a": {
+"nazwa": "Zabieg Retix C",
+"wariant": "",
+"kategoria": "Zabiegi kosmetologiczne na twarz",
+"opis": "Retix C to przede wszystkim **zabieg odmładzający**, ale wykonuje się go także u osób młodszych, borykających się z różnymi problemami skórnymi. Reduk",
+"cena": 350,
+"typ": "Medycyna Estetyczna",
+"zabieg_booksy": "Zabiegi na twarz"
+},
+"b": {
+"nazwa": "Retix C.",
+"wariant": "",
+"kategoria": "Rytuał odmładzający ",
+"opis": "_Zabieg oczyszczający i złuszczający z zastosowaniem Retix.C – idealny dla cery potrzebującej regeneracji i wygładzenia._",
+"cena": 400,
+"typ": "Salon Kosmetyczny",
+"zabieg_booksy": "Pielęgnacja i oczyszczanie twarzy"
+}
+},
+{
+"zbior": "sprawdzian13",
+"klucz": "53388579|5833382",
+"a": {
+"nazwa": "Masaż ciepłymi kamieniami",
+"wariant": "Masaż ciepłymi kamieniami",
+"kategoria": "Masaż relaksacyjny",
+"opis": "Masaż ten ma właściwości mocno rozgrzewające i relaksujące. Zabieg wpływa na obniżenie napięcia nerwowego oraz poprawę funkcjonowania układu krążenia.",
+"cena": 330,
+"typ": "Masaż",
+"zabieg_booksy": "Masaż ciała"
+},
+"b": {
+"nazwa": "Masaż gorącymi kamieniami",
+"wariant": "",
+"kategoria": "Masaż gorącymi kamieniami",
+"opis": "Masaż gorącymi kamieniami to głęboko relaksujący rytuał, który wykorzystuje naturalne, podgrzewane kamienie bazaltowe do rozluźniania mięśni i przywra",
+"cena": 260,
+"typ": "Masaż",
+"zabieg_booksy": "Masaż gorącymi kamieniami"
+}
+},
+{
+"zbior": "sprawdzian13",
+"klucz": "53388573|7062408",
+"a": {
+"nazwa": "Masaż klasyczny całościowy",
+"wariant": "Masaż klasyczny całościowy",
+"kategoria": "Masaż podstawowy",
+"opis": "Masaż klasyczny to jedna z najbardziej popularnych form masażu. Najczęściej stosowane techniki to: głaskanie, rozcieranie, ugniatanie, oklepywania i w",
+"cena": 260,
+"typ": "Masaż",
+"zabieg_booksy": "Masaż ciała"
+},
+"b": {
+"nazwa": "Masaż klasyczny",
+"wariant": "",
+"kategoria": "Masaż",
+"opis": "**Masaż klasyczny** to jedna z najpopularniejszych form terapii manualnej, łącząca techniki relaksacyjne i lecznicze. Jest idealnym wyborem dla osób p",
+"cena": 200,
+"typ": "Masaż",
+"zabieg_booksy": "Masaż ciała"
+}
+},
+{
+"zbior": "sprawdzian13",
+"klucz": "49775818|5080587",
+"a": {
+"nazwa": "Modelowanie włosów długich",
+"wariant": "",
+"kategoria": "Modelowanie",
+"opis": "",
+"cena": 80,
+"typ": "Fryzjer",
+"zabieg_booksy": "Stylizacja włosów"
+},
+"b": {
+"nazwa": "Modelowanie włosy długie",
+"wariant": "",
+"kategoria": "",
+"opis": "",
+"cena": 70,
+"typ": "Fryzjer",
+"zabieg_booksy": "Stylizacja włosów"
+}
+},
+{
+"zbior": "sprawdzian13",
+"klucz": "50054295|7236819",
+"a": {
+"nazwa": "Strzyżenie włosów maszynką",
+"wariant": "",
+"kategoria": "Theo",
+"opis": "Strzyżenie włosów maszynką na jedną długość na całej powierzchni głowy bez cieniowania strzyżonych obszarów.",
+"cena": 40,
+"typ": "Barber shop",
+"zabieg_booksy": "Strzyżenie męskie"
+},
+"b": {
+"nazwa": "Strzyżenie maszynką ( buzz cut)",
+"wariant": "",
+"kategoria": "Usługi Męskie Barberskie ",
+"opis": "Strzyżenie sama maszynką różną długością nasadek",
+"cena": 50,
+"typ": "Fryzjer",
+"zabieg_booksy": "Strzyżenie męskie"
+}
+},
+{
+"zbior": "sprawdzian13",
+"klucz": "49451037|5987266",
+"a": {
+"nazwa": "Rozszerzony zabieg podologiczny",
+"wariant": "",
+"kategoria": "Zabiegi podologiczne",
+"opis": "Skròcenie, oczyszczanie i oszlifowanie paznokci zrogowqciałych ( przerośniẹtych, zmienionych chorobowo), opracowanie skòrek, oczyszczanie wałòw okołop",
+"cena": 190,
+"typ": "Podologia",
+"zabieg_booksy": "Pedicure podologiczny"
+},
+"b": {
+"nazwa": "Rozszerzony zabieg podologiczny",
+"wariant": "",
+"kategoria": "",
+"opis": "* skrócenie ,oszlifowanie i oczyszczenie płytek paznokciowych ,usuwając zrogowacenia i przebarwienia * usuniecie bolesnych modzeli ,odcisków, opracowa",
+"cena": 250,
+"typ": "Podologia",
+"zabieg_booksy": "Pedicure podologiczny"
+}
+},
+{
+"zbior": "sprawdzian13",
+"klucz": "50054310|7261939",
+"a": {
+"nazwa": "Strzyżenie długich włosów",
+"wariant": "",
+"kategoria": "Strzyżenie długich włosów",
+"opis": "Usługa strzyżenia nożyczkami męskich włosów długich i półdługich wraz z modelowaniem i pielęgnacją.",
+"cena": 100,
+"typ": "Barber shop",
+"zabieg_booksy": "Strzyżenie męskie"
+},
+"b": {
+"nazwa": "Strzyżenie męskie (włosy długie)",
+"wariant": "",
+"kategoria": "Strzyżenie ",
+"opis": "Usługa obejmuje: konsultacje, mycie, strzyżenie nożyczkami oraz modelowanie",
+"cena": 70,
+"typ": "Fryzjer",
+"zabieg_booksy": "Strzyżenie męskie"
+}
+},
+{
+"zbior": "sprawdzian13",
+"klucz": "53388579|5840791#1",
+"a": {
+"nazwa": "Masaż ciepłymi kamieniami",
+"wariant": "Masaż ciepłymi kamieniami",
+"kategoria": "Masaż relaksacyjny",
+"opis": "Masaż ten ma właściwości mocno rozgrzewające i relaksujące. Zabieg wpływa na obniżenie napięcia nerwowego oraz poprawę funkcjonowania układu krążenia.",
+"cena": 330,
+"typ": "Masaż",
+"zabieg_booksy": "Masaż ciała"
+},
+"b": {
+"nazwa": "Masaż gorącymi kamieniami",
+"wariant": "Masaż gorącymi kamieniami",
+"kategoria": "MASAŻE",
+"opis": "",
+"cena": 270,
+"typ": "Salon Kosmetyczny",
+"zabieg_booksy": "Masaż gorącymi kamieniami"
+}
+},
+{
+"zbior": "sprawdzian13",
+"klucz": "49203582|6205127",
+"a": {
+"nazwa": "Pedicure męski",
+"wariant": "",
+"kategoria": "Pedicure",
+"opis": "",
+"cena": 180,
+"typ": "Paznokcie",
+"zabieg_booksy": "Pedicure klasyczny"
+},
+"b": {
+"nazwa": "Pedicure męski",
+"wariant": "",
+"kategoria": "PEDICURE",
+"opis": "",
+"cena": 90,
+"typ": "Paznokcie",
+"zabieg_booksy": "French pedicure"
+}
+},
+{
+"zbior": "sprawdzian13",
+"klucz": "50054299|7279974",
+"a": {
+"nazwa": "Strzyżenie włosów maszynką ( jedna długość)",
+"wariant": "",
+"kategoria": "Olga",
+"opis": "Strzyżenie włosów maszynką na jedną długość na całej powierzchni głowy bez cieniowania strzyżonych obszarów.",
+"cena": 50,
+"typ": "Barber shop",
+"zabieg_booksy": "Strzyżenie męskie"
+},
+"b": {
+"nazwa": "Strzyżenie maszynką na jedną długość",
+"wariant": "",
+"kategoria": "Barber ( Marta, Dominika )",
+"opis": "",
+"cena": 50,
+"typ": "Barber shop",
+"zabieg_booksy": "Strzyżenie męskie"
+}
+},
+{
+"zbior": "sprawdzian13",
+"klucz": "53388579|5905145",
+"a": {
+"nazwa": "Masaż ciepłymi kamieniami",
+"wariant": "Masaż ciepłymi kamieniami",
+"kategoria": "Masaż relaksacyjny",
+"opis": "Masaż ten ma właściwości mocno rozgrzewające i relaksujące. Zabieg wpływa na obniżenie napięcia nerwowego oraz poprawę funkcjonowania układu krążenia.",
+"cena": 330,
+"typ": "Masaż",
+"zabieg_booksy": "Masaż ciała"
+},
+"b": {
+"nazwa": "MASAŻ GORĄCYMI KAMIENIAMI",
+"wariant": "",
+"kategoria": "OFERTA PODSTAWOWA",
+"opis": "_Masaż gorącymi kamieniami – to niesamowite połączenie leczniczych właściwości masażu wraz z mocą naturalnego ciepła. Ciepło oddawane przez wulkaniczn",
+"cena": 280,
+"typ": "Masaż",
+"zabieg_booksy": "Masaż gorącymi kamieniami"
+}
+},
+{
+"zbior": "sprawdzian13",
+"klucz": "38027377|7196095",
+"a": {
+"nazwa": "zagęszczenie linii rzęs",
+"wariant": "",
+"kategoria": "Oczy",
+"opis": "",
+"cena": 800,
+"typ": "Salon Kosmetyczny",
+"zabieg_booksy": "Makijaż permanentny"
+},
+"b": {
+"nazwa": "Zagęszczenie Linii Rzęs",
+"wariant": "",
+"kategoria": "Makijaż Permanentny",
+"opis": "Zagęszczenie Linii Rzęs makijażem permanentnym. Efekt naturalny.",
+"cena": 1200,
+"typ": "Salon Kosmetyczny",
+"zabieg_booksy": "Makijaż permanentny"
+}
+},
+{
+"zbior": "sprawdzian13",
+"klucz": "50054310|6476372",
+"a": {
+"nazwa": "Strzyżenie długich włosów",
+"wariant": "",
+"kategoria": "Strzyżenie długich włosów",
+"opis": "Usługa strzyżenia nożyczkami męskich włosów długich i półdługich wraz z modelowaniem i pielęgnacją.",
+"cena": 100,
+"typ": "Barber shop",
+"zabieg_booksy": "Strzyżenie męskie"
+},
+"b": {
+"nazwa": "Strzyżenie męskie długie włosy",
+"wariant": "",
+"kategoria": "Strzyżenia",
+"opis": "Strzyżenie męskie włosów długich poza linię szyi z myciem lub bez, i ze stylizacją fryzury",
+"cena": 120,
+"typ": "Fryzjer",
+"zabieg_booksy": "Strzyżenie męskie"
+}
+},
+{
+"zbior": "sprawdzian13",
+"klucz": "50054310|7283867",
+"a": {
+"nazwa": "Strzyżenie długich włosów",
+"wariant": "",
+"kategoria": "Strzyżenie długich włosów",
+"opis": "Usługa strzyżenia nożyczkami męskich włosów długich i półdługich wraz z modelowaniem i pielęgnacją.",
+"cena": 100,
+"typ": "Barber shop",
+"zabieg_booksy": "Strzyżenie męskie"
+},
+"b": {
+"nazwa": "Strzyżenie włosów długich",
+"wariant": "",
+"kategoria": "Strzyżenia ",
+"opis": "**Strzyżenie męskie średnie i długie** to sztuka podkreślania naturalnej struktury włosów, z zachowaniem ich długości i swobodnego charakteru. Zabieg ",
+"cena": 100,
+"typ": "Barber shop",
+"zabieg_booksy": "Strzyżenie włosów i zarostu"
+}
+},
+{
+"zbior": "sprawdzian13",
+"klucz": "49451048|5533417",
+"a": {
+"nazwa": "Depilacja woskiem wąsika",
+"wariant": "",
+"kategoria": "Depilacja woskiem",
+"opis": "",
+"cena": 20,
+"typ": "Podologia",
+"zabieg_booksy": "Depilacja wąsika"
+},
+"b": {
+"nazwa": "Depilacja wąsika",
+"wariant": "",
+"kategoria": "Depilacja woskiem",
+"opis": "",
+"cena": 40,
+"typ": "Brwi i rzęsy",
+"zabieg_booksy": "Depilacja wąsika"
+}
+},
+{
+"zbior": "sprawdzian13",
+"klucz": "49451048|5590546",
+"a": {
+"nazwa": "Depilacja woskiem wąsika",
+"wariant": "",
+"kategoria": "Depilacja woskiem",
+"opis": "",
+"cena": 20,
+"typ": "Podologia",
+"zabieg_booksy": "Depilacja wąsika"
+},
+"b": {
+"nazwa": "Depilacja wąsik",
+"wariant": "",
+"kategoria": "Depilacja/regulacja ",
+"opis": "",
+"cena": 25,
+"typ": "Fryzjer",
+"zabieg_booksy": "Depilacja woskiem"
+}
+},
+{
+"zbior": "sprawdzian13",
+"klucz": "49203582|6282760",
+"a": {
+"nazwa": "Pedicure męski",
+"wariant": "",
+"kategoria": "Pedicure",
+"opis": "",
+"cena": 180,
+"typ": "Paznokcie",
+"zabieg_booksy": "Pedicure klasyczny"
+},
+"b": {
+"nazwa": "Pedicure męski",
+"wariant": "Pedicure męski",
+"kategoria": "Paznokcie",
+"opis": "",
+"cena": 150,
+"typ": "Medycyna Estetyczna",
+"zabieg_booksy": "Pedicure klasyczny"
+}
+},
+{
+"zbior": "sprawdzian13",
+"klucz": "49203582|6280071",
+"a": {
+"nazwa": "Pedicure męski",
+"wariant": "",
+"kategoria": "Pedicure",
+"opis": "",
+"cena": 180,
+"typ": "Paznokcie",
+"zabieg_booksy": "Pedicure klasyczny"
+},
+"b": {
+"nazwa": "Pedicure męski",
+"wariant": "",
+"kategoria": "Pielęgnacja stóp",
+"opis": "",
+"cena": 135,
+"typ": "Fryzjer",
+"zabieg_booksy": "Pedicure klasyczny"
+}
+},
+{
+"zbior": "sprawdzian13",
+"klucz": "53388579|5858025#0",
+"a": {
+"nazwa": "Masaż ciepłymi kamieniami",
+"wariant": "Masaż ciepłymi kamieniami",
+"kategoria": "Masaż relaksacyjny",
+"opis": "Masaż ten ma właściwości mocno rozgrzewające i relaksujące. Zabieg wpływa na obniżenie napięcia nerwowego oraz poprawę funkcjonowania układu krążenia.",
+"cena": 330,
+"typ": "Masaż",
+"zabieg_booksy": "Masaż ciała"
+},
+"b": {
+"nazwa": "Masaż Kamienne Ukojenie - ciepłymi kamieniami",
+"wariant": "60 min",
+"kategoria": "MASAŻ CAŁEGO CIAŁA ",
+"opis": "**🔥 Kamienne Ukojenie – Masaż ciepłymi kamieniami 🔥** Głęboko relaksujący rytuał, który łączy terapeutyczną moc ciepła z kojącym dotykiem. Masaż wykon",
+"cena": 269,
+"typ": "Masaż",
+"zabieg_booksy": "Masaż ciała"
+}
+},
+{
+"zbior": "sprawdzian13",
+"klucz": "49203582|6216155",
+"a": {
+"nazwa": "Pedicure męski",
+"wariant": "",
+"kategoria": "Pedicure",
+"opis": "",
+"cena": 180,
+"typ": "Paznokcie",
+"zabieg_booksy": "Pedicure klasyczny"
+},
+"b": {
+"nazwa": "Pedicure męski",
+"wariant": "",
+"kategoria": "Pedicure",
+"opis": "",
+"cena": 110,
+"typ": "Salon Kosmetyczny",
+"zabieg_booksy": "Pedicure ekspresowy"
+}
+},
+{
+"zbior": "sprawdzian13",
+"klucz": "50054299|7296131",
+"a": {
+"nazwa": "Strzyżenie włosów maszynką ( jedna długość)",
+"wariant": "",
+"kategoria": "Olga",
+"opis": "Strzyżenie włosów maszynką na jedną długość na całej powierzchni głowy bez cieniowania strzyżonych obszarów.",
+"cena": 50,
+"typ": "Barber shop",
+"zabieg_booksy": "Strzyżenie męskie"
+},
+"b": {
+"nazwa": "Strzyżenie maszynką na jedną długość",
+"wariant": "",
+"kategoria": "Barber",
+"opis": "",
+"cena": 50,
+"typ": "Barber shop",
+"zabieg_booksy": "Strzyżenie męskie"
+}
+},
+{
+"zbior": "sprawdzian13",
+"klucz": "49451048|6539290",
+"a": {
+"nazwa": "Depilacja woskiem wąsika",
+"wariant": "",
+"kategoria": "Depilacja woskiem",
+"opis": "",
+"cena": 20,
+"typ": "Podologia",
+"zabieg_booksy": "Depilacja wąsika"
+},
+"b": {
+"nazwa": "Depilacja wąsik",
+"wariant": "",
+"kategoria": "STYLIZACJA BRWI, DEPILACJA WOSKIEM",
+"opis": "",
+"cena": 20,
+"typ": "Salon Kosmetyczny",
+"zabieg_booksy": "Depilacja wąsika"
+}
+},
+{
+"zbior": "sprawdzian13",
+"klucz": "50054310|7237899",
+"a": {
+"nazwa": "Strzyżenie długich włosów",
+"wariant": "",
+"kategoria": "Strzyżenie długich włosów",
+"opis": "Usługa strzyżenia nożyczkami męskich włosów długich i półdługich wraz z modelowaniem i pielęgnacją.",
+"cena": 100,
+"typ": "Barber shop",
+"zabieg_booksy": "Strzyżenie męskie"
+},
+"b": {
+"nazwa": "Strzyżenie długich włosów",
+"wariant": "",
+"kategoria": "Fryzjerzy: Aleksander, Natalia ",
+"opis": "Strzyżenie długich włosów: długość na skroniach i po bokach od 4 cm. Opis: konsultacja, mycie włosów głowy przed i po strzyżeniu, strzyżenie nożyczkam",
+"cena": 120,
+"typ": "Fryzjer",
+"zabieg_booksy": "Strzyżenie męskie"
+}
+},
+{
+"zbior": "sprawdzian13",
+"klucz": "55158880|6830721",
+"a": {
+"nazwa": "COMBO Z BRZYTWĄ + FARBOWANIE BRODY",
+"wariant": "",
+"kategoria": "BARBER",
+"opis": "Strzyżenie włosów, brody ,gorący ręcznik ,konturowanie brzytwą , użycie kosmetyków barberskich ( doradztwo ) + odsiwanie, zmiana koloru .",
+"cena": 180,
+"typ": "Barber shop",
+"zabieg_booksy": "Farbowanie brody"
+},
+"b": {
+"nazwa": "Combo z brzytwą + farbowanie brody",
+"wariant": "",
+"kategoria": "IZA BARBER ",
+"opis": "",
+"cena": 170,
+"typ": "Barber shop",
+"zabieg_booksy": "Strzyżenie brody"
+}
+},
+{
+"zbior": "sprawdzian13",
+"klucz": "49451037|7344319",
+"a": {
+"nazwa": "Rozszerzony zabieg podologiczny",
+"wariant": "",
+"kategoria": "Zabiegi podologiczne",
+"opis": "Skròcenie, oczyszczanie i oszlifowanie paznokci zrogowqciałych ( przerośniẹtych, zmienionych chorobowo), opracowanie skòrek, oczyszczanie wałòw okołop",
+"cena": 190,
+"typ": "Podologia",
+"zabieg_booksy": "Pedicure podologiczny"
+},
+"b": {
+"nazwa": "Zabiegi w obrębie stopy - Rozszerzony zabieg podologiczny",
+"wariant": "Zabiegi w obrębie stopy - Rozszerzony zabieg podologiczny",
+"kategoria": "Podologia",
+"opis": "Zabiegi w obrębie stopy - Rozszerzony zabieg podologiczny Zabieg przeznaczony dla osób ze znacznymi problemami skóry stóp, takimi jak np.: pękające pi",
+"cena": 240,
+"typ": "Medycyna Estetyczna",
+"zabieg_booksy": "Zabieg podologiczny"
+}
+},
+{
+"zbior": "sprawdzian13",
+"klucz": "53090799|6661932",
+"a": {
+"nazwa": "Rzęsy 3-4D",
+"wariant": "",
+"kategoria": "",
+"opis": "",
+"cena": 270,
+"typ": "Brwi i rzęsy",
+"zabieg_booksy": "Przedłużanie rzęs"
+},
+"b": {
+"nazwa": "Przedłużanie rzęs 3/4D",
+"wariant": "",
+"kategoria": "Przedłużanie rzęs ",
+"opis": "",
+"cena": 190,
+"typ": "Brwi i rzęsy",
+"zabieg_booksy": "Przedłużanie rzęs"
+}
+},
+{
+"zbior": "sprawdzian13",
+"klucz": "44059016|5668984",
+"a": {
+"nazwa": "Łydki+kolana",
+"wariant": "",
+"kategoria": "Depilacja laserowa",
+"opis": "",
+"cena": 160,
+"typ": "Depilacja",
+"zabieg_booksy": "Depilacja nóg"
+},
+"b": {
+"nazwa": "Depilacja łydki+kolana",
+"wariant": "",
+"kategoria": "Depilacja laserowa ",
+"opis": "",
+"cena": 400,
+"typ": "Salon Kosmetyczny",
+"zabieg_booksy": "Depilacja laserowa"
+}
+},
+{
+"zbior": "sprawdzian13",
+"klucz": "53416621|6849487",
+"a": {
+"nazwa": "Zabieg Retix C",
+"wariant": "",
+"kategoria": "Zabiegi kosmetologiczne na twarz",
+"opis": "Retix C to przede wszystkim **zabieg odmładzający**, ale wykonuje się go także u osób młodszych, borykających się z różnymi problemami skórnymi. Reduk",
+"cena": 350,
+"typ": "Medycyna Estetyczna",
+"zabieg_booksy": "Zabiegi na twarz"
+},
+"b": {
+"nazwa": "Zabieg  z retinolem RETIX C",
+"wariant": "",
+"kategoria": "Zabiegi na twarz",
+"opis": "Demakijaż i tonizacja twarzy. Zabieg silnie odmładzający i złuszczający .",
+"cena": 200,
+"typ": "Salon Kosmetyczny",
+"zabieg_booksy": "Zabiegi na twarz"
+}
+},
+{
+"zbior": "sprawdzian13",
+"klucz": "49451048|5570695",
+"a": {
+"nazwa": "Depilacja woskiem wąsika",
+"wariant": "",
+"kategoria": "Depilacja woskiem",
+"opis": "",
+"cena": 20,
+"typ": "Podologia",
+"zabieg_booksy": "Depilacja wąsika"
+},
+"b": {
+"nazwa": "Depilacja woskiem wąsik",
+"wariant": "",
+"kategoria": "DEPILACJA / WOSKOWANIE",
+"opis": "",
+"cena": 40,
+"typ": "Salon Kosmetyczny",
+"zabieg_booksy": "Depilacja woskiem"
+}
+},
+{
+"zbior": "sprawdzian13",
+"klucz": "53388567|5867855",
+"a": {
+"nazwa": "KOBIDO - Japoński Lifting Twarzy",
+"wariant": "KOBIDO - Japoński Lifting Twarzy",
+"kategoria": "Masaże Twarzy",
+"opis": "Masaż KOBIDO łączy elementy akupresury, masażu i refleksologii i oznacza starożytną drogę do piękna. Jest to naturalna technika odmładzania skóry, tzw",
+"cena": 300,
+"typ": "Masaż",
+"zabieg_booksy": "Japoński masaż twarzy kobido"
+},
+"b": {
+"nazwa": "KOBIDO japoński masaż",
+"wariant": "",
+"kategoria": "MASAŻ KOBIDO",
+"opis": "Masaż japoński Kobido – lifting bez skalpela Kobido to zaawansowany, wieloetapowy masaż japoński, który działa jak naturalny lifting twarzy. Łączy głę",
+"cena": 250,
+"typ": "Salon Kosmetyczny",
+"zabieg_booksy": "Japoński masaż twarzy kobido"
+}
+},
+{
+"zbior": "sprawdzian13",
+"klucz": "53388579|5898285",
+"a": {
+"nazwa": "Masaż ciepłymi kamieniami",
+"wariant": "Masaż ciepłymi kamieniami",
+"kategoria": "Masaż relaksacyjny",
+"opis": "Masaż ten ma właściwości mocno rozgrzewające i relaksujące. Zabieg wpływa na obniżenie napięcia nerwowego oraz poprawę funkcjonowania układu krążenia.",
+"cena": 330,
+"typ": "Masaż",
+"zabieg_booksy": "Masaż ciała"
+},
+"b": {
+"nazwa": "Masaż relaksacyjny z gorącymi kamieniami",
+"wariant": "Zabieg trwa 90 minut",
+"kategoria": "SPA & WELNESS",
+"opis": "Prosimy o kontakt przed rezerwacją. Głęboko relaksujący masaż łączący płynne, spokojne ruchy z ciepłem bazaltowych kamieni. Ciepło kamieni przenika w ",
+"cena": 269,
+"typ": "Masaż",
+"zabieg_booksy": "Masaż gorącymi kamieniami"
+}
+},
+{
+"zbior": "sprawdzian13",
+"klucz": "53388579|5833383",
+"a": {
+"nazwa": "Masaż ciepłymi kamieniami",
+"wariant": "Masaż ciepłymi kamieniami",
+"kategoria": "Masaż relaksacyjny",
+"opis": "Masaż ten ma właściwości mocno rozgrzewające i relaksujące. Zabieg wpływa na obniżenie napięcia nerwowego oraz poprawę funkcjonowania układu krążenia.",
+"cena": 330,
+"typ": "Masaż",
+"zabieg_booksy": "Masaż ciała"
+},
+"b": {
+"nazwa": "Masaż gorącymi kamieniami",
+"wariant": "",
+"kategoria": "Masaż gorącymi kamieniami",
+"opis": "Masaż gorącymi kamieniami to głęboko relaksujący rytuał, który wykorzystuje naturalne, podgrzewane kamienie bazaltowe do rozluźniania mięśni i przywra",
+"cena": 350,
+"typ": "Masaż",
+"zabieg_booksy": "Masaż gorącymi kamieniami"
+}
+},
+{
+"zbior": "sprawdzian13",
+"klucz": "49775800|6111073",
+"a": {
+"nazwa": "Keratynowe prostowanie włosy półdługie",
+"wariant": "",
+"kategoria": "",
+"opis": "Cennik aktualny do końca października roku 2026 po tej dacie ceny mogą się zmieniać.",
+"cena": 400,
+"typ": "Fryzjer",
+"zabieg_booksy": "Keratyna na włosy"
+},
+"b": {
+"nazwa": "Zabieg: Prostowanie keratynowe włosy półdługie",
+"wariant": "",
+"kategoria": "Zabiegi pielęgnacyjne ",
+"opis": "",
+"cena": 400,
+"typ": "Fryzjer",
+"zabieg_booksy": "Keratynowe prostowanie włosów"
+}
+},
+{
+"zbior": "sprawdzian13",
+"klucz": "53388567|5832291#0",
+"a": {
+"nazwa": "KOBIDO - Japoński Lifting Twarzy",
+"wariant": "KOBIDO - Japoński Lifting Twarzy",
+"kategoria": "Masaże Twarzy",
+"opis": "Masaż KOBIDO łączy elementy akupresury, masażu i refleksologii i oznacza starożytną drogę do piękna. Jest to naturalna technika odmładzania skóry, tzw",
+"cena": 300,
+"typ": "Masaż",
+"zabieg_booksy": "Japoński masaż twarzy kobido"
+},
+"b": {
+"nazwa": "Masaż Kobido",
+"wariant": "Masaż kobido",
+"kategoria": "Masaże",
+"opis": "Japońska technika określana jako naturalny lifting twarzy. Łączy głębokie techniki manualne z elementami akupresury, poprawiając napięcie i elastyczno",
+"cena": 200,
+"typ": "Salon Kosmetyczny",
+"zabieg_booksy": "Japoński masaż twarzy kobido"
+}
+},
+{
+"zbior": "sprawdzian13",
+"klucz": "49775818|2996111",
+"a": {
+"nazwa": "Modelowanie włosów długich",
+"wariant": "",
+"kategoria": "Modelowanie",
+"opis": "",
+"cena": 80,
+"typ": "Fryzjer",
+"zabieg_booksy": "Stylizacja włosów"
+},
+"b": {
+"nazwa": "Modelowanie/ułożenie włosy długie",
+"wariant": "",
+"kategoria": "Modelowane ",
+"opis": "",
+"cena": 70,
+"typ": "Fryzjer",
+"zabieg_booksy": "Fryzura ślubna"
+}
+},
+{
+"zbior": "sprawdzian13",
+"klucz": "48403752|5540739",
+"a": {
+"nazwa": "botox 3 okolice",
+"wariant": "",
+"kategoria": "Botoks",
+"opis": "",
+"cena": 1400,
+"typ": "Medycyna Estetyczna",
+"zabieg_booksy": "Botoks"
+},
+"b": {
+"nazwa": "Btx efekt 3 okolice",
+"wariant": "",
+"kategoria": "Medycyna Estetyczna💉",
+"opis": "Botoks 3 okolice obejmuje zabieg usuwania zmarszczek mimicznych na czole, między brwiami (lwia zmarszczka) oraz w okolicach oczu (kurze łapki). Przeci",
+"cena": 900,
+"typ": "Medycyna Estetyczna",
+"zabieg_booksy": "Botoks"
+}
+},
+{
+"zbior": "sprawdzian13",
+"klucz": "53388579|5847750",
+"a": {
+"nazwa": "Masaż ciepłymi kamieniami",
+"wariant": "Masaż ciepłymi kamieniami",
+"kategoria": "Masaż relaksacyjny",
+"opis": "Masaż ten ma właściwości mocno rozgrzewające i relaksujące. Zabieg wpływa na obniżenie napięcia nerwowego oraz poprawę funkcjonowania układu krążenia.",
+"cena": 330,
+"typ": "Masaż",
+"zabieg_booksy": "Masaż ciała"
+},
+"b": {
+"nazwa": "Masaż gorącymi kamieniami",
+"wariant": "",
+"kategoria": "Masaż na start",
+"opis": "",
+"cena": 260,
+"typ": "Salon Kosmetyczny",
+"zabieg_booksy": "Masaż ciała"
+}
+},
+{
+"zbior": "sprawdzian13",
+"klucz": "53090822|7133873",
+"a": {
+"nazwa": "Konsultacja - makijaż permanentny",
+"wariant": "",
+"kategoria": "",
+"opis": "",
+"cena": 1,
+"typ": "Brwi i rzęsy",
+"zabieg_booksy": "Makijaż permanentny"
+},
+"b": {
+"nazwa": "KONSULTACJA MAKIJAŻ PERMANENTNY",
+"wariant": "",
+"kategoria": "MAKIJAŻ PERMANENTNY",
+"opis": "",
+"cena": 0.0,
+"typ": "Salon Kosmetyczny",
+"zabieg_booksy": "Makijaż permanentny"
+}
+},
+{
+"zbior": "sprawdzian13",
+"klucz": "49775800|6967383",
+"a": {
+"nazwa": "Keratynowe prostowanie włosy półdługie",
+"wariant": "",
+"kategoria": "",
+"opis": "Cennik aktualny do końca października roku 2026 po tej dacie ceny mogą się zmieniać.",
+"cena": 400,
+"typ": "Fryzjer",
+"zabieg_booksy": "Keratyna na włosy"
+},
+"b": {
+"nazwa": "Keratynowe prostowanie   włosów półdługie",
+"wariant": "",
+"kategoria": "Prostowanie włosów Keratyna Botoks",
+"opis": "",
+"cena": 400,
+"typ": "Fryzjer",
+"zabieg_booksy": "Keratynowe prostowanie włosów"
+}
+},
+{
+"zbior": "sprawdzian13",
+"klucz": "49775818|6143475#2",
+"a": {
+"nazwa": "Modelowanie włosów długich",
+"wariant": "",
+"kategoria": "Modelowanie",
+"opis": "",
+"cena": 80,
+"typ": "Fryzjer",
+"zabieg_booksy": "Stylizacja włosów"
+},
+"b": {
+"nazwa": "Modelowanie włosów",
+"wariant": "Włosy długie",
+"kategoria": "Usługi damskie",
+"opis": "",
+"cena": 85,
+"typ": "Fryzjer",
+"zabieg_booksy": "Stylizacja włosów"
+}
+},
+{
+"zbior": "sprawdzian13",
+"klucz": "53388567|5770194",
+"a": {
+"nazwa": "KOBIDO - Japoński Lifting Twarzy",
+"wariant": "KOBIDO - Japoński Lifting Twarzy",
+"kategoria": "Masaże Twarzy",
+"opis": "Masaż KOBIDO łączy elementy akupresury, masażu i refleksologii i oznacza starożytną drogę do piękna. Jest to naturalna technika odmładzania skóry, tzw",
+"cena": 300,
+"typ": "Masaż",
+"zabieg_booksy": "Japoński masaż twarzy kobido"
+},
+"b": {
+"nazwa": "Masaż KOBIDO - Japoński lifting twarzy",
+"wariant": "Masaż KOBIDO - Japoński lifting twarzy",
+"kategoria": "KOBIDO - JAPOŃSKI MASAŻ LIFTINGUJĄCY",
+"opis": "Japońska technika masażu twarzy i karku, która jest doskonałą alternatywą dla zabiegów medycyny estetycznej. Jego celem jest usunięcie wszelkich napię",
+"cena": 250,
+"typ": "Salon Kosmetyczny",
+"zabieg_booksy": "Lifting twarzy"
+}
+},
+{
+"zbior": "sprawdzian13",
+"klucz": "49203584|5869301",
+"a": {
+"nazwa": "Henna brwi z regulacją (pęsetą lub woskiem)",
+"wariant": "",
+"kategoria": "Henna brwi i rzęs",
+"opis": "",
+"cena": 80,
+"typ": "Paznokcie",
+"zabieg_booksy": "Stylizacja i regulacja brwi"
+},
+"b": {
+"nazwa": "Henna brwi+regulacja woskiem lub pęsetą",
+"wariant": "",
+"kategoria": "",
+"opis": "",
+"cena": 110,
+"typ": "Brwi i rzęsy",
+"zabieg_booksy": "Henna brwi"
+}
+},
+{
+"zbior": "sprawdzian13",
+"klucz": "53388573|1856544",
+"a": {
+"nazwa": "Masaż klasyczny całościowy",
+"wariant": "Masaż klasyczny całościowy",
+"kategoria": "Masaż podstawowy",
+"opis": "Masaż klasyczny to jedna z najbardziej popularnych form masażu. Najczęściej stosowane techniki to: głaskanie, rozcieranie, ugniatanie, oklepywania i w",
+"cena": 260,
+"typ": "Masaż",
+"zabieg_booksy": "Masaż ciała"
+},
+"b": {
+"nazwa": "Masaż klasyczny całego ciała",
+"wariant": "",
+"kategoria": "",
+"opis": "",
+"cena": 180,
+"typ": "Masaż",
+"zabieg_booksy": "Masaż ciała"
+}
+},
+{
+"zbior": "sprawdzian13",
+"klucz": "53416621|6682819",
+"a": {
+"nazwa": "Zabieg Retix C",
+"wariant": "",
+"kategoria": "Zabiegi kosmetologiczne na twarz",
+"opis": "Retix C to przede wszystkim **zabieg odmładzający**, ale wykonuje się go także u osób młodszych, borykających się z różnymi problemami skórnymi. Reduk",
+"cena": 350,
+"typ": "Medycyna Estetyczna",
+"zabieg_booksy": "Zabiegi na twarz"
+},
+"b": {
+"nazwa": "Retix.C",
+"wariant": "",
+"kategoria": "Peelingi chemiczne | kwasy",
+"opis": "**Retix.C – Intensywne odmłodzenie 4% Retinolem i Witaminą C** **Retix.C** to jeden z najskuteczniejszych zabiegów anti-aging, który łączy czysty reti",
+"cena": 200,
+"typ": "Podologia",
+"zabieg_booksy": "Peeling chemiczny"
+}
+},
+{
+"zbior": "sprawdzian13",
+"klucz": "50054299|1891342",
+"a": {
+"nazwa": "Strzyżenie włosów maszynką ( jedna długość)",
+"wariant": "",
+"kategoria": "Olga",
+"opis": "Strzyżenie włosów maszynką na jedną długość na całej powierzchni głowy bez cieniowania strzyżonych obszarów.",
+"cena": 50,
+"typ": "Barber shop",
+"zabieg_booksy": "Strzyżenie męskie"
+},
+"b": {
+"nazwa": "Strzyżenie maszynką na jedną długość",
+"wariant": "",
+"kategoria": "Strzyżenia ",
+"opis": "Strzyżenie łącznie z górą włosów np na 3mm",
+"cena": 50,
+"typ": "Barber shop",
+"zabieg_booksy": "Strzyżenie męskie"
+}
+},
+{
+"zbior": "sprawdzian13",
+"klucz": "53388573|5771129",
+"a": {
+"nazwa": "Masaż klasyczny całościowy",
+"wariant": "Masaż klasyczny całościowy",
+"kategoria": "Masaż podstawowy",
+"opis": "Masaż klasyczny to jedna z najbardziej popularnych form masażu. Najczęściej stosowane techniki to: głaskanie, rozcieranie, ugniatanie, oklepywania i w",
+"cena": 260,
+"typ": "Masaż",
+"zabieg_booksy": "Masaż ciała"
+},
+"b": {
+"nazwa": "Masaż klasyczny",
+"wariant": "",
+"kategoria": "Masaże na ciało",
+"opis": "\"Klasyk\" najbardziej popularny masaż. Zastosowanie tradycyjnych technik masażu. Działa przeciwbólowo, polepsza odżywianie tkanek, regeneruje mięśnie, ",
+"cena": 220,
+"typ": "Salon Kosmetyczny",
+"zabieg_booksy": "Masaż ciała"
+}
+},
+{
+"zbior": "sprawdzian13",
+"klucz": "53416621|6323086",
+"a": {
+"nazwa": "Zabieg Retix C",
+"wariant": "",
+"kategoria": "Zabiegi kosmetologiczne na twarz",
+"opis": "Retix C to przede wszystkim **zabieg odmładzający**, ale wykonuje się go także u osób młodszych, borykających się z różnymi problemami skórnymi. Reduk",
+"cena": 350,
+"typ": "Medycyna Estetyczna",
+"zabieg_booksy": "Zabiegi na twarz"
+},
+"b": {
+"nazwa": "Retix -C",
+"wariant": "Retix -C",
+"kategoria": "Odmładzanie",
+"opis": "Zestaw Xylogic Retix. C 4% zawiera maskę oraz serum, które w swoim składzie zawierają retinol, czyli witaminę A, która najskuteczniej działa w kuracja",
+"cena": 300,
+"typ": "Inni",
+"zabieg_booksy": ""
+}
+},
+{
+"zbior": "sprawdzian13",
+"klucz": "49775818|6819250",
+"a": {
+"nazwa": "Modelowanie włosów długich",
+"wariant": "",
+"kategoria": "Modelowanie",
+"opis": "",
+"cena": 80,
+"typ": "Fryzjer",
+"zabieg_booksy": "Stylizacja włosów"
+},
+"b": {
+"nazwa": "Modelowanie włosy długie",
+"wariant": "",
+"kategoria": "MODELOWANIE ",
+"opis": "",
+"cena": 80,
+"typ": "Fryzjer",
+"zabieg_booksy": "Stylizacja włosów"
+}
+},
+{
+"zbior": "sprawdzian13",
+"klucz": "49451048|5550727",
+"a": {
+"nazwa": "Depilacja woskiem wąsika",
+"wariant": "",
+"kategoria": "Depilacja woskiem",
+"opis": "",
+"cena": 20,
+"typ": "Podologia",
+"zabieg_booksy": "Depilacja wąsika"
+},
+"b": {
+"nazwa": "Depilacja wąsika",
+"wariant": "",
+"kategoria": "ARCY OPRAWA OKA- MARTYNA ",
+"opis": "Depilacja wąsika woskiem",
+"cena": 20,
+"typ": "Salon Kosmetyczny",
+"zabieg_booksy": "Depilacja woskiem"
+}
+},
+{
+"zbior": "sprawdzian13",
+"klucz": "53388573|6452743",
+"a": {
+"nazwa": "Masaż klasyczny całościowy",
+"wariant": "Masaż klasyczny całościowy",
+"kategoria": "Masaż podstawowy",
+"opis": "Masaż klasyczny to jedna z najbardziej popularnych form masażu. Najczęściej stosowane techniki to: głaskanie, rozcieranie, ugniatanie, oklepywania i w",
+"cena": 260,
+"typ": "Masaż",
+"zabieg_booksy": "Masaż ciała"
+},
+"b": {
+"nazwa": "Masaż klasyczny",
+"wariant": "",
+"kategoria": "Masaż prozdrowotny",
+"opis": "Masaż klasyczny to intensywny zabieg, który skupia się na rozluźnieniu napiętych mięśni i łagodzeniu bólu. Stosowane są głębsze ruchy, które pomagają ",
+"cena": 170,
+"typ": "Masaż",
+"zabieg_booksy": "Masaż ciała"
+}
+},
+{
+"zbior": "sprawdzian13",
+"klucz": "53388579|4075264",
+"a": {
+"nazwa": "Masaż ciepłymi kamieniami",
+"wariant": "Masaż ciepłymi kamieniami",
+"kategoria": "Masaż relaksacyjny",
+"opis": "Masaż ten ma właściwości mocno rozgrzewające i relaksujące. Zabieg wpływa na obniżenie napięcia nerwowego oraz poprawę funkcjonowania układu krążenia.",
+"cena": 330,
+"typ": "Masaż",
+"zabieg_booksy": "Masaż ciała"
+},
+"b": {
+"nazwa": "Masaż gorącymi kamieniami",
+"wariant": "",
+"kategoria": "Masaże Relaksacyjne",
+"opis": "Luksusowy zabieg łączący masaż z użyciem gładkich, rozgrzanych kamieni bazaltowych. Ciepło rozgrzanych kamieni wnika w mięśnie, delikatnie usuwając na",
+"cena": 530,
+"typ": "SPA i wellness",
+"zabieg_booksy": "Masaż gorącymi kamieniami"
+}
+},
+{
+"zbior": "sprawdzian13",
+"klucz": "50054309|7294539",
+"a": {
+"nazwa": "Modelowanie",
+"wariant": "",
+"kategoria": "Modelowanie",
+"opis": "Modelowanie, czesanie z myciem i pielęgnacją oraz użyciem produktów do układania włosów.",
+"cena": 40,
+"typ": "Barber shop",
+"zabieg_booksy": "Stylizacja włosów"
+},
+"b": {
+"nazwa": "Modelowanie",
+"wariant": "",
+"kategoria": "",
+"opis": "Mycie włosów z prostym modelowaniem - wyciągnięcie włosów na szczotkę lub wymodelowanie na prosto z użyciem prostownicy",
+"cena": 60,
+"typ": "Fryzjer",
+"zabieg_booksy": "Stylizacja włosów"
+}
+},
+{
+"zbior": "sprawdzian13",
+"klucz": "49203586|6260596",
+"a": {
+"nazwa": "Henna rzęs",
+"wariant": "",
+"kategoria": "Henna brwi i rzęs",
+"opis": "",
+"cena": 60,
+"typ": "Paznokcie",
+"zabieg_booksy": "Henna rzęs"
+},
+"b": {
+"nazwa": "Henna rzęs",
+"wariant": "",
+"kategoria": "Pielęgnacja oprawy oczu ",
+"opis": "",
+"cena": 50,
+"typ": "Brwi i rzęsy",
+"zabieg_booksy": "Henna rzęs"
+}
+},
+{
+"zbior": "sprawdzian13",
+"klucz": "49775803|6972086",
+"a": {
+"nazwa": "Klasyczne męskie z myciem",
+"wariant": "",
+"kategoria": "Strzyżenie męskie",
+"opis": "",
+"cena": 50,
+"typ": "Fryzjer",
+"zabieg_booksy": "Strzyżenie męskie"
+},
+"b": {
+"nazwa": "Strzyżenie męskie z myciem",
+"wariant": "",
+"kategoria": "",
+"opis": "",
+"cena": 60,
+"typ": "Fryzjer",
+"zabieg_booksy": "Strzyżenie męskie"
+}
+},
+{
+"zbior": "sprawdzian13",
+"klucz": "53090822|5855097",
+"a": {
+"nazwa": "Konsultacja - makijaż permanentny",
+"wariant": "",
+"kategoria": "",
+"opis": "",
+"cena": 1,
+"typ": "Brwi i rzęsy",
+"zabieg_booksy": "Makijaż permanentny"
+},
+"b": {
+"nazwa": "Konsultacja przed makijażem permanentnym",
+"wariant": "",
+"kategoria": "Makijaż permanentny ",
+"opis": "Obowiązkowa konsultacja przed zabiegiem makijażu permanentnego. Na konsultacji omawiam z Klientką przeciwskazania do zabiegu, oczekiwany efekt oraz sp",
+"cena": 0.0,
+"typ": "Brwi i rzęsy",
+"zabieg_booksy": "Makijaż permanentny"
+}
+},
+{
+"zbior": "sprawdzian13",
+"klucz": "49775805|6109317",
+"a": {
+"nazwa": "Farba 1 kolor włosy krótkie",
+"wariant": "",
+"kategoria": "Koloryzacja",
+"opis": "",
+"cena": 190,
+"typ": "Fryzjer",
+"zabieg_booksy": "Koloryzacja i farbowanie włosów"
+},
+"b": {
+"nazwa": "koloryzacja 1 kolor krótkie",
+"wariant": "",
+"kategoria": "",
+"opis": "W cenie farby jest strzyżenie i ułożenie . cena jest na długość włosów krótkich . Czas oczekiwania na wykonanie usługi może sie wydłuży do 15 min .",
+"cena": 180,
+"typ": "Barber shop",
+"zabieg_booksy": "Koloryzacja i farbowanie włosów"
+}
+},
+{
+"zbior": "sprawdzian13",
+"klucz": "49775818|6978008",
+"a": {
+"nazwa": "Modelowanie włosów długich",
+"wariant": "",
+"kategoria": "Modelowanie",
+"opis": "",
+"cena": 80,
+"typ": "Fryzjer",
+"zabieg_booksy": "Stylizacja włosów"
+},
+"b": {
+"nazwa": "Modelowanie włosy   długie",
+"wariant": "",
+"kategoria": "Usługi damskie",
+"opis": "",
+"cena": 80,
+"typ": "Fryzjer",
+"zabieg_booksy": "Konsultacja fryzjerska"
+}
+},
+{
+"zbior": "sprawdzian13",
+"klucz": "53388573|5907345",
+"a": {
+"nazwa": "Masaż klasyczny całościowy",
+"wariant": "Masaż klasyczny całościowy",
+"kategoria": "Masaż podstawowy",
+"opis": "Masaż klasyczny to jedna z najbardziej popularnych form masażu. Najczęściej stosowane techniki to: głaskanie, rozcieranie, ugniatanie, oklepywania i w",
+"cena": 260,
+"typ": "Masaż",
+"zabieg_booksy": "Masaż ciała"
+},
+"b": {
+"nazwa": "Masaż klasyczny",
+"wariant": "",
+"kategoria": "masaż klasyczny",
+"opis": "Masaż klasyczny to jeden z najbardziej rozpowszechnionych rodzajów masaży obejmujący przede wszystkim techniki głaskania, rozcierania i ugniatania. Po",
+"cena": 150,
+"typ": "Masaż",
+"zabieg_booksy": "Masaż ciała"
+}
+},
+{
+"zbior": "sprawdzian13",
+"klucz": "49775818|6975359",
+"a": {
+"nazwa": "Modelowanie włosów długich",
+"wariant": "",
+"kategoria": "Modelowanie",
+"opis": "",
+"cena": 80,
+"typ": "Fryzjer",
+"zabieg_booksy": "Stylizacja włosów"
+},
+"b": {
+"nazwa": "Modelowanie włosy długie",
+"wariant": "",
+"kategoria": "MODELOWANIE ",
+"opis": "",
+"cena": 100,
+"typ": "Fryzjer",
+"zabieg_booksy": "Stylizacja włosów"
+}
+},
+{
+"zbior": "sprawdzian13",
+"klucz": "49203586|6255885",
+"a": {
+"nazwa": "Henna rzęs",
+"wariant": "",
+"kategoria": "Henna brwi i rzęs",
+"opis": "",
+"cena": 60,
+"typ": "Paznokcie",
+"zabieg_booksy": "Henna rzęs"
+},
+"b": {
+"nazwa": "Henna rzęs",
+"wariant": "",
+"kategoria": "Henna brwi i rzęs",
+"opis": "",
+"cena": 40,
+"typ": "Salon Kosmetyczny",
+"zabieg_booksy": "Henna rzęs"
+}
+},
+{
+"zbior": "sprawdzian13",
+"klucz": "50054299|5362160",
+"a": {
+"nazwa": "Strzyżenie włosów maszynką ( jedna długość)",
+"wariant": "",
+"kategoria": "Olga",
+"opis": "Strzyżenie włosów maszynką na jedną długość na całej powierzchni głowy bez cieniowania strzyżonych obszarów.",
+"cena": 50,
+"typ": "Barber shop",
+"zabieg_booksy": "Strzyżenie męskie"
+},
+"b": {
+"nazwa": "Strzyżenie Męskie Maszynką Na Jedną Długość",
+"wariant": "",
+"kategoria": "Strzyżenie męskie ",
+"opis": "**Strzyżenie męskie maszynką** polega na równomiernym skracaniu włosów za pomocą maszynki do strzyżenia, często z użyciem różnych nakładek, aby uzyska",
+"cena": 45,
+"typ": "Fryzjer",
+"zabieg_booksy": "Strzyżenie męskie"
+}
+},
+{
+"zbior": "sprawdzian13",
+"klucz": "38027377|7138050",
+"a": {
+"nazwa": "zagęszczenie linii rzęs",
+"wariant": "",
+"kategoria": "Oczy",
+"opis": "",
+"cena": 800,
+"typ": "Salon Kosmetyczny",
+"zabieg_booksy": "Makijaż permanentny"
+},
+"b": {
+"nazwa": "Makijaż permanentny - zagęszczenie linii rzęs",
+"wariant": "",
+"kategoria": "MAKIJAŻ PERMANENTNY",
+"opis": "",
+"cena": 600,
+"typ": "Salon Kosmetyczny",
+"zabieg_booksy": "Makijaż permanentny"
+}
+},
+{
+"zbior": "sprawdzian13",
+"klucz": "53416613#0|6574030#0",
+"a": {
+"nazwa": "Masaż bańką chińską",
+"wariant": "Jedna partia",
+"kategoria": "Modelowanie sylwetki ",
+"opis": "",
+"cena": 110,
+"typ": "Medycyna Estetyczna",
+"zabieg_booksy": "Masaż bańką chińską"
+},
+"b": {
+"nazwa": "Masaż bańką chińską (1 strefa)",
+"wariant": "Masaż bańką chińską (1 strefa)",
+"kategoria": "",
+"opis": "**Masaż bańką chińską** Podczas zabiegu skóra jest najpierw masowana banką gumową, co wywołuje miejscowy odczyn i poprawia ukrwienie tkanek, przynoszą",
+"cena": 150,
+"typ": "Masaż",
+"zabieg_booksy": "Masaż bańką chińską"
+}
+},
+{
+"zbior": "sprawdzian13",
+"klucz": "50054309|1288901",
+"a": {
+"nazwa": "Modelowanie",
+"wariant": "",
+"kategoria": "Modelowanie",
+"opis": "Modelowanie, czesanie z myciem i pielęgnacją oraz użyciem produktów do układania włosów.",
+"cena": 40,
+"typ": "Barber shop",
+"zabieg_booksy": "Stylizacja włosów"
+},
+"b": {
+"nazwa": "Modelowanie włosów",
+"wariant": "",
+"kategoria": "",
+"opis": "",
+"cena": 30,
+"typ": "Barber shop",
+"zabieg_booksy": "Stylizacja włosów"
+}
+},
+{
+"zbior": "sprawdzian13",
+"klucz": "49775818|6976462",
+"a": {
+"nazwa": "Modelowanie włosów długich",
+"wariant": "",
+"kategoria": "Modelowanie",
+"opis": "",
+"cena": 80,
+"typ": "Fryzjer",
+"zabieg_booksy": "Stylizacja włosów"
+},
+"b": {
+"nazwa": "modelowanie długie",
+"wariant": "",
+"kategoria": "Fryzjerstwo Damskie",
+"opis": "włosy półdługie i długie",
+"cena": 125,
+"typ": "Barber shop",
+"zabieg_booksy": "Stylizacja włosów"
+}
+},
+{
+"zbior": "sprawdzian13",
+"klucz": "49203582|5884124",
+"a": {
+"nazwa": "Pedicure męski",
+"wariant": "",
+"kategoria": "Pedicure",
+"opis": "",
+"cena": 180,
+"typ": "Paznokcie",
+"zabieg_booksy": "Pedicure klasyczny"
+},
+"b": {
+"nazwa": "Pedicure męski",
+"wariant": "",
+"kategoria": " PEDICURE",
+"opis": "",
+"cena": 100,
+"typ": "Paznokcie",
+"zabieg_booksy": "Pedicure klasyczny"
+}
+},
+{
+"zbior": "sprawdzian13",
+"klucz": "53388573|6928633#0",
+"a": {
+"nazwa": "Masaż klasyczny całościowy",
+"wariant": "Masaż klasyczny całościowy",
+"kategoria": "Masaż podstawowy",
+"opis": "Masaż klasyczny to jedna z najbardziej popularnych form masażu. Najczęściej stosowane techniki to: głaskanie, rozcieranie, ugniatanie, oklepywania i w",
+"cena": 260,
+"typ": "Masaż",
+"zabieg_booksy": "Masaż ciała"
+},
+"b": {
+"nazwa": "Masaż klasyczny całe ciało",
+"wariant": "masaż klasyczny - 1h",
+"kategoria": "Masaż klasyczny",
+"opis": "Otul się luksusem głębokiego relaksu! Masaż klasyczny całego ciała to starannie dopracowany rytuał, który rozluźnia napięcia, wygładza stres i przywra",
+"cena": 150,
+"typ": "Salon Kosmetyczny",
+"zabieg_booksy": "Masaż ciała"
+}
+},
+{
+"zbior": "sprawdzian13",
+"klucz": "53090799|5853575",
+"a": {
+"nazwa": "Rzęsy 3-4D",
+"wariant": "",
+"kategoria": "",
+"opis": "",
+"cena": 270,
+"typ": "Brwi i rzęsy",
+"zabieg_booksy": "Przedłużanie rzęs"
+},
+"b": {
+"nazwa": "Przedłużanie rzęs 3-4D",
+"wariant": "",
+"kategoria": "Przedłużanie rzęs klasyczne",
+"opis": "",
+"cena": 245,
+"typ": "Brwi i rzęsy",
+"zabieg_booksy": "Rzęsy 3d"
+}
+},
+{
+"zbior": "sprawdzian13",
+"klucz": "50054295|6753910",
+"a": {
+"nazwa": "Strzyżenie włosów maszynką",
+"wariant": "",
+"kategoria": "Theo",
+"opis": "Strzyżenie włosów maszynką na jedną długość na całej powierzchni głowy bez cieniowania strzyżonych obszarów.",
+"cena": 40,
+"typ": "Barber shop",
+"zabieg_booksy": "Strzyżenie męskie"
+},
+"b": {
+"nazwa": "Strzyżenie  męskie maszynka",
+"wariant": "Strzyżenie  męskie maszynka",
+"kategoria": "Strzyżenie Włosów",
+"opis": "**Strzyżenie maszynką** Strzyżenie maszynką to szybka i precyzyjna usługa dla osób ceniących wygodę, estetykę i łatwość codziennej stylizacji. Idealne",
+"cena": 35,
+"typ": "Fryzjer",
+"zabieg_booksy": "Strzyżenie boków"
+}
+},
+{
+"zbior": "sprawdzian13",
+"klucz": "50054299|7278155",
+"a": {
+"nazwa": "Strzyżenie włosów maszynką ( jedna długość)",
+"wariant": "",
+"kategoria": "Olga",
+"opis": "Strzyżenie włosów maszynką na jedną długość na całej powierzchni głowy bez cieniowania strzyżonych obszarów.",
+"cena": 50,
+"typ": "Barber shop",
+"zabieg_booksy": "Strzyżenie męskie"
+},
+"b": {
+"nazwa": "Strzyżenie maszynką na jedną długość",
+"wariant": "",
+"kategoria": "STREFA MĘSKA",
+"opis": "",
+"cena": 45,
+"typ": "Fryzjer",
+"zabieg_booksy": "Strzyżenie męskie"
+}
+},
+{
+"zbior": "sprawdzian13",
+"klucz": "50054309|6699668",
+"a": {
+"nazwa": "Modelowanie",
+"wariant": "",
+"kategoria": "Modelowanie",
+"opis": "Modelowanie, czesanie z myciem i pielęgnacją oraz użyciem produktów do układania włosów.",
+"cena": 40,
+"typ": "Barber shop",
+"zabieg_booksy": "Stylizacja włosów"
+},
+"b": {
+"nazwa": "Modelowanie/ stylizacja",
+"wariant": "",
+"kategoria": "FRYZJERSTWO",
+"opis": "Modelowanie/ stylizacja. Usługa obejmuje mycie, podstawową pielęgnacje oraz modelowanie na szczotkę.",
+"cena": 120,
+"typ": "Fryzjer",
+"zabieg_booksy": "Stylizacja włosów"
+}
+},
+{
+"zbior": "sprawdzian13",
+"klucz": "50054310|7274579",
+"a": {
+"nazwa": "Strzyżenie długich włosów",
+"wariant": "",
+"kategoria": "Strzyżenie długich włosów",
+"opis": "Usługa strzyżenia nożyczkami męskich włosów długich i półdługich wraz z modelowaniem i pielęgnacją.",
+"cena": 100,
+"typ": "Barber shop",
+"zabieg_booksy": "Strzyżenie męskie"
+},
+"b": {
+"nazwa": "Strzyżenie męskie włosy długie",
+"wariant": "",
+"kategoria": "DLA PANÓW ",
+"opis": "Usługa Strzyżenia to coś więcej niż tylko cięcie włosów- oferujemy kompleksową usługę, która obejmuje diagnozę włosów i skóry głowy, doradztwo fryzjer",
+"cena": 200,
+"typ": "Fryzjer",
+"zabieg_booksy": "Strzyżenie męskie"
+}
+},
+{
+"zbior": "sprawdzian13",
+"klucz": "38027420|7187115",
+"a": {
+"nazwa": "Broda",
+"wariant": "",
+"kategoria": "Depilacja laserowa",
+"opis": "",
+"cena": 100,
+"typ": "Salon Kosmetyczny",
+"zabieg_booksy": "Depilacja twarzy"
+},
+"b": {
+"nazwa": "Broda",
+"wariant": "",
+"kategoria": "DEPILACJA LASEROWA (TYLKO REZERWACJA TELEFONICZNA)",
+"opis": "",
+"cena": 100,
+"typ": "Salon Kosmetyczny",
+"zabieg_booksy": "Depilacja laserowa"
+}
+},
+{
+"zbior": "sprawdzian13",
+"klucz": "53388573|6023392",
+"a": {
+"nazwa": "Masaż klasyczny całościowy",
+"wariant": "Masaż klasyczny całościowy",
+"kategoria": "Masaż podstawowy",
+"opis": "Masaż klasyczny to jedna z najbardziej popularnych form masażu. Najczęściej stosowane techniki to: głaskanie, rozcieranie, ugniatanie, oklepywania i w",
+"cena": 260,
+"typ": "Masaż",
+"zabieg_booksy": "Masaż ciała"
+},
+"b": {
+"nazwa": "Masaż klasyczny całościowy",
+"wariant": "",
+"kategoria": "Masaż 💆🏼‍♀️",
+"opis": "Masaż leczniczy całościowo(obejmuje w sobie masa pleców karku nóg i rąk)",
+"cena": 259,
+"typ": "Paznokcie",
+"zabieg_booksy": "Masaż leczniczy"
+}
+},
+{
+"zbior": "sprawdzian13",
+"klucz": "53416621|6863869#0",
+"a": {
+"nazwa": "Zabieg Retix C",
+"wariant": "",
+"kategoria": "Zabiegi kosmetologiczne na twarz",
+"opis": "Retix C to przede wszystkim **zabieg odmładzający**, ale wykonuje się go także u osób młodszych, borykających się z różnymi problemami skórnymi. Reduk",
+"cena": 350,
+"typ": "Medycyna Estetyczna",
+"zabieg_booksy": "Zabiegi na twarz"
+},
+"b": {
+"nazwa": "Retix C",
+"wariant": "jeden zabieg",
+"kategoria": "peelingi chemiczne",
+"opis": "Intensywna terapia odmaładzająca z retinolem, witamina C i antyoksydantami. Terapia z użyciem **Retix.C** już po pierwszym zabiegu w widoczny sposób r",
+"cena": 250,
+"typ": "Medycyna Estetyczna",
+"zabieg_booksy": "Peeling chemiczny"
+}
+},
+{
+"zbior": "sprawdzian13",
+"klucz": "53388579|5858025#1",
+"a": {
+"nazwa": "Masaż ciepłymi kamieniami",
+"wariant": "Masaż ciepłymi kamieniami",
+"kategoria": "Masaż relaksacyjny",
+"opis": "Masaż ten ma właściwości mocno rozgrzewające i relaksujące. Zabieg wpływa na obniżenie napięcia nerwowego oraz poprawę funkcjonowania układu krążenia.",
+"cena": 330,
+"typ": "Masaż",
+"zabieg_booksy": "Masaż ciała"
+},
+"b": {
+"nazwa": "Masaż Kamienne Ukojenie - ciepłymi kamieniami",
+"wariant": "90 min",
+"kategoria": "MASAŻ CAŁEGO CIAŁA ",
+"opis": "**🔥 Kamienne Ukojenie – Masaż ciepłymi kamieniami 🔥** Głęboko relaksujący rytuał, który łączy terapeutyczną moc ciepła z kojącym dotykiem. Masaż wykon",
+"cena": 319,
+"typ": "Masaż",
+"zabieg_booksy": "Masaż ciała"
+}
+},
+{
+"zbior": "sprawdzian13",
+"klucz": "48984116|6812475",
+"a": {
+"nazwa": "Przedłużanie rzęs 3D",
+"wariant": "",
+"kategoria": "",
+"opis": "",
+"cena": 230,
+"typ": "Brwi i rzęsy",
+"zabieg_booksy": "Rzęsy 3d"
+},
+"b": {
+"nazwa": "Przedłużanie rzęs 3D",
+"wariant": "",
+"kategoria": "Przedłużanie rzęs",
+"opis": "",
+"cena": 150,
+"typ": "Brwi i rzęsy",
+"zabieg_booksy": "Przedłużanie rzęs"
+}
+},
+{
+"zbior": "sprawdzian13",
+"klucz": "49451048|5532993",
+"a": {
+"nazwa": "Depilacja woskiem wąsika",
+"wariant": "",
+"kategoria": "Depilacja woskiem",
+"opis": "",
+"cena": 20,
+"typ": "Podologia",
+"zabieg_booksy": "Depilacja wąsika"
+},
+"b": {
+"nazwa": "Depilacja woskiem - Wąsik",
+"wariant": "",
+"kategoria": "Depilacja woskiem",
+"opis": "",
+"cena": 20,
+"typ": "Salon Kosmetyczny",
+"zabieg_booksy": "Depilacja woskiem"
+}
+},
+{
+"zbior": "sprawdzian13",
+"klucz": "50054299|7272390",
+"a": {
+"nazwa": "Strzyżenie włosów maszynką ( jedna długość)",
+"wariant": "",
+"kategoria": "Olga",
+"opis": "Strzyżenie włosów maszynką na jedną długość na całej powierzchni głowy bez cieniowania strzyżonych obszarów.",
+"cena": 50,
+"typ": "Barber shop",
+"zabieg_booksy": "Strzyżenie męskie"
+},
+"b": {
+"nazwa": "Strzyżenie maszynką na jedną długość",
+"wariant": "",
+"kategoria": "Kacper 🫡",
+"opis": "",
+"cena": 40,
+"typ": "Barber shop",
+"zabieg_booksy": "Strzyżenie męskie"
+}
+},
+{
+"zbior": "sprawdzian13",
+"klucz": "49775818|5960113",
+"a": {
+"nazwa": "Modelowanie włosów długich",
+"wariant": "",
+"kategoria": "Modelowanie",
+"opis": "",
+"cena": 80,
+"typ": "Fryzjer",
+"zabieg_booksy": "Stylizacja włosów"
+},
+"b": {
+"nazwa": "Modelowanie Włosy Długie",
+"wariant": "",
+"kategoria": "Dział damski",
+"opis": "",
+"cena": 70,
+"typ": "Fryzjer",
+"zabieg_booksy": "Stylizacja włosów"
+}
+},
+{
+"zbior": "sprawdzian13",
+"klucz": "49203586|6358795",
+"a": {
+"nazwa": "Henna rzęs",
+"wariant": "",
+"kategoria": "Henna brwi i rzęs",
+"opis": "",
+"cena": 60,
+"typ": "Paznokcie",
+"zabieg_booksy": "Henna rzęs"
+},
+"b": {
+"nazwa": "Henna rzęs",
+"wariant": "Henna rzęs",
+"kategoria": "Henna/Regulacja",
+"opis": "",
+"cena": 60,
+"typ": "Paznokcie",
+"zabieg_booksy": "Henna rzęs"
+}
+},
+{
+"zbior": "sprawdzian13",
+"klucz": "53416621|5974547",
+"a": {
+"nazwa": "Zabieg Retix C",
+"wariant": "",
+"kategoria": "Zabiegi kosmetologiczne na twarz",
+"opis": "Retix C to przede wszystkim **zabieg odmładzający**, ale wykonuje się go także u osób młodszych, borykających się z różnymi problemami skórnymi. Reduk",
+"cena": 350,
+"typ": "Medycyna Estetyczna",
+"zabieg_booksy": "Zabiegi na twarz"
+},
+"b": {
+"nazwa": "Retix C",
+"wariant": "",
+"kategoria": "Kosmetologia",
+"opis": "Retix C to wyjątkowa kuracja na bazie retinolu, witaminy C, antyoksydantów, która sprawdza się w licznych problemach skóry. Stosować można go zarówno ",
+"cena": 199,
+"typ": "Medycyna Estetyczna",
+"zabieg_booksy": ""
+}
+},
+{
+"zbior": "sprawdzian13",
+"klucz": "53388573|5897151#1",
+"a": {
+"nazwa": "Masaż klasyczny całościowy",
+"wariant": "Masaż klasyczny całościowy",
+"kategoria": "Masaż podstawowy",
+"opis": "Masaż klasyczny to jedna z najbardziej popularnych form masażu. Najczęściej stosowane techniki to: głaskanie, rozcieranie, ugniatanie, oklepywania i w",
+"cena": 260,
+"typ": "Masaż",
+"zabieg_booksy": "Masaż ciała"
+},
+"b": {
+"nazwa": "Masaż klasyczny",
+"wariant": "Masaż klasyczny",
+"kategoria": "Usługi mobilne ",
+"opis": "Masaż działa wskutek rozprowadzania po całym organizmie przez krew biologicznie czynnych związków uwolnionych z tkanek przez zabieg oraz na drodze odr",
+"cena": 250,
+"typ": "Masaż",
+"zabieg_booksy": "Masaż ciała"
+}
+},
+{
+"zbior": "sprawdzian13",
+"klucz": "53416621|5975020",
+"a": {
+"nazwa": "Zabieg Retix C",
+"wariant": "",
+"kategoria": "Zabiegi kosmetologiczne na twarz",
+"opis": "Retix C to przede wszystkim **zabieg odmładzający**, ale wykonuje się go także u osób młodszych, borykających się z różnymi problemami skórnymi. Reduk",
+"cena": 350,
+"typ": "Medycyna Estetyczna",
+"zabieg_booksy": "Zabiegi na twarz"
+},
+"b": {
+"nazwa": "Retix C",
+"wariant": "",
+"kategoria": "Zabiegi na twarz",
+"opis": "Retix C to profesjonalny zabieg odmładzający i regenerujący opierający się na składnikach aktywnych: 4% retinol , witamina C 8% i antyoksydanty 30%. R",
+"cena": 300,
+"typ": "Salon Kosmetyczny",
+"zabieg_booksy": "Zabiegi na twarz"
+}
+},
+{
+"zbior": "sprawdzian13",
+"klucz": "53416621|6682016",
+"a": {
+"nazwa": "Zabieg Retix C",
+"wariant": "",
+"kategoria": "Zabiegi kosmetologiczne na twarz",
+"opis": "Retix C to przede wszystkim **zabieg odmładzający**, ale wykonuje się go także u osób młodszych, borykających się z różnymi problemami skórnymi. Reduk",
+"cena": 350,
+"typ": "Medycyna Estetyczna",
+"zabieg_booksy": "Zabiegi na twarz"
+},
+"b": {
+"nazwa": "Retix C",
+"wariant": "",
+"kategoria": "Twarz",
+"opis": "Retix C jest to połączenie retinolu oraz witaminy C. Zabieg ten redukuje zmarszczki, przebarwienia, blizny, zmiany potrądzikowe, zaskórniki oraz inne ",
+"cena": 250,
+"typ": "Salon Kosmetyczny",
+"zabieg_booksy": "Zabiegi kwasami"
+}
+},
+{
+"zbior": "sprawdzian13",
+"klucz": "50054299|7238491",
+"a": {
+"nazwa": "Strzyżenie włosów maszynką ( jedna długość)",
+"wariant": "",
+"kategoria": "Olga",
+"opis": "Strzyżenie włosów maszynką na jedną długość na całej powierzchni głowy bez cieniowania strzyżonych obszarów.",
+"cena": 50,
+"typ": "Barber shop",
+"zabieg_booksy": "Strzyżenie męskie"
+},
+"b": {
+"nazwa": "Strzyżenie maszynką na jedną długość",
+"wariant": "",
+"kategoria": "Fryzjerstwo Męski",
+"opis": "",
+"cena": 50,
+"typ": "Fryzjer",
+"zabieg_booksy": "Strzyżenie męskie"
+}
+},
+{
+"zbior": "sprawdzian13",
+"klucz": "53388573|6452745",
+"a": {
+"nazwa": "Masaż klasyczny całościowy",
+"wariant": "Masaż klasyczny całościowy",
+"kategoria": "Masaż podstawowy",
+"opis": "Masaż klasyczny to jedna z najbardziej popularnych form masażu. Najczęściej stosowane techniki to: głaskanie, rozcieranie, ugniatanie, oklepywania i w",
+"cena": 260,
+"typ": "Masaż",
+"zabieg_booksy": "Masaż ciała"
+},
+"b": {
+"nazwa": "Masaż klasyczny",
+"wariant": "",
+"kategoria": "Masaż prozdrowotny",
+"opis": "Masaż klasyczny to intensywny zabieg, który skupia się na rozluźnieniu napiętych mięśni i łagodzeniu bólu. Stosowane są głębsze ruchy, które pomagają ",
+"cena": 240,
+"typ": "Masaż",
+"zabieg_booksy": "Masaż ciała"
+}
+},
+{
+"zbior": "sprawdzian13",
+"klucz": "50054309|7265436",
+"a": {
+"nazwa": "Modelowanie",
+"wariant": "",
+"kategoria": "Modelowanie",
+"opis": "Modelowanie, czesanie z myciem i pielęgnacją oraz użyciem produktów do układania włosów.",
+"cena": 40,
+"typ": "Barber shop",
+"zabieg_booksy": "Stylizacja włosów"
+},
+"b": {
+"nazwa": "Modelowanie",
+"wariant": "",
+"kategoria": "Czesanie",
+"opis": "Usługa obejmuje mycie oraz modelowanie włosów.",
+"cena": 60,
+"typ": "Fryzjer",
+"zabieg_booksy": "Stylizacja włosów"
+}
+},
+{
+"zbior": "sprawdzian13",
+"klucz": "49451048|6650497",
+"a": {
+"nazwa": "Depilacja woskiem wąsika",
+"wariant": "",
+"kategoria": "Depilacja woskiem",
+"opis": "",
+"cena": 20,
+"typ": "Podologia",
+"zabieg_booksy": "Depilacja wąsika"
+},
+"b": {
+"nazwa": "Depilacja wąsika",
+"wariant": "",
+"kategoria": "Depilacja Woskiem - Iza 🇵🇱",
+"opis": "",
+"cena": 45,
+"typ": "Salon Kosmetyczny",
+"zabieg_booksy": "Depilacja woskiem"
+}
+},
+{
+"zbior": "sprawdzian13",
+"klucz": "38027420|5201363",
+"a": {
+"nazwa": "Broda",
+"wariant": "",
+"kategoria": "Depilacja laserowa",
+"opis": "",
+"cena": 100,
+"typ": "Salon Kosmetyczny",
+"zabieg_booksy": "Depilacja twarzy"
+},
+"b": {
+"nazwa": "Broda",
+"wariant": "",
+"kategoria": "Depilacja Laserowa",
+"opis": "",
+"cena": 249,
+"typ": "Salon Kosmetyczny",
+"zabieg_booksy": "Depilacja laserowa"
+}
+},
+{
+"zbior": "sprawdzian13",
+"klucz": "53388573|5907366",
+"a": {
+"nazwa": "Masaż klasyczny całościowy",
+"wariant": "Masaż klasyczny całościowy",
+"kategoria": "Masaż podstawowy",
+"opis": "Masaż klasyczny to jedna z najbardziej popularnych form masażu. Najczęściej stosowane techniki to: głaskanie, rozcieranie, ugniatanie, oklepywania i w",
+"cena": 260,
+"typ": "Masaż",
+"zabieg_booksy": "Masaż ciała"
+},
+"b": {
+"nazwa": "Masaż klasyczny",
+"wariant": "",
+"kategoria": "",
+"opis": "Opis: Klasyczny masaż leczniczo-relaksacyjny skupiający się na głównych partiach ciała. Pomaga rozluźnić napięte mięśnie i poprawić funkcjonowanie org",
+"cena": 200,
+"typ": "Masaż",
+"zabieg_booksy": "Masaż ciała"
+}
+},
+{
+"zbior": "sprawdzian13",
+"klucz": "53388558|6051361",
+"a": {
+"nazwa": "Zabieg kojąco-regenerujący",
+"wariant": "",
+"kategoria": "Zabiegi Pielęgnacyjne ARKANA",
+"opis": "**Zabieg kojąco – regenerujący dla cery wrażliwej i naczyniowej**",
+"cena": 320,
+"typ": "Masaż",
+"zabieg_booksy": "Zabiegi na twarz"
+},
+"b": {
+"nazwa": "Zabieg wyciszający/łagodzący",
+"wariant": "",
+"kategoria": "",
+"opis": "Zabieg łagodzący – delikatna terapia dla skóry wrażliwej i podrażnionej. Działa kojąco, nawilżająco i regenerująco, redukuje zaczerwienienia i uczucie",
+"cena": 120,
+"typ": "Salon Kosmetyczny",
+"zabieg_booksy": "Zabiegi na twarz"
+}
+},
+{
+"zbior": "sprawdzian13",
+"klucz": "49775805|6132985",
+"a": {
+"nazwa": "Farba 1 kolor włosy krótkie",
+"wariant": "",
+"kategoria": "Koloryzacja",
+"opis": "",
+"cena": 190,
+"typ": "Fryzjer",
+"zabieg_booksy": "Koloryzacja i farbowanie włosów"
+},
+"b": {
+"nazwa": "Farbowanie  jeden kolor krótki włosy",
+"wariant": "",
+"kategoria": "DZIAŁ DAMSKI  (Farbowanie)",
+"opis": "❗️Farbowanie włosów w jeden kolor,bez rozjaśnianiu. Do podanej cene będzie jeszcze doliczona wartość farby.",
+"cena": 150,
+"typ": "Fryzjer",
+"zabieg_booksy": "Koloryzacja i farbowanie włosów"
+}
+},
+{
+"zbior": "sprawdzian13",
+"klucz": "48403752|5542030",
+"a": {
+"nazwa": "botox 3 okolice",
+"wariant": "",
+"kategoria": "Botoks",
+"opis": "",
+"cena": 1400,
+"typ": "Medycyna Estetyczna",
+"zabieg_booksy": "Botoks"
+},
+"b": {
+"nazwa": "Niwelowanie zmarszczek ( botoks) 3 okolice",
+"wariant": "",
+"kategoria": "Kosmetologia Estetyczna",
+"opis": "",
+"cena": 1000,
+"typ": "Salon Kosmetyczny",
+"zabieg_booksy": "Usuwanie zmarszczek"
+}
+},
+{
+"zbior": "sprawdzian13",
+"klucz": "49451048|6653290",
+"a": {
+"nazwa": "Depilacja woskiem wąsika",
+"wariant": "",
+"kategoria": "Depilacja woskiem",
+"opis": "",
+"cena": 20,
+"typ": "Podologia",
+"zabieg_booksy": "Depilacja wąsika"
+},
+"b": {
+"nazwa": "Depilacja wąsika",
+"wariant": "",
+"kategoria": "BRWI.",
+"opis": "",
+"cena": 30,
+"typ": "Brwi i rzęsy",
+"zabieg_booksy": "Depilacja woskiem"
+}
+},
+{
+"zbior": "sprawdzian13",
+"klucz": "50054310|7272408",
+"a": {
+"nazwa": "Strzyżenie długich włosów",
+"wariant": "",
+"kategoria": "Strzyżenie długich włosów",
+"opis": "Usługa strzyżenia nożyczkami męskich włosów długich i półdługich wraz z modelowaniem i pielęgnacją.",
+"cena": 100,
+"typ": "Barber shop",
+"zabieg_booksy": "Strzyżenie męskie"
+},
+"b": {
+"nazwa": "Strzyżenie długie włosy",
+"wariant": "Strzyżenie długie włosy",
+"kategoria": "Nasze usługi",
+"opis": "Strzyżenie długich włosów to precyzyjna usługa. Obejmuje konsultację, mycie, cięcie oraz stylizację, zapewniając efekt dopasowany do Twoich potrzeb.",
+"cena": 80,
+"typ": "Barber shop",
+"zabieg_booksy": "Strzyżenie męskie"
+}
+},
+{
+"zbior": "sprawdzian13",
+"klucz": "53388573|3033775#1",
+"a": {
+"nazwa": "Masaż klasyczny całościowy",
+"wariant": "Masaż klasyczny całościowy",
+"kategoria": "Masaż podstawowy",
+"opis": "Masaż klasyczny to jedna z najbardziej popularnych form masażu. Najczęściej stosowane techniki to: głaskanie, rozcieranie, ugniatanie, oklepywania i w",
+"cena": 260,
+"typ": "Masaż",
+"zabieg_booksy": "Masaż ciała"
+},
+"b": {
+"nazwa": "Masaż klasyczny",
+"wariant": "Masaż klasyczny ⋅ 60 min",
+"kategoria": "Masaże dla zdrowia",
+"opis": "Masaż klasyczny to najpopularniejsza i najbardziej uniwersalna forma masażu, której celem jest odprężenie, poprawa krążenia oraz redukcja napięć mięśn",
+"cena": 130,
+"typ": "Masaż",
+"zabieg_booksy": "Masaż ciała"
+}
+},
+{
+"zbior": "sprawdzian13",
+"klucz": "53416621|6850848",
+"a": {
+"nazwa": "Zabieg Retix C",
+"wariant": "",
+"kategoria": "Zabiegi kosmetologiczne na twarz",
+"opis": "Retix C to przede wszystkim **zabieg odmładzający**, ale wykonuje się go także u osób młodszych, borykających się z różnymi problemami skórnymi. Reduk",
+"cena": 350,
+"typ": "Medycyna Estetyczna",
+"zabieg_booksy": "Zabiegi na twarz"
+},
+"b": {
+"nazwa": "Peeling Retix C",
+"wariant": "",
+"kategoria": "Głębokie złuszczanie",
+"opis": "Peeling Retix C to profesjonalny zabieg odmładzający i regenerujący skórę, oparty na połączeniu retinolu, witaminy C i proteoglikanów. Działa poprzez ",
+"cena": 350,
+"typ": "Salon Kosmetyczny",
+"zabieg_booksy": "Peeling chemiczny"
+}
+},
+{
+"zbior": "sprawdzian13",
+"klucz": "49775818|6966913",
+"a": {
+"nazwa": "Modelowanie włosów długich",
+"wariant": "",
+"kategoria": "Modelowanie",
+"opis": "",
+"cena": 80,
+"typ": "Fryzjer",
+"zabieg_booksy": "Stylizacja włosów"
+},
+"b": {
+"nazwa": "Modelowanie włosy długie",
+"wariant": "",
+"kategoria": "Modelowanie",
+"opis": "",
+"cena": 90,
+"typ": "Fryzjer",
+"zabieg_booksy": "Stylizacja włosów"
+}
+},
+{
+"zbior": "sprawdzian13",
+"klucz": "49203582|5826223",
+"a": {
+"nazwa": "Pedicure męski",
+"wariant": "",
+"kategoria": "Pedicure",
+"opis": "",
+"cena": 180,
+"typ": "Paznokcie",
+"zabieg_booksy": "Pedicure klasyczny"
+},
+"b": {
+"nazwa": "Pedicure męski",
+"wariant": "",
+"kategoria": "Pedicure ",
+"opis": "",
+"cena": 85,
+"typ": "Paznokcie",
+"zabieg_booksy": "Pedicure klasyczny"
+}
+},
+{
+"zbior": "sprawdzian13",
+"klucz": "53388567|5907687",
+"a": {
+"nazwa": "KOBIDO - Japoński Lifting Twarzy",
+"wariant": "KOBIDO - Japoński Lifting Twarzy",
+"kategoria": "Masaże Twarzy",
+"opis": "Masaż KOBIDO łączy elementy akupresury, masażu i refleksologii i oznacza starożytną drogę do piękna. Jest to naturalna technika odmładzania skóry, tzw",
+"cena": 300,
+"typ": "Masaż",
+"zabieg_booksy": "Japoński masaż twarzy kobido"
+},
+"b": {
+"nazwa": "Masaż Kobido",
+"wariant": "",
+"kategoria": "Twarzy ",
+"opis": "Masaż Kobido – japoński lifting bez skalpela Kobido to tradycyjny japoński masaż twarzy, nazywany naturalną alternatywą dla botoksu. Łączy techniki li",
+"cena": 180,
+"typ": "Masaż",
+"zabieg_booksy": "Japoński masaż twarzy kobido"
+}
+},
+{
+"zbior": "sprawdzian13",
+"klucz": "53388579|6924734",
+"a": {
+"nazwa": "Masaż ciepłymi kamieniami",
+"wariant": "Masaż ciepłymi kamieniami",
+"kategoria": "Masaż relaksacyjny",
+"opis": "Masaż ten ma właściwości mocno rozgrzewające i relaksujące. Zabieg wpływa na obniżenie napięcia nerwowego oraz poprawę funkcjonowania układu krążenia.",
+"cena": 330,
+"typ": "Masaż",
+"zabieg_booksy": "Masaż ciała"
+},
+"b": {
+"nazwa": "Massage gorącymi kamieniami",
+"wariant": "",
+"kategoria": "Masaż ",
+"opis": "Masaż gorącymi kamieniami To wyjątkowo relaksujący rytuał, który łączy ciepło naturalnych, gładkich kamieni bazaltowych z technikami masażu klasyczneg",
+"cena": 200,
+"typ": "Paznokcie",
+"zabieg_booksy": "Masaż gorącymi kamieniami"
+}
+},
+{
+"zbior": "sprawdzian13",
+"klucz": "53388573|5910497#2",
+"a": {
+"nazwa": "Masaż klasyczny całościowy",
+"wariant": "Masaż klasyczny całościowy",
+"kategoria": "Masaż podstawowy",
+"opis": "Masaż klasyczny to jedna z najbardziej popularnych form masażu. Najczęściej stosowane techniki to: głaskanie, rozcieranie, ugniatanie, oklepywania i w",
+"cena": 260,
+"typ": "Masaż",
+"zabieg_booksy": "Masaż ciała"
+},
+"b": {
+"nazwa": "Masaż klasyczny całego ciała",
+"wariant": "90 min",
+"kategoria": "Masaze i zabiegi na cialo",
+"opis": "Masaż klasyczny to jedna z najpopularniejszych i najbardziej znanych form masażu na świecie. Jest to ogólna technika masażu o średniej sile nacisku, k",
+"cena": 280,
+"typ": "Masaż",
+"zabieg_booksy": "Masaż ciała"
+}
+},
+{
+"zbior": "sprawdzian13",
+"klucz": "50054309|7294773",
+"a": {
+"nazwa": "Modelowanie",
+"wariant": "",
+"kategoria": "Modelowanie",
+"opis": "Modelowanie, czesanie z myciem i pielęgnacją oraz użyciem produktów do układania włosów.",
+"cena": 40,
+"typ": "Barber shop",
+"zabieg_booksy": "Stylizacja włosów"
+},
+"b": {
+"nazwa": "Modelowanie",
+"wariant": "",
+"kategoria": "Strzyżenia",
+"opis": "Mycie, masaż i modelowanie włosów.",
+"cena": 150,
+"typ": "Fryzjer",
+"zabieg_booksy": "Stylizacja włosów"
+}
+},
+{
+"zbior": "sprawdzian13",
+"klucz": "49451048|7340654",
+"a": {
+"nazwa": "Depilacja woskiem wąsika",
+"wariant": "",
+"kategoria": "Depilacja woskiem",
+"opis": "",
+"cena": 20,
+"typ": "Podologia",
+"zabieg_booksy": "Depilacja wąsika"
+},
+"b": {
+"nazwa": "Depilacja woskiem wąsik",
+"wariant": "",
+"kategoria": "Brwi ",
+"opis": "",
+"cena": 30,
+"typ": "Fryzjer",
+"zabieg_booksy": "Depilacja woskiem"
+}
+},
+{
+"zbior": "sprawdzian13",
+"klucz": "49451037|5914877",
+"a": {
+"nazwa": "Rozszerzony zabieg podologiczny",
+"wariant": "",
+"kategoria": "Zabiegi podologiczne",
+"opis": "Skròcenie, oczyszczanie i oszlifowanie paznokci zrogowqciałych ( przerośniẹtych, zmienionych chorobowo), opracowanie skòrek, oczyszczanie wałòw okołop",
+"cena": 190,
+"typ": "Podologia",
+"zabieg_booksy": "Pedicure podologiczny"
+},
+"b": {
+"nazwa": "Rozszerzony zabieg podologiczny",
+"wariant": "",
+"kategoria": "",
+"opis": "Rozszerzony zabieg podologiczny to profesjonalna pielęgnacja stóp. Obejmuje on m.in. Oczyszczenie i dezynfekcję stóp Obcięcie i opracowanie paznokci U",
+"cena": 240,
+"typ": "Podologia",
+"zabieg_booksy": "Zabieg podologiczny"
+}
+},
+{
+"zbior": "sprawdzian13",
+"klucz": "53388567|5910469",
+"a": {
+"nazwa": "KOBIDO - Japoński Lifting Twarzy",
+"wariant": "KOBIDO - Japoński Lifting Twarzy",
+"kategoria": "Masaże Twarzy",
+"opis": "Masaż KOBIDO łączy elementy akupresury, masażu i refleksologii i oznacza starożytną drogę do piękna. Jest to naturalna technika odmładzania skóry, tzw",
+"cena": 300,
+"typ": "Masaż",
+"zabieg_booksy": "Japoński masaż twarzy kobido"
+},
+"b": {
+"nazwa": "Masaż KOBIDO.",
+"wariant": "",
+"kategoria": "Masaż twarzy",
+"opis": "KO.BIDO to japońskie połączenie drenażu limfatycznego i liftingującego masażu twarzy. Pozwala na obserwowanie rezultatów już po pierwszej sesji, jedna",
+"cena": 220,
+"typ": "Masaż",
+"zabieg_booksy": "Japoński masaż twarzy kobido"
+}
+},
+{
+"zbior": "sprawdzian13",
+"klucz": "49451048|5535122",
+"a": {
+"nazwa": "Depilacja woskiem wąsika",
+"wariant": "",
+"kategoria": "Depilacja woskiem",
+"opis": "",
+"cena": 20,
+"typ": "Podologia",
+"zabieg_booksy": "Depilacja wąsika"
+},
+"b": {
+"nazwa": "depilacja wąsik",
+"wariant": "depilacja wąsik",
+"kategoria": "Depilacja woskiem",
+"opis": "",
+"cena": 30,
+"typ": "Inni",
+"zabieg_booksy": ""
+}
+},
+{
+"zbior": "sprawdzian13",
+"klucz": "53090799|6895268",
+"a": {
+"nazwa": "Rzęsy 3-4D",
+"wariant": "",
+"kategoria": "",
+"opis": "",
+"cena": 270,
+"typ": "Brwi i rzęsy",
+"zabieg_booksy": "Przedłużanie rzęs"
+},
+"b": {
+"nazwa": "Przedłużanie rzęs 3-4D",
+"wariant": "",
+"kategoria": "STYLIZACJA RZĘS",
+"opis": "",
+"cena": 220,
+"typ": "Salon Kosmetyczny",
+"zabieg_booksy": "Rzęsy 3d"
+}
+},
+{
+"zbior": "sprawdzian13",
+"klucz": "50054310|7279046",
+"a": {
+"nazwa": "Strzyżenie długich włosów",
+"wariant": "",
+"kategoria": "Strzyżenie długich włosów",
+"opis": "Usługa strzyżenia nożyczkami męskich włosów długich i półdługich wraz z modelowaniem i pielęgnacją.",
+"cena": 100,
+"typ": "Barber shop",
+"zabieg_booksy": "Strzyżenie męskie"
+},
+"b": {
+"nazwa": "Strzyżenie długich włosów",
+"wariant": "",
+"kategoria": "Włosy ",
+"opis": "* Konsultacja z barberem * Mycie włosów z masażem * Profesjonalne strzyżenie włosów * Modelowanie i dobór kosmetyków do stylizacji",
+"cena": 110,
+"typ": "Barber shop",
+"zabieg_booksy": "Strzyżenie męskie"
+}
+},
+{
+"zbior": "sprawdzian13",
+"klucz": "49203586|6251193",
+"a": {
+"nazwa": "Henna rzęs",
+"wariant": "",
+"kategoria": "Henna brwi i rzęs",
+"opis": "",
+"cena": 60,
+"typ": "Paznokcie",
+"zabieg_booksy": "Henna rzęs"
+},
+"b": {
+"nazwa": "Henna rzęs",
+"wariant": "",
+"kategoria": "OPRAWA OKA 👀  HENNA, LAMINACJA ",
+"opis": "",
+"cena": 30,
+"typ": "Salon Kosmetyczny",
+"zabieg_booksy": "Henna rzęs"
+}
+},
+{
+"zbior": "sprawdzian13",
+"klucz": "53388573|5895560",
+"a": {
+"nazwa": "Masaż klasyczny całościowy",
+"wariant": "Masaż klasyczny całościowy",
+"kategoria": "Masaż podstawowy",
+"opis": "Masaż klasyczny to jedna z najbardziej popularnych form masażu. Najczęściej stosowane techniki to: głaskanie, rozcieranie, ugniatanie, oklepywania i w",
+"cena": 260,
+"typ": "Masaż",
+"zabieg_booksy": "Masaż ciała"
+},
+"b": {
+"nazwa": "Masaż klasyczny",
+"wariant": "",
+"kategoria": "Strefa zdrowia💜",
+"opis": "Co to jest: tradycyjny masaż całego ciała, oparty na technikach rozcierania, ugniatania i głaskania. Po co: ogólne napięcie, ból mięśni, zmęczenie fiz",
+"cena": 190,
+"typ": "Masaż",
+"zabieg_booksy": "Masaż ciała"
+}
+},
+{
+"zbior": "sprawdzian13",
+"klucz": "53416621|6846872",
+"a": {
+"nazwa": "Zabieg Retix C",
+"wariant": "",
+"kategoria": "Zabiegi kosmetologiczne na twarz",
+"opis": "Retix C to przede wszystkim **zabieg odmładzający**, ale wykonuje się go także u osób młodszych, borykających się z różnymi problemami skórnymi. Reduk",
+"cena": 350,
+"typ": "Medycyna Estetyczna",
+"zabieg_booksy": "Zabiegi na twarz"
+},
+"b": {
+"nazwa": "Retix C",
+"wariant": "",
+"kategoria": "ZABIEGI NA TWARZ",
+"opis": "Retix C to preparat, który łączy trzy aktywne składniki: retinol, witaminę C oraz antyoksydanty. Retinol, zawarty w stabilnym kompleksie polimerowym M",
+"cena": 300,
+"typ": "Salon Kosmetyczny",
+"zabieg_booksy": "Zabiegi na twarz"
+}
+},
+{
+"zbior": "sprawdzian13",
+"klucz": "53090802|6887737",
+"a": {
+"nazwa": "Rzęsy 6-8D",
+"wariant": "",
+"kategoria": "",
+"opis": "",
+"cena": 340,
+"typ": "Brwi i rzęsy",
+"zabieg_booksy": "Przedłużanie rzęs"
+},
+"b": {
+"nazwa": "Przedłużanie rzęs 6-8D",
+"wariant": "",
+"kategoria": "Przedłużanie rzęs",
+"opis": "",
+"cena": 260,
+"typ": "Salon Kosmetyczny",
+"zabieg_booksy": "Przedłużanie rzęs"
+}
+},
+{
+"zbior": "sprawdzian13",
+"klucz": "53388579|5832298#0",
+"a": {
+"nazwa": "Masaż ciepłymi kamieniami",
+"wariant": "Masaż ciepłymi kamieniami",
+"kategoria": "Masaż relaksacyjny",
+"opis": "Masaż ten ma właściwości mocno rozgrzewające i relaksujące. Zabieg wpływa na obniżenie napięcia nerwowego oraz poprawę funkcjonowania układu krążenia.",
+"cena": 330,
+"typ": "Masaż",
+"zabieg_booksy": "Masaż ciała"
+},
+"b": {
+"nazwa": "Masaż gorącymi kamieniami",
+"wariant": "Masaż gorącymi kamieniami",
+"kategoria": "Masaże",
+"opis": "Wyjątkowo relaksujący zabieg z wykorzystaniem podgrzanych, gładkich kamieni bazaltowych. Ciepło głęboko przenika do mięśni, rozluźniając je i przywrac",
+"cena": 110,
+"typ": "Salon Kosmetyczny",
+"zabieg_booksy": "Masaż gorącymi kamieniami"
+}
+},
+{
+"zbior": "sprawdzian13",
+"klucz": "53416621|6942810",
+"a": {
+"nazwa": "Zabieg Retix C",
+"wariant": "",
+"kategoria": "Zabiegi kosmetologiczne na twarz",
+"opis": "Retix C to przede wszystkim **zabieg odmładzający**, ale wykonuje się go także u osób młodszych, borykających się z różnymi problemami skórnymi. Reduk",
+"cena": 350,
+"typ": "Medycyna Estetyczna",
+"zabieg_booksy": "Zabiegi na twarz"
+},
+"b": {
+"nazwa": "Retix C",
+"wariant": "",
+"kategoria": "Zabiegi z użyciem retinolu ",
+"opis": "Zabieg Retix.C to profesjonalna terapia regeneracyjna, która łączy działanie retinolu i witaminy C, zapewniając intensywne odmłodzenie, nawilżenie i p",
+"cena": 400,
+"typ": "Medycyna Estetyczna",
+"zabieg_booksy": "Zabiegi kwasami"
+}
+},
+{
+"zbior": "sprawdzian13",
+"klucz": "50054310|5320762",
+"a": {
+"nazwa": "Strzyżenie długich włosów",
+"wariant": "",
+"kategoria": "Strzyżenie długich włosów",
+"opis": "Usługa strzyżenia nożyczkami męskich włosów długich i półdługich wraz z modelowaniem i pielęgnacją.",
+"cena": 100,
+"typ": "Barber shop",
+"zabieg_booksy": "Strzyżenie męskie"
+},
+"b": {
+"nazwa": "Strzyżenie męskie długie włosy",
+"wariant": "",
+"kategoria": "Męskie ",
+"opis": "Mycie głowy + strzyżenie włosów ze stylizacja fryzury",
+"cena": 90,
+"typ": "Fryzjer",
+"zabieg_booksy": "Strzyżenie męskie"
+}
+},
+{
+"zbior": "sprawdzian13",
+"klucz": "53388579|5906694",
+"a": {
+"nazwa": "Masaż ciepłymi kamieniami",
+"wariant": "Masaż ciepłymi kamieniami",
+"kategoria": "Masaż relaksacyjny",
+"opis": "Masaż ten ma właściwości mocno rozgrzewające i relaksujące. Zabieg wpływa na obniżenie napięcia nerwowego oraz poprawę funkcjonowania układu krążenia.",
+"cena": 330,
+"typ": "Masaż",
+"zabieg_booksy": "Masaż ciała"
+},
+"b": {
+"nazwa": "Masaż gorącymi kamieniami",
+"wariant": "",
+"kategoria": "MASAŻE RELAKSACYJNE ",
+"opis": "",
+"cena": 450,
+"typ": "Masaż",
+"zabieg_booksy": "Masaż gorącymi kamieniami"
+}
+},
+{
+"zbior": "sprawdzian13",
+"klucz": "50054295|7258246",
+"a": {
+"nazwa": "Strzyżenie włosów maszynką",
+"wariant": "",
+"kategoria": "Theo",
+"opis": "Strzyżenie włosów maszynką na jedną długość na całej powierzchni głowy bez cieniowania strzyżonych obszarów.",
+"cena": 40,
+"typ": "Barber shop",
+"zabieg_booksy": "Strzyżenie męskie"
+},
+"b": {
+"nazwa": "Strzyżenie maszynką (buzzcut)",
+"wariant": "",
+"kategoria": "Strzyżenie męskie",
+"opis": "Góra głowy maszynką na jedną długość, boki cieniowane",
+"cena": 70,
+"typ": "Barber shop",
+"zabieg_booksy": "Strzyżenie buzz cut"
+}
+},
+{
+"zbior": "sprawdzian13",
+"klucz": "49451048|7340244",
+"a": {
+"nazwa": "Depilacja woskiem wąsika",
+"wariant": "",
+"kategoria": "Depilacja woskiem",
+"opis": "",
+"cena": 20,
+"typ": "Podologia",
+"zabieg_booksy": "Depilacja wąsika"
+},
+"b": {
+"nazwa": "Depilacja woskiem wąsik",
+"wariant": "",
+"kategoria": "DEPILACJA WOSKIEM",
+"opis": "",
+"cena": 40,
+"typ": "Salon Kosmetyczny",
+"zabieg_booksy": "Depilacja woskiem"
+}
+},
+{
+"zbior": "sprawdzian13",
+"klucz": "50086374|7003189#0",
+"a": {
+"nazwa": "Manicure męski",
+"wariant": "",
+"kategoria": "",
+"opis": "",
+"cena": 100,
+"typ": "Paznokcie",
+"zabieg_booksy": "Manicure i pedicure dla mężczyzn"
+},
+"b": {
+"nazwa": "MANICURE KLASYCZNY (MĘSKI)",
+"wariant": "Stylistka",
+"kategoria": "STYLIZACJA PAZNOKCI ",
+"opis": "Manicure klasyczny męski to higieniczny zabieg pielęgnacyjny, mający na celu nadanie paznokciom estetycznego, naturalnego wyglądu. Obejmuje skrócenie ",
+"cena": 80,
+"typ": "Brwi i rzęsy",
+"zabieg_booksy": "Manicure klasyczny"
+}
+},
+{
+"zbior": "sprawdzian13",
+"klucz": "53388573|5833369",
+"a": {
+"nazwa": "Masaż klasyczny całościowy",
+"wariant": "Masaż klasyczny całościowy",
+"kategoria": "Masaż podstawowy",
+"opis": "Masaż klasyczny to jedna z najbardziej popularnych form masażu. Najczęściej stosowane techniki to: głaskanie, rozcieranie, ugniatanie, oklepywania i w",
+"cena": 260,
+"typ": "Masaż",
+"zabieg_booksy": "Masaż ciała"
+},
+"b": {
+"nazwa": "Masaż Klasyczny",
+"wariant": "",
+"kategoria": "Masaż Klasyczny",
+"opis": "To jeden z najbardziej uniwersalnych i skutecznych masaży, polecany zarówno dla osób zestresowanych, jak i tych, które zmagają się z napięciem mięśnio",
+"cena": 300,
+"typ": "Masaż",
+"zabieg_booksy": "Masaż ciała"
+}
+},
+{
+"zbior": "sprawdzian13",
+"klucz": "53388579|6464241",
+"a": {
+"nazwa": "Masaż ciepłymi kamieniami",
+"wariant": "Masaż ciepłymi kamieniami",
+"kategoria": "Masaż relaksacyjny",
+"opis": "Masaż ten ma właściwości mocno rozgrzewające i relaksujące. Zabieg wpływa na obniżenie napięcia nerwowego oraz poprawę funkcjonowania układu krążenia.",
+"cena": 330,
+"typ": "Masaż",
+"zabieg_booksy": "Masaż ciała"
+},
+"b": {
+"nazwa": "Masaż gorącymi kamieniami 60 minut",
+"wariant": "Masaż gorącymi kamieniami",
+"kategoria": "MASAŻE I RYTUAŁY",
+"opis": "To połączenie tradycyjnych technik masażu z użyciem gorących kamieni bazaltowych, podgrzanych do odpowiedniej temperatury. Masaż działa niezwykle uspo",
+"cena": 250,
+"typ": "Salon Kosmetyczny",
+"zabieg_booksy": "Masaż gorącymi kamieniami"
+}
+},
+{
+"zbior": "sprawdzian13",
+"klucz": "48984126|6120338",
+"a": {
+"nazwa": "Uzupełnienie 4D",
+"wariant": "",
+"kategoria": "",
+"opis": "",
+"cena": 180,
+"typ": "Brwi i rzęsy",
+"zabieg_booksy": ""
+},
+"b": {
+"nazwa": "Uzupełnienie 4D",
+"wariant": "",
+"kategoria": "Uzupełnienie rzęs Patrycja",
+"opis": "",
+"cena": 190,
+"typ": "Salon Kosmetyczny",
+"zabieg_booksy": "Przedłużanie rzęs"
+}
+},
+{
+"zbior": "sprawdzian13",
+"klucz": "49451048|5551372",
+"a": {
+"nazwa": "Depilacja woskiem wąsika",
+"wariant": "",
+"kategoria": "Depilacja woskiem",
+"opis": "",
+"cena": 20,
+"typ": "Podologia",
+"zabieg_booksy": "Depilacja wąsika"
+},
+"b": {
+"nazwa": "Depilacja woskiem - wąsik",
+"wariant": "",
+"kategoria": "Depilacja DEPILEVE",
+"opis": "",
+"cena": 35,
+"typ": "Salon Kosmetyczny",
+"zabieg_booksy": "Depilacja woskiem"
+}
+},
+{
+"zbior": "sprawdzian13",
+"klucz": "50054299|7291408",
+"a": {
+"nazwa": "Strzyżenie włosów maszynką ( jedna długość)",
+"wariant": "",
+"kategoria": "Olga",
+"opis": "Strzyżenie włosów maszynką na jedną długość na całej powierzchni głowy bez cieniowania strzyżonych obszarów.",
+"cena": 50,
+"typ": "Barber shop",
+"zabieg_booksy": "Strzyżenie męskie"
+},
+"b": {
+"nazwa": "Strzyżenie Maszynką Jedna Długość",
+"wariant": "Strzyżenie Maszynką Jedna Długość",
+"kategoria": "Fryzjerstwo",
+"opis": "Golenie maszynka jedna długość, mycie włosów.",
+"cena": 40,
+"typ": "Barber shop",
+"zabieg_booksy": ""
+}
+},
+{
+"zbior": "sprawdzian13",
+"klucz": "50054310|7236821",
+"a": {
+"nazwa": "Strzyżenie długich włosów",
+"wariant": "",
+"kategoria": "Strzyżenie długich włosów",
+"opis": "Usługa strzyżenia nożyczkami męskich włosów długich i półdługich wraz z modelowaniem i pielęgnacją.",
+"cena": 100,
+"typ": "Barber shop",
+"zabieg_booksy": "Strzyżenie męskie"
+},
+"b": {
+"nazwa": "Strzyżenie męskie włosów długich",
+"wariant": "",
+"kategoria": "Usługi Męskie Barberskie ",
+"opis": "Strzyżenie włosów za do lini brody",
+"cena": 90,
+"typ": "Fryzjer",
+"zabieg_booksy": "Strzyżenie męskie"
+}
+},
+{
+"zbior": "sprawdzian13",
+"klucz": "53388579|5973012#1",
+"a": {
+"nazwa": "Masaż ciepłymi kamieniami",
+"wariant": "Masaż ciepłymi kamieniami",
+"kategoria": "Masaż relaksacyjny",
+"opis": "Masaż ten ma właściwości mocno rozgrzewające i relaksujące. Zabieg wpływa na obniżenie napięcia nerwowego oraz poprawę funkcjonowania układu krążenia.",
+"cena": 330,
+"typ": "Masaż",
+"zabieg_booksy": "Masaż ciała"
+},
+"b": {
+"nazwa": "Masaż gorącymi kamieniami",
+"wariant": "Masaż gorącymi kamieniami 80 min.",
+"kategoria": "Masaż",
+"opis": "Masaż gorącymi kamieniami to niezwykle relaksująca technika masażu, która wykorzystuje ciepło naturalnych, gładkich kamieni do redukcji napięcia i str",
+"cena": 270,
+"typ": "Salon Kosmetyczny",
+"zabieg_booksy": "Masaż gorącymi kamieniami"
+}
+},
+{
+"zbior": "sprawdzian13",
+"klucz": "55158868|6937415",
+"a": {
+"nazwa": "STYLIZACJA WŁOSÓW",
+"wariant": "",
+"kategoria": " VEPA BARBER",
+"opis": "mycie+dobór kosmetyków barberskich",
+"cena": 50,
+"typ": "Barber shop",
+"zabieg_booksy": "Stylizacja włosów"
+},
+"b": {
+"nazwa": "Stylizacja włosów",
+"wariant": "",
+"kategoria": "Tomek",
+"opis": "",
+"cena": 30,
+"typ": "Barber shop",
+"zabieg_booksy": "Stylizacja włosów"
+}
+},
+{
+"zbior": "sprawdzian13",
+"klucz": "50054299|7302310",
+"a": {
+"nazwa": "Strzyżenie włosów maszynką ( jedna długość)",
+"wariant": "",
+"kategoria": "Olga",
+"opis": "Strzyżenie włosów maszynką na jedną długość na całej powierzchni głowy bez cieniowania strzyżonych obszarów.",
+"cena": 50,
+"typ": "Barber shop",
+"zabieg_booksy": "Strzyżenie męskie"
+},
+"b": {
+"nazwa": "Strzyżenie męskie/Maszynka na jedną długość",
+"wariant": "",
+"kategoria": "Strzyżenie męskie ",
+"opis": "Strzyżenie+mycie+Suszenie włosów Стрижка+миття+сушіння волосся",
+"cena": 40,
+"typ": "Fryzjer",
+"zabieg_booksy": "Strzyżenie męskie"
+}
+},
+{
+"zbior": "sprawdzian13",
+"klucz": "49203586|7215229",
+"a": {
+"nazwa": "Henna rzęs",
+"wariant": "",
+"kategoria": "Henna brwi i rzęs",
+"opis": "",
+"cena": 60,
+"typ": "Paznokcie",
+"zabieg_booksy": "Henna rzęs"
+},
+"b": {
+"nazwa": "Henna rzęs",
+"wariant": "",
+"kategoria": "Stylizacja brwi",
+"opis": "",
+"cena": 40,
+"typ": "Brwi i rzęsy",
+"zabieg_booksy": "Stylizacja i regulacja brwi"
+}
+},
+{
+"zbior": "sprawdzian13",
+"klucz": "49203582|5870960",
+"a": {
+"nazwa": "Pedicure męski",
+"wariant": "",
+"kategoria": "Pedicure",
+"opis": "",
+"cena": 180,
+"typ": "Paznokcie",
+"zabieg_booksy": "Pedicure klasyczny"
+},
+"b": {
+"nazwa": "Pedicure męski",
+"wariant": "",
+"kategoria": "Pedicure",
+"opis": "",
+"cena": 180,
+"typ": "Brwi i rzęsy",
+"zabieg_booksy": "Pedicure podologiczny"
+}
+},
+{
+"zbior": "sprawdzian13",
+"klucz": "49451048|6652686",
+"a": {
+"nazwa": "Depilacja woskiem wąsika",
+"wariant": "",
+"kategoria": "Depilacja woskiem",
+"opis": "",
+"cena": 20,
+"typ": "Podologia",
+"zabieg_booksy": "Depilacja wąsika"
+},
+"b": {
+"nazwa": "Depilacja wąsik",
+"wariant": "",
+"kategoria": "DEPILACJA WOSKIEM",
+"opis": "",
+"cena": 30,
+"typ": "Salon Kosmetyczny",
+"zabieg_booksy": "Depilacja wąsika"
+}
+},
+{
+"zbior": "sprawdzian13",
+"klucz": "50054299|7280531",
+"a": {
+"nazwa": "Strzyżenie włosów maszynką ( jedna długość)",
+"wariant": "",
+"kategoria": "Olga",
+"opis": "Strzyżenie włosów maszynką na jedną długość na całej powierzchni głowy bez cieniowania strzyżonych obszarów.",
+"cena": 50,
+"typ": "Barber shop",
+"zabieg_booksy": "Strzyżenie męskie"
+},
+"b": {
+"nazwa": "Strzyżenie maszynką na jedną długość",
+"wariant": "",
+"kategoria": "Stela ( Senior Barber )   ",
+"opis": "",
+"cena": 50,
+"typ": "Barber shop",
+"zabieg_booksy": "Strzyżenie męskie"
+}
+},
+{
+"zbior": "sprawdzian13",
+"klucz": "53416621|6865998",
+"a": {
+"nazwa": "Zabieg Retix C",
+"wariant": "",
+"kategoria": "Zabiegi kosmetologiczne na twarz",
+"opis": "Retix C to przede wszystkim **zabieg odmładzający**, ale wykonuje się go także u osób młodszych, borykających się z różnymi problemami skórnymi. Reduk",
+"cena": 350,
+"typ": "Medycyna Estetyczna",
+"zabieg_booksy": "Zabiegi na twarz"
+},
+"b": {
+"nazwa": "Retix.C- zabieg z retinolem i witaminą C",
+"wariant": "",
+"kategoria": "Kosmetologia ",
+"opis": "**Retix.C** to zaawansowana kuracja odmładzająca, która łączy działanie **4% retinolu i silnej dawki witaminy C** oraz antyoksydantów. Zabieg ma efekt",
+"cena": 250,
+"typ": "Fryzjer",
+"zabieg_booksy": "Peeling chemiczny"
+}
+},
+{
+"zbior": "sprawdzian13",
+"klucz": "53388573|5897136#1",
+"a": {
+"nazwa": "Masaż klasyczny całościowy",
+"wariant": "Masaż klasyczny całościowy",
+"kategoria": "Masaż podstawowy",
+"opis": "Masaż klasyczny to jedna z najbardziej popularnych form masażu. Najczęściej stosowane techniki to: głaskanie, rozcieranie, ugniatanie, oklepywania i w",
+"cena": 260,
+"typ": "Masaż",
+"zabieg_booksy": "Masaż ciała"
+},
+"b": {
+"nazwa": "Masaż Klasyczny",
+"wariant": "Masaż Klasyczny",
+"kategoria": "Specjalista Masażu ",
+"opis": "Masaż działa wskutek rozprowadzania po całym organizmie przez krew biologicznie czynnych związków uwolnionych z tkanek przez zabieg oraz na drodze odr",
+"cena": 180,
+"typ": "Masaż",
+"zabieg_booksy": "Masaż ciała"
+}
+},
+{
+"zbior": "sprawdzian13",
+"klucz": "49451048|6653986",
+"a": {
+"nazwa": "Depilacja woskiem wąsika",
+"wariant": "",
+"kategoria": "Depilacja woskiem",
+"opis": "",
+"cena": 20,
+"typ": "Podologia",
+"zabieg_booksy": "Depilacja wąsika"
+},
+"b": {
+"nazwa": "depilacja wąsik",
+"wariant": "",
+"kategoria": "Depilacja woskem",
+"opis": "",
+"cena": 30,
+"typ": "Fryzjer",
+"zabieg_booksy": "Depilacja wąsika"
+}
+},
+{
+"zbior": "sprawdzian13",
+"klucz": "53090822|6883363",
+"a": {
+"nazwa": "Konsultacja - makijaż permanentny",
+"wariant": "",
+"kategoria": "",
+"opis": "",
+"cena": 1,
+"typ": "Brwi i rzęsy",
+"zabieg_booksy": "Makijaż permanentny"
+},
+"b": {
+"nazwa": "Konsultacja",
+"wariant": "",
+"kategoria": "MAKIJAŻ PERMANENTNY 🖋️🤎",
+"opis": "Przed umówieniem zabiegu należy umożliwić się na bezpłatną konsultację wraz z wizualizacją !! Możemy wykonać wstępny, poglądowy rysunek jednej brwi, k",
+"cena": 0.0,
+"typ": "Salon Kosmetyczny",
+"zabieg_booksy": "Makijaż permanentny"
+}
+},
+{
+"zbior": "sprawdzian13",
+"klucz": "49203582|3816111",
+"a": {
+"nazwa": "Pedicure męski",
+"wariant": "",
+"kategoria": "Pedicure",
+"opis": "",
+"cena": 180,
+"typ": "Paznokcie",
+"zabieg_booksy": "Pedicure klasyczny"
+},
+"b": {
+"nazwa": "Pedicure męski",
+"wariant": "Pedicure męski",
+"kategoria": "Paznokcie",
+"opis": "",
+"cena": 100,
+"typ": "Paznokcie",
+"zabieg_booksy": "Pedicure klasyczny"
+}
+}
+]
+}

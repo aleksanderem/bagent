@@ -1,0 +1,466 @@
+{
+"41b19cbc5674d1df": {
+"zrodlo": "dzial",
+"tekst": "Usuwanie kurzajek i zmian skórnych (laser CO2)",
+"rola": "metoda",
+"fraza": "laser CO2",
+"oferta": "Usuwanie brodawek / Usuwanie brodawek",
+"tak": 0.83
+},
+"dd780e71aa939549": {
+"zrodlo": "dzial",
+"tekst": "Usuwanie kurzajek i zmian skórnych (laser CO2)",
+"rola": "zabieg",
+"fraza": "Usuwanie kurzajek i zmian skórnych",
+"oferta": "Usuwanie brodawek łojotokowych / Usuwanie brodawek łojotokowych",
+"tak": 0.46
+},
+"6ec92e10c6301e80": {
+"zrodlo": "dzial",
+"tekst": "Usuwanie kurzajek i zmian skórnych (laser CO2)",
+"rola": "metoda",
+"fraza": "laser CO2",
+"oferta": "Usuwanie brodawki łojotokowej / Usuwanie brodawki łojotokowej",
+"tak": 0.77
+},
+"83124d2396642c15": {
+"zrodlo": "dzial",
+"tekst": "Usuwanie kurzajek i zmian skórnych (laser CO2)",
+"rola": "zabieg",
+"fraza": "Usuwanie kurzajek i zmian skórnych",
+"oferta": "Usuwanie brodawek / Usuwanie brodawek",
+"tak": 0.6
+},
+"3a00d0732f4413a7": {
+"zrodlo": "dzial",
+"tekst": "Usuwanie kurzajek i zmian skórnych (laser CO2)",
+"rola": "zabieg",
+"fraza": "Usuwanie kurzajek i zmian skórnych",
+"oferta": "Usuwanie brodawki łojotokowej / Usuwanie brodawki łojotokowej",
+"tak": 0.48
+},
+"935dfb18bae1fc58": {
+"zrodlo": "dzial",
+"tekst": "Usuwanie kurzajek i zmian skórnych (laser CO2)",
+"rola": "metoda",
+"fraza": "laser CO2",
+"oferta": "Usuwanie brodawek łojotokowych / Usuwanie brodawek łojotokowych",
+"tak": 0.77
+},
+"abe54de5a0b3558b": {
+"zrodlo": "dzial",
+"tekst": "Usuwanie kurzajek i zmian skórnych (laser CO2)",
+"rola": "zabieg",
+"fraza": "Usuwanie kurzajek i zmian skórnych",
+"oferta": "Usuwanie kurzajek / Usuwanie kurzajek",
+"tak": 0.56
+},
+"73f916e128bdffad": {
+"zrodlo": "dzial",
+"tekst": "Usuwanie kurzajek i zmian skórnych (laser CO2)",
+"rola": "metoda",
+"fraza": "laser CO2",
+"oferta": "Usuwanie brodawki wirusowej (kurzajki) / Usuwanie brodawki wirusowej (kurzajki)",
+"tak": 0.8
+},
+"6d7512cf8761034d": {
+"zrodlo": "dzial",
+"tekst": "Usuwanie kurzajek i zmian skórnych (laser CO2)",
+"rola": "zabieg",
+"fraza": "Usuwanie kurzajek i zmian skórnych",
+"oferta": "Usuwanie brodawki wirusowej (kurzajki) / Usuwanie brodawki wirusowej (kurzajki)",
+"tak": 0.56
+},
+"5e2f96b9dbe92e84": {
+"zrodlo": "dzial",
+"tekst": "Usuwanie kurzajek i zmian skórnych (laser CO2)",
+"rola": "zabieg",
+"fraza": "Usuwanie kurzajek i zmian skórnych",
+"oferta": "Usuwanie drobnych zmian skórnych / Usuwanie drobnych zmian skórnych",
+"tak": 0.56
+},
+"6dd98990acad7203": {
+"zrodlo": "dzial",
+"tekst": "Usuwanie kurzajek i zmian skórnych (laser CO2)",
+"rola": "metoda",
+"fraza": "laser CO2",
+"oferta": "Usuwanie drobnych zmian skórnych / Usuwanie drobnych zmian skórnych",
+"tak": 0.86
+},
+"28b27a1b8438fece": {
+"zrodlo": "dzial",
+"tekst": "Usuwanie kurzajek i zmian skórnych (laser CO2)",
+"rola": "metoda",
+"fraza": "laser CO2",
+"oferta": "Usuwanie kurzajek / Usuwanie kurzajek",
+"tak": 0.87
+},
+"748a92851d06b6b8": {
+"zrodlo": "dzial",
+"tekst": "Usuwanie kurzajek i zmian skórnych (laser CO2)",
+"rola": "zabieg",
+"fraza": "Usuwanie kurzajek i zmian skórnych",
+"oferta": "Usuwanie kurzajek u dziecka / Usuwanie kurzajek u dziecka",
+"tak": 0.49
+},
+"2a79d44e130691d6": {
+"zrodlo": "dzial",
+"tekst": "Usuwanie kurzajek i zmian skórnych (laser CO2)",
+"rola": "zabieg",
+"fraza": "Usuwanie kurzajek i zmian skórnych",
+"oferta": "Usuwanie kurzajki / Usuwanie kurzajki",
+"tak": 0.57
+},
+"46d35e507bfe32b8": {
+"zrodlo": "dzial",
+"tekst": "Usuwanie kurzajek i zmian skórnych (laser CO2)",
+"rola": "metoda",
+"fraza": "laser CO2",
+"oferta": "Usuwanie kurzajki / Usuwanie kurzajki",
+"tak": 0.83
+},
+"0083d0b428ddeed6": {
+"zrodlo": "dzial",
+"tekst": "Usuwanie kurzajek i zmian skórnych (laser CO2)",
+"rola": "metoda",
+"fraza": "laser CO2",
+"oferta": "Usuwanie kurzajek u dziecka / Usuwanie kurzajek u dziecka",
+"tak": 0.76
+},
+"1904733d08164672": {
+"zrodlo": "dzial",
+"tekst": "ZABIEGI PIELĘGNACYJNE NA TWARZ",
+"rola": "zabieg",
+"fraza": "Zabiegi pielęgnacyjne",
+"oferta": "Zabieg oczyszczający TWARZ / Zabieg oczyszczający PEELING + OCZYSZCZANIE MANUALNE + MASKA",
+"tak": 0.37
+},
+"fa2f59768455be0a": {
+"zrodlo": "salon",
+"tekst": "KW Hair Studio",
+"rola": "zabieg",
+"fraza": "Hair",
+"oferta": "Regeneracja włosów",
+"tak": 0.67
+},
+"d3ae480d779126d9": {
+"zrodlo": "zabieg_booksy",
+"tekst": "Zabiegi na ciało i modelowanie sylwetki",
+"rola": "zabieg",
+"fraza": "Zabiegi na ciało i modelowanie sylwetki",
+"oferta": "BodyShape2",
+"tak": 0.47
+},
+"debfd9ffce88159a": {
+"zrodlo": "dzial",
+"tekst": "Urządzenia odchudzające",
+"rola": "zabieg",
+"fraza": "Urządzenia odchudzające",
+"oferta": "BodyShape2",
+"tak": 0.36
+},
+"2901e1ecec908881": {
+"zrodlo": "salon",
+"tekst": "BODY EVOLUTION Studio Modelowania Sylwetki Warszawa",
+"rola": "zabieg",
+"fraza": "Modelowania Sylwetki",
+"oferta": "BodyShape2",
+"tak": 0.57
+},
+"dade0283ca1a0253": {
+"zrodlo": "zabieg_booksy",
+"tekst": "Stylizacja włosów",
+"rola": "zabieg",
+"fraza": "Stylizacja włosów",
+"oferta": "Modelowanie",
+"tak": 0.52
+},
+"3cc1a40bf5d6e3e7": {
+"zrodlo": "zabieg_booksy",
+"tekst": "Usuwanie znamion",
+"rola": "zabieg",
+"fraza": "Usuwanie znamion",
+"oferta": "Chirurgiczne usuwanie zmian skórnych / Usunięcie kaszaka/kurzajki - ciało - powyżej - 1 cm",
+"tak": 0.49
+},
+"1668c5bae866b28a": {
+"zrodlo": "dzial",
+"tekst": "Pakiet usług medycyna estetyczna",
+"rola": "zabieg",
+"fraza": "medycyna estetyczna",
+"oferta": "Pakiet 3x zabieg mezoterapia + tropokolagen twarz",
+"tak": 0.35
+},
+"009603311afd886e": {
+"zrodlo": "dzial",
+"tekst": "Stymulatory tkankowe",
+"rola": "zabieg",
+"fraza": "Stymulatory tkankowe",
+"oferta": "Jalupro HMW",
+"tak": 0.35
+},
+"f762f798cbd37441": {
+"zrodlo": "dzial",
+"tekst": "Zabiegi ujędrniające",
+"rola": "zabieg",
+"fraza": "Zabiegi ujędrniające",
+"oferta": "Vacu RF",
+"tak": 0.5
+},
+"6510abc6d99cd448": {
+"zrodlo": "salon",
+"tekst": "Loveliness Kosmetologia",
+"rola": "zabieg",
+"fraza": "Kosmetologia",
+"oferta": "Jalupro HMW",
+"tak": 0.55
+},
+"b16b45804dd92ab7": {
+"zrodlo": "dzial",
+"tekst": "ENDERMOLOGIA ALLIANCE LPG",
+"rola": "metoda",
+"fraza": "ALLIANCE LPG",
+"oferta": "Endermologia Twarz / Twarz + szyja - PAKIET 5 ZABIEGÓW",
+"tak": 0.8
+},
+"94366f1aabcb67ed": {
+"zrodlo": "salon",
+"tekst": "THE BEAUTY STORIES - Depilacja laserowa Vectus, Dermapen 4.0, Oczyszczanie wodorowe",
+"rola": "zabieg",
+"fraza": "Depilacja, Oczyszczanie wodorowe",
+"oferta": "Dermapen 4.0 - Twarz",
+"tak": 0.24
+},
+"fecdc35b34b3d12f": {
+"zrodlo": "zabieg_booksy",
+"tekst": "Mezoterapia igłowa",
+"rola": "zabieg",
+"fraza": "Mezoterapia igłowa",
+"oferta": "Jalupro HMW",
+"tak": 0.55
+},
+"87a7d1054400ef8d": {
+"zrodlo": "salon",
+"tekst": "THE BEAUTY STORIES - Depilacja laserowa Vectus, Dermapen 4.0, Oczyszczanie wodorowe",
+"rola": "metoda",
+"fraza": "laserowa Vectus",
+"oferta": "Dermapen 4.0 - Twarz",
+"tak": 0.15
+},
+"53f28d9a782c1cf0": {
+"zrodlo": "dzial",
+"tekst": "3-step Body Boosters",
+"rola": "metoda",
+"fraza": "3-step",
+"oferta": "3-step BB: Kriolipoliza Cooltech + Storz Medical + karboksyterapia Julie / 3-step BB: Kriolipoliza Cooltech + Storz Medical + karboksyterapia Julie",
+"tak": 0.52
+},
+"5c6b0ef55d35255a": {
+"zrodlo": "dzial",
+"tekst": "3-step Body Boosters",
+"rola": "zabieg",
+"fraza": "Body Boosters",
+"oferta": "3-step BB: Kriolipoliza Cooltech + Storz Medical + karboksyterapia Julie / 3-step BB: Kriolipoliza Cooltech + Storz Medical + karboksyterapia Julie",
+"tak": 0.51
+},
+"5d82a11eb3857bf0": {
+"zrodlo": "salon",
+"tekst": "Velvet Skin Clinic - laseroterapia, medycyna estetyczna i kosmetologia",
+"rola": "metoda",
+"fraza": "laseroterapia",
+"oferta": "3-step BB: Kriolipoliza Cooltech + Storz Medical + karboksyterapia Julie / 3-step BB: Kriolipoliza Cooltech + Storz Medical + karboksyterapia Julie",
+"tak": 0.12
+},
+"19f0ee634b57750e": {
+"zrodlo": "dzial",
+"tekst": "Mezoterapia mikroigłowa",
+"rola": "zabieg",
+"fraza": "Mezoterapia mikroigłowa",
+"oferta": "Dermapen - twarz",
+"tak": 0.69
+},
+"d685a87492435a80": {
+"zrodlo": "dzial",
+"tekst": "Mezoterapia mikroigłowa",
+"rola": "metoda",
+"fraza": "mikroigłowa",
+"oferta": "Dermapen - twarz",
+"tak": 0.85
+},
+"1a70274e71002c3a": {
+"zrodlo": "salon",
+"tekst": "Medycyna Estetyczna lek. Gabriela Pernal",
+"rola": "zabieg",
+"fraza": "Medycyna Estetyczna",
+"oferta": "Dermapen - twarz",
+"tak": 0.59
+},
+"95abacfbe21e39ea": {
+"zrodlo": "dzial",
+"tekst": "Mikroigłowy RF lifting Vivace",
+"rola": "zabieg",
+"fraza": "Mikroigłowy RF lifting",
+"oferta": "RF-lifting VIVACE / Twarz",
+"tak": 0.7
+},
+"637f73311c0fef1e": {
+"zrodlo": "zabieg_booksy",
+"tekst": "Mezoterapia mikroigłowa",
+"rola": "zabieg",
+"fraza": "Mezoterapia mikroigłowa",
+"oferta": "Dermapen - twarz",
+"tak": 0.72
+},
+"4044e1beeb32a454": {
+"zrodlo": "zabieg_booksy",
+"tekst": "Niechirurgiczny lifting twarzy",
+"rola": "zabieg",
+"fraza": "Niechirurgiczny lifting twarzy",
+"oferta": "RF-lifting VIVACE / Twarz",
+"tak": 0.81
+},
+"9eb169057e8fd8f4": {
+"zrodlo": "salon",
+"tekst": "Sugaring_Wosk_Laser_Depil_Masaz_Warszawa",
+"rola": "zabieg",
+"fraza": "Depil",
+"oferta": "Depilacja laserowa dla kobiet ramiona do łokcia",
+"tak": 0.67
+},
+"7d2d42b940654e09": {
+"zrodlo": "salon",
+"tekst": "Sugaring_Wosk_Laser_Depil_Masaz_Warszawa",
+"rola": "metoda",
+"fraza": "Sugaring",
+"oferta": "Depilacja laserowa dla kobiet ramiona do łokcia",
+"tak": 0.14
+},
+"da569bcd29754b3e": {
+"zrodlo": "dzial",
+"tekst": "Botoks",
+"rola": "zabieg",
+"fraza": "Botoks",
+"oferta": "Leczenie bruksizmu dla mężczyzn",
+"tak": 0.48
+},
+"ba88f5a46f99a7e6": {
+"zrodlo": "salon",
+"tekst": "Klinika Medycyny Estetycznej Amelie",
+"rola": "zabieg",
+"fraza": "Medycyny Estetycznej",
+"oferta": "Leczenie bruksizmu dla mężczyzn",
+"tak": 0.58
+},
+"127103261d311f6f": {
+"zrodlo": "salon",
+"tekst": "Sugaring_Wosk_Laser_Depil_Masaz_Warszawa",
+"rola": "metoda",
+"fraza": "Wosk",
+"oferta": "Depilacja laserowa dla kobiet ramiona do łokcia",
+"tak": 0.14
+},
+"86e13c61eceac57a": {
+"zrodlo": "zabieg_booksy",
+"tekst": "Usuwanie zmarszczek",
+"rola": "zabieg",
+"fraza": "Usuwanie zmarszczek",
+"oferta": "Dermapen + PRX-T33-twarz +wit. C+peptydy gratis",
+"tak": 0.62
+},
+"9d522b7212defed7": {
+"zrodlo": "zabieg_booksy",
+"tekst": "Stymulacja i ujędrnianie skóry twarzy",
+"rola": "zabieg",
+"fraza": "Stymulacja i ujędrnianie skóry twarzy",
+"oferta": "Stymulator tkankowy Xela Rederm",
+"tak": 0.69
+},
+"f283a1d2262eebc6": {
+"zrodlo": "dzial",
+"tekst": "Stymulatory tkankowe twarz ",
+"rola": "obszar",
+"fraza": "Twarz",
+"oferta": "Stymulator tkankowy Xela Rederm",
+"tak": 0.84
+},
+"ce30663484e365e5": {
+"zrodlo": "dzial",
+"tekst": "RF LIFTING",
+"rola": "zabieg",
+"fraza": "lifting",
+"oferta": "RF: Twarz + szyja",
+"tak": 0.67
+},
+"d371fc41b9d10ca9": {
+"zrodlo": "zabieg_booksy",
+"tekst": "Lifting",
+"rola": "zabieg",
+"fraza": "Lifting",
+"oferta": "RF: Twarz + szyja",
+"tak": 0.7
+},
+"bc8717433f7ad191": {
+"zrodlo": "dzial",
+"tekst": "Stylizacja brwi i rzęs",
+"rola": "obszar",
+"fraza": "brwi i rzęs",
+"oferta": "Henna rzęs",
+"tak": 0.82
+},
+"efe7d75277af3676": {
+"zrodlo": "dzial",
+"tekst": "Stylizacja brwi i rzęs",
+"rola": "zabieg",
+"fraza": "Stylizacja",
+"oferta": "Henna rzęs",
+"tak": 0.54
+},
+"50254d94951f05ae": {
+"zrodlo": "zabieg_booksy",
+"tekst": "Niechirurgiczny lifting twarzy",
+"rola": "zabieg",
+"fraza": "Niechirurgiczny lifting twarzy",
+"oferta": "Lifting RF - zabieg - twarz + szyja",
+"tak": 0.83
+},
+"938aaf97fec361ba": {
+"zrodlo": "dzial",
+"tekst": "OPRAWA OCZU",
+"rola": "obszar",
+"fraza": "oczu",
+"oferta": "Henna rzęs",
+"tak": 0.81
+},
+"1c2da8eca948993d": {
+"zrodlo": "salon",
+"tekst": "Viki Beauty Studio Kosmetologii  & Masażu",
+"rola": "zabieg",
+"fraza": "Masażu",
+"oferta": "Henna rzęs",
+"tak": 0.65
+},
+"3abadafe0ff0f7dc": {
+"zrodlo": "dzial",
+"tekst": "Lifting i odmładzanie",
+"rola": "zabieg",
+"fraza": "Lifting i odmładzanie",
+"oferta": "Stymulator tkankowy / Szyja",
+"tak": 0.5
+},
+"cfd38c75a397dace": {
+"zrodlo": "zabieg_booksy",
+"tekst": "Stymulacja i ujędrnianie skóry twarzy",
+"rola": "zabieg",
+"fraza": "Stymulacja i ujędrnianie skóry twarzy",
+"oferta": "Stymulator tkankowy / Szyja",
+"tak": 0.69
+},
+"cd5d1a4cbb780f46": {
+"zrodlo": "zabieg_booksy",
+"tekst": "Pielęgnacja i oczyszczanie twarzy",
+"rola": "zabieg",
+"fraza": "Pielęgnacja i oczyszczanie twarzy",
+"oferta": "Oczyszczanie twarzy / Wodorowe",
+"tak": 0.65
+}
+}

@@ -1,0 +1,106 @@
+{
+ "Barber shop": {
+  "uslug": 8,
+  "stary_z_cena": 7,
+  "podpis_ta_sama": 4,
+  "ta_sama_1_2": 2,
+  "tylko_podobne": 0,
+  "bez_ceny": 2,
+  "mediana_roznicy": 0.031,
+  "par_z_cena_w_obu": 3
+ },
+ "Brwi i rzęsy": {
+  "uslug": 8,
+  "stary_z_cena": 7,
+  "podpis_ta_sama": 5,
+  "ta_sama_1_2": 1,
+  "tylko_podobne": 0,
+  "bez_ceny": 2,
+  "mediana_roznicy": 0.099,
+  "par_z_cena_w_obu": 5
+ },
+ "Depilacja": {
+  "uslug": 8,
+  "stary_z_cena": 6,
+  "podpis_ta_sama": 1,
+  "ta_sama_1_2": 2,
+  "tylko_podobne": 3,
+  "bez_ceny": 2,
+  "mediana_roznicy": 0.62,
+  "par_z_cena_w_obu": 1
+ },
+ "Fryzjer": {
+  "uslug": 8,
+  "stary_z_cena": 7,
+  "podpis_ta_sama": 3,
+  "ta_sama_1_2": 0,
+  "tylko_podobne": 1,
+  "bez_ceny": 4,
+  "mediana_roznicy": 0.089,
+  "par_z_cena_w_obu": 3
+ },
+ "Masaż": {
+  "uslug": 8,
+  "stary_z_cena": 6,
+  "podpis_ta_sama": 3,
+  "ta_sama_1_2": 1,
+  "tylko_podobne": 1,
+  "bez_ceny": 3,
+  "mediana_roznicy": 0.033,
+  "par_z_cena_w_obu": 3
+ },
+ "Medycyna Estetyczna": {
+  "uslug": 8,
+  "stary_z_cena": 6,
+  "podpis_ta_sama": 2,
+  "ta_sama_1_2": 1,
+  "tylko_podobne": 1,
+  "bez_ceny": 4,
+  "mediana_roznicy": 0.048,
+  "par_z_cena_w_obu": 2
+ },
+ "Paznokcie": {
+  "uslug": 8,
+  "stary_z_cena": 8,
+  "podpis_ta_sama": 4,
+  "ta_sama_1_2": 4,
+  "tylko_podobne": 0,
+  "bez_ceny": 0,
+  "mediana_roznicy": 0.084,
+  "par_z_cena_w_obu": 4
+ },
+ "Podologia": {
+  "uslug": 8,
+  "stary_z_cena": 6,
+  "podpis_ta_sama": 3,
+  "ta_sama_1_2": 1,
+  "tylko_podobne": 0,
+  "bez_ceny": 4,
+  "mediana_roznicy": 0.059,
+  "par_z_cena_w_obu": 3
+ },
+ "Salon Kosmetyczny": {
+  "uslug": 7,
+  "stary_z_cena": 3,
+  "podpis_ta_sama": 2,
+  "ta_sama_1_2": 1,
+  "tylko_podobne": 0,
+  "bez_ceny": 4,
+  "mediana_roznicy": 0.837,
+  "par_z_cena_w_obu": 2
+ },
+ "RAZEM": {
+  "uslug": 71,
+  "stary_z_cena": 56,
+  "podpis_ta_sama": 27,
+  "ta_sama_1_2": 13,
+  "tylko_podobne": 6,
+  "bez_ceny": 25,
+  "mediana_roznicy": 0.087,
+  "par_z_cena_w_obu": 26
+ },
+ "warianty": {
+  "ofert": 6,
+  "z_cena_ta_sama": 0
+ }
+}
