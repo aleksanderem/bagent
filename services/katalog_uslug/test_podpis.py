@@ -246,15 +246,17 @@ def test_slowo_nazwy_we_frazie_z_etykiety_booksy_liczy_sie_jako_wlasne() -> None
     assert podpis(wodorowe, kontekst=kategoria).zbior == {"oczyszczan", "wodor"}
 
 
-def test_dopiski_po_obu_stronach_rozstrzygane_osobno_jak_jednostronne() -> None:
+def test_dopiski_po_obu_stronach_rozstrzygane_osobno_jak_jednostronne(monkeypatch) -> None:
     # „Oczyszczanie wodorowe” [pielęgnacja] / „Wodorowe oczyszczanie” [twarz]: różne słowa po obu stronach, ale każde
-    # osobno nie zmienia usługi — pytanie o zamianę („czy to samo?”) jest tu złym pytaniem (pielęgnacja ≠ twarz).
+    # osobno nie zmienia usługi — ścieżka dostępna tylko w bilansie (KATALOG_OBIE_STRONY=1), domyślnie wyłączona (2.10).
     a = podpis(rek(zabieg="Oczyszczanie", cechy=[("metoda", "wodorowe"), ("inne", "pielęgnacyjne")]))
     b = podpis(rek(zabieg="Oczyszczanie", cechy=[("metoda", "wodorowe"), ("obszar", "twarzy")]))
     assert porownaj(a, b, Klasy())[0] == PODOBNA
     assert roznica_do_pytania(a, b) == []  # klasy stron rozstrzygają pary jednostronne (sprawdzian 9)
     pytania = {k for k, _z in klasy_obu_stron(a, b)}
     assert {k[1] for k in pytania} == {"inne", "gdzie_ile"}
+    assert porownaj(a, b, Klasy(opisowe=pytania))[0] == PODOBNA  # domyślnie: dwie osobne zgody to za mało
+    monkeypatch.setenv("KATALOG_OBIE_STRONY", "1")
     assert porownaj(a, b, Klasy(opisowe=pytania))[0] == TA_SAMA
     jedna = next(k for k in pytania if k[1] == "inne")
     assert porownaj(a, b, Klasy(opisowe={jedna}))[0] == PODOBNA  # obie strony muszą być rozstrzygnięte

@@ -182,9 +182,15 @@ def main() -> None:
     ap.add_argument("--wyjscie", required=True)
     ap.add_argument("--budzet", type=float, default=0.2)
     ap.add_argument("--licz", action="store_true")
+    ap.add_argument("--etykiety", action="store_true", help="najpierw rozkład nowych etykiet Booksy (GLM z abonamentu, 0 USD)")
     a = ap.parse_args()
     s7 = _modul("sprawdzian7", B / "scripts" / "katalog" / "sprawdzian7.py")
     s7.OUT = DANE / a.wyjscie
+    if a.etykiety:
+        from services.katalog_uslug.ekstrakcja import Oferta
+        etykiety = {id_etykiety(o.zabieg_booksy): o.zabieg_booksy for o in s7.do_wyciagniecia() if normalizuj(o.zabieg_booksy)}
+        asyncio.run(s7.km.wyciagnij([Oferta(id=k, typ_salonu="", kategoria="", nazwa=t, wariant="", zabieg_booksy="",
+                                            opis="", cena_zl=None) for k, t in sorted(etykiety.items())], ETYKIETY, 3))
     wyc, rek, kon, sal, ks, sal_of, s = _dane(s7)
     cz = {o.id: czesci(o, rek[o.id], kon.get(o.id), sal.get(o.id), ks.get(o.id), s) for o in wyc if o.id in rek}
     po_id = {o.id: o for o in wyc}

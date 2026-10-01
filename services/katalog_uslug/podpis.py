@@ -11,6 +11,7 @@ dopisek) — nieistotna tylko po decyzji „nie zmienia”; różnica po obu str
 """
 from __future__ import annotations
 
+import os
 import re
 from collections.abc import Iterable
 from dataclasses import dataclass, field
@@ -321,7 +322,13 @@ def porownaj(a: Podpis, b: Podpis, klasy: Klasy) -> tuple[str, str]:
     if kl is None:
         if (z := zamiana_slow(a, b)) is not None and z in set(klasy.rownowazne):
             return TA_SAMA, f"inna nazwa tego samego: „{z[1]}” / „{z[2]}”"
-        if (obie := klasy_obu_stron(a, b)) and all(k in nieistotne for k, _z in obie):
+        # Różnica po obu stronach: tylko wspólna ocena obu fraz naraz (zamiana wyżej). Klasy stron rozstrzygane osobno,
+        # każda na parze, w której druga strona nic nie miała, składały się w fałsz (pomiar 2.10, test F z kontekstem
+        # od TypeSafe: 7 z 20 par tą ścieżką błędnych — „brwi” przy ombre i „koloryzacja” przy ombre, każde osobno
+        # „nie zmienia”, razem makijaż permanentny ≠ farbowanie włosów). Zła para gorsza niż brak porównania (plan 29.09).
+        # KATALOG_OBIE_STRONY=1 przywraca ścieżkę do porównań w bilansie.
+        if os.environ.get("KATALOG_OBIE_STRONY", "0") == "1" and (obie := klasy_obu_stron(a, b)) \
+                and all(k in nieistotne for k, _z in obie):
             return TA_SAMA, "dopiski po obu stronach nie zmieniają usługi: " + " | ".join(k[2] for k, _z in obie)
         return PODOBNA, f"różne słowa: {klucz_roznicy(a.zbior - b.zbior)} / {klucz_roznicy(b.zbior - a.zbior)}"
     for klasa, _z in kl:
