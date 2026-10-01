@@ -207,6 +207,24 @@ możemy lepiej/taniej/szybciej … to ja Cię ograniczyłem”.
   tylko podobne 17%, brak 37% (Depilacja 6/8 bez ceny — laser „broda”, „palce u nóg” w małym mieście); stary silnik
   z ceną 73%, różnica median tam, gdzie oba mają cenę, 15% (n=23). Łącznie testy A–F: pokrycie 52,3% (203/388 wierszy).
 
+- RAPORT 279 — PRZEBIEG PRÓBNY ETAPU 3 (1.10 wieczór, decyzja Alexa „Podpinamy”; tylko odczyt prod, zapis lokalny;
+  reguły jak w teście F, bagent e6a18b1, dane 4d51c69): klinika medycyny estetycznej, Warszawa — 245 usług / 419 ofert
+  (194 to warianty-pakiety 3/4/6/10 zabiegów), pula 2801 salonów, 26,7 tys. par. Rozbiór GLM 15 132/15 444 ofert (98%,
+  ~2,5 h), salony 2790/2801, działy 2229 (3 poza usługami: sety, kursy, karnety); klasy + zamiany TypeSafe 0,18 USD
+  (2686 klas, 1320 zamian). Oferty: „ta sama” ≥3 salony 13%, 1–2 salony 9%, tylko podobne 26%, brak 53% (117 z 220
+  „brak” to pakiety); bez pakietów „ta sama” 37%. Raport, który widziała klientka: cena w 72/222 pozycji (32%); cennik
+  zmienił się od raportu, zgodnych nazwą i ceną 106 pozycji: stary 58%, podpis „ta sama” 44% (33% + 11%), mediany ±21%
+  (n=32). **Moja ocena na ślepo 80 par (50 „ta sama”, po jednej z losowej pozycji, + 30 pozostałych): 78% trafnych
+  „ta sama” (39/50) — poniżej bramki.** Mechanizm: 9 z 11 błędów w jednym dziale „Usuwanie kurzajek i zmian skórnych
+  (laser CO2)” — metoda jest tylko w nagłówku działu, a nagłówek wymienia dwie rzeczy, więc reguła z 29.09
+  (kategoria-lista nie mówi, której pozycji dotyczy) odrzuca też metodę wspólną dla całego działu; usuwanie ręczne,
+  elektrokoagulacją i w gabinecie podologii przechodzi jako „ta sama” (14 pozycji z ceną, 9 z medianą, np. prosak 33 zł
+  wobec 199 zł). Pozostałe 2: Aquashine wobec Aquashine PTX (klasa „nieistotne” od TypeSafe), pakiet 3 zabiegów tylko
+  w nagłówku działu konkurenta. Bez tego działu 37/39 (95%); 4 z 11 błędów sporne. Zgubiona 1 z 30 (botoks „1 okolica”
+  / „lwia zmarszczka”). Wniosek: przełącznika nie włączać; dalej metoda z nagłówka działu wspólna dla jego pozycji
+  (raz na dział), bilans na A–F i dowód na nowych salonach per branża, potem ponownie raport 279. Dane: `raport_279/`
+  (`probka_oceny.json`, `ocena_claude.json`, `porownanie_raportu.json`, `bez_porownania.json`).
+
 **Why:** koszt i jakość v14f utknęły (87–94%, 3/4 par) na ograniczeniach metody, nie na strojeniu.
 **How to apply:** nowa praca nad matchingiem idzie tym planem; v14f zostaje punktem odniesienia w pomiarach.
 Model tej samej usługi ([[feedback_model_tej_samej_uslugi]]) bez zmian. Poprzednie ustalenie drzewa:
