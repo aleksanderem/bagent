@@ -177,6 +177,24 @@ możemy lepiej/taniej/szybciej … to ja Cię ograniczyłem”.
   1–2 salony 13% = 44%, tylko podobne 15%, brak 41% (stary silnik z ceną 61%); mediany ±5% tam, gdzie oba mają cenę.
   Łącznie A–E: 96,6% (2896 par „ta sama”).
 
+- 1.10 (bagent a4a31e3, 93e8e9f) — ODZYSK, każda zmiana bilansem na A–E (wszystkie pary, które zmieniły werdykt,
+  ocenione przeze mnie; oceny spoza próby w `ocena_claude_dodatkowe.json`): (1) pisownia — NFKC (ozdobne litery Booksy),
+  zakres „2-3D” = „2D 3D”: +30 trafnych / +2 błędne; (2) słownik z całego rynku: 19 359 nowych par (0,56 USD — szacunek
+  skryptu był 2× za niski, stała poprawiona na zmierzone ~700 tok./parę), mój przegląd 304 scaleń, 11 odrzuconych
+  z powodem (np. „wąski” ≠ woskowanie, „farbka” ≠ barwienie, „komplet” ≠ całe — to obchodziło ochronę pustej nazwy):
+  +73 / +3; (3) „20 ml” = „20ml”: +2 / 0; (4) słowo wykonawcy (≥ 80% głosów rynku „specjalista”: top, senior, junior,
+  master — rozkład dwubiegunowy, poziomy usługi ≤ 15%) poza podpisem, plan p. 5: +128 / 0. Naprawy pomiaru i pamięci:
+  pamięć klas i zamian przenoszona do form głównych przy przebudowie słownika (ta sama klasa pytana ponownie dała
+  0,48 → 0,51 na progu i 36 par „Ściągnięcie rzęs” ginęło — zasada „klasa raz”); walidacja paczek rozbioru na wszystkich
+  ofertach zbioru (przesunięcie listy gubiło całe paczki — w E ~990 par); test pustej nazwy na rdzeniach przed słownikiem.
+  ODRZUCONE po pomiarze: „liczba w dopisku = różnica” (−8 trafnych za −3 błędne); zakazy łączenia grup z każdej
+  odpowiedzi „inne/węższe” i negatywów (rozcinały prawdziwe grupy odmian: uzupełnienie/uzupełnianie, męskie/mężczyzn,
+  żel/żelowe) — zostały tylko moje odrzucenia. Wynik A–E: trafność 96,8% (A 98,1 / B 98,4 / C 98,9 / D 92,4 / E 95,7;
+  64% par „ta sama” ocenionych wprost), pokrycie wierszy „ta sama” 53,6% (było 52,4%): par przybyło ~230, ale głównie
+  w wierszach, które już miały cenę. Przegląd 53 wierszy „tylko podobne”: prawdziwa „ta sama” wśród kandydatów w ~15
+  (literówki, „średnie (do ramion)”, poziom wykonawcy, „20 ml”), reszta to poprawne „podobne” (inny zakres, dodatek,
+  pakiet). Błąd D nadal skupiony w „Rekonstrukcji paznokcia” (podologia vs manicure — sam kontekst salonu).
+
 **Why:** koszt i jakość v14f utknęły (87–94%, 3/4 par) na ograniczeniach metody, nie na strojeniu.
 **How to apply:** nowa praca nad matchingiem idzie tym planem; v14f zostaje punktem odniesienia w pomiarach.
 Model tej samej usługi ([[feedback_model_tej_samej_uslugi]]) bez zmian. Poprzednie ustalenie drzewa:
