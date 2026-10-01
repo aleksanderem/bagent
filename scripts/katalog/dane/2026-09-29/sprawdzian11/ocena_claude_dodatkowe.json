@@ -148,5 +148,101 @@
   "b": "6273302",
   "ocena": "T",
   "zrodlo": "bilans normalizacji 2026-10-01"
+ },
+ {
+  "a": "54210524",
+  "b": "5826050",
+  "ocena": "T",
+  "zrodlo": "bilans słownika 2026-10-01"
+ },
+ {
+  "a": "54210524",
+  "b": "6161444",
+  "ocena": "T",
+  "zrodlo": "bilans słownika 2026-10-01"
+ },
+ {
+  "a": "54210534",
+  "b": "6372624",
+  "ocena": "T",
+  "zrodlo": "bilans słownika 2026-10-01"
+ },
+ {
+  "a": "54210534",
+  "b": "5883667",
+  "ocena": "T",
+  "zrodlo": "bilans słownika 2026-10-01"
+ },
+ {
+  "a": "54210534",
+  "b": "6235851",
+  "ocena": "T",
+  "zrodlo": "bilans słownika 2026-10-01"
+ },
+ {
+  "a": "54210534",
+  "b": "6229302",
+  "ocena": "T",
+  "zrodlo": "bilans słownika 2026-10-01"
+ },
+ {
+  "a": "55121326",
+  "b": "7216409",
+  "ocena": "P",
+  "zrodlo": "bilans słownika 2026-10-01"
+ },
+ {
+  "a": "55121326",
+  "b": "6527690",
+  "ocena": "P",
+  "zrodlo": "bilans słownika 2026-10-01"
+ },
+ {
+  "a": "55121326",
+  "b": "6747871",
+  "ocena": "T",
+  "zrodlo": "bilans słownika 2026-10-01"
+ },
+ {
+  "a": "55121326",
+  "b": "6736868",
+  "ocena": "T",
+  "zrodlo": "bilans słownika 2026-10-01"
+ },
+ {
+  "a": "55121326",
+  "b": "6516213",
+  "ocena": "P",
+  "zrodlo": "bilans słownika 2026-10-01"
+ },
+ {
+  "a": "55121326",
+  "b": "6432792",
+  "ocena": "T",
+  "zrodlo": "bilans słownika 2026-10-01"
+ },
+ {
+  "a": "53274300",
+  "b": "6176971",
+  "ocena": "T",
+  "zrodlo": "bilans słownika 2026-10-01"
+ },
+ {
+  "a": "53274300",
+  "b": "243512",
+  "ocena": "T",
+  "zrodlo": "bilans słownika 2026-10-01"
+ },
+ {
+  "a": "51970855",
+  "b": "3990591",
+  "ocena": "T",
+  "zrodlo": "bilans jednostek 2026-10-01"
+ },
+ {
+  "a": "51970855",
+  "b": "6008633",
+  "ocena": "T",
+  "zrodlo": "bilans jednostek 2026-10-01"
  }
 ]

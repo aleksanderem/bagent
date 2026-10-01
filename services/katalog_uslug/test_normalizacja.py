@@ -73,3 +73,11 @@ def test_zakres_z_jednostka_na_koncu_dotyczy_obu_liczb() -> None:
     assert normalizuj("Uzupełnienie 2-3D") == normalizuj("Uzupełnienie 2D-3D") == "uzupełnienie 2d 3d"
     assert normalizuj("rzęsy 4/6D") == "rzęsy 4d 6d"
     assert normalizuj("długość 2,5cm") == "długość 2 5cm"  # przecinek to ułamek, nie zakres — bez zmian
+
+
+def test_liczba_i_jednostka_miary_to_jedno_slowo() -> None:
+    assert normalizuj("Lipoliza 20 ml") == normalizuj("Lipoliza 20ml") == "lipoliza 20ml"
+    assert normalizuj("Tatuaż do 4 cm²") == normalizuj("Tatuaż do 4cm2") == "tatuaż do 4cm2"
+    assert normalizuj("Masaż 1 x") == "masaż 1x"
+    assert normalizuj("Pakiet 5 zabiegów") == "pakiet 5 zabiegów"  # słowo, nie jednostka — zostaje osobno
+    assert normalizuj("Botoks 1,5 ml") == "botoks 1 5 ml"  # ułamek bez zmian

@@ -2,7 +2,8 @@
 from __future__ import annotations
 
 from services.katalog_uslug.podpis import (INNA, PODOBNA, TA_SAMA, Klasy, klasy_do_rozstrzygniecia, klasy_obu_stron,
-                                           klasy_roznicy, podpis, porownaj, roznica_do_pytania, slownictwo, zamiana_slow)
+                                           klasy_roznicy, podpis, porownaj, roznica_do_pytania, slownictwo, wykonawcy,
+                                           zamiana_slow)
 
 
 def rek(zabieg: str = "Strzyżenie", cechy: list[tuple[str, str]] | None = None, pozycja: str = "zabieg",
@@ -43,7 +44,7 @@ def test_klasa_nieistotna_daje_ta_sama() -> None:
     a = podpis(rek(cechy=[("obszar", "brody"), ("rozmiar", "do 15 cm")]))
     b = podpis(rek(cechy=[("obszar", "brody")]))
     [(klasa, strona)] = klasy_roznicy(a, b)
-    assert klasa[1:] == ("gdzie_ile", "15 cm do") and strona is a
+    assert klasa[1:] == ("gdzie_ile", "15cm do") and strona is a  # liczba z jednostką = jedno słowo
     assert porownaj(a, b, Klasy(opisowe={klasa}))[0] == TA_SAMA
 
 
@@ -294,3 +295,26 @@ def test_jedno_z_kilku_lub_to_nie_wszystkie_razem() -> None:
     assert lub.zbior == plus.zbior and porownaj(lub, plus, Klasy()) == (PODOBNA, "jedno z kilku („lub”) wobec wszystkich razem")
     przecinek = podpis(oferta("Depilacja uszu, nosa"))  # przecinek i ukośnik bywają „albo” — bez rozstrzygnięcia
     assert porownaj(lub, przecinek, Klasy())[0] == TA_SAMA and porownaj(lub, podpis(oferta("Depilacja uszu lub nosa")), Klasy())[0] == TA_SAMA
+
+
+def test_slowo_wykonawcy_z_roli_poziomu_nie_rozroznia() -> None:
+    rynek = [rek(cechy=[("specjalista", "senior barber")]) for _ in range(5)] + [rek(cechy=[("poziom", "premium")])] * 5
+    wyk = wykonawcy(rynek)
+    assert "senior" in wyk and "premium" not in wyk
+    z_kategorii = rek(zabieg="Strzyżenie brody", cechy=[("poziom", "senior")])
+    zwykla = rek(zabieg="Strzyżenie brody")
+    assert porownaj(podpis(z_kategorii, wykonawcy=wyk), podpis(zwykla, wykonawcy=wyk), Klasy())[0] == TA_SAMA
+    premium = rek(zabieg="Strzyżenie brody", cechy=[("poziom", "premium")])
+    assert porownaj(podpis(premium, wykonawcy=wyk), podpis(zwykla, wykonawcy=wyk), Klasy())[0] != TA_SAMA
+
+
+def test_wykonawca_wymaga_glosow_rynku() -> None:
+    assert wykonawcy([rek(cechy=[("specjalista", "senior")])] * 4) == frozenset()  # 4 głosy < 5
+
+
+def test_nazwa_bez_tresci_takze_po_slowniku() -> None:
+    slownik = {"basic": "podstaw", "komplet": "cale"}  # scalenia słownika nie zdejmują ochrony pustej nazwy
+    a = podpis(rek(zabieg="Basic"), slownik)
+    b = podpis(rek(zabieg="Basic"), slownik)
+    assert porownaj(a, b, Klasy())[0] == PODOBNA
+    assert porownaj(podpis(rek(zabieg="Komplet"), slownik), podpis(rek(zabieg="Komplet"), slownik), Klasy())[0] == PODOBNA

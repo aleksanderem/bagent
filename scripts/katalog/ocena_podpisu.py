@@ -68,6 +68,10 @@ def slownictwo_rynku(rek: dict[str, dict], slownik: dict | None) -> frozenset[st
     return _podpis_mod.slownictwo(rekordy_rynku(rek).values(), slownik)
 
 
+def wykonawcy_rynku(rek: dict[str, dict], slownik: dict | None) -> frozenset[str]:
+    return _podpis_mod.wykonawcy(rekordy_rynku(rek).values(), slownik)
+
+
 def metody_rynku(rek: dict[str, dict], slownik: dict | None) -> frozenset[str]:
     return _podpis_mod.metody_rynku(rekordy_rynku(rek).values(), slownik)
 

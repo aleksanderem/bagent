@@ -73,9 +73,16 @@ def pytanie_relacji(a: str, b: str) -> Choice:
                   INNE: {"what": "różne znaczenia", "not_for": "to samo słowo w innej formie"}})
 
 
-def zbuduj(czestosc: Counter[str], relacje: dict[tuple[str, str], str]) -> dict[str, str]:
-    """Rdzeń → rdzeń kanoniczny (częstszy) dla par „to samo”; łańcuchy scalane do jednego kanonu."""
+def zbuduj(czestosc: Counter[str], relacje: dict[tuple[str, str], str],
+           zakazy: frozenset[frozenset[str]] = frozenset()) -> dict[str, str]:
+    """Rdzeń → rdzeń kanoniczny (częstszy) dla par „to samo”; łańcuchy scalane do jednego kanonu.
+
+    `zakazy` — pary, które NIE mogą trafić do jednej grupy (odpowiedź „węższe / szersze / inne”, negatyw „ten sam
+    salon sprzedaje obie”, moje odrzucenie z przeglądu). Łańcuch A=B, B=C łączył A z C bez pytania (przegląd 1.10:
+    „komplet ~ kompletna ~ całość ~ całe”, „color ~ farbowanie ~ barwienie ~ koloryzacja”); grupy scalane są tylko,
+    gdy żadna para między nimi nie ma sprzecznej odpowiedzi. Kolejność `relacje` = pewność malejąco (wołający)."""
     rodzic: dict[str, str] = {}
+    czlonkowie: dict[str, set[str]] = {}
 
     def korzen(w: str) -> str:
         while rodzic.get(w, w) != w:
@@ -86,9 +93,15 @@ def zbuduj(czestosc: Counter[str], relacje: dict[tuple[str, str], str]) -> dict[
         if rel != TO_SAMO:
             continue
         ka, kb = korzen(a), korzen(b)
-        if ka != kb:
-            glowny, drugi = (ka, kb) if (czestosc[ka], kb) >= (czestosc[kb], ka) else (kb, ka)
-            rodzic[drugi] = glowny
+        if ka == kb:
+            continue
+        ga, gb = czlonkowie.get(ka, {ka}), czlonkowie.get(kb, {kb})
+        if any(frozenset((x, y)) in zakazy for x in ga for y in gb):
+            continue
+        glowny, drugi = (ka, kb) if (czestosc[ka], kb) >= (czestosc[kb], ka) else (kb, ka)
+        rodzic[drugi] = glowny
+        czlonkowie[glowny] = ga | gb
+        czlonkowie.pop(drugi, None)
     return {w: korzen(w) for w in rodzic}
 
 

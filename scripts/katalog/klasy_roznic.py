@@ -23,11 +23,16 @@ from services.katalog_uslug.ekstrakcja import WERSJA_PROMPTU  # noqa: E402
 from services.katalog_uslug.klasy import (NIE_ZMIENIA, WERSJA_PYTANIA, WERSJA_ZAMIANY, przyklad_czysty,  # noqa: E402
                                           pytanie_klasy, pytanie_zamiany, rozstrzygnij, zamiana_rownowazna)
 from services.katalog_uslug.normalizacja import normalizuj, rdzen_slowa  # noqa: E402
-from services.katalog_uslug.podpis import _wybrane_frazy, podpis, roznica_do_pytania, zamiana_do_pytania  # noqa: E402
+from services.katalog_uslug.podpis import (_wybrane_frazy, klucz_roznicy, podpis, roznica_do_pytania,  # noqa: E402
+                                           zamiana_do_pytania)
 
 
 def slownictwo_rynku(rek: dict, slownik: dict | None) -> frozenset[str]:
     return op.slownictwo_rynku(rek, slownik)
+
+
+def wykonawcy_rynku(rek: dict, slownik: dict | None) -> frozenset[str]:
+    return op.wykonawcy_rynku(rek, slownik)
 
 
 def metody_rynku(rek: dict, slownik: dict | None) -> frozenset[str]:
@@ -131,8 +136,47 @@ def zamiany_z_par(wariant: str, slownik: dict[str, str] | None = None, kon: dict
                          slownictwo_rynku(rek, slownik))
 
 
+def _w_slowniku(slowa: str, slownik: dict[str, str]) -> set[str]:
+    return {slownik.get(w, w) for w in slowa.split()}
+
+
+def przenies_pamiec(slownik: dict[str, str]) -> dict[str, int]:
+    """Pamięć klas i zamian w formach głównych BIEŻĄCEGO słownika — plan: klasa różnicy rozstrzygana RAZ. Po przebudowie
+    słownika klucze w starych formach („rzes zdjec”) nie pasowały do nowych („rzes usuwan”) i ta sama klasa była pytana
+    ponownie; odpowiedź na progu (0,48 → 0,51) przewracała 36 par „Ściągnięcie rzęs” (bilans słownika 1.10). Przy dwóch
+    odpowiedziach pod jednym kluczem zostaje starsza (plik zapisuje chronologicznie). Klasa, której dopisek po
+    przemapowaniu jest już wśród wspólnych słów, i zamiana, której strony się zrównały, znikają — para jest równa."""
+    licz = {"klasy_przed": 0, "klasy_po": 0, "zamiany_przed": 0, "zamiany_po": 0}
+    if PLIK.exists():
+        stare = json.loads(PLIK.read_text(encoding="utf-8"))
+        nowe: dict[str, dict] = {}
+        for v in stare.values():
+            wsp, poz, dop = v["klasa"]
+            w = _w_slowniku(wsp, slownik)
+            d = _w_slowniku(dop, slownik) - w
+            if d:
+                kl = [klucz_roznicy(w), poz, klucz_roznicy(d)]
+                nowe.setdefault(json.dumps(kl, ensure_ascii=False), {**v, "klasa": kl})
+        PLIK.write_text(json.dumps(nowe, ensure_ascii=False, indent=1), encoding="utf-8")
+        licz.update(klasy_przed=len(stare), klasy_po=len(nowe))
+    if PLIK_ZAMIAN.exists():
+        stare = json.loads(PLIK_ZAMIAN.read_text(encoding="utf-8"))
+        nowe = {}
+        for v in stare.values():
+            wsp, x, y = v["klasa"]
+            w, sx, sy = (_w_slowniku(s, slownik) for s in (wsp, x, y))
+            da, db = sx - w - sy, sy - w - sx
+            if da and db:
+                kx, ky = sorted((klucz_roznicy(da), klucz_roznicy(db)))
+                kl = [klucz_roznicy(w | (sx & sy)), kx, ky]
+                nowe.setdefault(json.dumps(kl, ensure_ascii=False), {**v, "klasa": kl})
+        PLIK_ZAMIAN.write_text(json.dumps(nowe, ensure_ascii=False, indent=1), encoding="utf-8")
+        licz.update(zamiany_przed=len(stare), zamiany_po=len(nowe))
+    return licz
+
+
 def zamiany_ofert(pary: list, rek: dict, slownik: dict | None, kon: dict, slowa: frozenset[str] | None = None,
-                  sal: dict | None = None) -> dict[str, dict]:
+                  sal: dict | None = None, wyk: frozenset[str] = frozenset()) -> dict[str, dict]:
     """Klucz klasy → reprezentant (pierwsza para z tą klasą): nazwy i słowa różnicy w brzmieniu z ofert, stan obu ofert."""
     zamiany: dict[str, dict] = {}
     for oa, ob in pary:
@@ -140,8 +184,8 @@ def zamiany_ofert(pary: list, rek: dict, slownik: dict | None, kon: dict, slowa:
         if not (ra and rb):
             continue
         sal = sal or {}
-        pa, pb = (podpis(ra, slownik, kon.get(oa.id), slowa, sal.get(oa.id)),
-                  podpis(rb, slownik, kon.get(ob.id), slowa, sal.get(ob.id)))
+        pa, pb = (podpis(ra, slownik, kon.get(oa.id), slowa, sal.get(oa.id), wyk),
+                  podpis(rb, slownik, kon.get(ob.id), slowa, sal.get(ob.id), wyk))
         if (z := zamiana_do_pytania(pa, pb)) is None:
             continue
         klucz = json.dumps(z, ensure_ascii=False)

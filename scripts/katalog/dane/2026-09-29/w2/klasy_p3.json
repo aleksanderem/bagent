@@ -135,11 +135,11 @@
    "2": 0.54
   }
  },
- "[\"mesk strzyzen\", \"gdzie_ile\", \"bokow tylk\"]": {
+ "[\"mesk strzyzen\", \"gdzie_ile\", \"boki tylk\"]": {
   "klasa": [
    "mesk strzyzen",
    "gdzie_ile",
-   "bokow tylk"
+   "boki tylk"
   ],
   "dopisek": "tylko boków",
   "zabieg": "Strzyżenie męskie tylko boków",
@@ -203,11 +203,11 @@
    "2": 0.51
   }
  },
- "[\"mesk strzyzen\", \"inne\", \"haircut men s\"]": {
+ "[\"mesk strzyzen\", \"inne\", \"haircut s\"]": {
   "klasa": [
    "mesk strzyzen",
    "inne",
-   "haircut men s"
+   "haircut s"
   ],
   "dopisek": "haircut men s",
   "zabieg": "Strzyżenie męskie / Men's haircut",
@@ -356,11 +356,11 @@
    "2": 0.2
   }
  },
- "[\"hybryd kolor pedicur\", \"gdzie_ile\", \"1 caly\"]": {
+ "[\"hybryd kolor pedicur\", \"gdzie_ile\", \"1 cale\"]": {
   "klasa": [
    "hybryd kolor pedicur",
    "gdzie_ile",
-   "1 caly"
+   "1 cale"
   ],
   "dopisek": "cały (1",
   "zabieg": "Pedicure hybrydowy cały (1 kolor)",
@@ -407,11 +407,11 @@
    "2": 0.75
   }
  },
- "[\"nosa uszu woskowan\", \"gdzie_ile\", \"mezczyzn\"]": {
+ "[\"nos uszu woskowan\", \"gdzie_ile\", \"mesk\"]": {
   "klasa": [
-   "nosa uszu woskowan",
+   "nos uszu woskowan",
    "gdzie_ile",
-   "mezczyzn"
+   "mesk"
   ],
   "dopisek": "mężczyzn",
   "zabieg": "Woskowanie nosa i uszu",
@@ -509,11 +509,11 @@
    "2": 0.54
   }
  },
- "[\"peset regulacj wosk\", \"gdzie_ile\", \"brwi mezczyzn\"]": {
+ "[\"peset regulacj wosk\", \"gdzie_ile\", \"brwi mesk\"]": {
   "klasa": [
    "peset regulacj wosk",
    "gdzie_ile",
-   "brwi mezczyzn"
+   "brwi mesk"
   ],
   "dopisek": "brwi mężczyzn",
   "zabieg": "Regulacja brwi (wosk + pęseta)",
@@ -526,9 +526,9 @@
    "2": 0.54
   }
  },
- "[\"makijaz permanentn usuniec\", \"inne\", \"od\"]": {
+ "[\"makijaz permanentn usuwan\", \"inne\", \"od\"]": {
   "klasa": [
-   "makijaz permanentn usuniec",
+   "makijaz permanentn usuwan",
    "inne",
    "od"
   ],
@@ -543,9 +543,9 @@
    "2": 0.02
   }
  },
- "[\"makijaz permanentn usuniec\", \"gdzie_ile\", \"brwi\"]": {
+ "[\"makijaz permanentn usuwan\", \"gdzie_ile\", \"brwi\"]": {
   "klasa": [
-   "makijaz permanentn usuniec",
+   "makijaz permanentn usuwan",
    "gdzie_ile",
    "brwi"
   ],
@@ -662,26 +662,9 @@
    "2": 0.09
   }
  },
- "[\"oczyszczan wodor\", \"poziom\", \"clean\"]": {
+ "[\"odcisk usuwan\", \"gdzie_ile\", \"100zl 150zl jeden jedn powyz\"]": {
   "klasa": [
-   "oczyszczan wodor",
-   "poziom",
-   "clean"
-  ],
-  "dopisek": "Clean",
-  "zabieg": "Oczyszczanie Wodorowe Clean",
-  "druga": "Oczyszczanie wodorowe",
-  "oferta": "5526262",
-  "score": 0.77,
-  "rozklad": {
-   "0": 0.24,
-   "1": 0.74,
-   "2": 0.02
-  }
- },
- "[\"odcisk usuniec\", \"gdzie_ile\", \"100zl 150zl jeden jedn powyz\"]": {
-  "klasa": [
-   "odcisk usuniec",
+   "odcisk usuwan",
    "gdzie_ile",
    "100zl 150zl jeden jedn powyz"
   ],
@@ -696,9 +679,9 @@
    "2": 0.51
   }
  },
- "[\"odcisk usuniec\", \"gdzie_ile\", \"mnog\"]": {
+ "[\"odcisk usuwan\", \"gdzie_ile\", \"mnog\"]": {
   "klasa": [
-   "odcisk usuniec",
+   "odcisk usuwan",
    "gdzie_ile",
    "mnog"
   ],
@@ -713,9 +696,9 @@
    "2": 0.78
   }
  },
- "[\"odcisk usuniec\", \"gdzie_ile\", \"modzel\"]": {
+ "[\"odcisk usuwan\", \"gdzie_ile\", \"modzel\"]": {
   "klasa": [
-   "odcisk usuniec",
+   "odcisk usuwan",
    "gdzie_ile",
    "modzel"
   ],
@@ -866,9 +849,9 @@
    "2": 0.78
   }
  },
- "[\"dlug farbowan wlos\", \"rdzen\", \"jeden kolor\"]": {
+ "[\"dlug koloryzacj wlos\", \"rdzen\", \"jeden kolor\"]": {
   "klasa": [
-   "dlug farbowan wlos",
+   "dlug koloryzacj wlos",
    "rdzen",
    "jeden kolor"
   ],
@@ -951,11 +934,11 @@
    "2": 0.0
   }
  },
- "[\"kobid masaz\", \"rdzen\", \"liftingujac\"]": {
+ "[\"kobid masaz\", \"rdzen\", \"lifting\"]": {
   "klasa": [
    "kobid masaz",
    "rdzen",
-   "liftingujac"
+   "lifting"
   ],
   "dopisek": "liftingujący",
   "zabieg": "Kobido - liftingujący masaż twarzy",
@@ -1155,11 +1138,11 @@
    "2": 0.0
   }
  },
- "[\"flip lip ust\", \"rdzen\", \"powiekszen\"]": {
+ "[\"flip lip ust\", \"rdzen\", \"powiekszan\"]": {
   "klasa": [
    "flip lip ust",
    "rdzen",
-   "powiekszen"
+   "powiekszan"
   ],
   "dopisek": "powiększenie",
   "zabieg": "Lip Flip powiększenie ust",
@@ -1240,11 +1223,11 @@
    "2": 0.52
   }
  },
- "[\"manicur zelow\", \"etap\", \"dopelnien\"]": {
+ "[\"manicur zelow\", \"etap\", \"uzupelnien\"]": {
   "klasa": [
    "manicur zelow",
    "etap",
-   "dopelnien"
+   "uzupelnien"
   ],
   "dopisek": "dopełnienie",
   "zabieg": "Manicure żelowy — Manicure żelowy dopełnienie",
@@ -1308,11 +1291,11 @@
    "2": 0.06
   }
  },
- "[\"brwi henn regulacj rzes\", \"inne\", \"wraz\"]": {
+ "[\"brwi henn regulacj rzes\", \"inne\", \"plus\"]": {
   "klasa": [
    "brwi henn regulacj rzes",
    "inne",
-   "wraz"
+   "plus"
   ],
   "dopisek": "wraz",
   "zabieg": "Henna brwi i rzęs wraz z regulacją",
@@ -1342,11 +1325,11 @@
    "2": 0.11
   }
  },
- "[\"mesk strzyzen\", \"rdzen\", \"maszynk sama\"]": {
+ "[\"mesk strzyzen\", \"rdzen\", \"maszynk same\"]": {
   "klasa": [
    "mesk strzyzen",
    "rdzen",
-   "maszynk sama"
+   "maszynk same"
   ],
   "dopisek": "samą maszynką",
   "zabieg": "Strzyżenie męskie — Strzyżenie samą maszynką",
@@ -1427,11 +1410,11 @@
    "2": 0.14
   }
  },
- "[\"jednolit kolor\", \"rdzen\", \"farbowan koloryzacj wlos\"]": {
+ "[\"jednolit kolor\", \"rdzen\", \"koloryzacj wlos\"]": {
   "klasa": [
    "jednolit kolor",
    "rdzen",
-   "farbowan koloryzacj wlos"
+   "koloryzacj wlos"
   ],
   "dopisek": "Koloryzacja farbowanie włosów",
   "zabieg": "Kolor Jednolity",
@@ -1444,11 +1427,11 @@
    "2": 0.02
   }
  },
- "[\"paznokc przedluzan stylizacj\", \"rdzen\", \"zelem\"]": {
+ "[\"paznokc przedluzan stylizacj\", \"rdzen\", \"zelow\"]": {
   "klasa": [
    "paznokc przedluzan stylizacj",
    "rdzen",
-   "zelem"
+   "zelow"
   ],
   "dopisek": "żelem",
   "zabieg": "Przedłużanie paznokci żelem",
@@ -1716,11 +1699,11 @@
    "2": 0.74
   }
  },
- "[\"dlug ombr sombr strzyzen wlos\", \"rdzen\", \"balleyag\"]": {
+ "[\"dlug ombr sombr strzyzen wlos\", \"rdzen\", \"baleyag\"]": {
   "klasa": [
    "dlug ombr sombr strzyzen wlos",
    "rdzen",
-   "balleyag"
+   "baleyag"
   ],
   "dopisek": "Balleyage/Sombre/Ombre",
   "zabieg": "Balleyage/Sombre/Ombre + strzyżenie- włosy długie",
@@ -1903,11 +1886,11 @@
    "2": 0.01
   }
  },
- "[\"flip lip\", \"rdzen\", \"btx efekt redukcj zmarszczek\"]": {
+ "[\"flip lip\", \"rdzen\", \"botox efekt redukcj zmarszczk\"]": {
   "klasa": [
    "flip lip",
    "rdzen",
-   "btx efekt redukcj zmarszczek"
+   "botox efekt redukcj zmarszczk"
   ],
   "dopisek": "redukcja zmarszczek BTX Efekt",
   "zabieg": "Lip Flip",
@@ -2328,9 +2311,9 @@
    "2": 0.44
   }
  },
- "[\"balejaz modelowan ombr strzyzen toner\", \"rdzen\", \"farbk\"]": {
+ "[\"baleyag modelowan ombr strzyzen toner\", \"rdzen\", \"farbk\"]": {
   "klasa": [
-   "balejaz modelowan ombr strzyzen toner",
+   "baleyag modelowan ombr strzyzen toner",
    "rdzen",
    "farbk"
   ],
@@ -2345,11 +2328,11 @@
    "2": 0.48
   }
  },
- "[\"masaz swiec\", \"inne\", \"calosc relaksacyjn\"]": {
+ "[\"masaz swiec\", \"inne\", \"cale relaksacyjn\"]": {
   "klasa": [
    "masaz swiec",
    "inne",
-   "calosc relaksacyjn"
+   "cale relaksacyjn"
   ],
   "dopisek": "relaksacyjny-całościowy",
   "zabieg": "Masaż świecą relaksacyjny-całościowy",
@@ -2379,11 +2362,11 @@
    "2": 0.14
   }
  },
- "[\"kobid masaz\", \"gdzie_ile\", \"face full\"]": {
+ "[\"kobid masaz\", \"gdzie_ile\", \"cale face\"]": {
   "klasa": [
    "kobid masaz",
    "gdzie_ile",
-   "face full"
+   "cale face"
   ],
   "dopisek": "Full Face",
   "zabieg": "Masaż Kobido Full Face",
@@ -2481,9 +2464,9 @@
    "2": 0.08
   }
  },
- "[\"kolejn odcisk usuniec\", \"gdzie_ile\", \"kazd modzel\"]": {
+ "[\"kolejn odcisk usuwan\", \"gdzie_ile\", \"kazd modzel\"]": {
   "klasa": [
-   "kolejn odcisk usuniec",
+   "kolejn odcisk usuwan",
    "gdzie_ile",
    "kazd modzel"
   ],
@@ -2498,9 +2481,9 @@
    "2": 0.57
   }
  },
- "[\"chorob kazd kolejn oczyszczen paznokc zmian\", \"gdzie_ile\", \"1 50zl\"]": {
+ "[\"chorob kazd kolejn oczyszczan paznokc zmian\", \"gdzie_ile\", \"1 50zl\"]": {
   "klasa": [
-   "chorob kazd kolejn oczyszczen paznokc zmian",
+   "chorob kazd kolejn oczyszczan paznokc zmian",
    "gdzie_ile",
    "1 50zl"
   ],
@@ -2600,11 +2583,11 @@
    "2": 0.75
   }
  },
- "[\"korekt makijaz permanentn\", \"etap\", \"miesiac od uslug\"]": {
+ "[\"korekt makijaz permanentn\", \"etap\", \"miesiec od uslug\"]": {
   "klasa": [
    "korekt makijaz permanentn",
    "etap",
-   "miesiac od uslug"
+   "miesiec od uslug"
   ],
   "dopisek": "miesiąc od usługi",
   "zabieg": "➕Korekta Makijażu permanentnego miesiąc od usługi",
@@ -2736,11 +2719,11 @@
    "2": 0.7
   }
  },
- "[\"dekoloryzacj dlug wlos\", \"wylaczenie\", \"bez dodatk farbowan strzyzen\"]": {
+ "[\"dekoloryzacj dlug wlos\", \"wylaczenie\", \"bez dodatk koloryzacj strzyzen\"]": {
   "klasa": [
    "dekoloryzacj dlug wlos",
    "wylaczenie",
-   "bez dodatk farbowan strzyzen"
+   "bez dodatk koloryzacj strzyzen"
   ],
   "dopisek": "bez strzyżenia dodatkowego farbowania",
   "zabieg": "Dekoloryzacja włosy długie",
@@ -2821,9 +2804,9 @@
    "2": 0.3
   }
  },
- "[\"kazd kolejn modzel usuniec\", \"gdzie_ile\", \"cena dotycz jedn\"]": {
+ "[\"kazd kolejn modzel usuwan\", \"gdzie_ile\", \"cena dotycz jedn\"]": {
   "klasa": [
-   "kazd kolejn modzel usuniec",
+   "kazd kolejn modzel usuwan",
    "gdzie_ile",
    "cena dotycz jedn"
   ],
@@ -2855,9 +2838,9 @@
    "2": 0.07
   }
  },
- "[\"kazd kolejn modzel usuniec\", \"rdzen\", \"odcisk\"]": {
+ "[\"kazd kolejn modzel usuwan\", \"rdzen\", \"odcisk\"]": {
   "klasa": [
-   "kazd kolejn modzel usuniec",
+   "kazd kolejn modzel usuwan",
    "rdzen",
    "odcisk"
   ],
@@ -2872,9 +2855,9 @@
    "2": 0.4
   }
  },
- "[\"kazd kolejn modzel usuniec\", \"gdzie_ile\", \"100zl 50 cena plus zl\"]": {
+ "[\"kazd kolejn modzel usuwan\", \"gdzie_ile\", \"100zl 50 cena plus zl\"]": {
   "klasa": [
-   "kazd kolejn modzel usuniec",
+   "kazd kolejn modzel usuwan",
    "gdzie_ile",
    "100zl 50 cena plus zl"
   ],
@@ -3008,23 +2991,6 @@
    "2": 0.27
   }
  },
- "[\"peset regulacj wosk\", \"gdzie_ile\", \"brwi mesk\"]": {
-  "klasa": [
-   "peset regulacj wosk",
-   "gdzie_ile",
-   "brwi mesk"
-  ],
-  "dopisek": "Męska brwi",
-  "zabieg": "Regulacja (wosk/pęseta)/ Męska regulacja",
-  "druga": "Regulacja woskiem+pęsetą",
-  "oferta": "6861742",
-  "score": 1.2,
-  "rozklad": {
-   "0": 0.33,
-   "1": 0.13,
-   "2": 0.54
-  }
- },
  "[\"peeling wegl\", \"rdzen\", \"black doll\"]": {
   "klasa": [
    "peeling wegl",
@@ -3042,9 +3008,9 @@
    "2": 0.12
   }
  },
- "[\"makijaz permanentn usuniec\", \"rdzen\", \"remover\"]": {
+ "[\"makijaz permanentn usuwan\", \"rdzen\", \"remover\"]": {
   "klasa": [
-   "makijaz permanentn usuniec",
+   "makijaz permanentn usuwan",
    "rdzen",
    "remover"
   ],
@@ -3127,9 +3093,9 @@
    "2": 0.64
   }
  },
- "[\"odcisk usuniec\", \"gdzie_ile\", \"stop\"]": {
+ "[\"odcisk usuwan\", \"gdzie_ile\", \"stop\"]": {
   "klasa": [
-   "odcisk usuniec",
+   "odcisk usuwan",
    "gdzie_ile",
    "stop"
   ],
@@ -3178,9 +3144,9 @@
    "2": 0.01
   }
  },
- "[\"odcisk usuniec\", \"gdzie_ile\", \"1 stop\"]": {
+ "[\"odcisk usuwan\", \"gdzie_ile\", \"1 stop\"]": {
   "klasa": [
-   "odcisk usuniec",
+   "odcisk usuwan",
    "gdzie_ile",
    "1 stop"
   ],
@@ -3331,11 +3297,11 @@
    "2": 0.19
   }
  },
- "[\"brod modelowan\", \"rdzen\", \"wolumetr wypelnien zmarszczek\"]": {
+ "[\"brod modelowan\", \"rdzen\", \"wolumetr wypelnian zmarszczk\"]": {
   "klasa": [
    "brod modelowan",
    "rdzen",
-   "wolumetr wypelnien zmarszczek"
+   "wolumetr wypelnian zmarszczk"
   ],
   "dopisek": "WOLUMETRIA WYPEŁNIENIE ZMARSZCZEK",
   "zabieg": "Modelowanie brody",
@@ -3416,11 +3382,11 @@
    "2": 0.05
   }
  },
- "[\"depilacj peln twarz\", \"gdzie_ile\", \"kobiet\"]": {
+ "[\"cale depilacj twarz\", \"gdzie_ile\", \"damsk\"]": {
   "klasa": [
-   "depilacj peln twarz",
+   "cale depilacj twarz",
    "gdzie_ile",
-   "kobiet"
+   "damsk"
   ],
   "dopisek": "kobiety",
   "zabieg": "Depilacja pełna twarz",
@@ -3467,11 +3433,11 @@
    "2": 0.17
   }
  },
- "[\"masaz relaksacyjn\", \"gdzie_ile\", \"calosc\"]": {
+ "[\"masaz relaksacyjn\", \"gdzie_ile\", \"cale\"]": {
   "klasa": [
    "masaz relaksacyjn",
    "gdzie_ile",
-   "calosc"
+   "cale"
   ],
   "dopisek": "całościowy",
   "zabieg": "Masaż relaksacyjny całościowy",
@@ -3484,11 +3450,11 @@
    "2": 0.65
   }
  },
- "[\"cukr depilacj past uda\", \"gdzie_ile\", \"kobiec\"]": {
+ "[\"cukr depilacj past uda\", \"gdzie_ile\", \"damsk\"]": {
   "klasa": [
    "cukr depilacj past uda",
    "gdzie_ile",
-   "kobiec"
+   "damsk"
   ],
   "dopisek": "kobieca",
   "zabieg": "Depilacja pastą cukrową UDA",
@@ -3518,11 +3484,11 @@
    "2": 0.09
   }
  },
- "[\"cukr depilacj lini past pepk\", \"gdzie_ile\", \"kobiec\"]": {
+ "[\"cukr depilacj lini past pepk\", \"gdzie_ile\", \"damsk\"]": {
   "klasa": [
    "cukr depilacj lini past pepk",
    "gdzie_ile",
-   "kobiec"
+   "damsk"
   ],
   "dopisek": "kobieca",
   "zabieg": "depilacja pastą cukrową linia pępka — depilacja pastą cukrową linia pępka",
@@ -3654,9 +3620,9 @@
    "2": 0.25
   }
  },
- "[\"odcisk usuniec\", \"gdzie_ile\", \"kazd kolejn modzel\"]": {
+ "[\"odcisk usuwan\", \"gdzie_ile\", \"kazd kolejn modzel\"]": {
   "klasa": [
-   "odcisk usuniec",
+   "odcisk usuwan",
    "gdzie_ile",
    "kazd kolejn modzel"
   ],
@@ -3756,11 +3722,11 @@
    "2": 0.19
   }
  },
- "[\"naczynek nos zamykan\", \"rdzen\", \"laser rumien usuniec\"]": {
+ "[\"naczynek nos zamykan\", \"rdzen\", \"laser rumien usuwan\"]": {
   "klasa": [
    "naczynek nos zamykan",
    "rdzen",
-   "laser rumien usuniec"
+   "laser rumien usuwan"
   ],
   "dopisek": "Laserowe usuwanie rumienia",
   "zabieg": "Nos - Laserowe zamykanie naczynek i usuwanie rumienia — Nos - Laserowe zamykanie naczynek i usuwanie rumienia",
@@ -7853,11 +7819,11 @@
    "2": 0.0
   }
  },
- "[\"brwi depilacj nos uszu wosk\", \"poziom\", \"full\"]": {
+ "[\"brwi depilacj nos uszu wosk\", \"poziom\", \"cale\"]": {
   "klasa": [
    "brwi depilacj nos uszu wosk",
    "poziom",
-   "full"
+   "cale"
   ],
   "dopisek": "FULL",
   "zabieg": "Depilacja woskiem FULL : nos, uszy, brwi (wax)",
@@ -8720,11 +8686,11 @@
    "2": 0.03
   }
  },
- "[\"kobid masaz transbukaln twarz\", \"inne\", \"relaksujac upiekszajac\"]": {
+ "[\"kobid masaz transbukaln twarz\", \"inne\", \"relaksacyjn upiekszajac\"]": {
   "klasa": [
    "kobid masaz transbukaln twarz",
    "inne",
-   "relaksujac upiekszajac"
+   "relaksacyjn upiekszajac"
   ],
   "dopisek": "upiększająco relaksujący",
   "zabieg": "Kobido - upiększająco - relaksujący masaż twarzy — Kobido + masaż transbukalny",
@@ -9043,11 +9009,11 @@
    "2": 0.72
   }
  },
- "[\"ciaz masaz\", \"rdzen\", \"orient\"]": {
+ "[\"ciaz masaz\", \"rdzen\", \"orientaln\"]": {
   "klasa": [
    "ciaz masaz",
    "rdzen",
-   "orient"
+   "orientaln"
   ],
   "dopisek": "orientalne",
   "zabieg": "MASAŻ DLA KOBIET W CIĄŻY (60 minut)",
@@ -9162,11 +9128,11 @@
    "2": 0.87
   }
  },
- "[\"ciaz masaz\", \"rdzen\", \"relaksujac\"]": {
+ "[\"ciaz masaz\", \"rdzen\", \"relaksacyjn\"]": {
   "klasa": [
    "ciaz masaz",
    "rdzen",
-   "relaksujac"
+   "relaksacyjn"
   ],
   "dopisek": "relaksujący",
   "zabieg": "MeTime - relaksujący masaż w ciąży/po porodzie",
@@ -9247,11 +9213,11 @@
    "2": 0.09
   }
  },
- "[\"infuzj tlen\", \"gdzie_ile\", \"oczy\"]": {
+ "[\"infuzj tlen\", \"gdzie_ile\", \"oczu\"]": {
   "klasa": [
    "infuzj tlen",
    "gdzie_ile",
-   "oczy"
+   "oczu"
   ],
   "dopisek": "oczy",
   "zabieg": "Infuzja tlenowa oczy",
@@ -9417,11 +9383,11 @@
    "2": 0.74
   }
  },
- "[\"infuzj tlen\", \"gdzie_ile\", \"oczy twarz ust\"]": {
+ "[\"infuzj tlen\", \"gdzie_ile\", \"oczu twarz ust\"]": {
   "klasa": [
    "infuzj tlen",
    "gdzie_ile",
-   "oczy twarz ust"
+   "oczu twarz ust"
   ],
   "dopisek": "twarz oczy usta",
   "zabieg": "Infuzja tlenowa twarz + oczy + usta",
@@ -9485,11 +9451,11 @@
    "2": 0.13
   }
  },
- "[\"infuzj tlen\", \"inne\", \"dotleniajac regenerujac\"]": {
+ "[\"infuzj tlen\", \"inne\", \"dotleniajac regeneracj\"]": {
   "klasa": [
    "infuzj tlen",
    "inne",
-   "dotleniajac regenerujac"
+   "dotleniajac regeneracj"
   ],
   "dopisek": "dotleniająca-regenerujący",
   "zabieg": "Infuzja Tlenowa - zabieg dotleniająca-regenerujący",
@@ -9536,11 +9502,11 @@
    "2": 0.21
   }
  },
- "[\"infuzj tlen\", \"gdzie_ile\", \"deko oczy szyj twarz ust\"]": {
+ "[\"infuzj tlen\", \"gdzie_ile\", \"dekolt oczu szyj twarz ust\"]": {
   "klasa": [
    "infuzj tlen",
    "gdzie_ile",
-   "deko oczy szyj twarz ust"
+   "dekolt oczu szyj twarz ust"
   ],
   "dopisek": "twarz oczy usta szyja deko",
   "zabieg": "Infuzja tlenowa twarz + oczy + usta + szyja + deko",
@@ -9621,11 +9587,11 @@
    "2": 0.09
   }
  },
- "[\"infuzj tlen\", \"rdzen\", \"do oxybrazj\"]": {
+ "[\"infuzj tlen\", \"rdzen\", \"do oksybrazj\"]": {
   "klasa": [
    "infuzj tlen",
    "rdzen",
-   "do oxybrazj"
+   "do oksybrazj"
   ],
   "dopisek": "Oxybrazja do",
   "zabieg": "💦Oxybrazja do infuzji tlenowej twarz, szyja, deko",
@@ -9638,11 +9604,11 @@
    "2": 0.51
   }
  },
- "[\"infuzj tlen\", \"gdzie_ile\", \"deko szyj twarz\"]": {
+ "[\"infuzj tlen\", \"gdzie_ile\", \"dekolt szyj twarz\"]": {
   "klasa": [
    "infuzj tlen",
    "gdzie_ile",
-   "deko szyj twarz"
+   "dekolt szyj twarz"
   ],
   "dopisek": "twarz, szyja, deko",
   "zabieg": "💦Oxybrazja do infuzji tlenowej twarz, szyja, deko",
@@ -9672,9 +9638,9 @@
    "2": 0.3
   }
  },
- "[\"rzes zdjec\", \"rdzen\", \"przedluzan\"]": {
+ "[\"rzes usuwan\", \"rdzen\", \"przedluzan\"]": {
   "klasa": [
-   "rzes zdjec",
+   "rzes usuwan",
    "rdzen",
    "przedluzan"
   ],
@@ -9893,11 +9859,11 @@
    "2": 0.55
   }
  },
- "[\"hybryd stop\", \"rdzen\", \"zdjec\"]": {
+ "[\"hybryd stop\", \"rdzen\", \"usuwan\"]": {
   "klasa": [
    "hybryd stop",
    "rdzen",
-   "zdjec"
+   "usuwan"
   ],
   "dopisek": "Zdjęcie",
   "zabieg": "Zdjęcie hybrydy stopy",
@@ -9910,28 +9876,11 @@
    "2": 0.97
   }
  },
- "[\"hybryd stop\", \"rdzen\", \"sciagnic\"]": {
-  "klasa": [
-   "hybryd stop",
-   "rdzen",
-   "sciagnic"
-  ],
-  "dopisek": "Ściągnicie",
-  "zabieg": "Ściągnięcie hybrydy (stopy)",
-  "druga": "Hybryda na stopy",
-  "oferta": "7293517",
-  "score": 1.95,
-  "rozklad": {
-   "0": 0.01,
-   "1": 0.02,
-   "2": 0.97
-  }
- },
- "[\"hybryd stop\", \"inne\", \"zdjec\"]": {
+ "[\"hybryd stop\", \"inne\", \"usuwan\"]": {
   "klasa": [
    "hybryd stop",
    "inne",
-   "zdjec"
+   "usuwan"
   ],
   "dopisek": "ściągnięcie",
   "zabieg": "Ściągnięcie hybrydy (stopy)",
@@ -9978,11 +9927,11 @@
    "2": 0.91
   }
  },
- "[\"hybryd stop\", \"rdzen\", \"stylizacj zdjec\"]": {
+ "[\"hybryd stop\", \"rdzen\", \"stylizacj usuwan\"]": {
   "klasa": [
    "hybryd stop",
    "rdzen",
-   "stylizacj zdjec"
+   "stylizacj usuwan"
   ],
   "dopisek": "Ściągnięcie stylizacji",
   "zabieg": "Ściągnięcie stylizacji hybrydowej u stóp",
@@ -9995,28 +9944,11 @@
    "2": 0.98
   }
  },
- "[\"hybryd stop\", \"rdzen\", \"usuwan\"]": {
+ "[\"hybryd stop\", \"rdzen\", \"usuwan zelow\"]": {
   "klasa": [
    "hybryd stop",
    "rdzen",
-   "usuwan"
-  ],
-  "dopisek": "Usuwanie",
-  "zabieg": "Usuwanie hybrydy ze stóp",
-  "druga": "Hybryda na stopy",
-  "oferta": "6695703",
-  "score": 1.95,
-  "rozklad": {
-   "0": 0.01,
-   "1": 0.03,
-   "2": 0.96
-  }
- },
- "[\"hybryd stop\", \"rdzen\", \"zdjec zelow\"]": {
-  "klasa": [
-   "hybryd stop",
-   "rdzen",
-   "zdjec zelow"
+   "usuwan zelow"
   ],
   "dopisek": "Ściągnięcie hybrydy/żelu",
   "zabieg": "Ściągnięcie hybrydy/żelu u stóp",
@@ -10046,11 +9978,11 @@
    "2": 0.22
   }
  },
- "[\"hybryd stop\", \"etap\", \"zdjec\"]": {
+ "[\"hybryd stop\", \"etap\", \"usuwan\"]": {
   "klasa": [
    "hybryd stop",
    "etap",
-   "zdjec"
+   "usuwan"
   ],
   "dopisek": "Zdjęcie",
   "zabieg": "Zdjęcie hybrydy +pedicure",
@@ -10182,11 +10114,11 @@
    "2": 0.11
   }
  },
- "[\"brwi henn regulacj\", \"rdzen\", \"zwykl\"]": {
+ "[\"brwi henn regulacj\", \"rdzen\", \"podstaw\"]": {
   "klasa": [
    "brwi henn regulacj",
    "rdzen",
-   "zwykl"
+   "podstaw"
   ],
   "dopisek": "zwykła",
   "zabieg": "Henna zwykła brwi z regulacją",
@@ -10367,23 +10299,6 @@
    "0": 0.03,
    "1": 0.05,
    "2": 0.92
-  }
- },
- "[\"brwi henn regulacj\", \"rdzen\", \"penset\"]": {
-  "klasa": [
-   "brwi henn regulacj",
-   "rdzen",
-   "penset"
-  ],
-  "dopisek": "pensetą",
-  "zabieg": "Henna brwi  z regulacją pensetą",
-  "druga": "Henna na brwi z regulacją",
-  "oferta": "5627662",
-  "score": 0.4,
-  "rozklad": {
-   "0": 0.73,
-   "1": 0.14,
-   "2": 0.13
   }
  },
  "[\"bez brwi henn regulacj\", \"gdzie_ile\", \"rzes\"]": {
@@ -11338,11 +11253,11 @@
    "2": 0.6
   }
  },
- "[\"iglow mezoterap\", \"gdzie_ile\", \"oczy pod\"]": {
+ "[\"iglow mezoterap\", \"gdzie_ile\", \"oczu pod\"]": {
   "klasa": [
    "iglow mezoterap",
    "gdzie_ile",
-   "oczy pod"
+   "oczu pod"
   ],
   "dopisek": "pod oczy",
   "zabieg": "Mezoterapia igłowa pod oczy",
@@ -11508,11 +11423,11 @@
    "2": 0.88
   }
  },
- "[\"iglow mezoterap\", \"gdzie_ile\", \"1 deko oczy okolic szyj twarz\"]": {
+ "[\"iglow mezoterap\", \"gdzie_ile\", \"1 dekolt oczu okolic szyj twarz\"]": {
   "klasa": [
    "iglow mezoterap",
    "gdzie_ile",
-   "1 deko oczy okolic szyj twarz"
+   "1 dekolt oczu okolic szyj twarz"
   ],
   "dopisek": "1 okolica oczy/twarz/szyja-deko",
   "zabieg": "Mezoterapia igłowa 1 okolica oczy/twarz/szyja-deko — Zależy od podanego preparatu",
@@ -11559,11 +11474,11 @@
    "2": 0.85
   }
  },
- "[\"iglow mezoterap\", \"inne\", \"deko oczy\"]": {
+ "[\"iglow mezoterap\", \"inne\", \"dekolt oczu\"]": {
   "klasa": [
    "iglow mezoterap",
    "inne",
-   "deko oczy"
+   "dekolt oczu"
   ],
   "dopisek": "deko oczy",
   "zabieg": "Mezoterapia igłowa 1 okolica oczy/twarz/szyja-deko — Twarz + szyja+ dekolt",
@@ -11593,11 +11508,11 @@
    "2": 0.96
   }
  },
- "[\"iglow mezoterap\", \"gdzie_ile\", \"dekolt oczy szyj twarz\"]": {
+ "[\"iglow mezoterap\", \"gdzie_ile\", \"dekolt oczu szyj twarz\"]": {
   "klasa": [
    "iglow mezoterap",
    "gdzie_ile",
-   "dekolt oczy szyj twarz"
+   "dekolt oczu szyj twarz"
   ],
   "dopisek": "oczy twarz szyja dekolt",
   "zabieg": "Mezoterapia igłowa oczy, twarz, szyja,dekolt",
@@ -11761,23 +11676,6 @@
    "0": 0.14,
    "1": 0.09,
    "2": 0.77
-  }
- },
- "[\"botox bruksizm\", \"rdzen\", \"btx\"]": {
-  "klasa": [
-   "botox bruksizm",
-   "rdzen",
-   "btx"
-  ],
-  "dopisek": "BTX",
-  "zabieg": "BTX Bruksizm",
-  "druga": "Botox bruksizm",
-  "oferta": "7115309",
-  "score": 0.06,
-  "rozklad": {
-   "0": 0.94,
-   "1": 0.05,
-   "2": 0.01
   }
  },
  "[\"botox bruksizm\", \"rdzen\", \"botulin toksyn\"]": {
@@ -12052,11 +11950,11 @@
    "2": 0.82
   }
  },
- "[\"mesk strzyzen wlos\", \"rdzen\", \"classic cut klasyczn\"]": {
+ "[\"mesk strzyzen wlos\", \"rdzen\", \"cut klasyczn\"]": {
   "klasa": [
    "mesk strzyzen wlos",
    "rdzen",
-   "classic cut klasyczn"
+   "cut klasyczn"
   ],
   "dopisek": "KLASYCZNE CLASSIC CUT",
   "zabieg": "STRZYŻENIE KLASYCZNE | CLASSIC CUT — NASTIA",
@@ -12086,11 +11984,11 @@
    "2": 0.24
   }
  },
- "[\"mesk strzyzen wlos\", \"inne\", \"classic cut\"]": {
+ "[\"mesk strzyzen wlos\", \"inne\", \"cut klasyczn\"]": {
   "klasa": [
    "mesk strzyzen wlos",
    "inne",
-   "classic cut"
+   "cut klasyczn"
   ],
   "dopisek": "classic cut",
   "zabieg": "STRZYŻENIE KLASYCZNE | CLASSIC CUT — KASIA",
@@ -12118,23 +12016,6 @@
    "0": 0.8,
    "1": 0.15,
    "2": 0.05
-  }
- },
- "[\"mesk strzyzen wlos\", \"inne\", \"classic cut klasyczn\"]": {
-  "klasa": [
-   "mesk strzyzen wlos",
-   "inne",
-   "classic cut klasyczn"
-  ],
-  "dopisek": "KLASYCZNE CLASSIC CUT",
-  "zabieg": "STRZYŻENIE KLASYCZNE | CLASSIC CUT — WIKI",
-  "druga": "💈 STRZYŻENIE MĘSKIE ✂️",
-  "oferta": "6994119#6",
-  "score": 0.46,
-  "rozklad": {
-   "0": 0.66,
-   "1": 0.22,
-   "2": 0.12
   }
  },
  "[\"brod maszynk strzyzen\", \"rdzen\", \"buzzcut\"]": {
@@ -12851,23 +12732,6 @@
    "2": 0.61
   }
  },
- "[\"infuzj tlen\", \"gdzie_ile\", \"dekolt szyj twarz\"]": {
-  "klasa": [
-   "infuzj tlen",
-   "gdzie_ile",
-   "dekolt szyj twarz"
-  ],
-  "dopisek": "twarz szyja dekolt",
-  "zabieg": "Infuzja tlenowa — twarz+szyja+dekolt",
-  "druga": "Infuzja tlenowa",
-  "oferta": "5637765#1",
-  "score": 1.65,
-  "rozklad": {
-   "0": 0.13,
-   "1": 0.08,
-   "2": 0.79
-  }
- },
  "[\"infuzj tlen\", \"gdzie_ile\", \"gora plec\"]": {
   "klasa": [
    "infuzj tlen",
@@ -13225,23 +13089,6 @@
    "2": 0.45
   }
  },
- "[\"iglow mezoterap\", \"gdzie_ile\", \"oczy\"]": {
-  "klasa": [
-   "iglow mezoterap",
-   "gdzie_ile",
-   "oczy"
-  ],
-  "dopisek": "oczy",
-  "zabieg": "Mezoterapia igłowa (oczy)",
-  "druga": "Mezoterapia igłowa",
-  "oferta": "5982482",
-  "score": 1.89,
-  "rozklad": {
-   "0": 0.04,
-   "1": 0.03,
-   "2": 0.93
-  }
- },
  "[\"iglow mezoterap\", \"gdzie_ile\", \"szyj\"]": {
   "klasa": [
    "iglow mezoterap",
@@ -13310,11 +13157,11 @@
    "2": 0.93
   }
  },
- "[\"balijsk masaz\", \"gdzie_ile\", \"dwoj\"]": {
+ "[\"balijsk masaz\", \"gdzie_ile\", \"dwojg\"]": {
   "klasa": [
    "balijsk masaz",
    "gdzie_ile",
-   "dwoj"
+   "dwojg"
   ],
   "dopisek": "DWOJE",
   "zabieg": "MASAŻ BALIJSKI WE DWOJE 90MIN",
@@ -13327,11 +13174,11 @@
    "2": 0.98
   }
  },
- "[\"masaz\", \"gdzie_ile\", \"dwoj\"]": {
+ "[\"masaz\", \"gdzie_ile\", \"dwojg\"]": {
   "klasa": [
    "masaz",
    "gdzie_ile",
-   "dwoj"
+   "dwojg"
   ],
   "dopisek": "DWOJE",
   "zabieg": "MASAŻ BALIJSKI WE DWOJE 90MIN",
@@ -13582,11 +13429,11 @@
    "2": 0.04
   }
  },
- "[\"klasyczn manicur\", \"etap\", \"hybryd zdjec\"]": {
+ "[\"klasyczn manicur\", \"etap\", \"hybryd usuwan\"]": {
   "klasa": [
    "klasyczn manicur",
    "etap",
-   "hybryd zdjec"
+   "hybryd usuwan"
   ],
   "dopisek": "Ściągnięcie hybrydy",
   "zabieg": "Manicure klasyczny — Ściągnięcie hybrydy + mani",
@@ -14177,11 +14024,11 @@
    "2": 0.64
   }
  },
- "[\"hybryd manicur\", \"inne\", \"inneg po stylistc\"]": {
+ "[\"hybryd manicur\", \"inne\", \"innej po stylistc\"]": {
   "klasa": [
    "hybryd manicur",
    "inne",
-   "inneg po stylistc"
+   "innej po stylistc"
   ],
   "dopisek": "inneg po stylistc",
   "zabieg": "Manicure hybrydowy po innej stylistce-TOP STYLISTA",
@@ -15605,11 +15452,11 @@
    "2": 0.34
   }
  },
- "[\"hybryd pedicur\", \"etap\", \"star zdjec\"]": {
+ "[\"hybryd pedicur\", \"etap\", \"star usuwan\"]": {
   "klasa": [
    "hybryd pedicur",
    "etap",
-   "star zdjec"
+   "star usuwan"
   ],
   "dopisek": "zdjęciem starej",
   "zabieg": "Pedicure hybrydowy — Tylko hybryda na stopy ze zdjęciem starej hybrydy",
@@ -15911,11 +15758,11 @@
    "2": 0.04
   }
  },
- "[\"henn rzes\", \"rdzen\", \"farbowan\"]": {
+ "[\"henn rzes\", \"rdzen\", \"koloryzacj\"]": {
   "klasa": [
    "henn rzes",
    "rdzen",
-   "farbowan"
+   "koloryzacj"
   ],
   "dopisek": "Farbowanie/Henna",
   "zabieg": "Farbowanie/Henna rzęs",
@@ -16064,11 +15911,11 @@
    "2": 0.72
   }
  },
- "[\"henn rzes\", \"rdzen\", \"tradycyjn\"]": {
+ "[\"henn rzes\", \"rdzen\", \"klasyczn\"]": {
   "klasa": [
    "henn rzes",
    "rdzen",
-   "tradycyjn"
+   "klasyczn"
   ],
   "dopisek": "tradycyjna",
   "zabieg": "Henna brwi tradycyjna+henna rzęs",
@@ -17237,11 +17084,11 @@
    "2": 0.01
   }
  },
- "[\"infuzj tlen twarz\", \"gdzie_ile\", \"oczy ust\"]": {
+ "[\"infuzj tlen twarz\", \"gdzie_ile\", \"oczu ust\"]": {
   "klasa": [
    "infuzj tlen twarz",
    "gdzie_ile",
-   "oczy ust"
+   "oczu ust"
   ],
   "dopisek": "oczy usta",
   "zabieg": "Infuzja tlenowa — Twarz + oczy + usta",
@@ -17254,11 +17101,11 @@
    "2": 0.9
   }
  },
- "[\"infuzj tlen twarz\", \"gdzie_ile\", \"oczy szyj ust\"]": {
+ "[\"infuzj tlen twarz\", \"gdzie_ile\", \"oczu szyj ust\"]": {
   "klasa": [
    "infuzj tlen twarz",
    "gdzie_ile",
-   "oczy szyj ust"
+   "oczu szyj ust"
   ],
   "dopisek": "oczy usta szyja",
   "zabieg": "Infuzja tlenowa — Twarz + oczy + usta + szyja",
@@ -17271,11 +17118,11 @@
    "2": 0.94
   }
  },
- "[\"infuzj tlen twarz\", \"gdzie_ile\", \"dekolt oczy szyj ust\"]": {
+ "[\"infuzj tlen twarz\", \"gdzie_ile\", \"dekolt oczu szyj ust\"]": {
   "klasa": [
    "infuzj tlen twarz",
    "gdzie_ile",
-   "dekolt oczy szyj ust"
+   "dekolt oczu szyj ust"
   ],
   "dopisek": "oczy usta szyja dekolt",
   "zabieg": "Infuzja tlenowa — Twarz + oczy + usta + szyja + dekolt",
@@ -17288,11 +17135,11 @@
    "2": 0.95
   }
  },
- "[\"infuzj szyj tlen twarz\", \"gdzie_ile\", \"oczy ust\"]": {
+ "[\"infuzj szyj tlen twarz\", \"gdzie_ile\", \"oczu ust\"]": {
   "klasa": [
    "infuzj szyj tlen twarz",
    "gdzie_ile",
-   "oczy ust"
+   "oczu ust"
   ],
   "dopisek": "oczy usta",
   "zabieg": "Infuzja tlenowa — Twarz + oczy + usta + szyja",
@@ -17305,11 +17152,11 @@
    "2": 0.94
   }
  },
- "[\"infuzj szyj tlen twarz\", \"gdzie_ile\", \"dekolt oczy ust\"]": {
+ "[\"infuzj szyj tlen twarz\", \"gdzie_ile\", \"dekolt oczu ust\"]": {
   "klasa": [
    "infuzj szyj tlen twarz",
    "gdzie_ile",
-   "dekolt oczy ust"
+   "dekolt oczu ust"
   ],
   "dopisek": "oczy usta dekolt",
   "zabieg": "Infuzja tlenowa — Twarz + oczy + usta + szyja + dekolt",
@@ -17322,11 +17169,11 @@
    "2": 0.95
   }
  },
- "[\"dekolt infuzj szyj tlen twarz\", \"gdzie_ile\", \"oczy ust\"]": {
+ "[\"dekolt infuzj szyj tlen twarz\", \"gdzie_ile\", \"oczu ust\"]": {
   "klasa": [
    "dekolt infuzj szyj tlen twarz",
    "gdzie_ile",
-   "oczy ust"
+   "oczu ust"
   ],
   "dopisek": "oczy usta",
   "zabieg": "Infuzja tlenowa — Twarz + oczy + usta + szyja + dekolt",
@@ -18172,9 +18019,9 @@
    "2": 0.77
   }
  },
- "[\"farbowan jeden kolor sredn\", \"inne\", \"cale\"]": {
+ "[\"jeden kolor koloryzacj sredn\", \"inne\", \"cale\"]": {
   "klasa": [
-   "farbowan jeden kolor sredn",
+   "jeden kolor koloryzacj sredn",
    "inne",
    "cale"
   ],
@@ -18189,9 +18036,9 @@
    "2": 0.09
   }
  },
- "[\"cale farbowan jeden kolor sredn\", \"gdzie_ile\", \"wlos\"]": {
+ "[\"cale jeden kolor koloryzacj sredn\", \"gdzie_ile\", \"wlos\"]": {
   "klasa": [
-   "cale farbowan jeden kolor sredn",
+   "cale jeden kolor koloryzacj sredn",
    "gdzie_ile",
    "wlos"
   ],
@@ -18206,9 +18053,9 @@
    "2": 0.01
   }
  },
- "[\"cale farbowan jeden kolor sredn\", \"inne\", \"dlug\"]": {
+ "[\"cale jeden kolor koloryzacj sredn\", \"inne\", \"dlug\"]": {
   "klasa": [
-   "cale farbowan jeden kolor sredn",
+   "cale jeden kolor koloryzacj sredn",
    "inne",
    "dlug"
   ],
@@ -18223,9 +18070,9 @@
    "2": 0.06
   }
  },
- "[\"farbowan sredn\", \"gdzie_ile\", \"jeden kolor\"]": {
+ "[\"koloryzacj sredn\", \"gdzie_ile\", \"jeden kolor\"]": {
   "klasa": [
-   "farbowan sredn",
+   "koloryzacj sredn",
    "gdzie_ile",
    "jeden kolor"
   ],
@@ -18240,9 +18087,9 @@
    "2": 0.28
   }
  },
- "[\"farbowan sredn\", \"inne\", \"cale\"]": {
+ "[\"koloryzacj sredn\", \"inne\", \"cale\"]": {
   "klasa": [
-   "farbowan sredn",
+   "koloryzacj sredn",
    "inne",
    "cale"
   ],
@@ -18257,9 +18104,9 @@
    "2": 0.31
   }
  },
- "[\"cale farbowan\", \"gdzie_ile\", \"jeden kolor sredn\"]": {
+ "[\"cale koloryzacj\", \"gdzie_ile\", \"jeden kolor sredn\"]": {
   "klasa": [
-   "cale farbowan",
+   "cale koloryzacj",
    "gdzie_ile",
    "jeden kolor sredn"
   ],
@@ -18274,9 +18121,9 @@
    "2": 0.53
   }
  },
- "[\"cale farbowan jeden kolor sredn\", \"gdzie_ile\", \"dlug wlos\"]": {
+ "[\"cale jeden kolor koloryzacj sredn\", \"gdzie_ile\", \"dlug wlos\"]": {
   "klasa": [
-   "cale farbowan jeden kolor sredn",
+   "cale jeden kolor koloryzacj sredn",
    "gdzie_ile",
    "dlug wlos"
   ],
@@ -18291,9 +18138,9 @@
    "2": 0.02
   }
  },
- "[\"farbowan\", \"gdzie_ile\", \"jeden kolor sredn\"]": {
+ "[\"koloryzacj\", \"gdzie_ile\", \"jeden kolor sredn\"]": {
   "klasa": [
-   "farbowan",
+   "koloryzacj",
    "gdzie_ile",
    "jeden kolor sredn"
   ],
@@ -18308,9 +18155,9 @@
    "2": 0.69
   }
  },
- "[\"farbowan\", \"inne\", \"cale\"]": {
+ "[\"koloryzacj\", \"inne\", \"cale\"]": {
   "klasa": [
-   "farbowan",
+   "koloryzacj",
    "inne",
    "cale"
   ],
@@ -18682,9 +18529,9 @@
    "2": 0.07
   }
  },
- "[\"farbowan jeden kolor\", \"inne\", \"cale\"]": {
+ "[\"jeden kolor koloryzacj\", \"inne\", \"cale\"]": {
   "klasa": [
-   "farbowan jeden kolor",
+   "jeden kolor koloryzacj",
    "inne",
    "cale"
   ],
@@ -18699,9 +18546,9 @@
    "2": 0.16
   }
  },
- "[\"farbowan jeden kolor\", \"gdzie_ile\", \"sredn\"]": {
+ "[\"jeden kolor koloryzacj\", \"gdzie_ile\", \"sredn\"]": {
   "klasa": [
-   "farbowan jeden kolor",
+   "jeden kolor koloryzacj",
    "gdzie_ile",
    "sredn"
   ],
@@ -19447,11 +19294,11 @@
    "2": 0.9
   }
  },
- "[\"kombinowan manicur\", \"rdzen\", \"lakier zwykl\"]": {
+ "[\"kombinowan manicur\", \"rdzen\", \"lakier podstaw\"]": {
   "klasa": [
    "kombinowan manicur",
    "rdzen",
-   "lakier zwykl"
+   "lakier podstaw"
   ],
   "dopisek": "kombinowany+zwykły lakier",
   "zabieg": "Manicure kombinowany+zwykły lakier",
@@ -19481,11 +19328,11 @@
    "2": 0.87
   }
  },
- "[\"kombinowan manicur\", \"etap\", \"innym robion salon zdjec\"]": {
+ "[\"kombinowan manicur\", \"etap\", \"innym robion salon usuwan\"]": {
   "klasa": [
    "kombinowan manicur",
    "etap",
-   "innym robion salon zdjec"
+   "innym robion salon usuwan"
   ],
   "dopisek": "zdjęcie robionej innym salonie",
   "zabieg": "Manicure hybrydowy-kombinowany (pod skórki) — + zdjęcie hybrydy robionej w innym salonie",
@@ -19940,11 +19787,11 @@
    "2": 0.24
   }
  },
- "[\"bankiet\", \"rdzen\", \"detoks\"]": {
+ "[\"bankiet\", \"rdzen\", \"detox\"]": {
   "klasa": [
    "bankiet",
    "rdzen",
-   "detoks"
+   "detox"
   ],
   "dopisek": "detoks",
   "zabieg": "Bankietowy detoks",
@@ -20212,11 +20059,11 @@
    "2": 0.65
   }
  },
- "[\"head rytual spa\", \"inne\", \"base baza essenc ktor siegaj wariant wlos\"]": {
+ "[\"head rytual spa\", \"inne\", \"baza essenc ktor siegaj wariant wlos\"]": {
   "klasa": [
    "head rytual spa",
    "inne",
-   "base baza essenc ktor siegaj wariant wlos"
+   "baza essenc ktor siegaj wariant wlos"
   ],
   "dopisek": "wariant których włosy sięgają",
   "zabieg": "Head Spa Essence Base 🌸 baza, esencja rytuału — Wariant dla kobiet, których włosy sięgają do linii ramion",
@@ -20246,11 +20093,11 @@
    "2": 0.45
   }
  },
- "[\"head rytual spa\", \"inne\", \"base baza essenc wariant\"]": {
+ "[\"head rytual spa\", \"inne\", \"baza essenc wariant\"]": {
   "klasa": [
    "head rytual spa",
    "inne",
-   "base baza essenc wariant"
+   "baza essenc wariant"
   ],
   "dopisek": "wariant",
   "zabieg": "Head Spa Essence Base 🌸 baza, esencja rytuału — Wariant dla mężczyzn",
@@ -20263,11 +20110,11 @@
    "2": 0.46
   }
  },
- "[\"head rytual spa\", \"rdzen\", \"base essenc hair therap\"]": {
+ "[\"head rytual spa\", \"rdzen\", \"baza essenc hair therap\"]": {
   "klasa": [
    "head rytual spa",
    "rdzen",
-   "base essenc hair therap"
+   "baza essenc hair therap"
   ],
   "dopisek": "Essence Base hair therapy",
   "zabieg": "Head Spa Essence Base 🌸 baza, esencja rytuału — Wariant dla kobiet, których włosy sięgają za linię ramion lub są długie",
@@ -21198,11 +21045,11 @@
    "2": 0.94
   }
  },
- "[\"brod strzyzen\", \"rdzen\", \"farbowan\"]": {
+ "[\"brod strzyzen\", \"rdzen\", \"koloryzacj\"]": {
   "klasa": [
    "brod strzyzen",
    "rdzen",
-   "farbowan"
+   "koloryzacj"
   ],
   "dopisek": "Farbowanie",
   "zabieg": "Cover brody lub włosów bez strzyżenia",
@@ -21810,11 +21657,11 @@
    "2": 0.75
   }
  },
- "[\"depilacj wasik\", \"gdzie_ile\", \"klientek nowych\"]": {
+ "[\"depilacj wasik\", \"gdzie_ile\", \"klientk nowych\"]": {
   "klasa": [
    "depilacj wasik",
    "gdzie_ile",
-   "klientek nowych"
+   "klientk nowych"
   ],
   "dopisek": "nowych klientek",
   "zabieg": "Depilacja Woskiem Wąsik",
@@ -22014,11 +21861,11 @@
    "2": 0.85
   }
  },
- "[\"depilacj wasik\", \"gdzie_ile\", \"baczk brodk\"]": {
+ "[\"depilacj wasik\", \"gdzie_ile\", \"baki brodk\"]": {
   "klasa": [
    "depilacj wasik",
    "gdzie_ile",
-   "baczk brodk"
+   "baki brodk"
   ],
   "dopisek": "bródka/ baczki",
   "zabieg": "Depilacja laserowa — wąsik/ bródka/ baczki",
@@ -22354,11 +22201,11 @@
    "2": 0.99
   }
  },
- "[\"bikin depilacj klasyczn laser\", \"rdzen\", \"epilacj plus xlas\"]": {
+ "[\"bikin depilacj klasyczn laser\", \"rdzen\", \"plus xlas\"]": {
   "klasa": [
    "bikin depilacj klasyczn laser",
    "rdzen",
-   "epilacj plus xlas"
+   "plus xlas"
   ],
   "dopisek": "EPILACJA Xlase Plus",
   "zabieg": "Bikini klasyczne-SAME PACHWINY!",
@@ -22796,11 +22643,11 @@
    "2": 0.97
   }
  },
- "[\"depilacj laser rece\", \"rdzen\", \"epilacj plus xlas\"]": {
+ "[\"depilacj laser rece\", \"rdzen\", \"plus xlas\"]": {
   "klasa": [
    "depilacj laser rece",
    "rdzen",
-   "epilacj plus xlas"
+   "plus xlas"
   ],
   "dopisek": "EPILACJA Xlase Plus",
   "zabieg": "Ręce całe",
@@ -22949,9 +22796,9 @@
    "2": 0.35
   }
  },
- "[\"farbowan sredn strzyzen wlos\", \"gdzie_ile\", \"do ramion\"]": {
+ "[\"koloryzacj sredn strzyzen wlos\", \"gdzie_ile\", \"do ramion\"]": {
   "klasa": [
-   "farbowan sredn strzyzen wlos",
+   "koloryzacj sredn strzyzen wlos",
    "gdzie_ile",
    "do ramion"
   ],
@@ -22966,9 +22813,9 @@
    "2": 0.61
   }
  },
- "[\"farbowan sredn strzyzen wlos\", \"wylaczenie\", \"bez rozjasniacz uzyc\"]": {
+ "[\"koloryzacj sredn strzyzen wlos\", \"wylaczenie\", \"bez rozjasniacz uzyc\"]": {
   "klasa": [
-   "farbowan sredn strzyzen wlos",
+   "koloryzacj sredn strzyzen wlos",
    "wylaczenie",
    "bez rozjasniacz uzyc"
   ],
@@ -23578,9 +23425,9 @@
    "2": 0.07
   }
  },
- "[\"hybryd manicur zdjec\", \"rdzen\", \"manucurist odzywk\"]": {
+ "[\"hybryd manicur usuwan\", \"rdzen\", \"manucurist odzywk\"]": {
   "klasa": [
-   "hybryd manicur zdjec",
+   "hybryd manicur usuwan",
    "rdzen",
    "manucurist odzywk"
   ],
@@ -23646,9 +23493,9 @@
    "2": 0.04
   }
  },
- "[\"hybryd manicur odzywk zdjec\", \"rdzen\", \"manucurist\"]": {
+ "[\"hybryd manicur odzywk usuwan\", \"rdzen\", \"manucurist\"]": {
   "klasa": [
-   "hybryd manicur odzywk zdjec",
+   "hybryd manicur odzywk usuwan",
    "rdzen",
    "manucurist"
   ],
@@ -24972,11 +24819,11 @@
    "2": 0.85
   }
  },
- "[\"wosk\", \"gdzie_ile\", \"baczk brod\"]": {
+ "[\"wosk\", \"gdzie_ile\", \"baki brod\"]": {
   "klasa": [
    "wosk",
    "gdzie_ile",
-   "baczk brod"
+   "baki brod"
   ],
   "dopisek": "broda baczki",
   "zabieg": "Wosk broda baczki — Wosk broda baczki",
@@ -24987,23 +24834,6 @@
    "0": 0.2,
    "1": 0.14,
    "2": 0.66
-  }
- },
- "[\"wosk\", \"gdzie_ile\", \"baki brod\"]": {
-  "klasa": [
-   "wosk",
-   "gdzie_ile",
-   "baki brod"
-  ],
-  "dopisek": "broda/baki",
-  "zabieg": "Wosk broda/baki — Wosk broda/baki",
-  "druga": "Wosk",
-  "oferta": "6520453",
-  "score": 1.33,
-  "rozklad": {
-   "0": 0.26,
-   "1": 0.16,
-   "2": 0.58
   }
  },
  "[\"kawitacyjn peeling sonoforez\", \"gdzie_ile\", \"plec\"]": {
@@ -25159,11 +24989,11 @@
    "2": 0.75
   }
  },
- "[\"brwi geometr regulacj\", \"rdzen\", \"farbowan\"]": {
+ "[\"brwi geometr regulacj\", \"rdzen\", \"koloryzacj\"]": {
   "klasa": [
    "brwi geometr regulacj",
    "rdzen",
-   "farbowan"
+   "koloryzacj"
   ],
   "dopisek": "Farbowanie",
   "zabieg": "Farbowanie brwi + geometria brwi + regulacja brwi",
@@ -25329,11 +25159,11 @@
    "2": 0.58
   }
  },
- "[\"tonowan\", \"inne\", \"sredniе\"]": {
+ "[\"tonowan\", \"inne\", \"sredn\"]": {
   "klasa": [
    "tonowan",
    "inne",
-   "sredniе"
+   "sredn"
   ],
   "dopisek": "średniе",
   "zabieg": "Tonowanie — średniе",
@@ -25990,23 +25820,6 @@
    "0": 0.74,
    "1": 0.14,
    "2": 0.12
-  }
- },
- "[\"masaz\", \"rdzen\", \"baljisk\"]": {
-  "klasa": [
-   "masaz",
-   "rdzen",
-   "baljisk"
-  ],
-  "dopisek": "baljiski",
-  "zabieg": "Masaż baljiski",
-  "druga": "Masaż 45min",
-  "oferta": "6794535",
-  "score": 1.68,
-  "rozklad": {
-   "0": 0.02,
-   "1": 0.27,
-   "2": 0.71
   }
  },
  "[\"maszynk strzyzen\", \"poziom\", \"top\"]": {
@@ -26893,23 +26706,6 @@
    "2": 0.91
   }
  },
- "[\"koloryzacj krotk wlos\", \"rdzen\", \"farbowan\"]": {
-  "klasa": [
-   "koloryzacj krotk wlos",
-   "rdzen",
-   "farbowan"
-  ],
-  "dopisek": "farbowanie",
-  "zabieg": "Koloryzacja i farbowanie włosów krótkich",
-  "druga": "Koloryzacja włosy krótkie",
-  "oferta": "5883305",
-  "score": 0.18,
-  "rozklad": {
-   "0": 0.86,
-   "1": 0.11,
-   "2": 0.03
-  }
- },
  "[\"keratyn prostowan wlos\", \"gdzie_ile\", \"damsk sredn\"]": {
   "klasa": [
    "keratyn prostowan wlos",
@@ -27386,11 +27182,11 @@
    "2": 0.61
   }
  },
- "[\"botox\", \"gdzie_ile\", \"oczy\"]": {
+ "[\"botox\", \"gdzie_ile\", \"oczu\"]": {
   "klasa": [
    "botox",
    "gdzie_ile",
-   "oczy"
+   "oczu"
   ],
   "dopisek": "oczy",
   "zabieg": "Botoks (oczy)",
@@ -27522,11 +27318,11 @@
    "2": 0.11
   }
  },
- "[\"masaz\", \"rdzen\", \"odzywcz relaksujac\"]": {
+ "[\"masaz\", \"rdzen\", \"odzywcz relaksacyjn\"]": {
   "klasa": [
    "masaz",
    "rdzen",
-   "odzywcz relaksujac"
+   "odzywcz relaksacyjn"
   ],
   "dopisek": "ODŻYWCZO RELAKSUJĄCY",
   "zabieg": "ZABIEG ODŻYWCZO - RELAKSUJĄCY Z MASAŻEM",
@@ -27777,11 +27573,11 @@
    "2": 0.02
   }
  },
- "[\"brwi makijaz permanentn\", \"rdzen\", \"ombr puder\"]": {
+ "[\"brwi makijaz permanentn\", \"rdzen\", \"ombr pudr\"]": {
   "klasa": [
    "brwi makijaz permanentn",
    "rdzen",
-   "ombr puder"
+   "ombr pudr"
   ],
   "dopisek": "(ombre/puder)",
   "zabieg": "Makijaż permanentny brwi (ombre/puder)",
@@ -28287,11 +28083,11 @@
    "2": 0.63
   }
  },
- "[\"koloryzacj krotk wlos\", \"rdzen\", \"global jednolit\"]": {
+ "[\"koloryzacj krotk wlos\", \"rdzen\", \"globaln jednolit\"]": {
   "klasa": [
    "koloryzacj krotk wlos",
    "rdzen",
-   "global jednolit"
+   "globaln jednolit"
   ],
   "dopisek": "Jednotonowa(global)",
   "zabieg": "Koloryzacja Jednotonowa(global) włosy krótkie",
@@ -28372,11 +28168,11 @@
    "2": 0.93
   }
  },
- "[\"masaz plec\", \"rdzen\", \"rozluzniajac\"]": {
+ "[\"masaz plec\", \"rdzen\", \"relaksacyjn\"]": {
   "klasa": [
    "masaz plec",
    "rdzen",
-   "rozluzniajac"
+   "relaksacyjn"
   ],
   "dopisek": "Rozluźniający",
   "zabieg": "Rozluźniający masaż pleców",
@@ -28644,23 +28440,6 @@
    "2": 0.3
   }
  },
- "[\"cale laser nogi\", \"rdzen\", \"epilacj\"]": {
-  "klasa": [
-   "cale laser nogi",
-   "rdzen",
-   "epilacj"
-  ],
-  "dopisek": "Epilacja",
-  "zabieg": "Epilacja laserowa (całe nogi)",
-  "druga": "Laser całe nogi",
-  "oferta": "6226942",
-  "score": 0.06,
-  "rozklad": {
-   "0": 0.94,
-   "1": 0.05,
-   "2": 0.01
-  }
- },
  "[\"masaz\", \"gdzie_ile\", \"ramion\"]": {
   "klasa": [
    "masaz",
@@ -28746,11 +28525,11 @@
    "2": 0.88
   }
  },
- "[\"maszynk strzyzen\", \"gdzie_ile\", \"bokow\"]": {
+ "[\"maszynk strzyzen\", \"gdzie_ile\", \"boki\"]": {
   "klasa": [
    "maszynk strzyzen",
    "gdzie_ile",
-   "bokow"
+   "boki"
   ],
   "dopisek": "boków",
   "zabieg": "Strzyżenie maszynką — Strzyżenie boków",
@@ -29324,11 +29103,11 @@
    "2": 0.36
   }
  },
- "[\"hybryd pedicur\", \"rdzen\", \"zdjec\"]": {
+ "[\"hybryd pedicur\", \"rdzen\", \"usuwan\"]": {
   "klasa": [
    "hybryd pedicur",
    "rdzen",
-   "zdjec"
+   "usuwan"
   ],
   "dopisek": "Zdjęcie",
   "zabieg": "Zdjęcie hybrydy z pedicure",
@@ -29630,11 +29409,11 @@
    "2": 0.71
   }
  },
- "[\"cale depilacj nogi\", \"rdzen\", \"tradycyjn wosk\"]": {
+ "[\"cale depilacj nogi\", \"rdzen\", \"klasyczn wosk\"]": {
   "klasa": [
    "cale depilacj nogi",
    "rdzen",
-   "tradycyjn wosk"
+   "klasyczn wosk"
   ],
   "dopisek": "woskiem tradycyjnym",
   "zabieg": "depilacja- całe nogi",
@@ -29885,23 +29664,6 @@
    "2": 0.81
   }
  },
- "[\"masaz plec\", \"rdzen\", \"relaksacyjn\"]": {
-  "klasa": [
-   "masaz plec",
-   "rdzen",
-   "relaksacyjn"
-  ],
-  "dopisek": "relaksacyjny",
-  "zabieg": "Masaż relaksacyjny pleców — Masaż relaksacyjny pleców",
-  "druga": "masaż pleców — masaż pleców",
-  "oferta": "3633869",
-  "score": 1.28,
-  "rozklad": {
-   "0": 0.3,
-   "1": 0.12,
-   "2": 0.58
-  }
- },
  "[\"masaz\", \"rdzen\", \"relaksacyjn\"]": {
   "klasa": [
    "masaz",
@@ -29919,11 +29681,11 @@
    "2": 0.2
   }
  },
- "[\"brwi geometr regulacj\", \"rdzen\", \"farbowan stylizacj\"]": {
+ "[\"brwi geometr regulacj\", \"rdzen\", \"koloryzacj stylizacj\"]": {
   "klasa": [
    "brwi geometr regulacj",
    "rdzen",
-   "farbowan stylizacj"
+   "koloryzacj stylizacj"
   ],
   "dopisek": "Farbowanie Stylizacja farbowanie",
   "zabieg": "Farbowanie +geometria +regulacja brwi",
@@ -29936,11 +29698,11 @@
    "2": 0.86
   }
  },
- "[\"brod cover odsiwian wlos\", \"rdzen\", \"farbowan\"]": {
+ "[\"brod cover odsiwian wlos\", \"rdzen\", \"koloryzacj\"]": {
   "klasa": [
    "brod cover odsiwian wlos",
    "rdzen",
-   "farbowan"
+   "koloryzacj"
   ],
   "dopisek": "Farbowanie",
   "zabieg": "Cover odsiwianie włosów i brody",
@@ -30206,23 +29968,6 @@
    "0": 0.72,
    "1": 0.15,
    "2": 0.13
-  }
- },
- "[\"makijaz permanentn ust\", \"rdzen\", \"efekt pomadk\"]": {
-  "klasa": [
-   "makijaz permanentn ust",
-   "rdzen",
-   "efekt pomadk"
-  ],
-  "dopisek": "efekt pomadki",
-  "zabieg": "Makijaż permanentny ust( efekt pomadki)",
-  "druga": "Makijaż permanentny ust",
-  "oferta": "6597732",
-  "score": 1.12,
-  "rozklad": {
-   "0": 0.39,
-   "1": 0.1,
-   "2": 0.51
   }
  },
  "[\"napraw paznokc\", \"inne\", \"1paznokcia\"]": {
@@ -31228,9 +30973,9 @@
    "2": 0.1
   }
  },
- "[\"farbowan jeden kolor sredn\", \"gdzie_ile\", \"do ramion\"]": {
+ "[\"jeden kolor koloryzacj sredn\", \"gdzie_ile\", \"do ramion\"]": {
   "klasa": [
-   "farbowan jeden kolor sredn",
+   "jeden kolor koloryzacj sredn",
    "gdzie_ile",
    "do ramion"
   ],
@@ -31262,9 +31007,9 @@
    "2": 0.01
   }
  },
- "[\"farbowan jeden kolor\", \"gdzie_ile\", \"dlug wlos\"]": {
+ "[\"jeden kolor koloryzacj\", \"gdzie_ile\", \"dlug wlos\"]": {
   "klasa": [
-   "farbowan jeden kolor",
+   "jeden kolor koloryzacj",
    "gdzie_ile",
    "dlug wlos"
   ],
@@ -31364,9 +31109,9 @@
    "2": 0.58
   }
  },
- "[\"farbowan jeden kolor sredn\", \"gdzie_ile\", \"dlugosc wlos\"]": {
+ "[\"jeden kolor koloryzacj sredn\", \"gdzie_ile\", \"dlugosc wlos\"]": {
   "klasa": [
-   "farbowan jeden kolor sredn",
+   "jeden kolor koloryzacj sredn",
    "gdzie_ile",
    "dlugosc wlos"
   ],
@@ -31415,9 +31160,9 @@
    "2": 0.49
   }
  },
- "[\"farbowan jeden kolor\", \"gdzie_ile\", \"dlug\"]": {
+ "[\"jeden kolor koloryzacj\", \"gdzie_ile\", \"dlug\"]": {
   "klasa": [
-   "farbowan jeden kolor",
+   "jeden kolor koloryzacj",
    "gdzie_ile",
    "dlug"
   ],
@@ -31517,9 +31262,9 @@
    "2": 0.02
   }
  },
- "[\"farbowan jeden kolor sredn\", \"rdzen\", \"wlos\"]": {
+ "[\"jeden kolor koloryzacj sredn\", \"rdzen\", \"wlos\"]": {
   "klasa": [
-   "farbowan jeden kolor sredn",
+   "jeden kolor koloryzacj sredn",
    "rdzen",
    "wlos"
   ],
@@ -31755,9 +31500,9 @@
    "2": 0.84
   }
  },
- "[\"farbowan jeden kolor\", \"gdzie_ile\", \"wlos\"]": {
+ "[\"jeden kolor koloryzacj\", \"gdzie_ile\", \"wlos\"]": {
   "klasa": [
-   "farbowan jeden kolor",
+   "jeden kolor koloryzacj",
    "gdzie_ile",
    "wlos"
   ],
@@ -31925,9 +31670,9 @@
    "2": 0.77
   }
  },
- "[\"farbowan jeden kolor\", \"gdzie_ile\", \"kr wlos\"]": {
+ "[\"jeden kolor koloryzacj\", \"gdzie_ile\", \"kr wlos\"]": {
   "klasa": [
-   "farbowan jeden kolor",
+   "jeden kolor koloryzacj",
    "gdzie_ile",
    "kr wlos"
   ],
@@ -32129,9 +31874,9 @@
    "2": 0.78
   }
  },
- "[\"farbowan jeden kolor\", \"gdzie_ile\", \"krotk\"]": {
+ "[\"jeden kolor koloryzacj\", \"gdzie_ile\", \"krotk\"]": {
   "klasa": [
-   "farbowan jeden kolor",
+   "jeden kolor koloryzacj",
    "gdzie_ile",
    "krotk"
   ],
@@ -32180,9 +31925,9 @@
    "2": 0.57
   }
  },
- "[\"farbowan jeden kolor sredn\", \"gdzie_ile\", \"wlos\"]": {
+ "[\"jeden kolor koloryzacj sredn\", \"gdzie_ile\", \"wlos\"]": {
   "klasa": [
-   "farbowan jeden kolor sredn",
+   "jeden kolor koloryzacj sredn",
    "gdzie_ile",
    "wlos"
   ],
@@ -32282,9 +32027,9 @@
    "2": 0.37
   }
  },
- "[\"farbowan jeden kolor\", \"gdzie_ile\", \"krotk wlos\"]": {
+ "[\"jeden kolor koloryzacj\", \"gdzie_ile\", \"krotk wlos\"]": {
   "klasa": [
-   "farbowan jeden kolor",
+   "jeden kolor koloryzacj",
    "gdzie_ile",
    "krotk wlos"
   ],
@@ -32673,11 +32418,11 @@
    "2": 0.66
   }
  },
- "[\"masaz\", \"rdzen\", \"rozluzniajac terapeutyczn\"]": {
+ "[\"masaz\", \"rdzen\", \"relaksacyjn terapeutyczn\"]": {
   "klasa": [
    "masaz",
    "rdzen",
-   "rozluzniajac terapeutyczn"
+   "relaksacyjn terapeutyczn"
   ],
   "dopisek": "rozluźniająco-terapeutyczny",
   "zabieg": "Masaż rozluźniająco-terapeutyczny",
@@ -32962,9 +32707,9 @@
    "2": 0.06
   }
  },
- "[\"farbowan jeden kolor\", \"inne\", \"krotk wlos\"]": {
+ "[\"jeden kolor koloryzacj\", \"inne\", \"krotk wlos\"]": {
   "klasa": [
-   "farbowan jeden kolor",
+   "jeden kolor koloryzacj",
    "inne",
    "krotk wlos"
   ],
@@ -32996,9 +32741,9 @@
    "2": 0.47
   }
  },
- "[\"farbowan jeden kolor sredn\", \"gdzie_ile\", \"krotk wlos\"]": {
+ "[\"jeden kolor koloryzacj sredn\", \"gdzie_ile\", \"krotk wlos\"]": {
   "klasa": [
-   "farbowan jeden kolor sredn",
+   "jeden kolor koloryzacj sredn",
    "gdzie_ile",
    "krotk wlos"
   ],
@@ -33744,11 +33489,11 @@
    "2": 0.39
   }
  },
- "[\"depilacj dlon laser\", \"rdzen\", \"epilacj primelas\"]": {
+ "[\"depilacj dlon laser\", \"rdzen\", \"primelas\"]": {
   "klasa": [
    "depilacj dlon laser",
    "rdzen",
-   "epilacj primelas"
+   "primelas"
   ],
   "dopisek": "(EPILACJA) PRIMELASE",
   "zabieg": "Dłonie laser",
@@ -34033,11 +33778,11 @@
    "2": 0.51
   }
  },
- "[\"depilacj laser lydk\", \"rdzen\", \"epilacj primelas\"]": {
+ "[\"depilacj laser lydk\", \"rdzen\", \"primelas\"]": {
   "klasa": [
    "depilacj laser lydk",
    "rdzen",
-   "epilacj primelas"
+   "primelas"
   ],
   "dopisek": "(EPILACJA) PRIMELASE",
   "zabieg": "Łydki laser",
@@ -34288,9 +34033,9 @@
    "2": 0.95
   }
  },
- "[\"hybryd manicur odzywk zdjec\", \"wylaczenie\", \"bez malowan\"]": {
+ "[\"hybryd manicur odzywk usuwan\", \"wylaczenie\", \"bez malowan\"]": {
   "klasa": [
-   "hybryd manicur odzywk zdjec",
+   "hybryd manicur odzywk usuwan",
    "wylaczenie",
    "bez malowan"
   ],
@@ -34356,11 +34101,11 @@
    "2": 0.9
   }
  },
- "[\"2 3d przedluzan rzes\", \"inne\", \"zageszczen\"]": {
+ "[\"2 3d przedluzan rzes\", \"inne\", \"zageszczan\"]": {
   "klasa": [
    "2 3d przedluzan rzes",
    "inne",
-   "zageszczen"
+   "zageszczan"
   ],
   "dopisek": "zagęszczenie",
   "zabieg": "Przedłużanie i zagęszczenie rzęs 2-3D",
@@ -34747,11 +34492,11 @@
    "2": 0.0
   }
  },
- "[\"twarz\", \"inne\", \"clear skin\"]": {
+ "[\"twarz\", \"inne\", \"clear skor\"]": {
   "klasa": [
    "twarz",
    "inne",
-   "clear skin"
+   "clear skor"
   ],
   "dopisek": "clear skin",
   "zabieg": "Clear Skin — Twarz",
@@ -35172,11 +34917,11 @@
    "2": 0.66
   }
  },
- "[\"sredn strzyzen wlos\", \"rdzen\", \"farbowan\"]": {
+ "[\"sredn strzyzen wlos\", \"rdzen\", \"koloryzacj\"]": {
   "klasa": [
    "sredn strzyzen wlos",
    "rdzen",
-   "farbowan"
+   "koloryzacj"
   ],
   "dopisek": "Farbowanie",
   "zabieg": "Farbowanie wł. średnie+ strzyżenie",
@@ -35206,9 +34951,9 @@
    "2": 0.73
   }
  },
- "[\"hybryd manicur zdjec\", \"rdzen\", \"klasyczn\"]": {
+ "[\"hybryd manicur usuwan\", \"rdzen\", \"klasyczn\"]": {
   "klasa": [
-   "hybryd manicur zdjec",
+   "hybryd manicur usuwan",
    "rdzen",
    "klasyczn"
   ],
@@ -35308,9 +35053,9 @@
    "2": 0.84
   }
  },
- "[\"hybryd manicur zdjec\", \"rdzen\", \"higieniczn\"]": {
+ "[\"hybryd manicur usuwan\", \"rdzen\", \"higieniczn\"]": {
   "klasa": [
-   "hybryd manicur zdjec",
+   "hybryd manicur usuwan",
    "rdzen",
    "higieniczn"
   ],
@@ -35631,9 +35376,9 @@
    "2": 0.04
   }
  },
- "[\"hybryd manicur odzywk zdjec\", \"rdzen\", \"klasyczn\"]": {
+ "[\"hybryd manicur odzywk usuwan\", \"rdzen\", \"klasyczn\"]": {
   "klasa": [
-   "hybryd manicur odzywk zdjec",
+   "hybryd manicur odzywk usuwan",
    "rdzen",
    "klasyczn"
   ],
@@ -36345,9 +36090,9 @@
    "2": 0.85
   }
  },
- "[\"hybryd manicur zdjec\", \"wylaczenie\", \"bez malowan\"]": {
+ "[\"hybryd manicur usuwan\", \"wylaczenie\", \"bez malowan\"]": {
   "klasa": [
-   "hybryd manicur zdjec",
+   "hybryd manicur usuwan",
    "wylaczenie",
    "bez malowan"
   ],
@@ -36379,11 +36124,11 @@
    "2": 0.48
   }
  },
- "[\"hybryd manicur odzywk zdjec\", \"rdzen\", \"zwykl\"]": {
+ "[\"hybryd manicur odzywk usuwan\", \"rdzen\", \"podstaw\"]": {
   "klasa": [
-   "hybryd manicur odzywk zdjec",
+   "hybryd manicur odzywk usuwan",
    "rdzen",
-   "zwykl"
+   "podstaw"
   ],
   "dopisek": "zwykły",
   "zabieg": "Manicure zwykły z odżywką ze zdjęciem hybrydy",
@@ -36787,9 +36532,9 @@
    "2": 0.59
   }
  },
- "[\"hybryd manicur odzywk zdjec\", \"gdzie_ile\", \"dlon\"]": {
+ "[\"hybryd manicur odzywk usuwan\", \"gdzie_ile\", \"dlon\"]": {
   "klasa": [
-   "hybryd manicur odzywk zdjec",
+   "hybryd manicur odzywk usuwan",
    "gdzie_ile",
    "dlon"
   ],
@@ -37008,9 +36753,9 @@
    "2": 0.27
   }
  },
- "[\"brod farbowan\", \"inne\", \"efekt naturaln\"]": {
+ "[\"brod koloryzacj\", \"inne\", \"efekt naturaln\"]": {
   "klasa": [
-   "brod farbowan",
+   "brod koloryzacj",
    "inne",
    "efekt naturaln"
   ],
@@ -38062,9 +37807,9 @@
    "2": 0.55
   }
  },
- "[\"depilacj wasa\", \"rdzen\", \"wosk\"]": {
+ "[\"depilacj was\", \"rdzen\", \"wosk\"]": {
   "klasa": [
-   "depilacj wasa",
+   "depilacj was",
    "rdzen",
    "wosk"
   ],
@@ -38079,11 +37824,11 @@
    "2": 0.37
   }
  },
- "[\"brwi koloryzacj regulacj\", \"inne\", \"wraz\"]": {
+ "[\"brwi koloryzacj regulacj\", \"inne\", \"plus\"]": {
   "klasa": [
    "brwi koloryzacj regulacj",
    "inne",
-   "wraz"
+   "plus"
   ],
   "dopisek": "wraz",
   "zabieg": "Koloryzacja brwi farbką wraz z regulacją",
@@ -38096,28 +37841,11 @@
    "2": 0.03
   }
  },
- "[\"brwi makijaz permanentn\", \"rdzen\", \"ombr pudr\"]": {
-  "klasa": [
-   "brwi makijaz permanentn",
-   "rdzen",
-   "ombr pudr"
-  ],
-  "dopisek": "Ombre/ Powder",
-  "zabieg": "Makijaż permanentny brwi — Ombre/ Powder  Brows",
-  "druga": "Makijaż permanentny brwi",
-  "oferta": "7273488#1",
-  "score": 1.2,
-  "rozklad": {
-   "0": 0.36,
-   "1": 0.07,
-   "2": 0.5700000000000001
-  }
- },
- "[\"brwi farbk koloryzacj regulacj\", \"inne\", \"wraz\"]": {
+ "[\"brwi farbk koloryzacj regulacj\", \"inne\", \"plus\"]": {
   "klasa": [
    "brwi farbk koloryzacj regulacj",
    "inne",
-   "wraz"
+   "plus"
   ],
   "dopisek": "wraz",
   "zabieg": "Koloryzacja brwi farbką wraz z regulacją",
@@ -38844,23 +38572,6 @@
    "2": 0.82
   }
  },
- "[\"keratyn\", \"rdzen\", \"keratin prostowan wlos\"]": {
-  "klasa": [
-   "keratyn",
-   "rdzen",
-   "keratin prostowan wlos"
-  ],
-  "dopisek": "prostowanie włosów Keratin",
-  "zabieg": "Keratin",
-  "druga": "Keratyna",
-  "oferta": "5865011",
-  "score": 0.49,
-  "rozklad": {
-   "0": 0.64,
-   "1": 0.23,
-   "2": 0.13
-  }
- },
  "[\"keratyn\", \"rdzen\", \"brazylijsk\"]": {
   "klasa": [
    "keratyn",
@@ -39184,11 +38895,11 @@
    "2": 0.77
   }
  },
- "[\"keratyn\", \"rdzen\", \"amazon keratin pielegnacj prostujac wlos wygladzajac\"]": {
+ "[\"keratyn\", \"rdzen\", \"amazon pielegnacj prostujac wlos wygladzajac\"]": {
   "klasa": [
    "keratyn",
    "rdzen",
-   "amazon keratin pielegnacj prostujac wlos wygladzajac"
+   "amazon pielegnacj prostujac wlos wygladzajac"
   ],
   "dopisek": "Pielęgnacja włosów wygładzająco,prostująca Amazon Keratin",
   "zabieg": "Keratyna wygładzająco,prostująca Amazon Keratin",
@@ -39473,11 +39184,11 @@
    "2": 0.74
   }
  },
- "[\"keratyn\", \"rdzen\", \"keratin prostowan tru\"]": {
+ "[\"keratyn\", \"rdzen\", \"prostowan tru\"]": {
   "klasa": [
    "keratyn",
    "rdzen",
-   "keratin prostowan tru"
+   "prostowan tru"
   ],
   "dopisek": "prostowanie Tru Keratin",
   "zabieg": "Keratynowe prostowanie Tru Keratin",
@@ -39592,11 +39303,11 @@
    "2": 0.41
   }
  },
- "[\"keratyn\", \"rdzen\", \"keratin true\"]": {
+ "[\"keratyn\", \"rdzen\", \"true\"]": {
   "klasa": [
    "keratyn",
    "rdzen",
-   "keratin true"
+   "true"
   ],
   "dopisek": "True Keratin",
   "zabieg": "Keratyna True Keratin wł. średnie",
@@ -39728,11 +39439,11 @@
    "2": 0.11
   }
  },
- "[\"keratyn\", \"rdzen\", \"keratin odbud trearment\"]": {
+ "[\"keratyn\", \"rdzen\", \"odbud treatment\"]": {
   "klasa": [
    "keratyn",
    "rdzen",
-   "keratin odbud trearment"
+   "odbud treatment"
   ],
   "dopisek": "Odbudowa Keratin Trearment",
   "zabieg": "Keratynowa Odbudowa / Keratin Trearment",
@@ -40187,11 +39898,11 @@
    "2": 0.1
   }
  },
- "[\"paznokc rekonstrukcj\", \"gdzie_ile\", \"uszkodzen\"]": {
+ "[\"paznokc rekonstrukcj\", \"gdzie_ile\", \"uszkodzon\"]": {
   "klasa": [
    "paznokc rekonstrukcj",
    "gdzie_ile",
-   "uszkodzen"
+   "uszkodzon"
   ],
   "dopisek": "uszkodzenia",
   "zabieg": "Rekonstrukcja uszkodzenia paznokcia",
@@ -40374,23 +40085,6 @@
    "2": 0.76
   }
  },
- "[\"paznokc rekonstrukcj\", \"gdzie_ile\", \"uszkodzon\"]": {
-  "klasa": [
-   "paznokc rekonstrukcj",
-   "gdzie_ile",
-   "uszkodzon"
-  ],
-  "dopisek": "uszkodzonego",
-  "zabieg": "Rekonstrukcja uszkodzonego paznokcia",
-  "druga": "Rekonstrukcja Paznokcia",
-  "oferta": "6472781",
-  "score": 0.56,
-  "rozklad": {
-   "0": 0.6,
-   "1": 0.23,
-   "2": 0.17
-  }
- },
  "[\"paznokc rekonstrukcj\", \"inne\", \"ksztalt\"]": {
   "klasa": [
    "paznokc rekonstrukcj",
@@ -40493,23 +40187,6 @@
    "2": 0.03
   }
  },
- "[\"paznokc rekonstrukcj\", \"gdzie_ile\", \"obgryzan\"]": {
-  "klasa": [
-   "paznokc rekonstrukcj",
-   "gdzie_ile",
-   "obgryzan"
-  ],
-  "dopisek": "Obgryzanych",
-  "zabieg": "Rekonstrukcja paznokci Obgryzanych",
-  "druga": "Rekonstrukcja Paznokcia",
-  "oferta": "3964284",
-  "score": 1.48,
-  "rozklad": {
-   "0": 0.2,
-   "1": 0.11,
-   "2": 0.68
-  }
- },
  "[\"podologiczn podstaw\", \"wylaczenie\", \"bez malowan\"]": {
   "klasa": [
    "podologiczn podstaw",
@@ -40595,11 +40272,11 @@
    "2": 0.35
   }
  },
- "[\"paznokc plytk rekonstrukcj\", \"etap\", \"zdjec\"]": {
+ "[\"paznokc plytk rekonstrukcj\", \"etap\", \"usuwan\"]": {
   "klasa": [
    "paznokc plytk rekonstrukcj",
    "etap",
-   "zdjec"
+   "usuwan"
   ],
   "dopisek": "Zdjęcie",
   "zabieg": "Rekonstrukcja płytki paznokcia — Zdjęcie rekonstrukcji płytki paznokcia",
@@ -40780,23 +40457,6 @@
    "0": 0.06,
    "1": 0.04,
    "2": 0.9
-  }
- },
- "[\"paznokc plytk rekonstrukcj\", \"etap\", \"usuwan\"]": {
-  "klasa": [
-   "paznokc plytk rekonstrukcj",
-   "etap",
-   "usuwan"
-  ],
-  "dopisek": "Usunięcie",
-  "zabieg": "Rekonstrukcja płytki paznokcia — Usunięcie rekonstrukcji",
-  "druga": "Rekonstrukcja płytki paznokcia",
-  "oferta": "5571705#1",
-  "score": 1.89,
-  "rozklad": {
-   "0": 0.04,
-   "1": 0.02,
-   "2": 0.94
   }
  },
  "[\"paznokc plytk rekonstrukcj\", \"rdzen\", \"protetyk\"]": {
@@ -41530,11 +41190,11 @@
    "2": 0.42
   }
  },
- "[\"malowan pedicur\", \"rdzen\", \"lakier odzywk pielegnacj zwykl\"]": {
+ "[\"malowan pedicur\", \"rdzen\", \"lakier odzywk pielegnacj podstaw\"]": {
   "klasa": [
    "malowan pedicur",
    "rdzen",
-   "lakier odzywk pielegnacj zwykl"
+   "lakier odzywk pielegnacj podstaw"
   ],
   "dopisek": "pielęgnacyjny zwykły lakier/odżywka",
   "zabieg": "Pedicure pielęgnacyjny + malowanie zwykły lakier/odżywka",
@@ -41598,11 +41258,11 @@
    "2": 0.01
   }
  },
- "[\"malowan pedicur\", \"rdzen\", \"zwykl\"]": {
+ "[\"malowan pedicur\", \"rdzen\", \"podstaw\"]": {
   "klasa": [
    "malowan pedicur",
    "rdzen",
-   "zwykl"
+   "podstaw"
   ],
   "dopisek": "zwykły",
   "zabieg": "Pedicure zwykły bez malowania",
@@ -41904,11 +41564,11 @@
    "2": 0.06
   }
  },
- "[\"dlugosc jedn strzyzen\", \"wylaczenie\", \"bez cieniowan nozyczek uzyc\"]": {
+ "[\"dlugosc jedn strzyzen\", \"wylaczenie\", \"bez cieniowan nozyczk uzyc\"]": {
   "klasa": [
    "dlugosc jedn strzyzen",
    "wylaczenie",
-   "bez cieniowan nozyczek uzyc"
+   "bez cieniowan nozyczk uzyc"
   ],
   "dopisek": "bez użycia nożyczek cieniowania",
   "zabieg": "Strzyżenie maszynką na jedną długość",
@@ -42346,9 +42006,9 @@
    "2": 0.02
   }
  },
- "[\"zdjec\", \"rdzen\", \"przedluzan rzes\"]": {
+ "[\"usuwan\", \"rdzen\", \"przedluzan rzes\"]": {
   "klasa": [
-   "zdjec",
+   "usuwan",
    "rdzen",
    "przedluzan rzes"
   ],
@@ -42397,9 +42057,9 @@
    "2": 0.97
   }
  },
- "[\"przedluzan rzes zdjec\", \"wylaczenie\", \"bez\"]": {
+ "[\"przedluzan rzes usuwan\", \"wylaczenie\", \"bez\"]": {
   "klasa": [
-   "przedluzan rzes zdjec",
+   "przedluzan rzes usuwan",
    "wylaczenie",
    "bez"
   ],
@@ -42414,9 +42074,9 @@
    "2": 0.29
   }
  },
- "[\"przedluzan rzes zdjec\", \"rdzen\", \"zalozen\"]": {
+ "[\"przedluzan rzes usuwan\", \"rdzen\", \"zalozen\"]": {
   "klasa": [
-   "przedluzan rzes zdjec",
+   "przedluzan rzes usuwan",
    "rdzen",
    "zalozen"
   ],
@@ -42429,23 +42089,6 @@
    "0": 0.77,
    "1": 0.14,
    "2": 0.09
-  }
- },
- "[\"przedluzan rzes zdjec\", \"rdzen\", \"sciagnic\"]": {
-  "klasa": [
-   "przedluzan rzes zdjec",
-   "rdzen",
-   "sciagnic"
-  ],
-  "dopisek": "Ściągnicie",
-  "zabieg": "Ściągnięcie rzęs",
-  "druga": "Ściągnięcie rzęs",
-  "oferta": "5925681",
-  "score": 0.3,
-  "rozklad": {
-   "0": 0.77,
-   "1": 0.15,
-   "2": 0.08
   }
  },
  "[\"masaz twarz\", \"rdzen\", \"tlen\"]": {
@@ -42465,11 +42108,11 @@
    "2": 0.85
   }
  },
- "[\"przedluzan rzes\", \"rdzen\", \"zdjec\"]": {
+ "[\"przedluzan rzes\", \"rdzen\", \"usuwan\"]": {
   "klasa": [
    "przedluzan rzes",
    "rdzen",
-   "zdjec"
+   "usuwan"
   ],
   "dopisek": "Ściągnięcie",
   "zabieg": "Ściągnięcie rzęs",
@@ -42584,11 +42227,11 @@
    "2": 0.47
   }
  },
- "[\"masaz twarz\", \"rdzen\", \"odprezajac regenerujac\"]": {
+ "[\"masaz twarz\", \"rdzen\", \"odprezajac regeneracj\"]": {
   "klasa": [
    "masaz twarz",
    "rdzen",
-   "odprezajac regenerujac"
+   "odprezajac regeneracj"
   ],
   "dopisek": "Odprężający regenerujący",
   "zabieg": "Odprężający i regenerujący masaż twarzy — Odprężający i regenerujący masaż twarzy",
@@ -42667,23 +42310,6 @@
    "0": 0.01,
    "1": 0.01,
    "2": 0.98
-  }
- },
- "[\"masaz twarz\", \"rdzen\", \"relaksujac\"]": {
-  "klasa": [
-   "masaz twarz",
-   "rdzen",
-   "relaksujac"
-  ],
-  "dopisek": "relaksujący",
-  "zabieg": "1. relaksujący masaż twarzy, szyi, dekoltu",
-  "druga": "Masaż twarzy",
-  "oferta": "5699590",
-  "score": 0.57,
-  "rozklad": {
-   "0": 0.67,
-   "1": 0.1,
-   "2": 0.23
   }
  },
  "[\"masaz twarz\", \"gdzie_ile\", \"dojazd\"]": {
@@ -43893,11 +43519,11 @@
    "2": 0.83
   }
  },
- "[\"koreansk laminacj rzes\", \"wylaczenie\", \"bez farbowan\"]": {
+ "[\"koreansk laminacj rzes\", \"wylaczenie\", \"bez koloryzacj\"]": {
   "klasa": [
    "koreansk laminacj rzes",
    "wylaczenie",
-   "bez farbowan"
+   "bez koloryzacj"
   ],
   "dopisek": "bez farbowania",
   "zabieg": "Nowość ! Koreańska Laminacja rzęs — Koreańska Laminacja rzęs bez farbowania rzęs ( w przypadku alergii na PPD)",
@@ -43927,11 +43553,11 @@
    "2": 0.95
   }
  },
- "[\"koreansk laminacj nowosc rzes\", \"wylaczenie\", \"bez farbowan\"]": {
+ "[\"koreansk laminacj nowosc rzes\", \"wylaczenie\", \"bez koloryzacj\"]": {
   "klasa": [
    "koreansk laminacj nowosc rzes",
    "wylaczenie",
-   "bez farbowan"
+   "bez koloryzacj"
   ],
   "dopisek": "bez farbowania",
   "zabieg": "Nowość ! Koreańska Laminacja rzęs — Koreańska Laminacja rzęs bez farbowania rzęs ( w przypadku alergii na PPD)",
@@ -43978,9 +43604,9 @@
    "2": 0.84
   }
  },
- "[\"farbowan laminacj rzes\", \"rdzen\", \"koreansk\"]": {
+ "[\"koloryzacj laminacj rzes\", \"rdzen\", \"koreansk\"]": {
   "klasa": [
-   "farbowan laminacj rzes",
+   "koloryzacj laminacj rzes",
    "rdzen",
    "koreansk"
   ],
@@ -43995,9 +43621,9 @@
    "2": 0.81
   }
  },
- "[\"farbowan laminacj rzes\", \"wylaczenie\", \"bez\"]": {
+ "[\"koloryzacj laminacj rzes\", \"wylaczenie\", \"bez\"]": {
   "klasa": [
-   "farbowan laminacj rzes",
+   "koloryzacj laminacj rzes",
    "wylaczenie",
    "bez"
   ],
@@ -44012,9 +43638,9 @@
    "2": 0.94
   }
  },
- "[\"farbowan laminacj rzes\", \"inne\", \"alerg nowosc ppd przypadk\"]": {
+ "[\"koloryzacj laminacj rzes\", \"inne\", \"alerg nowosc ppd przypadk\"]": {
   "klasa": [
-   "farbowan laminacj rzes",
+   "koloryzacj laminacj rzes",
    "inne",
    "alerg nowosc ppd przypadk"
   ],
@@ -44029,11 +43655,11 @@
    "2": 0.88
   }
  },
- "[\"laminacj rzes\", \"wylaczenie\", \"bez farbowan\"]": {
+ "[\"laminacj rzes\", \"wylaczenie\", \"bez koloryzacj\"]": {
   "klasa": [
    "laminacj rzes",
    "wylaczenie",
-   "bez farbowan"
+   "bez koloryzacj"
   ],
   "dopisek": "bez farbowania",
   "zabieg": "Nowość ! Koreańska Laminacja rzęs — Koreańska Laminacja rzęs bez farbowania rzęs ( w przypadku alergii na PPD)",
@@ -44930,9 +44556,9 @@
    "2": 0.67
   }
  },
- "[\"akryl dopelnian\", \"gdzie_ile\", \"2 powyz\"]": {
+ "[\"akryl uzupelnien\", \"gdzie_ile\", \"2 powyz\"]": {
   "klasa": [
-   "akryl dopelnian",
+   "akryl uzupelnien",
    "gdzie_ile",
    "2 powyz"
   ],
@@ -44964,9 +44590,9 @@
    "2": 0.16
   }
  },
- "[\"akryl dopelnian\", \"rdzen\", \"hybryd\"]": {
+ "[\"akryl uzupelnien\", \"rdzen\", \"hybryd\"]": {
   "klasa": [
-   "akryl dopelnian",
+   "akryl uzupelnien",
    "rdzen",
    "hybryd"
   ],
@@ -44981,9 +44607,9 @@
    "2": 0.81
   }
  },
- "[\"akryl dopelnian hybryd\", \"gdzie_ile\", \"2 do\"]": {
+ "[\"akryl hybryd uzupelnien\", \"gdzie_ile\", \"2 do\"]": {
   "klasa": [
-   "akryl dopelnian hybryd",
+   "akryl hybryd uzupelnien",
    "gdzie_ile",
    "2 do"
   ],
@@ -44998,9 +44624,9 @@
    "2": 0.42
   }
  },
- "[\"akryl dopelnian\", \"gdzie_ile\", \"2 do\"]": {
+ "[\"akryl uzupelnien\", \"gdzie_ile\", \"2 do\"]": {
   "klasa": [
-   "akryl dopelnian",
+   "akryl uzupelnien",
    "gdzie_ile",
    "2 do"
   ],
@@ -45015,11 +44641,11 @@
    "2": 0.68
   }
  },
- "[\"akryl hybryd\", \"rdzen\", \"dopelnian\"]": {
+ "[\"akryl hybryd\", \"rdzen\", \"uzupelnien\"]": {
   "klasa": [
    "akryl hybryd",
    "rdzen",
-   "dopelnian"
+   "uzupelnien"
   ],
   "dopisek": "Dopełnianie",
   "zabieg": "Dopełnianie akryl+ hybryda do 2",
@@ -45882,23 +45508,6 @@
    "2": 0.94
   }
  },
- "[\"mikrodermabrazj\", \"inne\", \"mikrodermobrazj\"]": {
-  "klasa": [
-   "mikrodermabrazj",
-   "inne",
-   "mikrodermobrazj"
-  ],
-  "dopisek": "mikrodermobrazja",
-  "zabieg": "Mikrodermabrazja — Mikrodermobrazja twarz, szyja, dekolt",
-  "druga": "Mikrodermabrazja",
-  "oferta": "6965494#2",
-  "score": 1.04,
-  "rozklad": {
-   "0": 0.41,
-   "1": 0.14,
-   "2": 0.45
-  }
- },
  "[\"mikrodermabrazj\", \"gdzie_ile\", \"cial jeden obszar\"]": {
   "klasa": [
    "mikrodermabrazj",
@@ -46067,23 +45676,6 @@
    "0": 0.12,
    "1": 0.61,
    "2": 0.27
-  }
- },
- "[\"mikrodermabrazj\", \"gdzie_ile\", \"dek szyj twarz\"]": {
-  "klasa": [
-   "mikrodermabrazj",
-   "gdzie_ile",
-   "dek szyj twarz"
-  ],
-  "dopisek": "twarz szyja dek",
-  "zabieg": "Mikrodermabrazja diamentowa - twarz + szyja + dek",
-  "druga": "Mikrodermabrazja",
-  "oferta": "6961476",
-  "score": 1.86,
-  "rozklad": {
-   "0": 0.05,
-   "1": 0.03,
-   "2": 0.92
   }
  },
  "[\"mikrodermabrazj\", \"rdzen\", \"jednoraz nakladk\"]": {
@@ -47191,11 +46783,11 @@
    "2": 0.02
   }
  },
- "[\"oczyszczan wodor\", \"rdzen\", \"nawilzajac regenerujac\"]": {
+ "[\"oczyszczan wodor\", \"rdzen\", \"nawilzajac regeneracj\"]": {
   "klasa": [
    "oczyszczan wodor",
    "rdzen",
-   "nawilzajac regenerujac"
+   "nawilzajac regeneracj"
   ],
   "dopisek": "nawilżająco-regenerujący",
   "zabieg": "Zabieg nawilżająco-regenerujący",
@@ -48007,23 +47599,6 @@
    "2": 0.41
   }
  },
- "[\"manicur zelow\", \"etap\", \"uzupelnien\"]": {
-  "klasa": [
-   "manicur zelow",
-   "etap",
-   "uzupelnien"
-  ],
-  "dopisek": "uzupełnienie",
-  "zabieg": "Manicure żelowy uzupełnienie — Manicure żelowy uzupełnienie",
-  "druga": "Manicure żelowy",
-  "oferta": "6760309",
-  "score": 1.88,
-  "rozklad": {
-   "0": 0.04,
-   "1": 0.05,
-   "2": 0.91
-  }
- },
  "[\"koloryzacj\", \"gdzie_ile\", \"brwi\"]": {
   "klasa": [
    "koloryzacj",
@@ -48177,11 +47752,11 @@
    "2": 0.55
   }
  },
- "[\"oczyszczan wodor\", \"rdzen\", \"6w1 full\"]": {
+ "[\"oczyszczan wodor\", \"rdzen\", \"6w1 cale\"]": {
   "klasa": [
    "oczyszczan wodor",
    "rdzen",
-   "6w1 full"
+   "6w1 cale"
   ],
   "dopisek": "FULL 6w1",
   "zabieg": "Oczyszczanie wodorowe FULL 6w1",
@@ -48551,9 +48126,9 @@
    "2": 0.03
   }
  },
- "[\"rzes zdjec\", \"gdzie_ile\", \"sztuczn\"]": {
+ "[\"rzes usuwan\", \"gdzie_ile\", \"sztuczn\"]": {
   "klasa": [
-   "rzes zdjec",
+   "rzes usuwan",
    "gdzie_ile",
    "sztuczn"
   ],
@@ -48617,23 +48192,6 @@
    "0": 0.76,
    "1": 0.22,
    "2": 0.02
-  }
- },
- "[\"rzes zdjec\", \"rdzen\", \"sciagnic\"]": {
-  "klasa": [
-   "rzes zdjec",
-   "rdzen",
-   "sciagnic"
-  ],
-  "dopisek": "Ściągnicie",
-  "zabieg": "Ściągnięcie rzęs",
-  "druga": "Zdejmowanie rzęs",
-  "oferta": "3482739",
-  "score": 0.34,
-  "rozklad": {
-   "0": 0.69,
-   "1": 0.27,
-   "2": 0.04
   }
  },
  "[\"glow golen\", \"gdzie_ile\", \"twarz\"]": {
@@ -48891,9 +48449,9 @@
    "2": 0.7
   }
  },
- "[\"zdjec\", \"rdzen\", \"paznokc zelow\"]": {
+ "[\"usuwan\", \"rdzen\", \"paznokc zelow\"]": {
   "klasa": [
-   "zdjec",
+   "usuwan",
    "rdzen",
    "paznokc zelow"
   ],
@@ -48940,23 +48498,6 @@
    "0": 0.64,
    "1": 0.25,
    "2": 0.11
-  }
- },
- "[\"damsk strzyzen\", \"gdzie_ile\", \"kròtk\"]": {
-  "klasa": [
-   "damsk strzyzen",
-   "gdzie_ile",
-   "kròtk"
-  ],
-  "dopisek": "Kròtki",
-  "zabieg": "Strzyżenie damskie Kròtki",
-  "druga": "Strzyżenie Damskie",
-  "oferta": "5824749",
-  "score": 1.33,
-  "rozklad": {
-   "0": 0.26,
-   "1": 0.15,
-   "2": 0.59
   }
  },
  "[\"oczyszczan twarz wodor\", \"poziom\", \"rozszerzon wersj\"]": {
@@ -49163,9 +48704,9 @@
    "2": 0.13
   }
  },
- "[\"brod farbowan\", \"inne\", \"comb\"]": {
+ "[\"brod koloryzacj\", \"inne\", \"comb\"]": {
   "klasa": [
-   "brod farbowan",
+   "brod koloryzacj",
    "inne",
    "comb"
   ],
@@ -49195,23 +48736,6 @@
    "0": 0.03,
    "1": 0.02,
    "2": 0.95
-  }
- },
- "[\"brod strzyzen\", \"rdzen\", \"brytw\"]": {
-  "klasa": [
-   "brod strzyzen",
-   "rdzen",
-   "brytw"
-  ],
-  "dopisek": "brytwą",
-  "zabieg": "Strzyżenie brody z brytwą",
-  "druga": "Strzyżenie brody",
-  "oferta": "5609083",
-  "score": 1.55,
-  "rozklad": {
-   "0": 0.18,
-   "1": 0.08,
-   "2": 0.74
   }
  },
  "[\"paznokc rekonstrukcj\", \"rdzen\", \"protetyk\"]": {
@@ -49486,9 +49010,9 @@
    "2": 0.37
   }
  },
- "[\"rzes zdjec\", \"gdzie_ile\", \"stylizacj\"]": {
+ "[\"rzes usuwan\", \"gdzie_ile\", \"stylizacj\"]": {
   "klasa": [
-   "rzes zdjec",
+   "rzes usuwan",
    "gdzie_ile",
    "stylizacj"
   ],
@@ -49741,9 +49265,9 @@
    "2": 0.85
   }
  },
- "[\"brod farbowan\", \"gdzie_ile\", \"wlos\"]": {
+ "[\"brod koloryzacj\", \"gdzie_ile\", \"wlos\"]": {
   "klasa": [
-   "brod farbowan",
+   "brod koloryzacj",
    "gdzie_ile",
    "wlos"
   ],
@@ -49826,9 +49350,9 @@
    "2": 0.34
   }
  },
- "[\"rzes zdjec\", \"rdzen\", \"clinical\"]": {
+ "[\"rzes usuwan\", \"rdzen\", \"clinical\"]": {
   "klasa": [
-   "rzes zdjec",
+   "rzes usuwan",
    "rdzen",
    "clinical"
   ],
@@ -50047,11 +49571,11 @@
    "2": 0.05
   }
  },
- "[\"brwi farbk regulacj\", \"rdzen\", \"farbowan\"]": {
+ "[\"brwi farbk regulacj\", \"rdzen\", \"koloryzacj\"]": {
   "klasa": [
    "brwi farbk regulacj",
    "rdzen",
-   "farbowan"
+   "koloryzacj"
   ],
   "dopisek": "Farbowanie",
   "zabieg": "Farbowanie farbka + regulacja brwi",
@@ -50062,23 +49586,6 @@
    "0": 0.73,
    "1": 0.12,
    "2": 0.15
-  }
- },
- "[\"przedluzan rzes\", \"rdzen\", \"usuwan\"]": {
-  "klasa": [
-   "przedluzan rzes",
-   "rdzen",
-   "usuwan"
-  ],
-  "dopisek": "Usunięcie",
-  "zabieg": "Przedłużanie rzęs — Usunięcie rzęs",
-  "druga": "Przedłużanie rzęs",
-  "oferta": "6841493#0",
-  "score": 1.54,
-  "rozklad": {
-   "0": 0.2,
-   "1": 0.05,
-   "2": 0.75
   }
  },
  "[\"oczyszczan\", \"rdzen\", \"twarz ultradzwiek\"]": {
@@ -50166,11 +49673,11 @@
    "2": 0.35
   }
  },
- "[\"manicur zelow\", \"rdzen\", \"hybryd zdjec\"]": {
+ "[\"manicur zelow\", \"rdzen\", \"hybryd usuwan\"]": {
   "klasa": [
    "manicur zelow",
    "rdzen",
-   "hybryd zdjec"
+   "hybryd usuwan"
   ],
   "dopisek": "Zdjęcie żelu,hybrydy",
   "zabieg": "Zdjęcie żelu,hybrydy z manicure — Zdjęcie żelu,hybrydy z manicure",
@@ -50183,9 +49690,9 @@
    "2": 0.97
   }
  },
- "[\"brod farbowan\", \"inne\", \"beard cover\"]": {
+ "[\"brod koloryzacj\", \"inne\", \"beard cover\"]": {
   "klasa": [
-   "brod farbowan",
+   "brod koloryzacj",
    "inne",
    "beard cover"
   ],
@@ -50234,9 +49741,9 @@
    "2": 0.91
   }
  },
- "[\"zdjec\", \"gdzie_ile\", \"paznokc\"]": {
+ "[\"usuwan\", \"gdzie_ile\", \"paznokc\"]": {
   "klasa": [
-   "zdjec",
+   "usuwan",
    "gdzie_ile",
    "paznokc"
   ],
@@ -50404,11 +49911,11 @@
    "2": 0.25
   }
  },
- "[\"przedluzan rzes\", \"rdzen\", \"klasyk uzupelnien\"]": {
+ "[\"przedluzan rzes\", \"rdzen\", \"klasyczn uzupelnien\"]": {
   "klasa": [
    "przedluzan rzes",
    "rdzen",
-   "klasyk uzupelnien"
+   "klasyczn uzupelnien"
   ],
   "dopisek": "Uzupełnienie klasyka uzupełnienia",
   "zabieg": "Uzupełnienie rzęs — Uzupełnienia rzęs klasyka",
@@ -50421,9 +49928,9 @@
    "2": 0.64
   }
  },
- "[\"brod farbowan\", \"inne\", \"odsiwian\"]": {
+ "[\"brod koloryzacj\", \"inne\", \"odsiwian\"]": {
   "klasa": [
-   "brod farbowan",
+   "brod koloryzacj",
    "inne",
    "odsiwian"
   ],
@@ -50489,11 +49996,11 @@
    "2": 0.87
   }
  },
- "[\"gene twarz\", \"rdzen\", \"detoks\"]": {
+ "[\"gene twarz\", \"rdzen\", \"detox\"]": {
   "klasa": [
    "gene twarz",
    "rdzen",
-   "detoks"
+   "detox"
   ],
   "dopisek": "Detox",
   "zabieg": "GENEO Detox — GENEO Detox",
@@ -50538,40 +50045,6 @@
    "0": 0.02,
    "1": 0.02,
    "2": 0.96
-  }
- },
- "[\"brwi farbk regulacj\", \"rdzen\", \"koloryzacj\"]": {
-  "klasa": [
-   "brwi farbk regulacj",
-   "rdzen",
-   "koloryzacj"
-  ],
-  "dopisek": "Koloryzacja",
-  "zabieg": "Koloryzacja brwi farbką + regulacja",
-  "druga": "Regulacja brwi + farbka",
-  "oferta": "2287570",
-  "score": 0.28,
-  "rozklad": {
-   "0": 0.81,
-   "1": 0.1,
-   "2": 0.09
-  }
- },
- "[\"paznokc rekonstrukcj\", \"inne\", \"obgryzan\"]": {
-  "klasa": [
-   "paznokc rekonstrukcj",
-   "inne",
-   "obgryzan"
-  ],
-  "dopisek": "obgryzanych",
-  "zabieg": "Rekonstrukcja obgryzanych paznokci",
-  "druga": "Rekonstrukcja paznokcia",
-  "oferta": "5152565",
-  "score": 0.43,
-  "rozklad": {
-   "0": 0.71,
-   "1": 0.15,
-   "2": 0.14
   }
  },
  "[\"paznokc rekonstrukcj\", \"etap\", \"usuwan\"]": {
@@ -50744,9 +50217,9 @@
    "2": 0.89
   }
  },
- "[\"rzes zdjec\", \"rdzen\", \"stylizacj\"]": {
+ "[\"rzes usuwan\", \"rdzen\", \"stylizacj\"]": {
   "klasa": [
-   "rzes zdjec",
+   "rzes usuwan",
    "rdzen",
    "stylizacj"
   ],
@@ -50914,9 +50387,9 @@
    "2": 0.72
   }
  },
- "[\"brod farbowan\", \"rdzen\", \"maszynk strzyzen\"]": {
+ "[\"brod koloryzacj\", \"rdzen\", \"maszynk strzyzen\"]": {
   "klasa": [
-   "brod farbowan",
+   "brod koloryzacj",
    "rdzen",
    "maszynk strzyzen"
   ],
@@ -51050,9 +50523,9 @@
    "2": 0.26
   }
  },
- "[\"brod farbowan\", \"rdzen\", \"strzyzen\"]": {
+ "[\"brod koloryzacj\", \"rdzen\", \"strzyzen\"]": {
   "klasa": [
-   "brod farbowan",
+   "brod koloryzacj",
    "rdzen",
    "strzyzen"
   ],
@@ -51441,11 +50914,11 @@
    "2": 0.82
   }
  },
- "[\"malowan uzupelnien\", \"rdzen\", \"akry\"]": {
+ "[\"malowan uzupelnien\", \"rdzen\", \"akryl\"]": {
   "klasa": [
    "malowan uzupelnien",
    "rdzen",
-   "akry"
+   "akryl"
   ],
   "dopisek": "akry",
   "zabieg": "Uzupełnienie akry + malowanie",
@@ -51492,11 +50965,11 @@
    "2": 0.71
   }
  },
- "[\"2 3d rzes uzupelnien\", \"rdzen\", \"zdjec\"]": {
+ "[\"2 3d rzes uzupelnien\", \"rdzen\", \"usuwan\"]": {
   "klasa": [
    "2 3d rzes uzupelnien",
    "rdzen",
-   "zdjec"
+   "usuwan"
   ],
   "dopisek": "rzęs/zdjęcie",
   "zabieg": "Uzupełnienie 2/3D",
@@ -51764,11 +51237,11 @@
    "2": 0.19
   }
  },
- "[\"karboksyterap\", \"gdzie_ile\", \"oczy\"]": {
+ "[\"karboksyterap\", \"gdzie_ile\", \"oczu\"]": {
   "klasa": [
    "karboksyterap",
    "gdzie_ile",
-   "oczy"
+   "oczu"
   ],
   "dopisek": "oczy",
   "zabieg": "Karboksyterapia oczy",
@@ -51781,9 +51254,9 @@
    "2": 0.95
   }
  },
- "[\"karboksyterap oczy\", \"rdzen\", \"laser\"]": {
+ "[\"karboksyterap oczu\", \"rdzen\", \"laser\"]": {
   "klasa": [
-   "karboksyterap oczy",
+   "karboksyterap oczu",
    "rdzen",
    "laser"
   ],
@@ -51798,9 +51271,9 @@
    "2": 0.16
   }
  },
- "[\"karboksyterap oczy\", \"gdzie_ile\", \"twarz\"]": {
+ "[\"karboksyterap oczu\", \"gdzie_ile\", \"twarz\"]": {
   "klasa": [
-   "karboksyterap oczy",
+   "karboksyterap oczu",
    "gdzie_ile",
    "twarz"
   ],
@@ -51815,9 +51288,9 @@
    "2": 0.96
   }
  },
- "[\"karboksyterap oczy\", \"gdzie_ile\", \"szyj twarz\"]": {
+ "[\"karboksyterap oczu\", \"gdzie_ile\", \"szyj twarz\"]": {
   "klasa": [
-   "karboksyterap oczy",
+   "karboksyterap oczu",
    "gdzie_ile",
    "szyj twarz"
   ],
@@ -51832,9 +51305,9 @@
    "2": 0.96
   }
  },
- "[\"karboksyterap oczy\", \"gdzie_ile\", \"dekolt szyj twarz\"]": {
+ "[\"karboksyterap oczu\", \"gdzie_ile\", \"dekolt szyj twarz\"]": {
   "klasa": [
-   "karboksyterap oczy",
+   "karboksyterap oczu",
    "gdzie_ile",
    "dekolt szyj twarz"
   ],
@@ -51849,9 +51322,9 @@
    "2": 0.9299999999999999
   }
  },
- "[\"karboksyterap oczy\", \"rdzen\", \"juli\"]": {
+ "[\"karboksyterap oczu\", \"rdzen\", \"juli\"]": {
   "klasa": [
-   "karboksyterap oczy",
+   "karboksyterap oczu",
    "rdzen",
    "juli"
   ],
@@ -51866,9 +51339,9 @@
    "2": 0.68
   }
  },
- "[\"karboksyterap oczy\", \"gdzie_ile\", \"cien glow oczam okolic pod skor twarz work\"]": {
+ "[\"karboksyterap oczu\", \"gdzie_ile\", \"cien glow oczam okolic pod skor twarz work\"]": {
   "klasa": [
-   "karboksyterap oczy",
+   "karboksyterap oczu",
    "gdzie_ile",
    "cien glow oczam okolic pod skor twarz work"
   ],
@@ -53158,11 +52631,11 @@
    "2": 0.78
   }
  },
- "[\"bikin depilacj laser\", \"rdzen\", \"diod lazer venus\"]": {
+ "[\"bikin depilacj laser\", \"rdzen\", \"diod venus\"]": {
   "klasa": [
    "bikin depilacj laser",
    "rdzen",
-   "diod lazer venus"
+   "diod venus"
   ],
   "dopisek": "LAZEROWA DIODOWYM VENUS",
   "zabieg": "Laserowa Depilacja Bikini Pełne",
@@ -53566,11 +53039,11 @@
    "2": 0.11
   }
  },
- "[\"kobid\", \"wylaczenie\", \"nie transbukaln ust wewnatrz zawier\"]": {
+ "[\"kobid\", \"wylaczenie\", \"nie transbukaln ust wewnetrzn zawier\"]": {
   "klasa": [
    "kobid",
    "wylaczenie",
-   "nie transbukaln ust wewnatrz zawier"
+   "nie transbukaln ust wewnetrzn zawier"
   ],
   "dopisek": "Nie zawiera transbukalnego (wewnątrz ust)",
   "zabieg": "Kobido - masaż, japoński lifting twarzy",
@@ -53787,11 +53260,11 @@
    "2": 0.56
   }
  },
- "[\"kobid\", \"poziom\", \"personal\"]": {
+ "[\"kobid\", \"poziom\", \"personaln\"]": {
   "klasa": [
    "kobid",
    "poziom",
-   "personal"
+   "personaln"
   ],
   "dopisek": "PERSONAL",
   "zabieg": "KOBIDO PERSONAL - KOBIDO & ZABIEG",
@@ -54348,11 +53821,11 @@
    "2": 0.92
   }
  },
- "[\"kobid\", \"poziom\", \"classic lifting\"]": {
+ "[\"kobid\", \"poziom\", \"klasyczn lifting\"]": {
   "klasa": [
    "kobid",
    "poziom",
-   "classic lifting"
+   "klasyczn lifting"
   ],
   "dopisek": "Classic Lift",
   "zabieg": "Masaż Kobido Classic Lift",
@@ -54467,11 +53940,11 @@
    "2": 0.86
   }
  },
- "[\"kobid\", \"rdzen\", \"masaz trasbukaln\"]": {
+ "[\"kobid\", \"rdzen\", \"masaz transbukaln\"]": {
   "klasa": [
    "kobid",
    "rdzen",
-   "masaz trasbukaln"
+   "masaz transbukaln"
   ],
   "dopisek": "Masaż masażem trasbukalnym MASAŻ",
   "zabieg": "Masaż Kobido — Kobido z masażem trasbukalnym",
@@ -55232,11 +54705,11 @@
    "2": 0.97
   }
  },
- "[\"oczyszczan twarz wodor\", \"rdzen\", \"acid peels\"]": {
+ "[\"oczyszczan twarz wodor\", \"rdzen\", \"acid peeling\"]": {
   "klasa": [
    "oczyszczan twarz wodor",
    "rdzen",
-   "acid peels"
+   "acid peeling"
   ],
   "dopisek": "acid peels",
   "zabieg": "Oczyszczanie wodorowe acid peels",
@@ -55281,23 +54754,6 @@
    "0": 0.26,
    "1": 0.62,
    "2": 0.12
-  }
- },
- "[\"bikin depilacj klasyczn laser\", \"rdzen\", \"epilacj\"]": {
-  "klasa": [
-   "bikin depilacj klasyczn laser",
-   "rdzen",
-   "epilacj"
-  ],
-  "dopisek": "(EPILACJA)",
-  "zabieg": "Bikini klasyczne",
-  "druga": "Bikini klasyczne",
-  "oferta": "6773751",
-  "score": 0.29,
-  "rozklad": {
-   "0": 0.82,
-   "1": 0.07,
-   "2": 0.11
   }
  },
  "[\"bikin depilacj klasyczn laser\", \"gdzie_ile\", \"damsk pach\"]": {
@@ -55402,11 +54858,11 @@
    "2": 0.35
   }
  },
- "[\"przedluzen zelow\", \"rdzen\", \"zdjec\"]": {
+ "[\"przedluzen zelow\", \"rdzen\", \"usuwan\"]": {
   "klasa": [
    "przedluzen zelow",
    "rdzen",
-   "zdjec"
+   "usuwan"
   ],
   "dopisek": "Zdjęcie",
   "zabieg": "Zdjęcie przedłużenia żelowego",
@@ -55436,11 +54892,11 @@
    "2": 0.2
   }
  },
- "[\"hybryd pedicur\", \"rdzen\", \"french inneg zdobien\"]": {
+ "[\"hybryd pedicur\", \"rdzen\", \"french innej zdobien\"]": {
   "klasa": [
    "hybryd pedicur",
    "rdzen",
-   "french inneg zdobien"
+   "french innej zdobien"
   ],
   "dopisek": "French /inne zdobienia",
   "zabieg": "Pedicure hybrydowy — French /inne zdobienia ￼￼",
@@ -55708,11 +55164,11 @@
    "2": 0.72
   }
  },
- "[\"hybryd pedicur\", \"etap\", \"zdjec\"]": {
+ "[\"hybryd pedicur\", \"etap\", \"usuwan\"]": {
   "klasa": [
    "hybryd pedicur",
    "etap",
-   "zdjec"
+   "usuwan"
   ],
   "dopisek": "zdięciem",
   "zabieg": "Pedicure hybrydowy ze zdięciem — Pedicure hybrydowy ze zdięciem",
@@ -55827,23 +55283,6 @@
    "2": 0.85
   }
  },
- "[\"bikin depilacj lycon wosk\", \"inne\", \"lycin\"]": {
-  "klasa": [
-   "bikin depilacj lycon wosk",
-   "inne",
-   "lycin"
-  ],
-  "dopisek": "lycin",
-  "zabieg": "Wosk Lycin Bikini Głebokie",
-  "druga": "Wosk bikini — Wosk bikini",
-  "oferta": "55121326",
-  "score": 0.62,
-  "rozklad": {
-   "0": 0.53,
-   "1": 0.31,
-   "2": 0.16
-  }
- },
  "[\"bikin depilacj glebok lycon wosk\", \"rdzen\", \"henn\"]": {
   "klasa": [
    "bikin depilacj glebok lycon wosk",
@@ -55878,28 +55317,11 @@
    "2": 0.1
   }
  },
- "[\"bikin depilacj glebok lycon wosk\", \"inne\", \"lycin\"]": {
-  "klasa": [
-   "bikin depilacj glebok lycon wosk",
-   "inne",
-   "lycin"
-  ],
-  "dopisek": "lycin",
-  "zabieg": "Wosk Lycin Bikini Głebokie",
-  "druga": "Depilacja woskiem lycon - bikini głębokie",
-  "oferta": "55121326",
-  "score": 0.18,
-  "rozklad": {
-   "0": 0.83,
-   "1": 0.16,
-   "2": 0.01
-  }
- },
- "[\"bikin glebok\", \"inne\", \"lycin\"]": {
+ "[\"bikin glebok\", \"inne\", \"lycon\"]": {
   "klasa": [
    "bikin glebok",
    "inne",
-   "lycin"
+   "lycon"
   ],
   "dopisek": "lycin",
   "zabieg": "Wosk Lycin Bikini Głebokie",
@@ -55929,11 +55351,11 @@
    "2": 0.14
   }
  },
- "[\"bikin depilacj glebok wosk\", \"inne\", \"lycin\"]": {
+ "[\"bikin depilacj glebok wosk\", \"inne\", \"lycon\"]": {
   "klasa": [
    "bikin depilacj glebok wosk",
    "inne",
-   "lycin"
+   "lycon"
   ],
   "dopisek": "lycin",
   "zabieg": "Wosk Lycin Bikini Głebokie",
@@ -55946,11 +55368,11 @@
    "2": 0.2
   }
  },
- "[\"bikin depilacj wosk\", \"inne\", \"lycin\"]": {
+ "[\"bikin depilacj wosk\", \"inne\", \"lycon\"]": {
   "klasa": [
    "bikin depilacj wosk",
    "inne",
-   "lycin"
+   "lycon"
   ],
   "dopisek": "lycin",
   "zabieg": "Wosk Lycin Bikini Głebokie",
@@ -56014,11 +55436,11 @@
    "2": 0.25
   }
  },
- "[\"bikin depilacj glebok\", \"inne\", \"lycin\"]": {
+ "[\"bikin depilacj glebok\", \"inne\", \"lycon\"]": {
   "klasa": [
    "bikin depilacj glebok",
    "inne",
-   "lycin"
+   "lycon"
   ],
   "dopisek": "lycin",
   "zabieg": "Wosk Lycin Bikini Głebokie",
@@ -56167,11 +55589,11 @@
    "2": 0.08
   }
  },
- "[\"modelowan sredn wlos\", \"rdzen\", \"farbowan\"]": {
+ "[\"modelowan sredn wlos\", \"rdzen\", \"koloryzacj\"]": {
   "klasa": [
    "modelowan sredn wlos",
    "rdzen",
-   "farbowan"
+   "koloryzacj"
   ],
   "dopisek": "Farbowanie",
   "zabieg": "Farbowanie + modelowanie - włosy średnie",
@@ -56184,11 +55606,11 @@
    "2": 0.97
   }
  },
- "[\"damsk krotk modelowan strzyzen wlos\", \"rdzen\", \"farbowan\"]": {
+ "[\"damsk krotk modelowan strzyzen wlos\", \"rdzen\", \"koloryzacj\"]": {
   "klasa": [
    "damsk krotk modelowan strzyzen wlos",
    "rdzen",
-   "farbowan"
+   "koloryzacj"
   ],
   "dopisek": "Farbowanie",
   "zabieg": "Farbowanie+strzyżenie+modelowanie włosy krótkie",
@@ -56592,23 +56014,6 @@
    "2": 0.92
   }
  },
- "[\"laser makijaz permanentn usuwan\", \"rdzen\", \"permanentneg\"]": {
-  "klasa": [
-   "laser makijaz permanentn usuwan",
-   "rdzen",
-   "permanentneg"
-  ],
-  "dopisek": "permanentnegu",
-  "zabieg": "Usuwanie makijażu  permanentnegu ust  laserem — Usuwanie makijażu  permanentnegu ust  laserem",
-  "druga": "Laserowe usuwanie makijażu permanentnego",
-  "oferta": "6343624",
-  "score": 0.91,
-  "rozklad": {
-   "0": 0.51,
-   "1": 0.07,
-   "2": 0.42
-  }
- },
  "[\"laser makijaz permanentn usuwan\", \"gdzie_ile\", \"ust\"]": {
   "klasa": [
    "laser makijaz permanentn usuwan",
@@ -56949,9 +56354,9 @@
    "2": 0.85
   }
  },
- "[\"brwi farbowan regulacj rzes\", \"rdzen\", \"anastaz farbk\"]": {
+ "[\"brwi koloryzacj regulacj rzes\", \"rdzen\", \"anastaz farbk\"]": {
   "klasa": [
-   "brwi farbowan regulacj rzes",
+   "brwi koloryzacj regulacj rzes",
    "rdzen",
    "anastaz farbk"
   ],
@@ -56966,9 +56371,9 @@
    "2": 0.13
   }
  },
- "[\"brwi farbowan regulacj rzes\", \"inne\", \"komplet\"]": {
+ "[\"brwi koloryzacj regulacj rzes\", \"inne\", \"komplet\"]": {
   "klasa": [
-   "brwi farbowan regulacj rzes",
+   "brwi koloryzacj regulacj rzes",
    "inne",
    "komplet"
   ],
@@ -56983,9 +56388,9 @@
    "2": 0.0
   }
  },
- "[\"brwi farbowan regulacj rzes\", \"rdzen\", \"stylizacj\"]": {
+ "[\"brwi koloryzacj regulacj rzes\", \"rdzen\", \"stylizacj\"]": {
   "klasa": [
-   "brwi farbowan regulacj rzes",
+   "brwi koloryzacj regulacj rzes",
    "rdzen",
    "stylizacj"
   ],
@@ -57000,9 +56405,9 @@
    "2": 0.28
   }
  },
- "[\"brwi farbowan regulacj\", \"gdzie_ile\", \"rzes\"]": {
+ "[\"brwi koloryzacj regulacj\", \"gdzie_ile\", \"rzes\"]": {
   "klasa": [
-   "brwi farbowan regulacj",
+   "brwi koloryzacj regulacj",
    "gdzie_ile",
    "rzes"
   ],
@@ -57017,9 +56422,9 @@
    "2": 0.98
   }
  },
- "[\"brwi farbowan regulacj rzes\", \"sesje\", \"pakiet\"]": {
+ "[\"brwi koloryzacj regulacj rzes\", \"sesje\", \"pakiet\"]": {
   "klasa": [
-   "brwi farbowan regulacj rzes",
+   "brwi koloryzacj regulacj rzes",
    "sesje",
    "pakiet"
   ],
@@ -57034,9 +56439,9 @@
    "2": 0.05
   }
  },
- "[\"brwi farbowan regulacj rzes\", \"rdzen\", \"ksztalt stylizacj wyznaczan\"]": {
+ "[\"brwi koloryzacj regulacj rzes\", \"rdzen\", \"ksztalt stylizacj wyznaczan\"]": {
   "klasa": [
-   "brwi farbowan regulacj rzes",
+   "brwi koloryzacj regulacj rzes",
    "rdzen",
    "ksztalt stylizacj wyznaczan"
   ],
@@ -57051,11 +56456,11 @@
    "2": 0.32
   }
  },
- "[\"brwi farbowan regulacj rzes\", \"rdzen\", \"lami\"]": {
+ "[\"brwi koloryzacj regulacj rzes\", \"rdzen\", \"laminacj\"]": {
   "klasa": [
-   "brwi farbowan regulacj rzes",
+   "brwi koloryzacj regulacj rzes",
    "rdzen",
-   "lami"
+   "laminacj"
   ],
   "dopisek": "Lami",
   "zabieg": "Lami rzęs + farbowanie, regulacja brwi",
@@ -57068,9 +56473,9 @@
    "2": 0.94
   }
  },
- "[\"brwi farbowan regulacj rzes\", \"inne\", \"stylizacj\"]": {
+ "[\"brwi koloryzacj regulacj rzes\", \"inne\", \"stylizacj\"]": {
   "klasa": [
-   "brwi farbowan regulacj rzes",
+   "brwi koloryzacj regulacj rzes",
    "inne",
    "stylizacj"
   ],
@@ -57102,11 +56507,11 @@
    "2": 0.98
   }
  },
- "[\"brwi regulacj\", \"rdzen\", \"farbowan\"]": {
+ "[\"brwi regulacj\", \"rdzen\", \"koloryzacj\"]": {
   "klasa": [
    "brwi regulacj",
    "rdzen",
-   "farbowan"
+   "koloryzacj"
   ],
   "dopisek": "Farbowanie",
   "zabieg": "Farbowanie brwi + rzęs z regulacją",
@@ -57117,23 +56522,6 @@
    "0": 0.01,
    "1": 0.01,
    "2": 0.98
-  }
- },
- "[\"brwi farbowan regulacj rzes\", \"rdzen\", \"laminacj\"]": {
-  "klasa": [
-   "brwi farbowan regulacj rzes",
-   "rdzen",
-   "laminacj"
-  ],
-  "dopisek": "Laminacja",
-  "zabieg": "Laminacja Brwi i Rzęs+Regulacja+Farbowanie",
-  "druga": "Farbowanie brwi + rzęs z regulacją",
-  "oferta": "6251555",
-  "score": 1.9,
-  "rozklad": {
-   "0": 0.01,
-   "1": 0.07,
-   "2": 0.92
   }
  },
  "[\"iniekcyjn lipoliz\", \"gdzie_ile\", \"20 ml\"]": {
@@ -57374,11 +56762,11 @@
    "2": 0.03
   }
  },
- "[\"bank chinsk masaz\", \"rdzen\", \"relaksujac rozluzniajac\"]": {
+ "[\"bank chinsk masaz\", \"rdzen\", \"relaksacyjn\"]": {
   "klasa": [
    "bank chinsk masaz",
    "rdzen",
-   "relaksujac rozluzniajac"
+   "relaksacyjn"
   ],
   "dopisek": "Relaksujący, rozluźniający",
   "zabieg": "Masaż bańką chińską — Relaksujący, rozluźniający - plecy",
@@ -58020,11 +57408,11 @@
    "2": 0.92
   }
  },
- "[\"masaz terapeutyczn\", \"gdzie_ile\", \"miesn zuci\"]": {
+ "[\"masaz terapeutyczn\", \"gdzie_ile\", \"miesni zuci\"]": {
   "klasa": [
    "masaz terapeutyczn",
    "gdzie_ile",
-   "miesn zuci"
+   "miesni zuci"
   ],
   "dopisek": "mięśni żucia",
   "zabieg": "Masaż Terapeutyczny mięśni żucia",
@@ -58037,11 +57425,11 @@
    "2": 0.96
   }
  },
- "[\"strzyzen wlos\", \"gdzie_ile\", \"dzieciak\"]": {
+ "[\"strzyzen wlos\", \"gdzie_ile\", \"dzieck\"]": {
   "klasa": [
    "strzyzen wlos",
    "gdzie_ile",
-   "dzieciak"
+   "dzieck"
   ],
   "dopisek": "Dzieciak",
   "zabieg": "Dzieciak — Starszy Barber",
@@ -58071,11 +57459,11 @@
    "2": 0.91
   }
  },
- "[\"strzyzen wlos\", \"inne\", \"barber dzieciak\"]": {
+ "[\"strzyzen wlos\", \"inne\", \"barber dzieck\"]": {
   "klasa": [
    "strzyzen wlos",
    "inne",
-   "barber dzieciak"
+   "barber dzieck"
   ],
   "dopisek": "barber",
   "zabieg": "Dzieciak — Junior Barber",
@@ -58105,11 +57493,11 @@
    "2": 0.9
   }
  },
- "[\"mesk strzyzen wlos\", \"gdzie_ile\", \"dzieciak\"]": {
+ "[\"mesk strzyzen wlos\", \"gdzie_ile\", \"dzieck\"]": {
   "klasa": [
    "mesk strzyzen wlos",
    "gdzie_ile",
-   "dzieciak"
+   "dzieck"
   ],
   "dopisek": "Dzieciak",
   "zabieg": "Dzieciak — Starszy Barber",
@@ -58173,11 +57561,11 @@
    "2": 0.96
   }
  },
- "[\"napraw paznokc\", \"inne\", \"klienc stal\"]": {
+ "[\"napraw paznokc\", \"inne\", \"klient stal\"]": {
   "klasa": [
    "napraw paznokc",
    "inne",
-   "klienc stal"
+   "klient stal"
   ],
   "dopisek": "stałych klientów",
   "zabieg": "Naprawa paznokcia (dla stałych klientów )",
@@ -58392,23 +57780,6 @@
    "0": 0.08,
    "1": 0.04,
    "2": 0.88
-  }
- },
- "[\"brwi farbowan regulacj\", \"rdzen\", \"farbk\"]": {
-  "klasa": [
-   "brwi farbowan regulacj",
-   "rdzen",
-   "farbk"
-  ],
-  "dopisek": "Farbką",
-  "zabieg": "Farbowanie Brwi Farbką+ Regulacja",
-  "druga": "Farbowanie brwi z regulacją",
-  "oferta": "6251557",
-  "score": 0.12,
-  "rozklad": {
-   "0": 0.92,
-   "1": 0.04,
-   "2": 0.04
   }
  },
  "[\"modelowan wlos\", \"gdzie_ile\", \"bardz dlug\"]": {
@@ -58989,11 +58360,11 @@
    "2": 0.89
   }
  },
- "[\"3d rzes uzupelnien\", \"gdzie_ile\", \"2d oczy\"]": {
+ "[\"3d rzes uzupelnien\", \"gdzie_ile\", \"2d oczu\"]": {
   "klasa": [
    "3d rzes uzupelnien",
    "gdzie_ile",
-   "2d oczy"
+   "2d oczu"
   ],
   "dopisek": "2D oczy",
   "zabieg": "Uzupełnienie rzęs 2D / 3D",
@@ -59023,9 +58394,9 @@
    "2": 0.83
   }
  },
- "[\"brwi farbowan regulacj\", \"gdzie_ile\", \"oka opraw\"]": {
+ "[\"brwi koloryzacj regulacj\", \"gdzie_ile\", \"oka opraw\"]": {
   "klasa": [
-   "brwi farbowan regulacj",
+   "brwi koloryzacj regulacj",
    "gdzie_ile",
    "oka opraw"
   ],
@@ -59072,23 +58443,6 @@
    "0": 0.37,
    "1": 0.25,
    "2": 0.38
-  }
- },
- "[\"makijaz permanentn usuwan\", \"rdzen\", \"remower\"]": {
-  "klasa": [
-   "makijaz permanentn usuwan",
-   "rdzen",
-   "remower"
-  ],
-  "dopisek": "Remower",
-  "zabieg": "Usunięcie makijażu permanentnego Remower",
-  "druga": "Usuwanie makijażu permanentnego",
-  "oferta": "6267291",
-  "score": 0.89,
-  "rozklad": {
-   "0": 0.47000000000000003,
-   "1": 0.18,
-   "2": 0.35
   }
  },
  "[\"oczyszczan wodor\", \"poziom\", \"silver\"]": {
@@ -59295,11 +58649,11 @@
    "2": 0.08
   }
  },
- "[\"mesk strzyzen\", \"inne\", \"klasyk\"]": {
+ "[\"mesk strzyzen\", \"inne\", \"klasyczn\"]": {
   "klasa": [
    "mesk strzyzen",
    "inne",
-   "klasyk"
+   "klasyczn"
   ],
   "dopisek": "klasyk",
   "zabieg": "Klasyk",
@@ -59363,11 +58717,11 @@
    "2": 0.23
   }
  },
- "[\"pedicur\", \"rdzen\", \"classic frezark\"]": {
+ "[\"pedicur\", \"rdzen\", \"frezark klasyczn\"]": {
   "klasa": [
    "pedicur",
    "rdzen",
-   "classic frezark"
+   "frezark klasyczn"
   ],
   "dopisek": "frezarką Classic",
   "zabieg": "Pedicure frezarką Classic — Pedicure frezarką Classic",
@@ -59431,11 +58785,11 @@
    "2": 0.31
   }
  },
- "[\"mesk strzyzen\", \"rdzen\", \"fade skin\"]": {
+ "[\"mesk strzyzen\", \"rdzen\", \"fade skor\"]": {
   "klasa": [
    "mesk strzyzen",
    "rdzen",
-   "fade skin"
+   "fade skor"
   ],
   "dopisek": "Skin Fade",
   "zabieg": "Skin Fade",
@@ -59548,23 +58902,6 @@
    "0": 0.04,
    "1": 0.05,
    "2": 0.91
-  }
- },
- "[\"makijaz permanentn usuwan\", \"gdzie_ile\", \"brwi\"]": {
-  "klasa": [
-   "makijaz permanentn usuwan",
-   "gdzie_ile",
-   "brwi"
-  ],
-  "dopisek": "brwi",
-  "zabieg": "Usuwanie makijażu permanentnego brwi",
-  "druga": "Usuwanie makijażu permanentnego",
-  "oferta": "6233525",
-  "score": 1.71,
-  "rozklad": {
-   "0": 0.12,
-   "1": 0.06,
-   "2": 0.82
   }
  },
  "[\"masaz plec\", \"rdzen\", \"tajsk\"]": {
@@ -59703,9 +59040,9 @@
    "2": 0.23
   }
  },
- "[\"brwi farbowan regulacj\", \"rdzen\", \"farbk stylizacj\"]": {
+ "[\"brwi koloryzacj regulacj\", \"rdzen\", \"farbk stylizacj\"]": {
   "klasa": [
-   "brwi farbowan regulacj",
+   "brwi koloryzacj regulacj",
    "rdzen",
    "farbk stylizacj"
   ],
@@ -59907,11 +59244,11 @@
    "2": 0.94
   }
  },
- "[\"dlug modelowan wlos\", \"rdzen\", \"farbowan\"]": {
+ "[\"dlug modelowan wlos\", \"rdzen\", \"koloryzacj\"]": {
   "klasa": [
    "dlug modelowan wlos",
    "rdzen",
-   "farbowan"
+   "koloryzacj"
   ],
   "dopisek": "Farbowanie",
   "zabieg": "Farbowanie + modelowanie - włosy długie",
@@ -60060,11 +59397,11 @@
    "2": 0.9
   }
  },
- "[\"depilacj wosk\", \"gdzie_ile\", \"ledzwi\"]": {
+ "[\"depilacj wosk\", \"gdzie_ile\", \"ledzw\"]": {
   "klasa": [
    "depilacj wosk",
    "gdzie_ile",
-   "ledzwi"
+   "ledzw"
   ],
   "dopisek": "lędźwi",
   "zabieg": "Depilacja woskiem lędźwi",
@@ -60194,23 +59531,6 @@
    "0": 0.15,
    "1": 0.05,
    "2": 0.8
-  }
- },
- "[\"makijaz permanentn usuwan\", \"rdzen\", \"remover\"]": {
-  "klasa": [
-   "makijaz permanentn usuwan",
-   "rdzen",
-   "remover"
-  ],
-  "dopisek": "REMOVER",
-  "zabieg": "Usuwanie makijażu permanentnego REMOVER",
-  "druga": "Usuwanie makijażu permanentnego",
-  "oferta": "6233167",
-  "score": 0.99,
-  "rozklad": {
-   "0": 0.46,
-   "1": 0.09,
-   "2": 0.45
   }
  },
  "[\"brwi regulacj\", \"rdzen\", \"koloryzacj stylizacj\"]": {
@@ -60366,11 +59686,11 @@
    "2": 0.35
   }
  },
- "[\"mesk strzyzen\", \"gdzie_ile\", \"dzieciak wlos\"]": {
+ "[\"mesk strzyzen\", \"gdzie_ile\", \"dzieck wlos\"]": {
   "klasa": [
    "mesk strzyzen",
    "gdzie_ile",
-   "dzieciak wlos"
+   "dzieck wlos"
   ],
   "dopisek": "Dzieciak WŁOSY",
   "zabieg": "Dzieciak — Starszy Barber",
@@ -60432,23 +59752,6 @@
    "0": 0.09,
    "1": 0.03,
    "2": 0.88
-  }
- },
- "[\"pedicur\", \"rdzen\", \"pedicar\"]": {
-  "klasa": [
-   "pedicur",
-   "rdzen",
-   "pedicar"
-  ],
-  "dopisek": "PEDICARE",
-  "zabieg": "Pedicure PEDICARE",
-  "druga": "Pedicure",
-  "oferta": "7301518",
-  "score": 1.09,
-  "rozklad": {
-   "0": 0.15,
-   "1": 0.6,
-   "2": 0.25
   }
  },
  "[\"brwi regulacj\", \"rdzen\", \"farbk koloryzacj\"]": {
@@ -60689,23 +59992,6 @@
    "2": 0.37
   }
  },
- "[\"brwi farbowan regulacj\", \"rdzen\", \"laminacj\"]": {
-  "klasa": [
-   "brwi farbowan regulacj",
-   "rdzen",
-   "laminacj"
-  ],
-  "dopisek": "Laminacja",
-  "zabieg": "Laminacja brwi + regulacja+farbowanie",
-  "druga": "Farbowanie brwi z regulacją",
-  "oferta": "5898250",
-  "score": 1.96,
-  "rozklad": {
-   "0": 0.01,
-   "1": 0.02,
-   "2": 0.97
-  }
- },
  "[\"piercing ucha\", \"inne\", \"conch\"]": {
   "klasa": [
    "piercing ucha",
@@ -60723,11 +60009,11 @@
    "2": 0.64
   }
  },
- "[\"depilacj wosk\", \"gdzie_ile\", \"polik twarz\"]": {
+ "[\"depilacj wosk\", \"gdzie_ile\", \"policzk twarz\"]": {
   "klasa": [
    "depilacj wosk",
    "gdzie_ile",
-   "polik twarz"
+   "policzk twarz"
   ],
   "dopisek": "twarzy Poliki",
   "zabieg": "Depilacja twarzy woskiem — Poliki",
@@ -60910,23 +60196,6 @@
    "2": 0.14
   }
  },
- "[\"pedicur\", \"rdzen\", \"tradycyjn\"]": {
-  "klasa": [
-   "pedicur",
-   "rdzen",
-   "tradycyjn"
-  ],
-  "dopisek": "tradycyjny",
-  "zabieg": "Pedicure tradycyjny — Pedicure tradycyjny",
-  "druga": "Pedicure",
-  "oferta": "6678711",
-  "score": 0.94,
-  "rozklad": {
-   "0": 0.32,
-   "1": 0.42,
-   "2": 0.26
-  }
- },
  "[\"depilacj klatk wosk\", \"gdzie_ile\", \"brzuch plec\"]": {
   "klasa": [
    "depilacj klatk wosk",
@@ -61029,11 +60298,11 @@
    "2": 0.75
   }
  },
- "[\"bikin depilacj\", \"gdzie_ile\", \"classic pach\"]": {
+ "[\"bikin depilacj\", \"gdzie_ile\", \"klasyczn pach\"]": {
   "klasa": [
    "bikin depilacj",
    "gdzie_ile",
-   "classic pach"
+   "klasyczn pach"
   ],
   "dopisek": "Classic Pachy",
   "zabieg": "Depilacja Bikini Classic+Pachy",
@@ -61318,40 +60587,6 @@
    "2": 0.5
   }
  },
- "[\"makijaz permanentn usuwan\", \"rdzen\", \"remuver\"]": {
-  "klasa": [
-   "makijaz permanentn usuwan",
-   "rdzen",
-   "remuver"
-  ],
-  "dopisek": "remuverem",
-  "zabieg": "Usuwanie makijażu permanentnego  remuverem",
-  "druga": "Usuwanie makijażu permanentnego",
-  "oferta": "6300411",
-  "score": 0.96,
-  "rozklad": {
-   "0": 0.47,
-   "1": 0.09,
-   "2": 0.44
-  }
- },
- "[\"malowan uzupelnien\", \"rdzen\", \"akryl\"]": {
-  "klasa": [
-   "malowan uzupelnien",
-   "rdzen",
-   "akryl"
-  ],
-  "dopisek": "akryl",
-  "zabieg": "Uzupełnienie akryl I Malowanie",
-  "druga": "Uzupełnienie + malowanie",
-  "oferta": "5826050",
-  "score": 1.16,
-  "rozklad": {
-   "0": 0.32,
-   "1": 0.2,
-   "2": 0.48
-  }
- },
  "[\"piercing ucha\", \"gdzie_ile\", \"dziurk jedn\"]": {
   "klasa": [
    "piercing ucha",
@@ -61505,11 +60740,11 @@
    "2": 0.88
   }
  },
- "[\"depilacj wosk\", \"gdzie_ile\", \"ledzwi mesk\"]": {
+ "[\"depilacj wosk\", \"gdzie_ile\", \"ledzw mesk\"]": {
   "klasa": [
    "depilacj wosk",
    "gdzie_ile",
-   "ledzwi mesk"
+   "ledzw mesk"
   ],
   "dopisek": "lędźwi Męska",
   "zabieg": "Depilacja woskiem lędźwi",
@@ -61964,23 +61199,6 @@
    "2": 0.71
   }
  },
- "[\"brwi farbowan regulacj\", \"rdzen\", \"stylizacj\"]": {
-  "klasa": [
-   "brwi farbowan regulacj",
-   "rdzen",
-   "stylizacj"
-  ],
-  "dopisek": "Stylizacja",
-  "zabieg": "Farbowanie brwi + regulacja",
-  "druga": "Farbowanie brwi z regulacją",
-  "oferta": "6244875",
-  "score": 0.17,
-  "rozklad": {
-   "0": 0.86,
-   "1": 0.1,
-   "2": 0.04
-  }
- },
  "[\"depilacj wosk\", \"gdzie_ile\", \"bikin brazylijsk\"]": {
   "klasa": [
    "depilacj wosk",
@@ -62013,23 +61231,6 @@
    "0": 0.18,
    "1": 0.61,
    "2": 0.21
-  }
- },
- "[\"krotk wlos\", \"rdzen\", \"farbowan\"]": {
-  "klasa": [
-   "krotk wlos",
-   "rdzen",
-   "farbowan"
-  ],
-  "dopisek": "Farbowanie",
-  "zabieg": "Farbowanie włosy krótkie",
-  "druga": "krótkie włosy",
-  "oferta": "5578232",
-  "score": 1.94,
-  "rozklad": {
-   "0": 0.02,
-   "1": 0.03,
-   "2": 0.95
   }
  },
  "[\"pedicur\", \"rdzen\", \"estetyczn\"]": {
@@ -62200,23 +61401,6 @@
    "0": 0.06,
    "1": 0.04,
    "2": 0.9
-  }
- },
- "[\"makijaz permanentn usuwan\", \"rdzen\", \"remoover\"]": {
-  "klasa": [
-   "makijaz permanentn usuwan",
-   "rdzen",
-   "remoover"
-  ],
-  "dopisek": "remooverem",
-  "zabieg": "Usuwanie makijażu permanentnego remooverem",
-  "druga": "Usuwanie makijażu permanentnego",
-  "oferta": "6391982",
-  "score": 0.6,
-  "rozklad": {
-   "0": 0.64,
-   "1": 0.12,
-   "2": 0.24
   }
  },
  "[\"depilacj wosk\", \"gdzie_ile\", \"brod wasik\"]": {
@@ -62576,11 +61760,11 @@
    "2": 0.04
   }
  },
- "[\"head rytual spa\", \"inne\", \"base baza esencj essenc wariant\"]": {
+ "[\"head rytual spa\", \"inne\", \"baza esencj essenc wariant\"]": {
   "klasa": [
    "head rytual spa",
    "inne",
-   "base baza esencj essenc wariant"
+   "baza esencj essenc wariant"
   ],
   "dopisek": "wariant",
   "zabieg": "Head Spa Essence Base 🌸 baza, esencja rytuału — Wariant dla mężczyzn",
@@ -62627,11 +61811,11 @@
    "2": 0.21
   }
  },
- "[\"head rytual spa\", \"inne\", \"base baza esencj essenc ktor siegaj wariant wlos\"]": {
+ "[\"head rytual spa\", \"inne\", \"baza esencj essenc ktor siegaj wariant wlos\"]": {
   "klasa": [
    "head rytual spa",
    "inne",
-   "base baza esencj essenc ktor siegaj wariant wlos"
+   "baza esencj essenc ktor siegaj wariant wlos"
   ],
   "dopisek": "wariant których włosy sięgają",
   "zabieg": "Head Spa Essence Base 🌸 baza, esencja rytuału — Wariant dla kobiet, których włosy sięgają do linii ramion",
@@ -62814,11 +61998,11 @@
    "2": 0.02
   }
  },
- "[\"2d 3d przedluzan rzes\", \"inne\", \"zageszczen\"]": {
+ "[\"2d 3d przedluzan rzes\", \"inne\", \"zageszczan\"]": {
   "klasa": [
    "2d 3d przedluzan rzes",
    "inne",
-   "zageszczen"
+   "zageszczan"
   ],
   "dopisek": "zagęszczenie",
   "zabieg": "Przedłużanie i zagęszczenie rzęs 2-3D",
@@ -63766,11 +62950,11 @@
    "2": 0.47
   }
  },
- "[\"4d rzes uzupelnien\", \"rdzen\", \"lash\"]": {
+ "[\"4d rzes uzupelnien\", \"rdzen\", \"lashes\"]": {
   "klasa": [
    "4d rzes uzupelnien",
    "rdzen",
-   "lash"
+   "lashes"
   ],
   "dopisek": "lash",
   "zabieg": "Uzupełnianie rzęs 4d",
@@ -64412,11 +63596,11 @@
    "2": 0.03
   }
  },
- "[\"2d 3d rzes uzupelnien\", \"rdzen\", \"zdjec\"]": {
+ "[\"2d 3d rzes uzupelnien\", \"rdzen\", \"usuwan\"]": {
   "klasa": [
    "2d 3d rzes uzupelnien",
    "rdzen",
-   "zdjec"
+   "usuwan"
   ],
   "dopisek": "rzęs/zdjęcie",
   "zabieg": "Uzupełnienie 2/3D",
@@ -64480,11 +63664,11 @@
    "2": 0.6
   }
  },
- "[\"2d 3d rzes uzupelnien\", \"gdzie_ile\", \"oczy\"]": {
+ "[\"2d 3d rzes uzupelnien\", \"gdzie_ile\", \"oczu\"]": {
   "klasa": [
    "2d 3d rzes uzupelnien",
    "gdzie_ile",
-   "oczy"
+   "oczu"
   ],
   "dopisek": "oczy",
   "zabieg": "Uzupełnienie rzęs 2D / 3D",
@@ -64563,6 +63747,3882 @@
    "0": 0.56,
    "1": 0.07,
    "2": 0.37
+  }
+ },
+ "[\"bikin depilacj laser\", \"sesje\", \"5 pakiet\"]": {
+  "klasa": [
+   "bikin depilacj laser",
+   "sesje",
+   "5 pakiet"
+  ],
+  "dopisek": "Pakiet 5",
+  "zabieg": "Bikini Płytkie — Pakiet 5 zabiegów",
+  "druga": "Laserowa depilacja Bikini — Laserowa depilacja bikini",
+  "oferta": "51445194#0",
+  "score": 1.87,
+  "rozklad": {
+   "0": 0.04,
+   "1": 0.06,
+   "2": 0.9
+  }
+ },
+ "[\"bikin depilacj laser\", \"rdzen\", \"alma ice platinum sopran\"]": {
+  "klasa": [
+   "bikin depilacj laser",
+   "rdzen",
+   "alma ice platinum sopran"
+  ],
+  "dopisek": "Alma Soprano Ice Platinum",
+  "zabieg": "Bikini Płytkie — Pakiet 5 zabiegów",
+  "druga": "Laserowa depilacja Bikini — Laserowa depilacja bikini",
+  "oferta": "51445194#0",
+  "score": 0.89,
+  "rozklad": {
+   "0": 0.43,
+   "1": 0.26,
+   "2": 0.31
+  }
+ },
+ "[\"bikin depilacj laser\", \"gdzie_ile\", \"pojedyncz\"]": {
+  "klasa": [
+   "bikin depilacj laser",
+   "gdzie_ile",
+   "pojedyncz"
+  ],
+  "dopisek": "pojedynczy",
+  "zabieg": "Bikini Płytkie — Zabieg pojedynczy",
+  "druga": "Laserowa depilacja Bikini — Laserowa depilacja bikini",
+  "oferta": "51445194#1",
+  "score": 1.13,
+  "rozklad": {
+   "0": 0.37,
+   "1": 0.12,
+   "2": 0.51
+  }
+ },
+ "[\"bikin depilacj laser plytk\", \"rdzen\", \"alma ice platinum sopran\"]": {
+  "klasa": [
+   "bikin depilacj laser plytk",
+   "rdzen",
+   "alma ice platinum sopran"
+  ],
+  "dopisek": "Alma Soprano Ice Platinum",
+  "zabieg": "Bikini Płytkie — Pakiet 5 zabiegów",
+  "druga": "Depilacja laserowa - bikini płytkie",
+  "oferta": "51445194#0",
+  "score": 0.91,
+  "rozklad": {
+   "0": 0.44,
+   "1": 0.22,
+   "2": 0.34
+  }
+ },
+ "[\"bikin depilacj laser plytk\", \"sesje\", \"5 pakiet\"]": {
+  "klasa": [
+   "bikin depilacj laser plytk",
+   "sesje",
+   "5 pakiet"
+  ],
+  "dopisek": "Pakiet 5",
+  "zabieg": "Bikini Płytkie — Pakiet 5 zabiegów",
+  "druga": "Depilacja laserowa - bikini płytkie",
+  "oferta": "51445194#0",
+  "score": 1.87,
+  "rozklad": {
+   "0": 0.04,
+   "1": 0.04,
+   "2": 0.92
+  }
+ },
+ "[\"bikin depilacj laser plytk\", \"gdzie_ile\", \"pojedyncz\"]": {
+  "klasa": [
+   "bikin depilacj laser plytk",
+   "gdzie_ile",
+   "pojedyncz"
+  ],
+  "dopisek": "pojedynczy",
+  "zabieg": "Bikini Płytkie — Zabieg pojedynczy",
+  "druga": "Depilacja laserowa - bikini płytkie",
+  "oferta": "51445194#1",
+  "score": 0.78,
+  "rozklad": {
+   "0": 0.54,
+   "1": 0.13,
+   "2": 0.33
+  }
+ },
+ "[\"head rytual spa\", \"inne\", \"esencj ktor wariant\"]": {
+  "klasa": [
+   "head rytual spa",
+   "inne",
+   "esencj ktor wariant"
+  ],
+  "dopisek": "wariant których",
+  "zabieg": "Head Spa Essence Base 🌸 baza, esencja rytuału — Wariant dla kobiet, których włosy sięgają za linię ramion lub są długie",
+  "druga": "HEAD SPA Ritual",
+  "oferta": "5584837#2",
+  "score": 1.3,
+  "rozklad": {
+   "0": 0.22,
+   "1": 0.26,
+   "2": 0.52
+  }
+ },
+ "[\"bikin depilacj klasyczn laser\", \"rdzen\", \"ax motus\"]": {
+  "klasa": [
+   "bikin depilacj klasyczn laser",
+   "rdzen",
+   "ax motus"
+  ],
+  "dopisek": "MOTUS AX",
+  "zabieg": "Bikini klasyczne",
+  "druga": "Bikini klasyczne",
+  "oferta": "7354749",
+  "score": 1.06,
+  "rozklad": {
+   "0": 0.36,
+   "1": 0.21,
+   "2": 0.43
+  }
+ },
+ "[\"bikin depilacj klasyczn laser\", \"gdzie_ile\", \"jeden\"]": {
+  "klasa": [
+   "bikin depilacj klasyczn laser",
+   "gdzie_ile",
+   "jeden"
+  ],
+  "dopisek": "jeden",
+  "zabieg": "BIKINI KLASYCZNE — jeden zabieg",
+  "druga": "Bikini klasyczne",
+  "oferta": "5814369#0",
+  "score": 0.38,
+  "rozklad": {
+   "0": 0.75,
+   "1": 0.12,
+   "2": 0.13
+  }
+ },
+ "[\"bikin depilacj klasyczn laser\", \"sesje\", \"6\"]": {
+  "klasa": [
+   "bikin depilacj klasyczn laser",
+   "sesje",
+   "6"
+  ],
+  "dopisek": "6",
+  "zabieg": "BIKINI KLASYCZNE — 6 zabiegów",
+  "druga": "Bikini klasyczne",
+  "oferta": "5814369#1",
+  "score": 1.85,
+  "rozklad": {
+   "0": 0.05,
+   "1": 0.06,
+   "2": 0.89
+  }
+ },
+ "[\"depilacj laser rece\", \"rdzen\", \"ax motus\"]": {
+  "klasa": [
+   "depilacj laser rece",
+   "rdzen",
+   "ax motus"
+  ],
+  "dopisek": "MOTUS AX",
+  "zabieg": "Ręce (całe)",
+  "druga": "Ręce",
+  "oferta": "7354760",
+  "score": 0.94,
+  "rozklad": {
+   "0": 0.38,
+   "1": 0.31,
+   "2": 0.31
+  }
+ },
+ "[\"depilacj laser rece\", \"gdzie_ile\", \"1 2 damsk\"]": {
+  "klasa": [
+   "depilacj laser rece",
+   "gdzie_ile",
+   "1 2 damsk"
+  ],
+  "dopisek": "1/2 Damska",
+  "zabieg": "Ręce 1/2",
+  "druga": "Ręce",
+  "oferta": "7062323",
+  "score": 1.91,
+  "rozklad": {
+   "0": 0.03,
+   "1": 0.03,
+   "2": 0.94
+  }
+ },
+ "[\"koloryzacj sredn strzyzen wlos\", \"wylaczenie\", \"bez\"]": {
+  "klasa": [
+   "koloryzacj sredn strzyzen wlos",
+   "wylaczenie",
+   "bez"
+  ],
+  "dopisek": "bez",
+  "zabieg": "Uzupełnienie odrostu włosy średnie(bez strzyżenia)",
+  "druga": "Farbowanie wł. średnie+ strzyżenie",
+  "oferta": "5730238",
+  "score": 1.91,
+  "rozklad": {
+   "0": 0.03,
+   "1": 0.03,
+   "2": 0.94
+  }
+ },
+ "[\"koloryzacj sredn strzyzen wlos\", \"etap\", \"odrost uzupelnien\"]": {
+  "klasa": [
+   "koloryzacj sredn strzyzen wlos",
+   "etap",
+   "odrost uzupelnien"
+  ],
+  "dopisek": "Uzupełnienie odrostu",
+  "zabieg": "Uzupełnienie odrostu włosy średnie(bez strzyżenia)",
+  "druga": "Farbowanie wł. średnie+ strzyżenie",
+  "oferta": "5730238",
+  "score": 1.95,
+  "rozklad": {
+   "0": 0.02,
+   "1": 0.02,
+   "2": 0.96
+  }
+ },
+ "[\"hybryd manicur usuwan\", \"gdzie_ile\", \"damsk\"]": {
+  "klasa": [
+   "hybryd manicur usuwan",
+   "gdzie_ile",
+   "damsk"
+  ],
+  "dopisek": "damski",
+  "zabieg": "Manicure damski + usunięcie hybrydy",
+  "druga": "Manicure hybrydowy+usunięcie hybrydy",
+  "oferta": "5820770",
+  "score": 0.69,
+  "rozklad": {
+   "0": 0.57,
+   "1": 0.16,
+   "2": 0.27
+  }
+ },
+ "[\"hybryd manicur usuwan\", \"gdzie_ile\", \"1 kolor\"]": {
+  "klasa": [
+   "hybryd manicur usuwan",
+   "gdzie_ile",
+   "1 kolor"
+  ],
+  "dopisek": "1 kolor",
+  "zabieg": "Manicure hybrydowy +usunięcie hybrydy (1 kolor)",
+  "druga": "Manicure hybrydowy+usunięcie hybrydy",
+  "oferta": "7230404",
+  "score": 0.94,
+  "rozklad": {
+   "0": 0.48,
+   "1": 0.09,
+   "2": 0.43
+  }
+ },
+ "[\"depilacj laser plec\", \"gdzie_ile\", \"damsk polow\"]": {
+  "klasa": [
+   "depilacj laser plec",
+   "gdzie_ile",
+   "damsk polow"
+  ],
+  "dopisek": "połowa kobiet",
+  "zabieg": "Plecy połowa",
+  "druga": "Plecy",
+  "oferta": "3219574",
+  "score": 1.88,
+  "rozklad": {
+   "0": 0.04,
+   "1": 0.05,
+   "2": 0.91
+  }
+ },
+ "[\"depilacj dlon laser\", \"gdzie_ile\", \"mesk\"]": {
+  "klasa": [
+   "depilacj dlon laser",
+   "gdzie_ile",
+   "mesk"
+  ],
+  "dopisek": "mężczyzn",
+  "zabieg": "Dłonie",
+  "druga": "Dłonie",
+  "oferta": "3219658",
+  "score": 1.57,
+  "rozklad": {
+   "0": 0.17,
+   "1": 0.09,
+   "2": 0.74
+  }
+ },
+ "[\"depilacj dlon laser\", \"gdzie_ile\", \"damsk\"]": {
+  "klasa": [
+   "depilacj dlon laser",
+   "gdzie_ile",
+   "damsk"
+  ],
+  "dopisek": "kobiet",
+  "zabieg": "Dłonie",
+  "druga": "Dłonie",
+  "oferta": "3219587",
+  "score": 0.82,
+  "rozklad": {
+   "0": 0.52,
+   "1": 0.15,
+   "2": 0.33
+  }
+ },
+ "[\"depilacj laser plec\", \"gdzie_ile\", \"cale damsk\"]": {
+  "klasa": [
+   "depilacj laser plec",
+   "gdzie_ile",
+   "cale damsk"
+  ],
+  "dopisek": "całe kobiet",
+  "zabieg": "Plecy całe",
+  "druga": "Plecy",
+  "oferta": "3219563",
+  "score": 0.98,
+  "rozklad": {
+   "0": 0.41,
+   "1": 0.19,
+   "2": 0.4
+  }
+ },
+ "[\"hybryd manicur usuwan\", \"wylaczenie\", \"bez\"]": {
+  "klasa": [
+   "hybryd manicur usuwan",
+   "wylaczenie",
+   "bez"
+  ],
+  "dopisek": "bez",
+  "zabieg": "Manicure hybrydowy bez usunięcia",
+  "druga": "Manicure hybrydowy+usunięcie hybrydy",
+  "oferta": "4216064",
+  "score": 1.91,
+  "rozklad": {
+   "0": 0.04,
+   "1": 0.02,
+   "2": 0.94
+  }
+ },
+ "[\"bikin depilacj laser\", \"etap\", \"pierwsz wizyt\"]": {
+  "klasa": [
+   "bikin depilacj laser",
+   "etap",
+   "pierwsz wizyt"
+  ],
+  "dopisek": "Pierwsza wizyta",
+  "zabieg": "Bikini — Pierwsza wizyta",
+  "druga": "Depilacja laserowa bikini",
+  "oferta": "5873462",
+  "score": 1.71,
+  "rozklad": {
+   "0": 0.12,
+   "1": 0.06,
+   "2": 0.82
+  }
+ },
+ "[\"depilacj laser\", \"gdzie_ile\", \"ramion\"]": {
+  "klasa": [
+   "depilacj laser",
+   "gdzie_ile",
+   "ramion"
+  ],
+  "dopisek": "Ramiona",
+  "zabieg": "Epilacja - Ramiona",
+  "druga": "Depilacja laserowa",
+  "oferta": "3666605",
+  "score": 1.88,
+  "rozklad": {
+   "0": 0.05,
+   "1": 0.03,
+   "2": 0.92
+  }
+ },
+ "[\"depilacj laser\", \"gdzie_ile\", \"uda\"]": {
+  "klasa": [
+   "depilacj laser",
+   "gdzie_ile",
+   "uda"
+  ],
+  "dopisek": "Uda",
+  "zabieg": "Uda",
+  "druga": "Depilacja laserowa",
+  "oferta": "5640868",
+  "score": 1.73,
+  "rozklad": {
+   "0": 0.12,
+   "1": 0.03,
+   "2": 0.85
+  }
+ },
+ "[\"depilacj laser\", \"gdzie_ile\", \"tors\"]": {
+  "klasa": [
+   "depilacj laser",
+   "gdzie_ile",
+   "tors"
+  ],
+  "dopisek": "Tors",
+  "zabieg": "Epilacja - Tors",
+  "druga": "Depilacja laserowa",
+  "oferta": "3666601",
+  "score": 1.58,
+  "rozklad": {
+   "0": 0.16,
+   "1": 0.09,
+   "2": 0.75
+  }
+ },
+ "[\"depilacj klatk laser piersi\", \"gdzie_ile\", \"bial lini\"]": {
+  "klasa": [
+   "depilacj klatk laser piersi",
+   "gdzie_ile",
+   "bial lini"
+  ],
+  "dopisek": "linia biała",
+  "zabieg": "Klatka piersiowa + linia biała",
+  "druga": "Depilacja laserowa klatka piersiowa — Depilacja laserowa klatka piersiowa",
+  "oferta": "7250001",
+  "score": 1.93,
+  "rozklad": {
+   "0": 0.02,
+   "1": 0.03,
+   "2": 0.95
+  }
+ },
+ "[\"depilacj laser lydk\", \"sesje\", \"1 5\"]": {
+  "klasa": [
+   "depilacj laser lydk",
+   "sesje",
+   "1 5"
+  ],
+  "dopisek": "5+1",
+  "zabieg": "Łydki 5+1",
+  "druga": "ŁYDKI — ŁYDKI",
+  "oferta": "6714504",
+  "score": 1.88,
+  "rozklad": {
+   "0": 0.03,
+   "1": 0.07,
+   "2": 0.9
+  }
+ },
+ "[\"depilacj laser\", \"gdzie_ile\", \"kolan uda\"]": {
+  "klasa": [
+   "depilacj laser",
+   "gdzie_ile",
+   "kolan uda"
+  ],
+  "dopisek": "Uda kolana",
+  "zabieg": "Epilacja - Uda + kolana",
+  "druga": "Depilacja laserowa",
+  "oferta": "3666609",
+  "score": 1.89,
+  "rozklad": {
+   "0": 0.04,
+   "1": 0.03,
+   "2": 0.93
+  }
+ },
+ "[\"depilacj laser\", \"gdzie_ile\", \"posladk\"]": {
+  "klasa": [
+   "depilacj laser",
+   "gdzie_ile",
+   "posladk"
+  ],
+  "dopisek": "Pośladki",
+  "zabieg": "Epilacja - Pośladki",
+  "druga": "Depilacja laserowa",
+  "oferta": "3666608",
+  "score": 1.89,
+  "rozklad": {
+   "0": 0.05,
+   "1": 0.02,
+   "2": 0.9299999999999999
+  }
+ },
+ "[\"depilacj laser\", \"gdzie_ile\", \"szyj\"]": {
+  "klasa": [
+   "depilacj laser",
+   "gdzie_ile",
+   "szyj"
+  ],
+  "dopisek": "Szyja",
+  "zabieg": "Epilacja - Szyja",
+  "druga": "Depilacja laserowa",
+  "oferta": "3666599",
+  "score": 1.88,
+  "rozklad": {
+   "0": 0.05,
+   "1": 0.03,
+   "2": 0.92
+  }
+ },
+ "[\"depilacj laser\", \"gdzie_ile\", \"czol\"]": {
+  "klasa": [
+   "depilacj laser",
+   "gdzie_ile",
+   "czol"
+  ],
+  "dopisek": "Czoło",
+  "zabieg": "Epilacja - Czoło",
+  "druga": "Depilacja laserowa",
+  "oferta": "3666597",
+  "score": 1.83,
+  "rozklad": {
+   "0": 0.07,
+   "1": 0.03,
+   "2": 0.9
+  }
+ },
+ "[\"depilacj laser\", \"gdzie_ile\", \"przedramion\"]": {
+  "klasa": [
+   "depilacj laser",
+   "gdzie_ile",
+   "przedramion"
+  ],
+  "dopisek": "Przedramiona",
+  "zabieg": "Epilacja - Przedramiona",
+  "druga": "Depilacja laserowa",
+  "oferta": "3666606",
+  "score": 1.89,
+  "rozklad": {
+   "0": 0.04,
+   "1": 0.02,
+   "2": 0.93
+  }
+ },
+ "[\"depilacj laser\", \"gdzie_ile\", \"brod wasik\"]": {
+  "klasa": [
+   "depilacj laser",
+   "gdzie_ile",
+   "brod wasik"
+  ],
+  "dopisek": "Wąsik Broda",
+  "zabieg": "Epilacja - Wąsik + Broda",
+  "druga": "Depilacja laserowa",
+  "oferta": "3666600",
+  "score": 1.82,
+  "rozklad": {
+   "0": 0.08,
+   "1": 0.03,
+   "2": 0.89
+  }
+ },
+ "[\"depilacj dlon laser\", \"gdzie_ile\", \"grzbiet\"]": {
+  "klasa": [
+   "depilacj dlon laser",
+   "gdzie_ile",
+   "grzbiet"
+  ],
+  "dopisek": "Grzbiety",
+  "zabieg": "Epilacja - Grzbiety dłoni",
+  "druga": "Depilacja laserowa dłonie — Depilacja laserowa dłonie",
+  "oferta": "3666607",
+  "score": 1.59,
+  "rozklad": {
+   "0": 0.18,
+   "1": 0.06,
+   "2": 0.76
+  }
+ },
+ "[\"depilacj laser\", \"gdzie_ile\", \"bikin cale\"]": {
+  "klasa": [
+   "depilacj laser",
+   "gdzie_ile",
+   "bikin cale"
+  ],
+  "dopisek": "Bikini pełne",
+  "zabieg": "Epilacja - Bikini pełne",
+  "druga": "Depilacja laserowa",
+  "oferta": "3666614",
+  "score": 1.89,
+  "rozklad": {
+   "0": 0.04,
+   "1": 0.03,
+   "2": 0.93
+  }
+ },
+ "[\"damsk depilacj kolan laser\", \"gdzie_ile\", \"uda\"]": {
+  "klasa": [
+   "damsk depilacj kolan laser",
+   "gdzie_ile",
+   "uda"
+  ],
+  "dopisek": "uda",
+  "zabieg": "Epilacja laserowa Panie - uda + kolana — Epilacja laserowa Panie - uda + kolana",
+  "druga": "Depilacja laserowa - kolana",
+  "oferta": "5594264",
+  "score": 1.97,
+  "rozklad": {
+   "0": 0.01,
+   "1": 0.02,
+   "2": 0.97
+  }
+ },
+ "[\"sredn tonowan\", \"gdzie_ile\", \"wlos\"]": {
+  "klasa": [
+   "sredn tonowan",
+   "gdzie_ile",
+   "wlos"
+  ],
+  "dopisek": "włosy",
+  "zabieg": "Tonowanie — Tonowanie średnie włosy",
+  "druga": "Tonowanie — średniе",
+  "oferta": "54685277#1",
+  "score": 0.63,
+  "rozklad": {
+   "0": 0.6,
+   "1": 0.16,
+   "2": 0.24
+  }
+ },
+ "[\"4d 6d przedluzan rzes stylizacj\", \"rdzen\", \"metod\"]": {
+  "klasa": [
+   "4d 6d przedluzan rzes stylizacj",
+   "rdzen",
+   "metod"
+  ],
+  "dopisek": "metoda",
+  "zabieg": "Przedtuzanie rzes srednie metoda 4D - 6D",
+  "druga": "Przedłużanie rzęs 4/6D",
+  "oferta": "5838700",
+  "score": 0.29,
+  "rozklad": {
+   "0": 0.77,
+   "1": 0.17,
+   "2": 0.06
+  }
+ },
+ "[\"4d 6d przedluzan rzes stylizacj\", \"gdzie_ile\", \"sredn\"]": {
+  "klasa": [
+   "4d 6d przedluzan rzes stylizacj",
+   "gdzie_ile",
+   "sredn"
+  ],
+  "dopisek": "srednie",
+  "zabieg": "Przedtuzanie rzes srednie metoda 4D - 6D",
+  "druga": "Przedłużanie rzęs 4/6D",
+  "oferta": "5838700",
+  "score": 1.4,
+  "rozklad": {
+   "0": 0.2,
+   "1": 0.19,
+   "2": 0.61
+  }
+ },
+ "[\"iglow mezoterap\", \"inne\", \"oczu\"]": {
+  "klasa": [
+   "iglow mezoterap",
+   "inne",
+   "oczu"
+  ],
+  "dopisek": "oczu",
+  "zabieg": "Mezoterapia igłowa 1 okolica oczy/twarz/szyja-deko — Twarz + szyja+ dekolt",
+  "druga": "Mezoterapia igłowa",
+  "oferta": "7120599#2",
+  "score": 1.14,
+  "rozklad": {
+   "0": 0.38,
+   "1": 0.09,
+   "2": 0.53
+  }
+ },
+ "[\"mesk strzyzen wlos\", \"inne\", \"cut\"]": {
+  "klasa": [
+   "mesk strzyzen wlos",
+   "inne",
+   "cut"
+  ],
+  "dopisek": "cut",
+  "zabieg": "STRZYŻENIE KLASYCZNE | CLASSIC CUT — KASIA",
+  "druga": "💈 STRZYŻENIE MĘSKIE ✂️",
+  "oferta": "6994119#2",
+  "score": 0.23,
+  "rozklad": {
+   "0": 0.81,
+   "1": 0.16,
+   "2": 0.03
+  }
+ },
+ "[\"balijsk dwojg masaz\", \"rdzen\", \"orientaln\"]": {
+  "klasa": [
+   "balijsk dwojg masaz",
+   "rdzen",
+   "orientaln"
+  ],
+  "dopisek": "orientalny ORIENTALNY",
+  "zabieg": "Masaż  balijskie orientalny dla dwojga - 60 min",
+  "druga": "MASAŻ BALIJSKI WE DWOJE 90MIN",
+  "oferta": "6647289",
+  "score": 1.24,
+  "rozklad": {
+   "0": 0.23,
+   "1": 0.3,
+   "2": 0.47
+  }
+ },
+ "[\"balijsk dwojg masaz\", \"inne\", \"60 mins orientaln\"]": {
+  "klasa": [
+   "balijsk dwojg masaz",
+   "inne",
+   "60 mins orientaln"
+  ],
+  "dopisek": "Orientalny",
+  "zabieg": "Masaż  balijskie Orientalny Dla Dwojga — 60 mins",
+  "druga": "MASAŻ BALIJSKI WE DWOJE 90MIN",
+  "oferta": "6491337#0",
+  "score": 0.54,
+  "rozklad": {
+   "0": 0.53,
+   "1": 0.41,
+   "2": 0.06
+  }
+ },
+ "[\"balijsk dwojg masaz\", \"inne\", \"90 mins\"]": {
+  "klasa": [
+   "balijsk dwojg masaz",
+   "inne",
+   "90 mins"
+  ],
+  "dopisek": "90 mins",
+  "zabieg": "Masaż  balijskie Orientalny Dla Dwojga — 90 mins",
+  "druga": "MASAŻ BALIJSKI WE DWOJE 90MIN",
+  "oferta": "6491337#1",
+  "score": 0.11,
+  "rozklad": {
+   "0": 0.92,
+   "1": 0.05,
+   "2": 0.03
+  }
+ },
+ "[\"balijsk dwojg masaz\", \"inne\", \"120 mins\"]": {
+  "klasa": [
+   "balijsk dwojg masaz",
+   "inne",
+   "120 mins"
+  ],
+  "dopisek": "120 mins",
+  "zabieg": "Masaż  balijskie Orientalny Dla Dwojga — 120 mins",
+  "druga": "MASAŻ BALIJSKI WE DWOJE 90MIN",
+  "oferta": "6491337#2",
+  "score": 1.69,
+  "rozklad": {
+   "0": 0.14,
+   "1": 0.02,
+   "2": 0.84
+  }
+ },
+ "[\"depilacj\", \"gdzie_ile\", \"nogi\"]": {
+  "klasa": [
+   "depilacj",
+   "gdzie_ile",
+   "nogi"
+  ],
+  "dopisek": "Nogi",
+  "zabieg": "Epilacja — Nogi",
+  "druga": "Depilacja",
+  "oferta": "6523728#8",
+  "score": 1.86,
+  "rozklad": {
+   "0": 0.04,
+   "1": 0.07,
+   "2": 0.89
+  }
+ },
+ "[\"botox\", \"gdzie_ile\", \"cale face\"]": {
+  "klasa": [
+   "botox",
+   "gdzie_ile",
+   "cale face"
+  ],
+  "dopisek": "Full face",
+  "zabieg": "Btx — Full face",
+  "druga": "Botox — Botox",
+  "oferta": "6000650#5",
+  "score": 1.45,
+  "rozklad": {
+   "0": 0.18,
+   "1": 0.19,
+   "2": 0.63
+  }
+ },
+ "[\"cale depilacj laser nogi\", \"gdzie_ile\", \"1\"]": {
+  "klasa": [
+   "cale depilacj laser nogi",
+   "gdzie_ile",
+   "1"
+  ],
+  "dopisek": "1",
+  "zabieg": "Epilacja laser całe nogi — Epilacja laser całe nogi 1 zabieg",
+  "druga": "Depilacja laserowa- całe nogi",
+  "oferta": "6167712#0",
+  "score": 0.54,
+  "rozklad": {
+   "0": 0.68,
+   "1": 0.1,
+   "2": 0.22
+  }
+ },
+ "[\"depilacj\", \"gdzie_ile\", \"damsk lydk\"]": {
+  "klasa": [
+   "depilacj",
+   "gdzie_ile",
+   "damsk lydk"
+  ],
+  "dopisek": "łydki damska",
+  "zabieg": "Epilacja łydki",
+  "druga": "Depilacja",
+  "oferta": "6429494",
+  "score": 1.95,
+  "rozklad": {
+   "0": 0.01,
+   "1": 0.02,
+   "2": 0.97
+  }
+ },
+ "[\"koloryzacj krotk wlos\", \"rdzen\", \"jednolit odnolit\"]": {
+  "klasa": [
+   "koloryzacj krotk wlos",
+   "rdzen",
+   "jednolit odnolit"
+  ],
+  "dopisek": "jednolitą odnolite",
+  "zabieg": "Koloryzacja jednolitą na krótkie włosy",
+  "druga": "Koloryzacja włosy krótkie",
+  "oferta": "6227355",
+  "score": 0.95,
+  "rozklad": {
+   "0": 0.45,
+   "1": 0.15,
+   "2": 0.4
+  }
+ },
+ "[\"depilacj\", \"gdzie_ile\", \"damsk plec\"]": {
+  "klasa": [
+   "depilacj",
+   "gdzie_ile",
+   "damsk plec"
+  ],
+  "dopisek": "plecy damska",
+  "zabieg": "Epilacja plecy",
+  "druga": "Depilacja",
+  "oferta": "6429498",
+  "score": 1.93,
+  "rozklad": {
+   "0": 0.02,
+   "1": 0.03,
+   "2": 0.95
+  }
+ },
+ "[\"cale depilacj laser nogi\", \"rdzen\", \"lase prim\"]": {
+  "klasa": [
+   "cale depilacj laser nogi",
+   "rdzen",
+   "lase prim"
+  ],
+  "dopisek": "PRIME LASE",
+  "zabieg": "Depilacja laserowa całe nogi",
+  "druga": "Depilacja- całe nogi",
+  "oferta": "6226678",
+  "score": 0.96,
+  "rozklad": {
+   "0": 0.25,
+   "1": 0.53,
+   "2": 0.22
+  }
+ },
+ "[\"depilacj\", \"gdzie_ile\", \"mesk pach\"]": {
+  "klasa": [
+   "depilacj",
+   "gdzie_ile",
+   "mesk pach"
+  ],
+  "dopisek": "pachy męska",
+  "zabieg": "Epilacja pachy",
+  "druga": "Depilacja",
+  "oferta": "6429508",
+  "score": 1.83,
+  "rozklad": {
+   "0": 0.06,
+   "1": 0.05,
+   "2": 0.89
+  }
+ },
+ "[\"depilacj\", \"gdzie_ile\", \"damsk uda\"]": {
+  "klasa": [
+   "depilacj",
+   "gdzie_ile",
+   "damsk uda"
+  ],
+  "dopisek": "uda damska",
+  "zabieg": "Epilacja uda",
+  "druga": "Depilacja",
+  "oferta": "6429490",
+  "score": 1.92,
+  "rozklad": {
+   "0": 0.02,
+   "1": 0.03,
+   "2": 0.95
+  }
+ },
+ "[\"brod cover odsiwian wlos\", \"rdzen\", \"siwych\"]": {
+  "klasa": [
+   "brod cover odsiwian wlos",
+   "rdzen",
+   "siwych"
+  ],
+  "dopisek": "siwych",
+  "zabieg": "Cover brody (tuszowanie siwych włosów)",
+  "druga": "Cover brody i włosów",
+  "oferta": "5981071",
+  "score": 1.46,
+  "rozklad": {
+   "0": 0.23,
+   "1": 0.08,
+   "2": 0.69
+  }
+ },
+ "[\"depilacj\", \"gdzie_ile\", \"szyj\"]": {
+  "klasa": [
+   "depilacj",
+   "gdzie_ile",
+   "szyj"
+  ],
+  "dopisek": "Szyja",
+  "zabieg": "Epilacja — Szyja",
+  "druga": "Depilacja",
+  "oferta": "6523728#0",
+  "score": 1.91,
+  "rozklad": {
+   "0": 0.02,
+   "1": 0.04,
+   "2": 0.94
+  }
+ },
+ "[\"depilacj\", \"gdzie_ile\", \"brod mesk\"]": {
+  "klasa": [
+   "depilacj",
+   "gdzie_ile",
+   "brod mesk"
+  ],
+  "dopisek": "broda męska",
+  "zabieg": "Epilacja broda",
+  "druga": "Depilacja",
+  "oferta": "6429505",
+  "score": 1.83,
+  "rozklad": {
+   "0": 0.06,
+   "1": 0.05,
+   "2": 0.89
+  }
+ },
+ "[\"cale depilacj laser nogi\", \"sesje\", \"seri x4\"]": {
+  "klasa": [
+   "cale depilacj laser nogi",
+   "sesje",
+   "seri x4"
+  ],
+  "dopisek": "seria x4",
+  "zabieg": "Epilacja laser całe nogi — Epilacja laser całe nogi seria x4",
+  "druga": "Depilacja laserowa- całe nogi",
+  "oferta": "6167712#1",
+  "score": 1.86,
+  "rozklad": {
+   "0": 0.05,
+   "1": 0.05,
+   "2": 0.9
+  }
+ },
+ "[\"strzyzen wlos\", \"rdzen\", \"cut klasyczn\"]": {
+  "klasa": [
+   "strzyzen wlos",
+   "rdzen",
+   "cut klasyczn"
+  ],
+  "dopisek": "KLASYCZNE CLASSIC CUT",
+  "zabieg": "STRZYŻENIE KLASYCZNE | CLASSIC CUT — KIRI",
+  "druga": "🌶️Strzyżenie włosów",
+  "oferta": "6994119#0",
+  "score": 0.9,
+  "rozklad": {
+   "0": 0.46,
+   "1": 0.18,
+   "2": 0.36
+  }
+ },
+ "[\"depilacj\", \"gdzie_ile\", \"brod damsk\"]": {
+  "klasa": [
+   "depilacj",
+   "gdzie_ile",
+   "brod damsk"
+  ],
+  "dopisek": "broda damska",
+  "zabieg": "Epilacja broda",
+  "druga": "Depilacja",
+  "oferta": "6429492",
+  "score": 1.84,
+  "rozklad": {
+   "0": 0.05,
+   "1": 0.07,
+   "2": 0.88
+  }
+ },
+ "[\"depilacj\", \"gdzie_ile\", \"lydk mesk\"]": {
+  "klasa": [
+   "depilacj",
+   "gdzie_ile",
+   "lydk mesk"
+  ],
+  "dopisek": "łydki męska",
+  "zabieg": "Epilacja łydki",
+  "druga": "Depilacja",
+  "oferta": "6429515",
+  "score": 1.93,
+  "rozklad": {
+   "0": 0.02,
+   "1": 0.02,
+   "2": 0.96
+  }
+ },
+ "[\"depilacj\", \"gdzie_ile\", \"bikin plytk\"]": {
+  "klasa": [
+   "depilacj",
+   "gdzie_ile",
+   "bikin plytk"
+  ],
+  "dopisek": "Bikini płytkie",
+  "zabieg": "Epilacja — Bikini płytkie",
+  "druga": "Depilacja",
+  "oferta": "6523728#6",
+  "score": 1.88,
+  "rozklad": {
+   "0": 0.03,
+   "1": 0.07,
+   "2": 0.9
+  }
+ },
+ "[\"depilacj\", \"gdzie_ile\", \"lydk\"]": {
+  "klasa": [
+   "depilacj",
+   "gdzie_ile",
+   "lydk"
+  ],
+  "dopisek": "Łydki",
+  "zabieg": "Epilacja — Łydki",
+  "druga": "Depilacja",
+  "oferta": "6523728#3",
+  "score": 1.95,
+  "rozklad": {
+   "0": 0.02,
+   "1": 0.02,
+   "2": 0.96
+  }
+ },
+ "[\"koloryzacj krotk wlos\", \"gdzie_ile\", \"damsk sredn\"]": {
+  "klasa": [
+   "koloryzacj krotk wlos",
+   "gdzie_ile",
+   "damsk sredn"
+  ],
+  "dopisek": "średnich Damskie",
+  "zabieg": "Koloryzacja i farbowanie włosów krótkich — Koloryzacja i farbowanie włosów średnich",
+  "druga": "Koloryzacja włosy krótkie",
+  "oferta": "4044909#0",
+  "score": 1.77,
+  "rozklad": {
+   "0": 0.08,
+   "1": 0.07,
+   "2": 0.85
+  }
+ },
+ "[\"depilacj\", \"rdzen\", \"elektr\"]": {
+  "klasa": [
+   "depilacj",
+   "rdzen",
+   "elektr"
+  ],
+  "dopisek": "Elektro",
+  "zabieg": "Elektro epilacja",
+  "druga": "Depilacja",
+  "oferta": "6436871",
+  "score": 1.9,
+  "rozklad": {
+   "0": 0.03,
+   "1": 0.03,
+   "2": 0.94
+  }
+ },
+ "[\"depilacj\", \"gdzie_ile\", \"kark mesk\"]": {
+  "klasa": [
+   "depilacj",
+   "gdzie_ile",
+   "kark mesk"
+  ],
+  "dopisek": "kark męska",
+  "zabieg": "Epilacja kark",
+  "druga": "Depilacja",
+  "oferta": "6429509",
+  "score": 1.91,
+  "rozklad": {
+   "0": 0.03,
+   "1": 0.03,
+   "2": 0.94
+  }
+ },
+ "[\"makijaz permanentn ust\", \"etap\", \"pierwsz\"]": {
+  "klasa": [
+   "makijaz permanentn ust",
+   "etap",
+   "pierwsz"
+  ],
+  "dopisek": "pierwszy",
+  "zabieg": "Makijaż permanientny ust — Makijaż permanentny ust pierwszy zabieg",
+  "druga": "Makijaż permanentny ust",
+  "oferta": "2450279#2",
+  "score": 1.54,
+  "rozklad": {
+   "0": 0.2,
+   "1": 0.06,
+   "2": 0.74
+  }
+ },
+ "[\"depilacj\", \"gdzie_ile\", \"cale twarz\"]": {
+  "klasa": [
+   "depilacj",
+   "gdzie_ile",
+   "cale twarz"
+  ],
+  "dopisek": "Całą twarz",
+  "zabieg": "Epilacja — Całą twarz",
+  "druga": "Depilacja",
+  "oferta": "6523728#4",
+  "score": 1.83,
+  "rozklad": {
+   "0": 0.04,
+   "1": 0.08,
+   "2": 0.88
+  }
+ },
+ "[\"depilacj\", \"gdzie_ile\", \"bikin cale\"]": {
+  "klasa": [
+   "depilacj",
+   "gdzie_ile",
+   "bikin cale"
+  ],
+  "dopisek": "Bikini pełne",
+  "zabieg": "Epilacja — Bikini pełne",
+  "druga": "Depilacja",
+  "oferta": "6523728#7",
+  "score": 1.87,
+  "rozklad": {
+   "0": 0.03,
+   "1": 0.08,
+   "2": 0.89
+  }
+ },
+ "[\"depilacj\", \"gdzie_ile\", \"damsk pach\"]": {
+  "klasa": [
+   "depilacj",
+   "gdzie_ile",
+   "damsk pach"
+  ],
+  "dopisek": "pachy damska",
+  "zabieg": "Epilacja pachy",
+  "druga": "Depilacja",
+  "oferta": "6429487",
+  "score": 1.86,
+  "rozklad": {
+   "0": 0.05,
+   "1": 0.04,
+   "2": 0.91
+  }
+ },
+ "[\"1 napraw paznokc\", \"rdzen\", \"stylizacj\"]": {
+  "klasa": [
+   "1 napraw paznokc",
+   "rdzen",
+   "stylizacj"
+  ],
+  "dopisek": "Stylizacja",
+  "zabieg": "Naprawa 1 paznokcıa",
+  "druga": "Naprawa 1 paznokcia",
+  "oferta": "6022759",
+  "score": 0.51,
+  "rozklad": {
+   "0": 0.64,
+   "1": 0.21,
+   "2": 0.15
+  }
+ },
+ "[\"depilacj\", \"gdzie_ile\", \"damsk wasik\"]": {
+  "klasa": [
+   "depilacj",
+   "gdzie_ile",
+   "damsk wasik"
+  ],
+  "dopisek": "wąsik damska",
+  "zabieg": "Epilacja wąsik",
+  "druga": "Depilacja",
+  "oferta": "6429491",
+  "score": 1.84,
+  "rozklad": {
+   "0": 0.06,
+   "1": 0.04,
+   "2": 0.9
+  }
+ },
+ "[\"cale depilacj laser nogi\", \"gdzie_ile\", \"bikin pach\"]": {
+  "klasa": [
+   "cale depilacj laser nogi",
+   "gdzie_ile",
+   "bikin pach"
+  ],
+  "dopisek": "pachy bikini",
+  "zabieg": "Epilacja laserowa (pachy+bikini+całe nogi)",
+  "druga": "Depilacja laserowa- całe nogi",
+  "oferta": "6226931",
+  "score": 1.97,
+  "rozklad": {
+   "0": 0.01,
+   "1": 0.01,
+   "2": 0.98
+  }
+ },
+ "[\"depilacj\", \"gdzie_ile\", \"mesk plec\"]": {
+  "klasa": [
+   "depilacj",
+   "gdzie_ile",
+   "mesk plec"
+  ],
+  "dopisek": "plecy męska",
+  "zabieg": "Epilacja plecy",
+  "druga": "Depilacja",
+  "oferta": "6429510",
+  "score": 1.91,
+  "rozklad": {
+   "0": 0.03,
+   "1": 0.04,
+   "2": 0.9299999999999999
+  }
+ },
+ "[\"depilacj\", \"gdzie_ile\", \"damsk rece\"]": {
+  "klasa": [
+   "depilacj",
+   "gdzie_ile",
+   "damsk rece"
+  ],
+  "dopisek": "ręce damska",
+  "zabieg": "Epilacja ręce",
+  "druga": "Depilacja",
+  "oferta": "6429496",
+  "score": 1.9,
+  "rozklad": {
+   "0": 0.03,
+   "1": 0.03,
+   "2": 0.9400000000000001
+  }
+ },
+ "[\"koloryzacj krotk wlos\", \"gdzie_ile\", \"damsk dlug\"]": {
+  "klasa": [
+   "koloryzacj krotk wlos",
+   "gdzie_ile",
+   "damsk dlug"
+  ],
+  "dopisek": "długich Damskie",
+  "zabieg": "Koloryzacja i farbowanie włosów krótkich — Koloryzacja i farbowanie włosów długich",
+  "druga": "Koloryzacja włosy krótkie",
+  "oferta": "4044909#1",
+  "score": 1.76,
+  "rozklad": {
+   "0": 0.1,
+   "1": 0.05,
+   "2": 0.85
+  }
+ },
+ "[\"depilacj\", \"gdzie_ile\", \"mesk uda\"]": {
+  "klasa": [
+   "depilacj",
+   "gdzie_ile",
+   "mesk uda"
+  ],
+  "dopisek": "uda męska",
+  "zabieg": "Epilacja uda",
+  "druga": "Depilacja",
+  "oferta": "6429514",
+  "score": 1.87,
+  "rozklad": {
+   "0": 0.04,
+   "1": 0.04,
+   "2": 0.92
+  }
+ },
+ "[\"depilacj\", \"gdzie_ile\", \"mesk nogi\"]": {
+  "klasa": [
+   "depilacj",
+   "gdzie_ile",
+   "mesk nogi"
+  ],
+  "dopisek": "nogi męska",
+  "zabieg": "Epilacja nogi",
+  "druga": "Depilacja",
+  "oferta": "6429513",
+  "score": 1.74,
+  "rozklad": {
+   "0": 0.11,
+   "1": 0.05,
+   "2": 0.84
+  }
+ },
+ "[\"cale depilacj laser nogi\", \"poziom\", \"premium\"]": {
+  "klasa": [
+   "cale depilacj laser nogi",
+   "poziom",
+   "premium"
+  ],
+  "dopisek": "Premium",
+  "zabieg": "Epilacja laserowa (całe nogi)",
+  "druga": "Depilacja laserowa- całe nogi",
+  "oferta": "6099154",
+  "score": 0.55,
+  "rozklad": {
+   "0": 0.47,
+   "1": 0.51,
+   "2": 0.02
+  }
+ },
+ "[\"podologiczn podstaw\", \"rdzen\", \"lecznicz\"]": {
+  "klasa": [
+   "podologiczn podstaw",
+   "rdzen",
+   "lecznicz"
+  ],
+  "dopisek": "podologiczmy/leczniczy",
+  "zabieg": "Zabieg podologiczmy/leczniczy  podstawowy",
+  "druga": "Podstawowy Zabieg Podologiczny",
+  "oferta": "6738919",
+  "score": 0.35,
+  "rozklad": {
+   "0": 0.75,
+   "1": 0.15,
+   "2": 0.1
+  }
+ },
+ "[\"rzes usuwan\", \"rdzen\", \"sztuczn\"]": {
+  "klasa": [
+   "rzes usuwan",
+   "rdzen",
+   "sztuczn"
+  ],
+  "dopisek": "sztucznych",
+  "zabieg": "Usuwanie sztucznych rzęs",
+  "druga": "Zdejmowanie rzęs",
+  "oferta": "49576770",
+  "score": 0.22,
+  "rozklad": {
+   "0": 0.85,
+   "1": 0.08,
+   "2": 0.07
+  }
+ },
+ "[\"koloryzacj koreansk laminacj rzes\", \"inne\", \"alerg nowosc ppd przypadk\"]": {
+  "klasa": [
+   "koloryzacj koreansk laminacj rzes",
+   "inne",
+   "alerg nowosc ppd przypadk"
+  ],
+  "dopisek": "przypadku alergii PPD",
+  "zabieg": "Nowość ! Koreańska Laminacja rzęs — Koreańska Laminacja rzęs bez farbowania rzęs ( w przypadku alergii na PPD)",
+  "druga": "Koreańska laminacja rzęs z koloryzacją",
+  "oferta": "54756104",
+  "score": 1.77,
+  "rozklad": {
+   "0": 0.09,
+   "1": 0.04,
+   "2": 0.87
+  }
+ },
+ "[\"koloryzacj koreansk laminacj rzes\", \"wylaczenie\", \"bez\"]": {
+  "klasa": [
+   "koloryzacj koreansk laminacj rzes",
+   "wylaczenie",
+   "bez"
+  ],
+  "dopisek": "bez",
+  "zabieg": "Nowość ! Koreańska Laminacja rzęs — Koreańska Laminacja rzęs bez farbowania rzęs ( w przypadku alergii na PPD)",
+  "druga": "Koreańska laminacja rzęs z koloryzacją",
+  "oferta": "54756104",
+  "score": 1.9,
+  "rozklad": {
+   "0": 0.03,
+   "1": 0.03,
+   "2": 0.94
+  }
+ },
+ "[\"bez koloryzacj laminacj rzes\", \"rdzen\", \"koreansk\"]": {
+  "klasa": [
+   "bez koloryzacj laminacj rzes",
+   "rdzen",
+   "koreansk"
+  ],
+  "dopisek": "Koreańska",
+  "zabieg": "Nowość ! Koreańska Laminacja rzęs — Koreańska Laminacja rzęs bez farbowania rzęs ( w przypadku alergii na PPD)",
+  "druga": "Laminacja rzęs bez koloryzacji",
+  "oferta": "54756104",
+  "score": 1.66,
+  "rozklad": {
+   "0": 0.11,
+   "1": 0.13,
+   "2": 0.76
+  }
+ },
+ "[\"bez koloryzacj laminacj rzes\", \"inne\", \"alerg nowosc ppd przypadk\"]": {
+  "klasa": [
+   "bez koloryzacj laminacj rzes",
+   "inne",
+   "alerg nowosc ppd przypadk"
+  ],
+  "dopisek": "przypadku alergii PPD",
+  "zabieg": "Nowość ! Koreańska Laminacja rzęs — Koreańska Laminacja rzęs bez farbowania rzęs ( w przypadku alergii na PPD)",
+  "druga": "Laminacja rzęs bez koloryzacji",
+  "oferta": "54756104",
+  "score": 0.58,
+  "rozklad": {
+   "0": 0.66,
+   "1": 0.1,
+   "2": 0.24
+  }
+ },
+ "[\"hybryd uzupelnien\", \"rdzen\", \"akryl\"]": {
+  "klasa": [
+   "hybryd uzupelnien",
+   "rdzen",
+   "akryl"
+  ],
+  "dopisek": "akryl+",
+  "zabieg": "Dopełnianie akryl+ hybryda do 2",
+  "druga": "Dopełnienie + hybryda",
+  "oferta": "48789841",
+  "score": 1.21,
+  "rozklad": {
+   "0": 0.32,
+   "1": 0.15,
+   "2": 0.53
+  }
+ },
+ "[\"hybryd uzupelnien\", \"gdzie_ile\", \"2 do\"]": {
+  "klasa": [
+   "hybryd uzupelnien",
+   "gdzie_ile",
+   "2 do"
+  ],
+  "dopisek": "do 2",
+  "zabieg": "Dopełnianie akryl+ hybryda do 2",
+  "druga": "Dopełnienie + hybryda",
+  "oferta": "48789841",
+  "score": 1.4,
+  "rozklad": {
+   "0": 0.13,
+   "1": 0.34,
+   "2": 0.53
+  }
+ },
+ "[\"usuwan\", \"rdzen\", \"blizn\"]": {
+  "klasa": [
+   "usuwan",
+   "rdzen",
+   "blizn"
+  ],
+  "dopisek": "blizn",
+  "zabieg": "Usuwanie blizn — Usuwanie blizn",
+  "druga": "Ściągnięcie",
+  "oferta": "7264054",
+  "score": 1.74,
+  "rozklad": {
+   "0": 0.05,
+   "1": 0.16,
+   "2": 0.79
+  }
+ },
+ "[\"usuwan\", \"rdzen\", \"stylizacj\"]": {
+  "klasa": [
+   "usuwan",
+   "rdzen",
+   "stylizacj"
+  ],
+  "dopisek": "stylizacji",
+  "zabieg": "Ściągnięcie stylizacji",
+  "druga": "Ściągnięcie",
+  "oferta": "6909763",
+  "score": 0.55,
+  "rozklad": {
+   "0": 0.65,
+   "1": 0.16,
+   "2": 0.19
+  }
+ },
+ "[\"akryl uzupelnien\", \"rdzen\", \"zelow\"]": {
+  "klasa": [
+   "akryl uzupelnien",
+   "rdzen",
+   "zelow"
+  ],
+  "dopisek": "akryl/żel",
+  "zabieg": "Dopełnienie akryl/żel",
+  "druga": "Dopełnienie (akryl)",
+  "oferta": "5567670",
+  "score": 1.56,
+  "rozklad": {
+   "0": 0.16,
+   "1": 0.12,
+   "2": 0.72
+  }
+ },
+ "[\"koloryzacj\", \"gdzie_ile\", \"wlos\"]": {
+  "klasa": [
+   "koloryzacj",
+   "gdzie_ile",
+   "wlos"
+  ],
+  "dopisek": "włosów",
+  "zabieg": "Koloryzacja i farbowanie włosów",
+  "druga": "Koloryzacja — Koloryzacja",
+  "oferta": "3006477",
+  "score": 0.2,
+  "rozklad": {
+   "0": 0.82,
+   "1": 0.15,
+   "2": 0.03
+  }
+ },
+ "[\"akryl uzupelnien\", \"rdzen\", \"akrylozel zelow\"]": {
+  "klasa": [
+   "akryl uzupelnien",
+   "rdzen",
+   "akrylozel zelow"
+  ],
+  "dopisek": "żel/akryl/żeloakryl",
+  "zabieg": "Dopełnienie żel/akryl/żeloakryl",
+  "druga": "Dopełnienie (akryl)",
+  "oferta": "5554310",
+  "score": 1.52,
+  "rozklad": {
+   "0": 0.16,
+   "1": 0.16,
+   "2": 0.68
+  }
+ },
+ "[\"depilacj laser ramion\", \"gdzie_ile\", \"przedramion\"]": {
+  "klasa": [
+   "depilacj laser ramion",
+   "gdzie_ile",
+   "przedramion"
+  ],
+  "dopisek": "ramiona/przedramiona",
+  "zabieg": "Epilacja laserowa — ramiona/przedramiona",
+  "druga": "Depilacja laserowa — ramiona",
+  "oferta": "6666335#10",
+  "score": 1.29,
+  "rozklad": {
+   "0": 0.31,
+   "1": 0.09,
+   "2": 0.6
+  }
+ },
+ "[\"usuwan\", \"gdzie_ile\", \"paznokc wrastajac\"]": {
+  "klasa": [
+   "usuwan",
+   "gdzie_ile",
+   "paznokc wrastajac"
+  ],
+  "dopisek": "wrastajacych paznokci",
+  "zabieg": "Usuwanie wrastajacych paznokci",
+  "druga": "Ściągnięcie",
+  "oferta": "6759874",
+  "score": 1.75,
+  "rozklad": {
+   "0": 0.03,
+   "1": 0.18,
+   "2": 0.79
+  }
+ },
+ "[\"usuwan\", \"rdzen\", \"hybryd\"]": {
+  "klasa": [
+   "usuwan",
+   "rdzen",
+   "hybryd"
+  ],
+  "dopisek": "Hybrydy",
+  "zabieg": "Ściagniecie Hybrydy",
+  "druga": "Ściągnięcie",
+  "oferta": "6757800",
+  "score": 1.28,
+  "rozklad": {
+   "0": 0.23,
+   "1": 0.25,
+   "2": 0.52
+  }
+ },
+ "[\"akryl uzupelnien\", \"gdzie_ile\", \"paznokc\"]": {
+  "klasa": [
+   "akryl uzupelnien",
+   "gdzie_ile",
+   "paznokc"
+  ],
+  "dopisek": "paznokci",
+  "zabieg": "Uzupełnienie paznokci akrylowych",
+  "druga": "Dopełnienie (akryl)",
+  "oferta": "3501703",
+  "score": 0.07,
+  "rozklad": {
+   "0": 0.94,
+   "1": 0.06,
+   "2": 0.0
+  }
+ },
+ "[\"usuwan\", \"rdzen\", \"tatuaz\"]": {
+  "klasa": [
+   "usuwan",
+   "rdzen",
+   "tatuaz"
+  ],
+  "dopisek": "tatuażu",
+  "zabieg": "Usuwanie tatuażu",
+  "druga": "Ściągnięcie",
+  "oferta": "6878191",
+  "score": 1.52,
+  "rozklad": {
+   "0": 0.15,
+   "1": 0.19,
+   "2": 0.66
+  }
+ },
+ "[\"usuwan\", \"rdzen\", \"modzel\"]": {
+  "klasa": [
+   "usuwan",
+   "rdzen",
+   "modzel"
+  ],
+  "dopisek": "modzela",
+  "zabieg": "Usunięcie modzela",
+  "druga": "Ściągnięcie",
+  "oferta": "6756623",
+  "score": 1.61,
+  "rozklad": {
+   "0": 0.08,
+   "1": 0.24,
+   "2": 0.6799999999999999
+  }
+ },
+ "[\"rzes usuwan\", \"rdzen\", \"przedluzen\"]": {
+  "klasa": [
+   "rzes usuwan",
+   "rdzen",
+   "przedluzen"
+  ],
+  "dopisek": "Przedłużenie",
+  "zabieg": "Ściąganie rzęs",
+  "druga": "Zdejmowanie rzęs",
+  "oferta": "6876887",
+  "score": 0.12,
+  "rozklad": {
+   "0": 0.91,
+   "1": 0.07,
+   "2": 0.02
+  }
+ },
+ "[\"usuwan\", \"rdzen\", \"brodawk\"]": {
+  "klasa": [
+   "usuwan",
+   "rdzen",
+   "brodawk"
+  ],
+  "dopisek": "brodawek",
+  "zabieg": "Usuwanie brodawek",
+  "druga": "Ściągnięcie",
+  "oferta": "6814723",
+  "score": 1.79,
+  "rozklad": {
+   "0": 0.04,
+   "1": 0.14,
+   "2": 0.82
+  }
+ },
+ "[\"usuwan\", \"rdzen\", \"paznokc wrastajac\"]": {
+  "klasa": [
+   "usuwan",
+   "rdzen",
+   "paznokc wrastajac"
+  ],
+  "dopisek": "wrastającego paznokcia",
+  "zabieg": "Usunięcie wrastającego paznokcia",
+  "druga": "Ściągnięcie",
+  "oferta": "6878067",
+  "score": 1.84,
+  "rozklad": {
+   "0": 0.02,
+   "1": 0.13,
+   "2": 0.85
+  }
+ },
+ "[\"akryl hybryd uzupelnien\", \"rdzen\", \"zelow\"]": {
+  "klasa": [
+   "akryl hybryd uzupelnien",
+   "rdzen",
+   "zelow"
+  ],
+  "dopisek": "akryl,żel",
+  "zabieg": "Dopełnienie akryl,żel +hybryda",
+  "druga": "Uzupełnienie akryl z hybrydą",
+  "oferta": "5913012",
+  "score": 1.22,
+  "rozklad": {
+   "0": 0.28,
+   "1": 0.21,
+   "2": 0.51
+  }
+ },
+ "[\"akryl uzupelnien\", \"rdzen\", \"french\"]": {
+  "klasa": [
+   "akryl uzupelnien",
+   "rdzen",
+   "french"
+  ],
+  "dopisek": "french",
+  "zabieg": "Dopełnienie akryl french — Dopełnienie akryl french",
+  "druga": "Dopełnienie (akryl)",
+  "oferta": "5600140",
+  "score": 1.57,
+  "rozklad": {
+   "0": 0.17,
+   "1": 0.1,
+   "2": 0.73
+  }
+ },
+ "[\"usuwan\", \"rdzen\", \"gems tooth\"]": {
+  "klasa": [
+   "usuwan",
+   "rdzen",
+   "gems tooth"
+  ],
+  "dopisek": "tooth gems",
+  "zabieg": "Usuwanie tooth gems",
+  "druga": "Ściągnięcie",
+  "oferta": "6588535",
+  "score": 1.54,
+  "rozklad": {
+   "0": 0.16,
+   "1": 0.14,
+   "2": 0.7
+  }
+ },
+ "[\"usuwan\", \"gdzie_ile\", \"rzes\"]": {
+  "klasa": [
+   "usuwan",
+   "gdzie_ile",
+   "rzes"
+  ],
+  "dopisek": "rzęs",
+  "zabieg": "Zdejmowanie rzęs",
+  "druga": "Ściągnięcie",
+  "oferta": "1670181",
+  "score": 0.43,
+  "rozklad": {
+   "0": 0.69,
+   "1": 0.19,
+   "2": 0.12
+  }
+ },
+ "[\"akryl hybryd uzupelnien\", \"gdzie_ile\", \"4\"]": {
+  "klasa": [
+   "akryl hybryd uzupelnien",
+   "gdzie_ile",
+   "4"
+  ],
+  "dopisek": "4+",
+  "zabieg": "Dopełnienie akryl + hybryda 4+ — Dopełnienie akryl + hybryda 4+",
+  "druga": "Uzupełnienie akryl z hybrydą",
+  "oferta": "6064820",
+  "score": 1.47,
+  "rozklad": {
+   "0": 0.18,
+   "1": 0.17,
+   "2": 0.65
+  }
+ },
+ "[\"rzes usuwan\", \"rdzen\", \"diamondlash\"]": {
+  "klasa": [
+   "rzes usuwan",
+   "rdzen",
+   "diamondlash"
+  ],
+  "dopisek": "diamondlash",
+  "zabieg": "Usunięcie rzęs",
+  "druga": "Zdejmowanie rzęs",
+  "oferta": "5943203",
+  "score": 0.86,
+  "rozklad": {
+   "0": 0.23,
+   "1": 0.68,
+   "2": 0.09
+  }
+ },
+ "[\"brod koloryzacj\", \"gdzie_ile\", \"mesk wlos\"]": {
+  "klasa": [
+   "brod koloryzacj",
+   "gdzie_ile",
+   "mesk wlos"
+  ],
+  "dopisek": "Męska włosy",
+  "zabieg": "Męska koloryzacja (broda lub włosy)",
+  "druga": "Farbowanie brody",
+  "oferta": "4879633",
+  "score": 1.37,
+  "rozklad": {
+   "0": 0.26,
+   "1": 0.11,
+   "2": 0.63
+  }
+ },
+ "[\"usuwan\", \"rdzen\", \"blizn laser\"]": {
+  "klasa": [
+   "usuwan",
+   "rdzen",
+   "blizn laser"
+  ],
+  "dopisek": "blizn Laserowe LASEROWE",
+  "zabieg": "Laserowe usuwanie blizn",
+  "druga": "Ściągnięcie",
+  "oferta": "7294955",
+  "score": 1.73,
+  "rozklad": {
+   "0": 0.05,
+   "1": 0.17,
+   "2": 0.78
+  }
+ },
+ "[\"akryl hybryd uzupelnien\", \"rdzen\", \"akrylozel zelow\"]": {
+  "klasa": [
+   "akryl hybryd uzupelnien",
+   "rdzen",
+   "akrylozel zelow"
+  ],
+  "dopisek": "żel/akryl/ akrylożel",
+  "zabieg": "Dopełnienie żel/akryl/ akrylożel +hybryda",
+  "druga": "Uzupełnienie akryl z hybrydą",
+  "oferta": "5554318",
+  "score": 1.45,
+  "rozklad": {
+   "0": 0.17,
+   "1": 0.2,
+   "2": 0.63
+  }
+ },
+ "[\"usuwan\", \"rdzen\", \"odcisk\"]": {
+  "klasa": [
+   "usuwan",
+   "rdzen",
+   "odcisk"
+  ],
+  "dopisek": "odcisków",
+  "zabieg": "Usuwanie odcisków",
+  "druga": "Ściągnięcie",
+  "oferta": "6751462",
+  "score": 1.21,
+  "rozklad": {
+   "0": 0.25,
+   "1": 0.29,
+   "2": 0.46
+  }
+ },
+ "[\"akryl uzupelnien\", \"inne\", \"duze zdobien\"]": {
+  "klasa": [
+   "akryl uzupelnien",
+   "inne",
+   "duze zdobien"
+  ],
+  "dopisek": "duże zdobienie",
+  "zabieg": "Dopełnienie akrylem — Duże zdobienie",
+  "druga": "Dopełnienie (akryl)",
+  "oferta": "5760168#2",
+  "score": 1.84,
+  "rozklad": {
+   "0": 0.05,
+   "1": 0.05,
+   "2": 0.9
+  }
+ },
+ "[\"usuwan\", \"rdzen\", \"wlokniak\"]": {
+  "klasa": [
+   "usuwan",
+   "rdzen",
+   "wlokniak"
+  ],
+  "dopisek": "włókniaków",
+  "zabieg": "Usuwanie włókniaków — Usuwanie włókniaków",
+  "druga": "Ściągnięcie",
+  "oferta": "6754863",
+  "score": 1.81,
+  "rozklad": {
+   "0": 0.03,
+   "1": 0.13,
+   "2": 0.84
+  }
+ },
+ "[\"usuwan\", \"gdzie_ile\", \"makijaz permanentn\"]": {
+  "klasa": [
+   "usuwan",
+   "gdzie_ile",
+   "makijaz permanentn"
+  ],
+  "dopisek": "makijażu permanentnego",
+  "zabieg": "Usuwanie makijażu permanentnego",
+  "druga": "Ściągnięcie",
+  "oferta": "5738467",
+  "score": 1.33,
+  "rozklad": {
+   "0": 0.24,
+   "1": 0.18,
+   "2": 0.58
+  }
+ },
+ "[\"akryl uzupelnien\", \"inne\", \"kolor\"]": {
+  "klasa": [
+   "akryl uzupelnien",
+   "inne",
+   "kolor"
+  ],
+  "dopisek": "Kolor",
+  "zabieg": "Dopełnienie akrylem — Kolor",
+  "druga": "Dopełnienie (akryl)",
+  "oferta": "5760168#0",
+  "score": 1.15,
+  "rozklad": {
+   "0": 0.35,
+   "1": 0.15,
+   "2": 0.5
+  }
+ },
+ "[\"usuwan\", \"rdzen\", \"makijaz permanentn\"]": {
+  "klasa": [
+   "usuwan",
+   "rdzen",
+   "makijaz permanentn"
+  ],
+  "dopisek": "makijażu permanentnego",
+  "zabieg": "Usuwanie makijażu permanentnego — Usuwanie makijażu permanentnego",
+  "druga": "Ściągnięcie",
+  "oferta": "6754893",
+  "score": 1.54,
+  "rozklad": {
+   "0": 0.11,
+   "1": 0.23,
+   "2": 0.66
+  }
+ },
+ "[\"akryl hybryd uzupelnien\", \"rdzen\", \"paznokc\"]": {
+  "klasa": [
+   "akryl hybryd uzupelnien",
+   "rdzen",
+   "paznokc"
+  ],
+  "dopisek": "paznokci",
+  "zabieg": "Dopełnienie paznokci akrylem + hybryda",
+  "druga": "Uzupełnienie akryl z hybrydą",
+  "oferta": "5951731",
+  "score": 0.12,
+  "rozklad": {
+   "0": 0.89,
+   "1": 0.1,
+   "2": 0.01
+  }
+ },
+ "[\"akryl malowan uzupelnien\", \"wylaczenie\", \"bez\"]": {
+  "klasa": [
+   "akryl malowan uzupelnien",
+   "wylaczenie",
+   "bez"
+  ],
+  "dopisek": "Bez",
+  "zabieg": "Uzupełnienie żel/akryl Bez Malowania — Uzupełnienie żel/akryl po 4 tygodni",
+  "druga": "Uzupełnienie akry + malowanie",
+  "oferta": "6204878",
+  "score": 1.97,
+  "rozklad": {
+   "0": 0.01,
+   "1": 0.01,
+   "2": 0.98
+  }
+ },
+ "[\"akryl malowan uzupelnien\", \"etap\", \"4 po tyg\"]": {
+  "klasa": [
+   "akryl malowan uzupelnien",
+   "etap",
+   "4 po tyg"
+  ],
+  "dopisek": "po 4 tygodni",
+  "zabieg": "Uzupełnienie żel/akryl Bez Malowania — Uzupełnienie żel/akryl po 4 tygodni",
+  "druga": "Uzupełnienie akry + malowanie",
+  "oferta": "6204878",
+  "score": 0.82,
+  "rozklad": {
+   "0": 0.55,
+   "1": 0.07,
+   "2": 0.38
+  }
+ },
+ "[\"laser peeling twarz\", \"gdzie_ile\", \"piekn prze\"]": {
+  "klasa": [
+   "laser peeling twarz",
+   "gdzie_ile",
+   "piekn prze"
+  ],
+  "dopisek": "PRZE💓PIĘKNEJ",
+  "zabieg": "Laserowy Peling Weglowy Twarz",
+  "druga": "Peeling laserowy twarzy — Peeling laserowy twarzy",
+  "oferta": "5851470",
+  "score": 0.08,
+  "rozklad": {
+   "0": 0.93,
+   "1": 0.07,
+   "2": 0.0
+  }
+ },
+ "[\"laser peeling twarz\", \"gdzie_ile\", \"dekolt piekn prze szyj\"]": {
+  "klasa": [
+   "laser peeling twarz",
+   "gdzie_ile",
+   "dekolt piekn prze szyj"
+  ],
+  "dopisek": "Szyja Dekolt PRZE💓PIĘKNEJ",
+  "zabieg": "Laserowy pelling Twarz + Szyja + Dekolt",
+  "druga": "Peeling laserowy twarzy — Peeling laserowy twarzy",
+  "oferta": "5865173",
+  "score": 1.71,
+  "rozklad": {
+   "0": 0.12,
+   "1": 0.05,
+   "2": 0.83
+  }
+ },
+ "[\"laser peeling twarz\", \"gdzie_ile\", \"piekn prze szyj\"]": {
+  "klasa": [
+   "laser peeling twarz",
+   "gdzie_ile",
+   "piekn prze szyj"
+  ],
+  "dopisek": "Szyja PRZE💓PIĘKNEJ",
+  "zabieg": "Laserowy Peling Weglowy Twarz + Szyja",
+  "druga": "Peeling laserowy twarzy — Peeling laserowy twarzy",
+  "oferta": "5865174",
+  "score": 1.21,
+  "rozklad": {
+   "0": 0.37,
+   "1": 0.05,
+   "2": 0.58
+  }
+ },
+ "[\"akryl malowan uzupelnien\", \"rdzen\", \"zelow\"]": {
+  "klasa": [
+   "akryl malowan uzupelnien",
+   "rdzen",
+   "zelow"
+  ],
+  "dopisek": "żel/akryl",
+  "zabieg": "Uzupełnienie żel/akryl Bez Malowania — Uzupełnienie żel/akryl po 4 tygodni",
+  "druga": "Uzupełnienie akry + malowanie",
+  "oferta": "6204878",
+  "score": 1.58,
+  "rozklad": {
+   "0": 0.17,
+   "1": 0.07,
+   "2": 0.76
+  }
+ },
+ "[\"akryl malowan uzupelnien\", \"rdzen\", \"hybryd zelow\"]": {
+  "klasa": [
+   "akryl malowan uzupelnien",
+   "rdzen",
+   "hybryd zelow"
+  ],
+  "dopisek": "żel hybrydowym",
+  "zabieg": "uzupełnienie Akryl/ żel z malowaniem hybrydowym",
+  "druga": "Uzupełnienie akry + malowanie",
+  "oferta": "6259919",
+  "score": 1.09,
+  "rozklad": {
+   "0": 0.36,
+   "1": 0.19,
+   "2": 0.45
+  }
+ },
+ "[\"karboksyterap oczu\", \"gdzie_ile\", \"oko okolic wokol\"]": {
+  "klasa": [
+   "karboksyterap oczu",
+   "gdzie_ile",
+   "oko okolic wokol"
+  ],
+  "dopisek": "Oko okolica wokół",
+  "zabieg": "Karboksyterapia — Oko - okolica wokół oczu",
+  "druga": "Karboksyterapia oczy",
+  "oferta": "6832074#0",
+  "score": 0.63,
+  "rozklad": {
+   "0": 0.65,
+   "1": 0.08,
+   "2": 0.27
+  }
+ },
+ "[\"karboksyterap oczu\", \"gdzie_ile\", \"obie oko okolic powiek wokol\"]": {
+  "klasa": [
+   "karboksyterap oczu",
+   "gdzie_ile",
+   "obie oko okolic powiek wokol"
+  ],
+  "dopisek": "Oko okolica wokół obie powieki",
+  "zabieg": "Karboksyterapia — Oko - okolica wokół oczu + obie powieki",
+  "druga": "Karboksyterapia oczy",
+  "oferta": "6832074#6",
+  "score": 1.11,
+  "rozklad": {
+   "0": 0.42,
+   "1": 0.05,
+   "2": 0.53
+  }
+ },
+ "[\"karboksyterap oczu\", \"sesje\", \"4 pakiet\"]": {
+  "klasa": [
+   "karboksyterap oczu",
+   "sesje",
+   "4 pakiet"
+  ],
+  "dopisek": "Pakiet 4",
+  "zabieg": "Karboksyterapia okolic oczu. Pakiet 4 zabiegów. — Karboksyterapia okolic oczu. Pakiet 4 zabiegów.",
+  "druga": "Karboksyterapia oczy",
+  "oferta": "5947050",
+  "score": 1.92,
+  "rozklad": {
+   "0": 0.02,
+   "1": 0.04,
+   "2": 0.94
+  }
+ },
+ "[\"karboksyterap oczu\", \"rdzen\", \"concert\"]": {
+  "klasa": [
+   "karboksyterap oczu",
+   "rdzen",
+   "concert"
+  ],
+  "dopisek": "Concerto",
+  "zabieg": "Karboksyterapia okolic oczu. Pakiet 4 zabiegów. — Karboksyterapia okolic oczu. Pakiet 4 zabiegów.",
+  "druga": "Karboksyterapia oczy",
+  "oferta": "5947050",
+  "score": 0.94,
+  "rozklad": {
+   "0": 0.23,
+   "1": 0.6,
+   "2": 0.17
+  }
+ },
+ "[\"karboksyterap oczu\", \"gdzie_ile\", \"doln gorn okolic powiek\"]": {
+  "klasa": [
+   "karboksyterap oczu",
+   "gdzie_ile",
+   "doln gorn okolic powiek"
+  ],
+  "dopisek": "okolic (górna dolna powieka)",
+  "zabieg": "Karboksyterapia okolic oczu (górna i dolna powieka) — Karboksyterapia okolic oczu (górna i dolna powieka)",
+  "druga": "Karboksyterapia oczy",
+  "oferta": "5947049",
+  "score": 1.0,
+  "rozklad": {
+   "0": 0.42,
+   "1": 0.15,
+   "2": 0.43
+  }
+ },
+ "[\"karboksyterap oczu\", \"gdzie_ile\", \"okolic\"]": {
+  "klasa": [
+   "karboksyterap oczu",
+   "gdzie_ile",
+   "okolic"
+  ],
+  "dopisek": "okolic",
+  "zabieg": "Karboksyterapia okolic oczu. Pakiet 4 zabiegów. — Karboksyterapia okolic oczu. Pakiet 4 zabiegów.",
+  "druga": "Karboksyterapia oczy",
+  "oferta": "5947050",
+  "score": 0.62,
+  "rozklad": {
+   "0": 0.6,
+   "1": 0.18,
+   "2": 0.22
+  }
+ },
+ "[\"karboksyterap oczu\", \"inne\", \"mimiczn okolic rewitalizacj zmarszczk\"]": {
+  "klasa": [
+   "karboksyterap oczu",
+   "inne",
+   "mimiczn okolic rewitalizacj zmarszczk"
+  ],
+  "dopisek": "Rewitalizacja zmarszczki mimiczne okolicy",
+  "zabieg": "Karboksyterapia - Twarz — Rewitalizacja + zmarszczki mimiczne okolicy oczu",
+  "druga": "Karboksyterapia oczy",
+  "oferta": "6866977#1",
+  "score": 1.15,
+  "rozklad": {
+   "0": 0.36,
+   "1": 0.14,
+   "2": 0.5
+  }
+ },
+ "[\"karboksyterap oczu\", \"gdzie_ile\", \"dekolt okolic szyj twarz\"]": {
+  "klasa": [
+   "karboksyterap oczu",
+   "gdzie_ile",
+   "dekolt okolic szyj twarz"
+  ],
+  "dopisek": "Twarz okolica szyja dekolt",
+  "zabieg": "Karboksyterapia - Twarz — Twarz + okolica oczu + szyja + dekolt",
+  "druga": "Karboksyterapia oczy",
+  "oferta": "6866977#5",
+  "score": 1.93,
+  "rozklad": {
+   "0": 0.02,
+   "1": 0.03,
+   "2": 0.95
+  }
+ },
+ "[\"karboksyterap oczu\", \"gdzie_ile\", \"okolic twarz\"]": {
+  "klasa": [
+   "karboksyterap oczu",
+   "gdzie_ile",
+   "okolic twarz"
+  ],
+  "dopisek": "Twarz okolica",
+  "zabieg": "Karboksyterapia - Twarz — Twarz + okolica oczu",
+  "druga": "Karboksyterapia oczy",
+  "oferta": "6866977#6",
+  "score": 1.69,
+  "rozklad": {
+   "0": 0.11,
+   "1": 0.09,
+   "2": 0.8
+  }
+ },
+ "[\"karboksyterap oczu\", \"rdzen\", \"aparat bezigl\"]": {
+  "klasa": [
+   "karboksyterap oczu",
+   "rdzen",
+   "aparat bezigl"
+  ],
+  "dopisek": "bezigłowa aparatem",
+  "zabieg": "Karboksyterapia bezigłowa aparatem wokół oczu",
+  "druga": "Karboksyterapia oczy",
+  "oferta": "4891638",
+  "score": 1.67,
+  "rozklad": {
+   "0": 0.11,
+   "1": 0.1,
+   "2": 0.79
+  }
+ },
+ "[\"karboksyterap oczu\", \"gdzie_ile\", \"dol gora okolic\"]": {
+  "klasa": [
+   "karboksyterap oczu",
+   "gdzie_ile",
+   "dol gora okolic"
+  ],
+  "dopisek": "okolica góra dół",
+  "zabieg": "okolica oczu - góra , dół",
+  "druga": "Karboksyterapia oczy",
+  "oferta": "5975542",
+  "score": 0.66,
+  "rozklad": {
+   "0": 0.6,
+   "1": 0.14,
+   "2": 0.26
+  }
+ },
+ "[\"karboksyterap oczu\", \"gdzie_ile\", \"wokol\"]": {
+  "klasa": [
+   "karboksyterap oczu",
+   "gdzie_ile",
+   "wokol"
+  ],
+  "dopisek": "wokół",
+  "zabieg": "Karboksyterapia bezigłowa aparatem wokół oczu",
+  "druga": "Karboksyterapia oczy",
+  "oferta": "4891638",
+  "score": 1.51,
+  "rozklad": {
+   "0": 0.19,
+   "1": 0.11,
+   "2": 0.7
+  }
+ },
+ "[\"karboksyterap oczu\", \"sesje\", \"6 pakiet\"]": {
+  "klasa": [
+   "karboksyterap oczu",
+   "sesje",
+   "6 pakiet"
+  ],
+  "dopisek": "pakiet 6",
+  "zabieg": "okolica oczu - góra , dół - pakiet 6 zabiegów",
+  "druga": "Karboksyterapia oczy",
+  "oferta": "5975543",
+  "score": 1.87,
+  "rozklad": {
+   "0": 0.04,
+   "1": 0.06,
+   "2": 0.9
+  }
+ },
+ "[\"bikin depilacj laser\", \"gdzie_ile\", \"posladk szpar\"]": {
+  "klasa": [
+   "bikin depilacj laser",
+   "gdzie_ile",
+   "posladk szpar"
+  ],
+  "dopisek": "szpara pośladkowa",
+  "zabieg": "Epilacja laserowa - bikini + szpara pośladkowa",
+  "druga": "Depilacja laserowa bikini",
+  "oferta": "5934516",
+  "score": 1.96,
+  "rozklad": {
+   "0": 0.01,
+   "1": 0.02,
+   "2": 0.97
+  }
+ },
+ "[\"bikin depilacj laser\", \"wylaczenie\", \"bez posladk szpar\"]": {
+  "klasa": [
+   "bikin depilacj laser",
+   "wylaczenie",
+   "bez posladk szpar"
+  ],
+  "dopisek": "bez szpary pośl",
+  "zabieg": "Epilacja laserowa - Bikini pełne (bez szpary pośl) — 8 zabiegów",
+  "druga": "Depilacja laserowa bikini",
+  "oferta": "5579801#1",
+  "score": 1.71,
+  "rozklad": {
+   "0": 0.11,
+   "1": 0.08,
+   "2": 0.81
+  }
+ },
+ "[\"bikin depilacj laser\", \"inne\", \"cale\"]": {
+  "klasa": [
+   "bikin depilacj laser",
+   "inne",
+   "cale"
+  ],
+  "dopisek": "pełne",
+  "zabieg": "Epilacja laserowa bikini pełne",
+  "druga": "Depilacja laserowa bikini",
+  "oferta": "7343963",
+  "score": 1.55,
+  "rozklad": {
+   "0": 0.12,
+   "1": 0.2,
+   "2": 0.68
+  }
+ },
+ "[\"bikin depilacj laser\", \"inne\", \"niepeln\"]": {
+  "klasa": [
+   "bikin depilacj laser",
+   "inne",
+   "niepeln"
+  ],
+  "dopisek": "niepełne",
+  "zabieg": "Epilacja laserowa bikini niepełne",
+  "druga": "Depilacja laserowa bikini",
+  "oferta": "7343960",
+  "score": 1.8,
+  "rozklad": {
+   "0": 0.05,
+   "1": 0.1,
+   "2": 0.85
+  }
+ },
+ "[\"bikin depilacj laser\", \"gdzie_ile\", \"cale posladk szpar\"]": {
+  "klasa": [
+   "bikin depilacj laser",
+   "gdzie_ile",
+   "cale posladk szpar"
+  ],
+  "dopisek": "pełne szparą poślad",
+  "zabieg": "Epilacja laserowa  - Bikini pełne ze szparą poślad — pakiet 4 zabiegów",
+  "druga": "Depilacja laserowa bikini",
+  "oferta": "5579814#0",
+  "score": 1.88,
+  "rozklad": {
+   "0": 0.04,
+   "1": 0.04,
+   "2": 0.92
+  }
+ },
+ "[\"bikin depilacj laser\", \"sesje\", \"4 pakiet\"]": {
+  "klasa": [
+   "bikin depilacj laser",
+   "sesje",
+   "4 pakiet"
+  ],
+  "dopisek": "pakiet 4",
+  "zabieg": "Epilacja laserowa - Bikini pełne (bez szpary pośl) — pakiet 4 zabiegów",
+  "druga": "Depilacja laserowa bikini",
+  "oferta": "5579801#2",
+  "score": 1.91,
+  "rozklad": {
+   "0": 0.03,
+   "1": 0.03,
+   "2": 0.94
+  }
+ },
+ "[\"bikin depilacj laser\", \"inne\", \"1\"]": {
+  "klasa": [
+   "bikin depilacj laser",
+   "inne",
+   "1"
+  ],
+  "dopisek": "1",
+  "zabieg": "Epilacja laserowa  - Bikini pełne ze szparą poślad — 1 zabieg",
+  "druga": "Depilacja laserowa bikini",
+  "oferta": "5579814#1",
+  "score": 0.76,
+  "rozklad": {
+   "0": 0.55,
+   "1": 0.15,
+   "2": 0.3
+  }
+ },
+ "[\"bikin depilacj laser\", \"sesje\", \"8 pakiet\"]": {
+  "klasa": [
+   "bikin depilacj laser",
+   "sesje",
+   "8 pakiet"
+  ],
+  "dopisek": "pakiet 8",
+  "zabieg": "Epilacja laserowa  - Bikini pełne ze szparą poślad — pakiet 8 zabiegów",
+  "druga": "Depilacja laserowa bikini",
+  "oferta": "5579814#2",
+  "score": 1.92,
+  "rozklad": {
+   "0": 0.02,
+   "1": 0.04,
+   "2": 0.94
+  }
+ },
+ "[\"bikin depilacj laser\", \"gdzie_ile\", \"1 podstaw\"]": {
+  "klasa": [
+   "bikin depilacj laser",
+   "gdzie_ile",
+   "1 podstaw"
+  ],
+  "dopisek": "zwykłe 1",
+  "zabieg": "Epilacja laserowa Primelase - Bikini zwykłe — 1 zabieg",
+  "druga": "Depilacja laserowa bikini",
+  "oferta": "5579802#0",
+  "score": 0.73,
+  "rozklad": {
+   "0": 0.52,
+   "1": 0.23,
+   "2": 0.25
+  }
+ },
+ "[\"bikin depilacj laser\", \"gdzie_ile\", \"podstaw\"]": {
+  "klasa": [
+   "bikin depilacj laser",
+   "gdzie_ile",
+   "podstaw"
+  ],
+  "dopisek": "zwykłe",
+  "zabieg": "Epilacja laserowa Primelase - Bikini zwykłe — Pakiet 8 zabiegów",
+  "druga": "Depilacja laserowa bikini",
+  "oferta": "5579802#1",
+  "score": 0.76,
+  "rozklad": {
+   "0": 0.51,
+   "1": 0.22,
+   "2": 0.27
+  }
+ },
+ "[\"bikin depilacj laser\", \"gdzie_ile\", \"cale nogi\"]": {
+  "klasa": [
+   "bikin depilacj laser",
+   "gdzie_ile",
+   "cale nogi"
+  ],
+  "dopisek": "całe nogi",
+  "zabieg": "Epilacja laserowa całe nogi + bikini",
+  "druga": "Depilacja laserowa bikini",
+  "oferta": "7343980",
+  "score": 1.97,
+  "rozklad": {
+   "0": 0.01,
+   "1": 0.02,
+   "2": 0.97
+  }
+ },
+ "[\"bikin depilacj laser\", \"gdzie_ile\", \"pachwin plytk\"]": {
+  "klasa": [
+   "bikin depilacj laser",
+   "gdzie_ile",
+   "pachwin plytk"
+  ],
+  "dopisek": "płytkie (pachwiny)",
+  "zabieg": "Bikini płytkie (pachwiny) - Laser Epilacja",
+  "druga": "Depilacja laserowa bikini",
+  "oferta": "5533485",
+  "score": 1.74,
+  "rozklad": {
+   "0": 0.1,
+   "1": 0.06,
+   "2": 0.84
+  }
+ },
+ "[\"bikin depilacj laser\", \"rdzen\", \"plytk\"]": {
+  "klasa": [
+   "bikin depilacj laser",
+   "rdzen",
+   "plytk"
+  ],
+  "dopisek": "płytkie",
+  "zabieg": "Epilacja - bikini płytkie — Epilacja - bikini płytkie",
+  "druga": "Depilacja laserowa bikini",
+  "oferta": "7342686",
+  "score": 1.7,
+  "rozklad": {
+   "0": 0.11,
+   "1": 0.08,
+   "2": 0.81
+  }
+ },
+ "[\"bikin depilacj klasyczn laser\", \"rdzen\", \"vectus\"]": {
+  "klasa": [
+   "bikin depilacj klasyczn laser",
+   "rdzen",
+   "vectus"
+  ],
+  "dopisek": "Vectus VECTUS",
+  "zabieg": "Depilacja Vectus Bikini Klasyczne — Depilacja Vectus Bikini Klasyczne",
+  "druga": "Depilacja bikini klasyczne",
+  "oferta": "7272234",
+  "score": 1.63,
+  "rozklad": {
+   "0": 0.1,
+   "1": 0.17,
+   "2": 0.73
+  }
+ },
+ "[\"bikin depilacj klasyczn laser\", \"etap\", \"kolejn\"]": {
+  "klasa": [
+   "bikin depilacj klasyczn laser",
+   "etap",
+   "kolejn"
+  ],
+  "dopisek": "Kolejny",
+  "zabieg": "Epilacja bikini klasycznego — Kolejny zabieg",
+  "druga": "Depilacja bikini klasyczne",
+  "oferta": "5709516#0",
+  "score": 1.58,
+  "rozklad": {
+   "0": 0.18,
+   "1": 0.06,
+   "2": 0.76
+  }
+ },
+ "[\"bikin depilacj klasyczn laser\", \"etap\", \"pierwsz\"]": {
+  "klasa": [
+   "bikin depilacj klasyczn laser",
+   "etap",
+   "pierwsz"
+  ],
+  "dopisek": "Pierwszy",
+  "zabieg": "Epilacja bikini klasycznego — Pierwszy zabieg",
+  "druga": "Depilacja bikini klasyczne",
+  "oferta": "5709516#1",
+  "score": 1.51,
+  "rozklad": {
+   "0": 0.21,
+   "1": 0.08,
+   "2": 0.71
+  }
+ },
+ "[\"usuwan zelow\", \"inne\", \"przedluzen\"]": {
+  "klasa": [
+   "usuwan zelow",
+   "inne",
+   "przedluzen"
+  ],
+  "dopisek": "przedłużenia",
+  "zabieg": "Zdjęcie przedłużenia żelowego",
+  "druga": "Zdjęcie żeli",
+  "oferta": "49750524",
+  "score": 0.66,
+  "rozklad": {
+   "0": 0.59,
+   "1": 0.17,
+   "2": 0.24
+  }
+ },
+ "[\"hybryd manicur szkolen\", \"inne\", \"2 dni od podstaw\"]": {
+  "klasa": [
+   "hybryd manicur szkolen",
+   "inne",
+   "2 dni od podstaw"
+  ],
+  "dopisek": "2-dni od Podstaw",
+  "zabieg": "💅 Manicure Hybrydowy od Podstaw | Szkolenie 2-dni",
+  "druga": "Kurs „Manicure Hybrydowy”",
+  "oferta": "6827535",
+  "score": 1.5,
+  "rozklad": {
+   "0": 0.16,
+   "1": 0.18,
+   "2": 0.66
+  }
+ },
+ "[\"modelowan sombr sredn strzyzen wlos\", \"gdzie_ile\", \"krotk\"]": {
+  "klasa": [
+   "modelowan sombr sredn strzyzen wlos",
+   "gdzie_ile",
+   "krotk"
+  ],
+  "dopisek": "krótkie",
+  "zabieg": "Sombre/balayage+strzyżenie+modelowanie — włosy krótkie /średnie",
+  "druga": "Sombre + strzyżenie + modelownie włosy średnie",
+  "oferta": "5799858#0",
+  "score": 0.97,
+  "rozklad": {
+   "0": 0.46,
+   "1": 0.11,
+   "2": 0.43
+  }
+ },
+ "[\"modelowan sombr sredn strzyzen wlos\", \"rdzen\", \"baleyag\"]": {
+  "klasa": [
+   "modelowan sombr sredn strzyzen wlos",
+   "rdzen",
+   "baleyag"
+  ],
+  "dopisek": "Sombre/balayage",
+  "zabieg": "Sombre/balayage+strzyżenie+modelowanie — włosy krótkie /średnie",
+  "druga": "Sombre + strzyżenie + modelownie włosy średnie",
+  "oferta": "5799858#0",
+  "score": 0.5,
+  "rozklad": {
+   "0": 0.69,
+   "1": 0.12,
+   "2": 0.19
+  }
+ },
+ "[\"modelowan sredn strzyzen wlos\", \"rdzen\", \"sombr\"]": {
+  "klasa": [
+   "modelowan sredn strzyzen wlos",
+   "rdzen",
+   "sombr"
+  ],
+  "dopisek": "Sombre",
+  "zabieg": "Sombre + strzyżenie + modelownie włosy średnie",
+  "druga": "Strzyżenie +modelowanie, włosy średnie",
+  "oferta": "48677131",
+  "score": 1.99,
+  "rozklad": {
+   "0": 0.0,
+   "1": 0.01,
+   "2": 0.99
+  }
+ },
+ "[\"brwi koloryzacj regulacj rzes\", \"rdzen\", \"farbk\"]": {
+  "klasa": [
+   "brwi koloryzacj regulacj rzes",
+   "rdzen",
+   "farbk"
+  ],
+  "dopisek": "farbka",
+  "zabieg": "Koloryzacja brwi i rzęs - farbka + regulacja",
+  "druga": "Farbowanie brwi + rzęs z regulacją",
+  "oferta": "6299977",
+  "score": 0.9,
+  "rozklad": {
+   "0": 0.48,
+   "1": 0.15,
+   "2": 0.37
+  }
+ },
+ "[\"brwi koloryzacj regulacj rzes\", \"rdzen\", \"lifting\"]": {
+  "klasa": [
+   "brwi koloryzacj regulacj rzes",
+   "rdzen",
+   "lifting"
+  ],
+  "dopisek": "Lifting",
+  "zabieg": "Lifting rzęs + koloryzacja brwi + regulacja",
+  "druga": "Farbowanie brwi + rzęs z regulacją",
+  "oferta": "6282015",
+  "score": 1.91,
+  "rozklad": {
+   "0": 0.01,
+   "1": 0.06,
+   "2": 0.93
+  }
+ },
+ "[\"brwi koloryzacj regulacj rzes\", \"rdzen\", \"usuwan\"]": {
+  "klasa": [
+   "brwi koloryzacj regulacj rzes",
+   "rdzen",
+   "usuwan"
+  ],
+  "dopisek": "Zdjęcie",
+  "zabieg": "Zdjęcie rzęs + koloryzacja brwi + regulacja",
+  "druga": "Farbowanie brwi + rzęs z regulacją",
+  "oferta": "6282017",
+  "score": 1.81,
+  "rozklad": {
+   "0": 0.06,
+   "1": 0.08,
+   "2": 0.86
+  }
+ },
+ "[\"dzieck strzyzen\", \"rdzen\", \"mesk\"]": {
+  "klasa": [
+   "dzieck strzyzen",
+   "rdzen",
+   "mesk"
+  ],
+  "dopisek": "męskie",
+  "zabieg": "Dzieciak — Starszy Barber",
+  "druga": "Strzyżenie Dziecko",
+  "oferta": "54197103#0",
+  "score": 1.09,
+  "rozklad": {
+   "0": 0.34,
+   "1": 0.22,
+   "2": 0.44
+  }
+ },
+ "[\"dzieck strzyzen\", \"gdzie_ile\", \"wlos\"]": {
+  "klasa": [
+   "dzieck strzyzen",
+   "gdzie_ile",
+   "wlos"
+  ],
+  "dopisek": "WŁOSY",
+  "zabieg": "Dzieciak — Starszy Barber",
+  "druga": "Strzyżenie Dziecko",
+  "oferta": "54197103#0",
+  "score": 0.45,
+  "rozklad": {
+   "0": 0.66,
+   "1": 0.22,
+   "2": 0.12
+  }
+ },
+ "[\"dzieck strzyzen\", \"inne\", \"barber\"]": {
+  "klasa": [
+   "dzieck strzyzen",
+   "inne",
+   "barber"
+  ],
+  "dopisek": "barber",
+  "zabieg": "Dzieciak — Junior Barber",
+  "druga": "Strzyżenie Dziecko",
+  "oferta": "54197103#1",
+  "score": 0.61,
+  "rozklad": {
+   "0": 0.52,
+   "1": 0.34,
+   "2": 0.14
+  }
+ },
+ "[\"dzieck strzyzen\", \"gdzie_ile\", \"junior wlos\"]": {
+  "klasa": [
+   "dzieck strzyzen",
+   "gdzie_ile",
+   "junior wlos"
+  ],
+  "dopisek": "Junior WŁOSY",
+  "zabieg": "Dzieciak — Junior Barber",
+  "druga": "Strzyżenie Dziecko",
+  "oferta": "54197103#1",
+  "score": 0.9,
+  "rozklad": {
+   "0": 0.42,
+   "1": 0.27,
+   "2": 0.31
+  }
+ },
+ "[\"bikin depilacj lycon wosk\", \"gdzie_ile\", \"brazylijsk\"]": {
+  "klasa": [
+   "bikin depilacj lycon wosk",
+   "gdzie_ile",
+   "brazylijsk"
+  ],
+  "dopisek": "Brazylian",
+  "zabieg": "Depilacja woskiem Lycon - Bikini Brazylian",
+  "druga": "Depilacja bikini Lycon",
+  "oferta": "6432689",
+  "score": 1.82,
+  "rozklad": {
+   "0": 0.05,
+   "1": 0.08,
+   "2": 0.87
+  }
+ },
+ "[\"bikin depilacj glebok wosk\", \"rdzen\", \"cukier\"]": {
+  "klasa": [
+   "bikin depilacj glebok wosk",
+   "rdzen",
+   "cukier"
+  ],
+  "dopisek": "cukier",
+  "zabieg": "Depilacja wosk/cukier bikini głębokie",
+  "druga": "Depilacja bikini głębokie",
+  "oferta": "7219821",
+  "score": 0.58,
+  "rozklad": {
+   "0": 0.64,
+   "1": 0.13,
+   "2": 0.23
+  }
+ },
+ "[\"bikin depilacj lycon wosk\", \"gdzie_ile\", \"sredn\"]": {
+  "klasa": [
+   "bikin depilacj lycon wosk",
+   "gdzie_ile",
+   "sredn"
+  ],
+  "dopisek": "średnie",
+  "zabieg": "Depilacja woskiem lycon - bikini średnie",
+  "druga": "Depilacja bikini Lycon",
+  "oferta": "6744873",
+  "score": 1.54,
+  "rozklad": {
+   "0": 0.18,
+   "1": 0.11,
+   "2": 0.71
+  }
+ },
+ "[\"dzieck strzyzen\", \"gdzie_ile\", \"chlopc\"]": {
+  "klasa": [
+   "dzieck strzyzen",
+   "gdzie_ile",
+   "chlopc"
+  ],
+  "dopisek": "Chłopiec",
+  "zabieg": "Strzyżenie Dziecka Chłopiec",
+  "druga": "Strzyżenie Dziecko",
+  "oferta": "5823442",
+  "score": 1.44,
+  "rozklad": {
+   "0": 0.21,
+   "1": 0.15,
+   "2": 0.64
+  }
+ },
+ "[\"depilacj laser\", \"gdzie_ile\", \"brzuch\"]": {
+  "klasa": [
+   "depilacj laser",
+   "gdzie_ile",
+   "brzuch"
+  ],
+  "dopisek": "Brzuch",
+  "zabieg": "EPILACJA LASEROWA — Brzuch",
+  "druga": "Depilacja laserowa",
+  "oferta": "5042075#15",
+  "score": 1.92,
+  "rozklad": {
+   "0": 0.03,
+   "1": 0.03,
+   "2": 0.94
+  }
+ },
+ "[\"bikin depilacj klasyczn\", \"gdzie_ile\", \"pach\"]": {
+  "klasa": [
+   "bikin depilacj klasyczn",
+   "gdzie_ile",
+   "pach"
+  ],
+  "dopisek": "Pachy",
+  "zabieg": "Depilacja Bikini Classic+Pachy",
+  "druga": "Depilacja: bikini klasyczne",
+  "oferta": "6775177",
+  "score": 1.97,
+  "rozklad": {
+   "0": 0.01,
+   "1": 0.01,
+   "2": 0.98
+  }
+ },
+ "[\"dzieck strzyzen\", \"gdzie_ile\", \"dziewczynk\"]": {
+  "klasa": [
+   "dzieck strzyzen",
+   "gdzie_ile",
+   "dziewczynk"
+  ],
+  "dopisek": "Dziewczynka",
+  "zabieg": "Strzyżenie dziecka  Dziewczynka",
+  "druga": "Strzyżenie Dziecko",
+  "oferta": "5823438",
+  "score": 1.53,
+  "rozklad": {
+   "0": 0.16,
+   "1": 0.14,
+   "2": 0.7
+  }
+ },
+ "[\"bikin depilacj klasyczn\", \"gdzie_ile\", \"nogi\"]": {
+  "klasa": [
+   "bikin depilacj klasyczn",
+   "gdzie_ile",
+   "nogi"
+  ],
+  "dopisek": "Nogi",
+  "zabieg": "Depilacja Bikini Classic+Nogi",
+  "druga": "Depilacja: bikini klasyczne",
+  "oferta": "6775178",
+  "score": 1.98,
+  "rozklad": {
+   "0": 0.0,
+   "1": 0.01,
+   "2": 0.99
+  }
+ },
+ "[\"bikin depilacj lycon wosk\", \"gdzie_ile\", \"uda\"]": {
+  "klasa": [
+   "bikin depilacj lycon wosk",
+   "gdzie_ile",
+   "uda"
+  ],
+  "dopisek": "uda+bikini",
+  "zabieg": "Wosk uda+bikini — Wosk uda+bikini",
+  "druga": "Depilacja bikini Lycon",
+  "oferta": "6748101",
+  "score": 1.94,
+  "rozklad": {
+   "0": 0.01,
+   "1": 0.03,
+   "2": 0.96
+  }
+ },
+ "[\"bikin depilacj lycon wosk\", \"gdzie_ile\", \"klasyczn\"]": {
+  "klasa": [
+   "bikin depilacj lycon wosk",
+   "gdzie_ile",
+   "klasyczn"
+  ],
+  "dopisek": "klasyczne",
+  "zabieg": "Depilacja woskiem Lycon - bikini klasyczne",
+  "druga": "Depilacja bikini Lycon",
+  "oferta": "6432678",
+  "score": 0.71,
+  "rozklad": {
+   "0": 0.56,
+   "1": 0.17,
+   "2": 0.27
+  }
+ },
+ "[\"brod strzyzen\", \"gdzie_ile\", \"15cm dlug od wlos\"]": {
+  "klasa": [
+   "brod strzyzen",
+   "gdzie_ile",
+   "15cm dlug od wlos"
+  ],
+  "dopisek": "włosów Włosy długie od",
+  "zabieg": "Combo (strzyżenie włosów i brody) — Włosy długie od 15 cm",
+  "druga": "Strzyżenie brody",
+  "oferta": "2792738#1",
+  "score": 1.85,
+  "rozklad": {
+   "0": 0.06,
+   "1": 0.03,
+   "2": 0.91
+  }
+ },
+ "[\"odsiwian strzyzen wlos\", \"gdzie_ile\", \"15cm do krotk\"]": {
+  "klasa": [
+   "odsiwian strzyzen wlos",
+   "gdzie_ile",
+   "15cm do krotk"
+  ],
+  "dopisek": "krótkie do",
+  "zabieg": "Strzyżenie włosów + odsiwianie — Włosy krótkie do 15 cm",
+  "druga": "Strzyżenie Włosów + odsiwianie włosów",
+  "oferta": "2792741#0",
+  "score": 1.07,
+  "rozklad": {
+   "0": 0.41,
+   "1": 0.1,
+   "2": 0.49
+  }
+ },
+ "[\"bank chinsk masaz\", \"sesje\", \"10x pakiet\"]": {
+  "klasa": [
+   "bank chinsk masaz",
+   "sesje",
+   "10x pakiet"
+  ],
+  "dopisek": "Pakiet",
+  "zabieg": "Masaż bańką chińską — Pakiet 10 x 55 minut",
+  "druga": "Masaż bańką chińską",
+  "oferta": "7348626#1",
+  "score": 1.85,
+  "rozklad": {
+   "0": 0.05,
+   "1": 0.04,
+   "2": 0.91
+  }
+ },
+ "[\"odsiwian strzyzen wlos\", \"gdzie_ile\", \"15cm dlug od\"]": {
+  "klasa": [
+   "odsiwian strzyzen wlos",
+   "gdzie_ile",
+   "15cm dlug od"
+  ],
+  "dopisek": "długie od",
+  "zabieg": "Strzyżenie włosów + odsiwianie — Włosy długie od 15 cm, oraz strzyżenie na nożyczkach",
+  "druga": "Strzyżenie Włosów + odsiwianie włosów",
+  "oferta": "6059871#1",
+  "score": 1.68,
+  "rozklad": {
+   "0": 0.12,
+   "1": 0.07,
+   "2": 0.81
+  }
+ },
+ "[\"odsiwian strzyzen wlos\", \"gdzie_ile\", \"15cm do krok\"]": {
+  "klasa": [
+   "odsiwian strzyzen wlos",
+   "gdzie_ile",
+   "15cm do krok"
+  ],
+  "dopisek": "krókie do",
+  "zabieg": "Strzyżenie włosów + odsiwianie — Włosy krókie do 15 cm",
+  "druga": "Strzyżenie Włosów + odsiwianie włosów",
+  "oferta": "6059871#0",
+  "score": 1.25,
+  "rozklad": {
+   "0": 0.33,
+   "1": 0.08,
+   "2": 0.59
+  }
+ },
+ "[\"brod strzyzen\", \"gdzie_ile\", \"15cm do krotk\"]": {
+  "klasa": [
+   "brod strzyzen",
+   "gdzie_ile",
+   "15cm do krotk"
+  ],
+  "dopisek": "krótkie do",
+  "zabieg": "Combo (strzyżenie włosów i brody) — Włosy krótkie do 15 cm",
+  "druga": "Strzyżenie brody",
+  "oferta": "2792738#0",
+  "score": 1.6,
+  "rozklad": {
+   "0": 0.17,
+   "1": 0.05,
+   "2": 0.78
+  }
+ },
+ "[\"laser sredn tatuaz usuwan\", \"gdzie_ile\", \"10cm 6x\"]": {
+  "klasa": [
+   "laser sredn tatuaz usuwan",
+   "gdzie_ile",
+   "10cm 6x"
+  ],
+  "dopisek": "10cm 6x",
+  "zabieg": "Laserowe usuwanie tatuażu — Tatuaż średni 6 x 10 cm",
+  "druga": "Laserowe usuwanie tatuażu — Średni tatuaż",
+  "oferta": "5569563#4",
+  "score": 0.91,
+  "rozklad": {
+   "0": 0.5,
+   "1": 0.09,
+   "2": 0.41
+  }
+ },
+ "[\"bank chinsk masaz\", \"inne\", \"5x pakiet\"]": {
+  "klasa": [
+   "bank chinsk masaz",
+   "inne",
+   "5x pakiet"
+  ],
+  "dopisek": "pakiet 5x",
+  "zabieg": "Masaż bańką chińską — Pakiet 5 x 55 minut",
+  "druga": "Masaż bańką chińską",
+  "oferta": "7348626#0",
+  "score": 1.86,
+  "rozklad": {
+   "0": 0.05,
+   "1": 0.05,
+   "2": 0.9
+  }
+ },
+ "[\"laser sredn tatuaz usuwan\", \"gdzie_ile\", \"10cm 10x\"]": {
+  "klasa": [
+   "laser sredn tatuaz usuwan",
+   "gdzie_ile",
+   "10cm 10x"
+  ],
+  "dopisek": "10cm 10x",
+  "zabieg": "Laserowe usuwanie tatuażu — Tatuaż średni 10 x 10 cm",
+  "druga": "Laserowe usuwanie tatuażu — Średni tatuaż",
+  "oferta": "5569563#3",
+  "score": 0.88,
+  "rozklad": {
+   "0": 0.51,
+   "1": 0.09,
+   "2": 0.4
+  }
+ },
+ "[\"sredn tonowan wlos\", \"inne\", \"20 30cm\"]": {
+  "klasa": [
+   "sredn tonowan wlos",
+   "inne",
+   "20 30cm"
+  ],
+  "dopisek": "20 30cm",
+  "zabieg": "Tonowanie włosów — Średnie włosy (20–30 cm)",
+  "druga": "Tonowanie — Tonowanie średnie włosy",
+  "oferta": "6268981#1",
+  "score": 0.08,
+  "rozklad": {
+   "0": 0.93,
+   "1": 0.06,
+   "2": 0.01
+  }
+ },
+ "[\"modelowan wlos\", \"gdzie_ile\", \"15cm damsk do dzial\"]": {
+  "klasa": [
+   "modelowan wlos",
+   "gdzie_ile",
+   "15cm damsk do dzial"
+  ],
+  "dopisek": "do Dział damski",
+  "zabieg": "Modelowanie okazjonalne wł do 15 cm",
+  "druga": "Modelowanie włosów",
+  "oferta": "48996339",
+  "score": 1.66,
+  "rozklad": {
+   "0": 0.12,
+   "1": 0.1,
+   "2": 0.78
+  }
+ },
+ "[\"dlug tonowan wlos\", \"inne\", \"30 40cm\"]": {
+  "klasa": [
+   "dlug tonowan wlos",
+   "inne",
+   "30 40cm"
+  ],
+  "dopisek": "30 40cm",
+  "zabieg": "Tonowanie włosów — Długie włosy (30–40 cm)",
+  "druga": "Tonowanie — Tonowanie długie włosy",
+  "oferta": "6268981#2",
+  "score": 0.28,
+  "rozklad": {
+   "0": 0.81,
+   "1": 0.11,
+   "2": 0.08
+  }
+ },
+ "[\"masaz\", \"sesje\", \"5x\"]": {
+  "klasa": [
+   "masaz",
+   "sesje",
+   "5x"
+  ],
+  "dopisek": "5x",
+  "zabieg": "Masaż — 5 x Masaż 60 min",
+  "druga": "Masaż 45min",
+  "oferta": "5635953#1",
+  "score": 1.96,
+  "rozklad": {
+   "0": 0.02,
+   "1": 0.01,
+   "2": 0.97
+  }
+ },
+ "[\"modelowan\", \"gdzie_ile\", \"15cm damsk do dzial\"]": {
+  "klasa": [
+   "modelowan",
+   "gdzie_ile",
+   "15cm damsk do dzial"
+  ],
+  "dopisek": "do Dział damski",
+  "zabieg": "Modelowanie okazjonalne wł do 15 cm",
+  "druga": "Modelowanie",
+  "oferta": "48996339",
+  "score": 1.61,
+  "rozklad": {
+   "0": 0.14,
+   "1": 0.12,
+   "2": 0.74
+  }
+ },
+ "[\"powiekszan ust\", \"rdzen\", \"1ml stylag\"]": {
+  "klasa": [
+   "powiekszan ust",
+   "rdzen",
+   "1ml stylag"
+  ],
+  "dopisek": "Stylage",
+  "zabieg": "Powiększanie (Wypełnianie) ust — Powiększanie (Wypełnianie) ust Stylage 1 ml",
+  "druga": "Powiększane ust",
+  "oferta": "6415217#2",
+  "score": 1.05,
+  "rozklad": {
+   "0": 0.28,
+   "1": 0.39,
+   "2": 0.33
+  }
+ },
+ "[\"krotk mesk strzyzen\", \"gdzie_ile\", \"2cm do\"]": {
+  "klasa": [
+   "krotk mesk strzyzen",
+   "gdzie_ile",
+   "2cm do"
+  ],
+  "dopisek": "(do",
+  "zabieg": "Strzyżenie męskie wł. krótkie (do 2 cm)",
+  "druga": "Strzyżenie męskie krótkie",
+  "oferta": "6805673",
+  "score": 1.06,
+  "rozklad": {
+   "0": 0.4,
+   "1": 0.13,
+   "2": 0.47
+  }
+ },
+ "[\"keratyn\", \"gdzie_ile\", \"150g\"]": {
+  "klasa": [
+   "keratyn",
+   "gdzie_ile",
+   "150g"
+  ],
+  "dopisek": "150g",
+  "zabieg": "PRZEDŁUŻENIE WŁOSÓW(keratyna) — Cena za 150 g",
+  "druga": "Keratyna",
+  "oferta": "6221034#2",
+  "score": 1.8,
+  "rozklad": {
+   "0": 0.04,
+   "1": 0.12,
+   "2": 0.84
+  }
+ },
+ "[\"keratyn\", \"gdzie_ile\", \"100g cena za\"]": {
+  "klasa": [
+   "keratyn",
+   "gdzie_ile",
+   "100g cena za"
+  ],
+  "dopisek": "Cena za",
+  "zabieg": "PRZEDŁUŻENIE WŁOSÓW(keratyna) — Cena za 100 g",
+  "druga": "Keratyna",
+  "oferta": "6221034#1",
+  "score": 1.71,
+  "rozklad": {
+   "0": 0.07,
+   "1": 0.15,
+   "2": 0.78
+  }
+ },
+ "[\"keratyn\", \"gdzie_ile\", \"200g\"]": {
+  "klasa": [
+   "keratyn",
+   "gdzie_ile",
+   "200g"
+  ],
+  "dopisek": "200g",
+  "zabieg": "PRZEDŁUŻENIE WŁOSÓW(keratyna) — Cena za 200 g",
+  "druga": "Keratyna",
+  "oferta": "6221034#3",
+  "score": 1.77,
+  "rozklad": {
+   "0": 0.05,
+   "1": 0.13,
+   "2": 0.82
+  }
+ },
+ "[\"ems trening\", \"sesje\", \"10x pakiet\"]": {
+  "klasa": [
+   "ems trening",
+   "sesje",
+   "10x pakiet"
+  ],
+  "dopisek": "Pakiet",
+  "zabieg": "Pakiet 10 x Trening EMS na leżąco",
+  "druga": "Trening EMS",
+  "oferta": "48539354",
+  "score": 1.9,
+  "rozklad": {
+   "0": 0.04,
+   "1": 0.02,
+   "2": 0.94
+  }
+ },
+ "[\"ems lezac trening\", \"sesje\", \"10x pakiet\"]": {
+  "klasa": [
+   "ems lezac trening",
+   "sesje",
+   "10x pakiet"
+  ],
+  "dopisek": "Pakiet",
+  "zabieg": "Pakiet 10 x Trening EMS na leżąco",
+  "druga": "Trening EMS na leżąco",
+  "oferta": "48539354",
+  "score": 1.9,
+  "rozklad": {
+   "0": 0.04,
+   "1": 0.02,
+   "2": 0.94
+  }
+ },
+ "[\"kobid\", \"sesje\", \"180 5x\"]": {
+  "klasa": [
+   "kobid",
+   "sesje",
+   "180 5x"
+  ],
+  "dopisek": "180",
+  "zabieg": "Masaż Liftingujacy Twarzy KOBIDO — 5 x 180",
+  "druga": "Kobido",
+  "oferta": "3403831#0",
+  "score": 1.8,
+  "rozklad": {
+   "0": 0.06,
+   "1": 0.08,
+   "2": 0.86
+  }
+ },
+ "[\"20ml iniekcyjn lipoliz\", \"inne\", \"tkank tluszcz\"]": {
+  "klasa": [
+   "20ml iniekcyjn lipoliz",
+   "inne",
+   "tkank tluszcz"
+  ],
+  "dopisek": "tkankę tłuszczową",
+  "zabieg": "Lipoliza iniekcyjna na tkankę tłuszczową 20 ml",
+  "druga": "Lipoliza iniekcyjna 20ml",
+  "oferta": "51970855",
+  "score": 0.04,
+  "rozklad": {
+   "0": 0.97,
+   "1": 0.03,
+   "2": 0.0
+  }
+ },
+ "[\"iniekcyjn lipoliz\", \"gdzie_ile\", \"20ml\"]": {
+  "klasa": [
+   "iniekcyjn lipoliz",
+   "gdzie_ile",
+   "20ml"
+  ],
+  "dopisek": "20ml",
+  "zabieg": "Lipoliza iniekcyjna na tkankę tłuszczową 20 ml",
+  "druga": "Lipoliza iniekcyjna",
+  "oferta": "51970855",
+  "score": 1.5,
+  "rozklad": {
+   "0": 0.18,
+   "1": 0.15,
+   "2": 0.67
+  }
+ },
+ "[\"kobid\", \"sesje\", \"10x\"]": {
+  "klasa": [
+   "kobid",
+   "sesje",
+   "10x"
+  ],
+  "dopisek": "10x",
+  "zabieg": "Masaż Liftingujacy Twarzy KOBIDO — 10 x 170",
+  "druga": "Kobido",
+  "oferta": "3403831#1",
+  "score": 1.87,
+  "rozklad": {
+   "0": 0.04,
+   "1": 0.05,
+   "2": 0.91
+  }
+ },
+ "[\"laser makijaz permanentn usuwan\", \"gdzie_ile\", \"30cm2 do\"]": {
+  "klasa": [
+   "laser makijaz permanentn usuwan",
+   "gdzie_ile",
+   "30cm2 do"
+  ],
+  "dopisek": "do",
+  "zabieg": "Laserowe usuwanie tatuażu i makijażu permanentnego — do 30 cm2",
+  "druga": "Laserowe usuwanie makijażu permanentnego",
+  "oferta": "6332571#1",
+  "score": 1.74,
+  "rozklad": {
+   "0": 0.07,
+   "1": 0.11,
+   "2": 0.82
+  }
+ },
+ "[\"laser makijaz permanentn usuwan\", \"gdzie_ile\", \"250cm2 do\"]": {
+  "klasa": [
+   "laser makijaz permanentn usuwan",
+   "gdzie_ile",
+   "250cm2 do"
+  ],
+  "dopisek": "do",
+  "zabieg": "Laserowe usuwanie tatuażu i makijażu permanentnego — do 250 cm2",
+  "druga": "Laserowe usuwanie makijażu permanentnego",
+  "oferta": "6332571#3",
+  "score": 1.81,
+  "rozklad": {
+   "0": 0.05,
+   "1": 0.08,
+   "2": 0.87
+  }
+ },
+ "[\"paznokc przedluzan\", \"gdzie_ile\", \"5mm od\"]": {
+  "klasa": [
+   "paznokc przedluzan",
+   "gdzie_ile",
+   "5mm od"
+  ],
+  "dopisek": "od",
+  "zabieg": "Przedłużanie paznokci — od 5 mm",
+  "druga": "Przedłużanie paznokci",
+  "oferta": "6880440#2",
+  "score": 1.15,
+  "rozklad": {
+   "0": 0.36,
+   "1": 0.13,
+   "2": 0.51
+  }
+ },
+ "[\"paznokc przedluzan\", \"gdzie_ile\", \"3mm do\"]": {
+  "klasa": [
+   "paznokc przedluzan",
+   "gdzie_ile",
+   "3mm do"
+  ],
+  "dopisek": "do",
+  "zabieg": "Przedłużanie paznokci — do 3 mm",
+  "druga": "Przedłużanie paznokci",
+  "oferta": "6880440#1",
+  "score": 1.35,
+  "rozklad": {
+   "0": 0.27,
+   "1": 0.11,
+   "2": 0.62
+  }
+ },
+ "[\"20ml iniekcyjn lipoliz\", \"gdzie_ile\", \"2 ampulk\"]": {
+  "klasa": [
+   "20ml iniekcyjn lipoliz",
+   "gdzie_ile",
+   "2 ampulk"
+  ],
+  "dopisek": "2 ampułki",
+  "zabieg": "Lipoliza 2 ampułki (20 ml)",
+  "druga": "Lipoliza iniekcyjna 20ml",
+  "oferta": "6008633",
+  "score": 0.38,
+  "rozklad": {
+   "0": 0.78,
+   "1": 0.07,
+   "2": 0.15
+  }
+ },
+ "[\"paznokc przedluzan\", \"gdzie_ile\", \"4mm do\"]": {
+  "klasa": [
+   "paznokc przedluzan",
+   "gdzie_ile",
+   "4mm do"
+  ],
+  "dopisek": "do",
+  "zabieg": "Przedłużanie paznokci — do 4 mm",
+  "druga": "Przedłużanie paznokci",
+  "oferta": "6880440#0",
+  "score": 1.36,
+  "rozklad": {
+   "0": 0.27,
+   "1": 0.11,
+   "2": 0.62
+  }
+ },
+ "[\"hybryd manicur\", \"inne\", \"innej po\"]": {
+  "klasa": [
+   "hybryd manicur",
+   "inne",
+   "innej po"
+  ],
+  "dopisek": "innej po",
+  "zabieg": "Manicure hybrydowy po innej stylistce-TOP STYLISTA",
+  "druga": "Manicure hybrydowy",
+  "oferta": "6036233",
+  "score": 1.59,
+  "rozklad": {
+   "0": 0.14,
+   "1": 0.12,
+   "2": 0.74
+  }
+ },
+ "[\"klasyczn manicur\", \"inne\", \"ceny nowa\"]": {
+  "klasa": [
+   "klasyczn manicur",
+   "inne",
+   "ceny nowa"
+  ],
+  "dopisek": "ceny nowa",
+  "zabieg": "Manicure klasyczny — Nowa stylistka – niższe ceny",
+  "druga": "Manicure klasyczny",
+  "oferta": "6923523#1",
+  "score": 0.85,
+  "rozklad": {
+   "0": 0.55,
+   "1": 0.05,
+   "2": 0.4
+  }
+ },
+ "[\"hybryd manicur\", \"inne\", \"art\"]": {
+  "klasa": [
+   "hybryd manicur",
+   "inne",
+   "art"
+  ],
+  "dopisek": "Art",
+  "zabieg": "Manicure hybrydowy — Art - Stylist",
+  "druga": "Manicure hybrydowy",
+  "oferta": "6061744#1",
+  "score": 1.09,
+  "rozklad": {
+   "0": 0.29,
+   "1": 0.33,
+   "2": 0.38
+  }
+ },
+ "[\"hybryd manicur\", \"inne\", \"nail\"]": {
+  "klasa": [
+   "hybryd manicur",
+   "inne",
+   "nail"
+  ],
+  "dopisek": "nail",
+  "zabieg": "Manicure hybrydowy Top Stylistka — TOP Stylistka NAIL🥇",
+  "druga": "Manicure hybrydowy",
+  "oferta": "6926870",
+  "score": 0.51,
+  "rozklad": {
+   "0": 0.59,
+   "1": 0.31,
+   "2": 0.1
+  }
+ },
+ "[\"cover odsiwian wlos\", \"gdzie_ile\", \"mesk\"]": {
+  "klasa": [
+   "cover odsiwian wlos",
+   "gdzie_ile",
+   "mesk"
+  ],
+  "dopisek": "męskich",
+  "zabieg": "Cover-odsiwianie włosów męskich",
+  "druga": "Odsiwianie (cover) włosy",
+  "oferta": "3848059",
+  "score": 1.24,
+  "rozklad": {
+   "0": 0.31,
+   "1": 0.14,
+   "2": 0.55
+  }
+ },
+ "[\"brod cover wlos\", \"rdzen\", \"przyciemnian\"]": {
+  "klasa": [
+   "brod cover wlos",
+   "rdzen",
+   "przyciemnian"
+  ],
+  "dopisek": "Przyciemnianie",
+  "zabieg": "Cover - Przyciemnianie Brody Lub Włosów",
+  "druga": "Cover broda/ włosy",
+  "oferta": "5677425",
+  "score": 0.12,
+  "rozklad": {
+   "0": 0.9,
+   "1": 0.07,
+   "2": 0.03
+  }
+ },
+ "[\"cover odsiwian wlos\", \"rdzen\", \"hair\"]": {
+  "klasa": [
+   "cover odsiwian wlos",
+   "rdzen",
+   "hair"
+  ],
+  "dopisek": "Hair",
+  "zabieg": "Odsiwianie włosów/Hair cover",
+  "druga": "Odsiwianie (cover) włosy",
+  "oferta": "6175344",
+  "score": 0.24,
+  "rozklad": {
+   "0": 0.8,
+   "1": 0.15,
+   "2": 0.05
+  }
+ },
+ "[\"brod cover wlos\", \"rdzen\", \"koloryzacj\"]": {
+  "klasa": [
+   "brod cover wlos",
+   "rdzen",
+   "koloryzacj"
+  ],
+  "dopisek": "Farbowanie",
+  "zabieg": "Farbowanie (cover) wlosów lub brody.",
+  "druga": "Cover broda/ włosy",
+  "oferta": "5519143",
+  "score": 0.14,
+  "rozklad": {
+   "0": 0.89,
+   "1": 0.09,
+   "2": 0.02
+  }
+ },
+ "[\"cover odsiwian wlos\", \"rdzen\", \"siwych\"]": {
+  "klasa": [
+   "cover odsiwian wlos",
+   "rdzen",
+   "siwych"
+  ],
+  "dopisek": "siwych",
+  "zabieg": "Cover włosów (tuszowanie siwych włosów)",
+  "druga": "Odsiwianie (cover) włosy",
+  "oferta": "5981069",
+  "score": 0.17,
+  "rozklad": {
+   "0": 0.87,
+   "1": 0.08,
+   "2": 0.05
+  }
+ },
+ "[\"keratyn prostowan wlos\", \"gdzie_ile\", \"lopatek za\"]": {
+  "klasa": [
+   "keratyn prostowan wlos",
+   "gdzie_ile",
+   "lopatek za"
+  ],
+  "dopisek": "za łopatki",
+  "zabieg": "Prostowanie keratynowe włosów za łopatki",
+  "druga": "Keratynowe prostowanie włosów",
+  "oferta": "5871492",
+  "score": 1.71,
+  "rozklad": {
+   "0": 0.12,
+   "1": 0.05,
+   "2": 0.83
+  }
+ },
+ "[\"brod cover wlos\", \"rdzen\", \"strzyzen\"]": {
+  "klasa": [
+   "brod cover wlos",
+   "rdzen",
+   "strzyzen"
+  ],
+  "dopisek": "Strz,",
+  "zabieg": "Strz, włosów i brody+ cover brody",
+  "druga": "Cover broda/ włosy",
+  "oferta": "5869817",
+  "score": 1.68,
+  "rozklad": {
+   "0": 0.08,
+   "1": 0.17,
+   "2": 0.75
+  }
+ },
+ "[\"cover odsiwian wlos\", \"rdzen\", \"repigmentacj\"]": {
+  "klasa": [
+   "cover odsiwian wlos",
+   "rdzen",
+   "repigmentacj"
+  ],
+  "dopisek": "Repigmentacja",
+  "zabieg": "Odsiwianie / Repigmentacja /Cover Włosów",
+  "druga": "Odsiwianie (cover) włosy",
+  "oferta": "6226963",
+  "score": 0.45,
+  "rozklad": {
+   "0": 0.66,
+   "1": 0.23,
+   "2": 0.11
+  }
+ },
+ "[\"brod cover odsiwian\", \"inne\", \"beard\"]": {
+  "klasa": [
+   "brod cover odsiwian",
+   "inne",
+   "beard"
+  ],
+  "dopisek": "beard",
+  "zabieg": "Odsiwianie brody | Cover Beard",
+  "druga": "Cover (odsiwianie) brody",
+  "oferta": "7226946",
+  "score": 0.06,
+  "rozklad": {
+   "0": 0.95,
+   "1": 0.05,
+   "2": 0.0
+  }
+ },
+ "[\"cover odsiwian wlos\", \"inne\", \"gotowk platnosc\"]": {
+  "klasa": [
+   "cover odsiwian wlos",
+   "inne",
+   "gotowk platnosc"
+  ],
+  "dopisek": "gotowk platnosc",
+  "zabieg": "Odsiwianie włosów-cover (płatność gotówką)",
+  "druga": "Odsiwianie (cover) włosy",
+  "oferta": "6190215",
+  "score": 0.15,
+  "rozklad": {
+   "0": 0.89,
+   "1": 0.06,
+   "2": 0.05
+  }
+ },
+ "[\"keratyn prostowan wlos\", \"gdzie_ile\", \"okolic pasa\"]": {
+  "klasa": [
+   "keratyn prostowan wlos",
+   "gdzie_ile",
+   "okolic pasa"
+  ],
+  "dopisek": "okolicy pasa",
+  "zabieg": "Keratynowe prostowanie włosów — włosy w okolicy pasa",
+  "druga": "Keratynowe prostowanie włosów",
+  "oferta": "6392765#4",
+  "score": 1.65,
+  "rozklad": {
+   "0": 0.15,
+   "1": 0.04,
+   "2": 0.81
+  }
+ },
+ "[\"keratyn prostowan wlos\", \"gdzie_ile\", \"lopatek okolic\"]": {
+  "klasa": [
+   "keratyn prostowan wlos",
+   "gdzie_ile",
+   "lopatek okolic"
+  ],
+  "dopisek": "okolicy łopatek",
+  "zabieg": "Keratynowe prostowanie włosów — włosy w okolicy łopatek",
+  "druga": "Keratynowe prostowanie włosów",
+  "oferta": "6392765#3",
+  "score": 1.54,
+  "rozklad": {
+   "0": 0.2,
+   "1": 0.06,
+   "2": 0.74
+  }
+ },
+ "[\"brod cover odsiwian\", \"gdzie_ile\", \"mesk\"]": {
+  "klasa": [
+   "brod cover odsiwian",
+   "gdzie_ile",
+   "mesk"
+  ],
+  "dopisek": "MĘSKIE",
+  "zabieg": "Odsiwianie brody (cover)",
+  "druga": "Cover (odsiwianie) brody",
+  "oferta": "6181133",
+  "score": 0.32,
+  "rozklad": {
+   "0": 0.76,
+   "1": 0.17,
+   "2": 0.07
+  }
+ },
+ "[\"brod odsiwian wlos\", \"gdzie_ile\", \"siwych\"]": {
+  "klasa": [
+   "brod odsiwian wlos",
+   "gdzie_ile",
+   "siwych"
+  ],
+  "dopisek": "siwych",
+  "zabieg": "Odsiwianie siwych włosów lub brody",
+  "druga": "Odsiwianie włosy/broda",
+  "oferta": "5839683",
+  "score": 0.09,
+  "rozklad": {
+   "0": 0.92,
+   "1": 0.06,
+   "2": 0.02
+  }
+ },
+ "[\"cover odsiwian wlos\", \"inne\", \"hair\"]": {
+  "klasa": [
+   "cover odsiwian wlos",
+   "inne",
+   "hair"
+  ],
+  "dopisek": "hair",
+  "zabieg": "Odsiwianie włosów (hair cover)",
+  "druga": "Odsiwianie (cover) włosy",
+  "oferta": "6208487",
+  "score": 0.06,
+  "rozklad": {
+   "0": 0.94,
+   "1": 0.06,
+   "2": 0.0
+  }
+ },
+ "[\"cover odsiwian wlos\", \"gdzie_ile\", \"siwych\"]": {
+  "klasa": [
+   "cover odsiwian wlos",
+   "gdzie_ile",
+   "siwych"
+  ],
+  "dopisek": "siwizny",
+  "zabieg": "Tuszowanie siwizny / cover - włosy",
+  "druga": "Odsiwianie (cover) włosy",
+  "oferta": "7222341",
+  "score": 0.94,
+  "rozklad": {
+   "0": 0.42,
+   "1": 0.23,
+   "2": 0.35
+  }
+ },
+ "[\"rzes usuwan\", \"inne\", \"innej po\"]": {
+  "klasa": [
+   "rzes usuwan",
+   "inne",
+   "innej po"
+  ],
+  "dopisek": "po innej",
+  "zabieg": "Ściągnięcie rzęs po innej stylistce",
+  "druga": "Zdejmowanie rzęs",
+  "oferta": "4976910",
+  "score": 0.88,
+  "rozklad": {
+   "0": 0.49,
+   "1": 0.13,
+   "2": 0.38
+  }
+ },
+ "[\"paznokc przedluzan\", \"poziom\", \"class\"]": {
+  "klasa": [
+   "paznokc przedluzan",
+   "poziom",
+   "class"
+  ],
+  "dopisek": "CLASS",
+  "zabieg": "Przedłużanie paznokci — Dominika - przedłużanie MASTER CLASS",
+  "druga": "Przedłużanie paznokci",
+  "oferta": "6043998#0",
+  "score": 0.98,
+  "rozklad": {
+   "0": 0.17,
+   "1": 0.6799999999999999,
+   "2": 0.15
   }
  }
 }

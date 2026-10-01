@@ -164,8 +164,33 @@ def slownictwo(rekordy: Iterable[dict[str, Any]], slownik: dict[str, str] | None
     return frozenset(w for r in rekordy for rola, _zr, f in _frazy(r) if f and rola != "specjalista" for w in _slowa(f, s))
 
 
+# Poziom wykonawcy poza podpisem (plan, p. 5): słowo, które rynek opisuje jako wykonawcę („top”, „senior”, „junior”,
+# „master”), nie rozróżnia usług także wtedy, gdy jeden rozbiór dał mu rolę poziomu — testy A–E, 1.10: kategoria
+# „BARBER SENIOR” → „senior” jako poziom blokował 94 pary, a w rozbiorach ofert „senior” to 25× wykonawca, 0× poziom.
+# Rozkład głosów jest dwubiegunowy: wykonawcy ≥ 89% (top 97%, junior 93%, master 96%), poziomy usługi ≤ 15%
+# (premium 0%, vip 12%, express 0%) — próg leży w luce, każdy z 50–85% daje ten sam podział. Min. 5 głosów, żeby
+# o roli słowa nie przesądzał jeden rozbiór.
+UDZIAL_WYKONAWCY = 0.8
+MIN_GLOSOW_WYKONAWCY = 5
+ROLE_BEZ_TRESCI = frozenset({"poziom", "inne"})  # tylko tu słowo wykonawcy bywa wpisane omyłkowo
+
+
+def wykonawcy(rekordy: Iterable[dict[str, Any]], slownik: dict[str, str] | None = None) -> frozenset[str]:
+    """Rdzenie słów, które w rozbiorach rynku są głównie wykonawcą (rola „specjalista”)."""
+    s = slownik or {}
+    glosy: dict[str, dict[str, int]] = {}
+    for r in rekordy:
+        for rola, _zr, f in _frazy(r):
+            for w in _slowa(f, s) if f else ():
+                g = glosy.setdefault(w, {})
+                g[rola] = g.get(rola, 0) + 1
+    return frozenset(w for w, g in glosy.items()
+                     if (n := sum(g.values())) >= MIN_GLOSOW_WYKONAWCY and g.get("specjalista", 0) >= UDZIAL_WYKONAWCY * n)
+
+
 def podpis(rek: dict[str, Any], slownik: dict[str, str] | None = None, kontekst: dict[str, Any] | None = None,
-           slownictwo: frozenset[str] | None = None, salon: dict[str, Any] | None = None) -> Podpis:
+           slownictwo: frozenset[str] | None = None, salon: dict[str, Any] | None = None,
+           wykonawcy: frozenset[str] = frozenset()) -> Podpis:
     """Słowa nazwy i wariantu, których model nie przypisał (ani do cechy, ani do szumu), wchodzą do zbioru jako „inne”
     — pomiar 29.09: to głównie słowa oczywiste („włosy” w wariancie „Włosy długie”) i pominięte „combo” / „komplet”;
     więcej słów = mniej fałszywych „ta sama”, a blokada gubiła pary.
@@ -181,12 +206,19 @@ def podpis(rek: dict[str, Any], slownik: dict[str, str] | None = None, kontekst:
         w_nazwie = set(_slowa(f"{rek.get('nazwa') or ''} {rek.get('wariant') or ''}", s))  # nazwa i etykieta wariantu
         dopisane |= {("inne", w) for f in rek.get("szum") or () for w in _slowa(str(f), s)
                      if w in slownictwo and w in w_nazwie}
-    wlasne = {w for r, zr, f in _frazy(rek) if zr in WLASNE and r not in ("specjalista",) for w in _slowa(f, s)}
-    poziomy |= dopisane
+    dopisane = {(p, w) for p, w in dopisane if w not in wykonawcy}
+    poziomy = {(p, w) for p, w in poziomy if not (p in ROLE_BEZ_TRESCI and w in wykonawcy)} | dopisane
+    # Słowa własne do testu „nazwy bez treści” — rdzenie PRZED słownikiem, bo w tej postaci jest lista PUSTE_NAZWY:
+    # po słowniku „basic” → „podstaw”, „classic” → „klasyczn” i samo „BASIC” przestawało być pustą nazwą (przegląd
+    # słownika 1.10). Słowo wykonawcy i dopisane słowo liczą się po swojej postaci w słowniku.
+    dop = {w for _p, w in dopisane}
+    wlasne = {w for r, zr, f in _frazy(rek) if zr in WLASNE and r not in ("specjalista",) for w in _slowa(f, {})
+              if not (r in ROLE_BEZ_TRESCI and s.get(w, w) in wykonawcy)}
+    wlasne |= {w for t in [*(rek.get("nieprzypisane") or ()), *(rek.get("szum") or ())] for w in _slowa(str(t), {})
+               if s.get(w, w) in dop}
     poz_kat = (kontekst or {}).get("pozycja_kategorii")  # sekcja cennika mówi, że to nie usługa — ma pierwszeństwo
     pozycja = poz_kat if poz_kat in POZA_POROWNANIEM else rek.get("pozycja") or "zabieg"
-    return Podpis(frozenset(w for _p, w in poziomy), frozenset(poziomy), pozycja,
-                  wlasne=frozenset(wlasne | {w for _p, w in dopisane}),
+    return Podpis(frozenset(w for _p, w in poziomy), frozenset(poziomy), pozycja, wlasne=frozenset(wlasne),
                   laczenie=_laczenie(f"{rek.get('nazwa') or ''} {rek.get('wariant') or ''}"))
 
 

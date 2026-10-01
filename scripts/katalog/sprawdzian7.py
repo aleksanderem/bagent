@@ -153,14 +153,17 @@ def podpisy() -> tuple[list[dict], dict[str, Oferta], dict[str, dict], dict[str,
     us, pary, oferty = pary_ofert()
     wyc = do_wyciagniecia()
     tp.OUT = OUT
-    rek, _ = tp.rekordy("p12", wyc)
+    # Paczka z pamięci jest walidowana w całości (liczba rekordów = liczba ofert paczki): gdy oferta wypadła z bieżącej
+    # listy do rozbioru, cała paczka przepadała (1.10: łączenie „20 ml” zmieniło, które pary mają wspólne słowa, i w teście
+    # E zniknęły rekordy ~990 par). Walidacja na WSZYSTKICH ofertach zbioru — rekord jest przypisany po id i nazwie.
+    rek, _ = tp.rekordy("p12", list(oferty.values()))
     kon = km.kontekst(wyc, OUT / "kategorie.json")
     s = _slownik()
     slowa = kr.slownictwo_rynku(rek, s)
     sal = km.kontekst_salonu(salon_ofert(us, oferty), OUT / "salony.json") if (OUT / "salony.json").exists() else {}
-    pod = {o.id: podpis(rek[o.id], s, kon.get(o.id), slowa, sal.get(o.id)) for o in wyc if o.id in rek}
-    x_slowa = slowa
-    return pary, oferty, rek, {"kon": kon, "pod": pod, "slownik": s, "slowa": x_slowa, "sal": sal}
+    wyk = kr.wykonawcy_rynku(rek, s)
+    pod = {o.id: podpis(rek[o.id], s, kon.get(o.id), slowa, sal.get(o.id), wyk) for o in wyc if o.id in rek}
+    return pary, oferty, rek, {"kon": kon, "pod": pod, "slownik": s, "slowa": slowa, "sal": sal, "wyk": wyk}
 
 
 def klasy(budzet: float, proba: int = 0) -> None:
@@ -185,7 +188,7 @@ def klasy(budzet: float, proba: int = 0) -> None:
     z_puli = kr.przyklady_z_puli(kl, potrzebne, pod, oferty, salon_ofert(us, oferty), s, przyklad)
     print(f"klas potrzebnych w porównaniach {len(potrzebne)}, przykładów z puli rynku {z_puli}", flush=True)
     koszt = asyncio.run(kr.zapytaj(kl, budzet))  # pamięć wspólna z w2 — ta sama klasa nie jest pytana drugi raz
-    zam = kr.zamiany_ofert([(oferty[q["a"]], oferty[q["b"]]) for q in pary if not q["bez_wspolnych"]], rek, s, kon, x["slowa"], x["sal"])
+    zam = kr.zamiany_ofert([(oferty[q["a"]], oferty[q["b"]]) for q in pary if not q["bez_wspolnych"]], rek, s, kon, x["slowa"], x["sal"], x["wyk"])
     koszt_z = asyncio.run(kr.zapytaj_zamiany(zam, budzet, proba=proba))
     if proba:  # próba zamian do obejrzenia przed pełnym przebiegiem
         pz = json.loads(kr.PLIK_ZAMIAN.read_text(encoding="utf-8"))

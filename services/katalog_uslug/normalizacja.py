@@ -13,6 +13,10 @@ _PROPORCJA = re.compile(r"(\d)\s*:\s*(\d)")
 # Zakres z jednostką tylko przy drugiej liczbie dotyczy obu: „2-3D” = „2D-3D”, „4/6D” = „4D/6D” (gęstość rzęs; testy A–E,
 # 1.10: pary „Uzupełnienie 2-3D” / „Uzupełnienie 2D-3D” różniły się słowem „2” / „2d”). Przecinek to ułamek („2,5cm”).
 _ZAKRES = re.compile(r"(?<![\w.,])(\d+)\s*[-/]\s*(\d+)([^\W\d_]{1,3})(?!\w)")
+# Liczba i jednostka miary to jedna cecha: „20 ml” = „20ml”, „15 cm” = „15cm” (testy A–E, 1.10: obie pisownie częste —
+# ml 77 / 70, cm 117 / 55, cm2 31 / 26; para „Lipoliza 20 ml” / „Lipoliza 20ml” różniła się słowami „20 ml” / „20ml”).
+# Tylko jednostki miary i krotność „x”; słowa („5 zabiegów”) zostają osobno. Przecinek przed liczbą to ułamek.
+_JEDNOSTKA = re.compile(r"(?<![\w.,])(\d+)\s+(ml|mm|cm2|cm|mg|kg|g|j|u|x)(?!\w)")
 _ZNACZACE = "+/"
 _DWUKROPEK = "\u0000"  # chroni „:” proporcji przed zamianą interpunkcji na spację
 
@@ -57,6 +61,6 @@ def normalizuj(tekst: str | None) -> str:
     if not tekst:
         return ""
     t = _CZAS.sub(" ", unicodedata.normalize("NFKC", tekst).lower())
-    t = _PROPORCJA.sub(rf"\1{_DWUKROPEK}\2", _ZAKRES.sub(r"\1\3 \2\3", t))
+    t = _PROPORCJA.sub(rf"\1{_DWUKROPEK}\2", _ZAKRES.sub(r"\1\3 \2\3", _JEDNOSTKA.sub(r"\1\2", t)))
     znaki = [f" {c} " if c in _ZNACZACE else ":" if c == _DWUKROPEK else c if c.isalnum() else " " for c in t]
     return " ".join("".join(znaki).split())

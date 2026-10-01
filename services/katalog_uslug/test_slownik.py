@@ -37,3 +37,13 @@ def test_zbuduj_scala_tylko_to_samo_do_czestszej_formy() -> None:
 
 def test_pytanie_ma_cztery_stany() -> None:
     assert set(pytanie_relacji("hybryd", "hybrydow").criteria) == {"to_samo", "wezsze", "szersze", "inne"}
+
+
+def test_sprzeczna_odpowiedz_przerywa_lancuch() -> None:
+    c = Counter({"cale": 9, "calosc": 5, "kompletn": 4, "komplet": 3})
+    rel = {("komplet", "kompletn"): TO_SAMO, ("kompletn", "calosc"): TO_SAMO, ("calosc", "cale"): TO_SAMO}
+    assert zbuduj(c, rel)["komplet"] == "cale"  # bez zakazów łańcuch łączy komplet z całym obszarem
+    s = zbuduj(c, rel, frozenset({frozenset(("komplet", "cale"))}))
+    grupa = lambda w: s.get(w, w)
+    assert grupa("komplet") != grupa("cale")  # zakaz blokuje ogniwo, które połączyłoby obie strony
+    assert grupa("komplet") == grupa("kompletn")  # zgodne pary nadal scalane

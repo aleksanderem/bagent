@@ -31,6 +31,9 @@ _spec.loader.exec_module(tp)
 KLUCZ = Path.home() / ".config" / "typesafe" / "api_key"
 MODEL = "jev-1.13.0"
 CENA_TOK = 0.042 / 1e6
+# Zmierzone 1.10 (pełny przebieg rynku): 0,5603 USD / 19 359 par = ~690 tokenów wejścia na parę — dawne 350 zaniżało
+# szacunek dwukrotnie (próba 40 par już to pokazywała: 0,0011 USD). Limit --budzet sprawdza szacunek PRZED startem.
+TOK_NA_PARE = 700
 KAT = B / "scripts" / "katalog" / "dane" / "2026-09-29" / f"w{WERSJA_PROMPTU}"
 PRZYKLADOW = 3
 PRZED: set[str] = set()
@@ -103,7 +106,7 @@ async def zapytaj(kand: set[tuple[str, str]], przyklady: dict[str, list[str]], b
     if proba:  # próba do obejrzenia przed pełnym przebiegiem: losowe N nowych par
         import random
         nowe = random.Random(proba).sample(nowe, min(proba, len(nowe)))
-    szac = len(nowe) * 350 * CENA_TOK
+    szac = len(nowe) * TOK_NA_PARE * CENA_TOK
     print(f"kandydatów {len(kand)}, nowych {len(nowe)}, szac. {szac:.3f} USD (budżet {budzet})", flush=True)
     if szac > budzet:
         sys.exit("szacunek ponad budżet — przerwane")
@@ -151,13 +154,24 @@ def main() -> None:
     pamiec = json.loads((KAT / "synonimy.json").read_text(encoding="utf-8"))
     # mój przegląd scaleń (plan: przegląd słownika — ja): pary odrzucone z powodem, np. „zestaw” ≠ „pakiet” z modelu
     odrzucone = json.loads((KAT / "slownik_odrzucone.json").read_text(encoding="utf-8")) if (KAT / "slownik_odrzucone.json").exists() else {}
-    relacje = {tuple(k.split(" | ")): v["relacja"] for k, v in pamiec.items()
+    # najpewniejsze pary pierwsze — grupy rosną od mocnych powiązań, a sprzeczne odpowiedzi blokują łańcuch (zbuduj)
+    relacje = {tuple(k.split(" | ")): v["relacja"]
+               for k, v in sorted(pamiec.items(), key=lambda kv: -(kv[1].get("rozklad") or {}).get(TO_SAMO, 0))
                if v.get("relacja") == TO_SAMO and v["rozklad"].get(TO_SAMO, 0) >= a.prog and k not in odrzucone}
+    # Zakazem łączenia grup jest tylko MOJE odrzucenie z przeglądu: zakazy z każdej odpowiedzi „inne / węższe” i z
+    # negatywów rozcinały prawdziwe grupy odmian (1.10: „uzupełnienie” / „uzupełnianie”, „męskie” / „mężczyzn”,
+    # „żel” / „żelowe”, „cała” / „całe”) — jedna zaszumiona odpowiedź blokowała całą grupę.
+    zakazy = frozenset(frozenset(k.split(" | ")) for k in odrzucone)
     print(f"odrzuconych w przeglądzie: {len(odrzucone)}")
     czestosc = Counter(w for o in oferty if o.id in rek for w in podpis(rek[o.id]).zbior)
-    slownik = zbuduj(czestosc, relacje)
+    slownik = zbuduj(czestosc, relacje, zakazy)
     (KAT / ("slownik_rynek.json" if a.rynek else "slownik.json")).write_text(json.dumps(slownik, ensure_ascii=False, indent=1),
                                                                          encoding="utf-8")
+    if a.rynek:  # pamięć klas i zamian idzie za słownikiem — klasa rozstrzygana raz (klasy_roznic.przenies_pamiec)
+        spec_kr = importlib.util.spec_from_file_location("klasy_roznic", Path(__file__).parent / "klasy_roznic.py")
+        kr = importlib.util.module_from_spec(spec_kr)
+        spec_kr.loader.exec_module(kr)
+        print(f"pamięć klas w formach słownika: {kr.przenies_pamiec(slownik)}")
     rozk = Counter(v.get("relacja") for v in pamiec.values())
     print(f"koszt {koszt:.4f} USD; relacje: {dict(rozk)}; scaleń w słowniku (≥ {a.prog}): {len(slownik)}")
     for k, v in sorted(pamiec.items(), key=lambda kv: -kv[1].get("rozklad", {}).get(TO_SAMO, 0))[:30]:
