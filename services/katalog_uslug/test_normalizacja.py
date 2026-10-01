@@ -15,7 +15,7 @@ from services.katalog_uslug.normalizacja import normalizuj, rdzen_slowa
     ("Masaż klasyczny 1h", "masaż klasyczny"),
     ("Masaż klasyczny 1,5 h", "masaż klasyczny"),
     ("Dekoloryzacja ,odrost,włosy długie", "dekoloryzacja odrost włosy długie"),
-    ("Uzupełnianie Rzęs UV 4-6d", "uzupełnianie rzęs uv 4 6d"),
+    ("Uzupełnianie Rzęs UV 4-6d", "uzupełnianie rzęs uv 4d 6d"),
 ])
 def test_czysci_szum_bez_zmiany_znaczenia(tekst: str, klucz: str) -> None:
     assert normalizuj(tekst) == klucz
@@ -63,3 +63,13 @@ def test_bez_kontaktow_maskuje_telefony_i_maile_a_nie_liczby_uslugi() -> None:
         "Zapisy tel. [telefon] lub [telefon], [telefon], [telefon]"
     assert bez_kontaktow("pisz: salon@example.com") == "pisz: [e-mail]"
     assert bez_kontaktow("Laser 755 808 1064nm, pakiet 3 zabiegi 1200 zł, 2:1") == "Laser 755 808 1064nm, pakiet 3 zabiegi 1200 zł, 2:1"
+
+
+def test_ozdobne_czcionki_to_zwykle_litery() -> None:
+    assert normalizuj("Bikini 𝑳𝒂𝒔𝒆𝒓") == "bikini laser"  # Unicode „math bold” z Booksy (test D)
+
+
+def test_zakres_z_jednostka_na_koncu_dotyczy_obu_liczb() -> None:
+    assert normalizuj("Uzupełnienie 2-3D") == normalizuj("Uzupełnienie 2D-3D") == "uzupełnienie 2d 3d"
+    assert normalizuj("rzęsy 4/6D") == "rzęsy 4d 6d"
+    assert normalizuj("długość 2,5cm") == "długość 2 5cm"  # przecinek to ułamek, nie zakres — bez zmian

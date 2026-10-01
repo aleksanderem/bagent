@@ -201064,5 +201064,750 @@
    "Przedłużanie paznokci żelem + french",
    "Przedłużenie paznokci żelem + french/babyboomer"
   ]
+ },
+ "odswiezen | strzalk": {
+  "relacja": "inne",
+  "rozklad": {
+   "wezsze": 0.0,
+   "to_samo": 0.0,
+   "inne": 0.81,
+   "szersze": 0.19
+  },
+  "oferty_a": [
+   "Odświeżenie makijażu permanentnego do roku",
+   "Odświeżenie makijażu permanentnego do 2 lat 🌙",
+   "Odświeżenie Makijażu Permanentnego 1- 1.5 Roku"
+  ],
+  "oferty_b": [
+   "Makijaż permanentny strzalka miedzy rzesami",
+   "Efekt kim/strzałki/mokry efekt",
+   "Uzupełnienie Efekt STRZAŁKI /EYELINER/KRESKA"
+  ]
+ },
+ "full | twarz": {
+  "relacja": "inne",
+  "rozklad": {
+   "wezsze": 0.24,
+   "to_samo": 0.07,
+   "szersze": 0.18,
+   "inne": 0.51
+  },
+  "oferty_a": [
+   "Masaż Kobido Full Face",
+   "Wolumetria Full face",
+   "Full SPA ( Combo+Black Mask + Odsiwianie brody)"
+  ],
+  "oferty_b": [
+   "Laser twarz — Laser twarz",
+   "Depilacja pełna twarz",
+   "Zabieg pielęgnacyjny twarz"
+  ]
+ },
+ "baljisk | prenataln": {
+  "relacja": "inne",
+  "rozklad": {
+   "to_samo": 0.0,
+   "wezsze": 0.0,
+   "szersze": 0.0,
+   "inne": 1.0
+  },
+  "oferty_a": [
+   "Masaż baljiski"
+  ],
+  "oferty_b": [
+   "Masaż prenatalny",
+   "MASAŻ CIĄŻOWY/PRENATALNY — MASAŻ CIĄŻOWY/PRENATALNY"
+  ]
+ },
+ "ich | peset": {
+  "relacja": "inne",
+  "rozklad": {
+   "to_samo": 0.0,
+   "wezsze": 0.0,
+   "szersze": 0.01,
+   "inne": 0.99
+  },
+  "oferty_a": [
+   "Radiofrekwencja - Kolana i ich okolice — Pakiet 3 zabiegów",
+   "Radiofrekwencja - Kolana i ich okolice — 1 zabieg",
+   "Henna - brwi z ich regulacją"
+  ],
+  "oferty_b": [
+   "Regulacja brwi (wosk + pęseta)",
+   "Regulacja woskiem+pęsetą",
+   "Regulacja brwi ( wosk + pęseta )"
+  ]
+ },
+ "trearment | treatments": {
+  "relacja": "to_samo",
+  "rozklad": {
+   "inne": 0.05,
+   "szersze": 0.0,
+   "wezsze": 0.17,
+   "to_samo": 0.78
+  },
+  "oferty_a": [
+   "Keratynowa Odbudowa / Keratin Trearment"
+  ],
+  "oferty_b": [
+   "🔸 Depilacja Laserowa - Bikini kobiety / women — ✦ 6 zabieg bikini podstawowe kobiety / 6 basic bikini treatments for women",
+   "◼️ Dep. Laserowa - Plecy / Back — ✦ 6 zabiegów plecy mężczyźni /  6 treatments back men",
+   "◼️  Depilacja Laserowa - Sutki kobiety / Nipples — ✦ 6 zabiegów sutki kobieta / 6 nipples treatments for women"
+  ]
+ },
+ "premium | zelow": {
+  "relacja": "inne",
+  "rozklad": {
+   "to_samo": 0.0,
+   "wezsze": 0.0,
+   "inne": 1.0,
+   "szersze": 0.0
+  },
+  "oferty_a": [
+   "Combo Premium",
+   "Kobido Premium",
+   "🌷Oczyszczanie wodorowe twarzy PREMIUM"
+  ],
+  "oferty_b": [
+   "Przedłużanie paznokci metodą żelową na szablonie — Przedłużanie do 2 na szablonie",
+   "Przedłużanie paznokci metodą żelową na szablonie — Paznokcie przedłużane do 2 i więcej na szablonie",
+   "Manicure żelowy — Manicure żelowy dopełnienie"
+  ]
+ },
+ "endormolog | fraxrf": {
+  "relacja": "inne",
+  "rozklad": {
+   "wezsze": 0.0,
+   "to_samo": 0.0,
+   "inne": 1.0,
+   "szersze": 0.0
+  },
+  "oferty_a": [
+   "Endormologia — Brzuch",
+   "Endormologia — Endormologia ramiona",
+   "Endormologia — Uda + pośladki"
+  ],
+  "oferty_b": [
+   "FraxRF - blizny lub rozstępy ciało — FraxRF - blizny lub rozstępy ciało",
+   "FraxRF - brzuch — FraxRF - brzuch",
+   "FraxRF - czoło — FraxRF - czoło"
+  ]
+ },
+ "czesci | ombr": {
+  "relacja": "inne",
+  "rozklad": {
+   "to_samo": 0.0,
+   "wezsze": 0.0,
+   "inne": 1.0,
+   "szersze": 0.0
+  },
+  "oferty_a": [
+   "Pedicure częściowy hybrydowy",
+   "Pedicure częściowy + hybryda",
+   "KOBIETA: Bikini częściowe"
+  ],
+  "oferty_b": [
+   "Makijaż permanentny brwi (ombre)",
+   "Strzyżenie modelowanie balejaż/ombre toner",
+   "Ombre, sombre ze strzyżeniem wł długie"
+  ]
+ },
+ "kosmetyczn | przemasowan": {
+  "relacja": "inne",
+  "rozklad": {
+   "inne": 0.83,
+   "szersze": 0.17,
+   "to_samo": 0.0,
+   "wezsze": 0.0
+  },
+  "oferty_a": [
+   "Pedicure kosmetyczny bez malowania paznokci",
+   "Pedicure kosmetyczny+ malowanie lakierem klasyczny",
+   "pedicure kosmetyczny z hybrydą — pedicure kosmetyczny z hybrydą"
+  ],
+  "oferty_b": [
+   "Pedicure + hybryda + PRZEMASOWANIE stóp — Pedicure + hybryda + PRZEMASOWANIE stóp"
+  ]
+ },
+ "hybrydyw | medyczn": {
+  "relacja": "inne",
+  "rozklad": {
+   "szersze": 0.0,
+   "to_samo": 0.0,
+   "wezsze": 0.0,
+   "inne": 1.0
+  },
+  "oferty_a": [
+   "Pedicure Hybrydywowy"
+  ],
+  "oferty_b": [
+   "Poszerzony pedicure medyczny",
+   "Pedicure Medyczny SPECJALISTYCZNY",
+   "Pedicure medyczny (podologiczny)"
+  ]
+ },
+ "baleyag | dzienn": {
+  "relacja": "inne",
+  "rozklad": {
+   "inne": 1.0,
+   "wezsze": 0.0,
+   "to_samo": 0.0,
+   "szersze": 0.0
+  },
+  "oferty_a": [
+   "Koloryzacja i farbowanie włosów — Baleyage,  strzyżenie",
+   "Baleyage + strzyżenie + modelowanie - włosy średni",
+   "Baleyage włosy krótkie"
+  ],
+  "oferty_b": [
+   "Modelowanie dzienne - włosy średnie",
+   "Modelowanie dziennie włosy średnie-długie",
+   "Lekcja makijażu dziennego"
+  ]
+ },
+ "niechirurgiczn | plasm": {
+  "relacja": "inne",
+  "rozklad": {
+   "szersze": 0.43,
+   "wezsze": 0.0,
+   "to_samo": 0.0,
+   "inne": 0.57
+  },
+  "oferty_a": [
+   "Lifting Effect Pro",
+   "Hydradermie De Luxe",
+   "RF Mikroigłowy Szyja"
+  ],
+  "oferty_b": [
+   "RF Mikroigłowy + Plasma  - Twarz — RF Mikroigłowy Zabieg z Opłaconego Pakietu",
+   "RF Mikroigłowy + Plasma  - Twarz — RF Mikroigłowy + Plasma  - Brzuch",
+   "RF Mikroigłowy + Plasma  - Twarz — RF Mikroigłowy + Plasma  - Okolice oczu"
+  ]
+ },
+ "protein | stylist": {
+  "relacja": "inne",
+  "rozklad": {
+   "inne": 1.0,
+   "wezsze": 0.0,
+   "to_samo": 0.0,
+   "szersze": 0.0
+  },
+  "oferty_a": [
+   "Manicure hybrydowy z bazą proteinową",
+   "Manicure hybrydowy bazą proteinowa",
+   "Pedicure hybrydowy bazą protein"
+  ],
+  "oferty_b": [
+   "Manicure hybrydowy Top Stylistka — Top Stylista",
+   "Manicure hybrydowy — Art - Stylist",
+   "Opracowanie paznokci u stóp + lakier klasyczny — Młodszy Stylista"
+  ]
+ },
+ "biorepeel | oxybrazj": {
+  "relacja": "inne",
+  "rozklad": {
+   "to_samo": 0.0,
+   "wezsze": 0.0,
+   "szersze": 0.0,
+   "inne": 1.0
+  },
+  "oferty_a": [
+   "BioRePeel (Przebarwienia, Zaskórniki, Blizny) — Twarz",
+   "BioRePeel — Twarz",
+   "BioRePeel — Twarz + szyja"
+  ],
+  "oferty_b": [
+   "Oxybrazja Twarz+Szyja+Dekolt",
+   "OXYBRAZJA - TWARZ — OXYBRAZJA - TWARZ",
+   "OXYBRAZJA - TWARZ + SZYJA — OXYBRAZJA - TWARZ + SZYJA"
+  ]
+ },
+ "endermolift | gene": {
+  "relacja": "inne",
+  "rozklad": {
+   "inne": 1.0,
+   "wezsze": 0.0,
+   "to_samo": 0.0,
+   "szersze": 0.0
+  },
+  "oferty_a": [
+   "Top zabieg od 13 lat! Age Smart Lift (Z masażem Endermolift ) — Top zabieg od 13 lat! Age Smart Lift (Z masażem Endermolift )",
+   "Endermolift — Podstawowy zabieg",
+   "Endermolift — Zabieg z maską"
+  ],
+  "oferty_b": [
+   "Geneo - bubbel peel",
+   "Usługa specjalna Geneo +Masaż kobido",
+   "Zabieg GENEO"
+  ]
+ },
+ "okazjonaln | wlos": {
+  "relacja": "inne",
+  "rozklad": {
+   "szersze": 0.02,
+   "inne": 0.76,
+   "to_samo": 0.0,
+   "wezsze": 0.22
+  },
+  "oferty_a": [
+   "Modelowanie okazjonalne wł do 15 cm",
+   "upięcie okazjonalne włosy średnie",
+   "Modelowanie okazjonalne"
+  ],
+  "oferty_b": [
+   "STRZYŻENIE MĘSKIE (mycie włosów, masaż głowy)",
+   "Kolor jednolity",
+   "Strzyżenie włosów + reg. brody trymerem Top Barber"
+  ]
+ },
+ "czesci | saun": {
+  "relacja": "inne",
+  "rozklad": {
+   "inne": 1.0,
+   "szersze": 0.0,
+   "wezsze": 0.0,
+   "to_samo": 0.0
+  },
+  "oferty_a": [
+   "Pedicure częściowy hybrydowy",
+   "Pedicure częściowy + hybryda",
+   "KOBIETA: Bikini częściowe"
+  ],
+  "oferty_b": [
+   "botox lub olejowanie lub ampułka z sauną,regenerac",
+   "Masaż Relaksacyjny — Masaż relaksacyjny 1h z sauną",
+   "Modelowanie + sauna"
+  ]
+ },
+ "bez | zelow": {
+  "relacja": "inne",
+  "rozklad": {
+   "inne": 1.0,
+   "wezsze": 0.0,
+   "szersze": 0.0,
+   "to_samo": 0.0
+  },
+  "oferty_a": [
+   "Pedicure bez malowania",
+   "Pedicure kosmetyczny bez malowania paznokci",
+   "Laminacja Brwi bez koloryzacji"
+  ],
+  "oferty_b": [
+   "Przedłużanie paznokci metodą żelową na szablonie — Przedłużanie do 2 na szablonie",
+   "Przedłużanie paznokci metodą żelową na szablonie — Paznokcie przedłużane do 2 i więcej na szablonie",
+   "Manicure żelowy — Manicure żelowy dopełnienie"
+  ]
+ },
+ "dorobien | hybryd": {
+  "relacja": "inne",
+  "rozklad": {
+   "inne": 1.0,
+   "to_samo": 0.0,
+   "szersze": 0.0,
+   "wezsze": 0.0
+  },
+  "oferty_a": [
+   "Dorobienie jednego paznokcia",
+   "Dorobienie paznokcia",
+   "Rekonstrukcja/dorobienie paznokcia"
+  ],
+  "oferty_b": [
+   "Pedicure Hybrydowy kolor + zdjęcie hybrydy",
+   "Manicure hybrydowy",
+   "Pedicure hybrydowy"
+  ]
+ },
+ "klasyczn | peelingujac": {
+  "relacja": "inne",
+  "rozklad": {
+   "inne": 1.0,
+   "szersze": 0.0,
+   "to_samo": 0.0,
+   "wezsze": 0.0
+  },
+  "oferty_a": [
+   "Pedicure z klasycznym lakierem",
+   "Masaż gorącymi kamieniami — Klasyczny",
+   "Pedicure podstawowy z lakierem klasycznym"
+  ],
+  "oferty_b": [
+   "Masaż peelingujący całego ciała",
+   "Masaż peelingujący całego ciała — Masaż peelingujący całego ciała",
+   "WishPro+ (kapsułka peelingująca + k. aktywna)"
+  ]
+ },
+ "kolor | modelowan": {
+  "relacja": "inne",
+  "rozklad": {
+   "to_samo": 0.0,
+   "wezsze": 0.02,
+   "inne": 0.98,
+   "szersze": 0.0
+  },
+  "oferty_a": [
+   "Pedicure Hybrydowy kolor + zdjęcie hybrydy",
+   "Kolor jednolity",
+   "Laminacja brwi + geometria + kolor + regulacja"
+  ],
+  "oferty_b": [
+   "Modelowanie włosów średnich ( do ramion)",
+   "Farba + modelowanie (całość)",
+   "Strzyżenie modelowanie balejaż/ombre toner"
+  ]
+ },
+ "gladk | kurs": {
+  "relacja": "inne",
+  "rozklad": {
+   "inne": 1.0,
+   "wezsze": 0.0,
+   "to_samo": 0.0,
+   "szersze": 0.0
+  },
+  "oferty_a": [
+   "Golenie brzytwą na gładko",
+   "Golenie Głowy (Gładko Sheverem)",
+   "Golenie twarzy brzytwą na gładko"
+  ],
+  "oferty_b": [
+   "Kurs Piercingu",
+   "Kurs Tatuażu",
+   "Kurs „Manicure Hybrydowy”"
+  ]
+ },
+ "cienk | paznokc": {
+  "relacja": "inne",
+  "rozklad": {
+   "szersze": 0.0,
+   "inne": 1.0,
+   "to_samo": 0.0,
+   "wezsze": 0.0
+  },
+  "oferty_a": [
+   "Strzyżenie Damskie Wł.Dlugie Za Ramiona (Cienkie)",
+   "Botox — Włosy cienkie do łopatek",
+   "Botox — Włosy cienkie do ramion"
+  ],
+  "oferty_b": [
+   "Naprawa paznokcia",
+   "Oczyszczenie paznokcia zmienionego chorobowo",
+   "Oczyszczenie paznokci zmienionych chorobowo -kilka"
+  ]
+ },
+ "delikatn | pielegnacj": {
+  "relacja": "inne",
+  "rozklad": {
+   "to_samo": 0.0,
+   "wezsze": 0.03,
+   "szersze": 0.0,
+   "inne": 0.97
+  },
+  "oferty_a": [
+   "SZKOLENIE Z DELIKATNYCH TATUAŻY SZTUKA MINIMALIZMU",
+   "Delikatne zdobienia",
+   "Akryl+hybryda+delikatne zdobienia"
+  ],
+  "oferty_b": [
+   "Masaż KOBIDO + pielęgnacja",
+   "BOTOX WŁOSY KRÓTKIE (pielęgnacja na zimno)",
+   "Masaż Kobido z pielęgnacją - Zmysłowy Rytuał"
+  ]
+ },
+ "podstaw | wzorek": {
+  "relacja": "inne",
+  "rozklad": {
+   "szersze": 0.01,
+   "wezsze": 0.01,
+   "to_samo": 0.0,
+   "inne": 0.98
+  },
+  "oferty_a": [
+   "Pedicure podstawowy z lakierem klasycznym",
+   "Podstawowe Oczyszczanie",
+   "Pedicure Podologiczny PANIE — zabieg podstawowy"
+  ],
+  "oferty_b": [
+   "Manicure hybrydowy + wzorek",
+   "Strzyżenie chłopca — Tylko maszynką + wzorek",
+   "Strzyżenie chłopca — Maszynką i nożyczkami + wzorek"
+  ]
+ },
+ "premium | trymowan": {
+  "relacja": "inne",
+  "rozklad": {
+   "wezsze": 0.0,
+   "szersze": 0.01,
+   "to_samo": 0.0,
+   "inne": 0.99
+  },
+  "oferty_a": [
+   "Combo Premium",
+   "Kobido Premium",
+   "🌷Oczyszczanie wodorowe twarzy PREMIUM"
+  ],
+  "oferty_b": [
+   "Strzyżenie i trymowanie brody",
+   "Jedna Długość + Trymowanie Brody + Brzytwa",
+   "Trymowanie brody"
+  ]
+ },
+ "maseczk | pakiet": {
+  "relacja": "inne",
+  "rozklad": {
+   "inne": 0.95,
+   "wezsze": 0.05,
+   "szersze": 0.0,
+   "to_samo": 0.0
+  },
+  "oferty_a": [
+   "*Rytuał Kobido* PEELING + MASECZKA",
+   "Masaż KOBIDO + maseczka algowa",
+   "Kobido+ maseczka/serum"
+  ],
+  "oferty_b": [
+   "Mezoterapia igłowa pakiet twarz+szyja+dekolt — Seria 6 zabiegów -20%",
+   "Mezoterapia igłowa pakiet twarz+szyja+dekolt — Seria 4 zabiegów -10%",
+   "Mezoterapia igłowa pakiet twarz+szyja+dekolt — Seria 5 zabiegów -15%"
+  ]
+ },
+ "calosci | korug": {
+  "relacja": "inne",
+  "rozklad": {
+   "inne": 0.99,
+   "to_samo": 0.0,
+   "szersze": 0.01,
+   "wezsze": 0.0
+  },
+  "oferty_a": [
+   "Masaż świecą relaksacyjny-całościowy",
+   "Masaż relaksacyjny całościowy",
+   "Depilacja laserowa — bikini głębokie (całościowe oraz przestrzeń międzypośladkowa gratis)"
+  ],
+  "oferty_b": [
+   "Masaż Korugi",
+   "Masaż twarzy Korugi",
+   "Masaż twarży Korugi"
+  ]
+ },
+ "bb | lakier": {
+  "relacja": "inne",
+  "rozklad": {
+   "inne": 0.96,
+   "wezsze": 0.02,
+   "to_samo": 0.0,
+   "szersze": 0.02
+  },
+  "oferty_a": [
+   "Manicure hybrydowy FRENCH/BB",
+   "BB GLOW",
+   "Bb Glow (wersja wzbogacona) — twarz"
+  ],
+  "oferty_b": [
+   "Pedicure z klasycznym lakierem",
+   "Pedicure podstawowy z lakierem klasycznym",
+   "Pedicure -lakier klasyczny"
+  ]
+ },
+ "klasyczn | zmian": {
+  "relacja": "inne",
+  "rozklad": {
+   "to_samo": 0.0,
+   "wezsze": 0.0,
+   "inne": 1.0,
+   "szersze": 0.0
+  },
+  "oferty_a": [
+   "Pedicure z klasycznym lakierem",
+   "Masaż gorącymi kamieniami — Klasyczny",
+   "Pedicure podstawowy z lakierem klasycznym"
+  ],
+  "oferty_b": [
+   "Pedicure leczniczy PZP — Usuwanie średnich zrogowaceń za pomocą skalpela i dłuta. Powyżej 2 zmian ( modzele, odciski, pękające pięty). Opracowanie paz...",
+   "Laserowe rozjaśnianie przebarwień — Laserowe rozjaśnianie przebarwień (małe, pojedyncze zmiany)",
+   "Oczyszczenie paznokcia ze zmianą chorobową"
+  ]
+ },
+ "kompletn | piers": {
+  "relacja": "inne",
+  "rozklad": {
+   "szersze": 0.0,
+   "to_samo": 0.0,
+   "inne": 1.0,
+   "wezsze": 0.0
+  },
+  "oferty_a": [
+   "OLAPLEX Kompletna REGENERACJA",
+   "Masaż Kompletny 75’",
+   "Stylizacja rzęs i brwi — Kompletna oprawa oka: koloryzacja rzęs i brwi z regulacją"
+  ],
+  "oferty_b": [
+   "EPILACJA LASEROWA — Piersi",
+   "Laserowe usuwanie rozstępów - laser frakcyjny CO2 — Piersi - 1 zabieg",
+   "RADIOFREKWENCJA MIKROIGŁOWA RF — Piersi"
+  ]
+ },
+ "kinezotaping | trasbukaln": {
+  "relacja": "inne",
+  "rozklad": {
+   "inne": 0.98,
+   "wezsze": 0.0,
+   "to_samo": 0.01,
+   "szersze": 0.01
+  },
+  "oferty_a": [
+   "Masaż kobido + kinezotaping"
+  ],
+  "oferty_b": [
+   "Masaż Kobido — Kobido z masażem trasbukalnym"
+  ]
+ },
+ "farbowan | rytual": {
+  "relacja": "inne",
+  "rozklad": {
+   "wezsze": 0.01,
+   "inne": 0.99,
+   "to_samo": 0.0,
+   "szersze": 0.0
+  },
+  "oferty_a": [
+   "Kolor jednolity",
+   "Farbowanie brwi — Farbka arganowa + geometria + nitkowanie",
+   "Farbowanie brwi — Farbka permanentna + geometria + nitkowanie"
+  ],
+  "oferty_b": [
+   "Rytuał Liftingujący",
+   "Rytuał odbudowy włosa",
+   "RICA - RYTUAŁ DLA ZNISZCZONYCH WŁOSÓW — włosy krótkie"
+  ]
+ },
+ "dermotlen | relaksacyjn": {
+  "relacja": "inne",
+  "rozklad": {
+   "inne": 0.99,
+   "to_samo": 0.0,
+   "wezsze": 0.01,
+   "szersze": 0.0
+  },
+  "oferty_a": [
+   "Masaż Dermotlenowy"
+  ],
+  "oferty_b": [
+   "Masaż relaksacyjny",
+   "Masaż relaksacyjny całego ciała",
+   "Masaż świecą relaksacyjny-całościowy"
+  ]
+ },
+ "powiez | swiec": {
+  "relacja": "inne",
+  "rozklad": {
+   "to_samo": 0.0,
+   "szersze": 0.0,
+   "wezsze": 0.0,
+   "inne": 1.0
+  },
+  "oferty_a": [
+   "Smart Dna Retix C+ Masaż Lifting./Powięź 1h",
+   "masaż leczniczy - terapia mięśni i powięzi 🌿",
+   "Masaż powięzi"
+  ],
+  "oferty_b": [
+   "Masaż świecą relaksacyjny-całościowy",
+   "Masaż gorącą świecą aromaterapeutyczną",
+   "Masaż Goracą Świecą"
+  ]
+ },
+ "dlug | sciagniec": {
+  "relacja": "inne",
+  "rozklad": {
+   "wezsze": 0.0,
+   "inne": 1.0,
+   "to_samo": 0.0,
+   "szersze": 0.0
+  },
+  "oferty_a": [
+   "AirTouch włosy długie",
+   "Farbowanie włosów w jeden kolor (długich)",
+   "Strzyżenie włosów długich"
+  ],
+  "oferty_b": [
+   "ŚCIĄGNIĘCIE HYBRYDY",
+   "ŚCIĄGNIĘCIE ŻELU",
+   "Ściągnięcie rzęs"
+  ]
+ },
+ "kinesiotaping | pielegnacj": {
+  "relacja": "inne",
+  "rozklad": {
+   "szersze": 0.0,
+   "inne": 0.93,
+   "to_samo": 0.0,
+   "wezsze": 0.07
+  },
+  "oferty_a": [
+   "MASAŻ KOBIDO + KINESIOTAPING ESTETYCZNY — MASAŻ KOBIDO + KINESIOTAPING ESTETYCZNY",
+   "Kobido Lift + kinesiotaping",
+   "Kinesiotaping twarzy + masaż kobido"
+  ],
+  "oferty_b": [
+   "Masaż KOBIDO + pielęgnacja",
+   "BOTOX WŁOSY KRÓTKIE (pielęgnacja na zimno)",
+   "Masaż Kobido z pielęgnacją - Zmysłowy Rytuał"
+  ]
+ },
+ "jedn | oczyszczan": {
+  "relacja": "inne",
+  "rozklad": {
+   "inne": 1.0,
+   "wezsze": 0.0,
+   "to_samo": 0.0,
+   "szersze": 0.0
+  },
+  "oferty_a": [
+   "Combo + cover (odsiwianie jednej rzeczy)",
+   "Manicure I Pedicure w jednym czasie",
+   "Strzyżenie włosów na jedną długość"
+  ],
+  "oferty_b": [
+   "Oczyszczanie wodorowe",
+   "Podstawowe Oczyszczanie",
+   "Oczyszczanie Pleców"
+  ]
+ },
+ "dlon | limfatyczn": {
+  "relacja": "inne",
+  "rozklad": {
+   "szersze": 0.0,
+   "inne": 1.0,
+   "to_samo": 0.0,
+   "wezsze": 0.0
+  },
+  "oferty_a": [
+   "Parafina na dłonie — Parafina na dłonie",
+   "Usuwanie brodawek wirusowych na dłoni i stopach",
+   "Klamra Na  1 Paznokiec na dłoni"
+  ],
+  "oferty_b": [
+   "Kobido Facelifting Therapy — Masaż Kobido + drenaż limfatyczny Gua Sha",
+   "Drenaz limfatyczny",
+   "Biostymulatory tkankowe - oczy — Drenaż limfatyczny"
+  ]
+ },
+ "olaplex | ombr": {
+  "relacja": "inne",
+  "rozklad": {
+   "szersze": 0.0,
+   "to_samo": 0.0,
+   "wezsze": 0.0,
+   "inne": 1.0
+  },
+  "oferty_a": [
+   "Regeneracja olaplex do koloryzacji",
+   "Olaplex - do usługi — Olaplex - do usługi",
+   "Olaplex"
+  ],
+  "oferty_b": [
+   "Makijaż permanentny brwi (ombre)",
+   "Strzyżenie modelowanie balejaż/ombre toner",
+   "Ombre, sombre ze strzyżeniem wł długie"
+  ]
  }
 }

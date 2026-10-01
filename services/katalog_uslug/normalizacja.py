@@ -10,6 +10,9 @@ import unicodedata
 
 _CZAS = re.compile(r"(?<!\w)\d+(?:[.,]\d+)?\s*(?:min(?:ut[ay]?)?|h|godz(?:in[ya]?)?)(?!\w)", re.IGNORECASE)
 _PROPORCJA = re.compile(r"(\d)\s*:\s*(\d)")
+# Zakres z jednostką tylko przy drugiej liczbie dotyczy obu: „2-3D” = „2D-3D”, „4/6D” = „4D/6D” (gęstość rzęs; testy A–E,
+# 1.10: pary „Uzupełnienie 2-3D” / „Uzupełnienie 2D-3D” różniły się słowem „2” / „2d”). Przecinek to ułamek („2,5cm”).
+_ZAKRES = re.compile(r"(?<![\w.,])(\d+)\s*[-/]\s*(\d+)([^\W\d_]{1,3})(?!\w)")
 _ZNACZACE = "+/"
 _DWUKROPEK = "\u0000"  # chroni „:” proporcji przed zamianą interpunkcji na spację
 
@@ -49,9 +52,11 @@ def rdzen_slowa(slowo: str) -> str:
 
 
 def normalizuj(tekst: str | None) -> str:
-    """Tekst oferty → klucz: małe litery, bez szumu, pojedyncze spacje."""
+    """Tekst oferty → klucz: małe litery, bez szumu, pojedyncze spacje. NFKC sprowadza ozdobne odmiany znaków do
+    zwykłych („𝑳𝒂𝒔𝒆𝒓” z Booksy → „laser”; test D: para „Bikini klasyczne” różniła się tylko tym słowem)."""
     if not tekst:
         return ""
-    t = _PROPORCJA.sub(rf"\1{_DWUKROPEK}\2", _CZAS.sub(" ", unicodedata.normalize("NFC", tekst).lower()))
+    t = _CZAS.sub(" ", unicodedata.normalize("NFKC", tekst).lower())
+    t = _PROPORCJA.sub(rf"\1{_DWUKROPEK}\2", _ZAKRES.sub(r"\1\3 \2\3", t))
     znaki = [f" {c} " if c in _ZNACZACE else ":" if c == _DWUKROPEK else c if c.isalnum() else " " for c in t]
     return " ".join("".join(znaki).split())

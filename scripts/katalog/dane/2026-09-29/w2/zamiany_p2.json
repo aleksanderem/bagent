@@ -72920,5 +72920,3273 @@
    "inne": 0.97,
    "nie_wiadomo": 0.01
   }
+ },
+ "[\"3d metod przedluzan rzes\", \"2d\", \"uzupelnien\"]": {
+  "klasa": [
+   "3d metod przedluzan rzes",
+   "2d",
+   "uzupelnien"
+  ],
+  "a": "Przedłużanie rzęs metodą 2-3D",
+  "b": "Przedłużanie rzęs metodą 3D — dopełnienie",
+  "slowa_a": "2-3D",
+  "slowa_b": "dopełnienie",
+  "relacja": "inne",
+  "rozklad": {
+   "wezsze": 0.01,
+   "to_samo": 0.01,
+   "inne": 0.87,
+   "nie_wiadomo": 0.02,
+   "szersze": 0.09
+  }
+ },
+ "[\"3d metod przedluzan rzes\", \"2d\", \"stylizacj\"]": {
+  "klasa": [
+   "3d metod przedluzan rzes",
+   "2d",
+   "stylizacj"
+  ],
+  "a": "Przedłużanie rzęs metodą 2-3D",
+  "b": "Przedłużanie rzęs metodą 3D",
+  "slowa_a": "2-3D",
+  "slowa_b": "Stylizacja",
+  "relacja": "inne",
+  "rozklad": {
+   "szersze": 0.08,
+   "to_samo": 0.09,
+   "wezsze": 0.28,
+   "inne": 0.4,
+   "nie_wiadomo": 0.15
+  }
+ },
+ "[\"2d 3d przedluzan rzes\", \"metod\", \"uzupelnien\"]": {
+  "klasa": [
+   "2d 3d przedluzan rzes",
+   "metod",
+   "uzupelnien"
+  ],
+  "a": "Przedłużanie rzęs metodą 2-3D",
+  "b": "Przedłużanie rzęs 2-3D — Dopełnienie 2-3D",
+  "slowa_a": "metodą",
+  "slowa_b": "Dopełnienie",
+  "relacja": "inne",
+  "rozklad": {
+   "nie_wiadomo": 0.01,
+   "to_samo": 0.03,
+   "inne": 0.74,
+   "wezsze": 0.0,
+   "szersze": 0.22
+  }
+ },
+ "[\"metod przedluzan rzes\", \"2d 3d\", \"5d 6d\"]": {
+  "klasa": [
+   "metod przedluzan rzes",
+   "2d 3d",
+   "5d 6d"
+  ],
+  "a": "Przedłużanie rzęs metodą 2-3D",
+  "b": "Przedłużanie rzęs metodą 5-6D",
+  "slowa_a": "2-3D",
+  "slowa_b": "5-6D",
+  "relacja": "inne",
+  "rozklad": {
+   "nie_wiadomo": 0.04,
+   "to_samo": 0.01,
+   "inne": 0.94,
+   "szersze": 0.0,
+   "wezsze": 0.01
+  }
+ },
+ "[\"3d metod przedluzan rzes\", \"2d\", \"4d\"]": {
+  "klasa": [
+   "3d metod przedluzan rzes",
+   "2d",
+   "4d"
+  ],
+  "a": "Przedłużanie rzęs metodą 2-3D",
+  "b": "Przedłużanie rzęs metodą 3-4D",
+  "slowa_a": "2-3D",
+  "slowa_b": "3-4D",
+  "relacja": "inne",
+  "rozklad": {
+   "szersze": 0.01,
+   "inne": 0.82,
+   "to_samo": 0.03,
+   "wezsze": 0.03,
+   "nie_wiadomo": 0.11
+  }
+ },
+ "[\"2d metod przedluzan rzes\", \"3d\", \"stylizacj\"]": {
+  "klasa": [
+   "2d metod przedluzan rzes",
+   "3d",
+   "stylizacj"
+  ],
+  "a": "Przedłużanie rzęs metodą 2-3D",
+  "b": "Przedłużanie rzęs metodą 2D",
+  "slowa_a": "2-3D",
+  "slowa_b": "Stylizacja",
+  "relacja": "inne",
+  "rozklad": {
+   "nie_wiadomo": 0.06,
+   "inne": 0.75,
+   "szersze": 0.02,
+   "to_samo": 0.01,
+   "wezsze": 0.16
+  }
+ },
+ "[\"2d 3d przedluzan rzes\", \"metod\", \"stylizacj\"]": {
+  "klasa": [
+   "2d 3d przedluzan rzes",
+   "metod",
+   "stylizacj"
+  ],
+  "a": "Przedłużanie rzęs metodą 2-3D",
+  "b": "Przedłużanie rzęs 2/3D — Przedłużanie rzęs 2/3D",
+  "slowa_a": "metodą",
+  "slowa_b": "STYLIZACJA",
+  "relacja": "to_samo",
+  "rozklad": {
+   "wezsze": 0.13,
+   "inne": 0.12,
+   "szersze": 0.01,
+   "nie_wiadomo": 0.08,
+   "to_samo": 0.66
+  }
+ },
+ "[\"3d metod przedluzan rzes\", \"2d\", \"uv\"]": {
+  "klasa": [
+   "3d metod przedluzan rzes",
+   "2d",
+   "uv"
+  ],
+  "a": "Przedłużanie rzęs metodą 2-3D",
+  "b": "Przedłużanie rzęs 3D — metodą UV",
+  "slowa_a": "2-3D",
+  "slowa_b": "UV",
+  "relacja": "inne",
+  "rozklad": {
+   "nie_wiadomo": 0.17,
+   "inne": 0.76,
+   "wezsze": 0.01,
+   "szersze": 0.04,
+   "to_samo": 0.02
+  }
+ },
+ "[\"2d przedluzan rzes\", \"3d metod\", \"stylizacj\"]": {
+  "klasa": [
+   "2d przedluzan rzes",
+   "3d metod",
+   "stylizacj"
+  ],
+  "a": "Przedłużanie rzęs metodą 2-3D",
+  "b": "Przedłużanie rzęs 2D",
+  "slowa_a": "metodą 2-3D",
+  "slowa_b": "Stylizacja",
+  "relacja": "inne",
+  "rozklad": {
+   "szersze": 0.04,
+   "to_samo": 0.04,
+   "wezsze": 0.09,
+   "inne": 0.77,
+   "nie_wiadomo": 0.06
+  }
+ },
+ "[\"3d przedluzan rzes\", \"2d metod\", \"stylizacj\"]": {
+  "klasa": [
+   "3d przedluzan rzes",
+   "2d metod",
+   "stylizacj"
+  ],
+  "a": "Przedłużanie rzęs metodą 2-3D",
+  "b": "Przedłużanie rzęs 3D",
+  "slowa_a": "metodą 2-3D",
+  "slowa_b": "Stylizacja",
+  "relacja": "wezsze",
+  "rozklad": {
+   "nie_wiadomo": 0.16,
+   "wezsze": 0.27,
+   "inne": 0.26,
+   "szersze": 0.07,
+   "to_samo": 0.24
+  }
+ },
+ "[\"2d przedluzan rzes\", \"3d metod\", \"aplikacj\"]": {
+  "klasa": [
+   "2d przedluzan rzes",
+   "3d metod",
+   "aplikacj"
+  ],
+  "a": "Przedłużanie rzęs metodą 2-3D",
+  "b": "Przedłużanie rzęs 2D — Żenia/Ania",
+  "slowa_a": "metodą 2-3D",
+  "slowa_b": "aplikacja",
+  "relacja": "inne",
+  "rozklad": {
+   "nie_wiadomo": 0.09,
+   "wezsze": 0.16,
+   "inne": 0.65,
+   "to_samo": 0.06,
+   "szersze": 0.04
+  }
+ },
+ "[\"metod przedluzan rzes\", \"2d 3d\", \"4d 5d\"]": {
+  "klasa": [
+   "metod przedluzan rzes",
+   "2d 3d",
+   "4d 5d"
+  ],
+  "a": "Przedłużanie rzęs metodą 2-3D",
+  "b": "Przedłużanie rzęs metodą 4-5D",
+  "slowa_a": "2-3D",
+  "slowa_b": "4-5D",
+  "relacja": "inne",
+  "rozklad": {
+   "to_samo": 0.02,
+   "nie_wiadomo": 0.04,
+   "wezsze": 0.01,
+   "inne": 0.93,
+   "szersze": 0.0
+  }
+ },
+ "[\"metod przedluzan rzes\", \"2d 3d\", \"4d stylizacj\"]": {
+  "klasa": [
+   "metod przedluzan rzes",
+   "2d 3d",
+   "4d stylizacj"
+  ],
+  "a": "Przedłużanie rzęs metodą 2-3D",
+  "b": "Przedłużanie rzęs metodą 4D",
+  "slowa_a": "2-3D",
+  "slowa_b": "4D Stylizacja",
+  "relacja": "inne",
+  "rozklad": {
+   "nie_wiadomo": 0.07,
+   "to_samo": 0.03,
+   "wezsze": 0.02,
+   "szersze": 0.0,
+   "inne": 0.88
+  }
+ },
+ "[\"metod przedluzan rzes\", \"2:1 stylizacj\", \"2d 3d\"]": {
+  "klasa": [
+   "metod przedluzan rzes",
+   "2:1 stylizacj",
+   "2d 3d"
+  ],
+  "a": "Przedłużanie rzęs metodą 2:1",
+  "b": "Przedłużanie rzęs metodą 2-3D",
+  "slowa_a": "2:1 Stylizacja",
+  "slowa_b": "2-3D",
+  "relacja": "inne",
+  "rozklad": {
+   "inne": 0.71,
+   "nie_wiadomo": 0.08,
+   "to_samo": 0.07,
+   "szersze": 0.0,
+   "wezsze": 0.14
+  }
+ },
+ "[\"metod przedluzan rzes\", \"2:1\", \"2d 3d\"]": {
+  "klasa": [
+   "metod przedluzan rzes",
+   "2:1",
+   "2d 3d"
+  ],
+  "a": "Przedłużanie rzęs metodą 2:1",
+  "b": "Przedłużanie rzęs metodą 2-3D",
+  "slowa_a": "2:1",
+  "slowa_b": "2-3D",
+  "relacja": "wezsze",
+  "rozklad": {
+   "wezsze": 0.61,
+   "nie_wiadomo": 0.05,
+   "to_samo": 0.06,
+   "szersze": 0.01,
+   "inne": 0.27
+  }
+ },
+ "[\"bank chinsk masaz\", \"kg\", \"ujedrniajac\"]": {
+  "klasa": [
+   "bank chinsk masaz",
+   "kg",
+   "ujedrniajac"
+  ],
+  "a": "Masaż bańką chińską [KG]",
+  "b": "Masaż bańką chińską ujędrniający",
+  "slowa_a": "kg",
+  "slowa_b": "ujędrniający",
+  "relacja": "inne",
+  "rozklad": {
+   "nie_wiadomo": 0.33,
+   "inne": 0.52,
+   "szersze": 0.07,
+   "to_samo": 0.03,
+   "wezsze": 0.05
+  }
+ },
+ "[\"3d metod przedluzan rzes\", \"2d\", \"aplikacj nowa\"]": {
+  "klasa": [
+   "3d metod przedluzan rzes",
+   "2d",
+   "aplikacj nowa"
+  ],
+  "a": "Przedłużanie rzęs metodą 2-3D",
+  "b": "Przedłużanie rzęs metodą 3D — nowa aplikacja",
+  "slowa_a": "2-3D",
+  "slowa_b": "nowa aplikacja",
+  "relacja": "inne",
+  "rozklad": {
+   "wezsze": 0.11,
+   "szersze": 0.11,
+   "to_samo": 0.02,
+   "nie_wiadomo": 0.08,
+   "inne": 0.68
+  }
+ },
+ "[\"2d metod przedluzan rzes\", \"3d\", \"uzupelnien\"]": {
+  "klasa": [
+   "2d metod przedluzan rzes",
+   "3d",
+   "uzupelnien"
+  ],
+  "a": "Przedłużanie rzęs metodą 2-3D",
+  "b": "Przedłużanie rzęs metodą 2D — dopełnienie",
+  "slowa_a": "2-3D",
+  "slowa_b": "dopełnienie",
+  "relacja": "inne",
+  "rozklad": {
+   "to_samo": 0.0,
+   "szersze": 0.05,
+   "wezsze": 0.0,
+   "nie_wiadomo": 0.01,
+   "inne": 0.94
+  }
+ },
+ "[\"2d metod przedluzan rzes\", \"3d\", \"aplikacj nowa\"]": {
+  "klasa": [
+   "2d metod przedluzan rzes",
+   "3d",
+   "aplikacj nowa"
+  ],
+  "a": "Przedłużanie rzęs metodą 2-3D",
+  "b": "Przedłużanie rzęs metodą 2D — nowa aplikacja",
+  "slowa_a": "2-3D",
+  "slowa_b": "nowa aplikacja",
+  "relacja": "inne",
+  "rozklad": {
+   "nie_wiadomo": 0.02,
+   "szersze": 0.01,
+   "inne": 0.92,
+   "to_samo": 0.0,
+   "wezsze": 0.05
+  }
+ },
+ "[\"2d 3d przedluzan rzes\", \"metod\", \"uv\"]": {
+  "klasa": [
+   "2d 3d przedluzan rzes",
+   "metod",
+   "uv"
+  ],
+  "a": "Przedłużanie rzęs metodą 2-3D",
+  "b": "Przedłużanie rzęs 2-3D",
+  "slowa_a": "metodą",
+  "slowa_b": "UV",
+  "relacja": "to_samo",
+  "rozklad": {
+   "wezsze": 0.03,
+   "nie_wiadomo": 0.19,
+   "to_samo": 0.37,
+   "inne": 0.26,
+   "szersze": 0.15
+  }
+ },
+ "[\"2d 3d przedluzan rzes\", \"metod\", \"nowe zalozen\"]": {
+  "klasa": [
+   "2d 3d przedluzan rzes",
+   "metod",
+   "nowe zalozen"
+  ],
+  "a": "Przedłużanie rzęs metodą 2-3D",
+  "b": "Przedłużanie rzęs 2-3D — Nowe założenie",
+  "slowa_a": "metodą",
+  "slowa_b": "Nowe założenie",
+  "relacja": "to_samo",
+  "rozklad": {
+   "szersze": 0.3,
+   "to_samo": 0.42,
+   "wezsze": 0.09,
+   "nie_wiadomo": 0.02,
+   "inne": 0.17
+  }
+ },
+ "[\"2d 3d przedluzan rzes\", \"aplikacj nowa\", \"metod\"]": {
+  "klasa": [
+   "2d 3d przedluzan rzes",
+   "aplikacj nowa",
+   "metod"
+  ],
+  "a": "Przedłużanie rzęs 2-3D — Nowa aplikacja",
+  "b": "Przedłużanie rzęs metodą 2-3D",
+  "slowa_a": "Nowa aplikacja",
+  "slowa_b": "metodą",
+  "relacja": "wezsze",
+  "rozklad": {
+   "nie_wiadomo": 0.03,
+   "inne": 0.2,
+   "szersze": 0.01,
+   "to_samo": 0.31,
+   "wezsze": 0.45
+  }
+ },
+ "[\"2d 3d przedluzan rzes\", \"metod\", \"stylizacj uv\"]": {
+  "klasa": [
+   "2d 3d przedluzan rzes",
+   "metod",
+   "stylizacj uv"
+  ],
+  "a": "Przedłużanie rzęs metodą 2-3D",
+  "b": "Przedłużanie rzęs 2-3D",
+  "slowa_a": "metodą",
+  "slowa_b": "STYLIZACJA UV",
+  "relacja": "to_samo",
+  "rozklad": {
+   "nie_wiadomo": 0.29,
+   "inne": 0.29,
+   "wezsze": 0.07,
+   "szersze": 0.04,
+   "to_samo": 0.31
+  }
+ },
+ "[\"2d 3d przedluzan rzes\", \"metod\", \"weekend\"]": {
+  "klasa": [
+   "2d 3d przedluzan rzes",
+   "metod",
+   "weekend"
+  ],
+  "a": "Przedłużanie rzęs metodą 2-3D",
+  "b": "Przedłużanie rzęs 2-3D — Rzęsy w WEEKEND",
+  "slowa_a": "metodą",
+  "slowa_b": "WEEKEND",
+  "relacja": "inne",
+  "rozklad": {
+   "to_samo": 0.2,
+   "wezsze": 0.01,
+   "szersze": 0.23,
+   "inne": 0.48,
+   "nie_wiadomo": 0.08
+  }
+ },
+ "[\"metod przedluzan rzes\", \"2 d\", \"2d 3d\"]": {
+  "klasa": [
+   "metod przedluzan rzes",
+   "2 d",
+   "2d 3d"
+  ],
+  "a": "Przedłużanie rzęs metodą 2 D",
+  "b": "Przedłużanie rzęs metodą 2-3D",
+  "slowa_a": "2 D",
+  "slowa_b": "2-3D",
+  "relacja": "wezsze",
+  "rozklad": {
+   "to_samo": 0.07,
+   "nie_wiadomo": 0.06,
+   "wezsze": 0.79,
+   "inne": 0.08,
+   "szersze": 0.0
+  }
+ },
+ "[\"3d metod przedluzan rzes\", \"2d\", \"3:1\"]": {
+  "klasa": [
+   "3d metod przedluzan rzes",
+   "2d",
+   "3:1"
+  ],
+  "a": "Przedłużanie rzęs metodą 2-3D",
+  "b": "Przedłużanie rzęs metoda 3:1(3D)",
+  "slowa_a": "2-3D",
+  "slowa_b": "3:1(3D)",
+  "relacja": "szersze",
+  "rozklad": {
+   "wezsze": 0.03,
+   "nie_wiadomo": 0.12,
+   "inne": 0.11,
+   "to_samo": 0.33,
+   "szersze": 0.41
+  }
+ },
+ "[\"2d 3d przedluzan rzes\", \"metod\", \"przedluzen\"]": {
+  "klasa": [
+   "2d 3d przedluzan rzes",
+   "metod",
+   "przedluzen"
+  ],
+  "a": "Przedłużanie rzęs metodą 2-3D",
+  "b": "Przedłużanie rzęs 2/3D",
+  "slowa_a": "metodą",
+  "slowa_b": "PRZEDŁUŻENIA",
+  "relacja": "to_samo",
+  "rozklad": {
+   "nie_wiadomo": 0.02,
+   "to_samo": 0.94,
+   "wezsze": 0.04,
+   "inne": 0.0,
+   "szersze": 0.0
+  }
+ },
+ "[\"2d metod przedluzan rzes\", \"2:1\", \"3d\"]": {
+  "klasa": [
+   "2d metod przedluzan rzes",
+   "2:1",
+   "3d"
+  ],
+  "a": "Przedłużanie rzęs metoda 2:1 (2D)",
+  "b": "Przedłużanie rzęs metodą 2-3D",
+  "slowa_a": "2:1",
+  "slowa_b": "2-3D",
+  "relacja": "wezsze",
+  "rozklad": {
+   "szersze": 0.0,
+   "nie_wiadomo": 0.02,
+   "inne": 0.18,
+   "wezsze": 0.77,
+   "to_samo": 0.03
+  }
+ },
+ "[\"2d metod przedluzan rzes\", \"3d\", \"oka uv\"]": {
+  "klasa": [
+   "2d metod przedluzan rzes",
+   "3d",
+   "oka uv"
+  ],
+  "a": "Przedłużanie rzęs metodą 2-3D",
+  "b": "Przedłużanie rzęs 2D — metodą UV",
+  "slowa_a": "2-3D",
+  "slowa_b": "UV oka",
+  "relacja": "inne",
+  "rozklad": {
+   "to_samo": 0.02,
+   "szersze": 0.03,
+   "wezsze": 0.01,
+   "nie_wiadomo": 0.08,
+   "inne": 0.86
+  }
+ },
+ "[\"3d przedluzan rzes\", \"2d metod\", \"przedluzen\"]": {
+  "klasa": [
+   "3d przedluzan rzes",
+   "2d metod",
+   "przedluzen"
+  ],
+  "a": "Przedłużanie rzęs metodą 2-3D",
+  "b": "Przedłużanie rzęs 3D",
+  "slowa_a": "metodą 2-3D",
+  "slowa_b": "PRZEDŁUŻENIA",
+  "relacja": "wezsze",
+  "rozklad": {
+   "nie_wiadomo": 0.07,
+   "wezsze": 0.42,
+   "to_samo": 0.38,
+   "szersze": 0.07,
+   "inne": 0.06
+  }
+ },
+ "[\"2d przedluzan rzes\", \"3d metod\", \"uv\"]": {
+  "klasa": [
+   "2d przedluzan rzes",
+   "3d metod",
+   "uv"
+  ],
+  "a": "Przedłużanie rzęs metodą 2-3D",
+  "b": "Przedłużanie rzęs 2D — Przedłużanie rzęs 2D",
+  "slowa_a": "metodą 2-3D",
+  "slowa_b": "UV",
+  "relacja": "inne",
+  "rozklad": {
+   "szersze": 0.02,
+   "wezsze": 0.02,
+   "nie_wiadomo": 0.13,
+   "to_samo": 0.02,
+   "inne": 0.8
+  }
+ },
+ "[\"2d przedluzan rzes\", \"3d metod\", \"oka\"]": {
+  "klasa": [
+   "2d przedluzan rzes",
+   "3d metod",
+   "oka"
+  ],
+  "a": "Przedłużanie rzęs metodą 2-3D",
+  "b": "Przedłużanie rzęs 2D",
+  "slowa_a": "metodą 2-3D",
+  "slowa_b": "oka",
+  "relacja": "inne",
+  "rozklad": {
+   "nie_wiadomo": 0.04,
+   "inne": 0.77,
+   "to_samo": 0.06,
+   "szersze": 0.01,
+   "wezsze": 0.12
+  }
+ },
+ "[\"3d przedluzan rzes\", \"2d metod\", \"uv\"]": {
+  "klasa": [
+   "3d przedluzan rzes",
+   "2d metod",
+   "uv"
+  ],
+  "a": "Przedłużanie rzęs metodą 2-3D",
+  "b": "Przedłużanie rzęs 3D — Przedłużanie rzęs 3D",
+  "slowa_a": "metodą 2-3D",
+  "slowa_b": "UV",
+  "relacja": "inne",
+  "rozklad": {
+   "to_samo": 0.08,
+   "wezsze": 0.04,
+   "inne": 0.66,
+   "nie_wiadomo": 0.19,
+   "szersze": 0.03
+  }
+ },
+ "[\"2d przedluzan rzes\", \"3d metod\", \"gdyn stylizacj\"]": {
+  "klasa": [
+   "2d przedluzan rzes",
+   "3d metod",
+   "gdyn stylizacj"
+  ],
+  "a": "Przedłużanie rzęs metodą 2-3D",
+  "b": "Przedłużanie rzęs 2d",
+  "slowa_a": "metodą 2-3D",
+  "slowa_b": "STYLIZACJA Gdynia",
+  "relacja": "inne",
+  "rozklad": {
+   "szersze": 0.16,
+   "to_samo": 0.07,
+   "wezsze": 0.07,
+   "nie_wiadomo": 0.18,
+   "inne": 0.52
+  }
+ },
+ "[\"metod przedluzan rzes\", \"2d 3d\", \"4d 6d\"]": {
+  "klasa": [
+   "metod przedluzan rzes",
+   "2d 3d",
+   "4d 6d"
+  ],
+  "a": "Przedłużanie rzęs metodą 2-3D",
+  "b": "Przedłużanie rzęs metodą 4-6D",
+  "slowa_a": "2-3D",
+  "slowa_b": "4-6D",
+  "relacja": "inne",
+  "rozklad": {
+   "to_samo": 0.02,
+   "wezsze": 0.01,
+   "inne": 0.93,
+   "szersze": 0.0,
+   "nie_wiadomo": 0.04
+  }
+ },
+ "[\"2d 3d przedluzan rzes\", \"metod\", \"zageszczen\"]": {
+  "klasa": [
+   "2d 3d przedluzan rzes",
+   "metod",
+   "zageszczen"
+  ],
+  "a": "Przedłużanie rzęs metodą 2-3D",
+  "b": "Przedłużanie i zagęszczenie rzęs 2-3D",
+  "slowa_a": "metodą",
+  "slowa_b": "zagęszczenie",
+  "relacja": "inne",
+  "rozklad": {
+   "nie_wiadomo": 0.08,
+   "wezsze": 0.09,
+   "to_samo": 0.3,
+   "szersze": 0.08,
+   "inne": 0.45
+  }
+ },
+ "[\"2d metod przedluzan rzes\", \"3d\", \"stylizacj uzupelnien\"]": {
+  "klasa": [
+   "2d metod przedluzan rzes",
+   "3d",
+   "stylizacj uzupelnien"
+  ],
+  "a": "Przedłużanie rzęs metodą 2-3D",
+  "b": "Przedłużanie rzęs metodą 2D DOPEŁNIENIE",
+  "slowa_a": "2-3D",
+  "slowa_b": "DOPEŁNIENIE Stylizacja",
+  "relacja": "inne",
+  "rozklad": {
+   "to_samo": 0.0,
+   "wezsze": 0.0,
+   "nie_wiadomo": 0.01,
+   "szersze": 0.01,
+   "inne": 0.98
+  }
+ },
+ "[\"2d metod przedluzan rzes\", \"3d\", \"uv\"]": {
+  "klasa": [
+   "2d metod przedluzan rzes",
+   "3d",
+   "uv"
+  ],
+  "a": "Przedłużanie rzęs metodą 2-3D",
+  "b": "Przedłużanie rzęs 2d metodą UV",
+  "slowa_a": "2-3D",
+  "slowa_b": "UV",
+  "relacja": "inne",
+  "rozklad": {
+   "szersze": 0.01,
+   "to_samo": 0.01,
+   "wezsze": 0.01,
+   "inne": 0.91,
+   "nie_wiadomo": 0.06
+  }
+ },
+ "[\"2d przedluzan rzes\", \"1d\", \"3d metod\"]": {
+  "klasa": [
+   "2d przedluzan rzes",
+   "1d",
+   "3d metod"
+  ],
+  "a": "Przedłużanie rzęs 1-2D",
+  "b": "Przedłużanie rzęs metodą 2-3D",
+  "slowa_a": "1-2D",
+  "slowa_b": "metodą 2-3D",
+  "relacja": "inne",
+  "rozklad": {
+   "szersze": 0.03,
+   "wezsze": 0.04,
+   "inne": 0.87,
+   "to_samo": 0.02,
+   "nie_wiadomo": 0.04
+  }
+ },
+ "[\"2d 3d przedluzan rzes\", \"4d\", \"metod\"]": {
+  "klasa": [
+   "2d 3d przedluzan rzes",
+   "4d",
+   "metod"
+  ],
+  "a": "Przedłużanie rzęs 2d/3d/4d",
+  "b": "Przedłużanie rzęs metodą 2-3D",
+  "slowa_a": "2d/3d/4d",
+  "slowa_b": "metodą",
+  "relacja": "szersze",
+  "rozklad": {
+   "to_samo": 0.28,
+   "wezsze": 0.06,
+   "szersze": 0.6,
+   "inne": 0.03,
+   "nie_wiadomo": 0.03
+  }
+ },
+ "[\"3d metod przedluzan rzes\", \"2d\", \"4d przedluzen\"]": {
+  "klasa": [
+   "3d metod przedluzan rzes",
+   "2d",
+   "4d przedluzen"
+  ],
+  "a": "Przedłużanie rzęs metodą 2-3D",
+  "b": "Przedłużenie rzęs metoda 3D-4D",
+  "slowa_a": "2-3D",
+  "slowa_b": "Przedłużenie 3D-4D",
+  "relacja": "inne",
+  "rozklad": {
+   "nie_wiadomo": 0.13,
+   "to_samo": 0.11,
+   "wezsze": 0.09,
+   "szersze": 0.04,
+   "inne": 0.63
+  }
+ },
+ "[\"2d przedluzan rzes\", \"3d metod\", \"5d\"]": {
+  "klasa": [
+   "2d przedluzan rzes",
+   "3d metod",
+   "5d"
+  ],
+  "a": "Przedłużanie rzęs metodą 2-3D",
+  "b": "Przedłużanie rzęs 2D-5D",
+  "slowa_a": "metodą 2-3D",
+  "slowa_b": "2D-5D",
+  "relacja": "wezsze",
+  "rozklad": {
+   "nie_wiadomo": 0.08,
+   "to_samo": 0.08,
+   "wezsze": 0.77,
+   "inne": 0.07,
+   "szersze": 0.0
+  }
+ },
+ "[\"3d przedluzan rzes\", \"2d metod\", \"3:1 stylizacj\"]": {
+  "klasa": [
+   "3d przedluzan rzes",
+   "2d metod",
+   "3:1 stylizacj"
+  ],
+  "a": "Przedłużanie rzęs metodą 2-3D",
+  "b": "Przedłużanie rzęs 3:1 3D",
+  "slowa_a": "metodą 2-3D",
+  "slowa_b": "3:1 Stylizacja",
+  "relacja": "inne",
+  "rozklad": {
+   "wezsze": 0.03,
+   "to_samo": 0.25,
+   "szersze": 0.13,
+   "inne": 0.39,
+   "nie_wiadomo": 0.2
+  }
+ },
+ "[\"2d 3d przedluzan rzes\", \"metod\", \"nowe\"]": {
+  "klasa": [
+   "2d 3d przedluzan rzes",
+   "metod",
+   "nowe"
+  ],
+  "a": "Przedłużanie rzęs metodą 2-3D",
+  "b": "Przedłużanie rzęs 2/3D Nowe",
+  "slowa_a": "metodą",
+  "slowa_b": "Nowe",
+  "relacja": "inne",
+  "rozklad": {
+   "nie_wiadomo": 0.01,
+   "szersze": 0.23,
+   "inne": 0.39,
+   "to_samo": 0.3,
+   "wezsze": 0.07
+  }
+ },
+ "[\"3d przedluzan rzes\", \"2d metod\", \"5d\"]": {
+  "klasa": [
+   "3d przedluzan rzes",
+   "2d metod",
+   "5d"
+  ],
+  "a": "Przedłużanie rzęs metodą 2-3D",
+  "b": "Przedłużanie rzęs 3-5D",
+  "slowa_a": "metodą 2-3D",
+  "slowa_b": "3-5D",
+  "relacja": "inne",
+  "rozklad": {
+   "nie_wiadomo": 0.09,
+   "inne": 0.81,
+   "szersze": 0.01,
+   "to_samo": 0.05,
+   "wezsze": 0.04
+  }
+ },
+ "[\"2d przedluzan rzes\", \"2:1 stylizacj\", \"3d metod\"]": {
+  "klasa": [
+   "2d przedluzan rzes",
+   "2:1 stylizacj",
+   "3d metod"
+  ],
+  "a": "Przedłużanie rzęs 2:1 2D",
+  "b": "Przedłużanie rzęs metodą 2-3D",
+  "slowa_a": "2:1 Stylizacja",
+  "slowa_b": "metodą 2-3D",
+  "relacja": "wezsze",
+  "rozklad": {
+   "nie_wiadomo": 0.1,
+   "wezsze": 0.5,
+   "inne": 0.27,
+   "to_samo": 0.13,
+   "szersze": 0.0
+  }
+ },
+ "[\"2d przedluzan rzes\", \"3d metod\", \"6d\"]": {
+  "klasa": [
+   "2d przedluzan rzes",
+   "3d metod",
+   "6d"
+  ],
+  "a": "Przedłużanie rzęs metodą 2-3D",
+  "b": "Przedłużanie rzęs 2D-6D",
+  "slowa_a": "metodą 2-3D",
+  "slowa_b": "2D-6D",
+  "relacja": "wezsze",
+  "rozklad": {
+   "nie_wiadomo": 0.07,
+   "szersze": 0.0,
+   "wezsze": 0.81,
+   "to_samo": 0.06,
+   "inne": 0.06
+  }
+ },
+ "[\"depilacj\", \"laser nogi\", \"nog\"]": {
+  "klasa": [
+   "depilacj",
+   "laser nogi",
+   "nog"
+  ],
+  "a": "Depilacja Laserowa / Nogi — Depilacja Laserowa / Nogi",
+  "b": "Depilacja nóg",
+  "slowa_a": "Laserowa Nogi",
+  "slowa_b": "nóg",
+  "relacja": "wezsze",
+  "rozklad": {
+   "nie_wiadomo": 0.02,
+   "wezsze": 0.6799999999999999,
+   "to_samo": 0.11,
+   "inne": 0.18,
+   "szersze": 0.01
+  }
+ },
+ "[\"ombr tytan\", \"nowosc pedicur\", \"paznokc stylizacj\"]": {
+  "klasa": [
+   "ombr tytan",
+   "nowosc pedicur",
+   "paznokc stylizacj"
+  ],
+  "a": "NOWOŚĆ! Pedicure tytanowy OMBRE",
+  "b": "Ombre Tytanowe",
+  "slowa_a": "Pedicure",
+  "slowa_b": "STYLIZACJA PAZNOKCI",
+  "relacja": "inne",
+  "rozklad": {
+   "to_samo": 0.03,
+   "wezsze": 0.33,
+   "szersze": 0.02,
+   "inne": 0.6,
+   "nie_wiadomo": 0.02
+  }
+ },
+ "[\"ombr tytan\", \"manicur nowosc\", \"paznokc stylizacj\"]": {
+  "klasa": [
+   "ombr tytan",
+   "manicur nowosc",
+   "paznokc stylizacj"
+  ],
+  "a": "NOWOŚĆ! Manicure Tytanowy OMBRE",
+  "b": "Ombre Tytanowe",
+  "slowa_a": "Manicure",
+  "slowa_b": "STYLIZACJA PAZNOKCI",
+  "relacja": "to_samo",
+  "rozklad": {
+   "inne": 0.04,
+   "nie_wiadomo": 0.04,
+   "wezsze": 0.34,
+   "to_samo": 0.54,
+   "szersze": 0.04
+  }
+ },
+ "[\"przedluzan rzes\", \"5:1 stylizacj\", \"5d 6d\"]": {
+  "klasa": [
+   "przedluzan rzes",
+   "5:1 stylizacj",
+   "5d 6d"
+  ],
+  "a": "Przedłużanie rzęs 5:1",
+  "b": "Przedłużanie rzęs 5-6D",
+  "slowa_a": "5:1 STYLIZACJA",
+  "slowa_b": "5-6D",
+  "relacja": "nie_wiadomo",
+  "rozklad": {
+   "nie_wiadomo": 0.35,
+   "szersze": 0.01,
+   "wezsze": 0.12,
+   "inne": 0.29,
+   "to_samo": 0.23
+  }
+ },
+ "[\"6d rzes uzupelnien\", \"4d\", \"8d\"]": {
+  "klasa": [
+   "6d rzes uzupelnien",
+   "4d",
+   "8d"
+  ],
+  "a": "Uzupełnienie rzęs 4-6D",
+  "b": "Uzupełnienie rzęs 6-8D — Uzupełnienie rzęs 6-8D",
+  "slowa_a": "4-6D",
+  "slowa_b": "6-8D",
+  "relacja": "inne",
+  "rozklad": {
+   "szersze": 0.05,
+   "nie_wiadomo": 0.13,
+   "wezsze": 0.05,
+   "to_samo": 0.08,
+   "inne": 0.69
+  }
+ },
+ "[\"rzes uzupelnien\", \"1:1\", \"4d 6d\"]": {
+  "klasa": [
+   "rzes uzupelnien",
+   "1:1",
+   "4d 6d"
+  ],
+  "a": "Uzupełnianie rzęs 1:1",
+  "b": "Uzupełnianie rzęs 4-6D — Uzupełnianie rzęs 4-6D",
+  "slowa_a": "1:1",
+  "slowa_b": "4-6D",
+  "relacja": "inne",
+  "rozklad": {
+   "nie_wiadomo": 0.0,
+   "wezsze": 0.02,
+   "to_samo": 0.01,
+   "szersze": 0.0,
+   "inne": 0.97
+  }
+ },
+ "[\"rzes uzupelnien\", \"4d 5d\", \"6d 8d\"]": {
+  "klasa": [
+   "rzes uzupelnien",
+   "4d 5d",
+   "6d 8d"
+  ],
+  "a": "Uzupełnienie rzęs 4-5D",
+  "b": "Uzupełnienie rzęs 6-8D — Uzupełnienie rzęs 6-8D",
+  "slowa_a": "4-5D",
+  "slowa_b": "6-8D",
+  "relacja": "inne",
+  "rozklad": {
+   "inne": 0.8,
+   "wezsze": 0.02,
+   "to_samo": 0.08,
+   "nie_wiadomo": 0.1,
+   "szersze": 0.0
+  }
+ },
+ "[\"rzes uzupelnien\", \"3d 4d\", \"6d 8d\"]": {
+  "klasa": [
+   "rzes uzupelnien",
+   "3d 4d",
+   "6d 8d"
+  ],
+  "a": "Uzupełnienie rzęs 3-4D",
+  "b": "Uzupełnienie rzęs 6-8D — Uzupełnienie rzęs 6-8D",
+  "slowa_a": "3-4D",
+  "slowa_b": "6-8D",
+  "relacja": "inne",
+  "rozklad": {
+   "inne": 0.89,
+   "wezsze": 0.02,
+   "szersze": 0.0,
+   "nie_wiadomo": 0.06,
+   "to_samo": 0.03
+  }
+ },
+ "[\"4d 6d rzes\", \"przedluzan stylizacj\", \"uzupelnien\"]": {
+  "klasa": [
+   "4d 6d rzes",
+   "przedluzan stylizacj",
+   "uzupelnien"
+  ],
+  "a": "Przedłużanie rzęs 4/6D",
+  "b": "Uzupełnienie rzęs 4/6D",
+  "slowa_a": "Przedłużanie Stylizacja",
+  "slowa_b": "Uzupełnienie",
+  "relacja": "inne",
+  "rozklad": {
+   "to_samo": 0.02,
+   "inne": 0.93,
+   "wezsze": 0.0,
+   "szersze": 0.04,
+   "nie_wiadomo": 0.01
+  }
+ },
+ "[\"4d rzes uzupelnien\", \"5d\", \"6d\"]": {
+  "klasa": [
+   "4d rzes uzupelnien",
+   "5d",
+   "6d"
+  ],
+  "a": "Uzupełnienie rzęs 4-5D",
+  "b": "Uzupełnianie rzęs 4-6D — Uzupełnianie rzęs 4-6D",
+  "slowa_a": "4-5D",
+  "slowa_b": "4-6D",
+  "relacja": "wezsze",
+  "rozklad": {
+   "nie_wiadomo": 0.12,
+   "inne": 0.11,
+   "to_samo": 0.21,
+   "wezsze": 0.55,
+   "szersze": 0.01
+  }
+ },
+ "[\"rzes uzupelnien\", \"6:1\", \"6d 8d\"]": {
+  "klasa": [
+   "rzes uzupelnien",
+   "6:1",
+   "6d 8d"
+  ],
+  "a": "Uzupełnienie rzęs 6:1",
+  "b": "Uzupełnienie rzęs 6-8D — Uzupełnienie rzęs 6-8D",
+  "slowa_a": "6:1",
+  "slowa_b": "6-8D",
+  "relacja": "inne",
+  "rozklad": {
+   "to_samo": 0.11,
+   "nie_wiadomo": 0.22,
+   "inne": 0.33,
+   "wezsze": 0.33,
+   "szersze": 0.01
+  }
+ },
+ "[\"rzes uzupelnien\", \"2d 4d\", \"6d 8d\"]": {
+  "klasa": [
+   "rzes uzupelnien",
+   "2d 4d",
+   "6d 8d"
+  ],
+  "a": "Uzupełnienie rzęs 2-4D — Stylistka Weronika",
+  "b": "Uzupełnienie rzęs 6-8D — Uzupełnienie rzęs 6-8D",
+  "slowa_a": "2-4D",
+  "slowa_b": "6-8D",
+  "relacja": "inne",
+  "rozklad": {
+   "nie_wiadomo": 0.04,
+   "inne": 0.93,
+   "wezsze": 0.01,
+   "szersze": 0.0,
+   "to_samo": 0.02
+  }
+ },
+ "[\"rzes uzupelnien\", \"5d\", \"6d 8d\"]": {
+  "klasa": [
+   "rzes uzupelnien",
+   "5d",
+   "6d 8d"
+  ],
+  "a": "Uzupełnienie rzęs 5D",
+  "b": "Uzupełnienie rzęs 6-8D — Uzupełnienie rzęs 6-8D",
+  "slowa_a": "5D",
+  "slowa_b": "6-8D",
+  "relacja": "inne",
+  "rozklad": {
+   "szersze": 0.0,
+   "to_samo": 0.07,
+   "wezsze": 0.13,
+   "inne": 0.62,
+   "nie_wiadomo": 0.18
+  }
+ },
+ "[\"cial drenaz limfatyczn\", \"cale\", \"dluz masaz\"]": {
+  "klasa": [
+   "cial drenaz limfatyczn",
+   "cale",
+   "dluz masaz"
+  ],
+  "a": "DRENAŻ LIMFATYCZNY — 60min",
+  "b": "Drenaż limfatyczny masaz ciala — Dłużej",
+  "slowa_a": "całego",
+  "slowa_b": "masaz",
+  "relacja": "to_samo",
+  "rozklad": {
+   "to_samo": 0.85,
+   "wezsze": 0.11,
+   "nie_wiadomo": 0.01,
+   "szersze": 0.01,
+   "inne": 0.02
+  }
+ },
+ "[\"8d rzes uzupelnien\", \"5d\", \"6d\"]": {
+  "klasa": [
+   "8d rzes uzupelnien",
+   "5d",
+   "6d"
+  ],
+  "a": "Uzupełnienie rzęs 5-8d",
+  "b": "Uzupełnienie rzęs 6-8D — Uzupełnienie rzęs 6-8D",
+  "slowa_a": "5-8d",
+  "slowa_b": "6-8D",
+  "relacja": "szersze",
+  "rozklad": {
+   "nie_wiadomo": 0.06,
+   "to_samo": 0.15,
+   "inne": 0.06,
+   "wezsze": 0.01,
+   "szersze": 0.72
+  }
+ },
+ "[\"4d rzes uzupelnien\", \"2d\", \"6d\"]": {
+  "klasa": [
+   "4d rzes uzupelnien",
+   "2d",
+   "6d"
+  ],
+  "a": "Uzupełnienie rzęs 2-4D — Stylistka Weronika",
+  "b": "Uzupełnianie rzęs 4-6D — Uzupełnianie rzęs 4-6D",
+  "slowa_a": "2-4D",
+  "slowa_b": "4-6D",
+  "relacja": "inne",
+  "rozklad": {
+   "nie_wiadomo": 0.09,
+   "inne": 0.76,
+   "szersze": 0.05,
+   "wezsze": 0.04,
+   "to_samo": 0.06
+  }
+ },
+ "[\"rzes uzupelnien\", \"1:1\", \"6d 8d\"]": {
+  "klasa": [
+   "rzes uzupelnien",
+   "1:1",
+   "6d 8d"
+  ],
+  "a": "Uzupełnienie rzęs — 1:1",
+  "b": "Uzupełnienie rzęs 6-8D — Uzupełnienie rzęs 6-8D",
+  "slowa_a": "1:1",
+  "slowa_b": "6-8D",
+  "relacja": "inne",
+  "rozklad": {
+   "wezsze": 0.01,
+   "to_samo": 0.01,
+   "szersze": 0.0,
+   "inne": 0.97,
+   "nie_wiadomo": 0.01
+  }
+ },
+ "[\"6d rzes uzupelnien\", \"10d\", \"8d\"]": {
+  "klasa": [
+   "6d rzes uzupelnien",
+   "10d",
+   "8d"
+  ],
+  "a": "Uzupełnienie rzęs 6-10D",
+  "b": "Uzupełnienie rzęs 6-8D — Uzupełnienie rzęs 6-8D",
+  "slowa_a": "6-10D",
+  "slowa_b": "6-8D",
+  "relacja": "szersze",
+  "rozklad": {
+   "nie_wiadomo": 0.05,
+   "wezsze": 0.0,
+   "szersze": 0.87,
+   "inne": 0.03,
+   "to_samo": 0.05
+  }
+ },
+ "[\"rzes uzupelnien\", \"1d 2d\", \"6d 8d\"]": {
+  "klasa": [
+   "rzes uzupelnien",
+   "1d 2d",
+   "6d 8d"
+  ],
+  "a": "Uzupełnienie rzęs 1-2D — Top stylistka Tatiana",
+  "b": "Uzupełnienie rzęs 6-8D — Uzupełnienie rzęs 6-8D",
+  "slowa_a": "1-2D",
+  "slowa_b": "6-8D",
+  "relacja": "inne",
+  "rozklad": {
+   "wezsze": 0.01,
+   "to_samo": 0.02,
+   "szersze": 0.0,
+   "inne": 0.9299999999999999,
+   "nie_wiadomo": 0.04
+  }
+ },
+ "[\"rzes uzupelnien\", \"2:1\", \"4d 6d\"]": {
+  "klasa": [
+   "rzes uzupelnien",
+   "2:1",
+   "4d 6d"
+  ],
+  "a": "Uzupełnienie rzęs 2:1",
+  "b": "Uzupełnianie rzęs 4-6D — Uzupełnianie rzęs 4-6D",
+  "slowa_a": "2:1",
+  "slowa_b": "4-6D",
+  "relacja": "inne",
+  "rozklad": {
+   "szersze": 0.0,
+   "nie_wiadomo": 0.15,
+   "inne": 0.74,
+   "wezsze": 0.04,
+   "to_samo": 0.07
+  }
+ },
+ "[\"rzes uzupelnien\", \"2d 3d\", \"4d 6d\"]": {
+  "klasa": [
+   "rzes uzupelnien",
+   "2d 3d",
+   "4d 6d"
+  ],
+  "a": "Uzupełnianie rzęs 2-3d",
+  "b": "Uzupełnianie rzęs 4-6D — Uzupełnianie rzęs 4-6D",
+  "slowa_a": "2-3d",
+  "slowa_b": "4-6D",
+  "relacja": "inne",
+  "rozklad": {
+   "to_samo": 0.06,
+   "nie_wiadomo": 0.02,
+   "szersze": 0.0,
+   "wezsze": 0.02,
+   "inne": 0.9
+  }
+ },
+ "[\"rzes uzupelnien\", \"4d\", \"6d 8d\"]": {
+  "klasa": [
+   "rzes uzupelnien",
+   "4d",
+   "6d 8d"
+  ],
+  "a": "Uzupełnienie rzęs 4d",
+  "b": "Uzupełnienie rzęs 6-8D — Uzupełnienie rzęs 6-8D",
+  "slowa_a": "4d",
+  "slowa_b": "6-8D",
+  "relacja": "inne",
+  "rozklad": {
+   "nie_wiadomo": 0.08,
+   "szersze": 0.0,
+   "inne": 0.81,
+   "to_samo": 0.06,
+   "wezsze": 0.04
+  }
+ },
+ "[\"rzes uzupelnien\", \"2d\", \"4d 6d\"]": {
+  "klasa": [
+   "rzes uzupelnien",
+   "2d",
+   "4d 6d"
+  ],
+  "a": "Uzupełnienie rzęs 2d — uzupełnienie rzęs 2d",
+  "b": "Uzupełnianie rzęs 4-6D — Uzupełnianie rzęs 4-6D",
+  "slowa_a": "2d",
+  "slowa_b": "4-6D",
+  "relacja": "inne",
+  "rozklad": {
+   "szersze": 0.0,
+   "wezsze": 0.04,
+   "to_samo": 0.02,
+   "nie_wiadomo": 0.03,
+   "inne": 0.91
+  }
+ },
+ "[\"cale depilacj laser nogi\", \"bikin\", \"pojedyncz\"]": {
+  "klasa": [
+   "cale depilacj laser nogi",
+   "bikin",
+   "pojedyncz"
+  ],
+  "a": "Depilacja laserowa - Nogi + Bikini Całkowite — Depilacja laserowa - Nogi + Bikini Całkowie",
+  "b": "Depilacja laserowa-Całe nogi — Pojedynczy zabieg",
+  "slowa_a": "Bikini",
+  "slowa_b": "pojedyncz",
+  "relacja": "inne",
+  "rozklad": {
+   "wezsze": 0.01,
+   "inne": 0.84,
+   "szersze": 0.14,
+   "nie_wiadomo": 0.01,
+   "to_samo": 0.0
+  }
+ },
+ "[\"6d rzes uzupelnien\", \"7d\", \"8d\"]": {
+  "klasa": [
+   "6d rzes uzupelnien",
+   "7d",
+   "8d"
+  ],
+  "a": "Uzupełnienie rzęs 6-7D",
+  "b": "Uzupełnienie rzęs 6-8D — Uzupełnienie rzęs 6-8D",
+  "slowa_a": "6-7D",
+  "slowa_b": "6-8D",
+  "relacja": "wezsze",
+  "rozklad": {
+   "nie_wiadomo": 0.09,
+   "inne": 0.2,
+   "wezsze": 0.65,
+   "szersze": 0.01,
+   "to_samo": 0.05
+  }
+ },
+ "[\"cale depilacj laser nogi\", \"6 seri\", \"bikin\"]": {
+  "klasa": [
+   "cale depilacj laser nogi",
+   "6 seri",
+   "bikin"
+  ],
+  "a": "Depilacja laserowa-Całe nogi — Seria 6 zabiegów",
+  "b": "Depilacja laserowa - Nogi + Bikini Całkowite — Depilacja laserowa - Nogi + Bikini Całkowie",
+  "slowa_a": "Seria 6",
+  "slowa_b": "Bikini",
+  "relacja": "inne",
+  "rozklad": {
+   "szersze": 0.0,
+   "inne": 1.0,
+   "wezsze": 0.0,
+   "to_samo": 0.0,
+   "nie_wiadomo": 0.0
+  }
+ },
+ "[\"6d rzes uzupelnien\", \"5d\", \"8d\"]": {
+  "klasa": [
+   "6d rzes uzupelnien",
+   "5d",
+   "8d"
+  ],
+  "a": "Uzupełnienie rzęs 5-6D",
+  "b": "Uzupełnienie rzęs 6-8D — Uzupełnienie rzęs 6-8D",
+  "slowa_a": "5-6D",
+  "slowa_b": "6-8D",
+  "relacja": "inne",
+  "rozklad": {
+   "nie_wiadomo": 0.14,
+   "to_samo": 0.06,
+   "wezsze": 0.17,
+   "inne": 0.55,
+   "szersze": 0.07
+  }
+ },
+ "[\"8d rzes uzupelnien\", \"12d\", \"6d\"]": {
+  "klasa": [
+   "8d rzes uzupelnien",
+   "12d",
+   "6d"
+  ],
+  "a": "Uzupełnienie rzęs 8-12D",
+  "b": "Uzupełnienie rzęs 6-8D — Uzupełnienie rzęs 6-8D",
+  "slowa_a": "8-12D",
+  "slowa_b": "6-8D",
+  "relacja": "inne",
+  "rozklad": {
+   "inne": 0.64,
+   "szersze": 0.13,
+   "wezsze": 0.02,
+   "to_samo": 0.05,
+   "nie_wiadomo": 0.16
+  }
+ },
+ "[\"rzes uzupelnien\", \"6:8\", \"6d 8d\"]": {
+  "klasa": [
+   "rzes uzupelnien",
+   "6:8",
+   "6d 8d"
+  ],
+  "a": "Uzupełnianie rzęs 6:8",
+  "b": "Uzupełnienie rzęs 6-8D — Uzupełnienie rzęs 6-8D",
+  "slowa_a": "6:8",
+  "slowa_b": "6-8D",
+  "relacja": "to_samo",
+  "rozklad": {
+   "szersze": 0.01,
+   "to_samo": 0.53,
+   "inne": 0.08,
+   "wezsze": 0.06,
+   "nie_wiadomo": 0.32
+  }
+ },
+ "[\"rzes uzupelnien\", \"5d 7d\", \"6d 8d\"]": {
+  "klasa": [
+   "rzes uzupelnien",
+   "5d 7d",
+   "6d 8d"
+  ],
+  "a": "Uzupełnienie rzęs 5-7D",
+  "b": "Uzupełnienie rzęs 6-8D — Uzupełnienie rzęs 6-8D",
+  "slowa_a": "5-7D",
+  "slowa_b": "6-8D",
+  "relacja": "inne",
+  "rozklad": {
+   "nie_wiadomo": 0.22,
+   "inne": 0.47,
+   "wezsze": 0.11,
+   "to_samo": 0.17,
+   "szersze": 0.03
+  }
+ },
+ "[\"rzes uzupelnien\", \"4:6d\", \"6d 8d\"]": {
+  "klasa": [
+   "rzes uzupelnien",
+   "4:6d",
+   "6d 8d"
+  ],
+  "a": "Uzupełnianie rzęs 4:6D",
+  "b": "Uzupełnienie rzęs 6-8D — Uzupełnienie rzęs 6-8D",
+  "slowa_a": "4:6D",
+  "slowa_b": "6-8D",
+  "relacja": "inne",
+  "rozklad": {
+   "to_samo": 0.12,
+   "nie_wiadomo": 0.21,
+   "wezsze": 0.05,
+   "inne": 0.58,
+   "szersze": 0.04
+  }
+ },
+ "[\"6d rzes uzupelnien\", \"5d metod\", \"8d\"]": {
+  "klasa": [
+   "6d rzes uzupelnien",
+   "5d metod",
+   "8d"
+  ],
+  "a": "Uzupełnienie rzęs metodą 5-6D",
+  "b": "Uzupełnienie rzęs 6-8D — Uzupełnienie rzęs 6-8D",
+  "slowa_a": "metodą 5-6D",
+  "slowa_b": "6-8D",
+  "relacja": "inne",
+  "rozklad": {
+   "to_samo": 0.08,
+   "wezsze": 0.12,
+   "nie_wiadomo": 0.06,
+   "inne": 0.72,
+   "szersze": 0.02
+  }
+ },
+ "[\"rzes uzupelnien\", \"5:6d\", \"6d 8d\"]": {
+  "klasa": [
+   "rzes uzupelnien",
+   "5:6d",
+   "6d 8d"
+  ],
+  "a": "Uzupełnienie rzęs 5:6d",
+  "b": "Uzupełnienie rzęs 6-8D — Uzupełnienie rzęs 6-8D",
+  "slowa_a": "5:6d",
+  "slowa_b": "6-8D",
+  "relacja": "inne",
+  "rozklad": {
+   "nie_wiadomo": 0.23,
+   "szersze": 0.04,
+   "wezsze": 0.16,
+   "inne": 0.4,
+   "to_samo": 0.17
+  }
+ },
+ "[\"rzes uzupelnien\", \"4 6:1\", \"6d 8d\"]": {
+  "klasa": [
+   "rzes uzupelnien",
+   "4 6:1",
+   "6d 8d"
+  ],
+  "a": "Uzupełnienie rzęs 4-6:1",
+  "b": "Uzupełnienie rzęs 6-8D — Uzupełnienie rzęs 6-8D",
+  "slowa_a": "4-6:1",
+  "slowa_b": "6-8D",
+  "relacja": "inne",
+  "rozklad": {
+   "nie_wiadomo": 0.18,
+   "wezsze": 0.02,
+   "inne": 0.75,
+   "szersze": 0.0,
+   "to_samo": 0.05
+  }
+ },
+ "[\"rzes uzupelnien\", \"2d 3d\", \"6d 8d\"]": {
+  "klasa": [
+   "rzes uzupelnien",
+   "2d 3d",
+   "6d 8d"
+  ],
+  "a": "Uzupełnienie rzęs — 2-3D",
+  "b": "Uzupełnienie rzęs 6-8D — Uzupełnienie rzęs 6-8D",
+  "slowa_a": "2-3D",
+  "slowa_b": "6-8D",
+  "relacja": "inne",
+  "rozklad": {
+   "szersze": 0.0,
+   "wezsze": 0.01,
+   "inne": 0.9299999999999999,
+   "to_samo": 0.04,
+   "nie_wiadomo": 0.02
+  }
+ },
+ "[\"rzes uzupelnien\", \"6d 8d\", \"half\"]": {
+  "klasa": [
+   "rzes uzupelnien",
+   "6d 8d",
+   "half"
+  ],
+  "a": "Uzupełnienie rzęs 6-8D — Uzupełnienie rzęs 6-8D",
+  "b": "Uzupełnienie rzęs — Uzupełnienie Half",
+  "slowa_a": "6-8D",
+  "slowa_b": "Half",
+  "relacja": "inne",
+  "rozklad": {
+   "szersze": 0.03,
+   "inne": 0.86,
+   "wezsze": 0.02,
+   "nie_wiadomo": 0.08,
+   "to_samo": 0.01
+  }
+ },
+ "[\"rzes uzupelnien\", \"6d 8d\", \"wet\"]": {
+  "klasa": [
+   "rzes uzupelnien",
+   "6d 8d",
+   "wet"
+  ],
+  "a": "Uzupełnienie rzęs 6-8D — Uzupełnienie rzęs 6-8D",
+  "b": "Uzupełnienie rzęs — Uzupełnienie Wet",
+  "slowa_a": "6-8D",
+  "slowa_b": "Wet",
+  "relacja": "inne",
+  "rozklad": {
+   "szersze": 0.01,
+   "inne": 0.8,
+   "wezsze": 0.03,
+   "nie_wiadomo": 0.14,
+   "to_samo": 0.02
+  }
+ },
+ "[\"rzes uzupelnien\", \"2:1\", \"6d 8d\"]": {
+  "klasa": [
+   "rzes uzupelnien",
+   "2:1",
+   "6d 8d"
+  ],
+  "a": "Uzupełnienie rzęs — Uzupełnienie 2:1",
+  "b": "Uzupełnienie rzęs 6-8D — Uzupełnienie rzęs 6-8D",
+  "slowa_a": "2:1",
+  "slowa_b": "6-8D",
+  "relacja": "inne",
+  "rozklad": {
+   "nie_wiadomo": 0.11,
+   "wezsze": 0.03,
+   "inne": 0.81,
+   "szersze": 0.01,
+   "to_samo": 0.04
+  }
+ },
+ "[\"rzes uzupelnien\", \"3:1\", \"6d 8d\"]": {
+  "klasa": [
+   "rzes uzupelnien",
+   "3:1",
+   "6d 8d"
+  ],
+  "a": "Uzupełnienie rzęs — Uzupełnienie 3:1",
+  "b": "Uzupełnienie rzęs 6-8D — Uzupełnienie rzęs 6-8D",
+  "slowa_a": "3:1",
+  "slowa_b": "6-8D",
+  "relacja": "inne",
+  "rozklad": {
+   "to_samo": 0.05,
+   "nie_wiadomo": 0.11,
+   "wezsze": 0.02,
+   "inne": 0.82,
+   "szersze": 0.0
+  }
+ },
+ "[\"rzes uzupelnien\", \"5:1\", \"6d 8d\"]": {
+  "klasa": [
+   "rzes uzupelnien",
+   "5:1",
+   "6d 8d"
+  ],
+  "a": "Uzupełnienie rzęs — Uzupełnienie 5:1",
+  "b": "Uzupełnienie rzęs 6-8D — Uzupełnienie rzęs 6-8D",
+  "slowa_a": "5:1",
+  "slowa_b": "6-8D",
+  "relacja": "inne",
+  "rozklad": {
+   "szersze": 0.0,
+   "inne": 0.77,
+   "wezsze": 0.04,
+   "to_samo": 0.05,
+   "nie_wiadomo": 0.14
+  }
+ },
+ "[\"rzes uzupelnien\", \"4:1\", \"6d 8d\"]": {
+  "klasa": [
+   "rzes uzupelnien",
+   "4:1",
+   "6d 8d"
+  ],
+  "a": "Uzupełnienie rzęs — Uzupełnienie 4:1",
+  "b": "Uzupełnienie rzęs 6-8D — Uzupełnienie rzęs 6-8D",
+  "slowa_a": "4:1",
+  "slowa_b": "6-8D",
+  "relacja": "inne",
+  "rozklad": {
+   "to_samo": 0.04,
+   "wezsze": 0.02,
+   "inne": 0.8,
+   "nie_wiadomo": 0.13,
+   "szersze": 0.0
+  }
+ },
+ "[\"rzes uzupelnien\", \"2:1 stylizacj\", \"6d 8d\"]": {
+  "klasa": [
+   "rzes uzupelnien",
+   "2:1 stylizacj",
+   "6d 8d"
+  ],
+  "a": "Uzupełnienie rzęs — 2:1",
+  "b": "Uzupełnienie rzęs 6-8D — Uzupełnienie rzęs 6-8D",
+  "slowa_a": "2:1 Stylizacja",
+  "slowa_b": "6-8D",
+  "relacja": "inne",
+  "rozklad": {
+   "nie_wiadomo": 0.09,
+   "wezsze": 0.01,
+   "inne": 0.86,
+   "to_samo": 0.03,
+   "szersze": 0.01
+  }
+ },
+ "[\"rzes uzupelnien\", \"3:1 stylizacj\", \"6d 8d\"]": {
+  "klasa": [
+   "rzes uzupelnien",
+   "3:1 stylizacj",
+   "6d 8d"
+  ],
+  "a": "Uzupełnienie rzęs — 3:1",
+  "b": "Uzupełnienie rzęs 6-8D — Uzupełnienie rzęs 6-8D",
+  "slowa_a": "3:1 Stylizacja",
+  "slowa_b": "6-8D",
+  "relacja": "inne",
+  "rozklad": {
+   "to_samo": 0.03,
+   "nie_wiadomo": 0.06,
+   "szersze": 0.0,
+   "wezsze": 0.01,
+   "inne": 0.9
+  }
+ },
+ "[\"rzes uzupelnien\", \"10d ponad\", \"6d 8d\"]": {
+  "klasa": [
+   "rzes uzupelnien",
+   "10d ponad",
+   "6d 8d"
+  ],
+  "a": "Uzupełnienie rzęs ponad 10D",
+  "b": "Uzupełnienie rzęs 6-8D — Uzupełnienie rzęs 6-8D",
+  "slowa_a": "ponad 10D",
+  "slowa_b": "6-8D",
+  "relacja": "inne",
+  "rozklad": {
+   "nie_wiadomo": 0.01,
+   "szersze": 0.01,
+   "inne": 0.98,
+   "to_samo": 0.0,
+   "wezsze": 0.0
+  }
+ },
+ "[\"rzes uzupelnien\", \"3:4d\", \"6d 8d\"]": {
+  "klasa": [
+   "rzes uzupelnien",
+   "3:4d",
+   "6d 8d"
+  ],
+  "a": "Uzupełnienie rzęs 3:4d",
+  "b": "Uzupełnienie rzęs 6-8D — Uzupełnienie rzęs 6-8D",
+  "slowa_a": "3:4d",
+  "slowa_b": "6-8D",
+  "relacja": "inne",
+  "rozklad": {
+   "szersze": 0.0,
+   "inne": 0.77,
+   "nie_wiadomo": 0.12,
+   "wezsze": 0.03,
+   "to_samo": 0.08
+  }
+ },
+ "[\"rzes uzupelnien\", \"5d lash\", \"6d 8d\"]": {
+  "klasa": [
+   "rzes uzupelnien",
+   "5d lash",
+   "6d 8d"
+  ],
+  "a": "Uzupełnianie rzęs 5d",
+  "b": "Uzupełnienie rzęs 6-8D — Uzupełnienie rzęs 6-8D",
+  "slowa_a": "5d",
+  "slowa_b": "6-8D",
+  "relacja": "inne",
+  "rozklad": {
+   "szersze": 0.0,
+   "inne": 0.58,
+   "nie_wiadomo": 0.16,
+   "wezsze": 0.1,
+   "to_samo": 0.16
+  }
+ },
+ "[\"rzes uzupelnien\", \"4d stylizacj\", \"6d 8d\"]": {
+  "klasa": [
+   "rzes uzupelnien",
+   "4d stylizacj",
+   "6d 8d"
+  ],
+  "a": "Uzupełnienie rzęs 4d — Uzupełnienie rzęs 4d",
+  "b": "Uzupełnienie rzęs 6-8D — Uzupełnienie rzęs 6-8D",
+  "slowa_a": "4d Stylizacja",
+  "slowa_b": "6-8D",
+  "relacja": "inne",
+  "rozklad": {
+   "to_samo": 0.06,
+   "inne": 0.75,
+   "wezsze": 0.12,
+   "szersze": 0.0,
+   "nie_wiadomo": 0.07
+  }
+ },
+ "[\"rzes uzupelnien\", \"4 5:1\", \"6d 8d\"]": {
+  "klasa": [
+   "rzes uzupelnien",
+   "4 5:1",
+   "6d 8d"
+  ],
+  "a": "Uzupełnienie rzęs 4-5:1",
+  "b": "Uzupełnienie rzęs 6-8D — Uzupełnienie rzęs 6-8D",
+  "slowa_a": "4-5:1",
+  "slowa_b": "6-8D",
+  "relacja": "inne",
+  "rozklad": {
+   "nie_wiadomo": 0.16,
+   "wezsze": 0.02,
+   "inne": 0.75,
+   "szersze": 0.0,
+   "to_samo": 0.07
+  }
+ },
+ "[\"6d rzes uzupelnien\", \"4d\", \"8d stylizacj\"]": {
+  "klasa": [
+   "6d rzes uzupelnien",
+   "4d",
+   "8d stylizacj"
+  ],
+  "a": "Uzupełnianie rzęs 4-6D — Uzupełnianie rzęs 4-6D",
+  "b": "Uzupełnienie rzęs 6-8D",
+  "slowa_a": "4-6D",
+  "slowa_b": "6-8D Stylizacja",
+  "relacja": "inne",
+  "rozklad": {
+   "wezsze": 0.07,
+   "to_samo": 0.09,
+   "szersze": 0.01,
+   "inne": 0.77,
+   "nie_wiadomo": 0.06
+  }
+ },
+ "[\"rzes uzupelnien\", \"4:1\", \"4d 6d\"]": {
+  "klasa": [
+   "rzes uzupelnien",
+   "4:1",
+   "4d 6d"
+  ],
+  "a": "Uzupełnienie rzęs 4:1",
+  "b": "Uzupełnianie rzęs 4-6D — Uzupełnianie rzęs 4-6D",
+  "slowa_a": "4:1",
+  "slowa_b": "4-6D",
+  "relacja": "inne",
+  "rozklad": {
+   "wezsze": 0.2,
+   "nie_wiadomo": 0.2,
+   "szersze": 0.01,
+   "inne": 0.49,
+   "to_samo": 0.1
+  }
+ },
+ "[\"4d rzes uzupelnien\", \"6d\", \"przedluzan stylizacj\"]": {
+  "klasa": [
+   "4d rzes uzupelnien",
+   "6d",
+   "przedluzan stylizacj"
+  ],
+  "a": "Uzupełnianie rzęs 4-6D — Uzupełnianie rzęs 4-6D",
+  "b": "Przedłużanie rzęs - uzupełnienie 4D",
+  "slowa_a": "4-6D",
+  "slowa_b": "Przedłużanie STYLIZACJA",
+  "relacja": "wezsze",
+  "rozklad": {
+   "szersze": 0.04,
+   "to_samo": 0.31,
+   "inne": 0.24,
+   "wezsze": 0.31,
+   "nie_wiadomo": 0.1
+  }
+ },
+ "[\"rzes uzupelnien\", \"1:1 stylizacj\", \"4d 6d\"]": {
+  "klasa": [
+   "rzes uzupelnien",
+   "1:1 stylizacj",
+   "4d 6d"
+  ],
+  "a": "Uzupełnienie rzęs 1:1",
+  "b": "Uzupełnianie rzęs 4-6D — Uzupełnianie rzęs 4-6D",
+  "slowa_a": "1:1 Stylizacja",
+  "slowa_b": "4-6D",
+  "relacja": "inne",
+  "rozklad": {
+   "to_samo": 0.02,
+   "wezsze": 0.03,
+   "inne": 0.93,
+   "szersze": 0.0,
+   "nie_wiadomo": 0.02
+  }
+ },
+ "[\"rzes uzupelnien\", \"3:1\", \"4d 6d\"]": {
+  "klasa": [
+   "rzes uzupelnien",
+   "3:1",
+   "4d 6d"
+  ],
+  "a": "Uzupełnienie rzęs 3:1",
+  "b": "Uzupełnianie rzęs 4-6D — Uzupełnianie rzęs 4-6D",
+  "slowa_a": "3:1",
+  "slowa_b": "4-6D",
+  "relacja": "inne",
+  "rozklad": {
+   "to_samo": 0.12,
+   "szersze": 0.0,
+   "wezsze": 0.03,
+   "nie_wiadomo": 0.18,
+   "inne": 0.67
+  }
+ },
+ "[\"6d rzes uzupelnien\", \"4d\", \"8d metod\"]": {
+  "klasa": [
+   "6d rzes uzupelnien",
+   "4d",
+   "8d metod"
+  ],
+  "a": "Uzupełnianie rzęs 4-6D — Uzupełnianie rzęs 4-6D",
+  "b": "Uzupełnienie rzęs metoda 6-8d",
+  "slowa_a": "4-6D",
+  "slowa_b": "metoda 6-8d",
+  "relacja": "inne",
+  "rozklad": {
+   "wezsze": 0.04,
+   "to_samo": 0.16,
+   "inne": 0.61,
+   "szersze": 0.05,
+   "nie_wiadomo": 0.14
+  }
+ },
+ "[\"rzes uzupelnien\", \"4d 6d\", \"5:1 wiec\"]": {
+  "klasa": [
+   "rzes uzupelnien",
+   "4d 6d",
+   "5:1 wiec"
+  ],
+  "a": "Uzupełnianie rzęs 4-6D — Uzupełnianie rzęs 4-6D",
+  "b": "Uzupełnienie rzęs 5:1 i więcej",
+  "slowa_a": "4-6D",
+  "slowa_b": "5:1 więcej",
+  "relacja": "inne",
+  "rozklad": {
+   "wezsze": 0.19,
+   "to_samo": 0.11,
+   "szersze": 0.07,
+   "inne": 0.51,
+   "nie_wiadomo": 0.12
+  }
+ },
+ "[\"4d rzes uzupelnien\", \"3d\", \"6d\"]": {
+  "klasa": [
+   "4d rzes uzupelnien",
+   "3d",
+   "6d"
+  ],
+  "a": "Uzupełnienie rzęs 3-4D",
+  "b": "Uzupełnianie rzęs 4-6D — Uzupełnianie rzęs 4-6D",
+  "slowa_a": "3-4D",
+  "slowa_b": "4-6D",
+  "relacja": "inne",
+  "rozklad": {
+   "to_samo": 0.15,
+   "nie_wiadomo": 0.07,
+   "inne": 0.56,
+   "wezsze": 0.16,
+   "szersze": 0.06
+  }
+ },
+ "[\"rzes uzupelnien\", \"2d przedluzan\", \"4d 6d\"]": {
+  "klasa": [
+   "rzes uzupelnien",
+   "2d przedluzan",
+   "4d 6d"
+  ],
+  "a": "Przedłużanie rzęs - uzupełnienie 2D",
+  "b": "Uzupełnianie rzęs 4-6D — Uzupełnianie rzęs 4-6D",
+  "slowa_a": "Przedłużanie 2D",
+  "slowa_b": "4-6D",
+  "relacja": "inne",
+  "rozklad": {
+   "to_samo": 0.03,
+   "szersze": 0.0,
+   "nie_wiadomo": 0.01,
+   "wezsze": 0.07,
+   "inne": 0.89
+  }
+ },
+ "[\"rzes uzupelnien\", \"3d stylizacj\", \"4d 6d\"]": {
+  "klasa": [
+   "rzes uzupelnien",
+   "3d stylizacj",
+   "4d 6d"
+  ],
+  "a": "Uzupełnienie rzęs 3d — uzupełnienie rzęs 3d",
+  "b": "Uzupełnianie rzęs 4-6D — Uzupełnianie rzęs 4-6D",
+  "slowa_a": "3d Stylizacja",
+  "slowa_b": "4-6D",
+  "relacja": "inne",
+  "rozklad": {
+   "inne": 0.82,
+   "wezsze": 0.08,
+   "szersze": 0.01,
+   "nie_wiadomo": 0.05,
+   "to_samo": 0.04
+  }
+ },
+ "[\"rzes uzupelnien\", \"1d 2d\", \"4d 6d\"]": {
+  "klasa": [
+   "rzes uzupelnien",
+   "1d 2d",
+   "4d 6d"
+  ],
+  "a": "Uzupełnienie rzęs 1-2D",
+  "b": "Uzupełnianie rzęs 4-6D — Uzupełnianie rzęs 4-6D",
+  "slowa_a": "1-2D",
+  "slowa_b": "4-6D",
+  "relacja": "inne",
+  "rozklad": {
+   "to_samo": 0.02,
+   "nie_wiadomo": 0.01,
+   "szersze": 0.0,
+   "wezsze": 0.01,
+   "inne": 0.96
+  }
+ },
+ "[\"rzes uzupelnien\", \"3d przedluzan\", \"4d 6d\"]": {
+  "klasa": [
+   "rzes uzupelnien",
+   "3d przedluzan",
+   "4d 6d"
+  ],
+  "a": "Przedłużanie rzęs - uzupełnienie 3D",
+  "b": "Uzupełnianie rzęs 4-6D — Uzupełnianie rzęs 4-6D",
+  "slowa_a": "Przedłużanie 3D",
+  "slowa_b": "4-6D",
+  "relacja": "inne",
+  "rozklad": {
+   "nie_wiadomo": 0.09,
+   "inne": 0.45999999999999996,
+   "szersze": 0.01,
+   "to_samo": 0.1,
+   "wezsze": 0.34
+  }
+ },
+ "[\"rzes uzupelnien\", \"1:1 metod\", \"4d 6d\"]": {
+  "klasa": [
+   "rzes uzupelnien",
+   "1:1 metod",
+   "4d 6d"
+  ],
+  "a": "Uzupełnienie rzęs metoda 1:1",
+  "b": "Uzupełnianie rzęs 4-6D — Uzupełnianie rzęs 4-6D",
+  "slowa_a": "metoda 1:1",
+  "slowa_b": "4-6D",
+  "relacja": "inne",
+  "rozklad": {
+   "szersze": 0.0,
+   "nie_wiadomo": 0.02,
+   "to_samo": 0.03,
+   "inne": 0.94,
+   "wezsze": 0.01
+  }
+ },
+ "[\"rzes uzupelnien\", \"2:1 metod\", \"4d 6d\"]": {
+  "klasa": [
+   "rzes uzupelnien",
+   "2:1 metod",
+   "4d 6d"
+  ],
+  "a": "Uzupełnienie rzęs metoda 2:1",
+  "b": "Uzupełnianie rzęs 4-6D — Uzupełnianie rzęs 4-6D",
+  "slowa_a": "metoda 2:1",
+  "slowa_b": "4-6D",
+  "relacja": "inne",
+  "rozklad": {
+   "szersze": 0.01,
+   "inne": 0.68,
+   "wezsze": 0.05,
+   "to_samo": 0.1,
+   "nie_wiadomo": 0.16
+  }
+ },
+ "[\"rzes uzupelnien\", \"3d\", \"4d 6d\"]": {
+  "klasa": [
+   "rzes uzupelnien",
+   "3d",
+   "4d 6d"
+  ],
+  "a": "Uzupełnianie rzęs 3d",
+  "b": "Uzupełnianie rzęs 4-6D — Uzupełnianie rzęs 4-6D",
+  "slowa_a": "3d",
+  "slowa_b": "4-6D",
+  "relacja": "inne",
+  "rozklad": {
+   "to_samo": 0.19,
+   "inne": 0.58,
+   "wezsze": 0.12,
+   "nie_wiadomo": 0.1,
+   "szersze": 0.01
+  }
+ },
+ "[\"4d rzes uzupelnien\", \"4tyg do\", \"6d\"]": {
+  "klasa": [
+   "4d rzes uzupelnien",
+   "4tyg do",
+   "6d"
+  ],
+  "a": "Uzupełnienie rzęs 4D do 4tyg",
+  "b": "Uzupełnianie rzęs 4-6D — Uzupełnianie rzęs 4-6D",
+  "slowa_a": "do 4tyg",
+  "slowa_b": "4-6D",
+  "relacja": "inne",
+  "rozklad": {
+   "szersze": 0.02,
+   "inne": 0.46,
+   "wezsze": 0.2,
+   "nie_wiadomo": 0.04,
+   "to_samo": 0.27
+  }
+ },
+ "[\"rzes uzupelnien\", \"4:6d\", \"4d 6d\"]": {
+  "klasa": [
+   "rzes uzupelnien",
+   "4:6d",
+   "4d 6d"
+  ],
+  "a": "Uzupełnianie rzęs 4:6D",
+  "b": "Uzupełnianie rzęs 4-6D — Uzupełnianie rzęs 4-6D",
+  "slowa_a": "4:6D",
+  "slowa_b": "4-6D",
+  "relacja": "to_samo",
+  "rozklad": {
+   "to_samo": 0.95,
+   "inne": 0.0,
+   "szersze": 0.0,
+   "wezsze": 0.0,
+   "nie_wiadomo": 0.05
+  }
+ },
+ "[\"4d rzes uzupelnien\", \"5d stylizacj\", \"6d\"]": {
+  "klasa": [
+   "4d rzes uzupelnien",
+   "5d stylizacj",
+   "6d"
+  ],
+  "a": "Uzupełnienie rzęs 4-5d",
+  "b": "Uzupełnianie rzęs 4-6D — Uzupełnianie rzęs 4-6D",
+  "slowa_a": "4-5d Stylizacja",
+  "slowa_b": "4-6D",
+  "relacja": "wezsze",
+  "rozklad": {
+   "szersze": 0.02,
+   "to_samo": 0.15,
+   "wezsze": 0.48,
+   "nie_wiadomo": 0.06,
+   "inne": 0.29
+  }
+ },
+ "[\"rzes uzupelnien\", \"4 5:1\", \"4d 6d\"]": {
+  "klasa": [
+   "rzes uzupelnien",
+   "4 5:1",
+   "4d 6d"
+  ],
+  "a": "4-5:1  uzupełnienia rzęs",
+  "b": "Uzupełnianie rzęs 4-6D — Uzupełnianie rzęs 4-6D",
+  "slowa_a": "4-5:1",
+  "slowa_b": "4-6D",
+  "relacja": "nie_wiadomo",
+  "rozklad": {
+   "wezsze": 0.16,
+   "inne": 0.26,
+   "szersze": 0.01,
+   "nie_wiadomo": 0.32,
+   "to_samo": 0.25
+  }
+ },
+ "[\"4d rzes uzupelnien\", \"6d\", \"lash\"]": {
+  "klasa": [
+   "4d rzes uzupelnien",
+   "6d",
+   "lash"
+  ],
+  "a": "Uzupełnianie rzęs 4-6D — Uzupełnianie rzęs 4-6D",
+  "b": "Uzupełnianie rzęs 4d",
+  "slowa_a": "4-6D",
+  "slowa_b": "lash",
+  "relacja": "to_samo",
+  "rozklad": {
+   "to_samo": 0.54,
+   "nie_wiadomo": 0.16,
+   "wezsze": 0.23,
+   "inne": 0.05,
+   "szersze": 0.02
+  }
+ },
+ "[\"rzes uzupelnien\", \"4d 6d\", \"hyper volum\"]": {
+  "klasa": [
+   "rzes uzupelnien",
+   "4d 6d",
+   "hyper volum"
+  ],
+  "a": "Uzupełnianie rzęs 4-6D — Uzupełnianie rzęs 4-6D",
+  "b": "Uzupełnienie rzęs Hyper volume",
+  "slowa_a": "4-6D",
+  "slowa_b": "Hyper volume",
+  "relacja": "inne",
+  "rozklad": {
+   "nie_wiadomo": 0.15,
+   "to_samo": 0.17,
+   "inne": 0.51,
+   "wezsze": 0.15,
+   "szersze": 0.02
+  }
+ },
+ "[\"6d rzes uzupelnien\", \"4 5d\", \"4d\"]": {
+  "klasa": [
+   "6d rzes uzupelnien",
+   "4 5d",
+   "4d"
+  ],
+  "a": "Uzupełnianie rzęs 4/5/6D",
+  "b": "Uzupełnianie rzęs 4-6D — Uzupełnianie rzęs 4-6D",
+  "slowa_a": "4/5/6D",
+  "slowa_b": "4-6D",
+  "relacja": "to_samo",
+  "rozklad": {
+   "nie_wiadomo": 0.02,
+   "to_samo": 0.9,
+   "wezsze": 0.07,
+   "szersze": 0.01,
+   "inne": 0.0
+  }
+ },
+ "[\"rzes uzupelnien\", \"12:1 6\", \"4d 6d\"]": {
+  "klasa": [
+   "rzes uzupelnien",
+   "12:1 6",
+   "4d 6d"
+  ],
+  "a": "6-12:1 uzupełnienia rzęs",
+  "b": "Uzupełnianie rzęs 4-6D — Uzupełnianie rzęs 4-6D",
+  "slowa_a": "6-12:1",
+  "slowa_b": "4-6D",
+  "relacja": "inne",
+  "rozklad": {
+   "nie_wiadomo": 0.15,
+   "to_samo": 0.12,
+   "wezsze": 0.02,
+   "inne": 0.68,
+   "szersze": 0.03
+  }
+ },
+ "[\"przedluzan rzes stylizacj\", \"6d\", \"7d 9d\"]": {
+  "klasa": [
+   "przedluzan rzes stylizacj",
+   "6d",
+   "7d 9d"
+  ],
+  "a": "Przedłużanie rzęs 6D+",
+  "b": "Przedłużanie rzęs 7/9D",
+  "slowa_a": "6D+",
+  "slowa_b": "7/9D",
+  "relacja": "inne",
+  "rozklad": {
+   "wezsze": 0.04,
+   "nie_wiadomo": 0.33,
+   "szersze": 0.0,
+   "inne": 0.52,
+   "to_samo": 0.11
+  }
+ },
+ "[\"7d przedluzan rzes\", \"10d\", \"9d stylizacj\"]": {
+  "klasa": [
+   "7d przedluzan rzes",
+   "10d",
+   "9d stylizacj"
+  ],
+  "a": "Przedłużanie rzęs 7D-10D",
+  "b": "Przedłużanie rzęs 7/9D",
+  "slowa_a": "7D-10D",
+  "slowa_b": "7/9D Stylizacja",
+  "relacja": "szersze",
+  "rozklad": {
+   "to_samo": 0.33,
+   "nie_wiadomo": 0.13,
+   "inne": 0.09,
+   "wezsze": 0.02,
+   "szersze": 0.43
+  }
+ },
+ "[\"przedluzan rzes stylizacj\", \"2d 5d\", \"7d 9d\"]": {
+  "klasa": [
+   "przedluzan rzes stylizacj",
+   "2d 5d",
+   "7d 9d"
+  ],
+  "a": "Przedłużanie rzęs 2-5D",
+  "b": "Przedłużanie rzęs 7/9D",
+  "slowa_a": "2-5D",
+  "slowa_b": "7/9D",
+  "relacja": "inne",
+  "rozklad": {
+   "to_samo": 0.05,
+   "nie_wiadomo": 0.09,
+   "inne": 0.84,
+   "wezsze": 0.01,
+   "szersze": 0.01
+  }
+ },
+ "[\"przedluzan rzes stylizacj\", \"2d 4d\", \"7d 9d\"]": {
+  "klasa": [
+   "przedluzan rzes stylizacj",
+   "2d 4d",
+   "7d 9d"
+  ],
+  "a": "Przedłużanie rzęs 2D-4D",
+  "b": "Przedłużanie rzęs 7/9D",
+  "slowa_a": "2D-4D",
+  "slowa_b": "7/9D",
+  "relacja": "inne",
+  "rozklad": {
+   "szersze": 0.0,
+   "to_samo": 0.05,
+   "wezsze": 0.02,
+   "inne": 0.85,
+   "nie_wiadomo": 0.08
+  }
+ },
+ "[\"przedluzan rzes stylizacj\", \"2d 3d\", \"7d 9d\"]": {
+  "klasa": [
+   "przedluzan rzes stylizacj",
+   "2d 3d",
+   "7d 9d"
+  ],
+  "a": "Przedłużanie  rzęs 2D-3D",
+  "b": "Przedłużanie rzęs 7/9D",
+  "slowa_a": "2D-3D",
+  "slowa_b": "7/9D",
+  "relacja": "inne",
+  "rozklad": {
+   "to_samo": 0.08,
+   "szersze": 0.0,
+   "nie_wiadomo": 0.09,
+   "wezsze": 0.03,
+   "inne": 0.8
+  }
+ },
+ "[\"przedluzan rzes stylizacj\", \"1:1\", \"7d 9d\"]": {
+  "klasa": [
+   "przedluzan rzes stylizacj",
+   "1:1",
+   "7d 9d"
+  ],
+  "a": "Przedłużanie rzęs 1:1",
+  "b": "Przedłużanie rzęs 7/9D",
+  "slowa_a": "1:1",
+  "slowa_b": "7/9D",
+  "relacja": "inne",
+  "rozklad": {
+   "wezsze": 0.01,
+   "inne": 0.97,
+   "to_samo": 0.01,
+   "szersze": 0.0,
+   "nie_wiadomo": 0.01
+  }
+ },
+ "[\"6d przedluzan rzes\", \"4d stylizacj\", \"od\"]": {
+  "klasa": [
+   "6d przedluzan rzes",
+   "4d stylizacj",
+   "od"
+  ],
+  "a": "Przedłużanie rzęs 4/6D",
+  "b": "Przedłużanie rzęs od 6D",
+  "slowa_a": "4/6D Stylizacja",
+  "slowa_b": "od",
+  "relacja": "wezsze",
+  "rozklad": {
+   "inne": 0.13,
+   "to_samo": 0.05,
+   "nie_wiadomo": 0.09,
+   "wezsze": 0.48,
+   "szersze": 0.25
+  }
+ },
+ "[\"6d przedluzan rzes\", \"3d\", \"4d stylizacj\"]": {
+  "klasa": [
+   "6d przedluzan rzes",
+   "3d",
+   "4d stylizacj"
+  ],
+  "a": "Przedłużanie rzęs 3D-6D",
+  "b": "Przedłużanie rzęs 4/6D",
+  "slowa_a": "3D-6D",
+  "slowa_b": "4/6D Stylizacja",
+  "relacja": "to_samo",
+  "rozklad": {
+   "inne": 0.11,
+   "szersze": 0.25,
+   "wezsze": 0.02,
+   "nie_wiadomo": 0.15,
+   "to_samo": 0.47000000000000003
+  }
+ },
+ "[\"4d przedluzan rzes\", \"3d\", \"6d stylizacj\"]": {
+  "klasa": [
+   "4d przedluzan rzes",
+   "3d",
+   "6d stylizacj"
+  ],
+  "a": "Przedłużanie rzęs 3-4D",
+  "b": "Przedłużanie rzęs 4/6D",
+  "slowa_a": "3-4D",
+  "slowa_b": "4/6D Stylizacja",
+  "relacja": "inne",
+  "rozklad": {
+   "nie_wiadomo": 0.18,
+   "to_samo": 0.14,
+   "wezsze": 0.06,
+   "inne": 0.61,
+   "szersze": 0.01
+  }
+ },
+ "[\"4d przedluzan rzes stylizacj\", \"2d\", \"6d\"]": {
+  "klasa": [
+   "4d przedluzan rzes stylizacj",
+   "2d",
+   "6d"
+  ],
+  "a": "Przedłużanie rzęs 2D-4D",
+  "b": "Przedłużanie rzęs 4/6D",
+  "slowa_a": "2D-4D",
+  "slowa_b": "4/6D",
+  "relacja": "inne",
+  "rozklad": {
+   "szersze": 0.05,
+   "inne": 0.6900000000000001,
+   "wezsze": 0.03,
+   "nie_wiadomo": 0.15,
+   "to_samo": 0.08
+  }
+ },
+ "[\"przedluzan rzes stylizacj\", \"2d 5d\", \"4d 6d\"]": {
+  "klasa": [
+   "przedluzan rzes stylizacj",
+   "2d 5d",
+   "4d 6d"
+  ],
+  "a": "Przedłużanie rzęs 2-5D",
+  "b": "Przedłużanie rzęs 4/6D",
+  "slowa_a": "2-5D",
+  "slowa_b": "4/6D",
+  "relacja": "inne",
+  "rozklad": {
+   "nie_wiadomo": 0.16,
+   "szersze": 0.11,
+   "inne": 0.59,
+   "to_samo": 0.13,
+   "wezsze": 0.01
+  }
+ },
+ "[\"4d przedluzan rzes\", \"6d stylizacj\", \"8d metod\"]": {
+  "klasa": [
+   "4d przedluzan rzes",
+   "6d stylizacj",
+   "8d metod"
+  ],
+  "a": "Przedłużanie rzęs 4/6D",
+  "b": "Przedłużanie rzęs metodą 4-8D",
+  "slowa_a": "4/6D Stylizacja",
+  "slowa_b": "metodą 4-8D",
+  "relacja": "wezsze",
+  "rozklad": {
+   "to_samo": 0.25,
+   "wezsze": 0.5,
+   "szersze": 0.01,
+   "nie_wiadomo": 0.12,
+   "inne": 0.12
+  }
+ },
+ "[\"przedluzan rzes stylizacj\", \"2d 3d\", \"4d 6d\"]": {
+  "klasa": [
+   "przedluzan rzes stylizacj",
+   "2d 3d",
+   "4d 6d"
+  ],
+  "a": "Przedłużanie  rzęs 2D-3D",
+  "b": "Przedłużanie rzęs 4/6D",
+  "slowa_a": "2D-3D",
+  "slowa_b": "4/6D",
+  "relacja": "inne",
+  "rozklad": {
+   "wezsze": 0.04,
+   "nie_wiadomo": 0.06,
+   "inne": 0.83,
+   "to_samo": 0.07,
+   "szersze": 0.0
+  }
+ },
+ "[\"4d 6d rzes stylizacj\", \"przedluzan\", \"zalozen\"]": {
+  "klasa": [
+   "4d 6d rzes stylizacj",
+   "przedluzan",
+   "zalozen"
+  ],
+  "a": "Przedłużanie rzęs 4/6D",
+  "b": "Założenie rzęs 4-6D",
+  "slowa_a": "Przedłużanie",
+  "slowa_b": "Założenie",
+  "relacja": "to_samo",
+  "rozklad": {
+   "nie_wiadomo": 0.04,
+   "wezsze": 0.02,
+   "inne": 0.15,
+   "to_samo": 0.75,
+   "szersze": 0.04
+  }
+ },
+ "[\"4d 6d rzes stylizacj\", \"przedluzan\", \"uzupelnien\"]": {
+  "klasa": [
+   "4d 6d rzes stylizacj",
+   "przedluzan",
+   "uzupelnien"
+  ],
+  "a": "Przedłużanie rzęs 4/6D",
+  "b": "Uzupełnienie rzęs 4-6D",
+  "slowa_a": "Przedłużanie",
+  "slowa_b": "Uzupełnienie",
+  "relacja": "inne",
+  "rozklad": {
+   "to_samo": 0.05,
+   "nie_wiadomo": 0.01,
+   "inne": 0.86,
+   "wezsze": 0.0,
+   "szersze": 0.08
+  }
+ },
+ "[\"4d 6d rzes stylizacj\", \"metod\", \"przedluzan\"]": {
+  "klasa": [
+   "4d 6d rzes stylizacj",
+   "metod",
+   "przedluzan"
+  ],
+  "a": "Stylizacja rzęs metoda 4/6d",
+  "b": "Przedłużanie rzęs 4/6D",
+  "slowa_a": "metoda",
+  "slowa_b": "Przedłużanie",
+  "relacja": "to_samo",
+  "rozklad": {
+   "nie_wiadomo": 0.02,
+   "szersze": 0.0,
+   "inne": 0.0,
+   "to_samo": 0.9,
+   "wezsze": 0.08
+  }
+ },
+ "[\"6d przedluzan rzes\", \"4d stylizacj\", \"zalozen\"]": {
+  "klasa": [
+   "6d przedluzan rzes",
+   "4d stylizacj",
+   "zalozen"
+  ],
+  "a": "Przedłużanie rzęs 4/6D",
+  "b": "Przedłużanie rzęs 6D+",
+  "slowa_a": "4/6D Stylizacja",
+  "slowa_b": "Założenie",
+  "relacja": "to_samo",
+  "rozklad": {
+   "szersze": 0.05,
+   "inne": 0.29,
+   "wezsze": 0.28,
+   "to_samo": 0.33,
+   "nie_wiadomo": 0.05
+  }
+ },
+ "[\"przedluzan rzes stylizacj\", \"1:1\", \"4d 6d\"]": {
+  "klasa": [
+   "przedluzan rzes stylizacj",
+   "1:1",
+   "4d 6d"
+  ],
+  "a": "Przedłużanie rzęs 1:1",
+  "b": "Przedłużanie rzęs 4/6D",
+  "slowa_a": "1:1",
+  "slowa_b": "4/6D",
+  "relacja": "inne",
+  "rozklad": {
+   "nie_wiadomo": 0.0,
+   "szersze": 0.0,
+   "wezsze": 0.0,
+   "to_samo": 0.0,
+   "inne": 1.0
+  }
+ },
+ "[\"4d rzes stylizacj\", \"2d zalozen\", \"6d przedluzan\"]": {
+  "klasa": [
+   "4d rzes stylizacj",
+   "2d zalozen",
+   "6d przedluzan"
+  ],
+  "a": "Założenie rzęs 2-4D",
+  "b": "Przedłużanie rzęs 4/6D",
+  "slowa_a": "Założenie 2-4D",
+  "slowa_b": "Przedłużanie 4/6D",
+  "relacja": "inne",
+  "rozklad": {
+   "nie_wiadomo": 0.04,
+   "wezsze": 0.1,
+   "inne": 0.6,
+   "szersze": 0.05,
+   "to_samo": 0.21
+  }
+ },
+ "[\"przedluzan rzes\", \"3d 4d\", \"express set\"]": {
+  "klasa": [
+   "przedluzan rzes",
+   "3d 4d",
+   "express set"
+  ],
+  "a": "Przedłużanie rzęs 3/4D",
+  "b": "Przedłużanie rzęs  express set",
+  "slowa_a": "3/4D",
+  "slowa_b": "express",
+  "relacja": "inne",
+  "rozklad": {
+   "nie_wiadomo": 0.04,
+   "szersze": 0.05,
+   "wezsze": 0.0,
+   "to_samo": 0.0,
+   "inne": 0.91
+  }
+ },
+ "[\"dlug dzieck dziewczynk strzyzen\", \"11lat 15lat\", \"wlos\"]": {
+  "klasa": [
+   "dlug dzieck dziewczynk strzyzen",
+   "11lat 15lat",
+   "wlos"
+  ],
+  "a": "Strzyżenie dziecięce dziewczynka długie 11-15lat",
+  "b": "Strzyżenie dziecięce – dziewczynka włosy długie",
+  "slowa_a": "11-15lat",
+  "slowa_b": "włosy",
+  "relacja": "inne",
+  "rozklad": {
+   "nie_wiadomo": 0.02,
+   "wezsze": 0.16,
+   "to_samo": 0.12,
+   "szersze": 0.02,
+   "inne": 0.6799999999999999
+  }
+ },
+ "[\"przedluzan rzes\", \"2d 3d\", \"express set\"]": {
+  "klasa": [
+   "przedluzan rzes",
+   "2d 3d",
+   "express set"
+  ],
+  "a": "Przedłużanie rzęs 2-3D",
+  "b": "Przedłużanie rzęs  express set",
+  "slowa_a": "2-3D",
+  "slowa_b": "express",
+  "relacja": "inne",
+  "rozklad": {
+   "nie_wiadomo": 0.0,
+   "wezsze": 0.0,
+   "szersze": 0.0,
+   "inne": 1.0,
+   "to_samo": 0.0
+  }
+ },
+ "[\"dlug dzieck dziewczynk strzyzen\", \"11lat 15lat\", \"b wlos\"]": {
+  "klasa": [
+   "dlug dzieck dziewczynk strzyzen",
+   "11lat 15lat",
+   "b wlos"
+  ],
+  "a": "Strzyżenie dziecięce dziewczynka długie 11-15lat",
+  "b": "Strzyżenie dziecięce – dziewczynka włosy b.długie",
+  "slowa_a": "11-15lat",
+  "slowa_b": "b.długie",
+  "relacja": "inne",
+  "rozklad": {
+   "to_samo": 0.04,
+   "szersze": 0.04,
+   "nie_wiadomo": 0.07,
+   "wezsze": 0.07,
+   "inne": 0.78
+  }
+ },
+ "[\"przedluzan rzes\", \"4d 5d\", \"express set\"]": {
+  "klasa": [
+   "przedluzan rzes",
+   "4d 5d",
+   "express set"
+  ],
+  "a": "Przedłużanie rzęs 4-5D",
+  "b": "Przedłużanie rzęs  express set",
+  "slowa_a": "4-5D",
+  "slowa_b": "express",
+  "relacja": "inne",
+  "rozklad": {
+   "nie_wiadomo": 0.0,
+   "to_samo": 0.0,
+   "inne": 1.0,
+   "szersze": 0.0,
+   "wezsze": 0.0
+  }
+ },
+ "[\"3d 4d zalozen\", \"nowe uv\", \"rzes stylizacj\"]": {
+  "klasa": [
+   "3d 4d zalozen",
+   "nowe uv",
+   "rzes stylizacj"
+  ],
+  "a": "Nowe założenie UV 3/4D",
+  "b": "Założenie 3-4d",
+  "slowa_a": "UV Nowe",
+  "slowa_b": "rzęs Stylizacja Rzęs",
+  "relacja": "wezsze",
+  "rozklad": {
+   "wezsze": 0.39,
+   "to_samo": 0.39,
+   "inne": 0.13,
+   "szersze": 0.01,
+   "nie_wiadomo": 0.08
+  }
+ },
+ "[\"3d 4d zalozen\", \"nowe uv\", \"rzes\"]": {
+  "klasa": [
+   "3d 4d zalozen",
+   "nowe uv",
+   "rzes"
+  ],
+  "a": "Nowe założenie UV 3/4D",
+  "b": "Założenie rzęs 3-4D",
+  "slowa_a": "UV Nowe",
+  "slowa_b": "rzęs",
+  "relacja": "wezsze",
+  "rozklad": {
+   "to_samo": 0.33,
+   "nie_wiadomo": 0.07,
+   "wezsze": 0.39,
+   "inne": 0.2,
+   "szersze": 0.01
+  }
+ },
+ "[\"przedluzan rzes\", \"4d 6d\", \"express set\"]": {
+  "klasa": [
+   "przedluzan rzes",
+   "4d 6d",
+   "express set"
+  ],
+  "a": "Przedłużanie rzęs 4/6D",
+  "b": "Przedłużanie rzęs  express set",
+  "slowa_a": "4/6D",
+  "slowa_b": "express",
+  "relacja": "inne",
+  "rozklad": {
+   "wezsze": 0.0,
+   "to_samo": 0.0,
+   "nie_wiadomo": 0.02,
+   "inne": 0.94,
+   "szersze": 0.04
+  }
+ },
+ "[\"przedluzan rzes\", \"1:1d 2d\", \"express set\"]": {
+  "klasa": [
+   "przedluzan rzes",
+   "1:1d 2d",
+   "express set"
+  ],
+  "a": "Przedłużanie rzęs 1:1-2D",
+  "b": "Przedłużanie rzęs  express set",
+  "slowa_a": "1:1-2D",
+  "slowa_b": "express",
+  "relacja": "inne",
+  "rozklad": {
+   "inne": 0.98,
+   "nie_wiadomo": 0.0,
+   "wezsze": 0.0,
+   "to_samo": 0.0,
+   "szersze": 0.02
+  }
+ },
+ "[\"3d rzes uzupelnien\", \"2d\", \"przedluzan\"]": {
+  "klasa": [
+   "3d rzes uzupelnien",
+   "2d",
+   "przedluzan"
+  ],
+  "a": "Uzupelnienie 2-3D",
+  "b": "Uzupełnienie 3D",
+  "slowa_a": "2-3D",
+  "slowa_b": "Przedłużanie",
+  "relacja": "inne",
+  "rozklad": {
+   "szersze": 0.01,
+   "to_samo": 0.04,
+   "wezsze": 0.15,
+   "inne": 0.76,
+   "nie_wiadomo": 0.04
+  }
+ },
+ "[\"3d rzes uzupelnien\", \"2d\", \"metod\"]": {
+  "klasa": [
+   "3d rzes uzupelnien",
+   "2d",
+   "metod"
+  ],
+  "a": "Uzupelnienie 2-3D",
+  "b": "uzupelnienie rzes metoda 3D",
+  "slowa_a": "2-3D",
+  "slowa_b": "metoda",
+  "relacja": "to_samo",
+  "rozklad": {
+   "nie_wiadomo": 0.06,
+   "inne": 0.15,
+   "to_samo": 0.43,
+   "szersze": 0.08,
+   "wezsze": 0.28
+  }
+ },
+ "[\"2d 3d rzes\", \"przedluzan\", \"uzupelnien\"]": {
+  "klasa": [
+   "2d 3d rzes",
+   "przedluzan",
+   "uzupelnien"
+  ],
+  "a": "Przedłużanie 2/3D",
+  "b": "Uzupelnienie 2-3D",
+  "slowa_a": "Przedłużanie",
+  "slowa_b": "Uzupelnienie",
+  "relacja": "inne",
+  "rozklad": {
+   "nie_wiadomo": 0.01,
+   "wezsze": 0.0,
+   "to_samo": 0.01,
+   "inne": 0.97,
+   "szersze": 0.01
+  }
+ },
+ "[\"rzes uzupelnien\", \"2d 3d\", \"5d\"]": {
+  "klasa": [
+   "rzes uzupelnien",
+   "2d 3d",
+   "5d"
+  ],
+  "a": "Uzupelnienie 2-3D",
+  "b": "Uzupelnienie rzes 5D",
+  "slowa_a": "2-3D",
+  "slowa_b": "5D",
+  "relacja": "inne",
+  "rozklad": {
+   "nie_wiadomo": 0.06,
+   "inne": 0.86,
+   "wezsze": 0.06,
+   "to_samo": 0.02,
+   "szersze": 0.0
+  }
+ },
+ "[\"2d 3d rzes\", \"metod\", \"uzupelnien\"]": {
+  "klasa": [
+   "2d 3d rzes",
+   "metod",
+   "uzupelnien"
+  ],
+  "a": "Metoda 2/3D",
+  "b": "Uzupelnienie 2-3D",
+  "slowa_a": "metoda",
+  "slowa_b": "Uzupelnienie",
+  "relacja": "inne",
+  "rozklad": {
+   "inne": 0.88,
+   "to_samo": 0.01,
+   "nie_wiadomo": 0.02,
+   "wezsze": 0.0,
+   "szersze": 0.09
+  }
+ },
+ "[\"2d 3d rzes\", \"metod przedluzan\", \"uzupelnien\"]": {
+  "klasa": [
+   "2d 3d rzes",
+   "metod przedluzan",
+   "uzupelnien"
+  ],
+  "a": "Metoda 2/3D",
+  "b": "Uzupelnienie 2-3D",
+  "slowa_a": "Przedłużanie Metoda",
+  "slowa_b": "Uzupelnienie",
+  "relacja": "inne",
+  "rozklad": {
+   "szersze": 0.06,
+   "wezsze": 0.0,
+   "inne": 0.92,
+   "to_samo": 0.01,
+   "nie_wiadomo": 0.01
+  }
+ },
+ "[\"rzes uzupelnien\", \"2d 3d\", \"7d\"]": {
+  "klasa": [
+   "rzes uzupelnien",
+   "2d 3d",
+   "7d"
+  ],
+  "a": "Uzupelnienie 2-3D",
+  "b": "Uzupelnienie rzes 7D",
+  "slowa_a": "2-3D",
+  "slowa_b": "7D",
+  "relacja": "inne",
+  "rozklad": {
+   "szersze": 0.0,
+   "inne": 0.89,
+   "wezsze": 0.04,
+   "nie_wiadomo": 0.04,
+   "to_samo": 0.03
+  }
+ },
+ "[\"2d 3d uzupelnien\", \"oka\", \"rzes\"]": {
+  "klasa": [
+   "2d 3d uzupelnien",
+   "oka",
+   "rzes"
+  ],
+  "a": "Uzupełnienie 2/3D",
+  "b": "Uzupelnienie 2-3D",
+  "slowa_a": "oka",
+  "slowa_b": "Rzęsy",
+  "relacja": "to_samo",
+  "rozklad": {
+   "nie_wiadomo": 0.01,
+   "szersze": 0.13,
+   "inne": 0.37,
+   "to_samo": 0.42,
+   "wezsze": 0.07
+  }
+ },
+ "[\"2d 3d uzupelnien\", \"3tyg do\", \"rzes\"]": {
+  "klasa": [
+   "2d 3d uzupelnien",
+   "3tyg do",
+   "rzes"
+  ],
+  "a": "Uzupełnienie 2-3D do 3tyg",
+  "b": "Uzupelnienie 2-3D",
+  "slowa_a": "do 3tyg",
+  "slowa_b": "Rzęsy",
+  "relacja": "inne",
+  "rozklad": {
+   "nie_wiadomo": 0.04,
+   "to_samo": 0.17,
+   "inne": 0.43,
+   "wezsze": 0.35,
+   "szersze": 0.01
+  }
+ },
+ "[\"3d uzupelnien\", \"1d\", \"2d rzes\"]": {
+  "klasa": [
+   "3d uzupelnien",
+   "1d",
+   "2d rzes"
+  ],
+  "a": "Uzupełnienie 1-3D",
+  "b": "Uzupelnienie 2-3D",
+  "slowa_a": "1-3D",
+  "slowa_b": "2-3D Rzęsy",
+  "relacja": "szersze",
+  "rozklad": {
+   "to_samo": 0.04,
+   "wezsze": 0.03,
+   "nie_wiadomo": 0.02,
+   "szersze": 0.51,
+   "inne": 0.4
+  }
+ },
+ "[\"rzes uzupelnien\", \"2d 3d\", \"7d przedluzan\"]": {
+  "klasa": [
+   "rzes uzupelnien",
+   "2d 3d",
+   "7d przedluzan"
+  ],
+  "a": "Uzupelnienie 2-3D",
+  "b": "Uzupelnienie 7D",
+  "slowa_a": "2-3D",
+  "slowa_b": "Przedłużanie 7D",
+  "relacja": "inne",
+  "rozklad": {
+   "szersze": 0.0,
+   "wezsze": 0.07,
+   "inne": 0.9,
+   "to_samo": 0.01,
+   "nie_wiadomo": 0.02
+  }
+ },
+ "[\"2d rzes uzupelnien\", \"3d\", \"metod\"]": {
+  "klasa": [
+   "2d rzes uzupelnien",
+   "3d",
+   "metod"
+  ],
+  "a": "Uzupelnienie 2-3D",
+  "b": "uzupelnienie rzes metoda 2D",
+  "slowa_a": "2-3D",
+  "slowa_b": "metoda",
+  "relacja": "szersze",
+  "rozklad": {
+   "szersze": 0.5,
+   "inne": 0.21,
+   "to_samo": 0.14,
+   "wezsze": 0.11,
+   "nie_wiadomo": 0.04
+  }
+ },
+ "[\"2d uzupelnien\", \"3d rzes\", \"4d volum\"]": {
+  "klasa": [
+   "2d uzupelnien",
+   "3d rzes",
+   "4d volum"
+  ],
+  "a": "Uzupelnienie 2-3D",
+  "b": "Uzupelnianie volume 2D-4D",
+  "slowa_a": "2-3D Rzęsy",
+  "slowa_b": "volume 2D-4D",
+  "relacja": "wezsze",
+  "rozklad": {
+   "szersze": 0.01,
+   "wezsze": 0.72,
+   "inne": 0.2,
+   "to_samo": 0.06,
+   "nie_wiadomo": 0.01
+  }
+ },
+ "[\"2d rzes uzupelnien\", \"3d\", \"przedluzan\"]": {
+  "klasa": [
+   "2d rzes uzupelnien",
+   "3d",
+   "przedluzan"
+  ],
+  "a": "Uzupelnienie 2-3D",
+  "b": "Uzupełnienie 2D",
+  "slowa_a": "2-3D",
+  "slowa_b": "Przedłużanie",
+  "relacja": "inne",
+  "rozklad": {
+   "szersze": 0.02,
+   "wezsze": 0.13,
+   "to_samo": 0.01,
+   "inne": 0.8099999999999999,
+   "nie_wiadomo": 0.03
+  }
+ },
+ "[\"2d uzupelnien\", \"3d rzes\", \"klasyczn\"]": {
+  "klasa": [
+   "2d uzupelnien",
+   "3d rzes",
+   "klasyczn"
+  ],
+  "a": "Uzupelnienie 2-3D",
+  "b": "Uzupełnienie 2D",
+  "slowa_a": "2-3D Rzęsy",
+  "slowa_b": "KLASYCZNE",
+  "relacja": "inne",
+  "rozklad": {
+   "wezsze": 0.02,
+   "nie_wiadomo": 0.01,
+   "inne": 0.81,
+   "to_samo": 0.01,
+   "szersze": 0.15
+  }
+ },
+ "[\"2d 3d rzes\", \"metod stylizacj\", \"uzupelnien\"]": {
+  "klasa": [
+   "2d 3d rzes",
+   "metod stylizacj",
+   "uzupelnien"
+  ],
+  "a": "Metoda 2-3d",
+  "b": "Uzupelnienie 2-3D",
+  "slowa_a": "STYLIZACJA metoda",
+  "slowa_b": "Uzupelnienie",
+  "relacja": "inne",
+  "rozklad": {
+   "inne": 0.89,
+   "to_samo": 0.0,
+   "szersze": 0.08,
+   "wezsze": 0.0,
+   "nie_wiadomo": 0.03
+  }
+ },
+ "[\"rzes uzupelnien\", \"10d 6d\", \"2d 3d\"]": {
+  "klasa": [
+   "rzes uzupelnien",
+   "10d 6d",
+   "2d 3d"
+  ],
+  "a": "Uzupelnienie 6-10D",
+  "b": "Uzupelnienie 2-3D",
+  "slowa_a": "6-10D",
+  "slowa_b": "2-3D",
+  "relacja": "inne",
+  "rozklad": {
+   "inne": 0.94,
+   "wezsze": 0.0,
+   "szersze": 0.02,
+   "nie_wiadomo": 0.03,
+   "to_samo": 0.01
+  }
+ },
+ "[\"rzes uzupelnien\", \"2d 3d\", \"4d metod\"]": {
+  "klasa": [
+   "rzes uzupelnien",
+   "2d 3d",
+   "4d metod"
+  ],
+  "a": "Uzupelnienie 2-3D",
+  "b": "Uzupelnienie rzes metoda 4D",
+  "slowa_a": "2-3D",
+  "slowa_b": "metoda 4D",
+  "relacja": "inne",
+  "rozklad": {
+   "inne": 0.9,
+   "to_samo": 0.02,
+   "wezsze": 0.02,
+   "nie_wiadomo": 0.06,
+   "szersze": 0.0
+  }
+ },
+ "[\"2d 3d\", \"metod\", \"rzes uzupelnien\"]": {
+  "klasa": [
+   "2d 3d",
+   "metod",
+   "rzes uzupelnien"
+  ],
+  "a": "Metoda 2D/3D",
+  "b": "Uzupelnienie 2-3D",
+  "slowa_a": "Metoda",
+  "slowa_b": "Uzupelnienie Rzęsy",
+  "relacja": "inne",
+  "rozklad": {
+   "inne": 0.9,
+   "wezsze": 0.01,
+   "to_samo": 0.01,
+   "nie_wiadomo": 0.02,
+   "szersze": 0.06
+  }
+ },
+ "[\"2d 3d\", \"metod zalozen\", \"rzes uzupelnien\"]": {
+  "klasa": [
+   "2d 3d",
+   "metod zalozen",
+   "rzes uzupelnien"
+  ],
+  "a": "Założenie metoda 2-3D",
+  "b": "Uzupelnienie 2-3D",
+  "slowa_a": "Założenie metoda",
+  "slowa_b": "Uzupelnienie Rzęsy",
+  "relacja": "inne",
+  "rozklad": {
+   "wezsze": 0.0,
+   "inne": 0.98,
+   "nie_wiadomo": 0.02,
+   "to_samo": 0.0,
+   "szersze": 0.0
+  }
+ },
+ "[\"rzes uzupelnien\", \"2d 3d\", \"6d metod\"]": {
+  "klasa": [
+   "rzes uzupelnien",
+   "2d 3d",
+   "6d metod"
+  ],
+  "a": "Uzupelnienie 2-3D",
+  "b": "Uzupelnienie rzes metoda 6D",
+  "slowa_a": "2-3D",
+  "slowa_b": "metoda 6D",
+  "relacja": "inne",
+  "rozklad": {
+   "nie_wiadomo": 0.05,
+   "wezsze": 0.02,
+   "szersze": 0.0,
+   "inne": 0.91,
+   "to_samo": 0.02
+  }
+ },
+ "[\"2d 3d rzes\", \"uzupelnien\", \"zalozen\"]": {
+  "klasa": [
+   "2d 3d rzes",
+   "uzupelnien",
+   "zalozen"
+  ],
+  "a": "Uzupelnienie 2-3D",
+  "b": "Założenie 2/3D",
+  "slowa_a": "Uzupelnienie",
+  "slowa_b": "Założenie założenie",
+  "relacja": "inne",
+  "rozklad": {
+   "inne": 0.9400000000000001,
+   "to_samo": 0.03,
+   "szersze": 0.0,
+   "wezsze": 0.03,
+   "nie_wiadomo": 0.0
+  }
+ },
+ "[\"2d 3d rzes\", \"stylizacj zalozen\", \"uzupelnien\"]": {
+  "klasa": [
+   "2d 3d rzes",
+   "stylizacj zalozen",
+   "uzupelnien"
+  ],
+  "a": "Założenie 2/3D",
+  "b": "Uzupelnienie 2-3D",
+  "slowa_a": "STYLIZACJA założenie",
+  "slowa_b": "Uzupelnienie",
+  "relacja": "inne",
+  "rozklad": {
+   "szersze": 0.0,
+   "inne": 0.99,
+   "wezsze": 0.0,
+   "to_samo": 0.01,
+   "nie_wiadomo": 0.0
+  }
+ },
+ "[\"rzes uzupelnien\", \"2d 3d\", \"4d 5d\"]": {
+  "klasa": [
+   "rzes uzupelnien",
+   "2d 3d",
+   "4d 5d"
+  ],
+  "a": "Uzupelnienie 2-3D",
+  "b": "UZupelnienie 4-5D",
+  "slowa_a": "2-3D",
+  "slowa_b": "4-5D",
+  "relacja": "inne",
+  "rozklad": {
+   "nie_wiadomo": 0.04,
+   "wezsze": 0.02,
+   "inne": 0.92,
+   "to_samo": 0.02,
+   "szersze": 0.0
+  }
+ },
+ "[\"owal termolifting twarz\", \"podniesien zageszczen\", \"thermagetm\"]": {
+  "klasa": [
+   "owal termolifting twarz",
+   "podniesien zageszczen",
+   "thermagetm"
+  ],
+  "a": "Termolifting - podniesienie owalu i zagęszczenie — Twarz",
+  "b": "Thermage™ - Termolifting OWAL TWARZY — Thermage™ - Termolifting OWAL TWARZY",
+  "slowa_a": "podniesienie zagęszczenie",
+  "slowa_b": "Thermage™",
+  "relacja": "wezsze",
+  "rozklad": {
+   "nie_wiadomo": 0.06,
+   "wezsze": 0.4,
+   "to_samo": 0.32,
+   "inne": 0.19,
+   "szersze": 0.03
+  }
+ },
+ "[\"rzes uzupelnien\", \"2d 3d\", \"7d metod\"]": {
+  "klasa": [
+   "rzes uzupelnien",
+   "2d 3d",
+   "7d metod"
+  ],
+  "a": "Uzupelnienie 2-3D",
+  "b": "Uzupelnienie rzes metoda 7D",
+  "slowa_a": "2-3D",
+  "slowa_b": "metoda 7D",
+  "relacja": "inne",
+  "rozklad": {
+   "inne": 0.88,
+   "szersze": 0.0,
+   "wezsze": 0.02,
+   "to_samo": 0.02,
+   "nie_wiadomo": 0.08
+  }
  }
 }
