@@ -48,10 +48,22 @@ async def _generuj(client: Any, brak: dict[str, dict[str, Any]], stat: dict[str,
     return nowe
 
 
+def kolejka(client: Any, salonow: int) -> list[dict[str, Any]]:
+    """Salony do przeliczenia (strony po 1000 — limit wierszy PostgREST na jedno zapytanie)."""
+    out: list[dict[str, Any]] = []
+    while len(out) < salonow:
+        r = (client.rpc("fn_bcard_do_odswiezenia", {"p_dni": DNI, "p_limit": salonow})
+             .range(len(out), len(out) + pamiec.STRONA - 1).execute().data or [])
+        out += r
+        if len(r) < pamiec.STRONA:
+            break
+    return out[:salonow]
+
+
 def _zbierz(client: Any, salonow: int) -> tuple[list[tuple[int, str, list[dict[str, Any]]]],
                                                  dict[str, dict[str, Any]], dict[str, dict[str, Any]]]:
     """→ (salony z lekkimi usługami, karty z pamięci, usługi bez karty po kluczu). Pełne dane tylko dla braków."""
-    do = client.rpc("fn_bcard_do_odswiezenia", {"p_dni": DNI, "p_limit": salonow}).execute().data or []
+    do = kolejka(client, salonow)
     salony: list[tuple[int, str, list[dict[str, Any]]]] = []
     karty: dict[str, dict[str, Any]] = {}
     brak: dict[str, dict[str, Any]] = {}

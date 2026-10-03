@@ -176,7 +176,7 @@ async def test_maly_brak_kart_nie_rozgrzewa_bcard():
 
 def _klient_odswiezania(do):
     c = MagicMock()
-    c.rpc.return_value.execute.return_value.data = do
+    c.rpc.return_value.range.return_value.execute.return_value.data = do
     return c
 
 
