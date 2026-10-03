@@ -70,3 +70,8 @@ def zapisz_werdykty(client: Any, wynik: dict[str, list[float]], wersja: str) -> 
 def zapisz_cien(client: Any, wiersze: list[dict[str, Any]]) -> None:
     for p in _paczki(wiersze):
         client.table("bmatch_cien").insert(p).execute()
+
+
+def zapisz_przebieg(client: Any, wiersz: dict[str, Any]) -> None:
+    """Jeden wiersz na wycenę raportu (mig 204, panel „b-card / b-match”)."""
+    client.table("bmatch_przebieg").insert(wiersz).execute()

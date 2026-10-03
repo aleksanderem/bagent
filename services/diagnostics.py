@@ -25,6 +25,7 @@ from typing import Any
 from config import settings
 from services.cron_runs import list_cron_runs
 from services.diag_backup import backup_offsite
+from services.diag_bmatch import zbierz as zbierz_bmatch
 from services.diag_destylacja import zbierz as zbierz_destylacje
 from services.diag_koszty import zbierz as zbierz_koszty
 
@@ -348,5 +349,7 @@ async def collect_diagnostics(pool: Any, backup_dir: str, include_logs: bool = F
         "destylacja": await asyncio.to_thread(zbierz_destylacje, sb),
         # Koszt i tokeny modeli za dobę, per mechanizm (services/diag_koszty.py).
         "koszty": await asyncio.to_thread(zbierz_koszty, sb),
+        # b-card / b-match: przełącznik, punkty Runpod, koszty, saldo, przebiegi (services/diag_bmatch.py).
+        "bmatch": await asyncio.to_thread(zbierz_bmatch, sb),
         **({"logs": pm2_log_tails()} if include_logs else {}),
     }
