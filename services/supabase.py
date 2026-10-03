@@ -740,9 +740,13 @@ class SupabaseService:
         try:
             res = (
                 self.client.table("salons")
+                # Bez partner_system: tej kolumny nie ma w `salons` (jest w
+                # salon_scrapes) — jej żądanie dawało 42703, łapane niżej jako
+                # [] → wszyscy dokładani wybrani po cichu wypadali z raportu.
+                # Wołający bierze wtedy domyślne "native".
                 .select(
                     "id,booksy_id,name,city,primary_category_id,"
-                    "reviews_count,reviews_rank,partner_system"
+                    "reviews_count,reviews_rank"
                 )
                 .in_("id", salon_ids)
                 .execute()
