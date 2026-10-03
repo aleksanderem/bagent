@@ -608,6 +608,9 @@ async def start_competitor_report(request: CompetitorReportRequest) -> AnalyzeRe
                 # Webhook callback routing (migration 148): stored on the queue
                 # row, read back by the drain → task → ConvexClient(base_url).
                 "p_convex_site_url": request.convexSiteUrl,
+                # Wybrani ręcznie konkurenci (migracja 202): zapisani w wierszu kolejki,
+                # drain → payload → must_include_salon_ids. Pusta lista = NULL.
+                "p_selected_competitor_ids": request.selectedCompetitorIds or None,
             },
         ).execute()
     except Exception as e:  # noqa: BLE001
