@@ -6,6 +6,11 @@ from typing import Any
 
 PACZKA = 500
 STRONA = 1000
+# Odczyty filtrują listą w adresie zapytania (in_), a serwer przyjmuje adres do ~6 KB (dłuższy = 414 Request-URI Too
+# Large). Porcje liczone pod ~3,5 KB: klucz karty 16 znaków, klucz pary 35 (z „|” zakodowanym), id usługi ≤ 9 cyfr.
+W_ADRESIE_KARTY = 200
+W_ADRESIE_PARY = 100
+W_ADRESIE_ID = 300
 POLA_USLUGI = ("id,booksy_id,name,category_name,description,variants,treatment_name,duration_minutes,"
                "price_grosze,is_package,is_active")
 
@@ -17,7 +22,7 @@ def _paczki(xs: list[Any], n: int = PACZKA):
 
 def karty(client: Any, klucze: set[str]) -> dict[str, dict[str, Any]]:
     out: dict[str, dict[str, Any]] = {}
-    for p in _paczki(sorted(klucze)):
+    for p in _paczki(sorted(klucze), W_ADRESIE_KARTY):
         for r in client.table("bcard_karta").select("klucz,karta").in_("klucz", p).execute().data or []:
             out[r["klucz"]] = r["karta"]
     return out
@@ -44,7 +49,7 @@ def kandydaci(client: Any, booksy_ids: list[int], zabiegi: list[str]) -> list[di
 
 def uslugi(client: Any, service_ids: list[int]) -> dict[int, dict[str, Any]]:
     out: dict[int, dict[str, Any]] = {}
-    for p in _paczki(sorted(set(service_ids))):
+    for p in _paczki(sorted(set(service_ids)), W_ADRESIE_ID):
         for r in client.table("salon_scrape_services").select(POLA_USLUGI).in_("id", p).execute().data or []:
             out[int(r["id"])] = r
     return out
@@ -52,7 +57,7 @@ def uslugi(client: Any, service_ids: list[int]) -> dict[int, dict[str, Any]]:
 
 def werdykty(client: Any, pary: set[str], wersja: str) -> dict[str, list[float]]:
     out: dict[str, list[float]] = {}
-    for p in _paczki(sorted(pary)):
+    for p in _paczki(sorted(pary), W_ADRESIE_PARY):
         res = (client.table("bmatch_werdykt").select("para_klucz,p_inna,p_odmiana,p_ta_sama")
                .eq("wersja_modelu", wersja).in_("para_klucz", p).execute())
         for r in res.data or []:
