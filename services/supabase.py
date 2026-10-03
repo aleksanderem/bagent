@@ -2458,6 +2458,8 @@ class SupabaseService:
                 "bucket": payload.get("bucket"),
                 "counts_in_aggregates": payload.get("counts_in_aggregates"),
             }
+            if "similarity_scores" in payload:  # b-match: pokrycie oferty z werdyktów (Faza 8a)
+                body["similarity_scores"] = payload["similarity_scores"]
             return (
                 self.client.table("competitor_matches")
                 .update(body)

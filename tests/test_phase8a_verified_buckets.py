@@ -284,3 +284,38 @@ def test_all_zero_coverage_skips_rebucket(monkeypatch):
     svc, out = _run(monkeypatch, {b: set() for b in BY_BOOKSY})
     assert out == {}
     svc.update_competitor_matches_verify_buckets.assert_not_called()
+
+
+# ── MATCHING_SOURCE=bcard: pokrycie z werdyktów b-match (services/bmatch/pokrycie.py) ──
+
+def test_pokrycie_z_bmatch_zamiast_wyszukiwania_nazw(monkeypatch):
+    from services.bmatch import pokrycie
+
+    def _nie_szukaj(*a, **kw):
+        raise AssertionError("przy b-match Faza 8a nie szuka po nazwach")
+
+    monkeypatch.setattr(ca, "search_twins", _nie_szukaj)
+    monkeypatch.setattr(ca, "_fetch_subject_embeddings_with_chain_head_fallback", _nie_szukaj)
+    b_direct, b_slaby = list(BY_BOOKSY)[:2]
+    klastry = {s: [{"booksy_id": b_direct, "similarity": 1.0}] for s in range(1, 11)}  # 10 z 40 usług = 25%
+    klastry[11] = [{"booksy_id": b_slaby, "similarity": 1.0}]
+    pokrycie.zapamietaj(250, klastry, 40)
+    matches = [{**m, "similarity_scores": {"profile_overlap_sim": 0.7, "focus_tid_sim": 0.5}} for m in _matches()]
+    svc = _service(matches)
+    out = asyncio.run(_aggregate_verified_match_counts(svc, 250, _subject(), _aligned()))
+    assert out[BY_BOOKSY[b_direct]] == 10 and out[BY_BOOKSY[b_slaby]] == 1
+    _, updates = svc.update_competitor_matches_verify_buckets.await_args.args
+    u = {m["competitor_salon_id"]: up for m, up in zip(matches, updates, strict=True)}
+    d = u[BY_BOOKSY[b_direct]]
+    assert d["bucket"] == "direct"
+    assert d["similarity_scores"]["profile_overlap_sim"] == 0.25
+    assert d["similarity_scores"]["profile_overlap_sim_dobor"] == 0.7
+    assert d["similarity_scores"]["focus_tid_sim"] == 0.5 and d["similarity_scores"]["pokrycie_zrodlo"] == "b-match"
+    assert u[BY_BOOKSY[b_slaby]]["bucket"] == "excluded"  # 1 usługa < MIN_COVERED
+    assert pokrycie.wez(250) is None  # jednorazowe
+
+
+def test_bez_bmatch_zostaje_wyszukiwanie_nazw_bez_zmiany_pokrycia(monkeypatch):
+    svc, _ = _run(monkeypatch, {b: set(range(1, 21)) for b in BY_BOOKSY})
+    _, updates = svc.update_competitor_matches_verify_buckets.await_args.args
+    assert all("similarity_scores" not in u for u in updates)

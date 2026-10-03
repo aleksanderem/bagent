@@ -18,6 +18,7 @@ from config import settings
 
 from . import dobor, pamiec, polityka
 from .klucz import klucz_uslugi, para_klucz, strona_bmatch, wiadomosci_bcard, wiadomosci_bmatch
+from .pokrycie import POKRYWA
 from .runpod import Punkt
 
 logger = logging.getLogger(__name__)
@@ -126,6 +127,7 @@ async def _wycen(punkt: Punkt, service: Any, subject_services: list[dict[str, An
         znane.update(nowe)
 
     wyniki: dict[int, Any] = {}
+    pokrycie: dict[int, list[dict[str, Any]]] = {}  # Faza 8a: u których konkurentów raportu jest ta sama / odmiana
     for u in subject_services:
         sid = int(u["id"])
         ku = karta_uslugi[sid]
@@ -146,12 +148,15 @@ async def _wycen(punkt: Punkt, service: Any, subject_services: list[dict[str, An
                       "is_package": bool(d.get("is_package")), "similarity": p[2],
                       "is_selected": o["booksy_id"] in selected_booksy}
             oceny.append((probka, dec, polityka.powod_odmiany(dobor.skladniki(ku), o.get("skladniki") or [])))
+            if dec in POKRYWA and probka["is_selected"]:
+                pokrycie.setdefault(sid, []).append({"booksy_id": o["booksy_id"], "similarity": 1.0})
         subject = {"service_name": u.get("name") or "", "price_grosze": u.get("price_grosze"),
                    "duration_minutes": u.get("duration_minutes"), "category_name": u.get("category_name"),
                    "is_package": bool(u.get("is_package", False))}
         wyniki[sid] = polityka.wynik_rynkowy(subject, oceny, config, {"wersja_bmatch": settings.bmatch_wersja,
                                                                      "wersja_bcard": settings.bcard_wersja})
     stat = {"czas_s": round(time.time() - t0, 1), "uslug": len(subject_services), "z_karta": sum(1 for k in karta_uslugi.values() if k),
-            "z_kandydatami": len(wybor), "par": len(pary), "par_nowych": len(brak), "ofert_w_puli": len(oferty), "etapy_s": etapy}
-    logger.info("bmatch: %s", stat)
+            "z_kandydatami": len(wybor), "par": len(pary), "par_nowych": len(brak), "ofert_w_puli": len(oferty), "etapy_s": etapy,
+            "pokrycie": pokrycie}
+    logger.info("bmatch: %s", {k: v for k, v in stat.items() if k != "pokrycie"})
     return wyniki, stat
