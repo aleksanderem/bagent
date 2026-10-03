@@ -353,6 +353,33 @@ class TestRunCompetitorReportTask:
         assert mock_pipeline.await_args.kwargs["job_id"] == "job-3"
 
     @pytest.mark.asyncio
+    @pytest.mark.parametrize("wybrani, oczekiwane", [([7, 8], [7, 8]), ([], None), (None, None)])
+    async def test_passes_selected_competitor_ids_to_pipeline(self, wybrani, oczekiwane):
+        """Migracja 202: payload['selectedCompetitorIds'] → must_include_salon_ids pipeline'u."""
+        from workers.tasks import run_competitor_report_task
+
+        mock_pipeline = AsyncMock(return_value={
+            "report_id": 7, "narrative": "n", "swot_item_count": 0,
+            "recommendation_count": 0, "used_fallback": False,
+        })
+        mock_convex = MagicMock()
+        mock_convex.competitor_report_progress = AsyncMock()
+        mock_convex.competitor_report_complete = AsyncMock()
+        mock_convex.competitor_report_fail = AsyncMock()
+        redis = AsyncMock()
+        redis.get = AsyncMock(return_value=None)
+        request = {"auditId": "audit-1", "userId": "user-1"}
+        if wybrani is not None:
+            request["selectedCompetitorIds"] = wybrani
+        with (
+            patch("pipelines.competitor_report.run_competitor_report_pipeline", mock_pipeline),
+            patch("services.convex.ConvexClient", MagicMock(return_value=mock_convex)),
+        ):
+            await run_competitor_report_task({"redis": redis, "job_id": "job-w"}, request)
+
+        assert mock_pipeline.await_args.kwargs["must_include_salon_ids"] == oczekiwane
+
+    @pytest.mark.asyncio
     async def test_logs_queue_depth_on_start(self, caplog):
         """Best-effort queue-depth probe ZCARDs arq:queue on start (P3)."""
         import logging

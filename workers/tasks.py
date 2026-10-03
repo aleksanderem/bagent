@@ -507,6 +507,7 @@ async def run_competitor_report_task(ctx: dict[str, Any], request: dict[str, Any
             convex_user_id=user_id,
             on_progress=on_progress,
             job_id=job_id,
+            must_include_salon_ids=request.get("selectedCompetitorIds") or None,
         )
 
         report_stats = {

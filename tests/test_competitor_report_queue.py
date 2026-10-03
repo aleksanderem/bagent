@@ -125,6 +125,27 @@ class TestDrainCompetitorReportQueue:
         assert payloads[1]["convexSiteUrl"] is None
 
     @pytest.mark.asyncio
+    async def test_drain_threads_selected_competitor_ids_into_payload(self):
+        """Migracja 202: kolumna selected_competitor_ids jedzie w zajętym wierszu; drain przekazuje ją jako
+        payload['selectedCompetitorIds']; wiersz sprzed migracji (brak klucza) → None."""
+        from workers.competitor_report_queue import drain_competitor_report_queue
+
+        base = {"user_id": "u", "tier": "premium", "selection_mode": "manual", "target_count": 15}
+        rows = [
+            {**base, "id": 30, "audit_id": "aud-wybor", "arq_job_id": "uuid-w", "selected_competitor_ids": [5, 6]},
+            {**base, "id": 31, "audit_id": "aud-stary", "arq_job_id": "uuid-s"},
+        ]
+        client = _make_claim_response(rows)
+        redis = AsyncMock()
+        redis.enqueue_job = AsyncMock(return_value=MagicMock())
+        with patch("workers.competitor_report_queue._get_client", return_value=client):
+            await drain_competitor_report_queue({"redis": redis})
+
+        payloads = [c.args[1] for c in redis.enqueue_job.await_args_list]
+        assert payloads[0]["selectedCompetitorIds"] == [5, 6]
+        assert payloads[1]["selectedCompetitorIds"] is None
+
+    @pytest.mark.asyncio
     async def test_drain_passes_cap_to_claim_rpc(self):
         from workers.competitor_report_queue import (
             COMPETITOR_REPORT_MAX_CONCURRENT,

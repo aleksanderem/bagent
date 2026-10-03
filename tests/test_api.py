@@ -139,6 +139,32 @@ def test_competitor_report_forwards_convex_site_url():
     )
 
 
+def test_competitor_report_forwards_selected_competitor_ids():
+    """Wybrani ręcznie konkurenci (migracja 202) trafiają do RPC kolejki; brak lub pusta lista → None."""
+    from config import settings
+
+    sb = _make_enqueue_sb(102)
+    with patch("services.sb_client.make_supabase_client", return_value=sb):
+        response = client.post(
+            "/api/competitor/report",
+            json={"auditId": "a", "userId": "u", "selectionMode": "manual", "selectedCompetitorIds": [11, 22]},
+            headers={"x-api-key": settings.api_key},
+        )
+    assert response.status_code == 202
+    _, params = sb.rpc.call_args.args
+    assert params["p_selected_competitor_ids"] == [11, 22]
+
+    sb = _make_enqueue_sb(103)
+    with patch("services.sb_client.make_supabase_client", return_value=sb):
+        client.post(
+            "/api/competitor/report",
+            json={"auditId": "a2", "userId": "u", "selectedCompetitorIds": []},
+            headers={"x-api-key": settings.api_key},
+        )
+    _, params = sb.rpc.call_args.args
+    assert params["p_selected_competitor_ids"] is None
+
+
 def test_competitor_report_dedup_returns_already_queued():
     """When the enqueue RPC returns data=None (active row exists), the endpoint
     signals dedup with status='already_queued'."""

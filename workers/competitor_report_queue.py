@@ -112,6 +112,8 @@ async def drain_competitor_report_queue(ctx: dict[str, Any]) -> dict[str, int]:
             # enqueued before the migration / by an old Convex → task falls back
             # to the global settings.convex_url.
             "convexSiteUrl": job.get("convex_site_url"),
+            # Wybrani ręcznie konkurenci (migracja 202). None dla wierszy sprzed migracji.
+            "selectedCompetitorIds": job.get("selected_competitor_ids"),
             "_queue_id": job["id"],
         }
         # _job_id=arq_job_id so the frontend's jobId polling keeps working.
