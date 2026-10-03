@@ -14,6 +14,20 @@ class Settings(BaseSettings):
     # "typesafe" bez TYPESAFE_API_KEY albo bez zainstalowanego SDK = powrót do "glm".
     taxonomy_veto_source: str = "glm"
     typesafe_api_key: str = ""
+    # Źródło matchingu wyceny raportu konkurencji (plan: ~/projects/b-card/docs/etap7_plan.md):
+    #   "stary"      — dzisiejszy silnik (Qdrant + test tożsamości), zero wywołań b-card/b-match (domyślnie),
+    #   "bcard_cien" — klient widzi stary silnik, b-card/b-match liczy obok i zapisuje porównanie do bmatch_cien,
+    #   "bcard"      — wiersze z b-match; usługa bez karty/kandydatów albo błąd/limit czasu → stary silnik.
+    # (wspólny przełącznik z katalogiem usług: dojdzie wartość "podpis").
+    matching_source: str = "stary"
+    runpod_api_key: str = ""
+    bmatch_endpoint_id: str = ""
+    bcard_endpoint_id: str = ""
+    bmatch_wersja: str = "bmatch-qwen3.5-4b-v11"
+    bcard_wersja: str = "bcard-qwen3.5-2b-sft_v4"
+    bcard_wersja_slownika: str = "2026-10-03"
+    bmatch_kandydatow: int = 50
+    bmatch_limit_s: int = 900
     minimax_base_url: str = "https://api.minimax.io/anthropic"
     minimax_model: str = "MiniMax-M3"
     # M3 udostępnia okno kontekstu do 1M tokenów po stronie serwera (tiered:
