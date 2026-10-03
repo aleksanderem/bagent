@@ -312,6 +312,9 @@ try:  # pragma: no cover
         # i stopy reklam wchodzą do strumienia alertów monitoringu, zestawiane
         # ze zmianami cenników w feedzie i digestach.
         cron("workers.meta_ads_refresh.meta_ads_refresh_cron", hour={6}, minute={15}),
+        # b-card: oferty salonów z nowym skanem → karty (brakujące z punktu b-card) → bcard_oferta (mig 206).
+        # 01:30 UTC — przed nocnymi jobami 03:00–05:40. Przy MATCHING_SOURCE=stary nic nie robi.
+        cron("services.bmatch.odswiez.odswiez_cron", hour={1}, minute={30}),
         # Panel „Klucze i stałe": nadpisania kluczy z Convexa co 5 minut
         # (services/settings_sync.py). Każdy proces synchronizuje się osobno.
         cron("services.settings_sync.settings_sync_cron", minute={i for i in range(3, 60, 5)}),
