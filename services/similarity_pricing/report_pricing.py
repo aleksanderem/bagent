@@ -816,6 +816,15 @@ async def compute_pricing_comparisons_v2(
     return rows
 
 
+def _zapisz_przebieg(service: Any, wiersz: dict[str, Any]) -> None:
+    """Statystyka wyceny b-match do bmatch_przebieg (panel „b-card / b-match”); błąd zapisu nie rusza raportu."""
+    try:
+        from services.bmatch import pamiec as bm_pamiec
+        bm_pamiec.zapisz_przebieg(service.client, wiersz)
+    except Exception as e:  # noqa: BLE001
+        logger.warning("bmatch: zapis przebiegu nieudany: %s", str(e)[:200])
+
+
 async def _matching_bcard(
     zrodlo: str, service: Any, report_id: int, subject_services: list[dict[str, Any]],
     rows: list[dict[str, Any]], all_booksy: list[int], selected_booksy: set[int],
@@ -837,11 +846,22 @@ async def _matching_bcard(
         )
     except Exception as e:  # noqa: BLE001 — b-match nigdy nie wywraca raportu; zostaje stary silnik
         logger.error("bmatch (%s): wycena nieudana, zostaje stary silnik: %s: %s", zrodlo, type(e).__name__, str(e)[:300])
+        _zapisz_przebieg(service, {"report_id": report_id, "tryb": zrodlo, "ok": False, "uslug": len(subject_services),
+                                   "blad": f"{type(e).__name__}: {str(e)[:300]}"})
         return rows
     nowe = [
         _build_row(report_id, svc, wyniki[int(svc["id"])]) if int(svc["id"]) in wyniki else None
         for svc in subject_services
     ]
+    _zapisz_przebieg(service, {
+        "report_id": report_id, "tryb": zrodlo, "ok": True, "czas_s": stat.get("czas_s"), "uslug": stat.get("uslug"),
+        "z_karta": stat.get("z_karta"), "z_kandydatami": stat.get("z_kandydatami"), "par": stat.get("par"),
+        "par_nowych": stat.get("par_nowych"),
+        "wierszy_bmatch": sum(1 for n in nowe if n is not None and (n.get("market_median_grosze") or n.get("competitor_samples"))),
+        "gpu_bmatch_s": stat.get("gpu_bmatch_s"), "gpu_bcard_s": stat.get("gpu_bcard_s"),
+        "szczegoly": {"etapy_s": stat.get("etapy_s"), "ofert_w_puli": stat.get("ofert_w_puli"),
+                      "wersja_bmatch": settings.bmatch_wersja, "wersja_bcard": settings.bcard_wersja},
+    })
     if zrodlo == "bcard_cien":
         try:
             bm_pamiec.zapisz_cien(service.client, [

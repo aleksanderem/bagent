@@ -32,14 +32,18 @@ def uzupelnij_obszar(karta: dict[str, Any]) -> dict[str, Any]:
     return {**karta, "skladniki": [{k: v for k, v in s.items() if v is not None} for s in sk]}
 
 
-async def _karty_podmiotu(client: Any, uslugi: list[dict[str, Any]], typ_salonu: str) -> dict[str, dict[str, Any]]:
+async def _karty_podmiotu(client: Any, uslugi: list[dict[str, Any]], typ_salonu: str,
+                          gpu: dict[str, float] | None = None) -> dict[str, dict[str, Any]]:
     klucze = {klucz_uslugi(u): u for u in uslugi}
     karty = pamiec.karty(client, set(klucze))
     brak = [u for k, u in klucze.items() if k not in karty]
     # Kilka braków = te usługi liczy stary silnik; rozgrzewanie b-card (~2,5 min) opłaca się dopiero przy większej luce.
     if brak and settings.bcard_endpoint_id and len(brak) > max(3, PROG_BRAKU_KART * len(uslugi)):
-        async with Punkt(settings.bcard_endpoint_id, settings.runpod_api_key, "bcard") as p:
+        p = Punkt(settings.bcard_endpoint_id, settings.runpod_api_key, "bcard")
+        async with p:
             nowe = await p.karty([wiadomosci_bcard(u, typ_salonu) for u in brak])
+        if gpu is not None:
+            gpu["gpu_bcard_s"] = gpu.get("gpu_bcard_s", 0.0) + p.sekundy
         zapis = []
         for u, k in zip(brak, nowe, strict=True):
             if k:
@@ -53,19 +57,23 @@ async def _karty_podmiotu(client: Any, uslugi: list[dict[str, Any]], typ_salonu:
 async def wycen(service: Any, subject_services: list[dict[str, Any]], all_booksy: list[int],
                 selected_booksy: set[int], salons_by_booksy: dict[int, dict[str, Any]],
                 config: dict[str, Any] | None = None, typ_salonu: str = "") -> tuple[dict[int, Any], dict[str, Any]]:
-    async with Punkt(settings.bmatch_endpoint_id, settings.runpod_api_key, "bmatch") as punkt:
-        return await _wycen(punkt, service, subject_services, all_booksy, selected_booksy, salons_by_booksy,
-                            config, typ_salonu)
+    punkt = Punkt(settings.bmatch_endpoint_id, settings.runpod_api_key, "bmatch")
+    gpu: dict[str, float] = {}
+    async with punkt:
+        wyniki, stat = await _wycen(punkt, service, subject_services, all_booksy, selected_booksy, salons_by_booksy,
+                                    config, typ_salonu, gpu)
+    return wyniki, {**stat, **gpu, "gpu_bmatch_s": punkt.sekundy}
 
 
 async def _wycen(punkt: Punkt, service: Any, subject_services: list[dict[str, Any]], all_booksy: list[int],
                  selected_booksy: set[int], salons_by_booksy: dict[int, dict[str, Any]],
-                 config: dict[str, Any] | None, typ_salonu: str) -> tuple[dict[int, Any], dict[str, Any]]:
+                 config: dict[str, Any] | None, typ_salonu: str,
+                 gpu: dict[str, float]) -> tuple[dict[int, Any], dict[str, Any]]:
     """Punkt b-match rozgrzewa się od wejścia do `wycen` — równolegle z kartami, doborem i odczytem danych."""
     t0 = time.time()
     etapy: dict[str, float] = {}
     client = service.client
-    karty = await _karty_podmiotu(client, subject_services, typ_salonu)
+    karty = await _karty_podmiotu(client, subject_services, typ_salonu, gpu)
     etapy["karty_podmiotu"] = round(time.time() - t0, 1)
     karta_uslugi = {int(u["id"]): karty.get(klucz_uslugi(u)) for u in subject_services}
     zab = sorted({z for k in karta_uslugi.values() if k for z in dobor.zabiegi(k)})

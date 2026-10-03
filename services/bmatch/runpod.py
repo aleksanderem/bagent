@@ -31,6 +31,8 @@ class Punkt:
         self.id, self.klucz, self.model, self.naraz, self.zarzadzaj = endpoint_id, api_key, model, naraz, zarzadzaj
         self._http = httpx.AsyncClient(limits=httpx.Limits(max_connections=naraz))
         self.ponowienia = 0
+        self.sekundy = 0.0
+        self._start = 0.0
 
     async def _ustaw(self, **pola: int) -> None:
         r = await self._http.patch(f"{REST}/{self.id}", json=pola, headers=self._naglowki(), timeout=30)
@@ -41,6 +43,7 @@ class Punkt:
         return {"Authorization": f"Bearer {self.klucz}"}
 
     async def __aenter__(self) -> "Punkt":
+        self._start = asyncio.get_running_loop().time()
         if self.zarzadzaj:
             await self._ustaw(workersMax=1, workersMin=1)
         return self
@@ -54,6 +57,7 @@ class Punkt:
         except Exception as e:  # noqa: BLE001 — błąd gaszenia logujemy głośno (pracownik nalicza ~4,8 USD/h)
             logger.error("bmatch: NIE udało się wyłączyć punktu %s: %s", self.id, e)
         finally:
+            self.sekundy = round(asyncio.get_running_loop().time() - self._start, 1)
             await self._http.aclose()
 
     async def gotowy(self, limit_s: int = 600) -> None:
