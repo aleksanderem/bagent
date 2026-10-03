@@ -44,6 +44,7 @@ def main() -> None:
     ap.add_argument("--sucho", action="store_true")
     ap.add_argument("--salonow", type=int, default=0)
     ap.add_argument("--bez-kart", action="store_true", help="pomiń zapis bcard_karta (już zasilone)")
+    ap.add_argument("--od", type=int, default=0, help="wznów od N-tego salonu (kolejność stała: rosnące booksy_id)")
     a = ap.parse_args()
     client = SupabaseService().client
     t0 = time.time()
@@ -61,6 +62,7 @@ def main() -> None:
             if i % 100000 == 0:
                 print(f"bcard_karta {i}/{len(wiersze)}", flush=True)
     salony = salony_beauty(client)
+    salony = salony[a.od:]
     if a.salonow:
         salony = salony[:a.salonow]
     glowy = oferty.glowy_skanow(client, salony)

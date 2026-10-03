@@ -54,14 +54,22 @@ def oferty_salonu(uslugi: list[dict[str, Any]], booksy_id: int, karty: dict[str,
 
 
 def zapisz(client: Any, booksy_id: int, wiersze: list[dict[str, Any]]) -> None:
-    """Upsert ofert salonu i usunięcie ofert, których nie ma już w aktualnym skanie."""
+    """Upsert ofert salonu i usunięcie ofert, których nie ma już w aktualnym skanie (porcjami — długa lista
+    w adresie zapytania daje 414 Request-URI Too Large)."""
     for i in range(0, len(wiersze), 500):
         client.table("bcard_oferta").upsert(wiersze[i:i + 500], on_conflict="service_id").execute()
-    aktualne = [w["service_id"] for w in wiersze]
-    q = client.table("bcard_oferta").delete().eq("booksy_id", booksy_id)
-    if aktualne:
-        q = q.not_.in_("service_id", aktualne)
-    q.execute()
+    aktualne = {w["service_id"] for w in wiersze}
+    istniejace, od = set(), 0
+    while True:
+        r = (client.table("bcard_oferta").select("service_id").eq("booksy_id", booksy_id)
+             .range(od, od + 999).execute())
+        istniejace |= {int(x["service_id"]) for x in r.data or []}
+        if len(r.data or []) < 1000:
+            break
+        od += 1000
+    stare = sorted(istniejace - aktualne)
+    for i in range(0, len(stare), 200):
+        client.table("bcard_oferta").delete().in_("service_id", stare[i:i + 200]).execute()
 
 
 def wejscia_bcard(brak: list[dict[str, Any]], typ_salonu: str = "") -> list[list[dict[str, str]]]:
