@@ -158,3 +158,15 @@ async def test_punkt_gasi_pracownika_przy_bledzie():
     wywolania = [c.kwargs for c in p._ustaw.await_args_list]
     assert wywolania[0] == {"workersMax": 1, "workersMin": 1}
     assert {"workersMin": 0, "workersMax": 0} in wywolania and wywolania[-1] == {"workersMax": 1}
+
+
+@pytest.mark.asyncio
+async def test_maly_brak_kart_nie_rozgrzewa_bcard():
+    from services.bmatch import wycena
+    uslugi = [{"id": i, "name": f"u{i}", "category_name": "", "description": "", "variants": []} for i in range(100)]
+    znane = {klucz_uslugi(u): {"skladniki": [{"zabieg": "manicure"}]} for u in uslugi[:98]}
+    with patch.object(wycena.pamiec, "karty", MagicMock(return_value=dict(znane))), \
+         patch.object(wycena, "Punkt") as punkt, patch.object(wycena.settings, "bcard_endpoint_id", "ep"):
+        karty = await wycena._karty_podmiotu(MagicMock(), uslugi, "")
+    punkt.assert_not_called()
+    assert len(karty) == 98

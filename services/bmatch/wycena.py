@@ -21,6 +21,7 @@ from .klucz import klucz_uslugi, para_klucz, strona_bmatch, wiadomosci_bcard, wi
 from .runpod import Punkt
 
 logger = logging.getLogger(__name__)
+PROG_BRAKU_KART = 0.05
 OBSZAR_DOMYSLNY: dict[str, str] = json.loads((Path(__file__).parent / "obszar_domyslny.json").read_text())
 
 
@@ -35,7 +36,8 @@ async def _karty_podmiotu(client: Any, uslugi: list[dict[str, Any]], typ_salonu:
     klucze = {klucz_uslugi(u): u for u in uslugi}
     karty = pamiec.karty(client, set(klucze))
     brak = [u for k, u in klucze.items() if k not in karty]
-    if brak and settings.bcard_endpoint_id:
+    # Kilka braków = te usługi liczy stary silnik; rozgrzewanie b-card (~2,5 min) opłaca się dopiero przy większej luce.
+    if brak and settings.bcard_endpoint_id and len(brak) > max(3, PROG_BRAKU_KART * len(uslugi)):
         async with Punkt(settings.bcard_endpoint_id, settings.runpod_api_key, "bcard") as p:
             nowe = await p.karty([wiadomosci_bcard(u, typ_salonu) for u in brak])
         zapis = []
@@ -51,12 +53,24 @@ async def _karty_podmiotu(client: Any, uslugi: list[dict[str, Any]], typ_salonu:
 async def wycen(service: Any, subject_services: list[dict[str, Any]], all_booksy: list[int],
                 selected_booksy: set[int], salons_by_booksy: dict[int, dict[str, Any]],
                 config: dict[str, Any] | None = None, typ_salonu: str = "") -> tuple[dict[int, Any], dict[str, Any]]:
+    async with Punkt(settings.bmatch_endpoint_id, settings.runpod_api_key, "bmatch") as punkt:
+        return await _wycen(punkt, service, subject_services, all_booksy, selected_booksy, salons_by_booksy,
+                            config, typ_salonu)
+
+
+async def _wycen(punkt: Punkt, service: Any, subject_services: list[dict[str, Any]], all_booksy: list[int],
+                 selected_booksy: set[int], salons_by_booksy: dict[int, dict[str, Any]],
+                 config: dict[str, Any] | None, typ_salonu: str) -> tuple[dict[int, Any], dict[str, Any]]:
+    """Punkt b-match rozgrzewa się od wejścia do `wycen` — równolegle z kartami, doborem i odczytem danych."""
     t0 = time.time()
+    etapy: dict[str, float] = {}
     client = service.client
     karty = await _karty_podmiotu(client, subject_services, typ_salonu)
+    etapy["karty_podmiotu"] = round(time.time() - t0, 1)
     karta_uslugi = {int(u["id"]): karty.get(klucz_uslugi(u)) for u in subject_services}
     zab = sorted({z for k in karta_uslugi.values() if k for z in dobor.zabiegi(k)})
     oferty = pamiec.kandydaci(client, all_booksy, zab) if zab else []
+    etapy["kandydaci"] = round(time.time() - t0, 1)
     po_zabiegu: dict[str, list[dict[str, Any]]] = {}
     for o in oferty:
         for z in o.get("zabiegi") or []:
@@ -75,6 +89,7 @@ async def wycen(service: Any, subject_services: list[dict[str, Any]], all_booksy
     ids = sorted({o["service_id"] for kand in wybor.values() for o in kand})
     dane = pamiec.uslugi(client, ids)
     karty_kand = pamiec.karty(client, {o["klucz"] for kand in wybor.values() for o in kand})
+    etapy["dane_kandydatow"] = round(time.time() - t0, 1)
 
     # pary do oceny: (usługa podmiotu, oferta) → klucz pary; pamięć werdyktów, reszta do b-match
     pary: dict[str, tuple[dict[str, Any], dict[str, Any], dict[str, Any], dict[str, Any]]] = {}
@@ -89,13 +104,16 @@ async def wycen(service: Any, subject_services: list[dict[str, Any]], all_booksy
     znane = pamiec.werdykty(client, set(pary), settings.bmatch_wersja)
     brak = [k for k in pary if k not in znane]
     if brak:
-        async with Punkt(settings.bmatch_endpoint_id, settings.runpod_api_key, "bmatch") as p:
-            wej = []
-            for k in brak:
-                u, ku, d, kk = pary[k]
-                a, b = strona_bmatch(u, ku), strona_bmatch(d, kk)
-                wej.append((wiadomosci_bmatch(a, b), wiadomosci_bmatch(b, a)))
-            nowe = dict(zip(brak, await p.werdykty(wej), strict=True))
+        etapy["przed_bmatch"] = round(time.time() - t0, 1)
+        wej = []
+        for k in brak:
+            u, ku, d, kk = pary[k]
+            a, b = strona_bmatch(u, ku), strona_bmatch(d, kk)
+            wej.append((wiadomosci_bmatch(a, b), wiadomosci_bmatch(b, a)))
+        await punkt.gotowy()
+        etapy["bmatch_gotowy"] = round(time.time() - t0, 1)
+        nowe = dict(zip(brak, await punkt.werdykty(wej), strict=True))
+        etapy["po_bmatch"] = round(time.time() - t0, 1)
         pamiec.zapisz_werdykty(client, nowe, settings.bmatch_wersja)
         znane.update(nowe)
 
@@ -126,6 +144,6 @@ async def wycen(service: Any, subject_services: list[dict[str, Any]], all_booksy
         wyniki[sid] = polityka.wynik_rynkowy(subject, oceny, config, {"wersja_bmatch": settings.bmatch_wersja,
                                                                      "wersja_bcard": settings.bcard_wersja})
     stat = {"czas_s": round(time.time() - t0, 1), "uslug": len(subject_services), "z_karta": sum(1 for k in karta_uslugi.values() if k),
-            "z_kandydatami": len(wybor), "par": len(pary), "par_nowych": len(brak), "ofert_w_puli": len(oferty)}
+            "z_kandydatami": len(wybor), "par": len(pary), "par_nowych": len(brak), "ofert_w_puli": len(oferty), "etapy_s": etapy}
     logger.info("bmatch: %s", stat)
     return wyniki, stat

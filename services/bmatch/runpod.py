@@ -30,6 +30,7 @@ class Punkt:
             raise BladPunktu("brak id punktu albo klucza Runpod")
         self.id, self.klucz, self.model, self.naraz, self.zarzadzaj = endpoint_id, api_key, model, naraz, zarzadzaj
         self._http = httpx.AsyncClient(limits=httpx.Limits(max_connections=naraz))
+        self.ponowienia = 0
 
     async def _ustaw(self, **pola: int) -> None:
         r = await self._http.patch(f"{REST}/{self.id}", json=pola, headers=self._naglowki(), timeout=30)
@@ -55,6 +56,20 @@ class Punkt:
         finally:
             await self._http.aclose()
 
+    async def gotowy(self, limit_s: int = 600) -> None:
+        """Czeka, aż punkt ma gotowego pracownika (model wczytany) — zapytania wysłane wcześniej dostają 500 i ponowienia."""
+        t0 = asyncio.get_running_loop().time()
+        while asyncio.get_running_loop().time() - t0 < limit_s:
+            try:
+                r = await self._http.get(f"{API}/{self.id}/health", headers=self._naglowki(), timeout=30)
+                w = r.json().get("workers", {}) if r.status_code == 200 else {}
+                if (w.get("ready") or 0) + (w.get("idle") or 0) + (w.get("running") or 0) > 0:
+                    return
+            except (httpx.HTTPError, ValueError):
+                pass
+            await asyncio.sleep(10)
+        raise BladPunktu(f"{self.id}: brak gotowego pracownika po {limit_s} s")
+
     async def _czat(self, wiadomosci: list[dict[str, str]], **param: Any) -> dict[str, Any]:
         body = {"model": self.model, "messages": wiadomosci, "temperature": 0,
                 "chat_template_kwargs": {"enable_thinking": False}, **param}
@@ -68,6 +83,9 @@ class Punkt:
                 blad = f"{r.status_code} {r.text[:200]}"
             except httpx.HTTPError as e:
                 blad = f"{type(e).__name__}: {e}"
+            self.ponowienia += 1
+            if self.ponowienia <= 3:
+                logger.warning("bmatch punkt %s: ponowienie (%s)", self.id, blad[:150])
             await asyncio.sleep(min(30, 5 * (proba + 1)))
         raise BladPunktu(f"{self.id}: {blad}")
 
