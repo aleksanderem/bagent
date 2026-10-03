@@ -807,4 +807,56 @@ async def compute_pricing_comparisons_v2(
         len(selected_booksy), len(radius_booksy), radius_km,
         f" | ADAPTIVE broadened→{broadened_sim}" if broadened_sim else "",
     )
+    zrodlo = (getattr(settings, "matching_source", "stary") or "stary").strip().lower()
+    if zrodlo in ("bcard", "bcard_cien"):
+        rows = await _matching_bcard(
+            zrodlo, service, report_id, subject_services, rows, all_booksy, selected_booksy,
+            salons_by_booksy, config,
+        )
     return rows
+
+
+async def _matching_bcard(
+    zrodlo: str, service: Any, report_id: int, subject_services: list[dict[str, Any]],
+    rows: list[dict[str, Any]], all_booksy: list[int], selected_booksy: set[int],
+    salons_by_booksy: dict[int, dict[str, Any]], config: dict[str, Any] | None,
+) -> list[dict[str, Any]]:
+    """MATCHING_SOURCE=bcard|bcard_cien (plan b-card/docs/etap7_plan.md). Stary silnik policzył już `rows` (w kolejności
+    subject_services) — to jest zawsze droga awaryjna: każdy błąd albo przekroczony limit czasu = rows bez zmian.
+    bcard: usługi z wynikiem b-match dostają nowy wiersz, reszta zostaje ze starego silnika.
+    bcard_cien: rows bez zmian, porównanie per usługa trafia do bmatch_cien."""
+    import asyncio
+
+    from services.bmatch import pamiec as bm_pamiec
+    from services.bmatch.wycena import wycen as bm_wycen
+
+    try:
+        wyniki, stat = await asyncio.wait_for(
+            bm_wycen(service, subject_services, all_booksy, selected_booksy, salons_by_booksy, config),
+            timeout=settings.bmatch_limit_s,
+        )
+    except Exception as e:  # noqa: BLE001 — b-match nigdy nie wywraca raportu; zostaje stary silnik
+        logger.error("bmatch (%s): wycena nieudana, zostaje stary silnik: %s: %s", zrodlo, type(e).__name__, str(e)[:300])
+        return rows
+    nowe = [
+        _build_row(report_id, svc, wyniki[int(svc["id"])]) if int(svc["id"]) in wyniki else None
+        for svc in subject_services
+    ]
+    if zrodlo == "bcard_cien":
+        try:
+            bm_pamiec.zapisz_cien(service.client, [
+                {"report_id": report_id, "usluga": stary["treatment_name"],
+                 "stary_mediana_grosze": stary.get("market_median_grosze"), "stary_salonow": stary.get("sample_size"),
+                 "nowy_mediana_grosze": nowy.get("market_median_grosze") if nowy else None,
+                 "nowy_salonow": nowy.get("sample_size") if nowy else None,
+                 "nowy_par": wyniki[int(svc["id"])].n_raw_samples if nowy else None,
+                 "nowy_ta_sama": wyniki[int(svc["id"])].n_identity_kept if nowy else None,
+                 "szczegoly": stat}
+                for svc, stary, nowy in zip(subject_services, rows, nowe, strict=False)
+            ])
+        except Exception as e:  # noqa: BLE001
+            logger.warning("bmatch cień: zapis porównania nieudany: %s", str(e)[:300])
+        return rows
+    wynik = [n if n is not None else r for r, n in zip(rows, nowe, strict=False)]
+    logger.info("bmatch: %d/%d wierszy z b-match | %s", sum(1 for n in nowe if n is not None), len(rows), stat)
+    return wynik

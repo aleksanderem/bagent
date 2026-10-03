@@ -1,0 +1,65 @@
+[
+ {
+  "usluga": {
+   "name": "Manicure hybrydowy",
+   "category_name": "Paznokcie",
+   "description": "Opracowanie + hybryda",
+   "variants": [
+    {
+     "label": "",
+     "duration": 60
+    }
+   ],
+   "treatment_name": "Manicure hybrydowy",
+   "duration_minutes": 60
+  },
+  "klucz": "5de57da5d0df69af",
+  "wejscie_bcard": "{\"nazwa\": \"Manicure hybrydowy\", \"kategoria\": \"Paznokcie\", \"typ_salonu\": \"Salon Kosmetyczny\", \"usluga_booksy\": \"Manicure hybrydowy\", \"opis\": \"Opracowanie + hybryda\", \"czas_min\": 60}"
+ },
+ {
+  "usluga": {
+   "name": "Strzyżenie damskie",
+   "category_name": null,
+   "description": null,
+   "variants": [
+    {
+     "label": "krótkie",
+     "duration": 45
+    },
+    {
+     "label": "długie",
+     "duration": 75
+    }
+   ],
+   "treatment_name": "Strzyżenie",
+   "duration_minutes": 45
+  },
+  "klucz": "b8d3d24747cf9218",
+  "wejscie_bcard": "{\"nazwa\": \"Strzyżenie damskie\", \"kategoria\": \"\", \"typ_salonu\": \"Salon Kosmetyczny\", \"usluga_booksy\": \"Strzyżenie\", \"czas_min\": 45, \"warianty\": [{\"nazwa\": \"krótkie\", \"czas_min\": 45}, {\"nazwa\": \"długie\", \"czas_min\": 75}]}"
+ },
+ {
+  "usluga": {
+   "name": "Pakiet SPA",
+   "category_name": "Pakiety",
+   "description": "  Masaż\n i peeling ",
+   "variants": [
+    {
+     "label": "",
+     "duration": 90,
+     "combo_children": [
+      {
+       "name": "Masaż"
+      },
+      {
+       "name": "Peeling"
+      }
+     ]
+    }
+   ],
+   "is_package": true,
+   "duration_minutes": 90
+  },
+  "klucz": "59690bf8be0e494c",
+  "wejscie_bcard": "{\"nazwa\": \"Pakiet SPA\", \"kategoria\": \"Pakiety\", \"typ_salonu\": \"Salon Kosmetyczny\", \"usluga_booksy\": \"\", \"opis\": \"Masaż i peeling\", \"czas_min\": 90, \"pakiet\": true, \"sklad_pakietu\": [\"Masaż\", \"Peeling\"]}"
+ }
+]
