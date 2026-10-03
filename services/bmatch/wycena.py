@@ -57,19 +57,23 @@ async def _karty_podmiotu(client: Any, uslugi: list[dict[str, Any]], typ_salonu:
 
 async def wycen(service: Any, subject_services: list[dict[str, Any]], all_booksy: list[int],
                 selected_booksy: set[int], salons_by_booksy: dict[int, dict[str, Any]],
-                config: dict[str, Any] | None = None, typ_salonu: str = "") -> tuple[dict[int, Any], dict[str, Any]]:
+                config: dict[str, Any] | None = None, typ_salonu: str = "",
+                tylko_pokrycie: frozenset[int] = frozenset()) -> tuple[dict[int, Any], dict[str, Any]]:
+    """`tylko_pokrycie` = salony wybrane ręcznie poza automatycznym doborem (counts_in_aggregates=False): b-match
+    porównuje ich usługi (pokrycie oferty w tabeli konkurentów), ale ich ceny nie wchodzą do mediany rynku."""
     punkt = Punkt(settings.bmatch_endpoint_id, settings.runpod_api_key, "bmatch")
     gpu: dict[str, float] = {}
     async with punkt:
         wyniki, stat = await _wycen(punkt, service, subject_services, all_booksy, selected_booksy, salons_by_booksy,
-                                    config, typ_salonu, gpu)
+                                    config, typ_salonu, gpu, tylko_pokrycie)
     return wyniki, {**stat, **gpu, "gpu_bmatch_s": punkt.sekundy}
 
 
 async def _wycen(punkt: Punkt, service: Any, subject_services: list[dict[str, Any]], all_booksy: list[int],
                  selected_booksy: set[int], salons_by_booksy: dict[int, dict[str, Any]],
                  config: dict[str, Any] | None, typ_salonu: str,
-                 gpu: dict[str, float]) -> tuple[dict[int, Any], dict[str, Any]]:
+                 gpu: dict[str, float], tylko_pokrycie: frozenset[int] = frozenset()
+                 ) -> tuple[dict[int, Any], dict[str, Any]]:
     """Punkt b-match rozgrzewa się od wejścia do `wycen` — równolegle z kartami, doborem i odczytem danych."""
     t0 = time.time()
     etapy: dict[str, float] = {}
@@ -78,7 +82,7 @@ async def _wycen(punkt: Punkt, service: Any, subject_services: list[dict[str, An
     etapy["karty_podmiotu"] = round(time.time() - t0, 1)
     karta_uslugi = {int(u["id"]): karty.get(klucz_uslugi(u)) for u in subject_services}
     zab = sorted({z for k in karta_uslugi.values() if k for z in dobor.zabiegi(k)})
-    oferty = pamiec.kandydaci(client, all_booksy, zab) if zab else []
+    oferty = pamiec.kandydaci(client, sorted(set(all_booksy) | tylko_pokrycie), zab) if zab else []
     etapy["kandydaci"] = round(time.time() - t0, 1)
     po_zabiegu: dict[str, list[dict[str, Any]]] = {}
     for o in oferty:
@@ -91,7 +95,7 @@ async def _wycen(punkt: Punkt, service: Any, subject_services: list[dict[str, An
         if not k:
             continue
         pula = {o["service_id"]: o for z in dobor.zabiegi(k) for o in po_zabiegu.get(z, [])}
-        kand = dobor.wybierz(u["name"], k, list(pula.values()), k=settings.bmatch_kandydatow, wybrani=selected_booksy)
+        kand = dobor.wybierz(u["name"], k, list(pula.values()), k=settings.bmatch_kandydatow, wybrani=selected_booksy | tylko_pokrycie)
         if kand:
             wybor[int(u["id"])] = kand
 
@@ -141,6 +145,10 @@ async def _wycen(punkt: Punkt, service: Any, subject_services: list[dict[str, An
                 continue
             p = znane[pk]
             dec = polityka.decyzja(p)
+            if o["booksy_id"] in tylko_pokrycie:  # tylko pokrycie oferty — poza medianą rynku
+                if dec in POKRYWA:
+                    pokrycie.setdefault(sid, []).append({"booksy_id": o["booksy_id"], "similarity": 1.0})
+                continue
             info = salons_by_booksy.get(o["booksy_id"]) or {}
             probka = {"service_id": o["service_id"], "booksy_id": o["booksy_id"], "salon_name": info.get("name", ""),
                       "salon_id": info.get("id"), "service_name": d.get("name"), "price_grosze": d.get("price_grosze"),
