@@ -866,6 +866,7 @@ async def _matching_bcard(
         "wierszy_bmatch": sum(1 for n in nowe if n is not None and (n.get("market_median_grosze") or n.get("competitor_samples"))),
         "gpu_bmatch_s": stat.get("gpu_bmatch_s"), "gpu_bcard_s": stat.get("gpu_bcard_s"),
         "szczegoly": {"etapy_s": stat.get("etapy_s"), "ofert_w_puli": stat.get("ofert_w_puli"),
+                      "dostawca": stat.get("dostawca"), "proby": stat.get("proby"),
                       "wersja_bmatch": settings.bmatch_wersja, "wersja_bcard": settings.bcard_wersja},
     })
     if zrodlo == "bcard_cien":
