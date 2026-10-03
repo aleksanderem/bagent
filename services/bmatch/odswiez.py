@@ -24,8 +24,8 @@ from .wycena import uzupelnij_obszar
 logger = logging.getLogger(__name__)
 
 DNI = 14            # skany starsze nie wracają do kolejki (stan bcard_skan i tak pamięta ostatni przeliczony)
-SALONOW = 2000      # na noc; reszta następnej nocy
-KART_MAX = 20000    # na noc; ~7 min karty graficznej (~48 kart/s)
+SALONOW = 5000      # na noc (~15–25 min odczytu i zapisu); reszta następnej nocy
+KART_MAX = 50000    # na noc; ~17 min karty graficznej (~48 kart/s), ~1,4 USD
 KART_MIN = 300      # mniej braków = bez rozgrzewania (~2,5 min); czekają do większej paczki albo niedzieli
 NIEDZIELA = 6
 
