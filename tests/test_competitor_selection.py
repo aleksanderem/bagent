@@ -1122,3 +1122,20 @@ class TestBeauty4everE2E:
             assert c.distance_km <= 15.0
             assert c.reviews_count >= 20  # 'new' bucket would be counts_in_aggregates=False
             assert c.bucket in ("direct", "cluster", "aspirational", "new")
+
+
+@pytest.mark.asyncio
+async def test_get_salons_by_ids_zada_tylko_kolumn_tabeli_salons():
+    """partner_system nie istnieje w `salons` — jego żądanie dawało 42703, łapane jako [] → wybrani konkurenci
+    spoza automatycznego doboru po cichu wypadali z raportu (Beauty4ever, 2026-10-03: 3 z 7 wybranych)."""
+    from unittest.mock import MagicMock
+
+    from services.supabase import SupabaseService
+
+    s = SupabaseService.__new__(SupabaseService)
+    s.client = MagicMock()
+    q = s.client.table.return_value
+    q.select.return_value.in_.return_value.execute.return_value.data = [{"id": 1}]
+    assert await s.get_salons_by_ids([1]) == [{"id": 1}]
+    kolumny = set(q.select.call_args.args[0].split(","))
+    assert kolumny <= {"id", "booksy_id", "name", "city", "primary_category_id", "reviews_count", "reviews_rank"}
