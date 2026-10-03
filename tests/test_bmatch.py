@@ -170,3 +170,81 @@ async def test_maly_brak_kart_nie_rozgrzewa_bcard():
         karty = await wycena._karty_podmiotu(MagicMock(), uslugi, "")
     punkt.assert_not_called()
     assert len(karty) == 98
+
+
+# --- nocne odświeżanie ofert (services/bmatch/odswiez.py) ---
+
+def _klient_odswiezania(do):
+    c = MagicMock()
+    c.rpc.return_value.range.return_value.execute.return_value.data = do
+    return c
+
+
+def _uslugi(n, prefiks="u"):
+    return [{"id": i, "name": f"{prefiks}{i}", "category_name": "", "description": "", "variants": []} for i in range(n)]
+
+
+@pytest.mark.asyncio
+async def test_odswiez_zapisuje_oferty_ze_znanych_kart_bez_rozgrzewania():
+    from datetime import datetime, timezone
+
+    from services.bmatch import odswiez
+    us = _uslugi(10)
+    znane = {klucz_uslugi(u): {"skladniki": [{"zabieg": "manicure"}]} for u in us[:9]}
+    c = _klient_odswiezania([{"booksy_id": 7, "scrape_id": "s7"}])
+    zapisane = []
+    with patch.object(odswiez.oferty, "uslugi_skanu", MagicMock(return_value=us)), \
+         patch.object(odswiez.pamiec, "karty", MagicMock(return_value=dict(znane))), \
+         patch.object(odswiez.oferty, "zapisz", MagicMock(side_effect=lambda _c, b, w: zapisane.append((b, w)))), \
+         patch.object(odswiez, "Punkt") as punkt, patch.object(odswiez.settings, "bcard_endpoint_id", "ep"), \
+         patch.object(odswiez.settings, "runpod_api_key", "k"):
+        stat = await odswiez.odswiez(c, teraz=datetime(2026, 10, 5, tzinfo=timezone.utc))  # poniedziałek
+    punkt.assert_not_called()  # 1 brak < KART_MIN
+    assert stat["brakow"] == 1 and stat["salonow"] == 1
+    assert zapisane[0][0] == 7 and len(zapisane[0][1]) == 9
+    stan = c.table.return_value.upsert.call_args.args[0]
+    assert stan["scrape_id"] == "s7" and stan["ofert"] == 9 and stan["bez_karty"] == 1
+
+
+@pytest.mark.asyncio
+async def test_odswiez_niedziela_generuje_brakujace_karty():
+    from datetime import datetime, timezone
+
+    from services.bmatch import odswiez
+    us = _uslugi(3)
+    c = _klient_odswiezania([{"booksy_id": 7, "scrape_id": "s7"}])
+    p = MagicMock(sekundy=12.0)
+    p.__aenter__ = AsyncMock(return_value=p)
+    p.__aexit__ = AsyncMock(return_value=None)
+    p.karty = AsyncMock(return_value=[{"skladniki": [{"zabieg": "manicure"}]}, None, {"skladniki": []}])
+    with patch.object(odswiez.oferty, "uslugi_skanu", MagicMock(return_value=us)), \
+         patch.object(odswiez.pamiec, "karty", MagicMock(return_value={})), \
+         patch.object(odswiez.pamiec, "zapisz_karty") as zk, patch.object(odswiez.oferty, "zapisz") as zo, \
+         patch.object(odswiez, "Punkt", MagicMock(return_value=p)), \
+         patch.object(odswiez.settings, "bcard_endpoint_id", "ep"), patch.object(odswiez.settings, "runpod_api_key", "k"):
+        stat = await odswiez.odswiez(c, teraz=datetime(2026, 10, 4, tzinfo=timezone.utc))  # niedziela
+    assert stat["kart_nowych"] == 2 and stat["gpu_bcard_s"] == 12.0
+    assert len(zk.call_args.args[1]) == 2
+    assert len(zo.call_args.args[2]) == 2  # usługa bez karty (None) nie trafia do ofert
+
+
+@pytest.mark.asyncio
+async def test_odswiez_sucho_nic_nie_zapisuje():
+    from services.bmatch import odswiez
+    c = _klient_odswiezania([{"booksy_id": 7, "scrape_id": "s7"}])
+    with patch.object(odswiez.oferty, "uslugi_skanu", MagicMock(return_value=_uslugi(500))), \
+         patch.object(odswiez.pamiec, "karty", MagicMock(return_value={})), \
+         patch.object(odswiez.oferty, "zapisz") as zo, patch.object(odswiez, "Punkt") as punkt:
+        stat = await odswiez.odswiez(c, sucho=True)
+    assert stat["brakow"] == 500
+    zo.assert_not_called()
+    punkt.assert_not_called()
+    c.table.assert_not_called()
+
+
+@pytest.mark.asyncio
+async def test_odswiez_cron_przy_starym_silniku_nic_nie_robi():
+    from services.bmatch import odswiez
+    with patch.object(odswiez.settings, "matching_source", "stary"), patch.object(odswiez, "odswiez") as o:
+        assert await odswiez.odswiez_cron({}) == {"pominiete": "stary"}
+    o.assert_not_called()
