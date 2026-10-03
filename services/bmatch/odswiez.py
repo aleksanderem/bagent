@@ -18,7 +18,8 @@ from config import settings
 
 from . import oferty, pamiec
 from .klucz import klucz_uslugi, wiadomosci_bcard
-from .runpod import Punkt
+from .dostawcy import dostepny
+from .dostawcy import punkt as punkt_dostawcy
 from .wycena import uzupelnij_obszar
 
 logger = logging.getLogger(__name__)
@@ -31,13 +32,12 @@ NIEDZIELA = 6
 
 
 def _czy_generowac(brakow: int, teraz: datetime) -> bool:
-    return bool(brakow and settings.bcard_endpoint_id and settings.runpod_api_key
-                and (brakow >= KART_MIN or teraz.weekday() == NIEDZIELA))
+    return bool(brakow and dostepny("bcard") and (brakow >= KART_MIN or teraz.weekday() == NIEDZIELA))
 
 
 async def _generuj(client: Any, brak: dict[str, dict[str, Any]], stat: dict[str, Any]) -> dict[str, dict[str, Any]]:
     klucze = list(brak)[:KART_MAX]
-    p = Punkt(settings.bcard_endpoint_id, settings.runpod_api_key, "bcard")
+    p = punkt_dostawcy("bcard")
     async with p:
         wynik = await p.karty([wiadomosci_bcard(brak[k]) for k in klucze])
     stat["gpu_bcard_s"] = p.sekundy

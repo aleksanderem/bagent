@@ -19,7 +19,8 @@ from config import settings
 from . import dobor, pamiec, polityka
 from .klucz import klucz_uslugi, para_klucz, strona_bmatch, wiadomosci_bcard, wiadomosci_bmatch
 from .pokrycie import POKRYWA
-from .runpod import Punkt
+from .dostawcy import Lancuch, dostepny
+from .dostawcy import punkt as punkt_dostawcy
 
 logger = logging.getLogger(__name__)
 PROG_BRAKU_KART = 0.05
@@ -39,8 +40,8 @@ async def _karty_podmiotu(client: Any, uslugi: list[dict[str, Any]], typ_salonu:
     karty = pamiec.karty(client, set(klucze))
     brak = [u for k, u in klucze.items() if k not in karty]
     # Kilka braków = te usługi liczy stary silnik; rozgrzewanie b-card (~2,5 min) opłaca się dopiero przy większej luce.
-    if brak and settings.bcard_endpoint_id and len(brak) > max(3, PROG_BRAKU_KART * len(uslugi)):
-        p = Punkt(settings.bcard_endpoint_id, settings.runpod_api_key, "bcard")
+    if brak and dostepny("bcard") and len(brak) > max(3, PROG_BRAKU_KART * len(uslugi)):
+        p = punkt_dostawcy("bcard")
         async with p:
             nowe = await p.karty([wiadomosci_bcard(u, typ_salonu) for u in brak])
         if gpu is not None:
@@ -61,15 +62,15 @@ async def wycen(service: Any, subject_services: list[dict[str, Any]], all_booksy
                 tylko_pokrycie: frozenset[int] = frozenset()) -> tuple[dict[int, Any], dict[str, Any]]:
     """`tylko_pokrycie` = salony wybrane ręcznie poza automatycznym doborem (counts_in_aggregates=False): b-match
     porównuje ich usługi (pokrycie oferty w tabeli konkurentów), ale ich ceny nie wchodzą do mediany rynku."""
-    punkt = Punkt(settings.bmatch_endpoint_id, settings.runpod_api_key, "bmatch")
+    punkt = punkt_dostawcy("bmatch")
     gpu: dict[str, float] = {}
     async with punkt:
         wyniki, stat = await _wycen(punkt, service, subject_services, all_booksy, selected_booksy, salons_by_booksy,
                                     config, typ_salonu, gpu, tylko_pokrycie)
-    return wyniki, {**stat, **gpu, "gpu_bmatch_s": punkt.sekundy}
+    return wyniki, {**stat, **gpu, "gpu_bmatch_s": punkt.sekundy, "dostawca": punkt.dostawca, "proby": punkt.proby}
 
 
-async def _wycen(punkt: Punkt, service: Any, subject_services: list[dict[str, Any]], all_booksy: list[int],
+async def _wycen(punkt: Lancuch, service: Any, subject_services: list[dict[str, Any]], all_booksy: list[int],
                  selected_booksy: set[int], salons_by_booksy: dict[int, dict[str, Any]],
                  config: dict[str, Any] | None, typ_salonu: str,
                  gpu: dict[str, float], tylko_pokrycie: frozenset[int] = frozenset()
