@@ -262,3 +262,32 @@ def test_odczyty_pamieci_w_porcjach_mieszczacych_sie_w_adresie():
     pamiec.uslugi(c, list(range(700)))
     rozmiary = [len(call.args[1]) for call in c.in_.call_args_list]
     assert max(rozmiary) <= 300 and len(rozmiary) == 3 + 5 + 3
+
+
+@pytest.mark.asyncio
+async def test_wybrany_poza_doborem_liczy_sie_do_pokrycia_ale_nie_do_mediany():
+    """Salon dołożony ręcznie (counts_in_aggregates=False) był wycinany z wyceny w całości → pokrycie oferty 0%
+    (JetSet u Beauty4ever, 2026-10-03). Teraz b-match go porównuje, ale jego ceny nie wchodzą do mediany."""
+    from services.bmatch import wycena
+    u = {"id": 1, "name": "Botoks", "category_name": "", "description": "", "variants": [], "price_grosze": 100000}
+    karta = {"skladniki": [{"zabieg": "toksyna botulinowa"}]}
+    oferty = [{"service_id": 10 + b, "booksy_id": b, "klucz": f"k{b}", "nazwa": "Botoks", "zabiegi": ["toksyna botulinowa"],
+               "skladniki": [["toksyna botulinowa", "", ""]], "marka": None} for b in (1, 2, 3, 99)]
+    dane = {10 + b: {"id": 10 + b, "name": "Botoks", "price_grosze": 100000 if b != 99 else 900000, "is_active": True}
+            for b in (1, 2, 3, 99)}
+    werdykt = [0.01, 0.01, 0.98]
+    punkt = MagicMock(sekundy=0.0)
+    punkt.gotowy = AsyncMock()
+    punkt.werdykty = AsyncMock(side_effect=lambda wej: [werdykt for _ in wej])
+    kandydaci = MagicMock(return_value=oferty)
+    with patch.object(wycena.pamiec, "karty", MagicMock(side_effect=lambda c, k: {x: karta for x in k})), \
+         patch.object(wycena.pamiec, "kandydaci", kandydaci), \
+         patch.object(wycena.pamiec, "uslugi", MagicMock(return_value=dane)), \
+         patch.object(wycena.pamiec, "werdykty", MagicMock(return_value={})), \
+         patch.object(wycena.pamiec, "zapisz_werdykty"):
+        wyniki, stat = await wycena._wycen(punkt, MagicMock(), [u], [1, 2, 3], {1, 2, 3}, {}, None, "", {},
+                                           frozenset({99}))
+    assert 99 in kandydaci.call_args.args[1]
+    assert {x["booksy_id"] for x in stat["pokrycie"][1]} == {1, 2, 3, 99}
+    assert all(s["booksy_id"] != 99 for s in wyniki[1].samples + wyniki[1].related_samples)
+    assert wyniki[1].p50_grosze == 100000 and wyniki[1].n_unique_salons == 3

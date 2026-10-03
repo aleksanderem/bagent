@@ -811,7 +811,7 @@ async def compute_pricing_comparisons_v2(
     if zrodlo in ("bcard", "bcard_cien"):
         rows = await _matching_bcard(
             zrodlo, service, report_id, subject_services, rows, all_booksy, selected_booksy,
-            salons_by_booksy, config,
+            salons_by_booksy, config, frozenset(excluded_booksy),
         )
     return rows
 
@@ -829,6 +829,7 @@ async def _matching_bcard(
     zrodlo: str, service: Any, report_id: int, subject_services: list[dict[str, Any]],
     rows: list[dict[str, Any]], all_booksy: list[int], selected_booksy: set[int],
     salons_by_booksy: dict[int, dict[str, Any]], config: dict[str, Any] | None,
+    tylko_pokrycie: frozenset[int] = frozenset(),
 ) -> list[dict[str, Any]]:
     """MATCHING_SOURCE=bcard|bcard_cien (plan b-card/docs/etap7_plan.md). Stary silnik policzył już `rows` (w kolejności
     subject_services) — to jest zawsze droga awaryjna: każdy błąd albo przekroczony limit czasu = rows bez zmian.
@@ -841,7 +842,8 @@ async def _matching_bcard(
 
     try:
         wyniki, stat = await asyncio.wait_for(
-            bm_wycen(service, subject_services, all_booksy, selected_booksy, salons_by_booksy, config),
+            bm_wycen(service, subject_services, all_booksy, selected_booksy, salons_by_booksy, config,
+                     tylko_pokrycie=tylko_pokrycie),
             timeout=settings.bmatch_limit_s,
         )
     except Exception as e:  # noqa: BLE001 — b-match nigdy nie wywraca raportu; zostaje stary silnik
