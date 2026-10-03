@@ -248,3 +248,17 @@ async def test_odswiez_cron_przy_starym_silniku_nic_nie_robi():
     with patch.object(odswiez.settings, "matching_source", "stary"), patch.object(odswiez, "odswiez") as o:
         assert await odswiez.odswiez_cron({}) == {"pominiete": "stary"}
     o.assert_not_called()
+
+
+def test_odczyty_pamieci_w_porcjach_mieszczacych_sie_w_adresie():
+    """Lista w adresie zapytania > ~6 KB = 414 na prod (500 kluczy kart / 500 par padało, 300 / 150 przechodzi)."""
+    from services.bmatch import pamiec
+    c = MagicMock()
+    for f in ("table", "select", "in_", "eq"):
+        getattr(c, f).return_value = c
+    c.execute.return_value.data = []
+    pamiec.karty(c, {f"{i:016x}" for i in range(450)})
+    pamiec.werdykty(c, {f"{i:016x}|{i:016x}" for i in range(450)}, "v")
+    pamiec.uslugi(c, list(range(700)))
+    rozmiary = [len(call.args[1]) for call in c.in_.call_args_list]
+    assert max(rozmiary) <= 300 and len(rozmiary) == 3 + 5 + 3
