@@ -4397,36 +4397,48 @@ async def _aggregate_verified_match_counts(
     if not subject_services or not selected:
         return {}
 
-    subject_ids = [int(s["id"]) for s in subject_services]
-    # Fallback na chain-head scrape TEGO SAMEGO salonu, gdy audit scrape nie ma
-    # jeszcze wektorów (świeży audyt przed catch-upem crona itd.) — patrz
-    # compute_pricing_comparisons_v2 dla pełnego uzasadnienia (BEAUTY_AUDIT-gqul).
-    # Tu, w przeciwieństwie do wyceny, brak wektorów NIGDZIE nie produkuje
-    # fałszywie-kompletnego raportu — pomija tylko jeden krok weryfikacji
-    # (bucket_pre_verify zostaje), więc log+skip (nie wyjątek) zostaje właściwą
-    # reakcją nawet po nieudanym fallbacku.
-    subject_services, subject_ids, subject_embeddings = (
-        await _fetch_subject_embeddings_with_chain_head_fallback(
-            service, subject_services, subject_ids, subject_data.get("booksy_id"),
-        )
-    )
-    if not subject_embeddings:
-        logger.error(
-            "Faza 8a: 0/%d usług subjecta ma name_embedding (raport %s), i "
-            "chain-head fallback też pusty (scrape sprzed inline-embeddingu, "
-            "brak chain-head scrape'a, albo błąd ingestu) — pomijam re-bucket.",
-            len(subject_ids), report_id,
-        )
-        return {}
+    # MATCHING_SOURCE=bcard: wycena b-match już wie, u którego konkurenta jest ta sama usługa albo jej odmiana
+    # (services/bmatch/pokrycie.py) — bierzemy to zamiast osobnego wyszukiwania podobnych nazw, żeby „pokrycie
+    # oferty” i ceny w raporcie mówiły to samo. Brak danych (stary silnik, błąd b-match) = dotychczasowa droga.
+    from services.bmatch import pokrycie as bm_pokrycie
 
-    # Sync klient Qdrant, ~15 s dla 221 usług — poza event loopem.
-    clusters = await asyncio.to_thread(
-        search_twins,
-        subject_ids, list(selected), subject_embeddings=subject_embeddings,
-        limit=_BUCKET_SEARCH_LIMIT, min_similarity=BUCKET_MIN_SIMILARITY, exact=True,
-    )
-    coverage = coverage_by_salon(clusters, selected, BUCKET_MIN_SIMILARITY)
-    subject_total = len(subject_embeddings)
+    bm = bm_pokrycie.wez(report_id)
+    if bm is not None:
+        zrodlo_pokrycia = "b-match"
+        coverage = coverage_by_salon(bm["klastry"], selected, BUCKET_MIN_SIMILARITY)
+        subject_total = int(bm["uslug"])
+    else:
+        zrodlo_pokrycia = "podobieństwo nazw"
+        subject_ids = [int(s["id"]) for s in subject_services]
+        # Fallback na chain-head scrape TEGO SAMEGO salonu, gdy audit scrape nie ma
+        # jeszcze wektorów (świeży audyt przed catch-upem crona itd.) — patrz
+        # compute_pricing_comparisons_v2 dla pełnego uzasadnienia (BEAUTY_AUDIT-gqul).
+        # Tu, w przeciwieństwie do wyceny, brak wektorów NIGDZIE nie produkuje
+        # fałszywie-kompletnego raportu — pomija tylko jeden krok weryfikacji
+        # (bucket_pre_verify zostaje), więc log+skip (nie wyjątek) zostaje właściwą
+        # reakcją nawet po nieudanym fallbacku.
+        subject_services, subject_ids, subject_embeddings = (
+            await _fetch_subject_embeddings_with_chain_head_fallback(
+                service, subject_services, subject_ids, subject_data.get("booksy_id"),
+            )
+        )
+        if not subject_embeddings:
+            logger.error(
+                "Faza 8a: 0/%d usług subjecta ma name_embedding (raport %s), i "
+                "chain-head fallback też pusty (scrape sprzed inline-embeddingu, "
+                "brak chain-head scrape'a, albo błąd ingestu) — pomijam re-bucket.",
+                len(subject_ids), report_id,
+            )
+            return {}
+
+        # Sync klient Qdrant, ~15 s dla 221 usług — poza event loopem.
+        clusters = await asyncio.to_thread(
+            search_twins,
+            subject_ids, list(selected), subject_embeddings=subject_embeddings,
+            limit=_BUCKET_SEARCH_LIMIT, min_similarity=BUCKET_MIN_SIMILARITY, exact=True,
+        )
+        coverage = coverage_by_salon(clusters, selected, BUCKET_MIN_SIMILARITY)
+        subject_total = len(subject_embeddings)
     covered_ids = {sid for sid, svcs in coverage.items() if svcs}
     if not covered_ids:
         logger.error(
@@ -4477,14 +4489,23 @@ async def _aggregate_verified_match_counts(
         except (TypeError, ValueError):
             continue
         a = assignments.get(sid, EMPTY_ASSIGNMENT)
-        updates.append({
+        update = {
             "id": m.get("id"),
             "verified_match_count": a.covered,
             "bucket_pre_verify": bucket_pre_verify.get(sid),
             "bucket": a.bucket,
             # 'excluded' zostaje w DB, ale wypada z agregatów i competitorProfiles.
             "counts_in_aggregates": a.bucket != "excluded",
-        })
+        }
+        if zrodlo_pokrycia == "b-match":
+            # „Pokrycie oferty” w tabeli konkurentów = profile_overlap_sim (synteza → profileOverlap). Przy b-match
+            # to udział usług podmiotu, które konkurent ma (ta sama / odmiana); dawna wartość z doboru zostaje obok.
+            sims = m.get("similarity_scores") if isinstance(m.get("similarity_scores"), dict) else {}
+            update["similarity_scores"] = {
+                **sims, "profile_overlap_sim": a.share, "pokrycie_zrodlo": "b-match",
+                "profile_overlap_sim_dobor": sims.get("profile_overlap_sim"),
+            }
+        updates.append(update)
 
     try:
         await service.update_competitor_matches_verify_buckets(report_id, updates)
@@ -4508,14 +4529,14 @@ async def _aggregate_verified_match_counts(
     logger.info(
         "Faza 8a: re-bucketed %d competitors (direct=%d, cluster=%d, "
         "aspirational=%d, excluded=%d) — max pokrycie %d z %d usług subjecta "
-        "przy sim>=%.2f, exact search po %d wybranych",
+        "przy sim>=%.2f, %d wybranych, źródło pokrycia: %s",
         len(updates),
         sum(1 for u in updates if u["bucket"] == "direct"),
         sum(1 for u in updates if u["bucket"] == "cluster"),
         sum(1 for u in updates if u["bucket"] == "aspirational"),
         sum(1 for u in updates if u["bucket"] == "excluded"),
         max((a.covered for a in assignments.values()), default=0), subject_total,
-        BUCKET_MIN_SIMILARITY, len(selected),
+        BUCKET_MIN_SIMILARITY, len(selected), zrodlo_pokrycia,
     )
     return {sid: a.covered for sid, a in assignments.items()}
 

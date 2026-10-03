@@ -849,6 +849,10 @@ async def _matching_bcard(
         _zapisz_przebieg(service, {"report_id": report_id, "tryb": zrodlo, "ok": False, "uslug": len(subject_services),
                                    "blad": f"{type(e).__name__}: {str(e)[:300]}"})
         return rows
+    pokrycie = stat.pop("pokrycie", None) or {}
+    if zrodlo == "bcard":
+        from services.bmatch import pokrycie as bm_pokrycie
+        bm_pokrycie.zapamietaj(report_id, pokrycie, len(subject_services))
     nowe = [
         _build_row(report_id, svc, wyniki[int(svc["id"])]) if int(svc["id"]) in wyniki else None
         for svc in subject_services
