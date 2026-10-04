@@ -319,3 +319,20 @@ def test_bez_bmatch_zostaje_wyszukiwanie_nazw_bez_zmiany_pokrycia(monkeypatch):
     svc, _ = _run(monkeypatch, {b: set(range(1, 21)) for b in BY_BOOKSY})
     _, updates = svc.update_competitor_matches_verify_buckets.await_args.args
     assert all("similarity_scores" not in u for u in updates)
+
+
+
+def test_pokrycie_oferty_z_rodzajow_zabiegow_koszyk_z_tych_samych(monkeypatch):
+    from services.bmatch import pokrycie
+
+    monkeypatch.setattr(ca, "search_twins", lambda *a, **k: (_ for _ in ()).throw(AssertionError("bez szukania")))
+    b = list(BY_BOOKSY)[0]
+    pokrycie.zapamietaj(251, {s: [{"booksy_id": b, "similarity": 1.0}] for s in range(1, 5)}, 40,
+                        {b: (25, 35)})  # 4/40 tych samych = 10% → cluster; 25/35 rodzajów = 71%
+    svc = _service(_matches())
+    asyncio.run(_aggregate_verified_match_counts(svc, 251, _subject(), _aligned()))
+    _, updates = svc.update_competitor_matches_verify_buckets.await_args.args
+    u = next(x for x, m in zip(updates, _matches(), strict=True) if m["competitor_salon_id"] == BY_BOOKSY[b])
+    assert u["bucket"] == "cluster"
+    assert u["similarity_scores"]["profile_overlap_sim"] == 0.7143 and u["similarity_scores"]["pokrycie_bmatch"] == 0.1
+    assert u["similarity_scores"]["rodzaje_ile"] == 25

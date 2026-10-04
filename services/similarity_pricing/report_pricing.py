@@ -852,9 +852,10 @@ async def _matching_bcard(
                                    "blad": f"{type(e).__name__}: {str(e)[:300]}"})
         return rows
     pokrycie = stat.pop("pokrycie", None) or {}
+    rodzaje = stat.pop("rodzaje", None) or {}
     if zrodlo == "bcard":
         from services.bmatch import pokrycie as bm_pokrycie
-        bm_pokrycie.zapamietaj(report_id, pokrycie, len(subject_services))
+        bm_pokrycie.zapamietaj(report_id, pokrycie, len(subject_services), rodzaje)
     nowe = [
         _build_row(report_id, svc, wyniki[int(svc["id"])]) if int(svc["id"]) in wyniki else None
         for svc in subject_services

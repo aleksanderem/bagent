@@ -14,10 +14,12 @@ _MAX_RAPORTOW = 50
 _raporty: dict[int, dict[str, Any]] = {}
 
 
-def zapamietaj(report_id: int, klastry: dict[int, list[dict[str, Any]]], uslug: int) -> None:
+def zapamietaj(report_id: int, klastry: dict[int, list[dict[str, Any]]], uslug: int,
+               rodzaje: dict[int, tuple[int, int]] | None = None) -> None:
+    """`rodzaje` = {booksy_id: (ile rodzajów zabiegów podmiotu salon robi, wszystkie rodzaje)} — „pokrycie oferty”."""
     while len(_raporty) >= _MAX_RAPORTOW:
         _raporty.pop(next(iter(_raporty)))
-    _raporty[int(report_id)] = {"klastry": klastry, "uslug": uslug}
+    _raporty[int(report_id)] = {"klastry": klastry, "uslug": uslug, "rodzaje": rodzaje or {}}
 
 
 def wez(report_id: int) -> dict[str, Any] | None:

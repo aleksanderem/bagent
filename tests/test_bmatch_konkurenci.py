@@ -121,3 +121,13 @@ def test_endpoint_propozycji_statusy(monkeypatch):
     monkeypatch.setattr(server.settings, "matching_source", "stary")
     r = klient.post("/api/internal/bmatch/propozycje", json={"booksy_id": 1}, headers={"x-api-key": "k"})
     assert r.json() == {"status": "wylaczone"}
+
+
+def test_rodzaje_zabiegow_i_kolejnosc_propozycji():
+    karty = {1: _karta("botoks"), 2: _karta("botoks", "", "czoło"), 3: _karta("mezoterapia"), 4: _karta("laser")}
+    oferty = [_oferta(10, 7, "botoks", "azzalure"), _oferta(11, 7, "mezoterapia"), _oferta(12, 8, "laser")]
+    ile, wszystkie = konkurenci.rodzaje(karty, oferty)
+    assert wszystkie == 3 and ile == {7: 2, 8: 1}  # rodzaje, nie pozycje cennika (2× botoks = 1 rodzaj)
+    duze_menu = {"rodzaje": 0.6, "udzial": 0.11}
+    rywal = {"rodzaje": 0.5, "udzial": 0.30}
+    assert konkurenci.wynik_propozycji(rywal, 0.30) > konkurenci.wynik_propozycji(duze_menu, 0.30)

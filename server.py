@@ -1036,13 +1036,15 @@ async def bmatch_propozycje(req: PropozycjeRequest) -> dict:
     if (settings.matching_source or "stary").strip().lower() != "bcard":
         return {"status": "wylaczone"}
     client = SupabaseService().client
-    wiersz = (client.table("bcard_propozycje").select("scrape_id,policzono").eq("booksy_id", req.booksy_id)
+    wiersz = (client.table("bcard_propozycje").select("scrape_id,policzono,wyniki").eq("booksy_id", req.booksy_id)
               .limit(1).execute().data or [])
     glowa = (client.table("salon_scrapes").select("id").eq("booksy_id", req.booksy_id).eq("is_chain_head", True)
              .limit(1).execute().data or [])
     if not glowa:
         return {"status": "brak_skanu"}
-    if wiersz and wiersz[0]["scrape_id"] == glowa[0]["id"]:
+    # Propozycje sprzed rodzajów zabiegów (2026-10-04) liczymy od nowa.
+    aktualny_format = bool(wiersz) and all("rodzaje" in w for w in (wiersz[0].get("wyniki") or [])[:1])
+    if wiersz and aktualny_format and wiersz[0]["scrape_id"] == glowa[0]["id"]:
         policzono = datetime.fromisoformat(str(wiersz[0]["policzono"]).replace("Z", "+00:00"))
         if policzono > datetime.now(timezone.utc) - timedelta(days=PROPOZYCJE_WAZNE_DNI):
             return {"status": "gotowe"}
