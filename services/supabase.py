@@ -746,7 +746,7 @@ class SupabaseService:
                 # Wołający bierze wtedy domyślne "native".
                 .select(
                     "id,booksy_id,name,city,primary_category_id,"
-                    "reviews_count,reviews_rank"
+                    "reviews_count,reviews_rank,latitude,longitude"
                 )
                 .in_("id", salon_ids)
                 .execute()

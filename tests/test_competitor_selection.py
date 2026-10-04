@@ -1013,10 +1013,10 @@ class TestSelectCompetitorsUserPickUnion:
         assert by_id[3].counts_in_aggregates is True
         assert by_id[3].composite_score > 0
 
-        # Case (c): force-added pick must NOT count in aggregates and gets the
-        # minimal-candidate shape (lowest bucket, zero score, sentinel fw).
+        # Case (c): force-added pick wchodzi jak automatyczny (decyzja 2026-10-04):
+        # liczy się do agregatów; reszta kształtu minimalna (koszyk z Fazy 8a).
         forced = by_id[99]
-        assert forced.counts_in_aggregates is False
+        assert forced.counts_in_aggregates is True
         assert forced.bucket == "new"
         assert forced.composite_score == 0.0
         assert forced.female_weight_diff == -1.0
@@ -1138,4 +1138,13 @@ async def test_get_salons_by_ids_zada_tylko_kolumn_tabeli_salons():
     q.select.return_value.in_.return_value.execute.return_value.data = [{"id": 1}]
     assert await s.get_salons_by_ids([1]) == [{"id": 1}]
     kolumny = set(q.select.call_args.args[0].split(","))
-    assert kolumny <= {"id", "booksy_id", "name", "city", "primary_category_id", "reviews_count", "reviews_rank"}
+    assert kolumny <= {"id", "booksy_id", "name", "city", "primary_category_id", "reviews_count", "reviews_rank",
+                       "latitude", "longitude"}
+
+
+def test_odleglosc_wybranego_z_wspolrzednych_salonu():
+    from pipelines.competitor_selection import _odleglosc_km
+
+    # Warszawa centrum → Saska Kępa ~4 km; brak współrzędnych = 0.0
+    assert 3.0 < _odleglosc_km(52.2297, 21.0122, {"latitude": 52.2320, "longitude": 21.0700}) < 5.0
+    assert _odleglosc_km(52.2297, 21.0122, {"latitude": None, "longitude": 21.07}) == 0.0

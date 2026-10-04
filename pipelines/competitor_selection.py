@@ -606,6 +606,19 @@ def _fetch_candidate_focus_bundles_batch(
     return out
 
 
+def _odleglosc_km(lat: float | None, lng: float | None, row: dict[str, Any]) -> float:
+    """Odległość podmiot → salon (wiersz `salons`: latitude/longitude); 0.0, gdy brak współrzędnych."""
+    import math
+
+    lat2, lng2 = row.get("latitude"), row.get("longitude")
+    if None in (lat, lng, lat2, lng2):
+        return 0.0
+    f1, f2 = math.radians(float(lat)), math.radians(float(lat2))
+    df, dl = f2 - f1, math.radians(float(lng2) - float(lng))
+    a = math.sin(df / 2) ** 2 + math.cos(f1) * math.cos(f2) * math.sin(dl / 2) ** 2
+    return round(2 * 6371.0 * math.asin(math.sqrt(a)), 2)
+
+
 async def select_competitors(
     subject_audit_id: str,
     target_count: int = 15,
@@ -1136,13 +1149,15 @@ async def select_competitors(
                         ),
                         reviews_count=int(row.get("reviews_count") or 0),
                         reviews_rank=row.get("reviews_rank"),
-                        # distance not load-bearing for force-added picks
-                        # (counts_in_aggregates=False); 0.0 per spec.
-                        distance_km=0.0,
+                        # Decyzja Alexa 2026-10-04: ręcznie wybrany salon wchodzi
+                        # do raportu tak samo jak dobrany automatycznie — prawdziwa
+                        # odległość (tabela, czas dojazdu) i ceny w medianie rynku
+                        # („cena vs rynek”). Wcześniej 0,0 km i poza agregatami.
+                        distance_km=_odleglosc_km(subject_lat, subject_lng, row),
                         female_weight_diff=-1.0,  # sentinel (see line ~852)
                         composite_score=0.0,
-                        bucket="new",  # lowest-priority real bucket
-                        counts_in_aggregates=False,  # MUST NOT distort aggregates
+                        bucket="new",  # koszyk i tak liczy Faza 8a z pokrycia
+                        counts_in_aggregates=True,
                         similarity_scores={},
                         partner_system=row.get("partner_system") or "native",
                         is_user_selected=True,
