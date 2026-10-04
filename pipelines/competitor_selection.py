@@ -45,6 +45,7 @@ from typing import Any, Literal
 
 import numpy as np
 
+from config import settings
 from services.body_area_taxonomy import extract_body_areas
 from services.focus_score import (
     SalonFocusBundle,
@@ -606,6 +607,51 @@ def _fetch_candidate_focus_bundles_batch(
     return out
 
 
+async def _dobor_z_kart(
+    service: SupabaseService,
+    subject: dict[str, Any],
+    subject_scrape_id: str,
+    scored: list[CompetitorCandidate],
+    max_distance_km: float,
+    subject_primary_cat: int,
+) -> list[CompetitorCandidate]:
+    """Dobór z kart + b-match (decyzja Alexa 2026-10-04). Koszyk z tych samych progów co Faza 8a; dane ze starego
+    doboru (kategoria, female_weight, podobieństwa) zostają w kandydacie, jeśli salon był w jego puli."""
+    from pipelines.competitor_buckets import bucket_for_coverage
+    from services.bmatch import konkurenci
+    from services.similarity_pricing.report_pricing import _geo_competitor_booksy_ids
+
+    try:
+        promien = _geo_competitor_booksy_ids(service, int(subject["booksy_id"]), int(max_distance_km))
+        stary = [c.booksy_id for c in sorted(scored, key=sort_key)[:30]]
+        lista = await konkurenci.kandydaci_bmatch(service.client, subject, subject_scrape_id, promien, stary)
+    except Exception:  # noqa: BLE001 — dobór z kart nigdy nie wywraca raportu; zostaje stary dobór
+        logger.exception("dobór z kart nieudany — stary dobór")
+        return []
+    poprzedni = {c.booksy_id: c for c in scored}
+    out: list[CompetitorCandidate] = []
+    for x in lista:
+        bucket: Bucket = bucket_for_coverage(x["pokryte"], x["wszystkie"])  # type: ignore[assignment]
+        if bucket == "excluded":
+            continue
+        if x["reviews_count"] < 20:
+            bucket = "new"
+        p = poprzedni.get(x["booksy_id"])
+        out.append(CompetitorCandidate(
+            salon_id=x["salon_id"], booksy_id=x["booksy_id"], name=x["name"], city=x["city"],
+            primary_category_id=p.primary_category_id if p else subject_primary_cat,
+            reviews_count=x["reviews_count"], reviews_rank=x["reviews_rank"], distance_km=x["distance_km"],
+            female_weight_diff=p.female_weight_diff if p else -1.0,
+            composite_score=round(100 * x["udzial"], 2), bucket=bucket, counts_in_aggregates=bucket != "new",
+            similarity_scores={**(p.similarity_scores if p else {}), "profile_overlap_sim": x["udzial"],
+                               "pokrycie_kart": x.get("pokrycie_kart", x["udzial"]), "pokrycie_zrodlo": x["zrodlo"]},
+            partner_system=p.partner_system if p else "native",
+        ))
+    logger.info("dobór z kart: %d kandydatów (%s), najlepsi: %s", len(out), lista[0]["zrodlo"] if lista else "-",
+                [(c.name, c.composite_score) for c in out[:5]])
+    return out
+
+
 def _odleglosc_km(lat: float | None, lng: float | None, row: dict[str, Any]) -> float:
     """Odległość podmiot → salon (wiersz `salons`: latitude/longitude); 0.0, gdy brak współrzędnych."""
     import math
@@ -1061,6 +1107,15 @@ async def select_competitors(
         "%d without pre-computed focus)",
         len(scored), len(raw_candidates), dropped_fw, dropped_bucket, dropped_no_focus,
     )
+
+    # --- 4b. MATCHING_SOURCE=bcard: kto naprawdę ma te same usługi ----------
+    # Krótka lista z kart usług (+ najlepsi ze starego doboru) → kolejność z
+    # werdyktów b-match (services/bmatch/konkurenci.py). Pusta = stary dobór.
+    if (getattr(settings, "matching_source", "") or "").strip().lower() == "bcard" and subject_scrape_id:
+        z_kart = await _dobor_z_kart(service, subject, subject_scrape_id, scored, max_distance_km,
+                                     subject_primary_cat)
+        if z_kart:
+            scored = z_kart
 
     # --- 5. Sort by bucket priority then descending composite_score ----------
     scored.sort(key=sort_key)
