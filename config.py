@@ -28,6 +28,13 @@ class Settings(BaseSettings):
     bcard_wersja_slownika: str = "2026-10-03"
     bmatch_kandydatow: int = 50
     bmatch_limit_s: int = 900
+    # Kolejka dostawców kart graficznych (services/bmatch/dostawcy.py): pierwszy, który wstanie w bmatch_gotowy_s,
+    # liczy; reszta tylko po porażce poprzednika. Modal: b-card/modal/app.py (token = sekret Modal „bmatch-token”).
+    bmatch_dostawcy: str = "modal,runpod"
+    bmatch_gotowy_s: int = 300
+    modal_bmatch_url: str = "https://itworksinbox--bmatch-bmatch.modal.run"
+    modal_bcard_url: str = "https://itworksinbox--bmatch-bcard.modal.run"
+    modal_bmatch_token: str = ""
     minimax_base_url: str = "https://api.minimax.io/anthropic"
     minimax_model: str = "MiniMax-M3"
     # M3 udostępnia okno kontekstu do 1M tokenów po stronie serwera (tiered:

@@ -166,7 +166,7 @@ async def test_maly_brak_kart_nie_rozgrzewa_bcard():
     uslugi = [{"id": i, "name": f"u{i}", "category_name": "", "description": "", "variants": []} for i in range(100)]
     znane = {klucz_uslugi(u): {"skladniki": [{"zabieg": "manicure"}]} for u in uslugi[:98]}
     with patch.object(wycena.pamiec, "karty", MagicMock(return_value=dict(znane))), \
-         patch.object(wycena, "Punkt") as punkt, patch.object(wycena.settings, "bcard_endpoint_id", "ep"):
+         patch.object(wycena, "punkt_dostawcy") as punkt, patch.object(wycena, "dostepny", return_value=True):
         karty = await wycena._karty_podmiotu(MagicMock(), uslugi, "")
     punkt.assert_not_called()
     assert len(karty) == 98
@@ -196,8 +196,7 @@ async def test_odswiez_zapisuje_oferty_ze_znanych_kart_bez_rozgrzewania():
     with patch.object(odswiez.oferty, "uslugi_skanu", MagicMock(return_value=us)), \
          patch.object(odswiez.pamiec, "karty", MagicMock(return_value=dict(znane))), \
          patch.object(odswiez.oferty, "zapisz", MagicMock(side_effect=lambda _c, b, w: zapisane.append((b, w)))), \
-         patch.object(odswiez, "Punkt") as punkt, patch.object(odswiez.settings, "bcard_endpoint_id", "ep"), \
-         patch.object(odswiez.settings, "runpod_api_key", "k"):
+         patch.object(odswiez, "punkt_dostawcy") as punkt, patch.object(odswiez, "dostepny", return_value=True):
         stat = await odswiez.odswiez(c, teraz=datetime(2026, 10, 5, tzinfo=timezone.utc))  # poniedziałek
     punkt.assert_not_called()  # 1 brak < KART_MIN
     assert stat["brakow"] == 1 and stat["salonow"] == 1
@@ -220,8 +219,8 @@ async def test_odswiez_niedziela_generuje_brakujace_karty():
     with patch.object(odswiez.oferty, "uslugi_skanu", MagicMock(return_value=us)), \
          patch.object(odswiez.pamiec, "karty", MagicMock(return_value={})), \
          patch.object(odswiez.pamiec, "zapisz_karty") as zk, patch.object(odswiez.oferty, "zapisz") as zo, \
-         patch.object(odswiez, "Punkt", MagicMock(return_value=p)), \
-         patch.object(odswiez.settings, "bcard_endpoint_id", "ep"), patch.object(odswiez.settings, "runpod_api_key", "k"):
+         patch.object(odswiez, "punkt_dostawcy", MagicMock(return_value=p)), \
+         patch.object(odswiez, "dostepny", return_value=True):
         stat = await odswiez.odswiez(c, teraz=datetime(2026, 10, 4, tzinfo=timezone.utc))  # niedziela
     assert stat["kart_nowych"] == 2 and stat["gpu_bcard_s"] == 12.0
     assert len(zk.call_args.args[1]) == 2
@@ -234,7 +233,7 @@ async def test_odswiez_sucho_nic_nie_zapisuje():
     c = _klient_odswiezania([{"booksy_id": 7, "scrape_id": "s7"}])
     with patch.object(odswiez.oferty, "uslugi_skanu", MagicMock(return_value=_uslugi(500))), \
          patch.object(odswiez.pamiec, "karty", MagicMock(return_value={})), \
-         patch.object(odswiez.oferty, "zapisz") as zo, patch.object(odswiez, "Punkt") as punkt:
+         patch.object(odswiez.oferty, "zapisz") as zo, patch.object(odswiez, "punkt_dostawcy") as punkt:
         stat = await odswiez.odswiez(c, sucho=True)
     assert stat["brakow"] == 500
     zo.assert_not_called()
@@ -291,3 +290,58 @@ async def test_wybrany_poza_doborem_liczy_sie_do_pokrycia_ale_nie_do_mediany():
     assert {x["booksy_id"] for x in stat["pokrycie"][1]} == {1, 2, 3, 99}
     assert all(s["booksy_id"] != 99 for s in wyniki[1].samples + wyniki[1].related_samples)
     assert wyniki[1].p50_grosze == 100000 and wyniki[1].n_unique_salons == 3
+
+
+# --- kolejka dostawców (services/bmatch/dostawcy.py) ---
+
+def _punkt_atrapa(wstaje: bool, sek: float = 1.0):
+    from services.bmatch.runpod import BladPunktu
+    p = MagicMock(sekundy=sek)
+    p.__aenter__ = AsyncMock(return_value=p)
+    p.__aexit__ = AsyncMock(return_value=None)
+    p.gotowy = AsyncMock(return_value=None) if wstaje else AsyncMock(side_effect=BladPunktu("brak karty"))
+    p.werdykty = AsyncMock(return_value=[[0.0, 0.0, 1.0]])
+    return p
+
+
+@pytest.mark.asyncio
+async def test_lancuch_przechodzi_do_nastepnego_gdy_pierwszy_nie_wstaje():
+    from services.bmatch.dostawcy import Lancuch
+    modal, runpod = _punkt_atrapa(False), _punkt_atrapa(True)
+    async with Lancuch([("modal", lambda: modal), ("runpod", lambda: runpod)], 5) as ln:
+        assert await ln.werdykty([([], [])]) == [[0.0, 0.0, 1.0]]
+    assert ln.dostawca == "runpod" and ln.proby[0].startswith("modal: ")
+    runpod.werdykty.assert_awaited_once()
+    modal.__aexit__.assert_awaited_once()  # nieudany też jest zamykany (Runpod: gaszenie pracownika)
+    runpod.__aexit__.assert_awaited_once()
+
+
+@pytest.mark.asyncio
+async def test_lancuch_nie_budzi_zapasowego_gdy_pierwszy_wstaje():
+    from services.bmatch.dostawcy import Lancuch
+    modal = _punkt_atrapa(True)
+    zapas = MagicMock()
+    async with Lancuch([("modal", lambda: modal), ("runpod", zapas)], 5) as ln:
+        await ln.gotowy()
+    zapas.assert_not_called()
+    assert ln.dostawca == "modal"
+
+
+@pytest.mark.asyncio
+async def test_lancuch_nikt_nie_wstaje_to_blad_i_stary_silnik():
+    from services.bmatch.dostawcy import Lancuch
+    from services.bmatch.runpod import BladPunktu
+    with pytest.raises(BladPunktu, match="żaden dostawca"):
+        async with Lancuch([("modal", lambda: _punkt_atrapa(False)), ("runpod", lambda: _punkt_atrapa(False))], 5) as ln:
+            await ln.gotowy()
+
+
+def test_kolejnosc_i_pomijanie_nieskonfigurowanych():
+    from services.bmatch import dostawcy
+    s = dostawcy.settings
+    with patch.object(s, "bmatch_dostawcy", "modal,runpod"), patch.object(s, "modal_bmatch_token", ""), \
+         patch.object(s, "runpod_api_key", "k"), patch.object(s, "bmatch_endpoint_id", "ep"):
+        assert dostawcy.dostawcy("bmatch") == ["runpod"]  # Modal bez tokenu pominięty
+    with patch.object(s, "bmatch_dostawcy", "modal,runpod"), patch.object(s, "modal_bmatch_token", "t"), \
+         patch.object(s, "runpod_api_key", ""):
+        assert dostawcy.dostawcy("bcard") == ["modal"]

@@ -1,4 +1,4 @@
-"""Klient punktów Runpod Serverless (vLLM, zgodny z OpenAI) dla b-card i b-match.
+"""Klient punktów z modelami (vLLM, zgodny z OpenAI) dla b-card i b-match: Runpod Serverless i Modal.
 
 Pułapki zmierzone 2026-10-03 (runbook ~/brain/runbooks/runpod-vllm-karty.md):
 - punkt z dyskiem sieciowym NIE budzi się sam z zera → przed pracą `workersMin=1` (rozgrzej), model gotowy po ~2,5 min;
@@ -42,6 +42,9 @@ class Punkt:
     def _naglowki(self) -> dict[str, str]:
         return {"Authorization": f"Bearer {self.klucz}"}
 
+    def _url_czatu(self) -> str:
+        return f"{API}/{self.id}/openai/v1/chat/completions"
+
     async def __aenter__(self) -> "Punkt":
         self._start = asyncio.get_running_loop().time()
         if self.zarzadzaj:
@@ -80,8 +83,7 @@ class Punkt:
         blad = ""
         for proba in range(8):
             try:
-                r = await self._http.post(f"{API}/{self.id}/openai/v1/chat/completions", json=body,
-                                          headers=self._naglowki(), timeout=600)
+                r = await self._http.post(self._url_czatu(), json=body, headers=self._naglowki(), timeout=600)
                 if r.status_code == 200:
                     return r.json()
                 blad = f"{r.status_code} {r.text[:200]}"
@@ -124,3 +126,29 @@ class Punkt:
             x, y = await asyncio.gather(p(ab), p(ba))
             return [(a + b) / 2 for a, b in zip(x, y, strict=True)]
         return await asyncio.gather(*(para(ab, ba) for ab, ba in pary))
+
+
+class PunktModal(Punkt):
+    """Ten sam model na Modal (b-card/modal/app.py): Modal sam włącza kontener przy pierwszym zapytaniu i gasi po
+    bezczynności — bez zarządzania pracownikami. `url` = adres funkcji (…modal.run), `klucz` = BMATCH_TOKEN."""
+
+    def __init__(self, url: str, token: str, model: str, *, naraz: int = 128):
+        if not url or not token:
+            raise BladPunktu("brak adresu albo tokenu Modal")
+        super().__init__(url.rstrip("/"), token, model, naraz=naraz, zarzadzaj=False)
+
+    def _url_czatu(self) -> str:
+        return f"{self.id}/v1/chat/completions"
+
+    async def gotowy(self, limit_s: int = 600) -> None:
+        """Pierwsze zapytanie budzi kontener; Modal trzyma je do startu vLLM (zwykle 1–3 min)."""
+        t0 = asyncio.get_running_loop().time()
+        while (zostalo := limit_s - (asyncio.get_running_loop().time() - t0)) > 0:
+            try:
+                r = await self._http.get(f"{self.id}/health", timeout=max(5.0, zostalo))
+                if r.status_code == 200:
+                    return
+            except httpx.HTTPError:
+                pass
+            await asyncio.sleep(5)
+        raise BladPunktu(f"{self.id}: model nie wstał po {limit_s} s")
