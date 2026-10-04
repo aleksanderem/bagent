@@ -20,6 +20,7 @@ import math
 import re
 import unicodedata
 from collections import defaultdict
+from datetime import datetime, timezone
 from typing import Any
 
 from config import settings
@@ -32,6 +33,7 @@ logger = logging.getLogger(__name__)
 
 PULA = 60            # salonów o największym pokryciu z kart (+ najlepsi ze starego doboru) ocenia b-match
 NA_USLUGE = 1        # par na (usługę podmiotu, salon): najpodobniejsza zgodna oferta
+PROPOZYCJI = 30       # ile propozycji widzi okno wyboru konkurentów
 MAX_NOWYCH_PAR = 8000  # ~4 min karty graficznej; reszta par → ranking tego salonu z kart
 MIN_KART = 10        # mniej kart podmiotu = pokrycie niewiarygodne → stary dobór
 MIN_UDZIAL_KART = 0.5
@@ -229,4 +231,89 @@ async def kandydaci_bmatch(client: Any, podmiot: dict[str, Any], scrape_id: str,
             "zrodlo": "b-match"} for x in lista]
     out.sort(key=lambda x: (-x["pokryte"], -x["pokrycie_kart"]))
     logger.info("dobór z kart + b-match: %s; najlepszy %s (%s)", stat, out[0]["name"], out[0]["udzial"])
+    _zapisz_propozycje(client, int(podmiot["booksy_id"]), scrape_id, out)
     return out
+
+
+def _zapisz_propozycje(client: Any, booksy_id: int, scrape_id: str, wyniki: list[dict[str, Any]]) -> None:
+    """Okno wyboru konkurentów pokazuje to samo, co wybrał dobór w raporcie (bcard_propozycje, mig 208)."""
+    try:
+        client.table("bcard_propozycje").upsert({"booksy_id": booksy_id, "scrape_id": scrape_id,
+                                                 "wyniki": wyniki[:PROPOZYCJI],
+                                                 "policzono": datetime.now(timezone.utc).isoformat()},
+                                                on_conflict="booksy_id").execute()
+    except Exception as e:  # noqa: BLE001 — brak tabeli (mig 208) albo błąd zapisu nie rusza raportu
+        logger.warning("propozycje konkurentów %s: zapis nieudany: %s", booksy_id, str(e)[:200])
+
+
+# ── Podpowiedzi w oknie wyboru konkurentów (bez karty graficznej) ──────────────
+
+# Para bez werdyktu: identyczna karta ≈ prawie pewne pokrycie, tylko zgodna ≈ 0,3 (Beauty4ever, 21 salonów: korelacja
+# z b-match 0,83 wobec 0,78 przy jednej wadze dla wszystkich zgodnych).
+WAGA_ROWNE = 0.85
+WAGA_ZGODNE = 0.3
+MIN_ZNANYCH_BMATCH = 0.8  # od tylu znanych par salon ma źródło „b-match”, niżej „szacunek”
+
+
+def _z_ostatniego_raportu(client: Any, booksy_id: int) -> list[int]:
+    """booksy_id konkurentów z ostatniego raportu tego salonu (wybrani przez b-match) — na krótką listę."""
+    s = client.table("salons").select("id").eq("booksy_id", booksy_id).limit(1).execute().data or []
+    if not s:
+        return []
+    r = (client.table("competitor_reports").select("id").eq("subject_salon_id", s[0]["id"])
+         .order("updated_at", desc=True).limit(1).execute().data or [])
+    if not r:
+        return []
+    ids = [m["competitor_salon_id"] for m in (client.table("competitor_matches").select("competitor_salon_id")
+                                               .eq("report_id", r[0]["id"]).execute().data or [])]
+    return [int(x["booksy_id"]) for x in (client.table("salons").select("booksy_id").in_("id", ids).execute().data
+                                          or [])] if ids else []
+
+
+def propozycje(client: Any, booksy_id: int, promien: list[int]) -> dict[str, Any] | None:
+    """Ranking konkurentów do okna wyboru: krótka lista z kart (+ konkurenci z ostatniego raportu), kolejność
+    z werdyktów b-match z pamięci, a gdzie ich brak — szacunek z kart (WAGA_KART). Zapis do bcard_propozycje.
+    None = brak skanu albo za mało kart (okno zostaje przy dotychczasowych podpowiedziach)."""
+    sk = (client.table("salon_scrapes").select("id,salon_name,salon_lat,salon_lng").eq("booksy_id", booksy_id)
+          .eq("is_chain_head", True).limit(1).execute().data or [])
+    if not sk:
+        return None
+    scrape_id = sk[0]["id"]
+    podmiot = {"booksy_id": booksy_id, "name": sk[0]["salon_name"], "salon_lat": sk[0]["salon_lat"],
+               "salon_lng": sk[0]["salon_lng"]}
+    lista, oferty = kandydaci(client, podmiot, scrape_id, promien, _z_ostatniego_raportu(client, booksy_id))
+    if not lista:
+        return None
+    uslugi = {int(u["id"]): u for u in _uslugi_podmiotu(client, scrape_id)}
+    km = pamiec.karty(client, {klucz_uslugi(u) for u in uslugi.values()})
+    karty = {sid: km[klucz_uslugi(u)] for sid, u in uslugi.items()
+             if klucz_uslugi(u) in km and not dobor.poza_beauty(km[klucz_uslugi(u)])}
+    pary = _pary(uslugi, karty, oferty, {x["booksy_id"] for x in lista})
+    znane = pamiec.werdykty(client, set(pary), settings.bmatch_wersja)
+    pokryte: dict[int, set[int]] = defaultdict(set)
+    nieznane: dict[int, dict[int, float]] = defaultdict(dict)
+    par_salonu: dict[int, int] = defaultdict(int)
+    znanych_salonu: dict[int, int] = defaultdict(int)
+    for k, (sid, b, o) in pary.items():
+        par_salonu[b] += 1
+        if k in znane:
+            znanych_salonu[b] += 1
+            if polityka.decyzja(znane[k]) in ("ta_sama", "odmiana"):
+                pokryte[b].add(sid)
+        else:
+            rowne = dobor.skladniki(karty[sid]) == [tuple(x) for x in (o.get("skladniki") or [])]
+            nieznane[b][sid] = max(nieznane[b].get(sid, 0.0), WAGA_ROWNE if rowne else WAGA_ZGODNE)
+    n = max(1, len(uslugi))
+    wyniki = []
+    for x in lista:
+        b = x["booksy_id"]
+        szac = (len(pokryte[b]) + sum(w for sid, w in nieznane[b].items() if sid not in pokryte[b])) / n
+        znanych = znanych_salonu[b] / par_salonu[b] if par_salonu[b] else 0.0
+        wyniki.append({**x, "udzial": round(szac, 4), "pokrycie_kart": x["udzial"],
+                       "zrodlo": "b-match" if znanych >= MIN_ZNANYCH_BMATCH else "szacunek"})
+    wyniki.sort(key=lambda x: -x["udzial"])
+    wyniki = wyniki[:PROPOZYCJI]
+    _zapisz_propozycje(client, booksy_id, scrape_id, wyniki)
+    logger.info("propozycje konkurentów %s: %d (b-match %d, szacunek %d)", booksy_id, len(wyniki),
+                sum(1 for w in wyniki if w["zrodlo"] == "b-match"), sum(1 for w in wyniki if w["zrodlo"] != "b-match"))
+    return {"scrape_id": scrape_id, "wyniki": wyniki}

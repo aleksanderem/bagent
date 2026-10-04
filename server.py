@@ -1001,6 +1001,57 @@ async def internal_diag(logs: bool = False) -> dict:
     return await collect_diagnostics(getattr(app.state, "arq", None), settings.backup_dir, include_logs=logs)
 
 
+class PropozycjeRequest(BaseModel):
+    booksy_id: int
+
+
+_PROPOZYCJE_W_TOKU: set[int] = set()
+PROPOZYCJE_WAZNE_DNI = 7
+
+
+async def _licz_propozycje(booksy_id: int) -> None:
+    from services.bmatch import konkurenci
+    from services.similarity_pricing.report_pricing import _geo_competitor_booksy_ids
+    from services.supabase import SupabaseService
+
+    try:
+        service = SupabaseService()
+        promien = await asyncio.to_thread(_geo_competitor_booksy_ids, service, booksy_id, 15)
+        await asyncio.to_thread(konkurenci.propozycje, service.client, booksy_id, promien)
+    except Exception as e:  # noqa: BLE001 — okno wyboru zostaje przy dotychczasowych podpowiedziach
+        logger.warning("propozycje konkurentów %s nieudane: %s: %s", booksy_id, type(e).__name__, str(e)[:200])
+    finally:
+        _PROPOZYCJE_W_TOKU.discard(booksy_id)
+
+
+@app.post("/api/internal/bmatch/propozycje", dependencies=[Depends(verify_api_key)])
+async def bmatch_propozycje(req: PropozycjeRequest) -> dict:
+    """Okno wyboru konkurentów (Convex competitor/pickSuggestions): czy są świeże propozycje z kart + b-match
+    (tabela bcard_propozycje, mig 208). Brak albo nieaktualne (nowy skan, starsze niż 7 dni) → liczy w tle
+    (~1 min, bez karty graficznej) i odpowiada „liczymy”. Przy MATCHING_SOURCE innym niż bcard → „wylaczone”."""
+    from datetime import datetime, timedelta, timezone
+
+    from services.supabase import SupabaseService
+
+    if (settings.matching_source or "stary").strip().lower() != "bcard":
+        return {"status": "wylaczone"}
+    client = SupabaseService().client
+    wiersz = (client.table("bcard_propozycje").select("scrape_id,policzono").eq("booksy_id", req.booksy_id)
+              .limit(1).execute().data or [])
+    glowa = (client.table("salon_scrapes").select("id").eq("booksy_id", req.booksy_id).eq("is_chain_head", True)
+             .limit(1).execute().data or [])
+    if not glowa:
+        return {"status": "brak_skanu"}
+    if wiersz and wiersz[0]["scrape_id"] == glowa[0]["id"]:
+        policzono = datetime.fromisoformat(str(wiersz[0]["policzono"]).replace("Z", "+00:00"))
+        if policzono > datetime.now(timezone.utc) - timedelta(days=PROPOZYCJE_WAZNE_DNI):
+            return {"status": "gotowe"}
+    if req.booksy_id not in _PROPOZYCJE_W_TOKU:
+        _PROPOZYCJE_W_TOKU.add(req.booksy_id)
+        asyncio.create_task(_licz_propozycje(req.booksy_id))
+    return {"status": "liczymy", "nieaktualne": bool(wiersz)}
+
+
 @app.get("/api/internal/settings", dependencies=[Depends(verify_api_key)])
 async def internal_settings(key: str | None = None) -> dict:
     """Panel admina „Klucze i stałe" (Convex settings/reveal.ts).
