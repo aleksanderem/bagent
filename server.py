@@ -51,6 +51,20 @@ init_sentry()
 # endpoint reports the actual state.
 # ---------------------------------------------------------------------------
 
+SETTINGS_SYNC_S = 300
+
+
+async def _settings_sync_loop() -> None:
+    from services.settings_sync import sync_settings
+
+    while True:
+        await asyncio.sleep(SETTINGS_SYNC_S)
+        try:
+            await sync_settings(settings)  # nigdy nie rzuca; zmiany loguje sama
+        except Exception as e:  # noqa: BLE001
+            logger.warning("[settings-sync] cykl padł: %s", e)
+
+
 @contextlib.asynccontextmanager
 async def lifespan(fastapi_app: FastAPI):
     arq_pool: ArqRedis | None = None
@@ -63,15 +77,18 @@ async def lifespan(fastapi_app: FastAPI):
         arq_pool = None
     fastapi_app.state.arq = arq_pool
     # Nadpisania z panelu admina „Klucze i stałe" (Convex systemSettings) —
-    # proces API bierze je przy starcie; workery mają do tego cron co 5 min.
+    # proces API bierze je przy starcie i potem co 5 min (jak cron workerów),
+    # żeby np. klucze do diagnostyki działały bez restartu API.
     try:
         from services.settings_sync import sync_settings
         logger.info("[settings-sync] start: %s", await sync_settings(settings))
     except Exception as e:  # noqa: BLE001
         logger.warning("[settings-sync] start padł: %s", e)
+    sync_task = asyncio.create_task(_settings_sync_loop())
     try:
         yield
     finally:
+        sync_task.cancel()
         if arq_pool is not None:
             try:
                 await arq_pool.close()
