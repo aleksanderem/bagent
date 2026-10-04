@@ -230,7 +230,7 @@ def _historia(wiersze: list[dict[str, Any]], koszty: dict[str, dict[str, float]]
         for k in ("par", "par_nowych", "uslug", "wierszy_bmatch"):
             x[k] += int(w.get(k) or 0)
         x["gpu_s"] += float(w.get("gpu_bmatch_s") or 0) + float(w.get("gpu_bcard_s") or 0)
-        x["dostawcy"][(w.get("szczegoly") or {}).get("dostawca") or ("—" if w.get("ok") else "brak")] += 1
+        x["dostawcy"][(w.get("szczegoly") or {}).get("dostawca") or ("runpod" if w.get("ok") else "brak")] += 1  # przed kolejką (2026-10-04) liczył tylko Runpod
     for w in odswiez:
         x = dni.get(_czas(w["created_at"]).strftime("%Y-%m-%d"))
         if x is not None:
@@ -243,7 +243,7 @@ def _historia(wiersze: list[dict[str, Any]], koszty: dict[str, dict[str, float]]
     per_dostawca: dict[str, dict[str, Any]] = {}
     for w in w7:
         sz = w.get("szczegoly") or {}
-        d = sz.get("dostawca") or ("—" if w.get("ok") else "brak")
+        d = sz.get("dostawca") or ("runpod" if w.get("ok") else "brak")
         a = per_dostawca.setdefault(d, {"raportow": 0, "rozruchy": [], "gpu_s": 0.0})
         a["raportow"] += 1
         a["gpu_s"] += float(w.get("gpu_bmatch_s") or 0) + float(w.get("gpu_bcard_s") or 0)
