@@ -4407,8 +4407,10 @@ async def _aggregate_verified_match_counts(
         zrodlo_pokrycia = "b-match"
         coverage = coverage_by_salon(bm["klastry"], selected, BUCKET_MIN_SIMILARITY)
         subject_total = int(bm["uslug"])
+        rodzaje_po_salonie = {selected[b]: r for b, r in (bm.get("rodzaje") or {}).items() if b in selected}
     else:
         zrodlo_pokrycia = "podobieństwo nazw"
+        rodzaje_po_salonie = {}
         subject_ids = [int(s["id"]) for s in subject_services]
         # Fallback na chain-head scrape TEGO SAMEGO salonu, gdy audit scrape nie ma
         # jeszcze wektorów (świeży audyt przed catch-upem crona itd.) — patrz
@@ -4498,12 +4500,17 @@ async def _aggregate_verified_match_counts(
             "counts_in_aggregates": a.bucket != "excluded",
         }
         if zrodlo_pokrycia == "b-match":
-            # „Pokrycie oferty” w tabeli konkurentów = profile_overlap_sim (synteza → profileOverlap). Przy b-match
-            # to udział usług podmiotu, które konkurent ma (ta sama / odmiana); dawna wartość z doboru zostaje obok.
+            # „Pokrycie oferty” w tabeli konkurentów = profile_overlap_sim (synteza → profileOverlap): odsetek rodzajów
+            # zabiegów podmiotu, które konkurent robi (czytelne dla klienta, decyzja 2026-10-04); koszyk powyżej liczy
+            # się z „tych samych usług” b-match (pokrycie_bmatch). Dawna wartość z doboru zostaje obok.
             sims = m.get("similarity_scores") if isinstance(m.get("similarity_scores"), dict) else {}
+            ile, wszystkie = rodzaje_po_salonie.get(sid, (None, None))
+            rodz = round(ile / wszystkie, 4) if ile is not None and wszystkie else None
             update["similarity_scores"] = {
-                **sims, "profile_overlap_sim": a.share, "pokrycie_zrodlo": "b-match",
-                "profile_overlap_sim_dobor": sims.get("profile_overlap_sim"),
+                **sims, "profile_overlap_sim": rodz if rodz is not None else a.share, "pokrycie_bmatch": a.share,
+                "pokrycie_rodzajow": rodz, "rodzaje_ile": ile, "rodzaje_wszystkie": wszystkie,
+                "pokrycie_zrodlo": "b-match", "profile_overlap_sim_dobor": sims.get("profile_overlap_sim_dobor",
+                                                                                    sims.get("profile_overlap_sim")),
             }
         updates.append(update)
 

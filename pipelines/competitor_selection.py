@@ -643,8 +643,11 @@ async def _dobor_z_kart(
             reviews_count=x["reviews_count"], reviews_rank=x["reviews_rank"], distance_km=x["distance_km"],
             female_weight_diff=p.female_weight_diff if p else -1.0,
             composite_score=round(100 * x["udzial"], 2), bucket=bucket, counts_in_aggregates=bucket != "new",
-            similarity_scores={**(p.similarity_scores if p else {}), "profile_overlap_sim": x["udzial"],
-                               "pokrycie_kart": x.get("pokrycie_kart", x["udzial"]), "pokrycie_zrodlo": x["zrodlo"]},
+            # „Pokrycie oferty” w raporcie = rodzaje zabiegów (czytelne dla klienta); kolejność i koszyk — te same usługi.
+            similarity_scores={**(p.similarity_scores if p else {}), "profile_overlap_sim": x.get("rodzaje", x["udzial"]),
+                               "pokrycie_bmatch": x["udzial"], "pokrycie_kart": x.get("pokrycie_kart", x["udzial"]),
+                               "pokrycie_rodzajow": x.get("rodzaje"), "rodzaje_ile": x.get("rodzaje_ile"),
+                               "rodzaje_wszystkie": x.get("rodzaje_wszystkie"), "pokrycie_zrodlo": x["zrodlo"]},
             partner_system=p.partner_system if p else "native",
         ))
     logger.info("dobór z kart: %d kandydatów (%s), najlepsi: %s", len(out), lista[0]["zrodlo"] if lista else "-",

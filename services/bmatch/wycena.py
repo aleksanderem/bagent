@@ -56,6 +56,16 @@ async def _karty_podmiotu(client: Any, uslugi: list[dict[str, Any]], typ_salonu:
     return karty
 
 
+def _rodzaje_konkurentow(karta_uslugi: dict[int, Any], oferty: list[dict[str, Any]], konkurenci: set[int]
+                         ) -> dict[int, tuple[int, int]]:
+    """{booksy_id konkurenta raportu: (ile rodzajów zabiegów podmiotu robi, wszystkie)} — „pokrycie oferty” (Faza 8a)."""
+    from .konkurenci import rodzaje
+
+    karty = {sid: k for sid, k in karta_uslugi.items() if k and not dobor.poza_beauty(k)}
+    ile, wszystkie = rodzaje(karty, [o for o in oferty if int(o["booksy_id"]) in konkurenci])
+    return {b: (ile.get(b, 0), wszystkie) for b in konkurenci}
+
+
 async def wycen(service: Any, subject_services: list[dict[str, Any]], all_booksy: list[int],
                 selected_booksy: set[int], salons_by_booksy: dict[int, dict[str, Any]],
                 config: dict[str, Any] | None = None, typ_salonu: str = "",
@@ -166,6 +176,6 @@ async def _wycen(punkt: Lancuch, service: Any, subject_services: list[dict[str, 
                                                                      "wersja_bcard": settings.bcard_wersja})
     stat = {"czas_s": round(time.time() - t0, 1), "uslug": len(subject_services), "z_karta": sum(1 for k in karta_uslugi.values() if k),
             "z_kandydatami": len(wybor), "par": len(pary), "par_nowych": len(brak), "ofert_w_puli": len(oferty), "etapy_s": etapy,
-            "pokrycie": pokrycie}
+            "pokrycie": pokrycie, "rodzaje": _rodzaje_konkurentow(karta_uslugi, oferty, selected_booksy | tylko_pokrycie)}
     logger.info("bmatch: %s", {k: v for k, v in stat.items() if k != "pokrycie"})
     return wyniki, stat

@@ -102,6 +102,30 @@ def _uslugi_podmiotu(client: Any, scrape_id: str) -> list[dict[str, Any]]:
                         .execute().data or []) if u.get("is_active", True) and u.get("price_grosze")]
 
 
+def rodzaje(karty_podmiotu: dict[int, dict[str, Any]], oferty: list[dict[str, Any]]) -> tuple[dict[int, int], int]:
+    """Ile rodzajów zabiegów podmiotu (zabiegi z kart) salon w ogóle robi — „robi 25 z 35 Twoich zabiegów”.
+    Miara dla klienta (decyzja 2026-10-04): pozycje w cenniku to często warianty jednego zabiegu, więc odsetek
+    usług „tych samych” wychodzi mały i nic nie mówi. → ({booksy_id: ile rodzajów}, wszystkie rodzaje podmiotu)."""
+    zp = {z for k in karty_podmiotu.values() for z in dobor.zabiegi(k)}
+    zs: dict[int, set[str]] = defaultdict(set)
+    for o in oferty:
+        if not o.get("poza_beauty"):
+            zs[int(o["booksy_id"])] |= set(o.get("zabiegi") or []) & zp
+    return {b: len(z) for b, z in zs.items()}, len(zp)
+
+
+def _z_rodzajami(x: dict[str, Any], ile: int, wszystkie: int) -> dict[str, Any]:
+    return {**x, "rodzaje": round(ile / wszystkie, 4) if wszystkie else 0.0, "rodzaje_ile": ile,
+            "rodzaje_wszystkie": wszystkie}
+
+
+def wynik_propozycji(x: dict[str, Any], najlepsze_udzial: float) -> float:
+    """Kolejność w oknie wyboru: pół na pół rodzaje zabiegów i te same usługi (względem najlepszego salonu) —
+    same rodzaje wynoszą salony z ogromnym menu, same „te same usługi” są dla klienta za wąskie."""
+    tes = x.get("udzial", 0.0) / najlepsze_udzial if najlepsze_udzial else 0.0
+    return round(0.5 * x.get("rodzaje", 0.0) + 0.5 * tes, 4)
+
+
 def _karty_podmiotu(client: Any, scrape_id: str) -> tuple[dict[int, dict[str, Any]], int]:
     uslugi = _uslugi_podmiotu(client, scrape_id)
     karty = pamiec.karty(client, {klucz_uslugi(u) for u in uslugi})
@@ -134,6 +158,7 @@ def kandydaci(client: Any, podmiot: dict[str, Any], scrape_id: str, promien: lis
     dod = [int(b) for b in (dodatkowi or []) if int(b) != bid]
     oferty = pamiec.kandydaci(client, sorted((set(promien) | set(dod)) - {bid}), zabiegi)
     pok = pokrycie(karty, oferty)
+    rodz, n_rodz = rodzaje(karty, oferty)
     ranking = sorted(((b, s) for b, s in pok.items() if b != bid and s), key=lambda kv: -len(kv[1]))[:PULA * 3]
     ranking = [(b, pok.get(b, set())) for b in dict.fromkeys(dod)] + [x for x in ranking if x[0] not in set(dod)]
     salony = _salony(client, [bid] + [b for b, _ in ranking])
@@ -146,11 +171,13 @@ def kandydaci(client: Any, podmiot: dict[str, Any], scrape_id: str, promien: lis
         if any(ta_sama_siec(r, w) for w in wziete):  # oddział podmiotu albo drugi oddział sieci już wziętej
             continue
         wziete.append(r)
-        out.append({"booksy_id": b, "salon_id": int(r["id"]), "name": r.get("name") or "", "city": r.get("city"),
-                    "reviews_count": int(r.get("reviews_count") or 0), "reviews_rank": r.get("reviews_rank"),
-                    "distance_km": odleglosc_km(podmiot.get("salon_lat"), podmiot.get("salon_lng"),
-                                                r.get("latitude"), r.get("longitude")),
-                    "pokryte": len(s), "wszystkie": len(karty), "udzial": round(len(s) / len(karty), 4)})
+        out.append(_z_rodzajami({"booksy_id": b, "salon_id": int(r["id"]), "name": r.get("name") or "",
+                                 "city": r.get("city"), "reviews_count": int(r.get("reviews_count") or 0),
+                                 "reviews_rank": r.get("reviews_rank"),
+                                 "distance_km": odleglosc_km(podmiot.get("salon_lat"), podmiot.get("salon_lng"),
+                                                             r.get("latitude"), r.get("longitude")),
+                                 "pokryte": len(s), "wszystkie": len(karty), "udzial": round(len(s) / len(karty), 4)},
+                                rodz.get(b, 0), n_rodz))
         if len(out) >= PULA + len(dod):
             break
     logger.info("dobór z kart: %d kart podmiotu, %d ofert w promieniu, %d salonów z pokryciem, najlepszy %s",
@@ -231,7 +258,9 @@ async def kandydaci_bmatch(client: Any, podmiot: dict[str, Any], scrape_id: str,
             "zrodlo": "b-match"} for x in lista]
     out.sort(key=lambda x: (-x["pokryte"], -x["pokrycie_kart"]))
     logger.info("dobór z kart + b-match: %s; najlepszy %s (%s)", stat, out[0]["name"], out[0]["udzial"])
-    _zapisz_propozycje(client, int(podmiot["booksy_id"]), scrape_id, out)
+    naj = max((x["udzial"] for x in out), default=0.0)
+    _zapisz_propozycje(client, int(podmiot["booksy_id"]), scrape_id,
+                       sorted(({**x, "wynik": wynik_propozycji(x, naj)} for x in out), key=lambda x: -x["wynik"]))
     return out
 
 
@@ -311,7 +340,9 @@ def propozycje(client: Any, booksy_id: int, promien: list[int]) -> dict[str, Any
         znanych = znanych_salonu[b] / par_salonu[b] if par_salonu[b] else 0.0
         wyniki.append({**x, "udzial": round(szac, 4), "pokrycie_kart": x["udzial"],
                        "zrodlo": "b-match" if znanych >= MIN_ZNANYCH_BMATCH else "szacunek"})
-    wyniki.sort(key=lambda x: -x["udzial"])
+    naj = max((x["udzial"] for x in wyniki), default=0.0)
+    wyniki = [{**x, "wynik": wynik_propozycji(x, naj)} for x in wyniki]
+    wyniki.sort(key=lambda x: -x["wynik"])
     wyniki = wyniki[:PROPOZYCJI]
     _zapisz_propozycje(client, booksy_id, scrape_id, wyniki)
     logger.info("propozycje konkurentów %s: %d (b-match %d, szacunek %d)", booksy_id, len(wyniki),
