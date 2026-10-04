@@ -41,6 +41,7 @@ async def _generuj(client: Any, brak: dict[str, dict[str, Any]], stat: dict[str,
     async with p:
         wynik = await p.karty([wiadomosci_bcard(brak[k]) for k in klucze])
     stat["gpu_bcard_s"] = p.sekundy
+    stat["dostawca"] = p.dostawca
     nowe = {k: uzupelnij_obszar(c) for k, c in zip(klucze, wynik, strict=True) if c}
     await asyncio.to_thread(pamiec.zapisz_karty, client, [{"klucz": k, "karta": c, "wersja_modelu": settings.bcard_wersja,
                                   "wersja_slownika": settings.bcard_wersja_slownika} for k, c in nowe.items()])
@@ -110,6 +111,24 @@ async def odswiez_cron(ctx: dict[str, Any]) -> dict[str, Any]:
         return {"pominiete": zrodlo}
     from services.supabase import SupabaseService
 
-    stat = await odswiez(SupabaseService().client)
+    client = SupabaseService().client
+    t0 = time.time()
+    try:
+        stat = await odswiez(client)
+    except Exception as e:
+        _zapisz_przebieg(client, {"ok": False, "czas_s": round(time.time() - t0, 1),
+                                  "blad": f"{type(e).__name__}: {str(e)[:300]}"}, {})
+        raise
     logger.info("bcard odświeżanie ofert: %s", stat)
+    _zapisz_przebieg(client, {"ok": True, "czas_s": stat.get("czas_s"), "uslug": stat.get("uslug"),
+                              "gpu_bcard_s": stat.get("gpu_bcard_s")}, stat)
     return stat
+
+
+def _zapisz_przebieg(client: Any, wiersz: dict[str, Any], stat: dict[str, Any]) -> None:
+    """Nocny przebieg w bmatch_przebieg (tryb „odswiezanie”) — panel „b-card / b-match”; błąd zapisu nie rusza crona."""
+    try:
+        pamiec.zapisz_przebieg(client, {"tryb": "odswiezanie", **wiersz, "szczegoly": {
+            k: stat.get(k) for k in ("salonow", "brakow", "kart_nowych", "dostawca")}})
+    except Exception as e:  # noqa: BLE001
+        logger.warning("bcard odświeżanie: zapis przebiegu nieudany: %s", str(e)[:200])

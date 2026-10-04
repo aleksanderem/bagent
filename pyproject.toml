@@ -37,6 +37,7 @@ dependencies = [
     "jsonpatch>=1.33",
     "numpy>=2.4.6",
     "typesafe-sdk>=0.7.1",
+    "modal>=1.6",
 ]
 
 [project.optional-dependencies]

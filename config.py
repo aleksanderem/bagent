@@ -35,6 +35,9 @@ class Settings(BaseSettings):
     modal_bmatch_url: str = "https://itworksinbox--bmatch-bmatch.modal.run"
     modal_bcard_url: str = "https://itworksinbox--bmatch-bcard.modal.run"
     modal_bmatch_token: str = ""
+    # Token API Modal (tylko odczyt kosztów i stanu funkcji w panelu „b-card / b-match”; ~/.modal.toml → panel).
+    modal_token_id: str = ""
+    modal_token_secret: str = ""
     minimax_base_url: str = "https://api.minimax.io/anthropic"
     minimax_model: str = "MiniMax-M3"
     # M3 udostępnia okno kontekstu do 1M tokenów po stronie serwera (tiered:
