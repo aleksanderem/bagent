@@ -55,6 +55,8 @@ FETCH_BATCH = 120
 # 1-2 zapytania do Brave) i po ilu dniach ponawiać nieudane.
 DISCOVERY_BATCH = 15
 DISCOVERY_RETRY_DAYS = 7
+#: Kolejność źródeł w kaskadzie discover_facebook_page (pierwsze trafienie wygrywa).
+CASCADE_ORDER: tuple[str, ...] = ("booksy", "website_crawl", "web_search")
 
 _supabase_client: Client | None = None
 
@@ -156,8 +158,13 @@ def _discovery_plan(
     """Które cele dostają kaskadę w tym runie i z pominięciem jakich źródeł.
 
     - brak wiersza w salon_meta_pages → pełna kaskada;
-    - not_found/error starsze niż DISCOVERY_RETRY_DAYS → kaskada bez źródła,
-      które dało nieudany link (facebook_source), żeby nie kręcić się w kółko;
+    - not_found ze źródłem (link z tego źródła nie prowadzi do strony) → od razu
+      w następnym runie dalsza część kaskady: bez tego źródła i źródeł przed nim.
+      Martwy link w Booksy nie może blokować linku ze strony WWW przez tydzień
+      (JETSET 10.2026: Booksy → /jetsetclinic.pl martwy, WWW → /JetsetClinic działa);
+    - not_found bez źródła („nic w żadnym źródle”) i error starsze niż
+      DISCOVERY_RETRY_DAYS → kaskada bez źródła, które zawiodło (błąd bywa
+      przejściowy, a pełna kaskada pali crawl i Brave);
     - pending/resolved/mismatch → nic (pending czeka na resolve, mismatch na
       człowieka — cudza strona nie ma być skanowana po cichu).
     """
@@ -169,10 +176,14 @@ def _discovery_plan(
             continue
         if status not in ("not_found", "error"):
             continue
+        source = row.get("facebook_source")
+        if status == "not_found" and source in CASCADE_ORDER:
+            tried = CASCADE_ORDER[: CASCADE_ORDER.index(source) + 1]
+            plan.append((row, frozenset(tried)))
+            continue
         updated = _parse_ts(row.get("page_updated_at"))
         if updated and (now - updated) < timedelta(days=DISCOVERY_RETRY_DAYS):
             continue
-        source = row.get("facebook_source")
         plan.append((row, frozenset({source}) if source else frozenset()))
     return plan
 

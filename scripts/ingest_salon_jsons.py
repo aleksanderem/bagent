@@ -48,6 +48,7 @@ from supabase import Client
 
 from services.sb_client import make_supabase_client  # noqa: E402
 from services.pricing_verification import detect_package_keyword  # noqa: E402
+from services.promo_detection import promocja_w_nazwie  # noqa: E402
 from services.scrape_history import (  # noqa: E402
     CHECKPOINT_EVERY,
     compute_content_hash,
@@ -934,6 +935,9 @@ class SalonJsonIngester:
                 suggest_context = suggest.get("contexts") if isinstance(suggest, dict) else None
 
                 full_name = _recover_full_name(svc)
+                # Promocja bywa tylko w nazwie („… -20%”, „PROMOCJA”) — bez
+                # promotion_data, ale monitoring ma ją widzieć (services/promo_detection.py).
+                is_promo = is_promo or promocja_w_nazwie(full_name)
 
                 row: dict[str, Any] = {
                     "scrape_id": scrape_id,

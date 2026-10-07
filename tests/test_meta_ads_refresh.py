@@ -40,9 +40,30 @@ def test_discovery_plan_new_targets_get_full_cascade_failed_skip_their_source():
         {"salon_ref_id": 5, "resolve_status": "mismatch", "facebook_source": "website_crawl", "page_updated_at": old},
         {"salon_ref_id": 6, "resolve_status": "pending", "page_updated_at": old},
         {"salon_ref_id": 7, "resolve_status": "not_found", "facebook_source": None, "page_updated_at": old},
+        {"salon_ref_id": 8, "resolve_status": "not_found", "facebook_source": None, "page_updated_at": fresh},
+        {"salon_ref_id": 9, "resolve_status": "error", "facebook_source": "booksy", "page_updated_at": fresh},
     ]
     plan = [(r["salon_ref_id"], set(skip)) for r, skip in _discovery_plan(rows, now)]
     assert plan == [(1, set()), (3, {"booksy"}), (7, set())]
+
+
+def test_discovery_plan_dead_link_moves_to_next_source_without_waiting():
+    # Martwy link z Booksy (JETSET): już w następnym runie szukamy na WWW, nie za tydzień.
+    now = datetime(2026, 10, 7, tzinfo=timezone.utc)
+    fresh = (now - timedelta(hours=3)).isoformat()
+    rows = [
+        {"salon_ref_id": 1, "resolve_status": "not_found", "facebook_source": "booksy", "page_updated_at": fresh},
+        {"salon_ref_id": 2, "resolve_status": "not_found", "facebook_source": "website_crawl", "page_updated_at": fresh},
+        {"salon_ref_id": 3, "resolve_status": "not_found", "facebook_source": "web_search", "page_updated_at": fresh},
+    ]
+    plan = [(r["salon_ref_id"], set(skip)) for r, skip in _discovery_plan(rows, now)]
+    # Pomijamy źródło, które zawiodło, i wszystkie przed nim — kaskada idzie tylko naprzód
+    # (po wyczerpaniu źródeł discover zwraca None → not_found bez źródła → czeka tydzień).
+    assert plan == [
+        (1, {"booksy"}),
+        (2, {"booksy", "website_crawl"}),
+        (3, {"booksy", "website_crawl", "web_search"}),
+    ]
 
 
 def _rows():
